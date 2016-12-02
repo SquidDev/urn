@@ -34,7 +34,7 @@
 (defun format-node (node) (cond
   ((and (.> node :range) (.> node :contents))
     (string/format "%s (%q)" (format-range (.> node :range)) (.> node :contents)))
-  ((.> node :range) (format-range node))
+  ((.> node :range) (format-range (.> node :range)))
   ((.> node :macro)
     (with (macro (.> node :macro))
       (string/format "macro expansion of %s (%s)"
@@ -51,14 +51,14 @@
 
 (defun put-lines! (range &entries)
   (if (nil? entries) (error "Positions cannot be empty"))
-  (if (= (% (# entries) 2) 0) (error "Positions must be a multiple of 2"))
+  (if (/= (% (# entries) 2) 0) (error (string/.. "Positions must be a multiple of 2, is " (# entries))))
 
   (let* ((previous -1)
-         (max-line (.> entries (# entries) :start :line))
-         (code (string/.. "\27[92m %" (# (number->string max-line)) "s |\27[0m %s")))
+         (max-line (.> entries (pred (# entries)) :start :line))
+         (code (string/.. "\27[92m %" (string/#s (number->string max-line)) "s |\27[0m %s")))
     (for i 1 (# entries) 2
       (let ((position (.> entries i))
-            (message (.> entries (i + 1))))
+            (message (.> entries (succ i))))
 
         ; If we've got a gap in the lines then print a ...
         (if (and (/= previous -1) (> (- (.> position :start :line) previous) 2))
@@ -68,7 +68,7 @@
         ; Write the current line
         (print! (string/format code
           (number->string (.> position :start :line))
-          (.> position :lines (.> position :start :lines))))
+          (.> position :lines (.> position :start :line))))
 
         ; Write a pointer to the current line
         (with (pointer
