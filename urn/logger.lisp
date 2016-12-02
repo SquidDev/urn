@@ -101,7 +101,7 @@
 
 (defun error-node! (node msg)
   (print-error! msg)
-  (put-trace! msg)
+  (put-trace! node)
 
   (with (source (get-source node))
     (if source (put-lines! true source "")))

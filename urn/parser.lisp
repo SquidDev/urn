@@ -62,7 +62,7 @@
                       (urn/logger/put-lines! false
                         start  "string started here"
                         finish "end of file here")
-                      (error "An error occured" 0)))
+                      (fail "Lexing failed")))
                   ((= char "\\") (consume!))
                   (true))
                 (consume!)
@@ -75,10 +75,114 @@
             (let ((start (position))
                   (tag (if (= char ":" ) "key" "symbol")))
               (set! char (string/char-at str (succ offset)))
-              (while (and (/= char "\n") (/= char " ") (/= char "\t") (/= char "(") (/= char ")"))
-                (print! char)
+              (while (and (/= char "\n") (/= char " ") (/= char "\t") (/= char "(") (/= char ")") (/= char ""))
                 (consume!)
                 (set! char (string/char-at str (succ offset))))
               (append! tag start))))
         (consume!)))
+    (append! "eof")
     out))
+
+(defun parse (toks)
+  (let* ((index 1)
+         (head '())
+         (stack '())
+
+         ;; Append a node onto the current head
+         (append! (lambda (node)
+           (with (next '())
+             (push-cdr! head node)
+             (.<! node :parent head))))
+
+         ;; Push a node onto the stack, appending it to the previous head
+         (push! (lambda ()
+             (with (next '())
+               (push-cdr! stack head)
+               (append! next)
+               (set! head next))))
+
+        ;; Pop a node from the stack
+         (pop! (lambda ()
+           (set! head (last stack))
+           (pop-last! stack))))
+    (for-each tok toks
+      (let* ((tag (.> tok :tag))
+             (auto-close false))
+        (cond
+          ((or (= tag "string") (= tag "number") (= tag "symbol") (= tag "key"))
+            (append! tok))
+          ((= tag "open")
+            (with (previous (last head))
+              ;; We want to detect places where the indent is different.
+              ;; Initially we check that they aren't on the same line as the parent:
+              ;; this catches cases like:
+              ;;   (define x (lambda (x)
+              ;;     (foo))) ; Has a different line and indent then parent.
+              ;; We obviously shouldn't report entries which are on the same line:
+              ;;   (foo) (bar) ; Has a different indent
+              ;; TODO: This will fail for "tabulated data"
+              (if (and previous (.> head :range) (/= (.> previous :range :start :line) (head :range :start :line)))
+                (let ((prev-pos (.> previous :range))
+                      (tok-pos (.> tok :range)))
+                  (if (and (/= (.> prev-pos :start :column) (.> tok-pos :start :column)) (/= (.> prev-pos :start :line) (.> tok-pos :start :line)))
+                    (urn/logger/print-warning! "Different indent compared with previous expressions.")
+                    (urn/logger/put-trace! tok)
+
+                    (urn/logger/put-info!
+                      "You should try to maintain consistent indentation across a program,"
+                      "try to ensure all expressions are lined up."
+                      "If this looks OK to you, check you're not missing a closing ')'.")
+
+                    (urn/logger/put-lines! false
+                      prev-pos ""
+                      tok-pos  ""))))
+              (push!)
+              (.<! head :range (struct
+                :start (.> tok :range :start)
+                :name  (.> tok :range :name)
+                :lines (.> tok :range :lines)))))
+          ((= tag "close")
+            (cond
+              ((nil? stack)
+                (urn/logger/error-node! tok "')' without matching '('"))
+              ((.> head :auto-close)
+                ;; TODO: More information about opening quote location
+                (urn/logger/print-error! "')' without matching '('")
+                (urn/logger/put-trace! tok)
+
+                (urn/logger/put-lines! false
+                  (.> head :range) "quote opened here"
+                  (.> tok :range)  "attempting to close here")
+                (fail "Parsing failed"))
+              (true
+                (.<! head :range :finish (.> tok :range :finish))
+                (pop!))))
+          ((or (= tag "quote") (= tag "unquote") (= tag "quasiquote") (= tag "unquote-splice"))
+            (push!)
+            (.<! head :range (struct
+                :start (.> tok :range :start)
+                :name  (.> tok :range :name)
+                :lines (.> tok :range :lines)))
+            (append! (struct
+              :tag      "symbol"
+              :contents tag
+              :range    (.> tok :range)))
+
+            (set! auto-close true)
+            (.<! head :auto-close true))
+          ((= tag "eof")
+            (when (/= 0 (# stack))
+              (urn/logger/print-error! "Expected ')', got eof")
+              (urn/logger/put-trace! tok)
+
+              (urn/logger/put-lines! false
+                (.> head :range) "block opened here"
+                (.> tok :range)  "end of file here")
+              (fail "Parsing failed")))
+          (true (error (string/.. "Unsupported type" tag))))
+        (when (and (! auto-close) (.> head :auto-close))
+          (if (nil? stack) (urn/logger/error-node! tok "')' without matching '('"))
+          (.<! head :auto-close nil)
+          (.<! head :range :finish (.> tok :range :finish))
+          (pop!))))
+    head))
