@@ -99,11 +99,9 @@
   (for-each line lines
     (print! (string/.. "  " line))))
 
-(defun error-node! (node msg)
+(defun put-error! (node msg)
   (print-error! msg)
   (put-trace! node)
 
   (with (source (get-source node))
-    (if source (put-lines! true source "")))
-
-  (error "An error occured" 0))
+    (if source (put-lines! true source ""))))

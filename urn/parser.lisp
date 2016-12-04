@@ -1,5 +1,5 @@
 (import string)
-(import urn/logger)
+(import urn/logger logger)
 
 (defun lex (str name)
   (let* ((lines (string/split str "\n"))
@@ -54,12 +54,12 @@
               (while (/= char "\"")
                 (cond
                   ((or (= char nil) (= char ""))
-                    (urn/logger/print-error! "Expected '\"', got eof")
+                    (logger/print-error! "Expected '\"', got eof")
 
                     (let ((start (range start))
                           (finish (range (position))))
-                      (urn/logger/put-trace! (struct :range finish))
-                      (urn/logger/put-lines! false
+                      (logger/put-trace! (struct :range finish))
+                      (logger/put-lines! false
                         start  "string started here"
                         finish "end of file here")
                       (fail "Lexing failed")))
@@ -125,15 +125,15 @@
                 (let ((prev-pos (.> previous :range))
                       (tok-pos (.> tok :range)))
                   (if (and (/= (.> prev-pos :start :column) (.> tok-pos :start :column)) (/= (.> prev-pos :start :line) (.> tok-pos :start :line)))
-                    (urn/logger/print-warning! "Different indent compared with previous expressions.")
-                    (urn/logger/put-trace! tok)
+                    (logger/print-warning! "Different indent compared with previous expressions.")
+                    (logger/put-trace! tok)
 
-                    (urn/logger/put-info!
+                    (logger/put-info!
                       "You should try to maintain consistent indentation across a program,"
                       "try to ensure all expressions are lined up."
                       "If this looks OK to you, check you're not missing a closing ')'.")
 
-                    (urn/logger/put-lines! false
+                    (logger/put-lines! false
                       prev-pos ""
                       tok-pos  ""))))
               (push!)
@@ -144,13 +144,14 @@
           ((= tag "close")
             (cond
               ((nil? stack)
-                (urn/logger/error-node! tok "')' without matching '('"))
+                (logger/put-error! tok "')' without matching '('")
+                (fail "Parsing failed"))
               ((.> head :auto-close)
                 ;; TODO: More information about opening quote location
-                (urn/logger/print-error! "')' without matching '('")
-                (urn/logger/put-trace! tok)
+                (logger/print-error! "')' without matching '('")
+                (logger/put-trace! tok)
 
-                (urn/logger/put-lines! false
+                (logger/put-lines! false
                   (.> head :range) "quote opened here"
                   (.> tok :range)  "attempting to close here")
                 (fail "Parsing failed"))
@@ -172,16 +173,18 @@
             (.<! head :auto-close true))
           ((= tag "eof")
             (when (/= 0 (# stack))
-              (urn/logger/print-error! "Expected ')', got eof")
-              (urn/logger/put-trace! tok)
+              (logger/print-error! "Expected ')', got eof")
+              (logger/put-trace! tok)
 
-              (urn/logger/put-lines! false
+              (logger/put-lines! false
                 (.> head :range) "block opened here"
                 (.> tok :range)  "end of file here")
               (fail "Parsing failed")))
           (true (error (string/.. "Unsupported type" tag))))
         (when (and (! auto-close) (.> head :auto-close))
-          (if (nil? stack) (urn/logger/error-node! tok "')' without matching '('"))
+          (when (nil? stack)
+            (logger/put-error! tok "')' without matching '('")
+            (fail "Parsing failed"))
           (.<! head :auto-close nil)
           (.<! head :range :finish (.> tok :range :finish))
           (pop!))))
