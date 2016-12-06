@@ -156,6 +156,9 @@
                          (true (any-impl (+ i 1)))))))
     (any-impl 1)))
 
+(defun elem (x li)
+  (any (lambda (e) (== x e)) li))
+
 ;; Determine whether all elements match a predicate
 (defun all (fn li)
   (assert-type! fn "function")
