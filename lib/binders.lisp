@@ -9,7 +9,6 @@
     `((lambda (,(caar vars)) (let* ,(cdr vars) ,@body)) ,(cadar vars))
     `((lambda () ,@body))))
 
-
 ;; Binds a variable to an expression
 (defmacro let (vars &body)
   `((lambda ,(cars vars) ,@body) ,@(cadrs vars)))
