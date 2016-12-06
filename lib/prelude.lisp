@@ -17,7 +17,6 @@
 
 (define-native number->string)
 
-;; TODO: Fix up the resolver
 (defun /= (x y) (~= x y))
 (defun = (x y) (== x y))
 
@@ -25,7 +24,9 @@
   (let* ((name (gensym))
          (transform-case (lambda (case)
                            (if (list? case)
-                             `((,@(car case) ,name) ,@(cdr case))
+                             (if (list? (car case))
+                               `((,@(car case) ,name) ,@(cdr case))
+                               `(,(car case) ,@(cdr case)))
                              `(true)))))
     `((lambda (,name) (cond ,@(map transform-case cases))) ,x)))
 
