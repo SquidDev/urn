@@ -18,10 +18,21 @@
                   " and "
                   (format-value (cadr tree))
                   " to be equal"))))
+        (handle-neq
+          (lambda (tree)
+            `(assert!
+               (/= ,(car tree) ,(cadr tree))
+               ,(string/..
+                  "expected "
+                  (format-value (car tree))
+                  " and "
+                  (format-value (cadr tree))
+                  " to be unequal"))))
         )
     (traverse assertions
               (lambda (x)
                 (case (symbol->string (car x))
-                  ((= "=") (handle-eq (cdr x))))))))
+                  ((= "=") (handle-eq (cdr x)))
+                  ((= "/=") (handle-neq (cdr x)))
+                  )))))
 
-(assert (= 2 3))
