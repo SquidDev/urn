@@ -9,10 +9,12 @@
 ;;  `executed` is only used for macros or there dependencies. This is used for nodes which have been compiled
 ;;             to Lua and loaded into the environment.
 
+(import assert (assert!))
+
 (defun create (variables scope range)
-  (assert variables "variables cannot be nil")
-  (assert scope "scope cannot be nil")
-  (assert (.> scope :is-root) "scope must be root")
+  (assert! variables "variables cannot be nil")
+  (assert! scope "scope cannot be nil")
+  (assert! (.> scope :is-root) "scope must be root")
 
   (struct
     :tag       "state"
@@ -42,32 +44,32 @@
     :value     nil))
 
 (defun require! (state var)
-  (assert (= (.> state :stage) "parsed") "Expected to be in parsed state")
+  (assert! (= (.> state :stage) "parsed") "Expected to be in parsed state")
 
   (when (.> var :scope :is-root)
-    (with (state (assert (.> state :variables var) "Cannot find variable"))
+    (with (state (assert! (.> state :variables var) "Cannot find variable"))
        (.<! state :required state true)
        state)))
 
 (defun set-var! (state var)
-  (assert (= (.> state :stage) "parsed") "Expected to be in parsed state")
-  (assert (= (.> var :scope) (.> state :scope)) "Scopes are not the same")
-  (assert (! (.> state :var)) "Variable is already declared")
+  (assert! (= (.> state :stage) "parsed") "Expected to be in parsed state")
+  (assert! (= (.> var :scope) (.> state :scope)) "Scopes are not the same")
+  (assert! (! (.> state :var)) "Variable is already declared")
 
   ;; Set the current variable and update the variable -> state mapping.
   (.<! state :var var)
   (.<! state :variables var state))
 
 (defun on-built! (state node)
-  (assert node "node cannot be nil")
-  (assert (= (.> state :stage) "parsed") "Expected to be in parsed state")
-  (assert (= (.> node :def-var) (.> state :var)) "Variables are different")
+  (assert! node "node cannot be nil")
+  (assert! (= (.> state :stage) "parsed") "Expected to be in parsed state")
+  (assert! (= (.> node :def-var) (.> state :var)) "Variables are different")
 
   (.<! state :stage "built")
   (.<! state :node node))
 
 (defun on-executed! (state value)
-  (assert (= (.> state :stage) "built") "Expected to be in built state")
+  (assert! (= (.> state :stage) "built") "Expected to be in built state")
 
   (.<! state :stage "executed")
   (.<! state :value value))

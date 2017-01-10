@@ -1,3 +1,4 @@
+(import base (type#))
 (import string)
 (import coroutine)
 
@@ -42,7 +43,7 @@
                   ((= ty "number") (struct :tag "number" :contents node))
                   ((= ty "string") (struct :tag "number" :contents (string/format "%q" node)))
                   ((= ty "table") node)
-                  (true (error (string/.. "Cannot handle " ty)))))) ;; TODO Fancy error handling
+                  (true (error! (string/.. "Cannot handle " ty)))))) ;; TODO Fancy error handling
 
     ;; Every node should store the parent node
     (.<! node :parent parent)
@@ -85,7 +86,7 @@
                 (for i 1 (# node) 1
                   (.<! node i (resolve-quote (.> node i) scope state level)))
                 node))))
-        (true (error (string/.. "Unknown tag " tag)))))))
+        (true (error! (string/.. "Unknown tag " tag)))))))
 
 (defun resolve-var (node scope)
   (let* ((name (.> node :contents))
@@ -221,9 +222,9 @@
                         node)
                       ((or (= (.> var :tag) "defined") (= (.> var :tag) "arg"))
                         (resolve-list node 1 scope state))
-                      (true (error (string/.. "Unknown kind " (.> var :tag) " for variable " (.> var :name)))))))))
+                      (true (error! (string/.. "Unknown kind " (.> var :tag) " for variable " (.> var :name)))))))))
             (true (resolve-list 1 node scope state)))))
-      (true (error (string/.. "Unknown type " tag))))))
+      (true (error! (string/.. "Unknown type " tag))))))
 
 (defun resolve-list (node start scope state)
   (with (success true)

@@ -1,6 +1,6 @@
 (import string (.. sub #s))
 (import list (elem traverse))
-(import base (debug!))
+(import base (print! pretty))
 
 (defun format-value (value)
   (pretty (if (and (table? value) (get-idx value "contents"))
@@ -32,7 +32,7 @@
                   (format-value (cadr tree))
                   " to be unequal"))))
         (types '("list" "number" "string" "bool" "thread" "function" "table" "userdata"))
-        (type-assertion? (lambda (str) (and 
+        (type-assertion? (lambda (str) (and
                                          (= (sub str (#s str) (#s str)) "?")
                                          (elem (sub str 1 (- (#s str) 1)) types)
                                          )))
@@ -52,7 +52,5 @@
                                             (typ (sub str 1 (- (#s str) 1))))
                                        (handle-ty typ (cadr x))))
                   (true (progn
-                          (car x)
-                          (debug! x)))
-                  ))))))
+                          (print! (pretty x))))))))))
 

@@ -50,8 +50,8 @@
     result))
 
 (defun put-lines! (range &entries)
-  (if (nil? entries) (error "Positions cannot be empty"))
-  (if (/= (% (# entries) 2) 0) (error (string/.. "Positions must be a multiple of 2, is " (# entries))))
+  (if (nil? entries) (error! "Positions cannot be empty"))
+  (if (/= (% (# entries) 2) 0) (error! (string/.. "Positions must be a multiple of 2, is " (# entries))))
 
   (let* ((previous -1)
          (max-line (.> entries (pred (# entries)) :start :line))

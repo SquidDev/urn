@@ -1,3 +1,4 @@
+(import assert (assert!))
 (import coroutine)
 (import string)
 
@@ -32,9 +33,9 @@
 (define kinds (struct :defined true :macro true :arg true :builtin true))
 
 (defun add! (scope name kind node)
-  (assert name "name is nil")
-  (assert (.> kinds kind) (string/.. "unknown kind " kind))
-  (assert (! (.> scope :variables name)) (string/.. "Previous declaration of " name))
+  (assert! name "name is nil")
+  (assert! (.> kinds kind) (string/.. "unknown kind " kind))
+  (assert! (! (.> scope :variables name)) (string/.. "Previous declaration of " name))
 
   (with (var (struct
                :tag   kind
@@ -46,11 +47,11 @@
     var))
 
 (defun import! (scope prefix var)
-  (assert var "var is nil")
+  (assert! var "var is nil")
 
   (with (name (if prefix
                  (string/.. prefix "/" (.> var :name))
                  (.> var :name)))
 
-    (assert (! (.> scope :variables name)) (string/.. "Previous declaration of " name))
+    (assert! (! (.> scope :variables name)) (string/.. "Previous declaration of " name))
     (.<! scope :variables :name var)))

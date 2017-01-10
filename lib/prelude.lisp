@@ -1,4 +1,4 @@
-(import base (defun defmacro progn for while if when unless and or
+(import base (defun defmacro progn for while if when unless and or with
               get-idx set-idx! format print! pretty error! empty-struct gensym
               == ~= < <= > >= + - * % ^ .. !))
 
