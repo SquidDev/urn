@@ -1,6 +1,7 @@
-(import base (defun defmacro progn for while if when unless and or with
+(import base (defun defmacro progn for while if when unless and or with xpcall
               get-idx set-idx! format print! pretty error! empty-struct gensym
-              == ~= < <= > >= + - * % ^ .. !))
+              traceback
+              == ~= < <= > >= + - * / % ^ .. !))
 
 (import binders ())
 (import list ())

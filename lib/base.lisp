@@ -33,6 +33,8 @@
 (define-native error!)
 (define-native type#)
 (define-native empty-struct)
+(define-native xpcall)
+(define-native traceback)
 
 ; Compiler functions
 (define-native gensym)

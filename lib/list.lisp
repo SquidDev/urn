@@ -4,6 +4,8 @@
 (import base)
 (import types (assert-type!))
 
+(defun list (&entries) entries)
+
 (defun nth (li idx)
   (assert-type! li "list")
   (assert-type! idx "number")

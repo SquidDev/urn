@@ -36,6 +36,8 @@ return {
 	['type#'] = type,
 	['empty-struct'] = function() return {} end,
 	['format'] = string.format,
+	['xpcall'] = xpcall,
+	['traceback'] = debug.traceback,
 
 	['gensym'] = function()
 		randCtr = randCtr + 1
