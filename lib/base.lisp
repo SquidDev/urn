@@ -36,6 +36,9 @@
 (define-native xpcall)
 (define-native traceback)
 
+(define-native string->number)
+(define-native number->string)
+
 ; Compiler functions
 (define-native gensym)
 

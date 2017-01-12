@@ -38,9 +38,17 @@ return {
 	['format'] = string.format,
 	['xpcall'] = xpcall,
 	['traceback'] = debug.traceback,
+	['string->number'] = tonumber,
+	['number->string'] = tostring,
 
-	['gensym'] = function()
+	['gensym'] = function(name)
+		if name then
+			name = "_" .. tostring(name)
+		else
+			name = ""
+		end
+
 		randCtr = randCtr + 1
-		return { tag = "symbol", contents = ("r_%d"):format(randCtr) }
+		return { tag = "symbol", contents = ("r_%d%s"):format(randCtr, name) }
 	end,
 }

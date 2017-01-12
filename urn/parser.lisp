@@ -180,7 +180,7 @@
                 (.> head :range) "block opened here"
                 (.> tok :range)  "end of file here")
               (fail "Parsing failed")))
-          (true (error (string/.. "Unsupported type" tag))))
+          (true (error! (string/.. "Unsupported type" tag))))
         (when (and (! auto-close) (.> head :auto-close))
           (when (nil? stack)
             (logger/put-error! tok "')' without matching '('")

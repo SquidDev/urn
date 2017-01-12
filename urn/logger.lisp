@@ -1,5 +1,11 @@
 (import string)
 
+(define verbosity (struct :value 0))
+(defun set-verbosity! (level) (.<! verbosity :value level))
+
+(define show-explain (struct :value false))
+(defun set-explain! (value) (.<! show-explain :value value))
+
 ;; Color a string using ANSI escape codes
 (defun colored (col msg) (string/.. "\27[" col "m" msg "\27[0m"))
 
@@ -16,10 +22,14 @@
     (if (cadr lines) (print! (cadr lines)))))
 
 ;; Print a verbose message
-(defun print-verbose! (msg) (print! (string/.. "[VERBOSE] " msg)))
+(defun print-verbose! (msg)
+  (when (> (.> verbosity :value) 0)
+    (print! (string/.. "[VERBOSE] " msg))))
 
 ;; Print a debug message
-(defun print-debug! (msg) (print! (string/.. "[DEBUG] " msg)))
+(defun print-debug! (msg)
+  (when (> (.> verbosity :value) 1)
+    (print! (string/.. "[DEBUG] " msg))))
 
 ;; Format a position to be user-readable
 (defun format-position (pos)
@@ -95,9 +105,10 @@
         (set! previous formatted)
         (set! node (.> node :parent))))))
 
-(defun put-info! (&lines)
-  (for-each line lines
-    (print! (string/.. "  " line))))
+(defun put-explain! (&lines)
+  (when (.> show-explain :value)
+    (for-each line lines
+      (print! (string/.. "  " line)))))
 
 (defun put-error! (node msg)
   (print-error! msg)
@@ -105,3 +116,33 @@
 
   (with (source (get-source node))
     (if source (put-lines! true source ""))))
+
+(defun error-positions! (node msg)
+  (print-error! msg)
+  (put-trace! node)
+
+  (with (source (get-source node))
+    (when source (put-lines! true source "")))
+
+  (fail "An error occured"))
+
+(struct
+  :formatPosition format-position
+  :formatRange    format-range
+  :formatNode     format-node
+
+  :putLines       put-lines!
+  :putTrace       put-trace!
+  :putInfo        put-explain!
+  :getSource      get-source
+
+  :printWarning   print-warning!
+  :printError     print-error!
+  :printVerbose   print-verbose!
+  :printDebug     print-debug!
+
+  :errorPositions error-positions!
+
+  :setVerbosity   set-verbosity!
+  :setExplain     set-explain!
+)

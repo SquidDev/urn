@@ -1,6 +1,6 @@
 (import base (defun defmacro progn for while if when unless and or with xpcall
               get-idx set-idx! format print! pretty error! empty-struct gensym
-              traceback
+              traceback string->number number->string
               == ~= < <= > >= + - * / % ^ .. !))
 
 (import binders ())
@@ -15,8 +15,6 @@
 
 (defun symbol->string (x) (if (symbol? x) (get-idx x "contents") nil))
 (defun bool->string (x) (if x "true" "false"))
-
-(define-native number->string)
 
 (defun /= (x y) (~= x y))
 (defun = (x y) (== x y))
