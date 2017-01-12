@@ -1,1 +1,3 @@
 out.*
+/tacky/*.lisp
+/test.lisp
