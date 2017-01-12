@@ -35,6 +35,7 @@
 (define-native empty-struct)
 (define-native xpcall)
 (define-native traceback)
+(define-native require)
 
 (define-native string->number)
 (define-native number->string)
@@ -99,7 +100,7 @@
 ;; Perform an action whilst a condition evaluates to true
 (defmacro while (check &body)
   (with (impl (gensym))
-    `(with (,impl)
+    `(with (,impl nil)
        (set! ,impl (lambda ()
                      (cond
                        (,check ,@body (,impl))

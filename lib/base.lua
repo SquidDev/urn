@@ -38,6 +38,7 @@ return {
 	['format'] = string.format,
 	['xpcall'] = xpcall,
 	['traceback'] = debug.traceback,
+	['require'] = require,
 	['string->number'] = tonumber,
 	['number->string'] = tostring,
 

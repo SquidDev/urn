@@ -143,7 +143,7 @@
 
   (with (out '())
     (for i 1 (base/# li 1) 1 (let ((item (get-idx li i)))
-      (if (fn item) (push-cdr! out item))))
+      (when (fn item) (push-cdr! out item))))
     out))
 
 ;; Determine whether any element matches a predicate

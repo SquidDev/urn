@@ -20,5 +20,5 @@
 (defmacro assert-type! (arg ty)
   (with (sym (gensym))
     `(with (,sym (type ,arg))
-      (if (~= ,sym ,ty) (error! (format "bad argment %s (expected %s, got %s)" ,(get-idx arg "contents") ,ty ,sym) 2)))))
+      (when (~= ,sym ,ty) (error! (format "bad argment %s (expected %s, got %s)" ,(get-idx arg "contents") ,ty ,sym) 2)))))
 

@@ -40,6 +40,7 @@ local _temp = (function()
 		['format'] = string.format,
 		['xpcall'] = xpcall,
 		['traceback'] = debug.traceback,
+		['require'] = require,
 		['string->number'] = tonumber,
 		['number->string'] = tostring,
 
@@ -104,8 +105,8 @@ _enumber_45__62_string1 = _libs["number->string"]
 _e_35_1 = (function(xs1)
 	return _eget_45_idx1(xs1, "n")
 end);
-car1 = (function(xs3)
-	return _eget_45_idx1(xs3, 1)
+car1 = (function(xs2)
+	return _eget_45_idx1(xs2, 1)
 end);
 _e_33_1 = (function(expr1)
 	if expr1 then
@@ -139,19 +140,19 @@ nth1 = (function(li4, idx1)
 		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_51), 2)
 	else
 	end
-	local r_61
-	r_61 = type1(idx1)
-	if _e_126__61_1(r_61, "number") then
-		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "idx", "number", r_61), 2)
+	local r_191
+	r_191 = type1(idx1)
+	if _e_126__61_1(r_191, "number") then
+		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "idx", "number", r_191), 2)
 	else
 	end
 	return _eget_45_idx1(li4, idx1)
 end);
 _e_35_2 = (function(li8)
-	local r_91
-	r_91 = type1(li8)
-	if _e_126__61_1(r_91, "list") then
-		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_91), 2)
+	local r_71
+	r_71 = type1(li8)
+	if _e_126__61_1(r_71, "list") then
+		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_71), 2)
 	else
 	end
 	return _e_35_1(li8)
@@ -160,10 +161,10 @@ car2 = (function(li3)
 	return nth1(li3, 1)
 end);
 _epush_45_cdr_33_1 = (function(li9, val2)
-	local r_131
-	r_131 = type1(li9)
-	if _e_126__61_1(r_131, "list") then
-		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_131), 2)
+	local r_101
+	r_101 = type1(li9)
+	if _e_126__61_1(r_101, "list") then
+		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_101), 2)
 	else
 	end
 	local len1
@@ -193,21 +194,22 @@ split1 = (function(text1, pattern1, limit1)
 	out2 = {tag = "list", n = 0}
 	loop1 = true
 	start3 = 1
-	local r_691
-	r_691 = (function()
+	local r_731
+	r_731 = nil
+	r_731 = (function()
 		if loop1 then
 			local pos1
 			pos1 = find1(text1, pattern1, start3)
-			if (function(r_701)
-				if r_701 then
-					return r_701
+			if (function(r_741)
+				if r_741 then
+					return r_741
 				else
-					local r_711
-					r_711 = limit1
-					if r_711 then
+					local r_751
+					r_751 = limit1
+					if r_751 then
 						return _e_62__61_1(_e_35_1(out2), limit1)
 					else
-						return r_711
+						return r_751
 					end
 				end
 			end)(_e_61__61_1("nil", _etype_35_1(pos1))) then
@@ -218,16 +220,16 @@ split1 = (function(text1, pattern1, limit1)
 				_epush_45_cdr_33_1(out2, sub1(text1, start3, _e_45_1(car1(pos1), 1)))
 				start3 = _e_43_1(cadr1(pos1), 1)
 			end
-			return r_691()
+			return r_731()
 		else
 		end
 	end);
-	r_691()
+	r_731()
 	return out2
 end);
 struct1 = (function(...)
 	local keys3 = table.pack(...) keys3.tag = "list"
-	if _e_61__61_1(_e_37_1(_e_35_1(keys3), 1), 1) then
+	if _e_61__61_1(_e_37_1(_e_35_2(keys3), 1), 1) then
 		_eerror_33_1("Expected an even number of arguments to struct", 2)
 	else
 	end
@@ -236,22 +238,22 @@ struct1 = (function(...)
 		return sub1(_eget_45_idx1(key3, "contents"), 2)
 	end);
 	out3 = _eempty_45_struct1()
-	local r_801
-	r_801 = _e_35_1(keys3)
-	local r_811
-	r_811 = 2
-	local r_781
-	r_781 = nil
-	r_781 = (function(r_791)
+	local r_711
+	r_711 = _e_35_1(keys3)
+	local r_721
+	r_721 = 2
+	local r_691
+	r_691 = nil
+	r_691 = (function(r_701)
 		local _temp
 		if _e_60_1(0, 2) then
-			_temp = _e_60__61_1(r_791, r_801)
+			_temp = _e_60__61_1(r_701, r_711)
 		else
-			_temp = _e_62__61_1(r_791, r_801)
+			_temp = _e_62__61_1(r_701, r_711)
 		end
 		if _temp then
 			local i3
-			i3 = r_791
+			i3 = r_701
 			local key4, val3
 			key4 = _eget_45_idx1(keys3, i3)
 			val3 = _eget_45_idx1(keys3, _e_43_1(1, i3))
@@ -262,11 +264,11 @@ struct1 = (function(...)
 					return key4
 				end
 			end)(), val3)
-			return r_781(_e_43_1(r_791, r_811))
+			return r_691(_e_43_1(r_701, r_721))
 		else
 		end
 	end);
-	r_781(1)
+	r_691(1)
 	return out3
 end);
 fail1 = (function(msg1)
@@ -349,7 +351,7 @@ _eformat_45_node1 = (function(node1)
 	elseif _eget_45_idx1(node1, "macro") then
 		local macro1
 		macro1 = _eget_45_idx1(node1, "macro")
-		return format2("macro expansion of %s (%s)", _eget_45_idx1(_eget_45_idx1(macro1, "var"), "name"), _eget_45_idx1(macro1, "node"))
+		return format2("macro expansion of %s (%s)", _eget_45_idx1(_eget_45_idx1(macro1, "var"), "name"), _eformat_45_node1(_eget_45_idx1(macro1, "node")))
 	else
 		return "?"
 	end
@@ -358,6 +360,7 @@ _eget_45_source1 = (function(node2)
 	local result1
 	result1 = nil
 	local r_841
+	r_841 = nil
 	r_841 = (function()
 		if (function(r_851)
 			if r_851 then
@@ -447,6 +450,7 @@ _eput_45_trace_33_1 = (function(node3)
 	local previous2
 	previous2 = nil
 	local r_861
+	r_861 = nil
 	r_861 = (function()
 		if node3 then
 			local formatted1
