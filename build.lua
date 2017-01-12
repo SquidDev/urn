@@ -9,3 +9,4 @@ end
 
 compile "logger"
 compile "parser"
+compile "analysis/visitor"

@@ -161,6 +161,7 @@ return function(nodes)
 		if node.tag == "list" then
 			local first = node[1]
 			if first and first.tag == "symbol" and first.var == builtins["import"] then
+				nodes.n = nodes.n - 1
 				table.remove(nodes, i)
 			end
 		end
@@ -174,6 +175,7 @@ return function(nodes)
 	for i = #nodes, 1, -1 do
 		local node = nodes[i]
 		if not hasSideEffects(node) or (node.defVar and not varLookup[node.defVar].active) then
+			nodes.n = nodes.n - 1
 			table.remove(nodes, i)
 		end
 	end

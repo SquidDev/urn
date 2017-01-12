@@ -156,6 +156,9 @@ for i = 1, #inputs do
 	assert(libLoader(inputs[i]), nil, false)
 end
 
+out.n = #out
+out.tag = "list"
+
 out = optimise(out)
 
 local compiledLua = backend.lua.block(out, 1, "return ")

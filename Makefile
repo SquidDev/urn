@@ -1,4 +1,4 @@
-main: tacky/logger.lua tacky/parser.lua
+main: tacky/logger.lua tacky/parser.lua tacky/analysis/visitor.lua
 
 
 tacky/%.lua: urn/%.lisp
