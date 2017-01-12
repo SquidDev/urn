@@ -101,8 +101,8 @@ _eerror_33_1 = _libs["error!"]
 _etype_35_1 = _libs["type#"]
 _eempty_45_struct1 = _libs["empty-struct"]
 require1 = _libs["require"]
-_e_35_1 = (function(xs2)
-	return _eget_45_idx1(xs2, "n")
+_e_35_1 = (function(xs1)
+	return _eget_45_idx1(xs1, "n")
 end);
 _ekey_63_1 = (function(x5)
 	return _e_61__61_1(type1(x5), "key")
@@ -122,9 +122,9 @@ type1 = (function(val1)
 		return ty2
 	end
 end);
-nth1 = (function(li2, idx1)
+nth1 = (function(li4, idx1)
 	local r_51
-	r_51 = type1(li2)
+	r_51 = type1(li4)
 	if _e_126__61_1(r_51, "list") then
 		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_51), 2)
 	else
@@ -135,16 +135,16 @@ nth1 = (function(li2, idx1)
 		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "idx", "number", r_191), 2)
 	else
 	end
-	return _eget_45_idx1(li2, idx1)
+	return _eget_45_idx1(li4, idx1)
 end);
-_e_35_2 = (function(li8)
+_e_35_2 = (function(li6)
 	local r_71
-	r_71 = type1(li8)
+	r_71 = type1(li6)
 	if _e_126__61_1(r_71, "list") then
 		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_71), 2)
 	else
 	end
-	return _e_35_1(li8)
+	return _e_35_1(li6)
 end);
 sub1 = _libs["sub"]
 struct1 = (function(...)

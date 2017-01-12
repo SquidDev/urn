@@ -148,14 +148,14 @@ nth1 = (function(li4, idx1)
 	end
 	return _eget_45_idx1(li4, idx1)
 end);
-_e_35_2 = (function(li8)
+_e_35_2 = (function(li6)
 	local r_71
-	r_71 = type1(li8)
+	r_71 = type1(li6)
 	if _e_126__61_1(r_71, "list") then
 		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_71), 2)
 	else
 	end
-	return _e_35_1(li8)
+	return _e_35_1(li6)
 end);
 car2 = (function(li3)
 	return nth1(li3, 1)
@@ -184,8 +184,8 @@ _epop_45_last_33_1 = (function(li10)
 	_eset_45_idx_33_1(li10, "n", _e_45_1(_e_35_1(li10), 1))
 	return li10
 end);
-_enil_63_1 = (function(li7)
-	return _e_61__61_1(_e_35_2(li7), 0)
+_enil_63_1 = (function(li5)
+	return _e_61__61_1(_e_35_2(li5), 0)
 end);
 last1 = (function(xs6)
 	return nth1(xs6, _e_35_2(xs6))

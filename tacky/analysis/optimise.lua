@@ -1,6 +1,5 @@
 local builtins = require "tacky.analysis.resolve".builtins
 local visitor = require "tacky.analysis.visitor"
-local logger = require "tacky.logger"
 
 --- Checks if a node has side effects
 local function hasSideEffects(node)

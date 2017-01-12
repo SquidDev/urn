@@ -19,6 +19,7 @@ function State.create(variables, states, scope)
 
 		--- List of all required variables
 		required = {},
+		requiredSet = {},
 
 		--- The current stage we are in.
 		-- Transitions from parsed -> built -> executed
@@ -46,7 +47,11 @@ function State:require(var)
 
 	if var.scope.isRoot then
 		local state = assert(self.states[var], "Variable's State is nil: it probably hasn't finished parsing: " .. var.name)
-		self.required[state] = true
+		if not self.requiredSet[state] then
+			-- Ensures they are emitted in the same order
+			self.requiredSet[state] = true
+			self.required[#self.required + 1] = state
+		end
 		return state
 	end
 end
@@ -126,16 +131,15 @@ function State:get()
 		stackHash[state] = idx
 
 		if not required[state] then
-			required[state] = true
-
 			-- Ensures they are emitted in the same order, not the correct one though.
+			required[state] = true
 			requiredList[#requiredList + 1] = state
 		end
 
 		local visited = {}
 
 		-- Look for loops the first time round
-		for inner, _ in pairs(state.required) do
+		for _, inner in pairs(state.required) do
 			visited[inner] = true
 			visit(inner, stack, stackHash)
 		end
@@ -148,7 +152,7 @@ function State:get()
 		end
 
 		-- Add remaining dependencies now
-		for inner, _ in pairs(state.required) do
+		for _, inner in pairs(state.required) do
 			if not visited[inner] then
 				visit(inner, stack, stackHash)
 			end
