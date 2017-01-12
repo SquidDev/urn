@@ -20,24 +20,30 @@
          (position (lambda () (struct :line line :column column :offset offset)))
          ;; Generates a table with a particular range
          (range (lambda (start finish) (struct :start start :finish finish :lines lines :name name)))
-         ;; Appends a token to the list
-         (append! (lambda (tag start finish)
+         ;; Appends a struct to the list
+         (append-with! (lambda (data start finish)
            (let ((start (or start (position)))
                  (finish (or finish (position))))
-             (push-cdr! out (struct
-               :tag      tag
-               :range    (range start finish)
-               :contents (string/sub str (.> start :offset) (.> finish :offset))))))))
+             (.<! data :range (range start finish))
+             (.<! data :contents (string/sub str (.> start :offset) (.> finish :offset)))
+             (push-cdr! out data))))
+         ;; Appends a token to the list
+         (append! (lambda (tag start finish)
+           (append-with! (struct :tag tag) start finish))))
     ;; Scan the input stream, consume one character, then reading til the end of that token.
     (while (<= offset length)
       (with (char (string/char-at str offset))
         (cond
           ((or (= char "\n") (= char "\t") (= char " ")))
+          ((= char "(") (append-with! (struct :tag "open" :close ")")))
+          ((= char ")") (append-with! (struct :tag "close" :open "(")))
+          ((= char "[") (append-with! (struct :tag "open" :close "]")))
+          ((= char "]") (append-with! (struct :tag "close" :open "[")))
+          ((= char "{") (append-with! (struct :tag "open" :close "}")))
+          ((= char "}") (append-with! (struct :tag "close" :open "{")))
           ((= char "'") (append! "quote"))
-          ((= char "(") (append! "open"))
-          ((= char ")") (append! "close"))
           ((= char "`") (append! "quasiquote"))
-          ((= char ",") (if (= (string/char-at str (succ offset) "@"))
+          ((= char ",") (if (= (string/char-at str (succ offset)) "@")
             (with (start (position))
               (consume!)
               (append! "unquote-splice" start))
@@ -75,7 +81,7 @@
             (let ((start (position))
                   (tag (if (= char ":" ) "key" "symbol")))
               (set! char (string/char-at str (succ offset)))
-              (while (and (/= char "\n") (/= char " ") (/= char "\t") (/= char "(") (/= char ")") (/= char ""))
+              (while (and (/= char "\n") (/= char " ") (/= char "\t") (/= char "(") (/= char ")") (/= char "[") (/= char "]") (/= char "{") (/= char "}") (/= char ""))
                 (consume!)
                 (set! char (string/char-at str (succ offset))))
               (append! tag start))))
@@ -103,6 +109,10 @@
 
         ;; Pop a node from the stack
          (pop! (lambda ()
+           (.<! head :open nil)
+           (.<! head :close nil)
+           (.<! head :auto-close nil)
+
            (set! head (last stack))
            (pop-last! stack))))
     (for-each tok toks
@@ -121,14 +131,14 @@
               ;; We obviously shouldn't report entries which are on the same line:
               ;;   (foo) (bar) ; Has a different indent
               ;; TODO: This will fail for "tabulated data"
-              (if (and previous (.> head :range) (/= (.> previous :range :start :line) (head :range :start :line)))
+              (when (and previous (.> head :range) (/= (.> previous :range :start :line) (.> head :range :start :line)))
                 (let ((prev-pos (.> previous :range))
                       (tok-pos (.> tok :range)))
-                  (if (and (/= (.> prev-pos :start :column) (.> tok-pos :start :column)) (/= (.> prev-pos :start :line) (.> tok-pos :start :line)))
+                  (when (and (/= (.> prev-pos :start :column) (.> tok-pos :start :column)) (/= (.> prev-pos :start :line) (.> tok-pos :start :line)))
                     (logger/print-warning! "Different indent compared with previous expressions.")
                     (logger/put-trace! tok)
 
-                    (logger/put-info!
+                    (logger/put-explain!
                       "You should try to maintain consistent indentation across a program,"
                       "try to ensure all expressions are lined up."
                       "If this looks OK to you, check you're not missing a closing ')'.")
@@ -137,6 +147,8 @@
                       prev-pos ""
                       tok-pos  ""))))
               (push!)
+              (.<! head :open (.> tok :contents))
+              (.<! head :close (.> tok :close))
               (.<! head :range (struct
                 :start (.> tok :range :start)
                 :name  (.> tok :range :name)
@@ -144,18 +156,28 @@
           ((= tag "close")
             (cond
               ((nil? stack)
-                (logger/put-error! tok "')' without matching '('")
-                (fail "Parsing failed"))
+                ;; Unmatched closing bracket.
+                (logger/error-positions! tok (string/format "'%s' without matching '%s'" (.> tok :contents) (.> tok :open))))
               ((.> head :auto-close)
-                ;; TODO: More information about opening quote location
-                (logger/print-error! "')' without matching '('")
+                ;; Attempting to close a quote
+                (logger/print-error! (string/format "'%s' without matching '%s' inside quote" (.> tok :contents) (.> tok :open)))
                 (logger/put-trace! tok)
 
                 (logger/put-lines! false
                   (.> head :range) "quote opened here"
                   (.> tok :range)  "attempting to close here")
                 (fail "Parsing failed"))
+              ((/= (.> head :close) (.> tok :contents))
+                ;; Mismatched brackets
+                (logger/print-error! (string/format "Expected '%s', got '%s'" (.> head :close) (.> tok :contents)))
+                (logger/put-trace! tok)
+
+                (logger/put-lines! false
+                  (.> head :range) (string/format "block opened with '%s'" (.> head :open))
+                  (.> tok :range) (string/format "'%s' used here" (.> tok :contents)))
+                (fail "Parsing failed"))
               (true
+                ;; All OK!
                 (.<! head :range :finish (.> tok :range :finish))
                 (pop!))))
           ((or (= tag "quote") (= tag "unquote") (= tag "quasiquote") (= tag "unquote-splice"))
@@ -181,11 +203,13 @@
                 (.> tok :range)  "end of file here")
               (fail "Parsing failed")))
           (true (error! (string/.. "Unsupported type" tag))))
-        (when (and (! auto-close) (.> head :auto-close))
-          (when (nil? stack)
-            (logger/put-error! tok "')' without matching '('")
-            (fail "Parsing failed"))
-          (.<! head :auto-close nil)
-          (.<! head :range :finish (.> tok :range :finish))
-          (pop!))))
+        (unless auto-close
+          (while (.> head :auto-close)
+            (when (nil? stack)
+              (logger/error-positions! tok (string/format "'%s' without matching '%s'" (.> tok :contents) (.> tok :open)))
+              (fail "Parsing failed"))
+            (.<! head :range :finish (.> tok :range :finish))
+            (pop!)))))
     head))
+
+(struct :lex lex :parse parse)

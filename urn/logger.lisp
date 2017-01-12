@@ -98,9 +98,10 @@
   (with (previous nil)
     (while node
       (with (formatted (format-node node))
-        (print! (if (= previous nil)
-          (colored 96 (string/.. "  => " formatted))
-          (string/.. "  in " formatted)))
+        (cond
+          ((= previous nil) (print! (colored 96 (string/.. "  => " formatted))))
+          ((/= previous formatted) (print! (string/.. "  in " formatted)))
+          (true nil))
 
         (set! previous formatted)
         (set! node (.> node :parent))))))
