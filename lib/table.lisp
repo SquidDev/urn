@@ -12,13 +12,13 @@
     (list/for-each key keys (set! res `(get-idx ,res ,key)))
     res))
 
-(defmacro .<! (x &keys)
+(defmacro .<! (x &keys value)
   (with (res x)
     ; I lied, the last entry of keys contains the value to set
-    (for i 1 (- (# keys) 2) 1
+    (for i 1 (- (# keys) 1) 1
       (with (key (get-idx keys i))
         (set! res `(get-idx ,res ,key))))
-    `(set-idx! ,res ,(get-idx keys (- (# keys) 1)) ,(get-idx keys (# keys)))))
+    `(set-idx! ,res ,(get-idx keys (# keys) 1) ,value)))
 
 (defun struct (&keys)
   (when (== (% (# keys) 1) 1)

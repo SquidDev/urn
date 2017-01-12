@@ -101,8 +101,8 @@ _eerror_33_1 = _libs["error!"]
 _etype_35_1 = _libs["type#"]
 _eempty_45_struct1 = _libs["empty-struct"]
 _enumber_45__62_string1 = _libs["number->string"]
-_e_35_1 = (function(xs2)
-	return _eget_45_idx1(xs2, "n")
+_e_35_1 = (function(xs1)
+	return _eget_45_idx1(xs1, "n")
 end);
 car1 = (function(xs3)
 	return _eget_45_idx1(xs3, 1)
@@ -147,14 +147,14 @@ nth1 = (function(li4, idx1)
 	end
 	return _eget_45_idx1(li4, idx1)
 end);
-_e_35_2 = (function(li6)
+_e_35_2 = (function(li8)
 	local r_91
-	r_91 = type1(li6)
+	r_91 = type1(li8)
 	if _e_126__61_1(r_91, "list") then
 		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_91), 2)
 	else
 	end
-	return _e_35_1(li6)
+	return _e_35_1(li8)
 end);
 car2 = (function(li3)
 	return nth1(li3, 1)
@@ -172,8 +172,8 @@ _epush_45_cdr_33_1 = (function(li9, val2)
 	_eset_45_idx_33_1(li9, len1, val2)
 	return li9
 end);
-_enil_63_1 = (function(li5)
-	return _e_61__61_1(_e_35_2(li5), 0)
+_enil_63_1 = (function(li7)
+	return _e_61__61_1(_e_35_2(li7), 0)
 end);
 cadr1 = (function(x1)
 	return nth1(x1, 2)
@@ -289,8 +289,8 @@ _eset_45_verbosity_33_1 = (function(level1)
 	return _eset_45_idx_33_1(verbosity1, "value", level1)
 end);
 _eshow_45_explain1 = struct1("value", false)
-_eset_45_explain_33_1 = (function(value1)
-	return _eset_45_idx_33_1(_eshow_45_explain1, "value", value1)
+_eset_45_explain_33_1 = (function(value2)
+	return _eset_45_idx_33_1(_eshow_45_explain1, "value", value2)
 end);
 colored1 = (function(col1, msg2)
 	return _e_46__46_1("\27[", col1, "m", msg2, "\27[0m")
