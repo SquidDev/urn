@@ -27,6 +27,7 @@ local _temp = (function()
 
 		['get-idx'] = rawget,
 		['set-idx!'] = rawset,
+		['remove-idx!'] = table.remove,
 		['slice'] = function(xs, start, finish)
 			if not finish then finish = xs.n end
 			return { tag = "list", n = finish - start + 1, table.unpack(xs, start, finish) }
@@ -140,19 +141,19 @@ nth1 = (function(li4, idx1)
 		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_51), 2)
 	else
 	end
-	local r_191
-	r_191 = type1(idx1)
-	if _e_126__61_1(r_191, "number") then
-		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "idx", "number", r_191), 2)
+	local r_201
+	r_201 = type1(idx1)
+	if _e_126__61_1(r_201, "number") then
+		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "idx", "number", r_201), 2)
 	else
 	end
 	return _eget_45_idx1(li4, idx1)
 end);
 _e_35_2 = (function(li6)
-	local r_71
-	r_71 = type1(li6)
-	if _e_126__61_1(r_71, "list") then
-		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_71), 2)
+	local r_81
+	r_81 = type1(li6)
+	if _e_126__61_1(r_81, "list") then
+		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_81), 2)
 	else
 	end
 	return _e_35_1(li6)
@@ -161,10 +162,10 @@ car2 = (function(li3)
 	return nth1(li3, 1)
 end);
 _epush_45_cdr_33_1 = (function(li9, val2)
-	local r_101
-	r_101 = type1(li9)
-	if _e_126__61_1(r_101, "list") then
-		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_101), 2)
+	local r_111
+	r_111 = type1(li9)
+	if _e_126__61_1(r_111, "list") then
+		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_111), 2)
 	else
 	end
 	local len1
@@ -174,10 +175,10 @@ _epush_45_cdr_33_1 = (function(li9, val2)
 	return li9
 end);
 _epop_45_last_33_1 = (function(li10)
-	local r_111
-	r_111 = type1(li10)
-	if _e_126__61_1(r_111, "list") then
-		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_111), 2)
+	local r_121
+	r_121 = type1(li10)
+	if _e_126__61_1(r_121, "list") then
+		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_121), 2)
 	else
 	end
 	_eset_45_idx_33_1(li10, _e_35_1(li10), nil)
@@ -211,22 +212,22 @@ split1 = (function(text2, pattern1, limit1)
 	out2 = {tag = "list", n = 0}
 	loop1 = true
 	start3 = 1
-	local r_731
-	r_731 = nil
-	r_731 = (function()
+	local r_751
+	r_751 = nil
+	r_751 = (function()
 		if loop1 then
 			local pos2
 			pos2 = find1(text2, pattern1, start3)
-			if (function(r_741)
-				if r_741 then
-					return r_741
+			if (function(r_761)
+				if r_761 then
+					return r_761
 				else
-					local r_751
-					r_751 = limit1
-					if r_751 then
+					local r_771
+					r_771 = limit1
+					if r_771 then
 						return _e_62__61_1(_e_35_1(out2), limit1)
 					else
-						return r_751
+						return r_771
 					end
 				end
 			end)(_e_61__61_1("nil", _etype_35_1(pos2))) then
@@ -237,11 +238,11 @@ split1 = (function(text2, pattern1, limit1)
 				_epush_45_cdr_33_1(out2, sub1(text2, start3, _e_45_1(car1(pos2), 1)))
 				start3 = _e_43_1(cadr1(pos2), 1)
 			end
-			return r_731()
+			return r_751()
 		else
 		end
 	end);
-	r_731()
+	r_751()
 	return out2
 end);
 struct1 = (function(...)
@@ -255,22 +256,22 @@ struct1 = (function(...)
 		return sub1(_eget_45_idx1(key3, "contents"), 2)
 	end);
 	out3 = _eempty_45_struct1()
+	local r_731
+	r_731 = _e_35_1(keys3)
+	local r_741
+	r_741 = 2
 	local r_711
-	r_711 = _e_35_1(keys3)
-	local r_721
-	r_721 = 2
-	local r_691
-	r_691 = nil
-	r_691 = (function(r_701)
+	r_711 = nil
+	r_711 = (function(r_721)
 		local _temp
 		if _e_60_1(0, 2) then
-			_temp = _e_60__61_1(r_701, r_711)
+			_temp = _e_60__61_1(r_721, r_731)
 		else
-			_temp = _e_62__61_1(r_701, r_711)
+			_temp = _e_62__61_1(r_721, r_731)
 		end
 		if _temp then
 			local i3
-			i3 = r_701
+			i3 = r_721
 			local key4, val3
 			key4 = _eget_45_idx1(keys3, i3)
 			val3 = _eget_45_idx1(keys3, _e_43_1(1, i3))
@@ -281,23 +282,23 @@ struct1 = (function(...)
 					return key4
 				end
 			end)(), val3)
-			return r_691(_e_43_1(r_701, r_721))
+			return r_711(_e_43_1(r_721, r_741))
 		else
 		end
 	end);
-	r_691(1)
+	r_711(1)
 	return out3
 end);
 fail1 = (function(msg1)
 	return _eerror_33_1(msg1, 0)
 end);
 _ebetween_63_1 = (function(val4, min1, max1)
-	local r_821
-	r_821 = _e_62__61_1(val4, min1)
-	if r_821 then
+	local r_841
+	r_841 = _e_62__61_1(val4, min1)
+	if r_841 then
 		return _e_60__61_1(val4, max1)
 	else
-		return r_821
+		return r_841
 	end
 end);
 _e_47__61_1 = (function(x8, y1)
@@ -364,11 +365,11 @@ _eformat_45_range1 = (function(range1)
 	end
 end);
 _eformat_45_node1 = (function(node1)
-	if (function(r_971)
-		if r_971 then
+	if (function(r_991)
+		if r_991 then
 			return _eget_45_idx1(node1, "contents")
 		else
-			return r_971
+			return r_991
 		end
 	end)(_eget_45_idx1(node1, "range")) then
 		return format2("%s (%q)", _eformat_45_range1(_eget_45_idx1(node1, "range")), _eget_45_idx1(node1, "contents"))
@@ -385,23 +386,23 @@ end);
 _eget_45_source1 = (function(node2)
 	local result1
 	result1 = nil
-	local r_981
-	r_981 = nil
-	r_981 = (function()
-		if (function(r_991)
-			if r_991 then
+	local r_1001
+	r_1001 = nil
+	r_1001 = (function()
+		if (function(r_1011)
+			if r_1011 then
 				return _e_33_1(result1)
 			else
-				return r_991
+				return r_1011
 			end
 		end)(node2) then
 			result1 = _eget_45_idx1(node2, "range")
 			node2 = _eget_45_idx1(node2, "parent")
-			return r_981()
+			return r_1001()
 		else
 		end
 	end);
-	r_981()
+	r_1001()
 	return result1
 end);
 _eput_45_lines_33_1 = (function(range2, ...)
@@ -420,30 +421,30 @@ _eput_45_lines_33_1 = (function(range2, ...)
 	_emax_45_line1 = _eget_45_idx1(_eget_45_idx1(_eget_45_idx1(entries1, pred1(_e_35_2(entries1))), "start"), "line")
 	local code1
 	code1 = _e_46__46_1("\27[92m %", _e_35_s1(_enumber_45__62_string1(_emax_45_line1)), "s |\27[0m %s")
+	local r_1051
+	r_1051 = _e_35_2(entries1)
+	local r_1061
+	r_1061 = 2
 	local r_1031
-	r_1031 = _e_35_2(entries1)
-	local r_1041
-	r_1041 = 2
-	local r_1011
-	r_1011 = nil
-	r_1011 = (function(r_1021)
+	r_1031 = nil
+	r_1031 = (function(r_1041)
 		local _temp
 		if _e_60_1(0, 2) then
-			_temp = _e_60__61_1(r_1021, r_1031)
+			_temp = _e_60__61_1(r_1041, r_1051)
 		else
-			_temp = _e_62__61_1(r_1021, r_1031)
+			_temp = _e_62__61_1(r_1041, r_1051)
 		end
 		if _temp then
 			local i4
-			i4 = r_1021
+			i4 = r_1041
 			local position1, message1
 			position1 = _eget_45_idx1(entries1, i4)
 			message1 = _eget_45_idx1(entries1, succ1(i4))
-			if (function(r_1051)
-				if r_1051 then
+			if (function(r_1071)
+				if r_1071 then
 					return _e_62_1(_e_45_1(_eget_45_idx1(_eget_45_idx1(position1, "start"), "line"), previous1), 2)
 				else
-					return r_1051
+					return r_1071
 				end
 			end)(_e_47__61_1(previous1, -1)) then
 				_eprint_33_1(" \27[92m...\27[0m")
@@ -454,11 +455,11 @@ _eput_45_lines_33_1 = (function(range2, ...)
 			local pointer1
 			if _e_33_1(range2) then
 				pointer1 = "^"
-			elseif (function(r_1121)
-				if r_1121 then
+			elseif (function(r_1141)
+				if r_1141 then
 					return _e_61_1(_eget_45_idx1(_eget_45_idx1(position1, "start"), "line"), _eget_45_idx1(_eget_45_idx1(position1, "finish"), "line"))
 				else
-					return r_1121
+					return r_1141
 				end
 			end)(_eget_45_idx1(position1, "finish")) then
 				pointer1 = rep1("^", _e_45_1(_eget_45_idx1(_eget_45_idx1(position1, "finish"), "column"), _eget_45_idx1(_eget_45_idx1(position1, "start"), "column"), -1))
@@ -466,18 +467,18 @@ _eput_45_lines_33_1 = (function(range2, ...)
 				pointer1 = "^..."
 			end
 			_eprint_33_1(format2(code1, "", _e_46__46_1(rep1(" ", _e_45_1(_eget_45_idx1(_eget_45_idx1(position1, "start"), "column"), 1)), pointer1, " ", message1)))
-			return r_1011(_e_43_1(r_1021, r_1041))
+			return r_1031(_e_43_1(r_1041, r_1061))
 		else
 		end
 	end);
-	return r_1011(1)
+	return r_1031(1)
 end);
 _eput_45_trace_33_1 = (function(node3)
 	local previous2
 	previous2 = nil
-	local r_1001
-	r_1001 = nil
-	r_1001 = (function()
+	local r_1021
+	r_1021 = nil
+	r_1021 = (function()
 		if node3 then
 			local formatted1
 			formatted1 = _eformat_45_node1(node3)
@@ -490,41 +491,41 @@ _eput_45_trace_33_1 = (function(node3)
 			end
 			previous2 = formatted1
 			node3 = _eget_45_idx1(node3, "parent")
-			return r_1001()
+			return r_1021()
 		else
 		end
 	end);
-	return r_1001()
+	return r_1021()
 end);
 _eput_45_explain_33_1 = (function(...)
 	local lines3 = table.pack(...) lines3.tag = "list"
 	if _eget_45_idx1(_eshow_45_explain1, "value") then
-		local r_1071
-		r_1071 = lines3
+		local r_1091
+		r_1091 = lines3
+		local r_1121
+		r_1121 = _e_35_2(r_1091)
+		local r_1131
+		r_1131 = 1
 		local r_1101
-		r_1101 = _e_35_2(r_1071)
-		local r_1111
-		r_1111 = 1
-		local r_1081
-		r_1081 = nil
-		r_1081 = (function(r_1091)
+		r_1101 = nil
+		r_1101 = (function(r_1111)
 			local _temp
 			if _e_60_1(0, 1) then
-				_temp = _e_60__61_1(r_1091, r_1101)
+				_temp = _e_60__61_1(r_1111, r_1121)
 			else
-				_temp = _e_62__61_1(r_1091, r_1101)
+				_temp = _e_62__61_1(r_1111, r_1121)
 			end
 			if _temp then
-				local r_1061
-				r_1061 = r_1091
+				local r_1081
+				r_1081 = r_1111
 				local line1
-				line1 = _eget_45_idx1(r_1071, r_1061)
+				line1 = _eget_45_idx1(r_1091, r_1081)
 				_eprint_33_1(_e_46__46_1("  ", line1))
-				return r_1081(_e_43_1(r_1091, r_1111))
+				return r_1101(_e_43_1(r_1111, r_1131))
 			else
 			end
 		end);
-		return r_1081(1)
+		return r_1101(1)
 	else
 	end
 end);
@@ -575,17 +576,17 @@ lex1 = (function(str1, name3)
 	local _eappend_45_with_33_1
 	_eappend_45_with_33_1 = (function(data1, start5, finish3)
 		local start6, finish4
-		local r_1301
-		r_1301 = start5
-		if r_1301 then
-			start6 = r_1301
+		local r_1321
+		r_1321 = start5
+		if r_1321 then
+			start6 = r_1321
 		else
 			start6 = position2()
 		end
-		local r_1311
-		r_1311 = finish3
-		if r_1311 then
-			finish4 = r_1311
+		local r_1331
+		r_1331 = finish3
+		if r_1331 then
+			finish4 = r_1331
 		else
 			finish4 = position2()
 		end
@@ -597,20 +598,20 @@ lex1 = (function(str1, name3)
 	_eappend_33_1 = (function(tag2, start7, finish5)
 		return _eappend_45_with_33_1(struct1("tag", tag2), start7, finish5)
 	end);
-	local r_831
-	r_831 = nil
-	r_831 = (function()
+	local r_851
+	r_851 = nil
+	r_851 = (function()
 		if _e_60__61_1(offset1, length1) then
 			local char1
 			char1 = _echar_45_at1(str1, offset1)
-			if (function(r_841)
-				if r_841 then
-					return r_841
+			if (function(r_861)
+				if r_861 then
+					return r_861
 				else
-					local r_851
-					r_851 = _e_61_1(char1, "\t")
-					if r_851 then
-						return r_851
+					local r_871
+					r_871 = _e_61_1(char1, "\t")
+					if r_871 then
+						return r_871
 					else
 						return _e_61_1(char1, " ")
 					end
@@ -641,44 +642,44 @@ lex1 = (function(str1, name3)
 				else
 					_eappend_33_1("unquote")
 				end
-			elseif (function(r_1131)
-				if r_1131 then
-					return r_1131
+			elseif (function(r_1151)
+				if r_1151 then
+					return r_1151
 				else
-					local r_1141
-					r_1141 = _e_61_1(char1, "-")
-					if r_1141 then
+					local r_1161
+					r_1161 = _e_61_1(char1, "-")
+					if r_1161 then
 						return _ebetween_63_1(_echar_45_at1(str1, succ1(offset1)), "0", "9")
 					else
-						return r_1141
+						return r_1161
 					end
 				end
 			end)(_ebetween_63_1(char1, "0", "9")) then
 				local start9
 				start9 = position2()
-				local r_1151
-				r_1151 = nil
-				r_1151 = (function()
+				local r_1171
+				r_1171 = nil
+				r_1171 = (function()
 					if find1(_echar_45_at1(str1, succ1(offset1)), "[0-9.e+-]") then
 						_econsume_33_1()
-						return r_1151()
+						return r_1171()
 					else
 					end
 				end);
-				r_1151()
+				r_1171()
 				_eappend_33_1("number", start9)
 			elseif _e_61_1(char1, "\"") then
 				local start10
 				start10 = position2()
 				_econsume_33_1()
 				char1 = _echar_45_at1(str1, offset1)
-				local r_1161
-				r_1161 = nil
-				r_1161 = (function()
+				local r_1181
+				r_1181 = nil
+				r_1181 = (function()
 					if _e_47__61_1(char1, "\"") then
-						if (function(r_1171)
-							if r_1171 then
-								return r_1171
+						if (function(r_1191)
+							if r_1191 then
+								return r_1191
 							else
 								return _e_61_1(char1, "")
 							end
@@ -696,29 +697,29 @@ lex1 = (function(str1, name3)
 						end
 						_econsume_33_1()
 						char1 = _echar_45_at1(str1, offset1)
-						return r_1161()
-					else
-					end
-				end);
-				r_1161()
-				_eappend_33_1("string", start10)
-			elseif _e_61_1(char1, ";") then
-				local r_1181
-				r_1181 = nil
-				r_1181 = (function()
-					if (function(r_1191)
-						if r_1191 then
-							return _e_47__61_1(_echar_45_at1(str1, succ1(offset1)), "\n")
-						else
-							return r_1191
-						end
-					end)(_e_60__61_1(offset1, length1)) then
-						_econsume_33_1()
 						return r_1181()
 					else
 					end
 				end);
 				r_1181()
+				_eappend_33_1("string", start10)
+			elseif _e_61_1(char1, ";") then
+				local r_1201
+				r_1201 = nil
+				r_1201 = (function()
+					if (function(r_1211)
+						if r_1211 then
+							return _e_47__61_1(_echar_45_at1(str1, succ1(offset1)), "\n")
+						else
+							return r_1211
+						end
+					end)(_e_60__61_1(offset1, length1)) then
+						_econsume_33_1()
+						return r_1201()
+					else
+					end
+				end);
+				r_1201()
 			else
 				local start12, tag3
 				start12 = position2()
@@ -728,79 +729,79 @@ lex1 = (function(str1, name3)
 					tag3 = "symbol"
 				end
 				char1 = _echar_45_at1(str1, succ1(offset1))
-				local r_1201
-				r_1201 = nil
-				r_1201 = (function()
-					if (function(r_1211)
-						if r_1211 then
-							local r_1221
-							r_1221 = _e_47__61_1(char1, " ")
-							if r_1221 then
-								local r_1231
-								r_1231 = _e_47__61_1(char1, "\t")
-								if r_1231 then
-									local r_1241
-									r_1241 = _e_47__61_1(char1, "(")
-									if r_1241 then
-										local r_1251
-										r_1251 = _e_47__61_1(char1, ")")
-										if r_1251 then
-											local r_1261
-											r_1261 = _e_47__61_1(char1, "[")
-											if r_1261 then
-												local r_1271
-												r_1271 = _e_47__61_1(char1, "]")
-												if r_1271 then
-													local r_1281
-													r_1281 = _e_47__61_1(char1, "{")
-													if r_1281 then
-														local r_1291
-														r_1291 = _e_47__61_1(char1, "}")
-														if r_1291 then
+				local r_1221
+				r_1221 = nil
+				r_1221 = (function()
+					if (function(r_1231)
+						if r_1231 then
+							local r_1241
+							r_1241 = _e_47__61_1(char1, " ")
+							if r_1241 then
+								local r_1251
+								r_1251 = _e_47__61_1(char1, "\t")
+								if r_1251 then
+									local r_1261
+									r_1261 = _e_47__61_1(char1, "(")
+									if r_1261 then
+										local r_1271
+										r_1271 = _e_47__61_1(char1, ")")
+										if r_1271 then
+											local r_1281
+											r_1281 = _e_47__61_1(char1, "[")
+											if r_1281 then
+												local r_1291
+												r_1291 = _e_47__61_1(char1, "]")
+												if r_1291 then
+													local r_1301
+													r_1301 = _e_47__61_1(char1, "{")
+													if r_1301 then
+														local r_1311
+														r_1311 = _e_47__61_1(char1, "}")
+														if r_1311 then
 															return _e_47__61_1(char1, "")
 														else
-															return r_1291
+															return r_1311
 														end
 													else
-														return r_1281
+														return r_1301
 													end
 												else
-													return r_1271
+													return r_1291
 												end
 											else
-												return r_1261
+												return r_1281
 											end
 										else
-											return r_1251
+											return r_1271
 										end
 									else
-										return r_1241
+										return r_1261
 									end
 								else
-									return r_1231
+									return r_1251
 								end
 							else
-								return r_1221
+								return r_1241
 							end
 						else
-							return r_1211
+							return r_1231
 						end
 					end)(_e_47__61_1(char1, "\n")) then
 						_econsume_33_1()
 						char1 = _echar_45_at1(str1, succ1(offset1))
-						return r_1201()
+						return r_1221()
 					else
 					end
 				end);
-				r_1201()
+				r_1221()
 				_eappend_33_1(tag3, start12)
 			end
 			_econsume_33_1()
-			return r_831()
+			return r_851()
 		else
 		end
 	end);
-	r_831()
+	r_851()
 	_eappend_33_1("eof")
 	return out4
 end);
@@ -835,43 +836,43 @@ parse1 = (function(toks1)
 		head1 = last1(stack1)
 		return _epop_45_last_33_1(stack1)
 	end);
-	local r_871
-	r_871 = toks1
+	local r_891
+	r_891 = toks1
+	local r_921
+	r_921 = _e_35_2(r_891)
+	local r_931
+	r_931 = 1
 	local r_901
-	r_901 = _e_35_2(r_871)
-	local r_911
-	r_911 = 1
-	local r_881
-	r_881 = nil
-	r_881 = (function(r_891)
+	r_901 = nil
+	r_901 = (function(r_911)
 		local _temp
 		if _e_60_1(0, 1) then
-			_temp = _e_60__61_1(r_891, r_901)
+			_temp = _e_60__61_1(r_911, r_921)
 		else
-			_temp = _e_62__61_1(r_891, r_901)
+			_temp = _e_62__61_1(r_911, r_921)
 		end
 		if _temp then
-			local r_861
-			r_861 = r_891
+			local r_881
+			r_881 = r_911
 			local tok1
-			tok1 = _eget_45_idx1(r_871, r_861)
+			tok1 = _eget_45_idx1(r_891, r_881)
 			local tag4
 			tag4 = _eget_45_idx1(tok1, "tag")
 			local _eauto_45_close1
 			_eauto_45_close1 = false
-			if (function(r_921)
-				if r_921 then
-					return r_921
+			if (function(r_941)
+				if r_941 then
+					return r_941
 				else
-					local r_931
-					r_931 = _e_61_1(tag4, "number")
-					if r_931 then
-						return r_931
+					local r_951
+					r_951 = _e_61_1(tag4, "number")
+					if r_951 then
+						return r_951
 					else
-						local r_941
-						r_941 = _e_61_1(tag4, "symbol")
-						if r_941 then
-							return r_941
+						local r_961
+						r_961 = _e_61_1(tag4, "symbol")
+						if r_961 then
+							return r_961
 						else
 							return _e_61_1(tag4, "key")
 						end
@@ -882,27 +883,27 @@ parse1 = (function(toks1)
 			elseif _e_61_1(tag4, "open") then
 				local previous3
 				previous3 = last1(head1)
-				if (function(r_951)
-					if r_951 then
-						local r_961
-						r_961 = _eget_45_idx1(head1, "range")
-						if r_961 then
+				if (function(r_971)
+					if r_971 then
+						local r_981
+						r_981 = _eget_45_idx1(head1, "range")
+						if r_981 then
 							return _e_47__61_1(_eget_45_idx1(_eget_45_idx1(_eget_45_idx1(previous3, "range"), "start"), "line"), _eget_45_idx1(_eget_45_idx1(_eget_45_idx1(head1, "range"), "start"), "line"))
 						else
-							return r_961
+							return r_981
 						end
 					else
-						return r_951
+						return r_971
 					end
 				end)(previous3) then
 					local _eprev_45_pos1, _etok_45_pos1
 					_eprev_45_pos1 = _eget_45_idx1(previous3, "range")
 					_etok_45_pos1 = _eget_45_idx1(tok1, "range")
-					if (function(r_1321)
-						if r_1321 then
+					if (function(r_1341)
+						if r_1341 then
 							return _e_47__61_1(_eget_45_idx1(_eget_45_idx1(_eprev_45_pos1, "start"), "line"), _eget_45_idx1(_eget_45_idx1(_etok_45_pos1, "start"), "line"))
 						else
-							return r_1321
+							return r_1341
 						end
 					end)(_e_47__61_1(_eget_45_idx1(_eget_45_idx1(_eprev_45_pos1, "start"), "column"), _eget_45_idx1(_eget_45_idx1(_etok_45_pos1, "start"), "column"))) then
 						_eprint_45_warning_33_1("Different indent compared with previous expressions.")
@@ -934,19 +935,19 @@ parse1 = (function(toks1)
 					_eset_45_idx_33_1(_eget_45_idx1(head1, "range"), "finish", _eget_45_idx1(_eget_45_idx1(tok1, "range"), "finish"))
 					_epop_33_1()
 				end
-			elseif (function(r_1331)
-				if r_1331 then
-					return r_1331
+			elseif (function(r_1351)
+				if r_1351 then
+					return r_1351
 				else
-					local r_1341
-					r_1341 = _e_61_1(tag4, "unquote")
-					if r_1341 then
-						return r_1341
+					local r_1361
+					r_1361 = _e_61_1(tag4, "unquote")
+					if r_1361 then
+						return r_1361
 					else
-						local r_1351
-						r_1351 = _e_61_1(tag4, "quasiquote")
-						if r_1351 then
-							return r_1351
+						local r_1371
+						r_1371 = _e_61_1(tag4, "quasiquote")
+						if r_1371 then
+							return r_1371
 						else
 							return _e_61_1(tag4, "unquote-splice")
 						end
@@ -971,9 +972,9 @@ parse1 = (function(toks1)
 			end
 			if _eauto_45_close1 then
 			else
-				local r_1361
-				r_1361 = nil
-				r_1361 = (function()
+				local r_1381
+				r_1381 = nil
+				r_1381 = (function()
 					if _eget_45_idx1(head1, "auto-close") then
 						if _enil_63_1(stack1) then
 							_eerror_45_positions_33_1(tok1, format2("'%s' without matching '%s'", _eget_45_idx1(tok1, "contents"), _eget_45_idx1(tok1, "open")))
@@ -982,17 +983,17 @@ parse1 = (function(toks1)
 						end
 						_eset_45_idx_33_1(_eget_45_idx1(head1, "range"), "finish", _eget_45_idx1(_eget_45_idx1(tok1, "range"), "finish"))
 						_epop_33_1()
-						return r_1361()
+						return r_1381()
 					else
 					end
 				end);
-				r_1361()
+				r_1381()
 			end
-			return r_881(_e_43_1(r_891, r_911))
+			return r_901(_e_43_1(r_911, r_931))
 		else
 		end
 	end);
-	r_881(1)
+	r_901(1)
 	return head1
 end);
 return struct1("lex", lex1, "parse", parse1)

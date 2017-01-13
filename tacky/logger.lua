@@ -27,6 +27,7 @@ local _temp = (function()
 
 		['get-idx'] = rawget,
 		['set-idx!'] = rawset,
+		['remove-idx!'] = table.remove,
 		['slice'] = function(xs, start, finish)
 			if not finish then finish = xs.n end
 			return { tag = "list", n = finish - start + 1, table.unpack(xs, start, finish) }
@@ -140,19 +141,19 @@ nth1 = (function(li4, idx1)
 		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_51), 2)
 	else
 	end
-	local r_191
-	r_191 = type1(idx1)
-	if _e_126__61_1(r_191, "number") then
-		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "idx", "number", r_191), 2)
+	local r_201
+	r_201 = type1(idx1)
+	if _e_126__61_1(r_201, "number") then
+		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "idx", "number", r_201), 2)
 	else
 	end
 	return _eget_45_idx1(li4, idx1)
 end);
 _e_35_2 = (function(li6)
-	local r_71
-	r_71 = type1(li6)
-	if _e_126__61_1(r_71, "list") then
-		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_71), 2)
+	local r_81
+	r_81 = type1(li6)
+	if _e_126__61_1(r_81, "list") then
+		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_81), 2)
 	else
 	end
 	return _e_35_1(li6)
@@ -161,10 +162,10 @@ car2 = (function(li3)
 	return nth1(li3, 1)
 end);
 _epush_45_cdr_33_1 = (function(li9, val2)
-	local r_101
-	r_101 = type1(li9)
-	if _e_126__61_1(r_101, "list") then
-		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_101), 2)
+	local r_111
+	r_111 = type1(li9)
+	if _e_126__61_1(r_111, "list") then
+		_eerror_33_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_111), 2)
 	else
 	end
 	local len1
@@ -194,22 +195,22 @@ split1 = (function(text1, pattern1, limit1)
 	out2 = {tag = "list", n = 0}
 	loop1 = true
 	start3 = 1
-	local r_731
-	r_731 = nil
-	r_731 = (function()
+	local r_751
+	r_751 = nil
+	r_751 = (function()
 		if loop1 then
 			local pos1
 			pos1 = find1(text1, pattern1, start3)
-			if (function(r_741)
-				if r_741 then
-					return r_741
+			if (function(r_761)
+				if r_761 then
+					return r_761
 				else
-					local r_751
-					r_751 = limit1
-					if r_751 then
+					local r_771
+					r_771 = limit1
+					if r_771 then
 						return _e_62__61_1(_e_35_1(out2), limit1)
 					else
-						return r_751
+						return r_771
 					end
 				end
 			end)(_e_61__61_1("nil", _etype_35_1(pos1))) then
@@ -220,11 +221,11 @@ split1 = (function(text1, pattern1, limit1)
 				_epush_45_cdr_33_1(out2, sub1(text1, start3, _e_45_1(car1(pos1), 1)))
 				start3 = _e_43_1(cadr1(pos1), 1)
 			end
-			return r_731()
+			return r_751()
 		else
 		end
 	end);
-	r_731()
+	r_751()
 	return out2
 end);
 struct1 = (function(...)
@@ -238,22 +239,22 @@ struct1 = (function(...)
 		return sub1(_eget_45_idx1(key3, "contents"), 2)
 	end);
 	out3 = _eempty_45_struct1()
+	local r_731
+	r_731 = _e_35_1(keys3)
+	local r_741
+	r_741 = 2
 	local r_711
-	r_711 = _e_35_1(keys3)
-	local r_721
-	r_721 = 2
-	local r_691
-	r_691 = nil
-	r_691 = (function(r_701)
+	r_711 = nil
+	r_711 = (function(r_721)
 		local _temp
 		if _e_60_1(0, 2) then
-			_temp = _e_60__61_1(r_701, r_711)
+			_temp = _e_60__61_1(r_721, r_731)
 		else
-			_temp = _e_62__61_1(r_701, r_711)
+			_temp = _e_62__61_1(r_721, r_731)
 		end
 		if _temp then
 			local i3
-			i3 = r_701
+			i3 = r_721
 			local key4, val3
 			key4 = _eget_45_idx1(keys3, i3)
 			val3 = _eget_45_idx1(keys3, _e_43_1(1, i3))
@@ -264,11 +265,11 @@ struct1 = (function(...)
 					return key4
 				end
 			end)(), val3)
-			return r_691(_e_43_1(r_701, r_721))
+			return r_711(_e_43_1(r_721, r_741))
 		else
 		end
 	end);
-	r_691(1)
+	r_711(1)
 	return out3
 end);
 fail1 = (function(msg1)
@@ -338,11 +339,11 @@ _eformat_45_range1 = (function(range1)
 	end
 end);
 _eformat_45_node1 = (function(node1)
-	if (function(r_831)
-		if r_831 then
+	if (function(r_851)
+		if r_851 then
 			return _eget_45_idx1(node1, "contents")
 		else
-			return r_831
+			return r_851
 		end
 	end)(_eget_45_idx1(node1, "range")) then
 		return format2("%s (%q)", _eformat_45_range1(_eget_45_idx1(node1, "range")), _eget_45_idx1(node1, "contents"))
@@ -359,23 +360,23 @@ end);
 _eget_45_source1 = (function(node2)
 	local result1
 	result1 = nil
-	local r_841
-	r_841 = nil
-	r_841 = (function()
-		if (function(r_851)
-			if r_851 then
+	local r_861
+	r_861 = nil
+	r_861 = (function()
+		if (function(r_871)
+			if r_871 then
 				return _e_33_1(result1)
 			else
-				return r_851
+				return r_871
 			end
 		end)(node2) then
 			result1 = _eget_45_idx1(node2, "range")
 			node2 = _eget_45_idx1(node2, "parent")
-			return r_841()
+			return r_861()
 		else
 		end
 	end);
-	r_841()
+	r_861()
 	return result1
 end);
 _eput_45_lines_33_1 = (function(range2, ...)
@@ -394,30 +395,30 @@ _eput_45_lines_33_1 = (function(range2, ...)
 	_emax_45_line1 = _eget_45_idx1(_eget_45_idx1(_eget_45_idx1(entries1, pred1(_e_35_2(entries1))), "start"), "line")
 	local code1
 	code1 = _e_46__46_1("\27[92m %", _e_35_s1(_enumber_45__62_string1(_emax_45_line1)), "s |\27[0m %s")
+	local r_911
+	r_911 = _e_35_2(entries1)
+	local r_921
+	r_921 = 2
 	local r_891
-	r_891 = _e_35_2(entries1)
-	local r_901
-	r_901 = 2
-	local r_871
-	r_871 = nil
-	r_871 = (function(r_881)
+	r_891 = nil
+	r_891 = (function(r_901)
 		local _temp
 		if _e_60_1(0, 2) then
-			_temp = _e_60__61_1(r_881, r_891)
+			_temp = _e_60__61_1(r_901, r_911)
 		else
-			_temp = _e_62__61_1(r_881, r_891)
+			_temp = _e_62__61_1(r_901, r_911)
 		end
 		if _temp then
 			local i4
-			i4 = r_881
+			i4 = r_901
 			local position1, message1
 			position1 = _eget_45_idx1(entries1, i4)
 			message1 = _eget_45_idx1(entries1, succ1(i4))
-			if (function(r_911)
-				if r_911 then
+			if (function(r_931)
+				if r_931 then
 					return _e_62_1(_e_45_1(_eget_45_idx1(_eget_45_idx1(position1, "start"), "line"), previous1), 2)
 				else
-					return r_911
+					return r_931
 				end
 			end)(_e_47__61_1(previous1, -1)) then
 				_eprint_33_1(" \27[92m...\27[0m")
@@ -428,11 +429,11 @@ _eput_45_lines_33_1 = (function(range2, ...)
 			local pointer1
 			if _e_33_1(range2) then
 				pointer1 = "^"
-			elseif (function(r_981)
-				if r_981 then
+			elseif (function(r_1001)
+				if r_1001 then
 					return _e_61_1(_eget_45_idx1(_eget_45_idx1(position1, "start"), "line"), _eget_45_idx1(_eget_45_idx1(position1, "finish"), "line"))
 				else
-					return r_981
+					return r_1001
 				end
 			end)(_eget_45_idx1(position1, "finish")) then
 				pointer1 = rep1("^", _e_45_1(_eget_45_idx1(_eget_45_idx1(position1, "finish"), "column"), _eget_45_idx1(_eget_45_idx1(position1, "start"), "column"), -1))
@@ -440,18 +441,18 @@ _eput_45_lines_33_1 = (function(range2, ...)
 				pointer1 = "^..."
 			end
 			_eprint_33_1(format2(code1, "", _e_46__46_1(rep1(" ", _e_45_1(_eget_45_idx1(_eget_45_idx1(position1, "start"), "column"), 1)), pointer1, " ", message1)))
-			return r_871(_e_43_1(r_881, r_901))
+			return r_891(_e_43_1(r_901, r_921))
 		else
 		end
 	end);
-	return r_871(1)
+	return r_891(1)
 end);
 _eput_45_trace_33_1 = (function(node3)
 	local previous2
 	previous2 = nil
-	local r_861
-	r_861 = nil
-	r_861 = (function()
+	local r_881
+	r_881 = nil
+	r_881 = (function()
 		if node3 then
 			local formatted1
 			formatted1 = _eformat_45_node1(node3)
@@ -464,41 +465,41 @@ _eput_45_trace_33_1 = (function(node3)
 			end
 			previous2 = formatted1
 			node3 = _eget_45_idx1(node3, "parent")
-			return r_861()
+			return r_881()
 		else
 		end
 	end);
-	return r_861()
+	return r_881()
 end);
 _eput_45_explain_33_1 = (function(...)
 	local lines3 = table.pack(...) lines3.tag = "list"
 	if _eget_45_idx1(_eshow_45_explain1, "value") then
-		local r_931
-		r_931 = lines3
+		local r_951
+		r_951 = lines3
+		local r_981
+		r_981 = _e_35_2(r_951)
+		local r_991
+		r_991 = 1
 		local r_961
-		r_961 = _e_35_2(r_931)
-		local r_971
-		r_971 = 1
-		local r_941
-		r_941 = nil
-		r_941 = (function(r_951)
+		r_961 = nil
+		r_961 = (function(r_971)
 			local _temp
 			if _e_60_1(0, 1) then
-				_temp = _e_60__61_1(r_951, r_961)
+				_temp = _e_60__61_1(r_971, r_981)
 			else
-				_temp = _e_62__61_1(r_951, r_961)
+				_temp = _e_62__61_1(r_971, r_981)
 			end
 			if _temp then
-				local r_921
-				r_921 = r_951
+				local r_941
+				r_941 = r_971
 				local line1
-				line1 = _eget_45_idx1(r_931, r_921)
+				line1 = _eget_45_idx1(r_951, r_941)
 				_eprint_33_1(_e_46__46_1("  ", line1))
-				return r_941(_e_43_1(r_951, r_971))
+				return r_961(_e_43_1(r_971, r_991))
 			else
 			end
 		end);
-		return r_941(1)
+		return r_961(1)
 	else
 	end
 end);
