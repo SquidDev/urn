@@ -7,7 +7,7 @@ local pprint = require "tacky.pprint"
 local resolve = require "tacky.analysis.resolve"
 
 local paths = { "?", "lib/?" }
-local inputs, output, verbosity, run, prelude = {}, "out", 0, false, "lib/prelude"
+local inputs, output, verbosity, run, prelude, time = {}, "out", 0, false, "lib/prelude", false
 
 local args = table.pack(...)
 local i = 1
@@ -23,6 +23,8 @@ while i <= args.n do
 		logger.setExplain(true)
 	elseif arg == "--run" or arg == "-r" then
 		run = true
+	elseif arg == "--time" or arg == "-t" then
+		time = true
 	elseif arg == "--include" or arg == "-i" then
 		i = i + 1
 		local path = args[i] or error("Expected directory after " .. arg, 0)
@@ -41,7 +43,7 @@ while i <= args.n do
 	elseif arg:sub(1, 1) == "-" then
 		error("Unknown option " .. arg, 0)
 	else
-		inputs[#inputs + 1] = arg
+		inputs[#inputs + 1] = arg:gsub("\\", "/"):gsub("^%./", "")
 	end
 
 	i = i + 1
@@ -130,8 +132,10 @@ local function libLoader(name, scope, resolve)
 		end
 	end
 
+	local start = os.clock()
 	local lexed = parser.lex(lib.lisp, lib.path)
 	local parsed = parser.parse(lexed, lib.lisp)
+	if time then print(lib.path .. " parsed in " .. (os.clock() - start)) end
 
 	if not scope then
 		scope = rootScope:child()
@@ -159,7 +163,9 @@ end
 out.n = #out
 out.tag = "list"
 
+local start = os.clock()
 out = optimise(out)
+if time then print("Optimised in " .. (os.clock() - start)) end
 
 local compiledLua = backend.lua.block(out, 1, "return ")
 local handle = io.open(output .. ".lua", "w")
