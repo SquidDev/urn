@@ -21,13 +21,19 @@ local function escape(name)
 	else
 		-- Note, this algorithm is designed more around producing readable names
 		-- than unique ones. escapeVar ensures each one is unique
-		local out = "_e"
+		local out = ""
+
+		-- Prefix with `_e` for "illegal" names
+		if name:sub(1, 1):find("%d") then out = "_e" end
+
 		local upper, esc = false, false
 		for i = 1, #name do
 			local char = name:sub(i, i)
-			if char == "-" then
+
+			if char == "-" and name:sub(i - 1, i - 1):find("[%a%d']") and name:sub(i + 1, i + 1):find("[%a%d']") then
+				-- If we're surrounded by ident characters then convert the next one to upper case
 				upper = true
-			elseif char:find("[^_%w%d]") then
+			elseif char:find("[^%w%d]") then
 				char = ("%02x"):format(char:byte())
 				if not esc then
 					esc = true
