@@ -1,4 +1,5 @@
 local builtins = require "tacky.analysis.resolve".builtins
+local builtinVars = require "tacky.analysis.resolve".declaredVars
 local visitor = require "tacky.analysis.visitor"
 
 --- Checks if a node has side effects
@@ -178,7 +179,7 @@ return function(nodes)
 		local node = nodes[i]
 		if (node.defVar and not varLookup[node.defVar].active) then
 			if i == #nodes then
-				nodes[i] = { tag = "symbol", contents = "nil" }
+				nodes[i] = { tag = "symbol", contents = "nil", var = builtinVars["nil"] }
 			else
 				nodes.n = nodes.n - 1
 				table.remove(nodes, i)

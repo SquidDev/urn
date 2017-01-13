@@ -34,7 +34,9 @@ local declaredVars = {}
 local declaredVariables = { "nil", "true", "false" }
 for i = 1, #declaredVariables do
 	local defined = declaredVariables[i]
-	declaredVars[rootScope:add(defined, "defined", nil)] = true
+	local var = rootScope:add(defined, "defined", nil)
+	declaredVars[var] = true
+	declaredVars[defined] = var
 end
 
 local function resolveMacroResult(macro, node, parent, scope, state)
