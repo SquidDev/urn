@@ -1,7 +1,7 @@
 (define builtins (.> (require "tacky.analysis.resolve") :builtins))
 
 (defun visit-quote (node visitor level)
-  (if (== level 0)
+  (if (= level 0)
     (visit-node node visitor)
     (with (tag (.> node :tag))
       (cond
@@ -69,7 +69,7 @@
   :visitBlock visit-block
   :visitList  visit-block)
 
-;; if r_851 ~= #node3 then
+;; if r_851 /= #node3 then
 ;; 		print(r_851, #node3)
 ;; 		require "tacky.logger".putTrace(node3)
 ;; 		local pp = require "tacky.pprint"

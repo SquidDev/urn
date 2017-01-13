@@ -1,6 +1,6 @@
 (import base (defun defmacro let letrec with for if
               gensym get-idx set-idx!
-              == > + -))
+              = > + -))
 (import base)
 (import types (assert-type!))
 
@@ -56,7 +56,7 @@
   li)
 
 ;; Checks this is a list and is empty
-(defun nil? (li) (== (# li) 0))
+(defun nil? (li) (= (# li) 0))
 
 ;; Perform an action for every entry in the list
 (defmacro for-each (var lst &body)
@@ -166,7 +166,7 @@
     (any-impl 1)))
 
 (defun elem (x li)
-  (any (lambda (e) (== x e)) li))
+  (any (lambda (e) (= x e)) li))
 
 ;; Determine whether all elements match a predicate
 (defun all (fn li)

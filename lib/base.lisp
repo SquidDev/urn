@@ -5,8 +5,8 @@
 ;; as possible.
 
 ; Comparison operators
-(define-native ==)
-(define-native ~=)
+(define-native =)
+(define-native /=)
 (define-native <)
 (define-native <=)
 (define-native >)
@@ -40,6 +40,7 @@
 
 (define-native string->number)
 (define-native number->string)
+(define-native clock)
 
 ; Compiler functions
 (define-native gensym)
@@ -63,7 +64,7 @@
 
 ;; Bind multiple variables in succession
 (defmacro let* (vars &body)
-  (if (~= (# vars) 0)
+  (if (/= (# vars) 0)
     `((lambda (,(get-idx (car vars) 1)) (let* ,(cdr vars) ,@body)) ,(get-idx (car vars) 2))
     `((lambda () ,@body))))
 
@@ -129,13 +130,13 @@
 ;; Returns the last evaluated expression.
 (defmacro and (a b &rest)
   (with (symb (gensym))
-    `(with (,symb ,a) (if ,symb ,(if (== (# rest) 0) b `(and ,b ,@rest)) ,symb))))
+    `(with (,symb ,a) (if ,symb ,(if (= (# rest) 0) b `(and ,b ,@rest)) ,symb))))
 
 ;; Evaluates each expression in turn, returning if it evaluates to a truthy value.
 ;; Returns the last evaluated expression.
 (defmacro or (a b &rest)
   (with (symb (gensym))
-    `(with (,symb ,a) (if ,symb ,symb ,(if (== (# rest) 0) b `(or ,b ,@rest))))))
+    `(with (,symb ,a) (if ,symb ,symb ,(if (= (# rest) 0) b `(or ,b ,@rest))))))
 
 ;; Return the boolean negation of this value
 (defun ! (expr) (cond (expr false) (true true)))

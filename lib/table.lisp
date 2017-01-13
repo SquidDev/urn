@@ -1,10 +1,13 @@
 (import base (defmacro defun with for let when if
               get-idx set-idx! error! empty-struct
-              == % - + #))
+              = % - + #))
 
 (import list)
 (import types)
 (import string)
+
+(define-native getmetatable)
+(define-native setmetatable)
 
 ;; Chain a series of index accesses together
 (defmacro .> (x &keys)
@@ -21,7 +24,7 @@
     `(set-idx! ,res ,(get-idx keys (# keys) 1) ,value)))
 
 (defun struct (&keys)
-  (when (== (% (# keys) 1) 1)
+  (when (= (% (# keys) 1) 1)
     (error! "Expected an even number of arguments to struct" 2))
   (let ((contents (lambda (key)
                     (string/sub (get-idx key "contents") 2)))

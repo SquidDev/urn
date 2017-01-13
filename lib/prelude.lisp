@@ -1,12 +1,12 @@
 (import base (defun defmacro progn for while if when unless and or with xpcall
               get-idx set-idx! format print! pretty error! empty-struct gensym
               traceback string->number number->string require
-              == ~= < <= > >= + - * / % ^ .. !))
+              = /= < <= > >= + - * / % ^ .. !))
 
 (import binders ())
 (import list ())
 (import types ())
-(import partial ())
+(import function ())
 (import table ())
 
 (defun fail (msg) (error! msg 0))
@@ -15,9 +15,6 @@
 
 (defun symbol->string (x) (if (symbol? x) (get-idx x "contents") nil))
 (defun bool->string (x) (if x "true" "false"))
-
-(defun /= (x y) (~= x y))
-(defun = (x y) (== x y))
 
 (defmacro case (x &cases)
   (let* ((name (gensym))

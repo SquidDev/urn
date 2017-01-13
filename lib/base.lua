@@ -8,8 +8,8 @@ local pprint = require "tacky.pprint"
 
 local randCtr = 0
 return {
-	['=='] = function(x, y) return x == y end,
-	['~='] = function(x, y) return x ~= y end,
+	['='] = function(x, y) return x == y end,
+	['/='] = function(x, y) return x ~= y end,
 	['<'] = function(x, y) return x < y end,
 	['<='] = function(x, y) return x <= y end,
 	['>'] = function(x, y) return x > y end,
@@ -42,6 +42,7 @@ return {
 	['require'] = require,
 	['string->number'] = tonumber,
 	['number->string'] = tostring,
+	['clock'] = os.clock,
 
 	['gensym'] = function(name)
 		if name then

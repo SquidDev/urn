@@ -1,4 +1,4 @@
-(import base (defun let while with if progn and or type# >= == + - # car))
+(import base (defun let while with if progn and or type# >= = + - # car))
 (import list)
 
 (define-native byte)
@@ -25,7 +25,7 @@
         (start 1))
     (while loop
       (with (pos (find text pattern start))
-        (if (or (== "nil" (type# pos)) (and limit (>= (# out) limit)))
+        (if (or (= "nil" (type# pos)) (and limit (>= (# out) limit)))
           (progn
             (set! loop false)
             (list/push-cdr! out (sub text start (#s text)))
