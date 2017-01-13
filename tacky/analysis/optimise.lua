@@ -509,7 +509,7 @@ visitNode1 = (function(node2, visitor2)
 							if _temp then
 								return visitBlock1(node2, 1, visitor2)
 							else
-								return fail1(_2e2e_1("Unknown kind ", func1, " for variable ", func1["name"]))
+								return fail1(_2e2e_1("Unknown kind ", funct1, " for variable ", func1["name"]))
 							end
 						end
 					end
@@ -517,10 +517,8 @@ visitNode1 = (function(node2, visitor2)
 			else
 				return visitBlock1(node2, 1, visitor2)
 			end
-		elseif error_21_1 then
-			return ("Unknown tag " .. tag3)
 		else
-			error('unmatched item')
+			return error_21_1(("Unknown tag " .. tag3))
 		end
 	end
 end);
@@ -550,6 +548,7 @@ visitBlock1 = (function(node3, start3, visitor3)
 end);
 struct1("visitNode", visitNode1, "visitBlock", visitBlock1, "visitList", visitBlock1)
 builtins2 = require1("tacky.analysis.resolve")["builtins"]
+builtinVars1 = require1("tacky.analysis.resolve")["declaredVars"]
 hasSideEffect1 = (function(node4)
 	local tag4
 	tag4 = type1(node4)
@@ -862,7 +861,7 @@ optimise1 = (function(nodes3)
 			end
 			if _temp then
 				if (i6 == _23_2(nodes3)) then
-					setNth_21_1(nodes3, i6, {tag = "symbol", contents = "nil", var = "table: 00000000029050c0"})
+					setNth_21_1(nodes3, i6, struct1("tag", "symbol", "contents", "nil", "var", builtinVars1["nil"]))
 				else
 					removeNth_21_1(nodes3, i6)
 				end
@@ -932,7 +931,7 @@ optimise1 = (function(nodes3)
 			end
 			if _temp then
 				if (i8 == _23_2(nodes3)) then
-					setNth_21_1(nodes3, i8, {tag = "symbol", contents = "nil", var = "table: 00000000029050c0"})
+					setNth_21_1(nodes3, i8, struct1("tag", "symbol", "contents", "nil", "var", builtinVars1["nil"]))
 				else
 					removeNth_21_1(nodes3, i8)
 				end

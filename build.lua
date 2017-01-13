@@ -9,5 +9,5 @@ end
 
 compile "logger"
 compile "parser"
-compile "analysis/visitor"
+compile "analysis/optimise"
 compile "backend/lisp"

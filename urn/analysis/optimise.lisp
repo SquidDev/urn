@@ -1,6 +1,7 @@
 (import urn/analysis/visitor visitor)
 
 (define builtins (get-idx (require "tacky.analysis.resolve") :builtins))
+(define builtinVars (get-idx (require "tacky.analysis.resolve") :declaredVars))
 
 ;;; Checks if a node has a side effect
 (defun has-side-effect (node)
@@ -106,7 +107,7 @@
         ;; We replace the last node in the block with a nil: otherwise we might change
         ;; what is returned
         (if (= i (# nodes))
-          (set-nth! nodes i `nil)
+          (set-nth! nodes i (struct :tag "symbol" :contents "nil" :var (.> builtinVars :nil)))
           (remove-nth! nodes i)))))
 
   ;; Strip pure expressions (apart from the last one: that will be returned).
@@ -125,7 +126,7 @@
       (with (node (nth nodes i))
         (when (and (.> node :defVar) (! (.> lookup (.> node :defVar) :active)))
           (if (= i (# nodes))
-            (set-nth! nodes i `nil)
+            (set-nth! nodes i (struct :tag "symbol" :contents "nil" :var (.> builtinVars :nil)))
             (remove-nth! nodes i))))))
   nodes)
 
