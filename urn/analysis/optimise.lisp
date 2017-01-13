@@ -9,10 +9,10 @@
       ;; Constant terms are obviously side effect free
       ((or (= tag "number") (= tag "string") (= tag "key") (= tag "symbol")) false)
       ((= tag "list")
-        (with (fst (cdr node))
+        (with (fst (car node))
           ;; We simply check if we're defining a lambda/quoting something
           ;; Everything else *may* have a side effect.
-          (if (and fst (= (type fst) "symbol"))
+          (if (= (type fst) "symbol")
             (with (var (.> fst :var))
               (and (/= var (.> builtins :lambda)) (/= var (.> builtins :quote))))
             true))))))
@@ -74,7 +74,7 @@
                  (.<! entry :active true)
 
                  (for-each def (.> entry :defs)
-                   (with (val (.> def :val))
+                   (with (val (.> def :value))
                      (when val (push-cdr! queue val)))))
                (push-cdr! (.> entry :usages) user)))))
          (visit (lambda (node)
