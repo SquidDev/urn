@@ -24,6 +24,7 @@
 ; Table operators
 (define-native get-idx)
 (define-native set-idx!)
+(define-native remove-idx!)
 (define-native slice)
 
 ; Core functions

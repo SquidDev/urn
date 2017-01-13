@@ -25,6 +25,7 @@ return {
 
 	['get-idx'] = rawget,
 	['set-idx!'] = rawset,
+	['remove-idx!'] = table.remove,
 	['slice'] = function(xs, start, finish)
 		if not finish then finish = xs.n end
 		return { tag = "list", n = finish - start + 1, table.unpack(xs, start, finish) }

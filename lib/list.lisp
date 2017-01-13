@@ -18,6 +18,13 @@
 
   (set-idx! li idx val))
 
+(defun remove-nth! (li idx)
+  (assert-type! li "list")
+  (assert-type! idx "number")
+
+  (base/remove-idx! li idx)
+  (set-idx! li "n" (- (get-idx li "n") 1)))
+
 (defun # (li)
   (assert-type! li "list")
   (base/# li))
