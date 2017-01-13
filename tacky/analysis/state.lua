@@ -1,3 +1,5 @@
+local logger = require "tacky.logger"
+
 local State = {}
 State.__index = State
 
@@ -85,7 +87,14 @@ function State:built(node)
 	self.node = node
 
 	if node.defVar ~= self.var then
-		error("Variables are different", 2)
+		logger.printError("Variables are different for " .. self.var.name)
+		print("Original variable defined at")
+		logger.putTrace(self.var.node)
+
+		print("New variable defined at")
+		logger.putTrace(node)
+
+		error("An error occured", 0)
 	end
 end
 

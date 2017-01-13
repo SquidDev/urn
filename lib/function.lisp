@@ -68,7 +68,7 @@
           `(defun ,name ,args
              (let* [(,clockn (clock))
                      (,resultn (progn ,@body))]
-                (print! ,(symbol->string name) " took " (- (clock) ,clockn))
+                (print! ,(get-idx name "contents") " took " (- (clock) ,clockn))
                 ,resultn)))
         (progn
           (print! (pretty definition))
