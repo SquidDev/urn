@@ -19,8 +19,63 @@ local function escape(name)
 		-- We explicitly forbid leading _ as that is used for compiler internals
 		return name
 	else
-		return "_e" .. name:gsub("([^_%w%d])", function(x) return "_" .. x:byte() .. "_" end)
+		-- Note, this algorithm is designed more around producing readable names
+		-- than unique ones. escapeVar ensures each one is unique
+		local out = "_e"
+		local upper, esc = false, false
+		for i = 1, #name do
+			local char = name:sub(i, i)
+			if char == "-" then
+				upper = true
+			elseif char:find("[^_%w%d]") then
+				char = ("%02x"):format(char:byte())
+				if not esc then
+					esc = true
+					out = out .. "_"
+				end
+				out = out .. char
+			else
+				if esc then
+					out = out .. "_"
+					esc = false
+				end
+				if upper then
+					char = char:upper()
+					upper = false
+				end
+				out = out .. char
+			end
+		end
+
+		if esc then
+			out = out .. "_"
+			esc = false
+		end
+
+		return out
 	end
+end
+
+local varLookup = {}
+local ctrLookup = {}
+
+local function escapeVar(var, args)
+	if builtinVars[var] then return var.name end
+
+	if var.isVariadic and args then
+		return "..."
+	end
+
+	local v = escape(var.name)
+
+	local id = varLookup[var]
+	if not id then
+		id = (ctrLookup[v] or 0) + 1
+		ctrLookup[v] = id
+		varLookup[var] = id
+	end
+
+	return v .. id
 end
 
 --- Check if an expression can be compiled to a statement
@@ -43,28 +98,6 @@ local function isStatement(node)
 	else
 		return false
 	end
-end
-
-local varLookup = {}
-local ctrLookup = {}
-
-local function escapeVar(var, args)
-	if builtinVars[var] then return var.name end
-
-	if var.isVariadic and args then
-		return "..."
-	end
-
-	local v = escape(var.name)
-
-	local id = varLookup[var]
-	if not id then
-		id = (ctrLookup[var.name] or 0) + 1
-		ctrLookup[var.name] = id
-		varLookup[var] = id
-	end
-
-	return v .. id
 end
 
 local compileBlock, compileExpression, compileQuote

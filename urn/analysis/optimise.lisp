@@ -109,10 +109,10 @@
           (set-nth! nodes i `nil)
           (remove-nth! nodes i)))))
 
-  ;; Strip pointless expressions (apart from the last one: that will be returned).
+  ;; Strip pure expressions (apart from the last one: that will be returned).
   (for i (pred (# nodes)) 1 -1
     (with (node (nth nodes i))
-      (when (and (list? node) (> (# node) 0) (symbol? (car node)) (= (.> (car node) :var) (.> builtins :import)))
+      (when (! (has-side-effect node))
         (remove-nth! nodes i))))
 
 
