@@ -141,10 +141,7 @@ local function gatherUsages(nodes, varLookup)
 	end
 
 	for i = 1, #nodes do
-		local node = nodes[i]
-		if hasSideEffects(node) then
-			queue[#queue + 1] = node
-		end
+		queue[#queue + 1] = nodes[i]
 	end
 
 	while #queue > 0 do
@@ -166,6 +163,12 @@ return function(nodes)
 		end
 	end
 
+	for i = #nodes - 1, 1, -1 do
+		if not hasSideEffects(nodes[i]) then
+			nodes.n = nodes.n - 1
+			table.remove(nodes, i)
+		end
+	end
 
 	local varLookup = {}
 	gatherDefinitions(nodes, varLookup)
@@ -173,9 +176,13 @@ return function(nodes)
 
 	for i = #nodes, 1, -1 do
 		local node = nodes[i]
-		if not hasSideEffects(node) or (node.defVar and not varLookup[node.defVar].active) then
-			nodes.n = nodes.n - 1
-			table.remove(nodes, i)
+		if (node.defVar and not varLookup[node.defVar].active) then
+			if i == #nodes then
+				nodes[i] = { tag = "symbol", contents = "nil" }
+			else
+				nodes.n = nodes.n - 1
+				table.remove(nodes, i)
+			end
 		end
 	end
 
