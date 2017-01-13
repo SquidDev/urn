@@ -10,8 +10,8 @@ local _temp = (function()
 
 	local randCtr = 0
 	return {
-		['=='] = function(x, y) return x == y end,
-		['~='] = function(x, y) return x ~= y end,
+		['='] = function(x, y) return x == y end,
+		['/='] = function(x, y) return x ~= y end,
 		['<'] = function(x, y) return x < y end,
 		['<='] = function(x, y) return x <= y end,
 		['>'] = function(x, y) return x > y end,
@@ -44,6 +44,7 @@ local _temp = (function()
 		['require'] = require,
 		['string->number'] = tonumber,
 		['number->string'] = tostring,
+		['clock'] = os.clock,
 
 		['gensym'] = function(name)
 			if name then
@@ -85,9 +86,17 @@ local _temp = (function()
 
 end)() 
 for k, v in pairs(_temp) do _libs[k] = v end
+local _temp = (function()
+	return {
+	  getmetatable = getmetatable,
+	  setmetatable = setmetatable
+	}
 
-_3d3d_1 = _libs["=="]
-_7e3d_1 = _libs["~="]
+end)() 
+for k, v in pairs(_temp) do _libs[k] = v end
+
+_3d_1 = _libs["="]
+_2f3d_1 = _libs["/="]
 _3c_1 = _libs["<"]
 _3c3d_1 = _libs["<="]
 _3e3d_1 = _libs[">="]
@@ -103,17 +112,17 @@ type_23_1 = _libs["type#"]
 emptyStruct1 = _libs["empty-struct"]
 require1 = _libs["require"]
 _23_1 = (function(xs1)
-	return getIdx1(xs1, "n")
+	return xs1["n"]
 end);
 key_3f_1 = (function(x5)
-	return _3d3d_1(type1(x5), "key")
+	return (type1(x5) == "key")
 end);
 type1 = (function(val1)
 	local ty2
 	ty2 = type_23_1(val1)
-	if _3d3d_1(ty2, "table") then
+	if (ty2 == "table") then
 		local tag1
-		tag1 = getIdx1(val1, "tag")
+		tag1 = val1["tag"]
 		if tag1 then
 			return tag1
 		else
@@ -126,315 +135,318 @@ end);
 nth1 = (function(li4, idx1)
 	local r_51
 	r_51 = type1(li4)
-	if _7e3d_1(r_51, "list") then
+	if (r_51 ~= "list") then
 		error_21_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_51), 2)
 	else
 	end
 	local r_201
 	r_201 = type1(idx1)
-	if _7e3d_1(r_201, "number") then
+	if (r_201 ~= "number") then
 		error_21_1(format1("bad argment %s (expected %s, got %s)", "idx", "number", r_201), 2)
 	else
 	end
-	return getIdx1(li4, idx1)
+	return li4[idx1]
 end);
-_23_2 = (function(li6)
+_23_2 = (function(li5)
 	local r_81
-	r_81 = type1(li6)
-	if _7e3d_1(r_81, "list") then
+	r_81 = type1(li5)
+	if (r_81 ~= "list") then
 		error_21_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_81), 2)
 	else
 	end
-	return _23_1(li6)
+	return _23_1(li5)
 end);
 sub1 = _libs["sub"]
 struct1 = (function(...)
 	local keys2 = table.pack(...) keys2.tag = "list"
-	if _3d3d_1(_25_1(_23_2(keys2), 1), 1) then
+	if ((_23_2(keys2) % 1) == 1) then
 		error_21_1("Expected an even number of arguments to struct", 2)
 	else
 	end
 	local contents1, out2
 	contents1 = (function(key2)
-		return sub1(getIdx1(key2, "contents"), 2)
+		return sub1(key2["contents"], 2)
 	end);
-	out2 = emptyStruct1()
-	local r_731
-	r_731 = _23_1(keys2)
-	local r_741
-	r_741 = 2
-	local r_711
-	r_711 = nil
-	r_711 = (function(r_721)
+	out2 = {}
+	local r_621
+	r_621 = _23_1(keys2)
+	local r_631
+	r_631 = 2
+	local r_601
+	r_601 = nil
+	r_601 = (function(r_611)
 		local _temp
-		if _3c_1(0, 2) then
-			_temp = _3c3d_1(r_721, r_731)
+		if (0 < 2) then
+			_temp = (r_611 <= r_621)
 		else
-			_temp = _3e3d_1(r_721, r_731)
+			_temp = (r_611 >= r_621)
 		end
 		if _temp then
 			local i2
-			i2 = r_721
+			i2 = r_611
 			local key3, val2
-			key3 = getIdx1(keys2, i2)
-			val2 = getIdx1(keys2, _2b_1(1, i2))
-			setIdx_21_1(out2, (function()
+			key3 = keys2[i2]
+			val2 = keys2[(1 + i2)]
+			out2[(function()
 				if key_3f_1(key3) then
 					return contents1(key3)
 				else
 					return key3
 				end
-			end)(), val2)
-			return r_711(_2b_1(r_721, r_741))
+			end)()] = val2
+			return r_601((r_611 + r_631))
 		else
 		end
 	end);
-	r_711(1)
+	r_601(1)
 	return out2
 end);
 fail1 = (function(msg1)
 	return error_21_1(msg1, 0)
 end);
-_3d_1 = (function(x6, y1)
-	return _3d3d_1(x6, y1)
+succ1 = (function(x6)
+	return (1 + x6)
 end);
-succ1 = (function(x7)
-	return _2b_1(1, x7)
+pred1 = (function(x7)
+	return (x7 - 1)
 end);
-pred1 = (function(x8)
-	return _2d_1(x8, 1)
-end);
-builtins1 = getIdx1(require1("tacky.analysis.resolve"), "builtins")
+builtins1 = require1("tacky.analysis.resolve")["builtins"]
 visitQuote1 = (function(node1, visitor1, level1)
-	if _3d3d_1(level1, 0) then
+	if (level1 == 0) then
 		return visitNode1(node1, visitor1)
 	else
 		local tag2
-		tag2 = getIdx1(node1, "tag")
+		tag2 = node1["tag"]
 		local _temp
-		local r_891
-		r_891 = _3d_1(tag2, "string")
-		if r_891 then
-			_temp = r_891
+		local r_951
+		r_951 = (tag2 == "string")
+		if r_951 then
+			_temp = r_951
 		else
-			local r_901
-			r_901 = _3d_1(tag2, "number")
-			if r_901 then
-				_temp = r_901
+			local r_961
+			r_961 = (tag2 == "number")
+			if r_961 then
+				_temp = r_961
 			else
-				local r_911
-				r_911 = _3d_1(tag2, "key")
-				if r_911 then
-					_temp = r_911
+				local r_971
+				r_971 = (tag2 == "key")
+				if r_971 then
+					_temp = r_971
 				else
-					_temp = _3d_1(tag2, "symbol")
+					_temp = (tag2 == "symbol")
 				end
 			end
 		end
 		if _temp then
 			return nil
-		elseif _3d_1(tag2, "list") then
+		elseif (tag2 == "list") then
 			local first1
 			first1 = nth1(node1, 1)
 			local _temp
-			local r_921
-			r_921 = first1
-			if r_921 then
-				_temp = _3d_1(getIdx1(first1, "tag"), "symbol")
+			local r_981
+			r_981 = first1
+			if r_981 then
+				_temp = (first1["tag"] == "symbol")
 			else
-				_temp = r_921
+				_temp = r_981
 			end
 			if _temp then
 				local _temp
-				local r_971
-				r_971 = _3d_1(getIdx1(first1, "contents"), "unquote")
-				if r_971 then
-					_temp = r_971
+				local r_991
+				r_991 = (first1["contents"] == "unquote")
+				if r_991 then
+					_temp = r_991
 				else
-					_temp = _3d_1(getIdx1(first1, "contents"), "unquote-splice")
+					_temp = (first1["contents"] == "unquote-splice")
 				end
 				if _temp then
 					return visitQuote1(nth1(node1, 2), visitor1, pred1(level1))
-				elseif _3d_1(getIdx1(first1, "contents"), "quasiquote") then
+				elseif (first1["contents"] == "quasiquote") then
 					return visitQuote1(nth1(node1, 2), visitor1(), succ1(level1))
 				else
-					local r_991
-					r_991 = node1
+					local r_1011
+					r_1011 = node1
+					local r_1041
+					r_1041 = _23_2(r_1011)
+					local r_1051
+					r_1051 = 1
 					local r_1021
-					r_1021 = _23_2(r_991)
-					local r_1031
-					r_1031 = 1
-					local r_1001
-					r_1001 = nil
-					r_1001 = (function(r_1011)
+					r_1021 = nil
+					r_1021 = (function(r_1031)
 						local _temp
-						if _3c_1(0, 1) then
-							_temp = _3c3d_1(r_1011, r_1021)
+						if (0 < 1) then
+							_temp = (r_1031 <= r_1041)
 						else
-							_temp = _3e3d_1(r_1011, r_1021)
+							_temp = (r_1031 >= r_1041)
 						end
 						if _temp then
-							local r_981
-							r_981 = r_1011
+							local r_1001
+							r_1001 = r_1031
 							local sub2
-							sub2 = getIdx1(r_991, r_981)
+							sub2 = r_1011[r_1001]
 							visitQuote1(sub2, visitor1, level1)
-							return r_1001(_2b_1(r_1011, r_1031))
+							return r_1021((r_1031 + r_1051))
 						else
 						end
 					end);
-					return r_1001(1)
+					return r_1021(1)
 				end
 			else
-				local r_1051
-				r_1051 = node1
+				local r_1071
+				r_1071 = node1
+				local r_1101
+				r_1101 = _23_2(r_1071)
+				local r_1111
+				r_1111 = 1
 				local r_1081
-				r_1081 = _23_2(r_1051)
-				local r_1091
-				r_1091 = 1
-				local r_1061
-				r_1061 = nil
-				r_1061 = (function(r_1071)
+				r_1081 = nil
+				r_1081 = (function(r_1091)
 					local _temp
-					if _3c_1(0, 1) then
-						_temp = _3c3d_1(r_1071, r_1081)
+					if (0 < 1) then
+						_temp = (r_1091 <= r_1101)
 					else
-						_temp = _3e3d_1(r_1071, r_1081)
+						_temp = (r_1091 >= r_1101)
 					end
 					if _temp then
-						local r_1041
-						r_1041 = r_1071
+						local r_1061
+						r_1061 = r_1091
 						local sub3
-						sub3 = getIdx1(r_1051, r_1041)
+						sub3 = r_1071[r_1061]
 						visitQuote1(sub3, visitor1, level1)
-						return r_1061(_2b_1(r_1071, r_1091))
+						return r_1081((r_1091 + r_1111))
 					else
 					end
 				end);
-				return r_1061(1)
+				return r_1081(1)
 			end
 		elseif error_21_1 then
-			return _2e2e_1("Unknown tag ", tag2)
+			return ("Unknown tag " .. tag2)
 		else
 			error('unmatched item')
 		end
 	end
 end);
 visitNode1 = (function(node2, visitor2)
-	if _3d_1(visitor2(node2), false) then
+	if (visitor2(node2) == false) then
 	else
 		local tag3
-		tag3 = getIdx1(node2, "tag")
+		tag3 = node2["tag"]
 		local _temp
-		local r_931
-		r_931 = _3d_1(tag3, "string")
-		if r_931 then
-			_temp = r_931
+		local r_1121
+		r_1121 = (tag3 == "string")
+		if r_1121 then
+			_temp = r_1121
 		else
-			local r_941
-			r_941 = _3d_1(tag3, "number")
-			if r_941 then
-				_temp = r_941
+			local r_1131
+			r_1131 = (tag3 == "number")
+			if r_1131 then
+				_temp = r_1131
 			else
-				local r_951
-				r_951 = _3d_1(tag3, "key")
-				if r_951 then
-					_temp = r_951
+				local r_1141
+				r_1141 = (tag3 == "key")
+				if r_1141 then
+					_temp = r_1141
 				else
-					_temp = _3d_1(tag3, "symbol")
+					_temp = (tag3 == "symbol")
 				end
 			end
 		end
 		if _temp then
 			return nil
-		elseif _3d_1(tag3, "list") then
+		elseif (tag3 == "list") then
 			local first2
 			first2 = nth1(node2, 1)
 			local _temp
-			local r_961
-			r_961 = first2
-			if r_961 then
-				_temp = _3d_1(getIdx1(first2, "tag"), "symbol")
+			local r_1151
+			r_1151 = first2
+			if r_1151 then
+				_temp = (first2["tag"] == "symbol")
 			else
-				_temp = r_961
+				_temp = r_1151
 			end
 			if _temp then
 				local func1
-				func1 = getIdx1(first2, "var")
+				func1 = first2["var"]
 				local funct1
-				funct1 = getIdx1(func1, "tag")
-				if _3d_1(func1, getIdx1(builtins1, "lambda")) then
+				funct1 = func1["tag"]
+				if (func1 == builtins1["lambda"]) then
 					return visitBlock1(node2, 3, visitor2)
-				elseif _3d_1(func1, getIdx1(builtins1, "cond")) then
-					local r_1121
-					r_1121 = _23_2(node2)
-					local r_1131
-					r_1131 = 1
-					local r_1101
-					r_1101 = nil
-					r_1101 = (function(r_1111)
+				elseif (func1 == builtins1["cond"]) then
+					local r_1181
+					r_1181 = _23_2(node2)
+					local r_1191
+					r_1191 = 1
+					local r_1161
+					r_1161 = nil
+					r_1161 = (function(r_1171)
 						local _temp
-						if _3c_1(0, 1) then
-							_temp = _3c3d_1(r_1111, r_1121)
+						if (0 < 1) then
+							_temp = (r_1171 <= r_1181)
 						else
-							_temp = _3e3d_1(r_1111, r_1121)
+							_temp = (r_1171 >= r_1181)
 						end
 						if _temp then
 							local i3
-							i3 = r_1111
+							i3 = r_1171
 							local case1
 							case1 = nth1(node2, i3)
 							visitNode1(nth1(case1, 1), visitor2)
 							visitBlock1(case1, 2, visitor2)
-							return r_1101(_2b_1(r_1111, r_1131))
+							return r_1161((r_1171 + r_1191))
 						else
 						end
 					end);
-					return r_1101(2)
-				elseif _3d_1(func1, getIdx1(builtins1, "set!")) then
+					return r_1161(2)
+				elseif (func1 == builtins1["set!"]) then
 					return visitNode1(nth1(node2, 3), visitor2)
-				elseif _3d_1(func1, getIdx1(builtins1, "quote")) then
-				elseif _3d_1(func1, getIdx1(builtins1, "quasiquote")) then
+				elseif (func1 == builtins1["quote"]) then
+				elseif (func1 == builtins1["quasiquote"]) then
 					return visitQuote1(nth1(node2, 2), visitor2, 1)
 				else
 					local _temp
-					local r_1141
-					r_1141 = _3d_1(func1, getIdx1(builtins1, "unquote"))
-					if r_1141 then
-						_temp = r_1141
+					local r_1201
+					r_1201 = (func1 == builtins1["unquote"])
+					if r_1201 then
+						_temp = r_1201
 					else
-						_temp = _3d_1(func1, getIdx1(builtins1, "unquote-splice"))
+						_temp = (func1 == builtins1["unquote-splice"])
 					end
 					if _temp then
 						return fail1("unquote/unquote-splice should never appear head")
 					else
 						local _temp
-						local r_1151
-						r_1151 = _3d_1(func1, getIdx1(builtins1, "define"))
-						if r_1151 then
-							_temp = r_1151
+						local r_1211
+						r_1211 = (func1 == builtins1["define"])
+						if r_1211 then
+							_temp = r_1211
 						else
-							_temp = _3d_1(func1, getIdx1(builtins1, "define-macro"))
+							_temp = (func1 == builtins1["define-macro"])
 						end
 						if _temp then
 							return visitBlock1(node2, 3, visitor2)
-						elseif _3d_1(func1, getIdx1(builtins1, "define-native")) then
-						elseif _3d_1(func1, getIdx1(builtins1, "import")) then
-						elseif _3d_1(funct1, "macro") then
+						elseif (func1 == builtins1["define-native"]) then
+						elseif (func1 == builtins1["import"]) then
+						elseif (funct1 == "macro") then
 							return fail1("Macros should have been expanded")
 						else
 							local _temp
-							local r_1161
-							r_1161 = _3d_1(funct1, "defined")
-							if r_1161 then
-								_temp = r_1161
+							local r_1221
+							r_1221 = (funct1 == "defined")
+							if r_1221 then
+								_temp = r_1221
 							else
-								_temp = _3d_1(funct1, "arg")
+								local r_1231
+								r_1231 = (funct1 == "arg")
+								if r_1231 then
+									_temp = r_1231
+								else
+									_temp = (funct1 == "native")
+								end
 							end
 							if _temp then
 								return visitBlock1(node2, 1, visitor2)
 							else
-								return fail1(_2e2e_1("Unknown kind ", func1, " for variable ", getIdx1(func1, "name")))
+								return fail1(_2e2e_1("Unknown kind ", func1, " for variable ", func1["name"]))
 							end
 						end
 					end
@@ -443,34 +455,34 @@ visitNode1 = (function(node2, visitor2)
 				return visitBlock1(node2, 1, visitor2)
 			end
 		elseif error_21_1 then
-			return _2e2e_1("Unknown tag ", tag3)
+			return ("Unknown tag " .. tag3)
 		else
 			error('unmatched item')
 		end
 	end
 end);
 visitBlock1 = (function(node3, start3, visitor3)
-	local r_871
-	r_871 = _23_2(node3)
-	local r_881
-	r_881 = 1
-	local r_851
-	r_851 = nil
-	r_851 = (function(r_861)
+	local r_931
+	r_931 = _23_2(node3)
+	local r_941
+	r_941 = 1
+	local r_911
+	r_911 = nil
+	r_911 = (function(r_921)
 		local _temp
-		if _3c_1(0, 1) then
-			_temp = _3c3d_1(r_861, r_871)
+		if (0 < 1) then
+			_temp = (r_921 <= r_931)
 		else
-			_temp = _3e3d_1(r_861, r_871)
+			_temp = (r_921 >= r_931)
 		end
 		if _temp then
 			local i4
-			i4 = r_861
+			i4 = r_921
 			visitNode1(nth1(node3, i4), visitor3)
-			return r_851(_2b_1(r_861, r_881))
+			return r_911((r_921 + r_941))
 		else
 		end
 	end);
-	return r_851(start3)
+	return r_911(start3)
 end);
 return struct1("visitNode", visitNode1, "visitBlock", visitBlock1, "visitList", visitBlock1)
