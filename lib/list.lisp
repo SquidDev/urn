@@ -22,8 +22,8 @@
   (assert-type! li "list")
   (assert-type! idx "number")
 
-  (base/remove-idx! li idx)
-  (set-idx! li "n" (- (get-idx li "n") 1)))
+  (set-idx! li "n" (- (get-idx li "n") 1))
+  (base/remove-idx! li idx))
 
 (defun # (li)
   (assert-type! li "list")
