@@ -37,7 +37,7 @@ function Scope:get(name, user)
 	})
 end
 
-local kinds = { defined = true, macro = true, arg = true, builtin = true }
+local kinds = { defined = true, native = true, macro = true, arg = true, builtin = true }
 
 function Scope:add(name, kind, node)
 	if name == nil then error("name is nil", 2) end

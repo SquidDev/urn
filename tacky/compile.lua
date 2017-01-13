@@ -111,13 +111,14 @@ return function(parsed, global, env, inStates, scope, loader)
 				builder.line()
 
 				for i = 1, #stateList do
-					backend.lua.backend.expression(stateList[i].node, builder, "")
+					backend.lua.backend.expression(stateList[i].node, builder, nil, "")
 					builder.line()
 				end
 
 				builder.add("return {" .. table.concat(nameTable, ", ") .. "}")
 
 				local str = builder.toString()
+				-- print(str)
 				local fun, msg = load(str, "=compile{" .. table.concat(nameList, ",") .. "}", "t", global)
 				if not fun then error(msg .. ":\n" .. str, 0) end
 

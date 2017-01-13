@@ -108,9 +108,9 @@ end
 
 local compileBlock, compileExpression, compileQuote
 
-function compileQuote(node, builder, level)
+function compileQuote(node, builder, data, level)
 	if level == 0 then
-		return compileExpression(node, builder)
+		return compileExpression(node, builder, data)
 	end
 
 	local append = builder.add
@@ -138,9 +138,9 @@ function compileQuote(node, builder, level)
 		local first = node[1]
 		if first and first.tag == "symbol" then
 			if first.contents == "unquote" or first.contents == "unquote-splice" then
-				return compileQuote(node[2], builder, level and level - 1)
+				return compileQuote(node[2], builder, data, level and level - 1)
 			elseif first.contents == "quasiquote" then
-				return compileQuote(node[2], builder, level and level + 1)
+				return compileQuote(node[2], builder, data, level and level + 1)
 			end
 		end
 
@@ -175,7 +175,7 @@ function compileQuote(node, builder, level)
 					offset = offset + 1
 
 					append("_temp = ")
-					compileQuote(sub[2], builder, level - 1)
+					compileQuote(sub[2], builder, data, level - 1)
 					builder.line()
 
 					append('for _c = 1, _temp.n do _result[' .. (i - offset) .. ' + _c + _offset] = _temp[_c] end')
@@ -184,7 +184,7 @@ function compileQuote(node, builder, level)
 					builder.line()
 				else
 					append("_result[" .. (i - offset)  .. " + _offset] = ")
-					compileQuote(sub, builder, level)
+					compileQuote(sub, builder, data, level)
 					builder.line()
 				end
 			end
@@ -201,7 +201,7 @@ function compileQuote(node, builder, level)
 			append('{tag = "list", n = ' .. #node)
 			for i = 1, #node do
 				append(", ")
-				compileQuote(node[i], builder, level)
+				compileQuote(node[i], builder, data, level)
 			end
 			append('}')
 		end
@@ -210,7 +210,7 @@ function compileQuote(node, builder, level)
 	end
 end
 
-function compileExpression(expr, builder, retStmt)
+function compileExpression(expr, builder, data, retStmt)
 	local append = builder.add
 
 	if expr.tag == "string" or expr.tag == "number" or expr.tag == "symbol" or expr.tag == "key" then
@@ -295,7 +295,7 @@ function compileExpression(expr, builder, retStmt)
 					end
 				end
 
-				compileBlock(expr, builder, 3, "return ")
+				compileBlock(expr, builder, data, 3, "return ")
 
 				builder.unindent()
 				append("end)")
@@ -325,7 +325,7 @@ function compileExpression(expr, builder, retStmt)
 							append("local _temp")
 							builder.line()
 
-							compileExpression(item[1], builder, "_temp = ")
+							compileExpression(item[1], builder, data, "_temp = ")
 							builder.line()
 
 							append("if _temp then")
@@ -334,7 +334,7 @@ function compileExpression(expr, builder, retStmt)
 						else
 							append("if ")
 
-							compileExpression(item[1], builder)
+							compileExpression(item[1], builder, data)
 							append(" then")
 						end
 					elseif i == 2 then
@@ -342,7 +342,7 @@ function compileExpression(expr, builder, retStmt)
 					end
 
 					builder.indent() builder.line()
-					compileBlock(item, builder, 2, retStmt)
+					compileBlock(item, builder, data, 2, retStmt)
 					builder.unindent()
 
 					if isFinal then
@@ -369,26 +369,26 @@ function compileExpression(expr, builder, retStmt)
 					append("end)()")
 				end
 			elseif name == "set!" then
-				compileExpression(expr[3], builder, escapeVar(expr[2].var) .. " = ")
+				compileExpression(expr[3], builder, data, escapeVar(expr[2].var) .. " = ")
 				if retStmt and retStmt ~= "" then
 					builder.line()
 					append(retStmt)
 					append("nil")
 				end
 			elseif name == "define" or name == "define-macro" then
-				compileExpression(expr[3], builder, escapeVar(expr.defVar) .. " = ")
+				compileExpression(expr[3], builder, data, escapeVar(expr.defVar) .. " = ")
 			elseif name == "define-native" then
 				append(("%s = _libs[%q]"):format(escapeVar(expr.defVar), expr[2].contents))
 			elseif name == "quote" then
 				if retStmt == "" then retStmt = "local _ = " end
 				if retStmt then append(retStmt) end
 
-				compileQuote(expr[2], builder, nil)
+				compileQuote(expr[2], builder, data)
 			elseif name == "quasiquote" then
 				if retStmt == "" then retStmt = "local _ = " end
 				if retStmt then append(retStmt) end
 
-				compileQuote(expr[2], builder, 1)
+				compileQuote(expr[2], builder, data, 1)
 			elseif name == "unquote" then
 				errorPositions(expr[1] or expr, "unquote outside of quasiquote")
 			elseif name == "unquote-splice" then
@@ -401,14 +401,45 @@ function compileExpression(expr, builder, retStmt)
 					append("nil")
 				end
 			else
-				if retStmt then append(retStmt) end
-				compileExpression(expr[1], builder)
-				append("(")
-				for i = 2, #expr do
-					if i > 2 then append(", ") end
-					compileExpression(expr[i], builder)
+				-- Can only use metadata if we're calling a symbol
+				local first = expr[1]
+
+				-- We can only gather metadata for native variables
+				local meta = data and first.tag == "symbol" and first.var.tag == "native" and data.meta[first.var.name]
+
+				-- If we have metadata and it is usable here then lets's go!
+				if meta and (retStmt or meta.tag == "expr") and expr.n - 1 == meta.count then
+					-- If we're dealing with an expression then handle the returner first.
+					if retStmt and meta.tag == "expr" then
+						append(retStmt)
+					end
+
+					for i = 1, #meta.contents do
+						local entry = meta.contents[i]
+						if type(entry) == "number" then
+							compileExpression(expr[entry + 1], builder, data)
+						else
+							append(entry)
+						end
+					end
+
+					-- Statements don't return a value so just set it to nil
+					if meta.tag ~= "expr" and retStmt ~= "" then
+						builder.line()
+						append(retStmt)
+						append("nil")
+						builder.line()
+					end
+				else
+					if retStmt then append(retStmt) end
+					compileExpression(expr[1], builder, data)
+					append("(")
+					for i = 2, #expr do
+						if i > 2 then append(", ") end
+						compileExpression(expr[i], builder, data)
+					end
+					append(")")
 				end
-				append(")")
 			end
 		elseif head and head.tag == "list" and head[1].tag == "symbol" and head[1].contents == "lambda" and retStmt then
 			-- ((lambda (args) body) values)
@@ -436,7 +467,7 @@ function compileExpression(expr, builder, retStmt)
 					append(escapeVar(var) .. ' = { tag = "list", n = ' .. count)
 					for j = 1, count do
 						append(", ")
-						compileExpression(expr[i + j], builder)
+						compileExpression(expr[i + j], builder, data)
 					end
 
 					offset = count
@@ -445,25 +476,25 @@ function compileExpression(expr, builder, retStmt)
 				else
 					local expr = expr[i + offset]
 					if expr then
-						compileExpression(expr, builder, escapeVar(var) .. " = ")
+						compileExpression(expr, builder, data, escapeVar(var) .. " = ")
 						builder.line()
 					end
 				end
 			end
 
 			for i = #args + offset + 1, #expr do
-				compileExpression(expr[i], builder, "")
+				compileExpression(expr[i], builder, data, "")
 				builder.line()
 			end
 
-			compileBlock(head, builder, 3, retStmt)
+			compileBlock(head, builder, data, 3, retStmt)
 		else
 			if retStmt then append(retStmt) end
-			compileExpression(expr[1], builder)
+			compileExpression(expr[1], builder, data)
 			append("(")
 			for i = 2, #expr do
 				if i > 2 then append(", ") end
-				compileExpression(expr[i], builder)
+				compileExpression(expr[i], builder, data)
 			end
 			append(")")
 		end
@@ -472,7 +503,7 @@ function compileExpression(expr, builder, retStmt)
 	end
 end
 
-function compileBlock(exprs, builder, start, retStmt)
+function compileBlock(exprs, builder, data, start, retStmt)
 	for i = start, #exprs do
 		local ret
 		if i == #exprs then
@@ -481,7 +512,7 @@ function compileBlock(exprs, builder, start, retStmt)
 			ret = ""
 		end
 
-		compileExpression(exprs[i], builder, ret)
+		compileExpression(exprs[i], builder, data, ret)
 		builder.line()
 	end
 end

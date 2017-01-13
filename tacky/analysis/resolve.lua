@@ -220,7 +220,7 @@ function resolveNode(node, scope, state)
 			elseif func == builtins["define-native"] then
 				expectType(node[2], node, "symbol", "name")
 
-				node.defVar = scope:add(node[2].contents, "defined", node)
+				node.defVar = scope:add(node[2].contents, "native", node)
 				state:define(node.defVar)
 				return node
 			elseif func == builtins["import"] then
@@ -277,7 +277,7 @@ function resolveNode(node, scope, state)
 				replacement = resolveMacroResult(funcState, replacement, node, scope, state)
 
 				return resolveNode(replacement, scope, state)
-			elseif func.tag == "defined" or func.tag == "arg" then
+			elseif func.tag == "defined" or func.tag == "arg" or func.tag == "native" or func.tag == "builtin" then
 				return resolveList(node, 1, scope, state)
 			else
 				error("Unknown kind " .. tostring(func.tag) .. " for variable " .. func.name)

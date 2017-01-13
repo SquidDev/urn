@@ -51,7 +51,7 @@
                   ((= func (.> builtins :define-native))) ;; Nothing needs doing here
                   ((= func (.> builtins :import))) ;; Nothing needs doing here
                   ((= funct "macro") (fail "Macros should have been expanded"))
-                  ((or (= funct "defined") (= funct "arg"))
+                  ((or (= funct "defined") (= funct "arg") (= funct "native"))
                     (visit-block node 1 visitor))
                   (true
                     (fail (.. "Unknown kind " func " for variable " (.> func :name))))))

@@ -54,6 +54,7 @@ if #inputs == 0 then error("No inputs specified", 0) end
 logger.printVerbose("Using path: " .. table.concat(paths, ":"))
 
 local libEnv = {}
+local libMeta = {}
 local libs = {}
 local libCache = {}
 local global = setmetatable({ _libs = libEnv }, {__index = _ENV})
@@ -130,6 +131,41 @@ local function libLoader(name, scope, resolve)
 			-- TODO: Make name specific for each library
 			libEnv[k] = v
 		end
+
+		-- Parse the meta info
+		local metaHadle = io.open(path .. ".meta.lua", "r")
+		if metaHadle then
+			local meta = metaHadle:read("*a")
+			metaHadle:close()
+
+			local fun, msg = load(meta, "@" .. lib.name .. ".meta", "t", _ENV)
+			if not fun then error(msg, 0) end
+
+			for k, v in pairs(fun()) do
+				if type(v.contents) == "string" then
+					local buffer = {}
+					local str = v.contents
+					local current = 1
+					while current <= #str do
+						local start, finish = str:find("%${(%d+)}", current)
+						if not start then
+							buffer[#buffer + 1] = str:sub(current, #str)
+							current = #str + 1
+						else
+							if start > current then
+								buffer[#buffer + 1] = str:sub(current, start - 1)
+							end
+							buffer[#buffer + 1] = tonumber(str:sub(start + 2, finish - 1))
+							current = finish + 1
+						end
+					end
+
+					v.contents = buffer
+				end
+
+				libMeta[k] = v
+			end
+		end
 	end
 
 	local start = os.clock()
@@ -167,7 +203,7 @@ local start = os.clock()
 out = optimise(out)
 if time then print("Optimised in " .. (os.clock() - start)) end
 
-local compiledLua = backend.lua.block(out, 1, "return ")
+local compiledLua = backend.lua.block(out, { meta = libMeta }, 1, "return ")
 local handle = io.open(output .. ".lua", "w")
 
 handle:write("local _libs = {}\n")
