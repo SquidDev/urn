@@ -211,43 +211,49 @@ _evisit_45_quote1 = (function(node1, visitor1, level1)
 	else
 		local tag2
 		tag2 = _eget_45_idx1(node1, "tag")
-		if (function(r_891)
-			if r_891 then
-				return r_891
+		local _temp
+		local r_891
+		r_891 = _e_61_1(tag2, "string")
+		if r_891 then
+			_temp = r_891
+		else
+			local r_901
+			r_901 = _e_61_1(tag2, "number")
+			if r_901 then
+				_temp = r_901
 			else
-				local r_901
-				r_901 = _e_61_1(tag2, "number")
-				if r_901 then
-					return r_901
+				local r_911
+				r_911 = _e_61_1(tag2, "key")
+				if r_911 then
+					_temp = r_911
 				else
-					local r_911
-					r_911 = _e_61_1(tag2, "key")
-					if r_911 then
-						return r_911
-					else
-						return _e_61_1(tag2, "symbol")
-					end
+					_temp = _e_61_1(tag2, "symbol")
 				end
 			end
-		end)(_e_61_1(tag2, "string")) then
+		end
+		if _temp then
 			return nil
 		elseif _e_61_1(tag2, "list") then
 			local first1
 			first1 = nth1(node1, 1)
-			if (function(r_921)
-				if r_921 then
-					return _e_61_1(_eget_45_idx1(first1, "tag"), "symbol")
+			local _temp
+			local r_921
+			r_921 = first1
+			if r_921 then
+				_temp = _e_61_1(_eget_45_idx1(first1, "tag"), "symbol")
+			else
+				_temp = r_921
+			end
+			if _temp then
+				local _temp
+				local r_971
+				r_971 = _e_61_1(_eget_45_idx1(first1, "contents"), "unquote")
+				if r_971 then
+					_temp = r_971
 				else
-					return r_921
+					_temp = _e_61_1(_eget_45_idx1(first1, "contents"), "unquote-splice")
 				end
-			end)(first1) then
-				if (function(r_971)
-					if r_971 then
-						return r_971
-					else
-						return _e_61_1(_eget_45_idx1(first1, "contents"), "unquote-splice")
-					end
-				end)(_e_61_1(_eget_45_idx1(first1, "contents"), "unquote")) then
+				if _temp then
 					return _evisit_45_quote1(nth1(node1, 2), visitor1, pred1(level1))
 				elseif _e_61_1(_eget_45_idx1(first1, "contents"), "quasiquote") then
 					return _evisit_45_quote1(nth1(node1, 2), visitor1(), succ1(level1))
@@ -319,36 +325,40 @@ _evisit_45_node1 = (function(node2, visitor2)
 	else
 		local tag3
 		tag3 = _eget_45_idx1(node2, "tag")
-		if (function(r_931)
-			if r_931 then
-				return r_931
+		local _temp
+		local r_931
+		r_931 = _e_61_1(tag3, "string")
+		if r_931 then
+			_temp = r_931
+		else
+			local r_941
+			r_941 = _e_61_1(tag3, "number")
+			if r_941 then
+				_temp = r_941
 			else
-				local r_941
-				r_941 = _e_61_1(tag3, "number")
-				if r_941 then
-					return r_941
+				local r_951
+				r_951 = _e_61_1(tag3, "key")
+				if r_951 then
+					_temp = r_951
 				else
-					local r_951
-					r_951 = _e_61_1(tag3, "key")
-					if r_951 then
-						return r_951
-					else
-						return _e_61_1(tag3, "symbol")
-					end
+					_temp = _e_61_1(tag3, "symbol")
 				end
 			end
-		end)(_e_61_1(tag3, "string")) then
+		end
+		if _temp then
 			return nil
 		elseif _e_61_1(tag3, "list") then
 			local first2
 			first2 = nth1(node2, 1)
-			if (function(r_961)
-				if r_961 then
-					return _e_61_1(_eget_45_idx1(first2, "tag"), "symbol")
-				else
-					return r_961
-				end
-			end)(first2) then
+			local _temp
+			local r_961
+			r_961 = first2
+			if r_961 then
+				_temp = _e_61_1(_eget_45_idx1(first2, "tag"), "symbol")
+			else
+				_temp = r_961
+			end
+			if _temp then
 				local func1
 				func1 = _eget_45_idx1(first2, "var")
 				local funct1
@@ -386,36 +396,48 @@ _evisit_45_node1 = (function(node2, visitor2)
 				elseif _e_61_1(func1, _eget_45_idx1(builtins1, "quote")) then
 				elseif _e_61_1(func1, _eget_45_idx1(builtins1, "quasiquote")) then
 					return _evisit_45_quote1(nth1(node2, 2), visitor2, 1)
-				elseif (function(r_1141)
-					if r_1141 then
-						return r_1141
-					else
-						return _e_61_1(func1, _eget_45_idx1(builtins1, "unquote-splice"))
-					end
-				end)(_e_61_1(func1, _eget_45_idx1(builtins1, "unquote"))) then
-					return fail1("unquote/unquote-splice should never appear head")
-				elseif (function(r_1151)
-					if r_1151 then
-						return r_1151
-					else
-						return _e_61_1(func1, _eget_45_idx1(builtins1, "define-macro"))
-					end
-				end)(_e_61_1(func1, _eget_45_idx1(builtins1, "define"))) then
-					return _evisit_45_block1(node2, 3, visitor2)
-				elseif _e_61_1(func1, _eget_45_idx1(builtins1, "define-native")) then
-				elseif _e_61_1(func1, _eget_45_idx1(builtins1, "import")) then
-				elseif _e_61_1(funct1, "macro") then
-					return fail1("Macros should have been expanded")
-				elseif (function(r_1161)
-					if r_1161 then
-						return r_1161
-					else
-						return _e_61_1(funct1, "arg")
-					end
-				end)(_e_61_1(funct1, "defined")) then
-					return _evisit_45_block1(node2, 1, visitor2)
 				else
-					return fail1(_e_46__46_1("Unknown kind ", func1, " for variable ", _eget_45_idx1(func1, "name")))
+					local _temp
+					local r_1141
+					r_1141 = _e_61_1(func1, _eget_45_idx1(builtins1, "unquote"))
+					if r_1141 then
+						_temp = r_1141
+					else
+						_temp = _e_61_1(func1, _eget_45_idx1(builtins1, "unquote-splice"))
+					end
+					if _temp then
+						return fail1("unquote/unquote-splice should never appear head")
+					else
+						local _temp
+						local r_1151
+						r_1151 = _e_61_1(func1, _eget_45_idx1(builtins1, "define"))
+						if r_1151 then
+							_temp = r_1151
+						else
+							_temp = _e_61_1(func1, _eget_45_idx1(builtins1, "define-macro"))
+						end
+						if _temp then
+							return _evisit_45_block1(node2, 3, visitor2)
+						elseif _e_61_1(func1, _eget_45_idx1(builtins1, "define-native")) then
+						elseif _e_61_1(func1, _eget_45_idx1(builtins1, "import")) then
+						elseif _e_61_1(funct1, "macro") then
+							return fail1("Macros should have been expanded")
+						else
+							local _temp
+							local r_1161
+							r_1161 = _e_61_1(funct1, "defined")
+							if r_1161 then
+								_temp = r_1161
+							else
+								_temp = _e_61_1(funct1, "arg")
+							end
+							if _temp then
+								return _evisit_45_block1(node2, 1, visitor2)
+							else
+								return fail1(_e_46__46_1("Unknown kind ", func1, " for variable ", _eget_45_idx1(func1, "name")))
+							end
+						end
+					end
 				end
 			else
 				return _evisit_45_block1(node2, 1, visitor2)

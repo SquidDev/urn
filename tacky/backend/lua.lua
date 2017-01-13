@@ -1,5 +1,6 @@
 local errorPositions = require "tacky.logger".errorPositions
-local builtins = require "tacky.analysis.resolve".declaredVars
+local builtinVars = require "tacky.analysis.resolve".declaredVars
+local builtins = require "tacky.analysis.resolve".builtins
 
 local function createLookup(t)
 	for i = 1, #t do t[t[i]] = true end
@@ -22,11 +23,33 @@ local function escape(name)
 	end
 end
 
+--- Check if an expression can be compiled to a statement
+local function isStatement(node)
+	-- Only calls can be expressions
+	if node.tag ~= "list" then return false end
+
+	local first = node[1]
+	if not first then return end
+
+	if first.tag == "symbol" then
+		-- Else/if statements are always compiled to statements
+		return first.var == builtins["cond"]
+	elseif first.tag == "list" then
+		-- print("Application on first entry")
+		-- require "tacky.logger".putTrace(first)
+		-- print(first[1] and first[1].contents, first[1].var, builtins["lambda"])
+		-- Lambdas called straight away are always inlined
+		return first[1] and first[1].tag == "symbol" and first[1].var == builtins["lambda"]
+	else
+		return false
+	end
+end
+
 local varLookup = {}
 local ctrLookup = {}
 
 local function escapeVar(var, args)
-	if builtins[var] then return var.name end
+	if builtinVars[var] then return var.name end
 
 	if var.isVariadic and args then
 		return "..."
@@ -258,7 +281,7 @@ function compileExpression(expr, builder, retStmt)
 					local isFinal = cond.tag == "symbol" and cond.contents == "true"
 
 					if not isFinal then
-						if cond.tag == "list" and cond[1].contents == "cond" then
+						if isStatement(cond) then
 							if i > 2 then builder.indent() builder.line() end
 							append("local _temp")
 							builder.line()

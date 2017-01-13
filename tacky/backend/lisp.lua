@@ -267,25 +267,27 @@ end);
 _eestimate_45_length1 = (function(node1, max1)
 	local tag2
 	tag2 = _eget_45_idx1(node1, "tag")
-	if (function(r_851)
-		if r_851 then
-			return r_851
+	local _temp
+	local r_851
+	r_851 = _e_61_1(tag2, "string")
+	if r_851 then
+		_temp = r_851
+	else
+		local r_861
+		r_861 = _e_61_1(tag2, "number")
+		if r_861 then
+			_temp = r_861
 		else
-			local r_861
-			r_861 = _e_61_1(tag2, "number")
-			if r_861 then
-				return r_861
+			local r_871
+			r_871 = _e_61_1(tag2, "symbol")
+			if r_871 then
+				_temp = r_871
 			else
-				local r_871
-				r_871 = _e_61_1(tag2, "symbol")
-				if r_871 then
-					return r_871
-				else
-					return _e_61_1(tag2, "key")
-				end
+				_temp = _e_61_1(tag2, "key")
 			end
 		end
-	end)(_e_61_1(tag2, "string")) then
+	end
+	if _temp then
 		return _e_35_s1(_enumber_45__62_string1(_eget_45_idx1(node1, "contents")))
 	elseif _e_61_1(tag2, "list") then
 		local sum1
@@ -295,13 +297,15 @@ _eestimate_45_length1 = (function(node1, max1)
 		local r_1011
 		r_1011 = nil
 		r_1011 = (function()
-			if (function(r_1021)
-				if r_1021 then
-					return _e_60__61_1(i4, _e_35_2(node1))
-				else
-					return r_1021
-				end
-			end)(_e_60__61_1(sum1, max1)) then
+			local _temp
+			local r_1021
+			r_1021 = _e_60__61_1(sum1, max1)
+			if r_1021 then
+				_temp = _e_60__61_1(i4, _e_35_2(node1))
+			else
+				_temp = r_1021
+			end
+			if _temp then
 				sum1 = _e_43_1(sum1, _eestimate_45_length1(nth1(node1, i4), _e_45_1(max1, sum1)))
 				if _e_62_1(i4, 1) then
 					sum1 = _e_43_1(sum1, 1)
@@ -321,25 +325,27 @@ end);
 expression1 = (function(node2, writer5)
 	local tag3
 	tag3 = _eget_45_idx1(node2, "tag")
-	if (function(r_881)
-		if r_881 then
-			return r_881
+	local _temp
+	local r_881
+	r_881 = _e_61_1(tag3, "string")
+	if r_881 then
+		_temp = r_881
+	else
+		local r_891
+		r_891 = _e_61_1(tag3, "number")
+		if r_891 then
+			_temp = r_891
 		else
-			local r_891
-			r_891 = _e_61_1(tag3, "number")
-			if r_891 then
-				return r_891
+			local r_901
+			r_901 = _e_61_1(tag3, "symbol")
+			if r_901 then
+				_temp = r_901
 			else
-				local r_901
-				r_901 = _e_61_1(tag3, "symbol")
-				if r_901 then
-					return r_901
-				else
-					return _e_61_1(tag3, "key")
-				end
+				_temp = _e_61_1(tag3, "key")
 			end
 		end
-	end)(_e_61_1(tag3, "string")) then
+	end
+	if _temp then
 		return _eappend_33_1(writer5, _enumber_45__62_string1(_eget_45_idx1(node2, "contents")))
 	elseif _e_61_1(tag3, "list") then
 		_eappend_33_1(writer5, "(")
@@ -373,13 +379,15 @@ expression1 = (function(node2, writer5)
 					i5 = r_1041
 					local entry1
 					entry1 = nth1(node2, i5)
-					if (function(r_1071)
-						if r_1071 then
-							return _e_62_1(max2, 0)
-						else
-							return r_1071
-						end
-					end)(_e_33_1(newline1)) then
+					local _temp
+					local r_1071
+					r_1071 = _e_33_1(newline1)
+					if r_1071 then
+						_temp = _e_62_1(max2, 0)
+					else
+						_temp = r_1071
+					end
+					if _temp then
 						max2 = _e_45_1(max2, _eestimate_45_length1(entry1, max2))
 						if _e_60__61_1(max2, 0) then
 							newline1 = true

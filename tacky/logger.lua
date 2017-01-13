@@ -201,19 +201,21 @@ split1 = (function(text1, pattern1, limit1)
 		if loop1 then
 			local pos1
 			pos1 = find1(text1, pattern1, start3)
-			if (function(r_761)
-				if r_761 then
-					return r_761
+			local _temp
+			local r_761
+			r_761 = _e_61__61_1("nil", _etype_35_1(pos1))
+			if r_761 then
+				_temp = r_761
+			else
+				local r_771
+				r_771 = limit1
+				if r_771 then
+					_temp = _e_62__61_1(_e_35_1(out2), limit1)
 				else
-					local r_771
-					r_771 = limit1
-					if r_771 then
-						return _e_62__61_1(_e_35_1(out2), limit1)
-					else
-						return r_771
-					end
+					_temp = r_771
 				end
-			end)(_e_61__61_1("nil", _etype_35_1(pos1))) then
+			end
+			if _temp then
 				loop1 = false
 				_epush_45_cdr_33_1(out2, sub1(text1, start3, _e_35_s1(text1)))
 				start3 = _e_43_1(_e_35_s1(text1), 1)
@@ -339,13 +341,15 @@ _eformat_45_range1 = (function(range1)
 	end
 end);
 _eformat_45_node1 = (function(node1)
-	if (function(r_851)
-		if r_851 then
-			return _eget_45_idx1(node1, "contents")
-		else
-			return r_851
-		end
-	end)(_eget_45_idx1(node1, "range")) then
+	local _temp
+	local r_851
+	r_851 = _eget_45_idx1(node1, "range")
+	if r_851 then
+		_temp = _eget_45_idx1(node1, "contents")
+	else
+		_temp = r_851
+	end
+	if _temp then
 		return format2("%s (%q)", _eformat_45_range1(_eget_45_idx1(node1, "range")), _eget_45_idx1(node1, "contents"))
 	elseif _eget_45_idx1(node1, "range") then
 		return _eformat_45_range1(_eget_45_idx1(node1, "range"))
@@ -363,13 +367,15 @@ _eget_45_source1 = (function(node2)
 	local r_861
 	r_861 = nil
 	r_861 = (function()
-		if (function(r_871)
-			if r_871 then
-				return _e_33_1(result1)
-			else
-				return r_871
-			end
-		end)(node2) then
+		local _temp
+		local r_871
+		r_871 = node2
+		if r_871 then
+			_temp = _e_33_1(result1)
+		else
+			_temp = r_871
+		end
+		if _temp then
 			result1 = _eget_45_idx1(node2, "range")
 			node2 = _eget_45_idx1(node2, "parent")
 			return r_861()
@@ -414,13 +420,15 @@ _eput_45_lines_33_1 = (function(range2, ...)
 			local position1, message1
 			position1 = _eget_45_idx1(entries1, i4)
 			message1 = _eget_45_idx1(entries1, succ1(i4))
-			if (function(r_931)
-				if r_931 then
-					return _e_62_1(_e_45_1(_eget_45_idx1(_eget_45_idx1(position1, "start"), "line"), previous1), 2)
-				else
-					return r_931
-				end
-			end)(_e_47__61_1(previous1, -1)) then
+			local _temp
+			local r_931
+			r_931 = _e_47__61_1(previous1, -1)
+			if r_931 then
+				_temp = _e_62_1(_e_45_1(_eget_45_idx1(_eget_45_idx1(position1, "start"), "line"), previous1), 2)
+			else
+				_temp = r_931
+			end
+			if _temp then
 				_eprint_33_1(" \27[92m...\27[0m")
 			else
 			end
@@ -429,16 +437,20 @@ _eput_45_lines_33_1 = (function(range2, ...)
 			local pointer1
 			if _e_33_1(range2) then
 				pointer1 = "^"
-			elseif (function(r_1001)
-				if r_1001 then
-					return _e_61_1(_eget_45_idx1(_eget_45_idx1(position1, "start"), "line"), _eget_45_idx1(_eget_45_idx1(position1, "finish"), "line"))
-				else
-					return r_1001
-				end
-			end)(_eget_45_idx1(position1, "finish")) then
-				pointer1 = rep1("^", _e_45_1(_eget_45_idx1(_eget_45_idx1(position1, "finish"), "column"), _eget_45_idx1(_eget_45_idx1(position1, "start"), "column"), -1))
 			else
-				pointer1 = "^..."
+				local _temp
+				local r_1001
+				r_1001 = _eget_45_idx1(position1, "finish")
+				if r_1001 then
+					_temp = _e_61_1(_eget_45_idx1(_eget_45_idx1(position1, "start"), "line"), _eget_45_idx1(_eget_45_idx1(position1, "finish"), "line"))
+				else
+					_temp = r_1001
+				end
+				if _temp then
+					pointer1 = rep1("^", _e_45_1(_eget_45_idx1(_eget_45_idx1(position1, "finish"), "column"), _eget_45_idx1(_eget_45_idx1(position1, "start"), "column"), -1))
+				else
+					pointer1 = "^..."
+				end
 			end
 			_eprint_33_1(format2(code1, "", _e_46__46_1(rep1(" ", _e_45_1(_eget_45_idx1(_eget_45_idx1(position1, "start"), "column"), 1)), pointer1, " ", message1)))
 			return r_891(_e_43_1(r_901, r_921))
