@@ -1,7 +1,7 @@
 (import base (defun defmacro progn for while if when unless and or with xpcall
               get-idx set-idx! format print! pretty error! empty-struct gensym
-              traceback string->number number->string require unpack
-              = /= < <= > >= + - * / % ^ .. !))
+              traceback string->number number->string require unpack list cons
+              = /= < <= > >= + - * / % ^ .. ! eq?))
 
 (import binders ())
 (import list ())

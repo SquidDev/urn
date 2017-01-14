@@ -56,8 +56,10 @@
 
 ;; Some basic list indexing expressions
 (defun # (xs) (get-idx xs "n"))
+(defun list (&xs) xs)
 (defun car (xs) (get-idx xs 1))
 (defun cdr (xs) (slice xs 2))
+(defun cons (&x xs) (list x (unpack xs)))
 
 ;; Creates a code block, for use where an expression would normally be required.
 (defmacro progn (&body)
@@ -141,3 +143,4 @@
 
 ;; Return the boolean negation of this value
 (defun ! (expr) (cond (expr false) (true true)))
+

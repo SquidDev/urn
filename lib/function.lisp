@@ -56,30 +56,21 @@
            (function? (.> (getmetatable x) :__call)))))
 
 (defmacro time! (&defs)
-  (traverse
-    defs
-    (lambda (definition)
-      (if (eq? (car definition) "defun")
-        (let [(name (cadr definition))
-              (args (caddr definition))
-              (body (cdddr definition))
-              (clockn (gensym))
-              (resultn (gensym))]
-          `(defun ,name ,args
-             (let* [(,clockn (clock))
-                     (,resultn (progn ,@body))]
-                (print! ,(get-idx name "contents") " took " (- (clock) ,clockn))
-                ,resultn)))
-        (progn
-          (print! (pretty definition))
-          definition)))))
-
-(defun eq? (x y)
-  (cond
-    [(and (symbol? x) (symbol? y))
-     (= (get-idx x "contents") (get-idx y "contents"))]
-    [(and (symbol? x) (string? y))
-     (= (get-idx x "contents") y)]
-    [(and (string? x) (symbol? y))
-     (= (get-idx y "contents") x)]
-    [true (= x y)]))
+  (unpack
+    (traverse defs
+              (lambda (definition)
+                (if (eq? (car definition) "defun")
+                  (let [(name (cadr definition))
+                        (args (caddr definition))
+                        (body (cdddr definition))
+                        (clockn (gensym))
+                        (resultn (gensym))]
+                    `(defun ,name ,args
+                       (let* [(,clockn (clock))
+                              (,resultn (progn ,@body))]
+                         (print! ,(get-idx name "contents")
+                                 " took "
+                                 (- (clock) ,clockn)) ,resultn)))
+                  (progn
+                    (print! (pretty definition))
+                    definition))))))

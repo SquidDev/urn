@@ -9,6 +9,34 @@
 (define-native getmetatable)
 (define-native setmetatable)
 
+(defun assoc (list key or-val)
+  (cond
+    [(or (! (list? list))
+         (null? list))
+     or-val]
+    [(eq? (caar list) key)
+     (cadar list)]
+    [true (assoc (cdr list) key or-val)]))
+
+(defun assoc? (list key)
+  (cond
+    [(or (! (list? list))
+         (null? list))
+     false]
+    [(eq? (caar list) key)
+     true]
+    [true (assoc? (cdr list) key)]))
+
+(defun insert (list_ key val)
+  (list (list key val) (unpack list_)))
+
+(defun assoc->struct (list)
+  (let [(ret '())]
+    (traverse list
+      (lambda (x)
+        (set-idx! ret (car x) (cadr x))))
+    ret))
+
 ;; Chain a series of index accesses together
 (defmacro .> (x &keys)
   (with (res x)
