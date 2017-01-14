@@ -1,6 +1,6 @@
-table.pack = function(...) return { n = select("#", ...), ... } end
-table.unpack = unpack
-local function load(x, _, _, env) local f, e = loadstring(x); if not f then error(e, 1) end; return setfenv(f, env) end
+if not table.pack then table.pack = function(...) return { n = select("#", ...), ... } end end
+if not table.unpack then table.unpack = unpack end
+if _VERSION:find("5.1") then local function load(x, _, _, env) local f, e = loadstring(x); if not f then error(e, 1) end; return setfenv(f, env) end end
 local _libs = {}
 local _temp = (function()
 	-- base is an internal version of core methods without any extensions or assertions.
