@@ -1,5 +1,16 @@
-main: tacky/logger.lua tacky/parser.lua tacky/analysis/visitor.lua tacky/backend/lisp.lua
+LUA       ?= lua5.3
+LUA_FLAGS ?=
+OBJS      :=                 \
+	tacky/logger               \
+	tacky/parser               \
+	tacky/analysis/visitor     \
+	tacky/backend/lisp
 
+ifeq (${TIME},1)
+LUA_FLAGS += --time
+endif
 
-tacky/%.lua: urn/%.lisp
-	lua5.3 run.lua $^ -o $@
+main: ${OBJS}
+
+${OBJS}: tacky/%: urn/%.lisp
+	${LUA} run.lua $^ -o $@ ${LUA_FLAGS}
