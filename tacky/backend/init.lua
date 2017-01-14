@@ -26,6 +26,7 @@ local function buildBackend(module, lisp)
 	return {
 		expression = wrap(module.expression, lisp),
 		block = wrap(module.block, lisp),
+		prelude = module.prelude and wrap(module.prelude, lisp),
 		backend = module,
 	}
 end

@@ -107,18 +107,15 @@ return function(parsed, global, env, inStates, scope, loader)
 			if #stateList > 0 then
 				local builder = writer()
 
-				builder.add("local " .. table.concat(escapeList, ", "))
-				builder.line()
-				builder.add('if not table.pack then table.pack = function(...) return { n = select("#", ...), ... } end end'); builder.line()
-				builder.add('if not table.unpack then table.unpack = unpack end'); builder.line()
-				builder.add('if _VERSION:find("5.1") then local function load(x, _, _, env) local f, e = loadstring(x); if not f then error(e, 1) end; return setfenv(f, env) end end'); builder.line()
+				backend.lua.backend.prelude(nil, builder)
+				builder.line("local " .. table.concat(escapeList, ", "))
 
 				for i = 1, #stateList do
 					backend.lua.backend.expression(stateList[i].node, builder, nil, "")
 					builder.line()
 				end
 
-				builder.add("return {" .. table.concat(nameTable, ", ") .. "}")
+				builder.line("return {" .. table.concat(nameTable, ", ") .. "}")
 
 				local str = builder.toString()
 				-- print(str)

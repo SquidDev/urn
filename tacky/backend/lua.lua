@@ -256,11 +256,11 @@ function compileExpression(expr, builder, data, retStmt)
 					local argsVar = escapeVar(args[variadic].var)
 
 					if variadic == #args then
-						builder.line('local ' .. argsVar .. ' = table.pack(...) ' .. argsVar .. '.tag = "list"')
+						builder.line('local ' .. argsVar .. ' = _pack(...) ' .. argsVar .. '.tag = "list"')
 					else
 						local remaining = #args - variadic
 
-						builder.line('local _n = select("#", ...) - ' .. remaining)
+						builder.line('local _n = _select("#", ...) - ' .. remaining)
 
 						append('local ' .. argsVar)
 						for i = variadic + 1, #args do
@@ -270,14 +270,14 @@ function compileExpression(expr, builder, data, retStmt)
 
 						builder.beginBlock('if _n > 0 then')
 
-						builder.line(argsVar .. ' = { tag = "list", n = _n, table.unpack(table.pack(...), 1, _n)}')
+						builder.line(argsVar .. ' = { tag = "list", n = _n, _unpack(_pack(...), 1, _n)}')
 
 						for i = variadic + 1, #args do
 							append(escapeVar(args[i].var))
 							if i < #args then append(', ') end
 						end
 
-						builder.line(' = select(_n + 1, ...)')
+						builder.line(' = _select(_n + 1, ...)')
 
 						builder.splitBlock("else")
 
@@ -355,7 +355,7 @@ function compileExpression(expr, builder, data, retStmt)
 
 				if not hadFinal then
 					builder.indent() builder.line()
-					append("error('unmatched item')")
+					append("_error('unmatched item')")
 					builder.unindent() builder.line()
 				end
 
@@ -517,10 +517,20 @@ function compileBlock(exprs, builder, data, start, retStmt)
 	end
 end
 
+local function prelude(_, builder)
+	-- Compat stuff
+	builder.line('if not table.pack then table.pack = function(...) return { n = select("#", ...), ... } end end')
+	builder.line('if not table.unpack then table.unpack = unpack end')
+	builder.line('if _VERSION:find("5.1") then local function load(x, _, _, env) local f, e = loadstring(x); if not f then error(e, 1) end; return setfenv(f, env) end end')
+
+	-- Inline useful globals
+	builder.line('local _select, _unpack, _pack, _error = select, table.unpack, table.pack, error')
+end
 
 return {
 	escape = escape,
 	escapeVar = escapeVar,
 	block = compileBlock,
 	expression = compileExpression,
+	prelude = prelude,
 }
