@@ -3,7 +3,7 @@ LUA_FLAGS ?=
 OBJS      :=                 \
 	tacky/logger               \
 	tacky/parser               \
-	tacky/analysis/visitor     \
+	tacky/analysis/optimise    \
 	tacky/backend/lisp
 
 ifeq (${TIME},1)

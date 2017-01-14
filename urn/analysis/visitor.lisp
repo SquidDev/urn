@@ -54,9 +54,9 @@
                   ((or (= funct "defined") (= funct "arg") (= funct "native"))
                     (visit-block node 1 visitor))
                   (true
-                    (fail (.. "Unknown kind " func " for variable " (.> func :name))))))
+                    (fail (.. "Unknown kind " funct " for variable " (.> func :name))))))
               (visit-block node 1 visitor))))
-        (error! (.. "Unknown tag " tag))))))
+        (true (error! (.. "Unknown tag " tag)))))))
 
 
 ;; Visit a list of nodes
@@ -68,10 +68,3 @@
   :visitNode  visit-node
   :visitBlock visit-block
   :visitList  visit-block)
-
-;; if r_851 /= #node3 then
-;; 		print(r_851, #node3)
-;; 		require "tacky.logger".putTrace(node3)
-;; 		local pp = require "tacky.pprint"
-;; 		print(pp.tostring(node3, pp.nodeConfig))
-;; 	end
