@@ -219,7 +219,6 @@ for i = 1, #libs do
 		-- Indent the libraries to make them look prettier
 		for line in native:gmatch("[^\n]*") do
 			if line == "" then
-				handle:write("\n")
 			else
 				handle:write("\t")
 				handle:write(line)

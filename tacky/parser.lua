@@ -4,171 +4,85 @@ local function load(x, _, _, env) local f, e = loadstring(x); if not f then erro
 local _libs = {}
 local _temp = (function()
 	-- base is an internal version of core methods without any extensions or assertions.
-
 	-- You should not use this unless you are building core libraries.
-
-
 	-- Native methods in base should do the bare minimum: you should try to move as much
-
 	-- as possible to Urn
-
-
 	local pprint = require "tacky.pprint"
-
-
 	local randCtr = 0
-
 	return {
-
 		['='] = function(x, y) return x == y end,
-
 		['/='] = function(x, y) return x ~= y end,
-
 		['<'] = function(x, y) return x < y end,
-
 		['<='] = function(x, y) return x <= y end,
-
 		['>'] = function(x, y) return x > y end,
-
 		['>='] = function(x, y) return x >= y end,
-
-
 		['+'] = function(x, y) return x + y end,
-
 		['-'] = function(x, y) return x - y end,
-
 		['*'] = function(x, y) return x * y end,
-
 		['/'] = function(x, y) return x / y end,
-
 		['%'] = function(x, y) return x % y end,
-
 		['^'] = function(x, y) return x ^ y end,
-
 		['..'] = function(x, y) return x .. y end,
-
-
 		['get-idx'] = rawget,
-
 		['set-idx!'] = rawset,
-
 		['remove-idx!'] = table.remove,
-
 		['slice'] = function(xs, start, finish)
-
 			if not finish then finish = xs.n end
-
 			return { tag = "list", n = finish - start + 1, table.unpack(xs, start, finish) }
-
 		end,
-
-
 		['print!'] = print,
-
 		['pretty'] = function (x) return pprint.tostring(x, pprint.nodeConfig) end,
-
 		['error!'] = error,
-
 		['type#'] = type,
-
 		['empty-struct'] = function() return {} end,
-
 		['format'] = string.format,
-
 		['xpcall'] = xpcall,
-
 		['traceback'] = debug.traceback,
-
 		['require'] = require,
-
 		['string->number'] = tonumber,
-
 		['number->string'] = tostring,
-
 		['clock'] = os.clock,
-
-
 		['gensym'] = function(name)
-
 			if name then
-
 				name = "_" .. tostring(name)
-
 			else
-
 				name = ""
-
 			end
-
-
 			randCtr = randCtr + 1
-
 			return { tag = "symbol", contents = ("r_%d%s"):format(randCtr, name) }
-
 		end,
-
 	}
-
-
 end)() 
 for k, v in pairs(_temp) do _libs[k] = v end
 local _temp = (function()
 	return {
-
 		byte    = string.byte,
-
 		char    = string.char,
-
 		concat  = table.concat,
-
 		find    = function(text, pattern, offset, plaintext)
-
 			local start, finish = string.find(text, pattern, offset, plaintext)
-
 			if start then
-
 				return { tag = "list", n = 2, start, finish }
-
 			else
-
 				return nil
-
 			end
-
 		end,
-
 		format  = string.format,
-
 		lower   = string.lower,
-
 		reverse = string.reverse,
-
 		rep     = string.rep,
-
 		replace = string.gsub,
-
 		sub     = string.sub,
-
 		upper   = string.upper,
-
-
 		['#s']   = string.len,
-
 	}
-
-
 end)() 
 for k, v in pairs(_temp) do _libs[k] = v end
 local _temp = (function()
 	return {
-
 	  getmetatable = getmetatable,
-
 	  setmetatable = setmetatable
-
 	}
-
-
 end)() 
 for k, v in pairs(_temp) do _libs[k] = v end
 
