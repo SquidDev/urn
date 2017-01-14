@@ -109,9 +109,9 @@ return function(parsed, global, env, inStates, scope, loader)
 
 				builder.add("local " .. table.concat(escapeList, ", "))
 				builder.line()
-				builder.add('table.pack = function(...) return { n = select("#", ...), ... } end'); builder.line()
-				builder.add('table.unpack = unpack'); builder.line()
-				builder.add('local function load(x, _, _, env) local f, e = loadstring(x); if not f then error(e, 1) end; return setfenv(f, env) end'); builder.line()
+				builder.add('if not table.pack then table.pack = function(...) return { n = select("#", ...), ... } end end'); builder.line()
+				builder.add('if not table.unpack then table.unpack = unpack end'); builder.line()
+				builder.add('if _VERSION:find("5.1") then local function load(x, _, _, env) local f, e = loadstring(x); if not f then error(e, 1) end; return setfenv(f, env) end end'); builder.line()
 
 				for i = 1, #stateList do
 					backend.lua.backend.expression(stateList[i].node, builder, nil, "")
