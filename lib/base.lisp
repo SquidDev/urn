@@ -37,6 +37,7 @@
 (define-native xpcall)
 (define-native traceback)
 (define-native require)
+(define-native unpack)
 
 (define-native string->number)
 (define-native number->string)

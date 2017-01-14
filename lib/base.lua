@@ -43,6 +43,7 @@ return {
 	['string->number'] = tonumber,
 	['number->string'] = tostring,
 	['clock'] = os.clock,
+	['unpack'] = function(li) return table.unpack(li, 1, li.n) end,
 
 	['gensym'] = function(name)
 		if name then

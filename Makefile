@@ -1,10 +1,11 @@
 LUA       ?= lua5.3
 LUA_FLAGS ?=
 OBJS      :=                 \
-	tacky/logger               \
-	tacky/parser               \
-	tacky/analysis/optimise    \
-	tacky/backend/lisp
+	tacky/logger             \
+	tacky/parser             \
+	tacky/analysis/optimise  \
+	tacky/backend/lisp       \
+	tacky/backend/init
 
 ifeq (${TIME},1)
 LUA_FLAGS += --time

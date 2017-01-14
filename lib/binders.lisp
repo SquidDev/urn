@@ -18,3 +18,7 @@
   `((lambda ,(map car vars)
     ,@(map (lambda (var) `(set! ,(car 1) ,(cadr 2))) vars)
     ,@body)))
+
+;; Declare a variable and evaluate the body if it is truthy.
+;; (defmacro where (var &body)
+;;   `((lambda (,(car var)) (cond (,(car var) ,@body) (true))) ,(nth var 2)))
