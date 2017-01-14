@@ -57,7 +57,7 @@ local libEnv = {}
 local libMeta = {}
 local libs = {}
 local libCache = {}
-local global = setmetatable({ _libs = libEnv }, {__index = _ENV})
+local global = setmetatable({ _libs = libEnv }, {__index = _ENV or _G})
 
 local rootScope = resolve.createScope()
 rootScope.isRoot = true
@@ -205,6 +205,10 @@ if time then print("Optimised in " .. (os.clock() - start)) end
 
 local compiledLua = backend.lua.block(out, { meta = libMeta }, 1, "return ")
 local handle = io.open(output .. ".lua", "w")
+
+handle:write('table.pack = function(...) return { n = select("#", ...), ... } end'); handle:write("\n")
+handle:write('table.unpack = unpack'); handle:write("\n")
+handle:write('local function load(x, _, _, env) local f, e = loadstring(x); if not f then error(e, 1) end; return setfenv(f, env) end'); handle:write("\n")
 
 handle:write("local _libs = {}\n")
 for i = 1, #libs do
