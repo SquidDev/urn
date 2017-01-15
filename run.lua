@@ -194,6 +194,31 @@ if #inputs == 0 then
 	local scope = rootScope:child()
 	scope.isRoot = true
 
+	local function tryParse(str)
+		local start = os.clock()
+		local ok, lexed = pcall(parser.lex, str, "<stdin>")
+		if not ok then
+			logger.printError(lexed)
+			return {}
+		end
+
+		local ok, parsed = pcall(parser.parse, lexed)
+		if not ok then
+			logger.printError(parsed)
+			return {}
+		end
+
+		if time then print("<stdin>" .. " parsed in " .. (os.clock() - start)) end
+
+		local ok, msg, state = pcall(compile.compile, parsed, global, variables, states, scope, libLoader)
+		if not ok then
+			logger.printError(msg)
+			return {}
+		end
+
+		return state
+	end
+
 	local buffer = {}
 	while true do
 		if #buffer == 0 then
@@ -214,12 +239,7 @@ if #inputs == 0 then
 			local data = table.concat(buffer) .. (line or "")
 			buffer = {}
 
-			local start = os.clock()
-			local lexed = parser.lex(data, "<stdin>")
-			local parsed = parser.parse(lexed)
-			if time then print(lib.path .. " parsed in " .. (os.clock() - start)) end
-
-			local _, state = compile.compile(parsed, global, variables, states, scope, libLoader)
+			local state = tryParse(data)
 			if #state ~= 0 then
 				local current = 0
 				local exec = coroutine.create(function()
