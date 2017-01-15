@@ -193,7 +193,7 @@ end
 assert(libLoader(prelude, rootScope, false))
 
 for i = 1, #inputs do
-	assert(libLoader(inputs[i]), nil, false)
+	assert(libLoader(inputs[i], nil, false))
 end
 
 out.n = #out
