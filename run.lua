@@ -49,8 +49,6 @@ while i <= args.n do
 	i = i + 1
 end
 
-if #inputs == 0 then error("No inputs specified", 0) end
-
 logger.printVerbose("Using path: " .. table.concat(paths, ":"))
 
 local libEnv = {}
@@ -177,7 +175,7 @@ local function libLoader(name, scope, resolve)
 		scope = rootScope:child()
 		scope.isRoot = true
 	end
-	local compiled, state = compile(parsed, global, variables, states, scope, libLoader)
+	local compiled, state = compile.compile(parsed, global, variables, states, scope, libLoader)
 
 	libs[#libs + 1] = lib
 	libCache[name] = state
@@ -191,6 +189,78 @@ local function libLoader(name, scope, resolve)
 end
 
 assert(libLoader(prelude, rootScope, false))
+
+if #inputs == 0 then
+	local scope = rootScope:child()
+	scope.isRoot = true
+
+	local buffer = {}
+	while true do
+		if #buffer == 0 then
+			io.write("\27[92m>\27[0m ")
+		else
+			io.write("\27[92m.\27[0m ")
+		end
+		io.flush()
+
+		local line = io.read("*l")
+
+		if not line and #buffer == 0 then
+			-- Exit if we have nothing to run
+			break
+		elseif line and line:sub(#line, #line) == "\\" then
+			buffer[#buffer + 1] = line:sub(1, #line - 1) .. "\n"
+		else
+			local data = table.concat(buffer) .. (line or "")
+			buffer = {}
+
+			local start = os.clock()
+			local lexed = parser.lex(data, "<stdin>")
+			local parsed = parser.parse(lexed)
+			if time then print(lib.path .. " parsed in " .. (os.clock() - start)) end
+
+			local _, state = compile.compile(parsed, global, variables, states, scope, libLoader)
+			if #state ~= 0 then
+				local current = 0
+				local exec = coroutine.create(function()
+					for i = 1, #state do
+						current = state[i]
+						current:get()
+					end
+				end)
+
+				while true do
+					local ok, data = coroutine.resume(exec)
+					if not ok then
+						logger.printError(data)
+						break
+					end
+
+					if coroutine.status(exec) == "dead" then
+						print("\27[96m" .. pprint.tostring(state[#state]:get(), pprint.nodeConfig) .. "\27[0m")
+						break
+					else
+						local states = data.states
+						if states[1] == current and not current.var then
+							table.remove(states, 1)
+							compile.executeStates(data.states, global)
+
+							local str = backend.lua.prelude() .. "\n" .. backend.lua.expression(current.node, { meta = libMeta }, "return ")
+							local fun, msg = load(str, "=<input>", "t", global)
+							if not fun then error(msg .. ":\n" .. str, 0) end
+
+							current:executed(fun())
+						else
+							compile.executeStates(data.states, global)
+						end
+					end
+				end
+			end
+		end
+	end
+
+	return
+end
 
 for i = 1, #inputs do
 	assert(libLoader(inputs[i], nil, false))

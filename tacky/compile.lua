@@ -4,7 +4,58 @@ local resolve = require "tacky.analysis.resolve"
 local State = require "tacky.analysis.state"
 local writer = require "tacky.backend.writer"
 
-return function(parsed, global, env, inStates, scope, loader)
+local function executeStates(states, global)
+	local stateList, nameTable, nameList, escapeList = {}, {}, {}, {}
+
+	for j = 1, #states do
+		local state = states[j]
+		if state.stage ~= "executed" then
+			local node = assert(state.node, "State is in " .. state.stage .. " instead")
+			local var = assert(state.var, "State has no variable")
+
+			local i = #stateList + 1
+
+			local escaped, name = backend.lua.backend.escapeVar(var), var.name
+
+			stateList[i] = state
+			nameTable[i] = escaped .. " = " .. escaped
+			nameList[i] = name
+			escapeList[i] = escaped
+		end
+	end
+
+	if #stateList > 0 then
+		local builder = writer()
+
+		backend.lua.backend.prelude(nil, builder)
+		builder.line("local " .. table.concat(escapeList, ", "))
+
+		for i = 1, #stateList do
+			backend.lua.backend.expression(stateList[i].node, builder, nil, "")
+			builder.line()
+		end
+
+		builder.line("return {" .. table.concat(nameTable, ", ") .. "}")
+
+		local str = builder.toString()
+		local fun, msg = load(str, "=compile{" .. table.concat(nameList, ",") .. "}", "t", global)
+		if not fun then error(msg .. ":\n" .. str, 0) end
+
+		local success, result = xpcall(fun, debug.traceback)
+		if not success then error(result .. ":\n" .. str, 0) end
+
+		for i = 1, #stateList do
+			local state = stateList[i]
+			local escaped = escapeList[i]
+			local res = result[escaped]
+			state:executed(res)
+
+			if state.var then global[escaped] = res end
+		end
+	end
+end
+
+local function compile(parsed, global, env, inStates, scope, loader)
 
 	local queue = {}
 	local out = {}
@@ -83,57 +134,7 @@ return function(parsed, global, env, inStates, scope, loader)
 				queue[#queue + 1] = head
 			end
 		elseif head.tag == "execute" then
-			local states = head.states
-
-			local stateList, nameTable, nameList, escapeList = {}, {}, {}, {}
-
-			for j = 1, #states do
-				local state = states[j]
-				if state.stage ~= "executed" then
-					local node = assert(state.node, "State is in " .. state.stage .. " instead")
-					local var = assert(state.var, "State has no variable")
-
-					local escaped, name = backend.lua.backend.escapeVar(var), var.name
-
-					local i = #stateList + 1
-
-					stateList[i] = state
-					nameTable[i] = escaped .. " = " .. escaped
-					nameList[i] = name
-					escapeList[i] = escaped
-				end
-			end
-
-			if #stateList > 0 then
-				local builder = writer()
-
-				backend.lua.backend.prelude(nil, builder)
-				builder.line("local " .. table.concat(escapeList, ", "))
-
-				for i = 1, #stateList do
-					backend.lua.backend.expression(stateList[i].node, builder, nil, "")
-					builder.line()
-				end
-
-				builder.line("return {" .. table.concat(nameTable, ", ") .. "}")
-
-				local str = builder.toString()
-				-- print(str)
-				local fun, msg = load(str, "=compile{" .. table.concat(nameList, ",") .. "}", "t", global)
-				if not fun then error(msg .. ":\n" .. str, 0) end
-
-				local success, result = xpcall(fun, debug.traceback)
-				if not success then error(result .. ":\n" .. str, 0) end
-
-				for i = 1, #stateList do
-					local state = stateList[i]
-					local escaped = escapeList[i]
-					local res = result[escaped]
-					state:executed(res)
-					global[escaped] = res
-				end
-			end
-
+			executeStates(head.states, global)
 			resume(head)
 		elseif head.tag == "import" then
 			local success, module = loader(head.module)
@@ -186,3 +187,8 @@ return function(parsed, global, env, inStates, scope, loader)
 
 	return out, states
 end
+
+return {
+	compile = compile,
+	executeStates = executeStates,
+}

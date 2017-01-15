@@ -15,9 +15,10 @@ M.nodeConfig = {
 	blacklist = {
 		parent = true, var = true, lines = true,
 		macro = true, start = true, finish = true, range = true,
-		variables = true, scope = true, required = true,
+		variables = true, scope = true, required = true, states = true,
+		requiredSet = true,
 	},
-	dups = true
+	dups = true,
 }
 
 local function validId(x, cfg)

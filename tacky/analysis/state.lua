@@ -153,7 +153,7 @@ function State:get()
 			visit(inner, stack, stackHash)
 		end
 
-		if state.stage ~= "built" then
+		if state.stage ~= "built" and state.stage ~= "executed" then
 			coroutine.yield({
 				tag = "build",
 				state = state,
