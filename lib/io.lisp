@@ -1,0 +1,10 @@
+(define-native read)
+(define-native open)
+(define-native flush)
+(define-native close)
+(define-native input)
+(define-native lines)
+(define-native output)
+(define-native tmpfile)
+(define-native write)
+
