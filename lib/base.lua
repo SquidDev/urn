@@ -43,6 +43,7 @@ return {
 	['string->number'] = tonumber,
 	['number->string'] = tostring,
 	['clock'] = os.clock,
+	['exit'] = os.exit,
 	['unpack'] = function(li) return table.unpack(li, 1, li.n) end,
 
 	['gensym'] = function(name)
@@ -55,4 +56,5 @@ return {
 		randCtr = randCtr + 1
 		return { tag = "symbol", contents = ("r_%d%s"):format(randCtr, name) }
 	end,
+	_G = _G, _ENV = _ENV
 }

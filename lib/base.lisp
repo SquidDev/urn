@@ -42,9 +42,13 @@
 (define-native string->number)
 (define-native number->string)
 (define-native clock)
+(define-native exit)
 
 ; Compiler functions
 (define-native gensym)
+
+(define-native _G)
+(define-native _ENV)
 
 ;; Creates a top-level function
 (define-macro defun (lambda (name args &body)
