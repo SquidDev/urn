@@ -7,7 +7,7 @@ local writer = require "tacky.backend.writer"
 local function executeStates(states, global)
 	local stateList, nameTable, nameList, escapeList = {}, {}, {}, {}
 
-	for j = 1, #states do
+	for j = #states, 1, -1 do
 		local state = states[j]
 		if state.stage ~= "executed" then
 			local node = assert(state.node, "State is in " .. state.stage .. " instead")
@@ -42,7 +42,10 @@ local function executeStates(states, global)
 		if not fun then error(msg .. ":\n" .. str, 0) end
 
 		local success, result = xpcall(fun, debug.traceback)
-		if not success then error(result .. ":\n" .. str, 0) end
+		if not success then
+			logger.printDebug(str)
+			error(result, 0)
+		end
 
 		for i = 1, #stateList do
 			local state = stateList[i]

@@ -191,8 +191,7 @@ end
 assert(libLoader(prelude, rootScope, false))
 
 if #inputs == 0 then
-	local scope = rootScope:child()
-	scope.isRoot = true
+	local scope = rootScope
 
 	local function tryParse(str)
 		local start = os.clock()
@@ -235,8 +234,13 @@ if #inputs == 0 then
 			break
 		elseif line and line:sub(#line, #line) == "\\" then
 			buffer[#buffer + 1] = line:sub(1, #line - 1) .. "\n"
+		elseif line and #buffer > 0 and #line > 0 then
+			buffer[#buffer + 1] = line
 		else
 			local data = table.concat(buffer) .. (line or "")
+			scope = scope:child()
+			scope.isRoot = true
+
 			buffer = {}
 
 			local state = tryParse(data)
@@ -263,15 +267,20 @@ if #inputs == 0 then
 						local states = data.states
 						if states[1] == current and not current.var then
 							table.remove(states, 1)
-							compile.executeStates(data.states, global)
+							local ok, msg = pcall(compile.executeStates, data.states, global)
+							if not ok then logger.printError(msg) break end
 
 							local str = backend.lua.prelude() .. "\n" .. backend.lua.expression(current.node, { meta = libMeta }, "return ")
 							local fun, msg = load(str, "=<input>", "t", global)
 							if not fun then error(msg .. ":\n" .. str, 0) end
 
-							current:executed(fun())
+							local ok, res = xpcall(fun, debug.traceback)
+							if not ok then logger.printError(res) break end
+
+							current:executed(res)
 						else
-							compile.executeStates(data.states, global)
+							local ok, msg = pcall(compile.executeStates, data.states, global)
+							if not ok then logger.printError(msg) break end
 						end
 					end
 				end
