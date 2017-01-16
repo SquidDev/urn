@@ -23,8 +23,10 @@
   (cond
     [(nil? vars) `((lambda () ,@body))]
     [true `((lambda (,(caar vars))
-              (when ,(caar vars) (when-let* ,(cdr vars) ,@body)))
-            ,(cadar vars))]))
+              (cond
+                [,(caar vars) (when-let* ,(cdr vars) ,@body)]
+                [true nil])
+            ,(cadar vars)))]))
 
 ;; Pre-declare variable and define it, allowing recursive functions to exist
 (defmacro letrec (vars &body)
