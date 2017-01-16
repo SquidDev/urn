@@ -14,7 +14,7 @@
                 ((or (= (.> first :contents) "unquote") (= (.> first :contents) "unquote-splice"))
                   (visit-quote (nth node 2) visitor (pred level)))
                 ((= (.> first :contents) "quasiquote")
-                  (visit-quote (nth node 2) (visitor) (succ level)))
+                  (visit-quote (nth node 2) visitor (succ level)))
                 (true
                   (for-each sub node (visit-quote sub visitor level))))
               (for-each sub node (visit-quote sub visitor level)))))
