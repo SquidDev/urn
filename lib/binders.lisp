@@ -13,6 +13,19 @@
 (defmacro let (vars &body)
   `((lambda ,(cars vars) ,@body) ,@(cadrs vars)))
 
+(defmacro when-let (vars &body)
+  `(let ,vars
+     (when `(and ,@(map car ,vars)) ,@body)))
+
+(defun debug (x) (print! (pretty x)) x)
+
+(defmacro when-let* (vars &body)
+  (cond
+    [(nil? vars) `((lambda () ,@body))]
+    [true `((lambda (,(caar vars))
+              (when ,(caar vars) (when-let* ,(cdr vars) ,@body)))
+            ,(cadar vars))]))
+
 ;; Pre-declare variable and define it, allowing recursive functions to exist
 (defmacro letrec (vars &body)
   `((lambda ,(map car vars)
