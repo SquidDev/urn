@@ -14,8 +14,8 @@
   `((lambda ,(cars vars) ,@body) ,@(cadrs vars)))
 
 (defmacro when-let (vars &body)
-  `(let ,vars
-     (when `(and ,@(map car ,vars)) ,@body)))
+  `((lambda ,(cars vars)
+     (when (and ,@(cars vars)) ,@body)) ,@(cadrs vars)))
 
 (defun debug (x) (print! (pretty x)) x)
 
