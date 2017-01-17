@@ -34,3 +34,6 @@
             (list/push-cdr! out (sub text start (- (car pos) 1)))
             (set! start (+ (list/cadr pos) 1))))))
     out))
+
+(defun quote (str)
+  (replace (format "%q" str) "\n" "\\n"))
