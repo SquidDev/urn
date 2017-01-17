@@ -115,17 +115,9 @@ function compileQuote(node, builder, data, level)
 
 	local append = builder.add
 	if node.tag == "string" then
-		if level then
-			append('{tag = "' .. node.tag .. '", contents = ' .. ("%q"):format(node.contents) .. '}')
-		else
-			append(node.contents)
-		end
+		append(node.contents)
 	elseif node.tag == "number" then
-		if level then
-			append('{tag = "' .. node.tag .. '", contents = ' .. node.contents .. '}')
-		else
-			append(node.contents)
-		end
+		append(node.contents)
 	elseif node.tag == "symbol" then
 		append('{tag = "symbol", contents = ' .. ("%q"):format(node.contents):gsub("\n", "\\n"))
 
