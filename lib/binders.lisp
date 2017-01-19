@@ -33,5 +33,5 @@
     ,@body)))
 
 ;; Declare a variable and evaluate the body if it is truthy.
-;; (defmacro where (var &body)
-;;   `((lambda (,(car var)) (cond (,(car var) ,@body) (true))) ,(nth var 2)))
+(defmacro when-with (var &body)
+  `((lambda (,(car var)) (when ,(car var) ,@body)) ,(nth var 2)))
