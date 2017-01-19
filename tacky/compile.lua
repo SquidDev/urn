@@ -62,7 +62,7 @@ local function compile(parsed, global, env, inStates, scope, loader)
 
 	local queue = {}
 	local out = {}
-	local states = {}
+	local states = { scope = scope }
 
 	for i = 1, #parsed do
 		local state = State.create(env, inStates, scope)
@@ -146,17 +146,16 @@ local function compile(parsed, global, env, inStates, scope, loader)
 				logger.errorPositions(head._node, module)
 			end
 
-			for _, state in pairs(module) do
-				if state.var then
-					if head.as then
-						scope:import(head.as, state.var, state, head._node)
-					elseif head.symbols then
-						if head.symbols[state.var.name] then
-							scope:import(nil, state.var, state, head._node)
-						end
-					else
-						scope:import(nil, state.var, state, head._node)
+			for _, var in pairs(module.scope.variables) do
+				local state = inStates[var]
+				if head.as then
+					scope:import(head.as, var, state, head._node)
+				elseif head.symbols then
+					if head.symbols[state.var.name] then
+						scope:import(nil, var, state, head._node)
 					end
+				else
+					scope:import(nil, var, state, head._node)
 				end
 			end
 			resume(head)
@@ -171,6 +170,27 @@ local function compile(parsed, global, env, inStates, scope, loader)
 
 			if entry.tag == "define" then
 				logger.printError("Cannot find variable " .. entry.name)
+
+				if entry.scope then
+					local vars, varSet = {tag="list"}, {}
+
+					local scope = entry.scope
+					while scope do
+						for k in pairs(scope.variables) do
+							if not varSet[k] then
+								varSet[k] = true
+								vars[#vars + 1] = k
+							end
+						end
+
+						scope = scope.parent
+					end
+
+					vars.n = #vars
+					table.sort(vars)
+
+					logger.putInfo("Variables in scope are " .. table.concat(vars, ", "))
+				end
 
 				if entry.node then
 					logger.putTrace(entry.node)

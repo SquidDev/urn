@@ -34,6 +34,7 @@ function Scope:get(name, user)
 		tag = "define",
 		name = name,
 		node = user,
+		scope = self,
 	})
 end
 
