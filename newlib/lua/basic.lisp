@@ -16,6 +16,7 @@
 (define-native _G)
 (define-native _ENV)
 (define-native gensym)
+(define-native slice)
 
 (define-native assert)
 (define-native collectgarbage)
@@ -38,5 +39,7 @@
 (define-native setmetatable)
 (define-native tonumber)
 (define-native tostring)
-(define-native type)
+(define-native type#)
 (define-native xpcall)
+
+(define # (lambda (x) (rawget x "n")))

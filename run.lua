@@ -6,7 +6,7 @@ local parser = require "tacky.parser"
 local pprint = require "tacky.pprint"
 local resolve = require "tacky.analysis.resolve"
 
-local paths = { "?", "lib/?" }
+local paths = { "?", "newlib/?" }
 local inputs, output, verbosity, run, prelude, time = {}, "out", 0, false, "lib/prelude", false
 
 local args = table.pack(...)

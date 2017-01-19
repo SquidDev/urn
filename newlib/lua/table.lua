@@ -1,1 +1,1 @@
-return table
+return setmetatable({ ['empty-struct'] = {} }, { __index = table })
