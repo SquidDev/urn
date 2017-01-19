@@ -2,9 +2,8 @@ local backend = require "tacky.backend.init"
 local logger = require "tacky.logger"
 local resolve = require "tacky.analysis.resolve"
 local State = require "tacky.analysis.state"
-local writer = require "tacky.backend.writer"
 
-local function executeStates(states, global)
+local function executeStates(compileState, states, global)
 	local stateList, nameTable, nameList, escapeList = {}, {}, {}, {}
 
 	for j = #states, 1, -1 do
@@ -15,7 +14,7 @@ local function executeStates(states, global)
 
 			local i = #stateList + 1
 
-			local escaped, name = backend.lua.backend.escapeVar(var), var.name
+			local escaped, name = backend.lua.backend.escapeVar(var, compileState), var.name
 
 			stateList[i] = state
 			nameTable[i] = escaped .. " = " .. escaped
@@ -25,19 +24,24 @@ local function executeStates(states, global)
 	end
 
 	if #stateList > 0 then
-		local builder = writer()
-
-		backend.lua.backend.prelude(nil, builder)
-		builder.line("local " .. table.concat(escapeList, ", "))
+		local out = { tag = "list", n = 0}
+		local builder = { indent = 0, out = out}
+		backend.lua.backend.prelude(builder)
+		out.n = out.n + 1
+		out[out.n] = "local " .. table.concat(escapeList, ", ") .. "\n"
 
 		for i = 1, #stateList do
-			backend.lua.backend.expression(stateList[i].node, builder, nil, "")
-			builder.line()
+			backend.lua.backend.expression(stateList[i].node, builder, compileState, "")
+			out.n = out.n + 1
+			out[out.n] = "\n"
 		end
 
-		builder.line("return {" .. table.concat(nameTable, ", ") .. "}")
+		out.n = out.n + 1
+		out[out.n] = "return {" .. table.concat(nameTable, ", ") .. "}"
+		-- builder.add("return {" .. table.concat(nameTable, ", ") .. "}")
 
-		local str = builder.toString()
+		local str = table.concat(out)
+		-- local str = builder.toString()
 		local fun, msg = load(str, "=compile{" .. table.concat(nameList, ",") .. "}", "t", global)
 		if not fun then error(msg .. ":\n" .. str, 0) end
 
@@ -58,7 +62,7 @@ local function executeStates(states, global)
 	end
 end
 
-local function compile(parsed, global, env, inStates, scope, loader)
+local function compile(parsed, global, env, inStates, scope, compileState, loader)
 
 	local queue = {}
 	local out = {}
@@ -137,7 +141,7 @@ local function compile(parsed, global, env, inStates, scope, loader)
 				queue[#queue + 1] = head
 			end
 		elseif head.tag == "execute" then
-			executeStates(head.states, global)
+			executeStates(compileState, head.states, global)
 			resume(head)
 		elseif head.tag == "import" then
 			local success, module = loader(head.module)

@@ -35,5 +35,6 @@
             (set! start (+ (list/cadr pos) 1))))))
     out))
 
-(defun quote (str)
-  (replace (format "%q" str) "\n" "\\n"))
+(defun quoted (str)
+  (with (val (replace (format "%q" str) "\n" "\\n"))
+    val))

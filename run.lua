@@ -56,6 +56,7 @@ local libMeta = {}
 local libs = {}
 local libCache = {}
 local global = setmetatable({ _libs = libEnv }, {__index = _ENV or _G})
+local compileState = backend.lua.backend.createState(libMeta)
 
 local rootScope = resolve.createScope()
 rootScope.isRoot = true
@@ -141,7 +142,7 @@ local function libLoader(name, scope, resolve)
 
 			for k, v in pairs(fun()) do
 				if type(v.contents) == "string" then
-					local buffer = {}
+					local buffer = {tag="list"}
 					local str = v.contents
 					local current = 1
 					while current <= #str do
@@ -158,6 +159,7 @@ local function libLoader(name, scope, resolve)
 						end
 					end
 
+					buffer.n = #buffer
 					v.contents = buffer
 				end
 
@@ -175,7 +177,7 @@ local function libLoader(name, scope, resolve)
 		scope = rootScope:child()
 		scope.isRoot = true
 	end
-	local compiled, state = compile.compile(parsed, global, variables, states, scope, libLoader)
+	local compiled, state = compile.compile(parsed, global, variables, states, scope, compileState, libLoader)
 
 	libs[#libs + 1] = lib
 	libCache[name] = state
@@ -302,7 +304,8 @@ local start = os.clock()
 out = optimise(out)
 if time then print("Optimised in " .. (os.clock() - start)) end
 
-local compiledLua = backend.lua.block(out, { meta = libMeta }, 1, "return ")
+local state = backend.lua.backend.createState(libMeta)
+local compiledLua = backend.lua.block(out, state, 1, "return ")
 local handle = io.open(output .. ".lua", "w")
 
 handle:write(backend.lua.prelude())

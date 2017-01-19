@@ -63,11 +63,17 @@ local function resolveMacroResult(macro, node, parent, scope, state)
 	end
 
 	if node.tag == "list" then
+		if #node ~= node.n then print(macro.var.name, #node, node.n) os.exit(1) end
 		for i = 1, node.n do
 			node[i] = resolveMacroResult(macro, node[i], node, scope, state)
 		end
 	elseif node.tag == "symbol" and type(node.var) == "string" then
-		node.var = assert(state.variables[node.var], "Invalid variable key '" .. node.var .. "'")
+		local var = state.variables[node.var]
+		if not var then
+			errorPositions(node, "Invalid variable key '" .. node.var .. "' for '" .. node.contents .. "'")
+		else
+			node.var = var
+		end
 	end
 
 	return node
@@ -94,10 +100,14 @@ function resolveQuote(node, scope, state, level)
 	elseif node.tag == "list" then
 		local first = node[1]
 		if first and first.tag == "symbol" then
-			if first.contents == "unquote" or first.contents == "unquote-splice" then
+			if not first.var then
+				first.var = scope:get(first.contents, first)
+			end
+
+			if first.var == builtins["unquote"] or first.var == builtins["unquote-splice"] then
 				node[2] = resolveQuote(node[2], scope, state, level - 1)
 				return node
-			elseif first.contents == "quasiquote" then
+			elseif first.var == builtins["quasiquote"] then
 				node[2] = resolveQuote(node[2], scope, state, level + 1)
 				return node
 			end

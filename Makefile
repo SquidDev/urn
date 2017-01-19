@@ -4,7 +4,6 @@ OBJS      :=                 \
 	tacky/logger             \
 	tacky/parser             \
 	tacky/analysis/optimise  \
-	tacky/backend/lisp       \
 	tacky/backend/init
 
 ifeq (${TIME},1)

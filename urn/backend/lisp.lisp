@@ -54,4 +54,4 @@
     (expression node writer)
     (writer/line! writer)))
 
-(struct :expression expression :block block)
+(define backend (struct :expression expression :block block))
