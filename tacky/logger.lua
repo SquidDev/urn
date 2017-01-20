@@ -56,7 +56,7 @@ local _temp = (function()
 		end,
 		_G = _G, _ENV = _ENV
 	}
-end)() 
+end)()
 for k, v in pairs(_temp) do _libs[k] = v end
 local _temp = (function()
 	return {
@@ -80,18 +80,18 @@ local _temp = (function()
 		upper   = string.upper,
 		['#s']   = string.len,
 	}
-end)() 
+end)()
 for k, v in pairs(_temp) do _libs[k] = v end
 local _temp = (function()
 	return {
 	  getmetatable = getmetatable,
 	  setmetatable = setmetatable
 	}
-end)() 
+end)()
 for k, v in pairs(_temp) do _libs[k] = v end
 local _temp = (function()
 	return io
-end)() 
+end)()
 for k, v in pairs(_temp) do _libs[k] = v end
 
 _3d_1 = _libs["="]
@@ -209,20 +209,21 @@ split1 = (function(text1, pattern1, limit1)
 		if loop1 then
 			local pos1
 			pos1 = find1(text1, pattern1, start1)
-			if (function(r_601)
-				if r_601 then
-					return r_601
+			local _temp
+			local r_601
+			r_601 = ("nil" == type_23_1(pos1))
+			if r_601 then
+				_temp = r_601
+			else
+				local r_611
+				r_611 = limit1
+				if r_611 then
+					_temp = (_23_1(out1) >= limit1)
 				else
-					local r_611
-					r_611 = limit1
-					if r_611 then
-						return (_23_1(out1) >= limit1)
-					else
-						return r_611
-					end
+					_temp = r_611
 				end
-			end)
-			(("nil" == type_23_1(pos1))) then
+			end
+			if _temp then
 				loop1 = false
 				pushCdr_21_1(out1, sub1(text1, start1, _23_s1(text1)))
 				start1 = (_23_s1(text1) + 1)
@@ -255,14 +256,13 @@ struct1 = (function(...)
 	local r_641
 	r_641 = nil
 	r_641 = (function(r_651)
-		if (function()
-			if (0 < 2) then
-				return (r_651 <= r_661)
-			else
-				return (r_651 >= r_661)
-			end
-		end)()
-		 then
+		local _temp
+		if (0 < 2) then
+			_temp = (r_651 <= r_661)
+		else
+			_temp = (r_651 >= r_661)
+		end
+		if _temp then
 			local i1
 			i1 = r_651
 			local key2, val3
@@ -346,14 +346,15 @@ formatRange1 = (function(range1)
 	end
 end)
 formatNode1 = (function(node1)
-	if (function(r_971)
-		if r_971 then
-			return node1["contents"]
-		else
-			return r_971
-		end
-	end)
-	(node1["range"]) then
+	local _temp
+	local r_971
+	r_971 = node1["range"]
+	if r_971 then
+		_temp = node1["contents"]
+	else
+		_temp = r_971
+	end
+	if _temp then
 		return format2("%s (%q)", formatRange1(node1["range"]), node1["contents"])
 	elseif node1["range"] then
 		return formatRange1(node1["range"])
@@ -371,14 +372,15 @@ getSource1 = (function(node2)
 	local r_981
 	r_981 = nil
 	r_981 = (function()
-		if (function(r_991)
-			if r_991 then
-				return _21_1(result1)
-			else
-				return r_991
-			end
-		end)
-		(node2) then
+		local _temp
+		local r_991
+		r_991 = node2
+		if r_991 then
+			_temp = _21_1(result1)
+		else
+			_temp = r_991
+		end
+		if _temp then
 			result1 = node2["range"]
 			node2 = node2["parent"]
 			return r_981()
@@ -411,27 +413,27 @@ putLines_21_1 = (function(range2, ...)
 	local r_1071
 	r_1071 = nil
 	r_1071 = (function(r_1081)
-		if (function()
-			if (0 < 2) then
-				return (r_1081 <= r_1091)
-			else
-				return (r_1081 >= r_1091)
-			end
-		end)()
-		 then
+		local _temp
+		if (0 < 2) then
+			_temp = (r_1081 <= r_1091)
+		else
+			_temp = (r_1081 >= r_1091)
+		end
+		if _temp then
 			local i2
 			i2 = r_1081
 			local position1, message1
 			position1 = entries1[i2]
 			message1 = entries1[succ1(i2)]
-			if (function(r_1111)
-				if r_1111 then
-					return ((position1["start"]["line"] - previous1) > 2)
-				else
-					return r_1111
-				end
-			end)
-			((previous1 ~= -1)) then
+			local _temp
+			local r_1111
+			r_1111 = (previous1 ~= -1)
+			if r_1111 then
+				_temp = ((position1["start"]["line"] - previous1) > 2)
+			else
+				_temp = r_1111
+			end
+			if _temp then
 				print_21_1(" \27[92m...\27[0m")
 			else
 			end
@@ -440,17 +442,20 @@ putLines_21_1 = (function(range2, ...)
 			local pointer1
 			if _21_1(range2) then
 				pointer1 = "^"
-			elseif (function(r_1121)
-				if r_1121 then
-					return (position1["start"]["line"] == position1["finish"]["line"])
-				else
-					return r_1121
-				end
-			end)
-			(position1["finish"]) then
-				pointer1 = rep1("^", _2d_1(position1["finish"]["column"], position1["start"]["column"], -1))
 			else
-				pointer1 = "^..."
+				local _temp
+				local r_1121
+				r_1121 = position1["finish"]
+				if r_1121 then
+					_temp = (position1["start"]["line"] == position1["finish"]["line"])
+				else
+					_temp = r_1121
+				end
+				if _temp then
+					pointer1 = rep1("^", _2d_1(position1["finish"]["column"], position1["start"]["column"], -1))
+				else
+					pointer1 = "^..."
+				end
 			end
 			print_21_1(format2(code1, "", _2e2e_1(rep1(" ", (position1["start"]["column"] - 1)), pointer1, " ", message1)))
 			return r_1071((r_1081 + r_1101))
@@ -494,14 +499,13 @@ putExplain_21_1 = (function(...)
 		local r_1031
 		r_1031 = nil
 		r_1031 = (function(r_1041)
-			if (function()
-				if (0 < 1) then
-					return (r_1041 <= r_1051)
-				else
-					return (r_1041 >= r_1051)
-				end
-			end)()
-			 then
+			local _temp
+			if (0 < 1) then
+				_temp = (r_1041 <= r_1051)
+			else
+				_temp = (r_1041 >= r_1051)
+			end
+			if _temp then
 				local r_1011
 				r_1011 = r_1041
 				local line1

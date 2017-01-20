@@ -211,7 +211,8 @@
 
                               (w/end-block! out "end")))))
                       (compile-block node out state 3 "return ")
-                      (w/end-block! out "end)"))))
+                      (w/unindent! out)
+                      (w/append! out "end)"))))
                 ((= var (.> builtins :cond))
                   (let [(closure (! ret))
                         (had-final false)
@@ -231,7 +232,7 @@
                           ;; We stop iterating after a branch marked "true" and just invoke the code.
                           (cond
                             (is-final (when (= i 2) (w/append! out "do"))) ;; TODO: Could we dec! the ends variable instead?
-                            ((is-statement cond)
+                            ((is-statement case)
                               ;; We flatten if statements branching on an if by declaring a temp variable
                               ;; and assigning the branch result to it.
                               ;; If we're not the first condition then we also have to indent everything once.
@@ -262,7 +263,8 @@
                     ;; If we didn't hit a true branch then we should error at runtime
                     (unless had-final
                       (w/indent! out) (w/line! out)
-                      (w/append! out "_error(\"unmatched item\")"))
+                      (w/append! out "_error(\"unmatched item\")")
+                      (w/unindent! out) (w/line! out))
 
                     ;; End each nested block
                     (for i 1 ends 1

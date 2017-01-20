@@ -9,6 +9,16 @@ local resolve = require "tacky.analysis.resolve"
 local paths = { "?", "lib/?" }
 local inputs, output, verbosity, run, prelude, time = {}, "out", 0, false, "lib/prelude", false
 
+-- Tiny Lua stub
+if _VERSION:find("5.1") then
+	function load(str, name, _, env)
+		local f, e = loadstring(str, name)
+		if not f then return false, e end
+		if env then setfenv(f, env) end
+		return f
+	end
+end
+
 local args = table.pack(...)
 local i = 1
 while i <= args.n do
@@ -325,7 +335,7 @@ for i = 1, #libs do
 				handle:write("\n")
 			end
 		end
-		handle:write("end)() \nfor k, v in pairs(_temp) do _libs[k] = v end\n")
+		handle:write("end)()\nfor k, v in pairs(_temp) do _libs[k] = v end\n")
 	end
 end
 
