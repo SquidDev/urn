@@ -70,7 +70,8 @@
                               (,resultn (progn ,@body))]
                          (print! ,(get-idx name "contents")
                                  " took "
-                                 (- (clock) ,clockn)) ,resultn)))
+                                 (- (clock) ,clockn))
+                         ,resultn)))
                   (progn
                     (print! (pretty definition))
                     definition))))))

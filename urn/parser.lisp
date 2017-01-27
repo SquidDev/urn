@@ -112,29 +112,33 @@
            (.<! head :open nil)
            (.<! head :close nil)
            (.<! head :auto-close nil)
+           (.<! head :last-node nil)
 
            (set! head (last stack))
            (pop-last! stack))))
     (for-each tok toks
       (let* ((tag (.> tok :tag))
              (auto-close false))
-        (cond
-          ((or (= tag "string") (= tag "number") (= tag "symbol") (= tag "key"))
-            (append! tok))
-          ((= tag "open")
-            (with (previous (last head))
-              ;; We want to detect places where the indent is different.
-              ;; Initially we check that they aren't on the same line as the parent:
-              ;; this catches cases like:
-              ;;   (define x (lambda (x)
-              ;;     (foo))) ; Has a different line and indent then parent.
-              ;; We obviously shouldn't report entries which are on the same line:
-              ;;   (foo) (bar) ; Has a different indent
-              ;; TODO: This will fail for "tabulated data"
-              (when (and previous (.> head :range) (/= (.> previous :range :start :line) (.> head :range :start :line)))
-                (let ((prev-pos (.> previous :range))
-                      (tok-pos (.> tok :range)))
-                  (when (and (/= (.> prev-pos :start :column) (.> tok-pos :start :column)) (/= (.> prev-pos :start :line) (.> tok-pos :start :line)))
+
+        ;; Attempt to find mis-matched indents. This both highlights formatting errors and helps find the source of
+        ;; parse errors due to mis-matched parenthesis.
+        ;; To do this we store a reference to the first node on the previous line and check if the indent is different.
+        (let ((previous (.> head :last-node))
+              (tok-pos (.> tok :range)))
+          ;; This catches a couple of trivial cases:
+          ;;  - Closing parenthesis. As lisp doesn't use C style indentation for brackets, the closing one will be on a
+          ;;    different line.
+          ;;  - Missing range on head due to top level. In this case we just allow whatever.
+          ;;  - Nested parenthesis on the same line (such as (foo (+ 2 3))). Obviously we want to ignore these as the
+          ;;    indent will be different.
+          (when (and (/= tag "eof") (/= tag "close") (if (.> head :range) (/= (.> tok-pos :start :line) (.> head :range :start :line)) true))
+            (if previous
+              (with (prev-pos (.> previous :range))
+                (when (/= (.> tok-pos :start :line) (.> prev-pos :start :line))
+                  ;; We're on a different line so update the previous node to be this one.
+                  (.<! head :last-node tok)
+                  ;; Then ensure we're on the same column
+                  (when (/= (.> tok-pos :start :column) (.> prev-pos :start :column))
                     (logger/print-warning! "Different indent compared with previous expressions.")
                     (logger/put-trace! tok)
 
@@ -146,13 +150,19 @@
                     (logger/put-lines! false
                       prev-pos ""
                       tok-pos  ""))))
-              (push!)
-              (.<! head :open (.> tok :contents))
-              (.<! head :close (.> tok :close))
-              (.<! head :range (struct
-                :start (.> tok :range :start)
-                :name  (.> tok :range :name)
-                :lines (.> tok :range :lines)))))
+              ;; Otherwise this is the first line so set the previous node
+              (.<! head :last-node tok))))
+        (cond
+          ((or (= tag "string") (= tag "number") (= tag "symbol") (= tag "key"))
+            (append! tok))
+          ((= tag "open")
+            (push!)
+            (.<! head :open (.> tok :contents))
+            (.<! head :close (.> tok :close))
+            (.<! head :range (struct
+                               :start (.> tok :range :start)
+                               :name  (.> tok :range :name)
+                               :lines (.> tok :range :lines))))
           ((= tag "close")
             (cond
               ((nil? stack)
