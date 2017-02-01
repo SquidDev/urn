@@ -353,21 +353,21 @@
             ;; If we have a direction invokation of a function then inline it
             (with (args (nth head 2))
               ;; Predeclare all variables if required
-              (when (> (# args) 0)
-                (w/append! out "local ")
-                (for i 1 (# args) 1
-                  (when (> i 1) (w/append! out ", "))
-                  (w/append! out (escape-var (.> args i :var) state)))
-                (w/line! out))
+              ;; (when (> (# args) 0)
+              ;;   (w/append! out "local ")
+              ;;   (for i 1 (# args) 1
+              ;;     (when (> i 1) (w/append! out ", "))
+              ;;     (w/append! out (escape-var (.> args i :var) state)))
+              ;;   (w/line! out))
 
               (with (offset 1)
-                (for i  1 (# args) 1
+                (for i 1 (# args) 1
                   (with (var (.> args i :var))
+                    (w/append! out (.. "local " (escape-var var state)))
                     (if (.> var :isVariadic)
                       ;; If we're variadic then create a list of each sub expression
                       (with (count (- (# node) (# args)))
                         (when (< count 0) (set! count 0))
-                        (w/append! out (escape-var var state))
                         (w/append! out " = { tag=\"list\", n=")
                         (w/append! out (number->string count))
 
@@ -379,9 +379,18 @@
 
                         (set! offset count)
                         (w/line! out "}"))
-                      (with (expr (nth node (+ i offset)))
-                        (when expr
-                          (compile-expression expr out state (.. (escape-var var state) " = "))
+                      (let* [(expr (nth node (+ i offset)))
+                             (name (escape-var var state))
+                             (ret nil)]
+                        (if expr
+                          (progn
+                            (if (is-statement expr)
+                              (progn
+                                (set! ret (.. name " = "))
+                                (w/line! out))
+                              (w/append! out " = "))
+                            (compile-expression expr out state ret)
+                            (w/line! out))
                           (w/line! out))))))
 
                 ;; Emit all arguments which haven't been used anywhere
