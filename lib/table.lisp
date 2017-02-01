@@ -8,6 +8,8 @@
 
 (define-native getmetatable)
 (define-native setmetatable)
+(define-native iter-pairs)
+(define-native next)
 
 (defun assoc (list key or-val)
   (cond
@@ -62,3 +64,5 @@
             (val (get-idx keys (+ 1 i))))
         (set-idx! out (if (types/key? key) (contents key) key) val)))
     out))
+
+(defun empty-struct? (x) (! (next x)))

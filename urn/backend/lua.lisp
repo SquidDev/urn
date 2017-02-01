@@ -352,14 +352,6 @@
           ((and ret (list? head) (symbol? (car head)) (= (.> head 1 :var) (.> builtins :lambda)))
             ;; If we have a direction invokation of a function then inline it
             (with (args (nth head 2))
-              ;; Predeclare all variables if required
-              ;; (when (> (# args) 0)
-              ;;   (w/append! out "local ")
-              ;;   (for i 1 (# args) 1
-              ;;     (when (> i 1) (w/append! out ", "))
-              ;;     (w/append! out (escape-var (.> args i :var) state)))
-              ;;   (w/line! out))
-
               (with (offset 1)
                 (for i 1 (# args) 1
                   (with (var (.> args i :var))
