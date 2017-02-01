@@ -92,7 +92,7 @@
                       (! (and entry (.> entry :active))))
                     ;; Skip the definition as it has no side effects
                     false)
-                true)))
+                  true)))
             (true true)))))
     (for-each node nodes
       (push-cdr! queue node))
