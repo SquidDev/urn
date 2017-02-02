@@ -221,7 +221,7 @@ if #inputs == 0 then
 
 		if time then print("<stdin>" .. " parsed in " .. (os.clock() - start)) end
 
-		local ok, msg, state = pcall(compile.compile, parsed, global, variables, states, scope, libLoader)
+		local ok, msg, state = pcall(compile.compile, parsed, global, variables, states, scope, compileState, libLoader)
 		if not ok then
 			logger.printError(msg)
 			return {}
@@ -282,7 +282,7 @@ if #inputs == 0 then
 							local ok, msg = pcall(compile.executeStates, data.states, global)
 							if not ok then logger.printError(msg) break end
 
-							local str = backend.lua.prelude() .. "\n" .. backend.lua.expression(current.node, { meta = libMeta }, "return ")
+							local str = backend.lua.prelude() .. "\n" .. backend.lua.expression(current.node, compileState, "return ")
 							local fun, msg = load(str, "=<input>", "t", global)
 							if not fun then error(msg .. ":\n" .. str, 0) end
 
