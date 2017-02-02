@@ -2,8 +2,7 @@
               gensym get-idx set-idx! list
               = > + -))
 (import base)
-(import types (assert-type!))
-
+(import types (assert-type! null? eq?))
 
 (defun nth (li idx)
   (assert-type! li "list")
@@ -56,6 +55,10 @@
 
 ;; Checks this is a list and is empty
 (defun nil? (li) (= (# li) 0))
+
+;; Removes nils (i.e. '(), not nil) from a list
+(defun prune (li)
+  (filter (lambda (x) (! (null? x))) li))
 
 ;; Perform an action for every entry in the list
 (defmacro for-each (var lst &body)
@@ -196,3 +199,12 @@
   (for i (# li) 1 -1
     (set! accum (fn (get-idx li i) accum)))
   accum)
+
+(defun latter (x xs)
+  (cond
+    [(null? xs) xs]
+    [true (let [(head (car xs))
+                (tail (cdr xs))]
+            (if (eq? head x)
+              tail
+              (latter x tail)))]))
