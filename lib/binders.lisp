@@ -29,7 +29,7 @@
 ;; Pre-declare variable and define it, allowing recursive functions to exist
 (defmacro letrec (vars &body)
   `((lambda ,(map car vars)
-    ,@(map (lambda (var) `(set! ,(car 1) ,(cadr 2))) vars)
+    ,@(map (lambda (var) `(set! ,(car var) ,(cadr var))) vars)
     ,@body)))
 
 ;; Declare a variable and evaluate the body if it is truthy.
