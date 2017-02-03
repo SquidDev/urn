@@ -85,7 +85,9 @@ for k, v in pairs(_temp) do _libs[k] = v end
 local _temp = (function()
 	return {
 	  getmetatable = getmetatable,
-	  setmetatable = setmetatable
+	  setmetatable = setmetatable,
+	  ['iter-pairs'] = function(tbl, fun) for k, v in pairs(tbl) do fun(k, v) end end, -- TODO: Migrate to Urn somehow
+	  next = next,
 	}
 end)()
 for k, v in pairs(_temp) do _libs[k] = v end
@@ -128,11 +130,9 @@ key_3f_1 = (function(x1)
 	return (type1(x1) == "key")
 end)
 type1 = (function(val1)
-	local ty1
-	ty1 = type_23_1(val1)
+	local ty1 = type_23_1(val1)
 	if (ty1 == "table") then
-		local tag1
-		tag1 = val1["tag"]
+		local tag1 = val1["tag"]
 		if tag1 then
 			return tag1
 		else
@@ -143,14 +143,12 @@ type1 = (function(val1)
 	end
 end)
 nth1 = (function(li1, idx1)
-	local r_121
-	r_121 = type1(li1)
+	local r_121 = type1(li1)
 	if (r_121 ~= "list") then
 		error_21_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_121), 2)
 	else
 	end
-	local r_271
-	r_271 = type1(idx1)
+	local r_271 = type1(idx1)
 	if (r_271 ~= "number") then
 		error_21_1(format1("bad argment %s (expected %s, got %s)", "idx", "number", r_271), 2)
 	else
@@ -158,8 +156,7 @@ nth1 = (function(li1, idx1)
 	return li1[idx1]
 end)
 _23_2 = (function(li2)
-	local r_151
-	r_151 = type1(li2)
+	local r_151 = type1(li2)
 	if (r_151 ~= "list") then
 		error_21_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_151), 2)
 	else
@@ -170,14 +167,12 @@ car2 = (function(li3)
 	return nth1(li3, 1)
 end)
 pushCdr_21_1 = (function(li4, val2)
-	local r_181
-	r_181 = type1(li4)
+	local r_181 = type1(li4)
 	if (r_181 ~= "list") then
 		error_21_1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_181), 2)
 	else
 	end
-	local len1
-	len1 = (_23_1(li4) + 1)
+	local len1 = (_23_1(li4) + 1)
 	li4["n"] = len1
 	li4[len1] = val2
 	return li4
@@ -199,24 +194,19 @@ _2e2e_1 = (function(...)
 	return concat1(args1)
 end)
 split1 = (function(text1, pattern1, limit1)
-	local out1, loop1, start1
-	out1 = {tag = "list", n =0}
-	loop1 = true
-	start1 = 1
-	local r_591
-	r_591 = nil
+	local out1 = {tag = "list", n =0}
+	local loop1 = true
+	local start1 = 1
+	local r_591 = nil
 	r_591 = (function()
 		if loop1 then
-			local pos1
-			pos1 = find1(text1, pattern1, start1)
+			local pos1 = find1(text1, pattern1, start1)
 			local _temp
-			local r_601
-			r_601 = ("nil" == type_23_1(pos1))
+			local r_601 = ("nil" == type_23_1(pos1))
 			if r_601 then
 				_temp = r_601
 			else
-				local r_611
-				r_611 = limit1
+				local r_611 = limit1
 				if r_611 then
 					_temp = (_23_1(out1) >= limit1)
 				else
@@ -244,17 +234,13 @@ struct1 = (function(...)
 		error_21_1("Expected an even number of arguments to struct", 2)
 	else
 	end
-	local contents1, out2
-	contents1 = (function(key1)
+	local contents1 = (function(key1)
 		return sub1(key1["contents"], 2)
 	end)
-	out2 = {}
-	local r_661
-	r_661 = _23_1(keys1)
-	local r_671
-	r_671 = 2
-	local r_641
-	r_641 = nil
+	local out2 = {}
+	local r_661 = _23_1(keys1)
+	local r_671 = 2
+	local r_641 = nil
 	r_641 = (function(r_651)
 		local _temp
 		if (0 < 2) then
@@ -263,11 +249,9 @@ struct1 = (function(...)
 			_temp = (r_651 >= r_661)
 		end
 		if _temp then
-			local i1
-			i1 = r_651
-			local key2, val3
-			key2 = keys1[i1]
-			val3 = keys1[(1 + i1)]
+			local i1 = r_651
+			local key2 = keys1[i1]
+			local val3 = keys1[(1 + i1)]
 			out2[(function()
 				if key_3f_1(key2) then
 					return contents1(key2)
@@ -306,8 +290,7 @@ colored1 = (function(col1, msg2)
 	return _2e2e_1("\27[", col1, "m", msg2, "\27[0m")
 end)
 printError_21_1 = (function(msg3)
-	local lines1
-	lines1 = split1(msg3, "\n", 1)
+	local lines1 = split1(msg3, "\n", 1)
 	print_21_1(colored1(31, _2e2e_1("[ERROR] ", car2(lines1))))
 	if cadr1(lines1) then
 		return print_21_1(cadr1(lines1))
@@ -315,8 +298,7 @@ printError_21_1 = (function(msg3)
 	end
 end)
 printWarning_21_1 = (function(msg4)
-	local lines2
-	lines2 = split1(msg4, "\n", 1)
+	local lines2 = split1(msg4, "\n", 1)
 	print_21_1(colored1(33, _2e2e_1("[WARN] ", car2(lines2))))
 	if cadr1(lines2) then
 		return print_21_1(cadr1(lines2))
@@ -347,8 +329,7 @@ formatRange1 = (function(range1)
 end)
 formatNode1 = (function(node1)
 	local _temp
-	local r_971
-	r_971 = node1["range"]
+	local r_971 = node1["range"]
 	if r_971 then
 		_temp = node1["contents"]
 	else
@@ -359,22 +340,18 @@ formatNode1 = (function(node1)
 	elseif node1["range"] then
 		return formatRange1(node1["range"])
 	elseif node1["macro"] then
-		local macro1
-		macro1 = node1["macro"]
+		local macro1 = node1["macro"]
 		return format2("macro expansion of %s (%s)", macro1["var"]["name"], formatNode1(macro1["node"]))
 	else
 		return "?"
 	end
 end)
 getSource1 = (function(node2)
-	local result1
-	result1 = nil
-	local r_981
-	r_981 = nil
+	local result1 = nil
+	local r_981 = nil
 	r_981 = (function()
 		local _temp
-		local r_991
-		r_991 = node2
+		local r_991 = node2
 		if r_991 then
 			_temp = _21_1(result1)
 		else
@@ -400,18 +377,12 @@ putLines_21_1 = (function(range2, ...)
 		error_21_1(_2e2e_1("Positions must be a multiple of 2, is ", _23_2(entries1)))
 	else
 	end
-	local previous1
-	previous1 = -1
-	local maxLine1
-	maxLine1 = entries1[pred1(_23_2(entries1))]["start"]["line"]
-	local code1
-	code1 = _2e2e_1("\27[92m %", _23_s1(number_2d3e_string1(maxLine1)), "s |\27[0m %s")
-	local r_1091
-	r_1091 = _23_2(entries1)
-	local r_1101
-	r_1101 = 2
-	local r_1071
-	r_1071 = nil
+	local previous1 = -1
+	local maxLine1 = entries1[pred1(_23_2(entries1))]["start"]["line"]
+	local code1 = _2e2e_1("\27[92m %", _23_s1(number_2d3e_string1(maxLine1)), "s |\27[0m %s")
+	local r_1091 = _23_2(entries1)
+	local r_1101 = 2
+	local r_1071 = nil
 	r_1071 = (function(r_1081)
 		local _temp
 		if (0 < 2) then
@@ -420,14 +391,11 @@ putLines_21_1 = (function(range2, ...)
 			_temp = (r_1081 >= r_1091)
 		end
 		if _temp then
-			local i2
-			i2 = r_1081
-			local position1, message1
-			position1 = entries1[i2]
-			message1 = entries1[succ1(i2)]
+			local i2 = r_1081
+			local position1 = entries1[i2]
+			local message1 = entries1[succ1(i2)]
 			local _temp
-			local r_1111
-			r_1111 = (previous1 ~= -1)
+			local r_1111 = (previous1 ~= -1)
 			if r_1111 then
 				_temp = ((position1["start"]["line"] - previous1) > 2)
 			else
@@ -444,8 +412,7 @@ putLines_21_1 = (function(range2, ...)
 				pointer1 = "^"
 			else
 				local _temp
-				local r_1121
-				r_1121 = position1["finish"]
+				local r_1121 = position1["finish"]
 				if r_1121 then
 					_temp = (position1["start"]["line"] == position1["finish"]["line"])
 				else
@@ -465,14 +432,11 @@ putLines_21_1 = (function(range2, ...)
 	return r_1071(1)
 end)
 putTrace_21_1 = (function(node3)
-	local previous2
-	previous2 = nil
-	local r_1001
-	r_1001 = nil
+	local previous2 = nil
+	local r_1001 = nil
 	r_1001 = (function()
 		if node3 then
-			local formatted1
-			formatted1 = formatNode1(node3)
+			local formatted1 = formatNode1(node3)
 			if (previous2 == nil) then
 				print_21_1(colored1(96, _2e2e_1("  => ", formatted1)))
 			elseif (previous2 ~= formatted1) then
@@ -490,14 +454,10 @@ end)
 putExplain_21_1 = (function(...)
 	local lines3 = _pack(...) lines3.tag = "list"
 	if showExplain1["value"] then
-		local r_1021
-		r_1021 = lines3
-		local r_1051
-		r_1051 = _23_2(r_1021)
-		local r_1061
-		r_1061 = 1
-		local r_1031
-		r_1031 = nil
+		local r_1021 = lines3
+		local r_1051 = _23_2(r_1021)
+		local r_1061 = 1
+		local r_1031 = nil
 		r_1031 = (function(r_1041)
 			local _temp
 			if (0 < 1) then
@@ -506,10 +466,8 @@ putExplain_21_1 = (function(...)
 				_temp = (r_1041 >= r_1051)
 			end
 			if _temp then
-				local r_1011
-				r_1011 = r_1041
-				local line1
-				line1 = r_1021[r_1011]
+				local r_1011 = r_1041
+				local line1 = r_1021[r_1011]
 				print_21_1(_2e2e_1("  ", line1))
 				return r_1031((r_1041 + r_1061))
 			else
@@ -522,8 +480,7 @@ end)
 errorPositions_21_1 = (function(node4, msg7)
 	printError_21_1(msg7)
 	putTrace_21_1(node4)
-	local source1
-	source1 = getSource1(node4)
+	local source1 = getSource1(node4)
 	if source1 then
 		putLines_21_1(true, source1, "")
 	else
