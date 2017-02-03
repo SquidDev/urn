@@ -95,7 +95,7 @@
             (w/append! out (.. ", var=" (string/quoted(number->string (.> node :var))))))
           (w/append! out "}"))
         ((= ty "key")
-          (w/append! out (string/.. "{tag=\"key\" contents=" (string/quoted(.> node :contents)) "}")))
+          (w/append! out (string/.. "{tag=\"key\", contents=" (string/quoted(.> node :contents)) "}")))
         ((= ty "list")
           (with (first (car node))
             (cond
