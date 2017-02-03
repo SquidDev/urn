@@ -82,10 +82,11 @@ local function printRepl(x)
 		end
 		return xs
 	end
+
 	if type(x) == 'table' then
 		if x.n then
 			return ("(%s)"):format(table.concat(map(printRepl, x), " "))
-		elseif x.tag and x.tag == 'symbol' then
+		elseif x.contents then
 			return x.contents
 		end
 	elseif type(x) == 'string' then
