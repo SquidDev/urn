@@ -1,5 +1,6 @@
 (import base (clock))
 (import string (#s sub))
+(import list (prune))
 
 (defmacro do (&statements)
   (letrec [(name (gensym))
