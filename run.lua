@@ -75,6 +75,26 @@ local out = {}
 
 for _, var in pairs(resolve.rootScope.variables) do variables[tostring(var)] = var end
 
+local function printRepl(x)
+	local function map(f, xs)
+		for i = 1, #xs do
+			xs[i] = f(xs[i])
+		end
+		return xs
+	end
+	if type(x) == 'table' then
+		if x.n then
+			return ("(%s)"):format(table.concat(map(printRepl, x), " "))
+		elseif x.tag and x.tag == 'symbol' then
+			return x.contents
+		end
+	elseif type(x) == 'string' then
+		return ("%q"):format(x)
+	else
+		return tostring(x)
+	end
+end
+
 local function libLoader(name, scope, resolve)
 	if name:sub(-5) == ".lisp" then
 		name = name:sub(1, -6)
@@ -273,7 +293,7 @@ if #inputs == 0 then
 					end
 
 					if coroutine.status(exec) == "dead" then
-						print("\27[96m" .. pprint.tostring(state[#state]:get(), pprint.nodeConfig) .. "\27[0m")
+						print("\27[96m" .. printRepl(state[#state]:get()) .. "\27[0m")
 						break
 					else
 						local states = data.states
