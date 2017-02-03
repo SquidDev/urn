@@ -279,7 +279,7 @@ if #inputs == 0 then
 						local states = data.states
 						if states[1] == current and not current.var then
 							table.remove(states, 1)
-							local ok, msg = pcall(compile.executeStates, data.states, global)
+							local ok, msg = pcall(compile.executeStates, compileState, states, global)
 							if not ok then logger.printError(msg) break end
 
 							local str = backend.lua.prelude() .. "\n" .. backend.lua.expression(current.node, compileState, "return ")
@@ -291,7 +291,7 @@ if #inputs == 0 then
 
 							current:executed(res)
 						else
-							local ok, msg = pcall(compile.executeStates, data.states, global)
+							local ok, msg = pcall(compile.executeStates, compileState, states, global)
 							if not ok then logger.printError(msg) break end
 						end
 					end
