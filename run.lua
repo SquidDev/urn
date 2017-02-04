@@ -20,6 +20,7 @@ if _VERSION:find("5.1") then
 end
 
 local args = table.pack(...)
+local prog = arg[0]
 local i = 1
 while i <= args.n do
 	local arg = args[i]
@@ -50,6 +51,11 @@ while i <= args.n do
 	elseif arg == "--prelude" or arg == "-p" then
 		i = i + 1
 		prelude = args[i] or error("Expected prelude after " .. arg, 0)
+	elseif arg == '--wrapper' then
+		i = i + 1
+		wrapper, args[i], args[i - 1] = args[i], nil, nil
+		os.execute(("%s lua %s %s"):format(wrapper, prog, table.concat(args, " ")))
+		return
 	elseif arg:sub(1, 1) == "-" then
 		error("Unknown option " .. arg, 0)
 	else
