@@ -1,5 +1,6 @@
 (import string)
 (import urn/logger logger)
+(import function (cut))
 
 (defun lex (str name)
   (let* ((lines (string/split str "\n"))
@@ -222,4 +223,6 @@
             (pop!)))))
     head))
 
-(struct :lex lex :parse parse)
+(define read (compose parse lex))
+
+(struct :lex lex :parse parse :read read)
