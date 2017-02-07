@@ -27,4 +27,3 @@
 
 ;; Get the length of the list
 (defun #q (lst) (# (.> lst :list)))
-

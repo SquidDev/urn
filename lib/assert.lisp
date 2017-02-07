@@ -8,7 +8,7 @@
             value)))
 
 
-(defmacro assert! (cnd msg) `(if (! ,cnd) (error! ,msg 0)))
+(defmacro assert! (cnd msg) `(unless ,cnd (error! ,msg 0)))
 
 (defmacro assert (&assertions)
   (let* ((handle-eq
@@ -53,4 +53,3 @@
                                        (handle-ty typ (cadr x))))
                   (true (progn
                           (print! (pretty x))))))))))
-

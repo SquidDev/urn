@@ -1,6 +1,5 @@
 (import base (type#))
 (import string)
-(import coroutine)
 
 (import urn/logger logger)
 (import urn/analysis/builtin builtin)
@@ -29,8 +28,6 @@
     (progn
       (logger/put-error! (or node parent) (string/.. "Expected " (name) ", got nothing"))
       false)))
-
-(defmacro hoist! (&body) `(coroutine/yield (struct ,@body)))
 
 ;; Walks the result of a macro, expanding primitives into objects setting nodes without
 ;; an existing position to include the macro.

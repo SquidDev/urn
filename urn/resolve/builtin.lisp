@@ -6,7 +6,7 @@
   (let ((symbols '("lambda" "define" "define-macro" "define-native"
                    "set!" "cond" "import"
                    "quote" "quasiquote" "unquote" "unquote-splice"))
-        (lookup (struct)))
+        (lookup (empty-struct)))
   (for-each symbol symbols
     (.<! lookup symbols (scope/add! root-scope symbol "builtin" nil)))
   lookup))

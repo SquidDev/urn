@@ -63,7 +63,10 @@ local function resolveMacroResult(macro, node, parent, scope, state)
 	end
 
 	if node.tag == "list" then
-		if #node ~= node.n then print(macro.var.name, #node, node.n) os.exit(1) end
+		if #node ~= node.n then
+			errorPositions(node, "Incorrect lengths in macro" .. macro.var.name .. ": #=" .. #node .. ", n=" .. node.n)
+			os.exit(1)
+		end
 		for i = 1, node.n do
 			node[i] = resolveMacroResult(macro, node[i], node, scope, state)
 		end
