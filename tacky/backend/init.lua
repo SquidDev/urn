@@ -225,18 +225,18 @@ struct1 = (function(...)
 		return sub1(key1["contents"], 2)
 	end)
 	local out1 = {}
-	local r_661 = _23_1(keys1)
-	local r_671 = 2
-	local r_641 = nil
-	r_641 = (function(r_651)
+	local r_671 = _23_1(keys1)
+	local r_681 = 2
+	local r_651 = nil
+	r_651 = (function(r_661)
 		local _temp
 		if (0 < 2) then
-			_temp = (r_651 <= r_661)
+			_temp = (r_661 <= r_671)
 		else
-			_temp = (r_651 >= r_661)
+			_temp = (r_661 >= r_671)
 		end
 		if _temp then
-			local i1 = r_651
+			local i1 = r_661
 			local key2 = keys1[i1]
 			local val4 = keys1[(1 + i1)]
 			out1[(function()
@@ -247,11 +247,11 @@ struct1 = (function(...)
 				end
 			end)()
 			] = val4
-			return r_641((r_651 + r_671))
+			return r_651((r_661 + r_681))
 		else
 		end
 	end)
-	r_641(1)
+	r_651(1)
 	return out1
 end)
 fail1 = (function(msg1)
@@ -267,9 +267,9 @@ create1 = (function()
 	return struct1("out", list1(), "indent", 0, "tabs-pending", false)
 end)
 append_21_1 = (function(writer1, text2)
-	local r_971 = type1(text2)
-	if (r_971 ~= "string") then
-		error_21_1(format1("bad argment %s (expected %s, got %s)", "text", "string", r_971), 2)
+	local r_981 = type1(text2)
+	if (r_981 ~= "string") then
+		error_21_1(format1("bad argment %s (expected %s, got %s)", "text", "string", r_981), 2)
 	else
 	end
 	if writer1["tabs-pending"] then
@@ -317,33 +317,33 @@ end)
 createLookup1 = (function(...)
 	local lst1 = _pack(...) lst1.tag = "list"
 	local out2 = {}
-	local r_1021 = lst1
-	local r_1051 = _23_2(r_1021)
-	local r_1061 = 1
-	local r_1031 = nil
-	r_1031 = (function(r_1041)
+	local r_1031 = lst1
+	local r_1061 = _23_2(r_1031)
+	local r_1071 = 1
+	local r_1041 = nil
+	r_1041 = (function(r_1051)
 		local _temp
 		if (0 < 1) then
-			_temp = (r_1041 <= r_1051)
+			_temp = (r_1051 <= r_1061)
 		else
-			_temp = (r_1041 >= r_1051)
+			_temp = (r_1051 >= r_1061)
 		end
 		if _temp then
-			local r_1011 = r_1041
-			local entry1 = r_1021[r_1011]
+			local r_1021 = r_1051
+			local entry1 = r_1031[r_1021]
 			out2[entry1] = true
-			return r_1031((r_1041 + r_1061))
+			return r_1041((r_1051 + r_1071))
 		else
 		end
 	end)
-	r_1031(1)
+	r_1041(1)
 	return out2
 end)
 keywords1 = createLookup1("and", "break", "do", "else", "elseif", "end", "false", "for", "function", "if", "in", "local", "nil", "not", "or", "repeat", "return", "then", "true", "until", "while")
 createState1 = (function(meta1)
-	return struct1("ctr-lookup", {}, "var-lookup", {}, "meta", (function(r_1071)
-		if r_1071 then
-			return r_1071
+	return struct1("ctr-lookup", {}, "var-lookup", {}, "meta", (function(r_1081)
+		if r_1081 then
+			return r_1081
 		else
 			return {}
 		end
@@ -365,30 +365,30 @@ escape1 = (function(name1)
 		end
 		local upper2 = false
 		local esc1 = false
-		local r_1161 = _23_s1(name1)
-		local r_1171 = 1
-		local r_1141 = nil
-		r_1141 = (function(r_1151)
+		local r_1171 = _23_s1(name1)
+		local r_1181 = 1
+		local r_1151 = nil
+		r_1151 = (function(r_1161)
 			local _temp
 			if (0 < 1) then
-				_temp = (r_1151 <= r_1161)
+				_temp = (r_1161 <= r_1171)
 			else
-				_temp = (r_1151 >= r_1161)
+				_temp = (r_1161 >= r_1171)
 			end
 			if _temp then
-				local i2 = r_1151
+				local i2 = r_1161
 				local char1 = charAt1(name1, i2)
 				local _temp
-				local r_1181 = (char1 == "-")
-				if r_1181 then
-					local r_1191 = find1(charAt1(name1, pred1(i2)), "[%a%d']")
-					if r_1191 then
+				local r_1191 = (char1 == "-")
+				if r_1191 then
+					local r_1201 = find1(charAt1(name1, pred1(i2)), "[%a%d']")
+					if r_1201 then
 						_temp = find1(charAt1(name1, succ1(i2)), "[%a%d']")
 					else
-						_temp = r_1191
+						_temp = r_1201
 					end
 				else
-					_temp = r_1181
+					_temp = r_1191
 				end
 				if _temp then
 					upper2 = true
@@ -413,11 +413,11 @@ escape1 = (function(name1)
 					end
 					out3 = (out3 .. char1)
 				end
-				return r_1141((r_1151 + r_1171))
+				return r_1151((r_1161 + r_1181))
 			else
 			end
 		end)
-		r_1141(1)
+		r_1151(1)
 		if esc1 then
 			out3 = (out3 .. "_")
 		else
@@ -433,9 +433,9 @@ escapeVar1 = (function(var1, state1)
 		local id1 = state1["var-lookup"][var1]
 		if id1 then
 		else
-			id1 = succ1((function(r_1081)
-				if r_1081 then
-					return r_1081
+			id1 = succ1((function(r_1091)
+				if r_1091 then
+					return r_1091
 				else
 					return 0
 				end
@@ -453,11 +453,11 @@ isStatement1 = (function(node1)
 			return (first1["var"] == builtins1["cond"])
 		elseif list_3f_1(first1) then
 			local func1 = car1(first1)
-			local r_1091 = symbol_3f_1(func1)
-			if r_1091 then
+			local r_1101 = symbol_3f_1(func1)
+			if r_1101 then
 				return (func1["var"] == builtins1["lambda"])
 			else
-				return r_1091
+				return r_1101
 			end
 		else
 			return false
@@ -487,106 +487,106 @@ compileQuote1 = (function(node2, out4, state2, level1)
 		elseif (ty2 == "list") then
 			local first2 = car1(node2)
 			local _temp
-			local r_1201 = symbol_3f_1(first2)
-			if r_1201 then
-				local r_1211 = (first2["var"] == builtins1["unquote"])
-				if r_1211 then
-					_temp = r_1211
+			local r_1211 = symbol_3f_1(first2)
+			if r_1211 then
+				local r_1221 = (first2["var"] == builtins1["unquote"])
+				if r_1221 then
+					_temp = r_1221
 				else
 					_temp = ("var" == builtins1["unquote-splice"])
 				end
 			else
-				_temp = r_1201
+				_temp = r_1211
 			end
 			if _temp then
-				return compileQuote1(nth1(node2, 2), out4, state2, (function(r_1221)
-					if r_1221 then
+				return compileQuote1(nth1(node2, 2), out4, state2, (function(r_1231)
+					if r_1231 then
 						return pred1(level1)
 					else
-						return r_1221
+						return r_1231
 					end
 				end)(level1))
 			else
 				local _temp
-				local r_1231 = symbol_3f_1(first2)
-				if r_1231 then
+				local r_1241 = symbol_3f_1(first2)
+				if r_1241 then
 					_temp = (first2["var"] == builtins1["quasiquote"])
 				else
-					_temp = r_1231
+					_temp = r_1241
 				end
 				if _temp then
-					return compileQuote1(nth1(node2, 2), out4, state2, (function(r_1241)
-						if r_1241 then
+					return compileQuote1(nth1(node2, 2), out4, state2, (function(r_1251)
+						if r_1251 then
 							return succ1(level1)
 						else
-							return r_1241
+							return r_1251
 						end
 					end)(level1))
 				else
 					local containsUnsplice1 = false
-					local r_1261 = node2
-					local r_1291 = _23_2(r_1261)
-					local r_1301 = 1
-					local r_1271 = nil
-					r_1271 = (function(r_1281)
+					local r_1271 = node2
+					local r_1301 = _23_2(r_1271)
+					local r_1311 = 1
+					local r_1281 = nil
+					r_1281 = (function(r_1291)
 						local _temp
 						if (0 < 1) then
-							_temp = (r_1281 <= r_1291)
+							_temp = (r_1291 <= r_1301)
 						else
-							_temp = (r_1281 >= r_1291)
+							_temp = (r_1291 >= r_1301)
 						end
 						if _temp then
-							local r_1251 = r_1281
-							local sub2 = r_1261[r_1251]
+							local r_1261 = r_1291
+							local sub2 = r_1271[r_1261]
 							local _temp
-							local r_1311 = list_3f_1(sub2)
-							if r_1311 then
-								local r_1321 = symbol_3f_1(car1(sub2))
-								if r_1321 then
+							local r_1321 = list_3f_1(sub2)
+							if r_1321 then
+								local r_1331 = symbol_3f_1(car1(sub2))
+								if r_1331 then
 									_temp = (sub2[1]["var"] == builtins1["unquote-splice"])
 								else
-									_temp = r_1321
+									_temp = r_1331
 								end
 							else
-								_temp = r_1311
+								_temp = r_1321
 							end
 							if _temp then
 								containsUnsplice1 = true
 							else
 							end
-							return r_1271((r_1281 + r_1301))
+							return r_1281((r_1291 + r_1311))
 						else
 						end
 					end)
-					r_1271(1)
+					r_1281(1)
 					if containsUnsplice1 then
 						local offset1 = 0
 						beginBlock_21_1(out4, "(function()")
 						line_21_1(out4, "local _offset, _result, _temp = 0, {tag=\"list\",n=0}")
-						local r_1351 = _23_2(node2)
-						local r_1361 = 1
-						local r_1331 = nil
-						r_1331 = (function(r_1341)
+						local r_1361 = _23_2(node2)
+						local r_1371 = 1
+						local r_1341 = nil
+						r_1341 = (function(r_1351)
 							local _temp
 							if (0 < 1) then
-								_temp = (r_1341 <= r_1351)
+								_temp = (r_1351 <= r_1361)
 							else
-								_temp = (r_1341 >= r_1351)
+								_temp = (r_1351 >= r_1361)
 							end
 							if _temp then
-								local i3 = r_1341
+								local i3 = r_1351
 								local sub3 = nth1(node2, i3)
 								local _temp
-								local r_1371 = list_3f_1(sub3)
-								if r_1371 then
-									local r_1381 = symbol_3f_1(car1(sub3))
-									if r_1381 then
+								local r_1381 = list_3f_1(sub3)
+								if r_1381 then
+									local r_1391 = symbol_3f_1(car1(sub3))
+									if r_1391 then
 										_temp = (sub3[1]["var"] == builtins1["unquote-splice"])
 									else
-										_temp = r_1381
+										_temp = r_1391
 									end
 								else
-									_temp = r_1371
+									_temp = r_1381
 								end
 								if _temp then
 									offset1 = (offset1 + 1)
@@ -600,37 +600,37 @@ compileQuote1 = (function(node2, out4, state2, level1)
 									compileQuote1(sub3, out4, state2, level1)
 									line_21_1(out4)
 								end
-								return r_1331((r_1341 + r_1361))
+								return r_1341((r_1351 + r_1371))
 							else
 							end
 						end)
-						r_1331(1)
+						r_1341(1)
 						line_21_1(out4, ("_result.n = _offset + " .. number_2d3e_string1((_23_2(node2) - offset1))))
 						line_21_1(out4, "return _result")
 						return endBlock_21_1(out4, "end)()")
 					else
 						append_21_1(out4, ("{tag = \"list\", n =" .. number_2d3e_string1(_23_2(node2))))
-						local r_1421 = node2
-						local r_1451 = _23_2(r_1421)
-						local r_1461 = 1
-						local r_1431 = nil
-						r_1431 = (function(r_1441)
+						local r_1431 = node2
+						local r_1461 = _23_2(r_1431)
+						local r_1471 = 1
+						local r_1441 = nil
+						r_1441 = (function(r_1451)
 							local _temp
 							if (0 < 1) then
-								_temp = (r_1441 <= r_1451)
+								_temp = (r_1451 <= r_1461)
 							else
-								_temp = (r_1441 >= r_1451)
+								_temp = (r_1451 >= r_1461)
 							end
 							if _temp then
-								local r_1411 = r_1441
-								local sub4 = r_1421[r_1411]
+								local r_1421 = r_1451
+								local sub4 = r_1431[r_1421]
 								append_21_1(out4, ", ")
 								compileQuote1(sub4, out4, state2, level1)
-								return r_1431((r_1441 + r_1461))
+								return r_1441((r_1451 + r_1471))
 							else
 							end
 						end)
-						r_1431(1)
+						r_1441(1)
 						return append_21_1(out4, "}")
 					end
 				end
@@ -656,14 +656,14 @@ compileExpression1 = (function(node3, out5, state3, ret1)
 					local variadic1 = nil
 					local i4 = 1
 					append_21_1(out5, "(function(")
-					local r_1391 = nil
-					r_1391 = (function()
+					local r_1401 = nil
+					r_1401 = (function()
 						local _temp
-						local r_1401 = (i4 <= _23_2(args2))
-						if r_1401 then
+						local r_1411 = (i4 <= _23_2(args2))
+						if r_1411 then
 							_temp = _21_1(variadic1)
 						else
-							_temp = r_1401
+							_temp = r_1411
 						end
 						if _temp then
 							if (i4 > 1) then
@@ -678,11 +678,11 @@ compileExpression1 = (function(node3, out5, state3, ret1)
 								append_21_1(out5, escapeVar1(var3, state3))
 							end
 							i4 = (i4 + 1)
-							return r_1391()
+							return r_1401()
 						else
 						end
 					end)
-					r_1391()
+					r_1401()
 					beginBlock_21_1(out5, ")")
 					if variadic1 then
 						local argsVar1 = escapeVar1(args2[variadic1]["var"], state3)
@@ -692,77 +692,77 @@ compileExpression1 = (function(node3, out5, state3, ret1)
 							local remaining1 = (_23_2(args2) - variadic1)
 							line_21_1(out5, ("local _n = _select(\"#\", ...) - " .. number_2d3e_string1(remaining1)))
 							append_21_1(out5, ("local " .. argsVar1))
-							local r_1491 = _23_2(args2)
-							local r_1501 = 1
-							local r_1471 = nil
-							r_1471 = (function(r_1481)
+							local r_1501 = _23_2(args2)
+							local r_1511 = 1
+							local r_1481 = nil
+							r_1481 = (function(r_1491)
 								local _temp
 								if (0 < 1) then
-									_temp = (r_1481 <= r_1491)
+									_temp = (r_1491 <= r_1501)
 								else
-									_temp = (r_1481 >= r_1491)
+									_temp = (r_1491 >= r_1501)
 								end
 								if _temp then
-									local i5 = r_1481
+									local i5 = r_1491
 									append_21_1(out5, ", ")
 									append_21_1(out5, escapeVar1(args2[i5]["var"], state3))
-									return r_1471((r_1481 + r_1501))
+									return r_1481((r_1491 + r_1511))
 								else
 								end
 							end)
-							r_1471(succ1(variadic1))
+							r_1481(succ1(variadic1))
 							line_21_1(out5)
 							beginBlock_21_1(out5, "if _n > 0 then")
 							append_21_1(out5, argsVar1)
 							line_21_1(out5, " = { tag=\"list\", n=_n, _unpack(_pack(...), 1, _n)}")
-							local r_1531 = _23_2(args2)
-							local r_1541 = 1
-							local r_1511 = nil
-							r_1511 = (function(r_1521)
+							local r_1541 = _23_2(args2)
+							local r_1551 = 1
+							local r_1521 = nil
+							r_1521 = (function(r_1531)
 								local _temp
 								if (0 < 1) then
-									_temp = (r_1521 <= r_1531)
+									_temp = (r_1531 <= r_1541)
 								else
-									_temp = (r_1521 >= r_1531)
+									_temp = (r_1531 >= r_1541)
 								end
 								if _temp then
-									local i6 = r_1521
+									local i6 = r_1531
 									append_21_1(out5, escapeVar1(args2[i6]["var"], state3))
 									if (i6 < _23_2(args2)) then
 										append_21_1(out5, ", ")
 									else
 									end
-									return r_1511((r_1521 + r_1541))
+									return r_1521((r_1531 + r_1551))
 								else
 								end
 							end)
-							r_1511(succ1(variadic1))
+							r_1521(succ1(variadic1))
 							line_21_1(out5, " = select(_n + 1, ...)")
 							nextBlock_21_1(out5, "else")
 							append_21_1(out5, argsVar1)
 							line_21_1(out5, " = { tag=\"list\", n=0}")
-							local r_1571 = _23_2(args2)
-							local r_1581 = 1
-							local r_1551 = nil
-							r_1551 = (function(r_1561)
+							local r_1581 = _23_2(args2)
+							local r_1591 = 1
+							local r_1561 = nil
+							r_1561 = (function(r_1571)
 								local _temp
 								if (0 < 1) then
-									_temp = (r_1561 <= r_1571)
+									_temp = (r_1571 <= r_1581)
 								else
-									_temp = (r_1561 >= r_1571)
+									_temp = (r_1571 >= r_1581)
 								end
 								if _temp then
-									local i7 = r_1561
+									local i7 = r_1571
 									append_21_1(out5, escapeVar1(args2[i7]["var"], state3))
 									if (i7 < _23_2(args2)) then
 										append_21_1(out5, ", ")
 									else
 									end
-									return r_1551((r_1561 + r_1581))
+									return r_1561((r_1571 + r_1591))
 								else
 								end
 							end)
-							r_1551(succ1(variadic1))
+							r_1561(succ1(variadic1))
 							line_21_1(out5, " = ...")
 							endBlock_21_1(out5, "end")
 						end
@@ -782,17 +782,17 @@ compileExpression1 = (function(node3, out5, state3, ret1)
 				else
 				end
 				local i8 = 2
-				local r_1591 = nil
-				r_1591 = (function()
+				local r_1601 = nil
+				r_1601 = (function()
 					if (i8 <= _23_2(node3)) then
 						local item1 = nth1(node3, i8)
 						local case1 = nth1(item1, 1)
 						local isFinal1
-						local r_1601 = symbol_3f_1(case1)
-						if r_1601 then
+						local r_1611 = symbol_3f_1(case1)
+						if r_1611 then
 							isFinal1 = (case1["var"] == builtinVars1["true"])
 						else
-							isFinal1 = r_1601
+							isFinal1 = r_1611
 						end
 						if isFinal1 then
 							if (i8 == 2) then
@@ -825,11 +825,11 @@ compileExpression1 = (function(node3, out5, state3, ret1)
 							append_21_1(out5, "else")
 						end
 						i8 = (i8 + 1)
-						return r_1591()
+						return r_1601()
 					else
 					end
 				end)
-				r_1591()
+				r_1601()
 				if hadFinal1 then
 				else
 					indent_21_1(out5)
@@ -838,29 +838,29 @@ compileExpression1 = (function(node3, out5, state3, ret1)
 					unindent_21_1(out5)
 					line_21_1(out5)
 				end
-				local r_1631 = ends1
-				local r_1641 = 1
-				local r_1611 = nil
-				r_1611 = (function(r_1621)
+				local r_1641 = ends1
+				local r_1651 = 1
+				local r_1621 = nil
+				r_1621 = (function(r_1631)
 					local _temp
 					if (0 < 1) then
-						_temp = (r_1621 <= r_1631)
+						_temp = (r_1631 <= r_1641)
 					else
-						_temp = (r_1621 >= r_1631)
+						_temp = (r_1631 >= r_1641)
 					end
 					if _temp then
-						local i9 = r_1621
+						local i9 = r_1631
 						append_21_1(out5, "end")
 						if (i9 < ends1) then
 							unindent_21_1(out5)
 							line_21_1(out5)
 						else
 						end
-						return r_1611((r_1621 + r_1641))
+						return r_1621((r_1631 + r_1651))
 					else
 					end
 				end)
-				r_1611(1)
+				r_1621(1)
 				if closure1 then
 					line_21_1(out5)
 					return endBlock_21_1(out5, "end)()")
@@ -869,11 +869,11 @@ compileExpression1 = (function(node3, out5, state3, ret1)
 			elseif (var2 == builtins1["set!"]) then
 				compileExpression1(nth1(node3, 3), out5, state3, (escapeVar1(node3[2]["var"], state3) .. " = "))
 				local _temp
-				local r_1651 = ret1
-				if r_1651 then
+				local r_1661 = ret1
+				if r_1661 then
 					_temp = (ret1 ~= "")
 				else
-					_temp = r_1651
+					_temp = r_1661
 				end
 				if _temp then
 					line_21_1(out5)
@@ -919,77 +919,77 @@ compileExpression1 = (function(node3, out5, state3, ret1)
 				end
 			else
 				local meta2
-				local r_1791 = symbol_3f_1(head1)
-				if r_1791 then
-					local r_1801 = (head1["var"]["tag"] == "native")
-					if r_1801 then
+				local r_1801 = symbol_3f_1(head1)
+				if r_1801 then
+					local r_1811 = (head1["var"]["tag"] == "native")
+					if r_1811 then
 						meta2 = state3["meta"][head1["var"]["name"]]
 					else
-						meta2 = r_1801
+						meta2 = r_1811
 					end
 				else
-					meta2 = r_1791
+					meta2 = r_1801
 				end
 				local _temp
-				local r_1661 = meta2
-				if r_1661 then
-					local r_1671
-					local r_1681 = ret1
-					if r_1681 then
-						r_1671 = r_1681
+				local r_1671 = meta2
+				if r_1671 then
+					local r_1681
+					local r_1691 = ret1
+					if r_1691 then
+						r_1681 = r_1691
 					else
-						r_1671 = (meta2["tag"] == "expr")
+						r_1681 = (meta2["tag"] == "expr")
 					end
-					if r_1671 then
+					if r_1681 then
 						_temp = (pred1(_23_2(node3)) == meta2["count"])
 					else
-						_temp = r_1671
+						_temp = r_1681
 					end
 				else
-					_temp = r_1661
+					_temp = r_1671
 				end
 				if _temp then
 					local _temp
-					local r_1691 = ret1
-					if r_1691 then
+					local r_1701 = ret1
+					if r_1701 then
 						_temp = (meta2["tag"] == "expr")
 					else
-						_temp = r_1691
+						_temp = r_1701
 					end
 					if _temp then
 						append_21_1(out5, ret1)
 					else
 					end
 					local contents2 = meta2["contents"]
-					local r_1721 = _23_2(contents2)
-					local r_1731 = 1
-					local r_1701 = nil
-					r_1701 = (function(r_1711)
+					local r_1731 = _23_2(contents2)
+					local r_1741 = 1
+					local r_1711 = nil
+					r_1711 = (function(r_1721)
 						local _temp
 						if (0 < 1) then
-							_temp = (r_1711 <= r_1721)
+							_temp = (r_1721 <= r_1731)
 						else
-							_temp = (r_1711 >= r_1721)
+							_temp = (r_1721 >= r_1731)
 						end
 						if _temp then
-							local i10 = r_1711
+							local i10 = r_1721
 							local entry2 = nth1(contents2, i10)
 							if number_3f_1(entry2) then
 								compileExpression1(nth1(node3, succ1(entry2)), out5, state3)
 							else
 								append_21_1(out5, entry2)
 							end
-							return r_1701((r_1711 + r_1731))
+							return r_1711((r_1721 + r_1741))
 						else
 						end
 					end)
-					r_1701(1)
+					r_1711(1)
 					local _temp
-					local r_1741 = (meta2["tag"] ~= "expr")
-					if r_1741 then
+					local r_1751 = (meta2["tag"] ~= "expr")
+					if r_1751 then
 						_temp = (ret1 ~= "")
 					else
-						_temp = r_1741
+						_temp = r_1751
 					end
 					if _temp then
 						line_21_1(out5)
@@ -1005,64 +1005,64 @@ compileExpression1 = (function(node3, out5, state3, ret1)
 					end
 					compileExpression1(head1, out5, state3)
 					append_21_1(out5, "(")
-					local r_1771 = _23_2(node3)
-					local r_1781 = 1
-					local r_1751 = nil
-					r_1751 = (function(r_1761)
+					local r_1781 = _23_2(node3)
+					local r_1791 = 1
+					local r_1761 = nil
+					r_1761 = (function(r_1771)
 						local _temp
 						if (0 < 1) then
-							_temp = (r_1761 <= r_1771)
+							_temp = (r_1771 <= r_1781)
 						else
-							_temp = (r_1761 >= r_1771)
+							_temp = (r_1771 >= r_1781)
 						end
 						if _temp then
-							local i11 = r_1761
+							local i11 = r_1771
 							if (i11 > 2) then
 								append_21_1(out5, ", ")
 							else
 							end
 							compileExpression1(nth1(node3, i11), out5, state3)
-							return r_1751((r_1761 + r_1781))
+							return r_1761((r_1771 + r_1791))
 						else
 						end
 					end)
-					r_1751(2)
+					r_1761(2)
 					return append_21_1(out5, ")")
 				end
 			end
 		else
 			local _temp
-			local r_1811 = ret1
-			if r_1811 then
-				local r_1821 = list_3f_1(head1)
-				if r_1821 then
-					local r_1831 = symbol_3f_1(car1(head1))
-					if r_1831 then
+			local r_1821 = ret1
+			if r_1821 then
+				local r_1831 = list_3f_1(head1)
+				if r_1831 then
+					local r_1841 = symbol_3f_1(car1(head1))
+					if r_1841 then
 						_temp = (head1[1]["var"] == builtins1["lambda"])
 					else
-						_temp = r_1831
+						_temp = r_1841
 					end
 				else
-					_temp = r_1821
+					_temp = r_1831
 				end
 			else
-				_temp = r_1811
+				_temp = r_1821
 			end
 			if _temp then
 				local args3 = nth1(head1, 2)
 				local offset2 = 1
-				local r_1861 = _23_2(args3)
-				local r_1871 = 1
-				local r_1841 = nil
-				r_1841 = (function(r_1851)
+				local r_1871 = _23_2(args3)
+				local r_1881 = 1
+				local r_1851 = nil
+				r_1851 = (function(r_1861)
 					local _temp
 					if (0 < 1) then
-						_temp = (r_1851 <= r_1861)
+						_temp = (r_1861 <= r_1871)
 					else
-						_temp = (r_1851 >= r_1861)
+						_temp = (r_1861 >= r_1871)
 					end
 					if _temp then
-						local i12 = r_1851
+						local i12 = r_1861
 						local var4 = args3[i12]["var"]
 						append_21_1(out5, ("local " .. escapeVar1(var4, state3)))
 						if var4["isVariadic"] then
@@ -1073,25 +1073,25 @@ compileExpression1 = (function(node3, out5, state3, ret1)
 							end
 							append_21_1(out5, " = { tag=\"list\", n=")
 							append_21_1(out5, number_2d3e_string1(count1))
-							local r_1901 = count1
-							local r_1911 = 1
-							local r_1881 = nil
-							r_1881 = (function(r_1891)
+							local r_1911 = count1
+							local r_1921 = 1
+							local r_1891 = nil
+							r_1891 = (function(r_1901)
 								local _temp
 								if (0 < 1) then
-									_temp = (r_1891 <= r_1901)
+									_temp = (r_1901 <= r_1911)
 								else
-									_temp = (r_1891 >= r_1901)
+									_temp = (r_1901 >= r_1911)
 								end
 								if _temp then
-									local j1 = r_1891
+									local j1 = r_1901
 									append_21_1(out5, ", ")
 									compileExpression1(nth1(node3, (i12 + j1)), out5, state3)
-									return r_1881((r_1891 + r_1911))
+									return r_1891((r_1901 + r_1921))
 								else
 								end
 							end)
-							r_1881(1)
+							r_1891(1)
 							offset2 = count1
 							line_21_1(out5, "}")
 						else
@@ -1111,30 +1111,30 @@ compileExpression1 = (function(node3, out5, state3, ret1)
 								line_21_1(out5)
 							end
 						end
-						return r_1841((r_1851 + r_1871))
+						return r_1851((r_1861 + r_1881))
 					else
 					end
 				end)
-				r_1841(1)
-				local r_1941 = _23_2(node3)
-				local r_1951 = 1
-				local r_1921 = nil
-				r_1921 = (function(r_1931)
+				r_1851(1)
+				local r_1951 = _23_2(node3)
+				local r_1961 = 1
+				local r_1931 = nil
+				r_1931 = (function(r_1941)
 					local _temp
 					if (0 < 1) then
-						_temp = (r_1931 <= r_1941)
+						_temp = (r_1941 <= r_1951)
 					else
-						_temp = (r_1931 >= r_1941)
+						_temp = (r_1941 >= r_1951)
 					end
 					if _temp then
-						local i13 = r_1931
+						local i13 = r_1941
 						compileExpression1(nth1(node3, i13), out5, state3, "")
 						line_21_1(out5)
-						return r_1921((r_1931 + r_1951))
+						return r_1931((r_1941 + r_1961))
 					else
 					end
 				end)
-				r_1921((_23_2(args3) + (offset2 + 1)))
+				r_1931((_23_2(args3) + (offset2 + 1)))
 				return compileBlock1(head1, out5, state3, 3, ret1)
 			else
 				if ret1 then
@@ -1143,28 +1143,28 @@ compileExpression1 = (function(node3, out5, state3, ret1)
 				end
 				compileExpression1(car1(node3), out5, state3)
 				append_21_1(out5, "(")
-				local r_1981 = _23_2(node3)
-				local r_1991 = 1
-				local r_1961 = nil
-				r_1961 = (function(r_1971)
+				local r_1991 = _23_2(node3)
+				local r_2001 = 1
+				local r_1971 = nil
+				r_1971 = (function(r_1981)
 					local _temp
 					if (0 < 1) then
-						_temp = (r_1971 <= r_1981)
+						_temp = (r_1981 <= r_1991)
 					else
-						_temp = (r_1971 >= r_1981)
+						_temp = (r_1981 >= r_1991)
 					end
 					if _temp then
-						local i14 = r_1971
+						local i14 = r_1981
 						if (i14 > 2) then
 							append_21_1(out5, ", ")
 						else
 						end
 						compileExpression1(nth1(node3, i14), out5, state3)
-						return r_1961((r_1971 + r_1991))
+						return r_1971((r_1981 + r_2001))
 					else
 					end
 				end)
-				r_1961(2)
+				r_1971(2)
 				return append_21_1(out5, ")")
 			end
 		end
@@ -1190,18 +1190,18 @@ compileExpression1 = (function(node3, out5, state3, ret1)
 	end
 end)
 compileBlock1 = (function(nodes1, out6, state4, start1, ret3)
-	local r_1121 = _23_2(nodes1)
-	local r_1131 = 1
-	local r_1101 = nil
-	r_1101 = (function(r_1111)
+	local r_1131 = _23_2(nodes1)
+	local r_1141 = 1
+	local r_1111 = nil
+	r_1111 = (function(r_1121)
 		local _temp
 		if (0 < 1) then
-			_temp = (r_1111 <= r_1121)
+			_temp = (r_1121 <= r_1131)
 		else
-			_temp = (r_1111 >= r_1121)
+			_temp = (r_1121 >= r_1131)
 		end
 		if _temp then
-			local i15 = r_1111
+			local i15 = r_1121
 			local ret_27_1
 			if (i15 == _23_2(nodes1)) then
 				ret_27_1 = ret3
@@ -1210,11 +1210,11 @@ compileBlock1 = (function(nodes1, out6, state4, start1, ret3)
 			end
 			compileExpression1(nth1(nodes1, i15), out6, state4, ret_27_1)
 			line_21_1(out6)
-			return r_1101((r_1111 + r_1131))
+			return r_1111((r_1121 + r_1141))
 		else
 		end
 	end)
-	return r_1101(start1)
+	return r_1111(start1)
 end)
 prelude1 = (function(out7)
 	line_21_1(out7, "if not table.pack then table.pack = function(...) return { n = select(\"#\", ...), ... } end end")
@@ -1226,17 +1226,17 @@ backend1 = struct1("createState", createState1, "escape", escape1, "escapeVar", 
 estimateLength1 = (function(node4, max1)
 	local tag2 = node4["tag"]
 	local _temp
-	local r_2001 = (tag2 == "string")
-	if r_2001 then
-		_temp = r_2001
+	local r_2011 = (tag2 == "string")
+	if r_2011 then
+		_temp = r_2011
 	else
-		local r_2011 = (tag2 == "number")
-		if r_2011 then
-			_temp = r_2011
+		local r_2021 = (tag2 == "number")
+		if r_2021 then
+			_temp = r_2021
 		else
-			local r_2021 = (tag2 == "symbol")
-			if r_2021 then
-				_temp = r_2021
+			local r_2031 = (tag2 == "symbol")
+			if r_2031 then
+				_temp = r_2031
 			else
 				_temp = (tag2 == "key")
 			end
@@ -1247,14 +1247,14 @@ estimateLength1 = (function(node4, max1)
 	elseif (tag2 == "list") then
 		local sum1 = 2
 		local i16 = 1
-		local r_2121 = nil
-		r_2121 = (function()
+		local r_2131 = nil
+		r_2131 = (function()
 			local _temp
-			local r_2131 = (sum1 <= max1)
-			if r_2131 then
+			local r_2141 = (sum1 <= max1)
+			if r_2141 then
 				_temp = (i16 <= _23_2(node4))
 			else
-				_temp = r_2131
+				_temp = r_2141
 			end
 			if _temp then
 				sum1 = (sum1 + estimateLength1(nth1(node4, i16), (max1 - sum1)))
@@ -1263,11 +1263,11 @@ estimateLength1 = (function(node4, max1)
 				else
 				end
 				i16 = (i16 + 1)
-				return r_2121()
+				return r_2131()
 			else
 			end
 		end)
-		r_2121()
+		r_2131()
 		return sum1
 	else
 		return fail1(("Unknown tag " .. tag2))
@@ -1276,17 +1276,17 @@ end)
 expression1 = (function(node5, writer9)
 	local tag3 = node5["tag"]
 	local _temp
-	local r_2031 = (tag3 == "string")
-	if r_2031 then
-		_temp = r_2031
+	local r_2041 = (tag3 == "string")
+	if r_2041 then
+		_temp = r_2041
 	else
-		local r_2041 = (tag3 == "number")
-		if r_2041 then
-			_temp = r_2041
+		local r_2051 = (tag3 == "number")
+		if r_2051 then
+			_temp = r_2051
 		else
-			local r_2051 = (tag3 == "symbol")
-			if r_2051 then
-				_temp = r_2051
+			local r_2061 = (tag3 == "symbol")
+			if r_2061 then
+				_temp = r_2061
 			else
 				_temp = (tag3 == "key")
 			end
@@ -1307,25 +1307,25 @@ expression1 = (function(node5, writer9)
 				indent_21_1(writer9)
 			else
 			end
-			local r_2161 = _23_2(node5)
-			local r_2171 = 1
-			local r_2141 = nil
-			r_2141 = (function(r_2151)
+			local r_2171 = _23_2(node5)
+			local r_2181 = 1
+			local r_2151 = nil
+			r_2151 = (function(r_2161)
 				local _temp
 				if (0 < 1) then
-					_temp = (r_2151 <= r_2161)
+					_temp = (r_2161 <= r_2171)
 				else
-					_temp = (r_2151 >= r_2161)
+					_temp = (r_2161 >= r_2171)
 				end
 				if _temp then
-					local i17 = r_2151
+					local i17 = r_2161
 					local entry3 = nth1(node5, i17)
 					local _temp
-					local r_2181 = _21_1(newline1)
-					if r_2181 then
+					local r_2191 = _21_1(newline1)
+					if r_2191 then
 						_temp = (max2 > 0)
 					else
-						_temp = r_2181
+						_temp = r_2191
 					end
 					if _temp then
 						max2 = (max2 - estimateLength1(entry3, max2))
@@ -1342,11 +1342,11 @@ expression1 = (function(node5, writer9)
 						append_21_1(writer9, " ")
 					end
 					expression1(entry3, writer9)
-					return r_2141((r_2151 + r_2171))
+					return r_2151((r_2161 + r_2181))
 				else
 				end
 			end)
-			r_2141(2)
+			r_2151(2)
 			if newline1 then
 				unindent_21_1(writer9)
 			else
@@ -1358,27 +1358,27 @@ expression1 = (function(node5, writer9)
 	end
 end)
 block1 = (function(list2, writer10)
-	local r_2071 = list2
-	local r_2101 = _23_2(r_2071)
-	local r_2111 = 1
-	local r_2081 = nil
-	r_2081 = (function(r_2091)
+	local r_2081 = list2
+	local r_2111 = _23_2(r_2081)
+	local r_2121 = 1
+	local r_2091 = nil
+	r_2091 = (function(r_2101)
 		local _temp
 		if (0 < 1) then
-			_temp = (r_2091 <= r_2101)
+			_temp = (r_2101 <= r_2111)
 		else
-			_temp = (r_2091 >= r_2101)
+			_temp = (r_2101 >= r_2111)
 		end
 		if _temp then
-			local r_2061 = r_2091
-			local node6 = r_2071[r_2061]
+			local r_2071 = r_2101
+			local node6 = r_2081[r_2071]
 			expression1(node6, writer10)
 			line_21_1(writer10)
-			return r_2081((r_2091 + r_2111))
+			return r_2091((r_2101 + r_2121))
 		else
 		end
 	end)
-	return r_2081(1)
+	return r_2091(1)
 end)
 backend2 = struct1("expression", expression1, "block", block1)
 wrapGenerate1 = (function(func2)
