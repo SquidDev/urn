@@ -8,11 +8,12 @@
                 :ready (uq/new))) ;; Set of all tasks to be executed
 
 ;;; Create a new task
-(defun new-task (func requires)
+(defun new-task (queue func requires)
   (unless requires (set! requires '()))
   (with (task (struct
                 :tag "task"
                 :state "none"
+                :queue queue
                 :func func ;; The function used to run this task
                 :resolves '() ;; List of tasks that this one "resolves"
                 :requires requires ;; List of tasks that this one requires
@@ -22,8 +23,7 @@
     task))
 
 ;;; Inject a task into the system.
-(defun add-task! (queue task)
-  (assert-type! queue "task-queue")
+(defun add-task! (task)
   (assert-type! task "task")
   (assert! (= (.> task :state) "none") "Expected type to be none")
 
@@ -42,28 +42,26 @@
       ((= new-state "fail") (fail-task! task))
       ((= new-state "wait")
         (.<! task :state "wait")
-        (.<! queue :blocked task true))
+        (.<! task :queue :blocked task true))
       ((= new-state nil)
         (.<! task :state "ready")
         (uq/add! (.> queue :ready) task)))))
 
 ;;; Resolve a failed task, removing it from all queues
 ;; and failing all dependent tasks
-(defun fail-task! (queue task)
-  (assert-type! queue "task-queue")
+(defun fail-task! (task)
   (assert-type! task "task")
   (assert! (/= (.> task :state) "done") "Cannot fail done task")
 
   (.<! task :state "fail")
-  (.<! queue :blocked task nil)
+  (.<! task :queue :blocked task nil)
 
   (for-each res (.> task :resolves)
     (when (and (/= (.> res :state) "done") (/= (.> res :state) "fail"))
-      (fail-task! queue res))))
+      (fail-task! res))))
 
 ;;; Resolve a finished task, setting its result
-(defun finish-task! (queue task result)
-  (assert-type! queue "task-queue")
+(defun finish-task! (task result)
   (assert-type! task "task")
   (assert! (= (.> task :state) "ready") "Expected task to be ready")
 
@@ -75,13 +73,12 @@
       (.<! res :remaining remaining)
       (when (= remaining 0)
         (.<! res :state "ready")
-        (.<! queue :blocked task nil)
-        (uq/add! (.> queue :ready) res)))))
+        (.<! task :queue :blocked task nil)
+        (uq/add! (.> task :queue :ready) res)))))
 
 ;;; Defer the execution of a task, optionally setting a new callback and
 ;; adding additonal dependencies
-(defun suspend-task! (queue task callback requires)
-  (assert-type! queue "task-queue")
+(defun suspend-task! (task callback requires)
   (assert-type! task "task")
   (assert! (= (.> task :state) "ready") "Expected task to be ready")
 
@@ -95,13 +92,12 @@
 
   ;; Reset the task's state and re-inject it into the system
   (.<! task :state "none")
-  (add-task! queue task))
+  (add-task! task))
 
 ;;; Execute a specified task
-(defun execute-task! (queue task)
-  (assert-type! queue "task-queue")
+(defun execute-task! (task)
   (assert-type! task "task")
   (assert! (= (.> task :state) "ready") "Expected task to be ready")
 
   (with (results (map (cut get-idx <> :value) (.> task :requires)))
-    ((.> task :func) queue task results)))
+    ((.> task :func) task results)))
