@@ -41,7 +41,6 @@ local function executeStates(compileState, states, global)
 		-- builder.add("return {" .. table.concat(nameTable, ", ") .. "}")
 
 		local str = table.concat(out)
-		print(str)
 		local fun, msg = load(str, "=compile{" .. table.concat(nameList, ",") .. "}", "t", global)
 		if not fun then error(msg .. ":\n" .. str, 0) end
 
