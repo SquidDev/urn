@@ -1,4 +1,4 @@
-(import urn/analysis/scope scope)
+(import urn/resolve/scope scope)
 
 (define root-scope (scope/child))
 

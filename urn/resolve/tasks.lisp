@@ -8,13 +8,14 @@
                 :ready (uq/new))) ;; Set of all tasks to be executed
 
 ;;; Create a new task
-(defun new-task (queue func requires)
+(defun new-task (queue func requires &args)
   (unless requires (set! requires '()))
   (with (task (struct
                 :tag "task"
                 :state "none"
                 :queue queue
                 :func func ;; The function used to run this task
+                :args args ;; The arguments to pass to this function
                 :resolves '() ;; List of tasks that this one "resolves"
                 :requires requires ;; List of tasks that this one requires
                 :remaining 0)) ;; Number of remaining tasks
@@ -45,7 +46,8 @@
         (.<! task :queue :blocked task true))
       ((= new-state nil)
         (.<! task :state "ready")
-        (uq/add! (.> queue :ready) task)))))
+        (uq/add! (.> task :queue :ready) task)))
+    task))
 
 ;;; Resolve a failed task, removing it from all queues
 ;; and failing all dependent tasks
@@ -78,12 +80,14 @@
 
 ;;; Defer the execution of a task, optionally setting a new callback and
 ;; adding additonal dependencies
-(defun suspend-task! (task callback requires)
+(defun suspend-task! (task callback requires &args)
   (assert-type! task "task")
   (assert! (= (.> task :state) "ready") "Expected task to be ready")
 
   ;; Change the callback if needed
-  (when callback (.<! task :func callback))
+  (when callback
+    (.<! task :func callback)
+    (.<! task :args args))
 
   ;; Add all additional requirements
   (when requires
@@ -100,4 +104,4 @@
   (assert! (= (.> task :state) "ready") "Expected task to be ready")
 
   (with (results (map (cut get-idx <> :value) (.> task :requires)))
-    ((.> task :func) task results)))
+    ((.> task :func) task results (unpack (.> task :args)))))

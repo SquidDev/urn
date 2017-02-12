@@ -73,4 +73,4 @@
                 (string/.. prefix "/" (.> var :name))
                 (.> var :name)))
 
-    (add-scope! scope name var)))
+    (add! scope name var)))

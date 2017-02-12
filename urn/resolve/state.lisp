@@ -64,7 +64,7 @@
   (assert! (= (.> state :stage) "parsed") "Expected to be in parsed state")
   (assert! (= (.> var :scope) (.> state :scope)) "Scopes are not the same")
   (assert! (! (.> state :var)) "Variable is already declared")
-  (assert! (= (.> var :level) level) "Variable is on different level to this")
+  (assert! (= (.> var :level) (.> state state :level)) "Variable is on different level to this")
 
   ;; Set the current variable.
   (.<! state :var var)

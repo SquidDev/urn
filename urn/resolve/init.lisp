@@ -2,9 +2,10 @@
 (import string)
 
 (import urn/logger logger)
-(import urn/analysis/builtin builtin)
-(import urn/analysis/scope scope)
-(import urn/analysis/state state)
+(import urn/resolve/builtin builtin)
+(import urn/resolve/scope scope)
+(import urn/resolve/state state)
+(import urn/resolve/tasks tasks)
 
 ;; Node resolution walks every expression and performs several actions:
 ;; - Checks syntax: ensures all expressions are well formed.
@@ -32,7 +33,9 @@
 ;; Walks the result of a macro, expanding primitives into objects setting nodes without
 ;; an existing position to include the macro.
 ;; TODO: Handle duplicate copies, error on recursive data structures.
-(defun resolve-macro-result (macro node parent)
+;; TODO: Nicer error handling on unknown types
+;; TODO: Move variable access into runtime. Maybe: What effect does this have on non-compile-time code?
+(defun resolve-macro-result (macro node parent state)
   (with (node (with (ty (type# node))
                 (cond
                   ((= ty "nil") (struct :tag "symbol" :contents "nil" :var (builtin/builtin "nil")))
@@ -40,7 +43,7 @@
                   ((= ty "number") (struct :tag "number" :contents node))
                   ((= ty "string") (struct :tag "number" :contents (string/format "%q" node)))
                   ((= ty "table") node)
-                  (true (error! (string/.. "Cannot handle " ty)))))) ;; TODO Fancy error handling
+                  (true (error! (string/.. "Cannot handle " ty))))))
 
     ;; Every node should store the parent node
     (.<! node :parent parent)
@@ -51,58 +54,85 @@
 
     ;; Walk this node's children. We might have mutated this (please don't though), so
     ;; it is always worth it.
-    (when (= (.> node :tag) "list")
-      (for i 1 (# node) 1
-        (.<! node i (resolve-macro-result macro (.> node i) node))))
-
+    (cond
+      ((= (.> node :tag) "list")
+        (for i 1 (# node) 1
+          (.<! node i (resolve-macro-result macro (.> node i) node state))))
+      ((= (.> node :tag) "symbol")
+        (when (string? (.> node :var))
+          (with (var (.> state :variables (.> node :vars)))
+            (unless var
+              ;; This is actually a code-gen issue so I'm not going to deal with it in a nice way.
+              (logger/error-positions! node (string/.. "Invalid variable key '" .. (.> node :var) "' for '" .. (.> node :contents))))
+            (.<! node :var var)))))
     node))
 
-(defun resolve-quote (node scope state level)
+;; Attempt to resolve a variable, returning it if found,
+;; otherwise suspending the task and returning false.
+(defun resolve-var (task node scope)
+  (with (var (.> node :var))
+    (if var
+      var
+      (progn
+        (set! var (scope/get scope (.> node :contents)))
+        (if var
+          (progn
+            (.<! node :var var)
+            var)
+          (progn
+            (tasks/suspend-task! task nil (list (tasks/lookup-var! task (.> node :contents))))
+            false))))))
+
+;;; Attempt to resolve a quasi-quoted expression
+(defun resolve-quote (task _ node scope state level)
   (if (= level 0)
-    (resolve-node node scope state)
+    (resolve-node task _ node scope state)
     (with (tag (.> node :tag))
       (cond
-        ((or (= tag "string") (= tag "number") (= tag "symbol") (= tag "key"))
-          node)
+        ;; Trivial expressions can just be finished directly
+        ((or (= tag "string") (= tag "number") (= tag "key"))
+          (tasks/finish-task! task node))
+        ((= tag "symbol")
+          ;; Attempt to fetch and validate the variable. resolve-var will suspend the task until the
+          ;; variable has been resolved
+          (when-with (var (resolve-var (task node scope)))
+            ;; We've found a variable so we ensure you aren't quoting variables of the same level
+            ;; Note: this check probably isn't required as it can be done else where, but is a useful warning.
+            (with (var-state (.> state :states var))
+              (if (and (/= (.> var-state :level) 0) (= (.> var-state :level) (.> state :level)))
+                (progn
+                  (logger/print-error! "Cannot use same level variable in quasiquote")
+                  (logger/put-trace! node)
+
+                  (logger/put-lines! true
+                    (logger/get-source (.> var :node)) "Defined here"
+                    (logger/get-source node) "Used here")
+
+                  (tasks/fail-task! task))
+                (tasks/finish-task! task)))))
         ((= tag "list")
           (with (first (.> node 1))
             (if (and first (= (.> first :tag) "symbol"))
-              (cond
-                ((or (= (.> first :contents) "unquote") (= (.> first :contents) "unquote-splice"))
-                  (.<! node 2 (resolve-quote (.> node 2) scope state (pred level)))
-                  node)
-                ((= (.> first :contents) "quasiquote")
-                  (.<! node 2 (resolve-quote (.> node 2) scope state (succ level)))
-                  node)
-                (true
-                  (for i 1 (# node) 1
-                    (.<! node i (resolve-quote (.> node i) scope state level)))
-                  node))
-              (progn
-                ;; TODO: we have to duplicate some code here. Can we prevent this?
-                (for i 1 (# node) 1
-                  (.<! node i (resolve-quote (.> node i) scope state level)))
-                node))))
+              ;; Attempt to resolve a variable, and handle the appropriate quoting level
+              (when-with (var (resolve-var (task node scope)))
+                (cond
+                  ((or (= var (builtin/builtin "unquote")) (= var (builtin/builtin "unquote-splice")))
+                    (resolve-list task node 2 resolve-quote scope state (pred level)))
+                  ((= var (builtin/builtin "quasiquote"))
+                    (resolve-list task node 2 resolve-quote scope state (succ level)))
+                  (true
+                    (resolve-list task node 2 resolve-quote scope state level))))
+              (resolve-list task node 2 resolve-quote scope state level))))
         (true (error! (string/.. "Unknown tag " tag)))))))
 
-(defun resolve-var (node scope)
-  (let* ((name (.> node :contents))
-          (var (or (.> node :var) (scope/get scope name))))
-
-    ;; If we don't have the variable the wait for it and return.
-    (when (! var)
-      (set! var (hoist!
-                  :tag  "use"
-                  :name name
-                  :node node)))
-    ;; It is possible that we still couldn't resolve the variable but are resuming in
-    ;; order to find as many errors as possible.
+(defun resolve-require-var (task node scope state)
+  (with (var (resolve-var task node scope))
     (if var
       (progn
         (state/require! var)
         (.<! node :var var)
         var)
-      nil)))
+      var)))
 
 (defun resolve-define (node scope state kind)
   (let* ((name (.> node 2 :contents))
@@ -118,7 +148,7 @@
         (state/set-var! (.> node :defvar))
         true))))
 
-(defun resolve-node (node scope state)
+(defun resolve-node (task _ node scope state)
   (with (tag (.> node :tag))
     (cond
       ;; Trivial tags need nothing doing
@@ -202,13 +232,13 @@
                             (.<! node 3 (resolve-node (.> node 3) scope state))
                             node)))
                       ((= var (builtin/builtin "define-native"))
-                        (when (and (expect-type! (node .> 2) node "symbol" "name"))
+                        (when (expect-type! (node .> 2) node "symbol" "name")
                           (when (resolve-define node scope state "macro")
                             node)))
                       ((= var (builtin/builtin "import"))
                         (when (expect-type! (.> node 2) node "symbol" "module name")
                           (when (or (! (.> node 3)) (expect-type! (.> node 3) node "symbol" "alias name"))
-                            (hoist!
+                            (tasks/suspend-task! task
                               :tag    "import"
                               :module (.> node 2 :contents)
                               :as     (if (.> node 3) (.> node 3 :contents) (.> node 2 :contents))
@@ -223,11 +253,29 @@
             (true (resolve-list 1 node scope state)))))
       (true (error! (string/.. "Unknown type " tag))))))
 
-(defun resolve-list (node start scope state)
-  (with (success true)
+;; Resolve a list, applying a function to each element in it.
+(defun resolve-list (task node start func &args)
+  (let* [(queue (.> task :queue))
+         (tasks '())]
+
+    ;; Inject tasks for each element, calling func with that element and &args
     (for i start (# node) 1
-      (with (result (resolve-node (.> node scope state)))
-        (if result
-          (.<! node i result)
-          (set! success false))))
-    ))
+      (push-cdr! tasks (tasks/add-task!
+                         (tasks/new-task queue func '() (nth node i) (unpack args)))))
+
+    ;; And re-assign the main task with these new dependencies
+    (tasks/suspend-task! task finish-resolve-list tasks (list node start))))
+
+;; The callback to invoke when a list has been fully resolved
+(defun finish-resolve-list (task result node start)
+  (assert-type! node "list")
+
+  ;; Clear the node of all existing values
+  (for i start (# node) 1 (.<! node i nil))
+
+  ;; Set the new length and copy across all new values
+  (.<! node :n (+ (pred start) (# result)))
+  (for i start (# result) 1 (.<! node i (nth result i)))
+
+  ;; Finish the task! :tada:
+  (tasks/finish-task! task node))
