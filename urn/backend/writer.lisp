@@ -1,4 +1,3 @@
-(import assert (assert-type!))
 (import string)
 
 (defun create () (struct

@@ -252,7 +252,7 @@ function resolveNode(node, scope, state)
 								local entry = node[3][i]
 								expectType(entry, node[3], "symbol")
 
-								symbols[entry.contents] = true
+								symbols[entry.contents] = entry
 							end
 						end
 					else
@@ -263,11 +263,23 @@ function resolveNode(node, scope, state)
 					symbols = nil
 				end
 
+				local export = false
+				if node[4] then
+					expectType(node[4], node, "key", "key expected for import attributes")
+
+					if node[4].contents == ":export" then
+						export = true
+					else
+						errorPositions(node[4], "unknown import modifier")
+					end
+				end
+
 				coroutine.yield({
 					tag = "import",
 					module = node[2].contents,
 					as = as,
-					symbols = symbols
+					symbols = symbols,
+					export = export,
 				})
 				return node
 			elseif func.tag == "macro" then

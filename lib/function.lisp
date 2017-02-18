@@ -1,9 +1,9 @@
-(import base (defmacro defun with for let when if and
+(import base (defmacro defun with for let when if and or
               get-idx gensym clock
               =))
 
-(import list (for-each push-cdr! any map traverse concatenate))
-(import types (symbol? list? function?))
+(import list (for-each push-cdr! any map traverse))
+(import types (symbol? list? function? table?))
 (import table (.> getmetatable))
 
 ;; Checks if this symbol is a wildcard

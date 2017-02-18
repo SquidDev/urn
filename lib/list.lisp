@@ -1,6 +1,6 @@
 (import base (defun defmacro let letrec with for if
-              gensym get-idx set-idx! list
-              = > + -))
+              gensym get-idx set-idx! list when
+              = > + - !))
 (import base)
 (import types (assert-type! null? eq?))
 

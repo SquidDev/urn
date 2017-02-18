@@ -1,9 +1,9 @@
-(import base (defmacro defun with for let when if
-              get-idx set-idx! error! empty-struct
-              = % - + #))
+(import base (defmacro defun with for let when if or
+              get-idx set-idx! error! empty-struct list unpack
+              = % - + # !))
 
-(import list)
-(import types)
+(import list (traverse for-each car cdr caar cadr cadar))
+(import types (null? list? key? eq?))
 (import string)
 
 (define-native getmetatable)
@@ -42,7 +42,7 @@
 ;; Chain a series of index accesses together
 (defmacro .> (x &keys)
   (with (res x)
-    (list/for-each key keys (set! res `(get-idx ,res ,key)))
+    (for-each key keys (set! res `(get-idx ,res ,key)))
     res))
 
 (defmacro .<! (x &keys value)
@@ -62,7 +62,7 @@
     (for i 1 (# keys) 2
       (let ((key (get-idx keys i))
             (val (get-idx keys (+ 1 i))))
-        (set-idx! out (if (types/key? key) (contents key) key) val)))
+        (set-idx! out (if (key? key) (contents key) key) val)))
     out))
 
 (defun empty-struct? (x) (! (next x)))

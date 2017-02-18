@@ -75,8 +75,7 @@ local libCache = {}
 local global = setmetatable({ _libs = libEnv }, {__index = _ENV or _G})
 local compileState = backend.lua.backend.createState(libMeta)
 
-local rootScope = resolve.createScope()
-rootScope.isRoot = true
+local rootScope = resolve.rootScope
 local variables, states = {}, {}
 local out = {}
 
@@ -103,7 +102,7 @@ local function printRepl(x)
 	end
 end
 
-local function libLoader(name, scope, resolve)
+local function libLoader(name, shouldResolve)
 	if name:sub(-5) == ".lisp" then
 		name = name:sub(1, -6)
 	end
@@ -123,7 +122,7 @@ local function libLoader(name, scope, resolve)
 
 	local path, handle
 	local looked = {}
-	if resolve == false then
+	if shouldResolve == false then
 		path = name
 		looked[#looked + 1] = path
 
@@ -211,24 +210,28 @@ local function libLoader(name, scope, resolve)
 	local parsed = parser.parse(lexed, lib.lisp)
 	if time then print(lib.path .. " parsed in " .. (os.clock() - start)) end
 
-	if not scope then
-		scope = rootScope:child()
-		scope.isRoot = true
-	end
+	local scope = rootScope:child()
+	scope.isRoot = true
+
 	local compiled, state = compile.compile(parsed, global, variables, states, scope, compileState, libLoader)
 
 	libs[#libs + 1] = lib
-	libCache[name] = state
+	libCache[name] = scope.exported
 	for i = 1, #compiled do
 		out[#out + 1] = compiled[i]
 	end
 
 	logger.printVerbose("Loaded " .. name)
 
-	return true, state
+	return true, scope.exported
 end
 
-assert(libLoader(prelude, rootScope, false))
+local _, preludeVars = assert(libLoader(prelude, false))
+
+rootScope = rootScope:child()
+for name, var in pairs(preludeVars) do
+	rootScope:import(name, var)
+end
 
 if #inputs == 0 then
 	local scope = rootScope
