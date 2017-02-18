@@ -55,22 +55,8 @@
            (table? (getmetatable x))
            (function? (.> (getmetatable x) :__call)))))
 
-(defmacro time! (&defs)
-  (unpack
-    (traverse defs
-              (lambda (definition)
-                (if (eq? (car definition) "defun")
-                  (let [(name (cadr definition))
-                        (args (caddr definition))
-                        (body (cdddr definition))
-                        (clockn (gensym))
-                        (resultn (gensym))]
-                    `(defun ,name ,args
-                       (let* [(,clockn (clock))
-                              (,resultn (progn ,@body))]
-                         (print! ,(get-idx name "contents")
-                                 " took "
-                                 (- (clock) ,clockn)) ,resultn)))
-                  (progn
-                    (print! (pretty definition))
-                    definition))))))
+(defun compose (f g)
+  (if (and (invokable? f)
+           (invokable? g))
+    (lambda (x) (f (g x)))
+    nil))

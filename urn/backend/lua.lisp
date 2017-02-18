@@ -26,7 +26,7 @@
     (true (let* [(out (if (-> name (string/char-at <> 1) (string/find <> "%d")) "_e" ""))
             (upper false)
             (esc false)]
-            (for i 1 (# name) 1
+            (for i 1 (string/#s name) 1
               (with (char (string/char-at name i))
                 (cond
                   ([and (= char "-")
@@ -34,12 +34,12 @@
                     (-> name (string/char-at <> (succ i)) (string/find <> "[%a%d']"))]
                     ;; If we're surrounded by ident characters then conver tthe next one to upper case
                     (set! upper true))
-                  ((string/find char "[^%w%d]"
+                  ((string/find char "[^%w%d]")
                      (set! char (-> char (string/byte <>) (string/format "%02x" <>)))
                      (unless esc
                        (set! esc true)
                        (set! out (.. out "_")))
-                     (set! out (.. out char))))
+                     (set! out (.. out char)))
                   (true
                     (when esc
                       (set! esc false)
@@ -90,12 +90,12 @@
         ((= ty "string") (w/append! out (.> node :contents)))
         ((= ty "number") (w/append! out (.> node :contents)))
         ((= ty "symbol")
-          (w/append! out (.. "{ tag=\"symbol\", contents=" (string/quote (.> node :contents))))
+          (w/append! out (.. "{ tag=\"symbol\", contents=" (string/quoted(.> node :contents))))
           (when (.> node :var)
-            (w/append! out (.. ", var=" (string/quote (number->string (.> node :var))))))
-          (w/append! out))
+            (w/append! out (.. ", var=" (string/quoted(number->string (.> node :var))))))
+          (w/append! out "}"))
         ((= ty "key")
-          (w/append! (string/.. "{tag=\"key\" contents=" (string/quote (.> node :contents)) "}")))
+          (w/append! out (string/.. "{tag=\"key\", contents=" (string/quoted(.> node :contents)) "}")))
         ((= ty "list")
           (with (first (car node))
             (cond
@@ -124,10 +124,10 @@
                               (compile-quote (nth sub 2) out state (pred level))
                               (w/line! out)
 
-                              (w/line! out (string/.. "for _c = 1, _temp.n do _result[" (number->string (- i offset)) " + c + _offset] = _temp[c] end"))
+                              (w/line! out (string/.. "for _c = 1, _temp.n do _result[" (number->string (- i offset)) " + _c + _offset] = _temp[_c] end"))
                               (w/line! out "_offset = _offset + _temp.n"))
                             (progn
-                              (w/append! out (string/.. "_result[" (number->string (- i offset)) " + _offset]"))
+                              (w/append! out (string/.. "_result[" (number->string (- i offset)) " + _offset] = "))
                               (compile-quote sub out state level)
                               (w/line! out)))))
                       (w/line! out (.. "_result.n = _offset + " (number->string (- (# node) offset))))
@@ -149,20 +149,144 @@
           ((symbol? head)
             (with (var (.> head :var))
               (cond
-                ((= var (.> builtins :lambda))) ;; TODO
-                ((= var (.> builtins :cond))) ;; TODO
+                ((= var (.> builtins :lambda))
+                  (unless (= ret "")
+                    (when ret (w/append! out ret))
+                    (let* [(args (nth node 2))
+                           (variadic nil)
+                           (i 1)]
+
+                      ;; Build the argument list, looking for variadic arguments.
+                      ;; We stop when we find one: after all, we can't emit successive args
+                      (w/append! out "(function(")
+                      (while (and (<= i (# args)) (! variadic))
+                        (when (> i 1) (w/append! out ", "))
+                        (with (var (.> args i :var))
+                          (if (.> var :isVariadic)
+                            (progn
+                              (w/append! out "...")
+                              (set! variadic i))
+                            (w/append! out (escape-var var state))))
+                        (inc! i))
+                      (w/begin-block! out ")")
+
+                      (when variadic
+                        (with (args-var (escape-var (.> args variadic :var) state))
+                          (if (= variadic (# args))
+                            ;; If it is the last argument then just pack it up into a list
+                            (w/line! out (string/.. "local " args-var " = _pack(...) " args-var ".tag = \"list\""))
+                            (with (remaining (- (# args) variadic))
+                              ;; Otherwise everything is a tad more complicated. We first store the number
+                              ;; of arguments to add to our variadic, as well as predeclaring all args
+                              (w/line! out (.. "local _n = _select(\"#\", ...) - " (number->string remaining)))
+
+                              (w/append! out (.. "local " args-var))
+                              (for i (succ variadic) (# args) 1
+                                (w/append! out ", ")
+                                (w/append! out (escape-var (.> args i :var) state)))
+                              (w/line! out)
+
+                              (w/begin-block! out "if _n > 0 then")
+                              ;; If we have something to insert into the variadic area then we pack and unpack
+                              ;; the section. It might be more efficient to pack it and append/assign to the various
+                              ;; regions, but that can be profiled later.
+                              (w/append! out args-var)
+                              (w/line! out " = { tag=\"list\", n=_n, _unpack(_pack(...), 1, _n)}")
+
+                              (for i (succ variadic) (# args) 1
+                                (w/append! out (escape-var (.> args i :var) state))
+                                (when (< i (# args)) (w/append! out ", ")))
+                              (w/line! out " = select(_n + 1, ...)")
+
+                              (w/next-block! out "else")
+                              ;; Otherwise we'll just assign an empt list to the variadic and pass the ... to the
+                              ;; remaining args
+                              (w/append! out args-var)
+                              (w/line! out " = { tag=\"list\", n=0}")
+
+                              (for i (succ variadic) (# args) 1
+                                (w/append! out (escape-var (.> args i :var) state))
+                                (when (< i (# args)) (w/append! out ", ")))
+                              (w/line! out " = ...")
+
+                              (w/end-block! out "end")))))
+                      (compile-block node out state 3 "return ")
+                      (w/unindent! out)
+                      (w/append! out "end)"))))
+                ((= var (.> builtins :cond))
+                  (let [(closure (! ret))
+                        (had-final false)
+                        (ends 1)]
+
+                    ;; If we're being used as an expression then we have to wrap as a closure.
+                    (when closure
+                      (w/begin-block! out "(function()")
+                      (set! ret "return "))
+
+                    (with (i 2)
+                      (while (<= i (# node))
+                        (let* [(item (nth node i))
+                               (case (nth item 1))
+                               (is-final (and (symbol? case) (= (.> case :var) (.> builtin-vars :true))))]
+
+                          ;; We stop iterating after a branch marked "true" and just invoke the code.
+                          (cond
+                            (is-final (when (= i 2) (w/append! out "do"))) ;; TODO: Could we dec! the ends variable instead?
+                            ((is-statement case)
+                              ;; We flatten if statements branching on an if by declaring a temp variable
+                              ;; and assigning the branch result to it.
+                              ;; If we're not the first condition then we also have to indent everything once.
+                              ;; A further enhancement would be to detect or and and patterns and convert them
+                              ;; to the relevant expression.
+                              (when (> i 2)
+                                (w/indent! out)
+                                (w/line! out)
+                                (inc! ends))
+                              (w/line! out "local _temp")
+                              (compile-expression case out state "_temp = ")
+                              (w/line! out)
+                              (w/line! out "if _temp then"))
+                            (true
+                              (w/append! out "if ")
+                              (compile-expression case out state)
+                              (w/append! out " then")))
+
+                          (w/indent! out) (w/line! out)
+                          (compile-block item out state 2 ret)
+                          (w/unindent! out)
+
+                          (if is-final
+                            (set! had-final true)
+                            (w/append! out "else"))
+                          (inc! i))))
+
+                    ;; If we didn't hit a true branch then we should error at runtime
+                    (unless had-final
+                      (w/indent! out) (w/line! out)
+                      (w/append! out "_error(\"unmatched item\")")
+                      (w/unindent! out) (w/line! out))
+
+                    ;; End each nested block
+                    (for i 1 ends 1
+                      (w/append! out "end")
+                      (when (< i ends) (w/unindent! out) (w/line! out)))
+
+                    ;; And finish of the closure if required
+                    (when closure
+                      (w/line! out)
+                      (w/end-block! out "end)()"))))
                 ((= var (.> builtins :set!))
-                   (compile-expression (nth node 3) out state (.. (escape-var (.> node 2 :var) state) " = "))
-                   (when (and ret (/= ret ""))
-                     (w/line! out)
-                     (w/append! out ret)
-                     (w/append! out "nil")))
+                  (compile-expression (nth node 3) out state (.. (escape-var (.> node 2 :var) state) " = "))
+                  (when (and ret (/= ret ""))
+                    (w/line! out)
+                    (w/append! out ret)
+                    (w/append! out "nil")))
                 ((= var (.> builtins :define))
-                  (compile-expression (nth node 3) out state (.. (escape-var (.> node 2 :defVar) state) " = ")))
+                  (compile-expression (nth node 3) out state (.. (escape-var (.> node :defVar) state) " = ")))
                 ((= var (.> builtins :define-macro))
-                  (compile-expression (nth node 3) out state (.. (escape-var (.> node 2 :defVar) state) " = ")))
+                  (compile-expression (nth node 3) out state (.. (escape-var (.> node :defVar) state) " = ")))
                 ((= var (.> builtins :define-native))
-                  (w/append! out (string/format "%s = _libs[%q]" (escape-var (.> node 2 :defVar) state) (.> node 2 :contents))))
+                  (w/append! out (string/format "%s = _libs[%q]" (escape-var (.> node :defVar) state) (.> node 2 :contents))))
                 ((= var (.> builtins :quote))
                   ;; Quotations are "pure" so we don't have to emit anything
                   (unless (= ret "")
@@ -190,7 +314,7 @@
                 (true
                   ;; As we're invoking a known symbol here, we can do some fancy stuff. In this case, we just
                   ;; "inline" anything defined in library meta data (such as arithmetic operators).
-                  (with (meta (symbol? head) (= (.> head :var :tag) "native") (.> data :meta (.> head :var :name)))
+                  (with (meta (and (symbol? head) (= (.> head :var :tag) "native") (.> state :meta (.> head :var :name))))
                     ;; Obviously metadata only exists for native expressions. We can only emit it if
                     ;; we're in the right context (statements cannot be emitted when we require an expression) and
                     ;; we've passed in the correct number of arguments.
@@ -199,13 +323,13 @@
                         ;; If we're dealing with an expression then we emit the returner first. Statements just
                         ;; return nil.
                         (when (and ret (= (.> meta :tag) "expr"))
-                          (w/append! ret out))
+                          (w/append! out ret))
 
                         ;; Emit all entries. Numbers represent an argument, everything else is just
                         ;; appended directly.
                         (with (contents (.> meta :contents))
-                          (for i (# contents) 1
-                            (with (entry (nth contents 1))
+                          (for i 1 (# contents) 1
+                            (with (entry (nth contents i))
                               (if (number? entry)
                                 (compile-expression (nth node (succ entry)) out state)
                                 (w/append! out entry)))))
@@ -227,8 +351,46 @@
                         (w/append! out ")"))))))))
           ((and ret (list? head) (symbol? (car head)) (= (.> head 1 :var) (.> builtins :lambda)))
             ;; If we have a direction invokation of a function then inline it
-            ;; TODO:
-            )
+            (with (args (nth head 2))
+              (with (offset 1)
+                (for i 1 (# args) 1
+                  (with (var (.> args i :var))
+                    (w/append! out (.. "local " (escape-var var state)))
+                    (if (.> var :isVariadic)
+                      ;; If we're variadic then create a list of each sub expression
+                      (with (count (- (# node) (# args)))
+                        (when (< count 0) (set! count 0))
+                        (w/append! out " = { tag=\"list\", n=")
+                        (w/append! out (number->string count))
+
+                        ;; Emit each expression into the list.
+                        ;; A future enhancement might be to check if these are statements and if so, push it
+                        (for j 1 count 1
+                          (w/append! out ", ")
+                          (compile-expression (nth node (+ i j)) out state))
+
+                        (set! offset count)
+                        (w/line! out "}"))
+                      (let* [(expr (nth node (+ i offset)))
+                             (name (escape-var var state))
+                             (ret nil)]
+                        (if expr
+                          (progn
+                            (if (is-statement expr)
+                              (progn
+                                (set! ret (.. name " = "))
+                                (w/line! out))
+                              (w/append! out " = "))
+                            (compile-expression expr out state ret)
+                            (w/line! out))
+                          (w/line! out))))))
+
+                ;; Emit all arguments which haven't been used anywhere
+                (for i (+ (# args) (+ offset 1)) (# node) 1
+                  (compile-expression (nth node i) out state "")
+                  (w/line! out)))
+
+              (compile-block head out state 3 ret)))
           (true
             ;; Just invoke the expression as normal
             (when ret (w/append! out ret))
@@ -242,10 +404,10 @@
       (unless (= ret "")
         (when ret (w/append! out ret))
         (cond
-          ((symbol? node) (w/append! out (escape-var (.> node :var))))
+          ((symbol? node) (w/append! out (escape-var (.> node :var) state)))
           ((string? node) (w/append! out (.> node :contents)))
           ((number? node) (w/append! out (number->string (.> node :contents))))
-          ((key? node) (w/append! (quote (string/sub (.> node :contents) 1)))) ;; TOD: Should this be a table instead? If so, can we make this more efficient?
+          ((key? node) (w/append! out (string/quoted (string/sub (.> node :contents) 2)))) ;; TODO: Should this be a table instead? If so, can we make this more efficient?
           (true (error! (.. "Unknown type: " (type node)))))))))
 
 ;; Compile a block of expressions
@@ -264,3 +426,11 @@
 
   ;; And cache some useful globals
   (w/line! out "local _select, _unpack, _pack, _error = select, table.unpack, table.pack, error"))
+
+(define backend (struct
+                  :createState create-state
+                  :escape      escape
+                  :escapeVar   escape-var
+                  :block       compile-block
+                  :expression  compile-expression
+                  :prelude     prelude))

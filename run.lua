@@ -1,3 +1,4 @@
+#!/usr/bin/env lua
 local backend = require "tacky.backend.init"
 local compile = require "tacky.compile"
 local logger = require "tacky.logger"
@@ -9,7 +10,18 @@ local resolve = require "tacky.analysis.resolve"
 local paths = { "?", "newlib/?" }
 local inputs, output, verbosity, run, prelude, time = {}, "out", 0, false, "lib/prelude", false
 
+-- Tiny Lua stub
+if _VERSION:find("5.1") then
+	function load(str, name, _, env)
+		local f, e = loadstring(str, name)
+		if not f then return false, e end
+		if env then setfenv(f, env) end
+		return f
+	end
+end
+
 local args = table.pack(...)
+local interp, prog = arg[-1], arg[0]
 local i = 1
 while i <= args.n do
 	local arg = args[i]
@@ -40,6 +52,11 @@ while i <= args.n do
 	elseif arg == "--prelude" or arg == "-p" then
 		i = i + 1
 		prelude = args[i] or error("Expected prelude after " .. arg, 0)
+	elseif arg == '--wrapper' then
+		local _, wrapper = table.remove(args, i), table.remove(args, i)
+		local command = table.concat({wrapper, interp, prog}, " ")
+		os.execute(command .. " " .. table.concat(args, " "))
+		return
 	elseif arg:sub(1, 1) == "-" then
 		error("Unknown option " .. arg, 0)
 	else
@@ -56,6 +73,7 @@ local libMeta = {}
 local libs = {}
 local libCache = {}
 local global = setmetatable({ _libs = libEnv }, {__index = _ENV or _G})
+local compileState = backend.lua.backend.createState(libMeta)
 
 local rootScope = resolve.createScope()
 rootScope.isRoot = true
@@ -63,6 +81,27 @@ local variables, states = {}, {}
 local out = {}
 
 for _, var in pairs(resolve.rootScope.variables) do variables[tostring(var)] = var end
+
+local function printRepl(x)
+	local function map(f, xs)
+		for i = 1, #xs do
+			xs[i] = f(xs[i])
+		end
+		return xs
+	end
+
+	if type(x) == 'table' then
+		if x.n then
+			return ("(%s)"):format(table.concat(map(printRepl, x), " "))
+		elseif x.contents then
+			return x.contents
+		end
+	elseif type(x) == 'string' then
+		return ("%q"):format(x)
+	else
+		return tostring(x)
+	end
+end
 
 local function libLoader(name, scope, resolve)
 	if name:sub(-5) == ".lisp" then
@@ -141,7 +180,7 @@ local function libLoader(name, scope, resolve)
 
 			for k, v in pairs(fun()) do
 				if type(v.contents) == "string" then
-					local buffer = {}
+					local buffer = {tag="list"}
 					local str = v.contents
 					local current = 1
 					while current <= #str do
@@ -158,6 +197,7 @@ local function libLoader(name, scope, resolve)
 						end
 					end
 
+					buffer.n = #buffer
 					v.contents = buffer
 				end
 
@@ -175,7 +215,7 @@ local function libLoader(name, scope, resolve)
 		scope = rootScope:child()
 		scope.isRoot = true
 	end
-	local compiled, state = compile.compile(parsed, global, variables, states, scope, libLoader)
+	local compiled, state = compile.compile(parsed, global, variables, states, scope, compileState, libLoader)
 
 	libs[#libs + 1] = lib
 	libCache[name] = state
@@ -209,7 +249,7 @@ if #inputs == 0 then
 
 		if time then print("<stdin>" .. " parsed in " .. (os.clock() - start)) end
 
-		local ok, msg, state = pcall(compile.compile, parsed, global, variables, states, scope, libLoader)
+		local ok, msg, state = pcall(compile.compile, parsed, global, variables, states, scope, compileState, libLoader)
 		if not ok then
 			logger.printError(msg)
 			return {}
@@ -261,16 +301,16 @@ if #inputs == 0 then
 					end
 
 					if coroutine.status(exec) == "dead" then
-						print("\27[96m" .. pprint.tostring(state[#state]:get(), pprint.nodeConfig) .. "\27[0m")
+						print("\27[96m" .. printRepl(state[#state]:get()) .. "\27[0m")
 						break
 					else
 						local states = data.states
 						if states[1] == current and not current.var then
 							table.remove(states, 1)
-							local ok, msg = pcall(compile.executeStates, data.states, global)
+							local ok, msg = pcall(compile.executeStates, compileState, states, global)
 							if not ok then logger.printError(msg) break end
 
-							local str = backend.lua.prelude() .. "\n" .. backend.lua.expression(current.node, { meta = libMeta }, "return ")
+							local str = backend.lua.prelude() .. "\n" .. backend.lua.expression(current.node, compileState, "return ")
 							local fun, msg = load(str, "=<input>", "t", global)
 							if not fun then error(msg .. ":\n" .. str, 0) end
 
@@ -279,7 +319,7 @@ if #inputs == 0 then
 
 							current:executed(res)
 						else
-							local ok, msg = pcall(compile.executeStates, data.states, global)
+							local ok, msg = pcall(compile.executeStates, compileState, states, global)
 							if not ok then logger.printError(msg) break end
 						end
 					end
@@ -302,7 +342,8 @@ local start = os.clock()
 out = optimise(out)
 if time then print("Optimised in " .. (os.clock() - start)) end
 
-local compiledLua = backend.lua.block(out, { meta = libMeta }, 1, "return ")
+local state = backend.lua.backend.createState(libMeta)
+local compiledLua = backend.lua.block(out, state, 1, "return ")
 local handle = io.open(output .. ".lua", "w")
 
 handle:write(backend.lua.prelude())
@@ -322,7 +363,7 @@ for i = 1, #libs do
 				handle:write("\n")
 			end
 		end
-		handle:write("end)() \nfor k, v in pairs(_temp) do _libs[k] = v end\n")
+		handle:write("end)()\nfor k, v in pairs(_temp) do _libs[k] = v end\n")
 	end
 end
 

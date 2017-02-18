@@ -44,14 +44,14 @@
 ;; (`else` in an `if .. else .. end` statement)
 (defun next-block! (writer text)
   (unindent! writer)
-  (line! text)
+  (line! writer text)
   (indent! writer))
 
 ;; End an indented statement
 ;; (`end` in an `if .. else .. end` statement)
 (defun end-block! (writer text)
   (unindent! writer)
-  (line! text))
+  (line! writer text))
 
 ;; Convert the writer to a string
 (defun ->string (writer) (string/concat (.> writer :out)))

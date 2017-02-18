@@ -13,7 +13,7 @@
             (set! sum (+ sum (estimate-length (nth node i) (- max sum))))
             (when (> i 1) (inc! sum))
             (inc! i))
-        sum))
+          sum))
       (true (fail (.. "Unknown tag " tag))))))
 
 (defun expression (node writer)
@@ -54,4 +54,4 @@
     (expression node writer)
     (writer/line! writer)))
 
-(struct :expression expression :block block)
+(define backend (struct :expression expression :block block))
