@@ -1,6 +1,6 @@
 ;; Rewritten, type-safe binders.
 
-(import base (defmacro if ! dump-node!))
+(import base (defmacro if when and !))
 (import list ())
 
 ;; Bind multiple variables in succession

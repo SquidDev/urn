@@ -10,6 +10,9 @@ function Scope.child(parent)
 
 		--- Lookup of named variables.
 		variables = {},
+
+		-- Lookup of exported variables
+		exported = {},
 	}, Scope)
 
 	return child
@@ -46,7 +49,17 @@ function Scope:add(name, kind, node)
 
 	local previous = self.variables[name]
 	if previous then
-		logger.errorPositions(node, "Previous declaration of " .. name)
+		local previous = self.variables[name].node
+
+		logger.printError("Previous declaration of " .. name)
+		logger.putTrace(node)
+
+		logger.putLines(true,
+			logger.getSource(node), "new definition here",
+			logger.getSource(previous), "old definition here"
+		)
+
+		error("An error occured", 0)
 	end
 
 	local var = {
@@ -57,31 +70,37 @@ function Scope:add(name, kind, node)
 		node = node,
 	}
 	self.variables[name] = var
+	self.exported[name] = var
 	return var
 end
 
-function Scope:import(prefix, var, state, node)
+function Scope:import(name, var, node, export)
 	if var == nil then error("var is nil", 2) end
 
-	local name = prefix and (prefix .. '/' .. var.name) or var.name
+	if node then logger.printDebug("Importing " .. name .. " into " .. logger.getSource(node).name) end
 
 	if self.variables[name] then
-		local current = state.states[var]
-		local previous = state.states[self.variables[name]]
+		local current = var.node
+		local previous = self.variables[name].node
 
 		logger.printError("Previous declaration of " .. name)
 		logger.putTrace(node)
 
 		logger.putLines(true,
 			logger.getSource(node), "imported here",
-			logger.getSource(current.node), "new definition here",
-			logger.getSource(previous.node), "old definition here"
+			logger.getSource(current), "new definition here",
+			logger.getSource(previous), "old definition here"
 		)
 
 		error("An error occured", 0)
 	end
 
 	self.variables[name] = var
+	if export then
+		if node then logger.printDebug("Exporting " .. name .. " from " .. logger.getSource(node).name) end
+		self.exported[name] = var
+	end
+
 	return var
 end
 

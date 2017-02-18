@@ -1,4 +1,5 @@
-(import base (defun defmacro with if gensym format error! get-idx type# = /= # car cdr))
+(import base (defun defmacro with if gensym format error!
+              get-idx type# = /= # car cdr and when))
 
 (defun table? (x) (= (type# x) "table"))
 (defun list? (x) (= (type x) "list"))

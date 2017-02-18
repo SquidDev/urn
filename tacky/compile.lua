@@ -149,17 +149,35 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 				logger.errorPositions(head._node, module)
 			end
 
-			for _, var in pairs(module.scope.variables) do
-				local state = inStates[var]
+			local export = head.export
+			for name, var in pairs(module) do
 				if head.as then
-					scope:import(head.as, var, state, head._node)
+					name = head.as .. '/' .. name
+					scope:import(name, var, head._node, export)
 				elseif head.symbols then
-					if head.symbols[state.var.name] then
-						scope:import(nil, var, state, head._node)
+					if head.symbols[name] then
+						scope:import(name, var, head._node, export)
 					end
 				else
-					scope:import(nil, var, state, head._node)
+					scope:import(name, var, head._node, export)
 				end
+			end
+
+			if head.symbols then
+				local failure = false
+				for name, nameNode in pairs(head.symbols) do
+					if not module[name] then
+						logger.printError("Cannot find " .. name)
+						logger.putTrace(nameNode)
+						logger.putLines(true,
+							logger.getSource(head._node), "Importing here",
+							logger.getSource(nameNode), "Required here"
+						)
+						failure = true
+					end
+				end
+
+				if failure then error("An error occured", 0) end
 			end
 			resume(head)
 		else
