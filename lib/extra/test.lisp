@@ -28,13 +28,13 @@
 
       (print! (string/format "\027[1;32m- Passed tests:\027[0m (%d)" (# ,tests-passed)))
       (for-each ,'passed ,tests-passed
-        (print! (string/format "\27[1;32m+\27[0m %s" ,'passed)))
+        (print! (string/format "\27[1;32m+\27[0m %s %s" ,name ,'passed)))
 
       (unless (nil? ,tests-failed)
         (print!)
 
         (print! (string/format "\027[1;31m- Failed tests:\027[0m (%d)" (# ,tests-failed)))
         (for-each ,'failed ,tests-failed
-          (print! (string/format "\27[1;31m*\27[0m %s" (car ,'failed)))
+          (print! (string/format "\27[1;31m*\27[0m %s %s" ,name (car ,'failed)))
           (print! (string/format "  %s" (cadr ,'failed))))
         (exit! 1))))

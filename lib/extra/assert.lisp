@@ -12,7 +12,7 @@
   (let* [(handle-eq
           (lambda (tree)
             `(assert!
-               (= ,(car tree) ,(cadr tree))
+               (eq? ,(car tree) ,(cadr tree))
                ,(..
                   "expected "
                   (format-value (car tree))
@@ -22,7 +22,7 @@
         (handle-neq
           (lambda (tree)
             `(assert!
-               (/= ,(car tree) ,(cadr tree))
+               (neq? ,(car tree) ,(cadr tree))
                ,(..
                   "expected "
                   (format-value (car tree))

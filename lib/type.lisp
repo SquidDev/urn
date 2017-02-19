@@ -1,6 +1,6 @@
 (import base (defun let* type# if car cdr when
               and or >= = <= /= # rawget defmacro
-              error gensym !))
+              error gensym ! debug))
 
 (import lua/string (format))
 
@@ -38,10 +38,14 @@
      (= (rawget x "contents") y)]
     [(and (string? x) (symbol? y))
      (= (rawget y "contents") x)]
+    [(and (nil? x) (nil? y)) true]
     [(and (list? x) (list? y))
      (and (eq? (car x) (car y))
           (eq? (cdr x) (cdr y)))]
     [true (= x y)]))
+
+(defun neq? (x y)
+  (! (eq? x y)))
 
 (defmacro assert-type! (arg ty)
   (let* [(sym (gensym))

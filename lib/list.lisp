@@ -4,7 +4,7 @@
               if # + - >= = ! with))
 (import base)
 (import lua/table)
-(import type (list? nil? assert-type!))
+(import type (list? nil? assert-type! exists?))
 
 (defun car (x)
   (assert-type! x list)
@@ -92,6 +92,26 @@
          (lst' (gensym))]
     `(with (,lst' ,lst)
        (for ,ctr' 1 (# ,lst') 1 (with (,var (rawget ,lst' ,ctr')) ,@body)))))
+
+(defun append (xs ys)
+  (cond
+    [(nil? xs) ys]
+    [true (cons (car xs) (append (cdr xs) ys))]))
+
+(defun flatten (xss)
+  (foldr append '() xss)) 
+
+(defun range (start end acc)
+  (cond
+    [(! (exists? acc)) (range start end '())]
+    [(>= start end) (reverse (cons start acc))]
+    [true (range (+ 1 start) end (cons start acc))]))
+
+(defun reverse (xs acc)
+  (cond
+    [(! (exists? acc)) (reverse xs '())]
+    [(nil? xs) acc]
+    [true (reverse (cdr xs) (cons (car xs) acc))]))
 
 ;; AUTOMATICALLY GENERATED
 ;; DO NOT EDIT please.

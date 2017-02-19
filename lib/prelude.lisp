@@ -42,3 +42,7 @@
 
 (defun exit! (&args)
   (apply lua/os/exit args))
+
+(defun id (x) x)
+(defun const (x)
+  (lambda (y) x))
