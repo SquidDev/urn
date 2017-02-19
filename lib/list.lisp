@@ -1,93 +1,81 @@
-(import base (defun defmacro let letrec with for if
-              gensym get-idx set-idx! list when
-              = > + - !))
-(import base)
-(import types (assert-type! null? eq?))
+(import base (defun defmacro when let* rawset
+              rawget car cdr and cons for gensym
+              pretty print error tostring
+              if # + - >= with))
 
-(defun nth (li idx)
-  (assert-type! li "list")
-  (assert-type! idx "number")
+(import lua/table)
+(import type (list? nil?))
 
-  (get-idx li idx))
+(defun foldr (f z xs)
+  (cond
+    [(nil? xs) z]
+    [true (let* [(head (car xs))
+                 (tail (cdr xs))]
+            (f head (foldr f z tail)))]))
 
-(defun set-nth! (li idx val)
-  (assert-type! li "list")
-  (assert-type! idx "number")
+(defun map (f xs)
+  (cond
+    [(nil? xs) xs]
+    [true (let* [(head (car xs))
+                 (tail (cdr xs))]
+            (cons (f head) (map f tail)))]))
 
-  (set-idx! li idx val))
+(defun filter (p xs)
+  (cond
+    [(nil? xs) xs]
+    [true (let* [(head (car xs))
+                 (tail (cdr xs))]
+            (if (p head)
+              (cons head (filter p tail))
+              (filter p tail)))]))
+
+(defun any (p xs)
+  (cond
+    [(nil? xs) xs]
+    [true (let* [(head (car xs))
+                 (tail (cdr xs))]
+            (if (p head)
+              true
+              (any p tail)))]))
+
+(defun traverse (xs f) (map f xs))
+(defun last (xs) (rawget xs (# xs)))
+
+(defun nth (xs n)
+  (cond
+    [(and (nil? xs)
+          (>= (# xs) n)
+          (>= n 0))
+     (rawget xs n)]
+    [true nil]))
+
+(defun push-cdr! (xs val)
+  (let* [(len (+ (# xs) 1))]
+    (rawset xs "n" len)
+    (rawset xs len val)
+    xs))
+
+(defun pop-last! (xs)
+  (rawset xs (# xs) nil)
+  (rawset xs "n" (- (# xs) 1))
+  xs)
 
 (defun remove-nth! (li idx)
-  (assert-type! li "list")
-  (assert-type! idx "number")
+  (rawset li "n" (- (rawget li "n") 1))
+  (lua/table/remove li idx))
 
-  (set-idx! li "n" (- (get-idx li "n") 1))
-  (base/remove-idx! li idx))
-
-(defun # (li)
-  (assert-type! li "list")
-  (base/# li))
-
-(defun car (li) (nth li 1))
-
-(defun slice (li start finish)
-  (assert-type! li "list")
-  (assert-type! start "number")
-  (base/slice li start finish))
-
-(defun cdr (li)
-  (assert-type! li "list")
-  (slice li 2))
-
-;; Push an entry on to the end of this list
-(defun push-cdr! (li val)
-  (assert-type! li "list")
-  (with (len (+ (base/# li) 1))
-    (set-idx! li "n" len)
-    (set-idx! li len val)
-    li))
-
-;; Remove the last entry from this list
-(defun pop-last! (li)
-  (assert-type! li "list")
-  (set-idx! li (base/# li) nil)
-  (set-idx! li "n" (- (base/# li) 1))
-  li)
-
-;; Checks this is a list and is empty
-(defun nil? (li) (= (# li) 0))
-
-;; Removes nils (i.e. '(), not nil) from a list
-(defun prune (li)
-  (filter (lambda (x) (! (null? x))) li))
-
-;; Perform an action for every entry in the list
 (defmacro for-each (var lst &body)
-  (let ((ctr' (gensym))
-        (lst' (gensym)))
-       `(with (,lst' ,lst)
-         (for ,ctr' 1 (# ,lst') 1 (with (,var (get-idx ,lst' ,ctr')) ,@body)))))
+  (let* [(ctr' (gensym))
+         (lst' (gensym))]
+    `(with (,lst' ,lst)
+       (for ,ctr' 1 (# ,lst') 1 (with (,var (rawget ,lst' ,ctr')) ,@body)))))
 
-;; Apply a function for every entry in the list
-(defun each (fn li)
-  (assert-type! fn "function")
-  (assert-type! li "list")
-
-  (for i 1 (# li) 1 (fn (get-idx li i))))
-
-(defun map (fn li)
-  (assert-type! fn "function")
-  (assert-type! li "list")
-
-  (base/map fn li))
-
-(defun traverse (li fn) (map fn li))
-
-(defun last (xs) (nth xs (# xs)))
-
+;; AUTOMATICALLY GENERATED
+;; DO NOT EDIT please.
 (defun caar (x) (car (car x)))
-(defun cadr (x) (nth x 2))
+(defun cadr (x) (car (cdr x)))
 (defun cdar (x) (cdr (car x)))
-(defun cddr (x) (slice x 3))
+(defun cddr (x) (cdr (cdr x)))
 
 (defun caaar (x) (car (car (car x))))
 (defun caadr (x) (car (car (cdr x))))
@@ -144,67 +132,3 @@
 (defun cddadrs (xs) (map cddadr xs))
 (defun cdddars (xs) (map cdddar xs))
 (defun cddddrs (xs) (map cddddr xs))
-
-;; Return a new list where only the predicate matches
-(defun filter (fn li)
-  (assert-type! fn "function")
-  (assert-type! li "list")
-
-  (with (out '())
-    (for i 1 (base/# li 1) 1 (let ((item (get-idx li i)))
-      (when (fn item) (push-cdr! out item))))
-    out))
-
-;; Determine whether any element matches a predicate
-(defun any (fn li)
-  (assert-type! fn "function")
-  (assert-type! li "list")
-
-  (letrec ((any-impl (lambda (i)
-                       (cond
-                         ((> i (base/# li)) false)
-                         ((fn (get-idx li i)) true)
-                         (true (any-impl (+ i 1)))))))
-    (any-impl 1)))
-
-(defun elem (x li)
-  (any (lambda (e) (= x e)) li))
-
-;; Determine whether all elements match a predicate
-(defun all (fn li)
-  (assert-type! fn "function")
-  (assert-type! li "list")
-
-  (letrec ((all-impl (lambda(i)
-                       (cond
-                         ((> i (base/# li)) true)
-                         ((fn (get-idx li i)) (all-impl (+ i 1)))
-                         (true false)))))
-    (all-impl 1)))
-
-;; Fold left across a list
-(defun foldl (fn accum li)
-  (assert-type! fn "function")
-  (assert-type! li "list")
-
-  (for i 1 (base/# li) 1
-    (set! accum (fn accum (get-idx li i))))
-  accum)
-
-;; Fold right across a list
-(defun foldr (fn accum li)
-  (assert-type! fn "function")
-  (assert-type! li "list")
-
-  (for i (# li) 1 -1
-    (set! accum (fn (get-idx li i) accum)))
-  accum)
-
-(defun latter (x xs)
-  (cond
-    [(null? xs) xs]
-    [true (let [(head (car xs))
-                (tail (cdr xs))]
-            (if (eq? head x)
-              tail
-              (latter x tail)))]))

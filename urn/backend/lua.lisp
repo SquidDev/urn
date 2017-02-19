@@ -15,8 +15,8 @@
                              :var-lookup (empty-struct)
                              :meta (or meta (empty-struct))))
 
-(define builtins (get-idx (require "tacky.analysis.resolve") :builtins))
-(define builtin-vars (get-idx (require "tacky.analysis.resolve") :declaredVars))
+(define builtins (rawget (require "tacky.analysis.resolve") :builtins))
+(define builtin-vars (rawget (require "tacky.analysis.resolve") :declaredVars))
 
 ;; Escape an urn identifier, converting it into a form that is valid Lua.
 (defun escape (name)
@@ -300,8 +300,8 @@
                     ((= ret "") (w/append! out "local _ ="))
                     (ret (w/append! out ret)))
                   (compile-quote (nth node 2) out state 1))
-                ((= var (.> builtins :unquote)) (fail "unquote outside of quasiquote"))
-                ((= var (.> builtins :unquote-splice)) (fail "unquote-splice outside of quasiquote"))
+                ((= var (.> builtins :unquote)) (fail! "unquote outside of quasiquote"))
+                ((= var (.> builtins :unquote-splice)) (fail! "unquote-splice outside of quasiquote"))
                 ((= var (.> builtins :import))
                   ;; Imports don't do anything at all (and should have be stripped by the optimiser)
                   ;; so we handle the return expression if required.
@@ -404,11 +404,12 @@
       (unless (= ret "")
         (when ret (w/append! out ret))
         (cond
-          ((symbol? node) (w/append! out (escape-var (.> node :var) state)))
-          ((string? node) (w/append! out (.> node :contents)))
-          ((number? node) (w/append! out (number->string (.> node :contents))))
-          ((key? node) (w/append! out (string/quoted (string/sub (.> node :contents) 2)))) ;; TODO: Should this be a table instead? If so, can we make this more efficient?
-          (true (error! (.. "Unknown type: " (type node)))))))))
+          [(symbol? node) (w/append! out (escape-var (.> node :var) state))]
+          [(string? node) (w/append! out (.> node :contents))]
+          [(number? node) (w/append! out (number->string (.> node :contents)))]
+          [(key? node) (w/append! out (string/quoted (string/sub (.> node :contents) 2)))] ;; TODO: Should this be a table instead? If so, can we make this more efficient?
+          [true (error! (.. "Unknown type: " (type node)))]
+          )))))
 
 ;; Compile a block of expressions
 (defun compile-block (nodes out state start ret)

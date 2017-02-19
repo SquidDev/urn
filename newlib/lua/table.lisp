@@ -1,7 +1,0 @@
-(define-native concat)
-(define-native insert)
-(define-native move)
-(define-native pack)
-(define-native remove)
-(define-native sort)
-(define-native unpack)

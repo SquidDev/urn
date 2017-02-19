@@ -1,34 +1,44 @@
-(import base (defun defmacro progn for while if when unless and or with xpcall
-              get-idx set-idx! format print! pretty error! empty-struct gensym
-              traceback string->number number->string require unpack list cons
-              = /= < <= > >= + - * / % ^ .. ! exit) :export)
+(import base (defun defmacro progn for while if
+              and or with xpcall rawget rawset pretty 
+              gensym tostring tonumber require 
+              unpack list  cons car cdr when unless
+              = /= < <= > >= + - * / % ^ !  #) :export)
 
+(import base)
+(import string (#s format .. concat) :export)
+(import lua/os)
 (import binders () :export)
 (import list () :export)
-(import types () :export)
+(import type () :export)
 (import function () :export)
 (import table () :export)
-(import io () :export)
+(import lua/io (close flush input lines open output popen read stderr stdin stdout tmpfile write) :export)
 
-(defun fail (msg) (error! msg 0))
-
-(defun between? (val min max) (and (>= val min) (<= val max)))
-
-(defun symbol->string (x) (if (symbol? x) (get-idx x "contents") nil))
-(defun bool->string (x) (if x "true" "false"))
-
-(defmacro case (x &cases)
-  (let* ((name (gensym))
-         (transform-case (lambda (case)
-                           (if (list? case)
-                             (if (list? (car case))
-                               `((,@(car case) ,name) ,@(cdr case))
-                               `(,(car case) ,@(cdr case)))
-                             `(true)))))
-    `((lambda (,name) (cond ,@(map transform-case cases))) ,x)))
-
-(defun succ (x) (+ 1 x))
+(defun succ (x) (+ x 1))
 (defun pred (x) (- x 1))
 
 (defmacro inc! (x) `(set! ,x (+ ,x 1)))
 (defmacro dec! (x) `(set! ,x (- ,x 1)))
+
+(define string->number tonumber)
+(define number->string tostring)
+(define bool->string tostring)
+
+(defun symbol->string (x)
+  (if (symbol? x)
+    (rawget x "contents")
+    nil))
+(defun string->symbol (x)
+  (struct :tag "symbol" :contents x))
+
+(define error! base/error)
+(define print! base/print)
+
+(defun fail! (x)
+  (error! x 0))
+
+(defun apply (f xs)
+  (f (unpack xs)))
+
+(defun exit! (&args)
+  (apply lua/os/exit args))

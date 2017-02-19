@@ -1,8 +1,8 @@
 (import urn/analysis/usage usage)
 (import urn/analysis/visitor visitor)
 
-(define builtins (get-idx (require "tacky.analysis.resolve") :builtins))
-(define builtin-vars (get-idx (require "tacky.analysis.resolve") :declaredVars))
+(define builtins (rawget (require "tacky.analysis.resolve") :builtins))
+(define builtin-vars (rawget (require "tacky.analysis.resolve") :declaredVars))
 
 ;;; Checks if a node has a side effect
 (defun has-side-effect (node)
@@ -27,7 +27,7 @@
         ;; We replace the last node in the block with a nil: otherwise we might change
         ;; what is returned
         (if (= i (# nodes))
-          (set-nth! nodes i (struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil)))
+          (rawset nodes i (struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil)))
           (remove-nth! nodes i)))))
 
   ;; Strip pure expressions (apart from the last one: that will be returned).
@@ -48,7 +48,7 @@
           ;; (print! "Stripping node" (.> node :defVar :name))
           ;; (print! (pretty (.> (usage/get-var lookup (.> node :defVar)))))
           (if (= i (# nodes))
-            (set-nth! nodes i (struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil)))
+            (rawset nodes i (struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil)))
             (remove-nth! nodes i))))))
   nodes)
 

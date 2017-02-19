@@ -125,7 +125,7 @@
   (with (source (get-source node))
     (when source (put-lines! true source "")))
 
-  (fail "An error occured"))
+  (fail! "An error occured"))
 
 (struct
   :formatPosition format-position
