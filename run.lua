@@ -8,7 +8,7 @@ local pprint = require "tacky.pprint"
 local resolve = require "tacky.analysis.resolve"
 
 local paths = { "?", "lib/?" }
-local inputs, output, verbosity, run, prelude, time = {}, "out", 0, false, "lib/prelude", false
+local inputs, output, verbosity, run, prelude, time, removeOut = {}, "out", 0, false, "lib/prelude", false, false
 
 -- Tiny Lua stub
 if _VERSION:find("5.1") then
@@ -25,9 +25,11 @@ local interp, prog = arg[-1], arg[0]
 local i = 1
 while i <= args.n do
 	local arg = args[i]
-	if arg == "--output" or arg == "-o" then
+	if arg == "--output" or arg == "-o" or arg == "--out" then
 		i = i + 1
 		output = args[i] or error("Expected output after " .. arg, 0)
+	elseif arg == "--remove-out" or arg == "--rm-out" then
+		removeOut = true
 	elseif arg == "-v" then
 		verbosity = verbosity + 1
 		logger.setVerbosity(verbosity)
@@ -397,4 +399,9 @@ handle:close()
 
 if run then
 	dofile(output .. ".lua")
+end
+
+if removeOut then
+	os.remove(output .. ".lua")
+	os.remove(output .. ".lisp")
 end
