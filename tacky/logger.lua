@@ -24,25 +24,6 @@ local _temp = (function()
 			return tostring(x)
 		end
 	end
-	local function pretty (x)
-		if type(x) == 'table' and x.tag then
-			if x.tag == 'list' then
-				local y = {}
-				for i = 1, #x do
-					y[i] = pretty(x[i])
-				end
-				return '(' .. table.concat(y, ' ') .. ')'
-			elseif x.tag == 'symbol' or x.tag == 'key' or x.tag == 'string' or x.tag == 'number' then
-				return x.contents
-			else
-				return tostring(x)
-			end
-		elseif type(x) == 'string' then
-			return ("%q"):format(x)
-		else
-			return tostring(x)
-		end
-	end
 	return {
 		['='] = function(x, y) return x == y end,
 		['/='] = function(x, y) return x ~= y end,
@@ -131,7 +112,7 @@ local _temp = (function()
 	return io
 end)()
 for k, v in pairs(_temp) do _libs["lib/lua/io/".. k] = v end
-
+local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e_1, _3e3d_1, _2b_1, _2d_1, _25_1, slice1, error1, print1, rawget1, rawset1, tostring1, type_23_1, _23_1, concat1, emptyStruct1, car1, cdr1, list1, _21_1, find1, format1, len1, rep1, sub1, list_3f_1, nil_3f_1, key_3f_1, type1, car2, cdr2, nth1, pushCdr_21_1, cadr1, _2e2e_1, _23_s1, split1, struct1, succ1, pred1, number_2d3e_string1, error_21_1, print_21_1, fail_21_1, verbosity1, setVerbosity_21_1, showExplain1, setExplain_21_1, colored1, printError_21_1, printWarning_21_1, printVerbose_21_1, printDebug_21_1, formatPosition1, formatRange1, formatNode1, getSource1, putLines_21_1, putTrace_21_1, putExplain_21_1, errorPositions_21_1
 _3d_1 = _libs["lib/lua/basic/="]
 _2f3d_1 = _libs["lib/lua/basic//="]
 _3c_1 = _libs["lib/lua/basic/<"]

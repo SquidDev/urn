@@ -24,25 +24,6 @@ local _temp = (function()
 			return tostring(x)
 		end
 	end
-	local function pretty (x)
-		if type(x) == 'table' and x.tag then
-			if x.tag == 'list' then
-				local y = {}
-				for i = 1, #x do
-					y[i] = pretty(x[i])
-				end
-				return '(' .. table.concat(y, ' ') .. ')'
-			elseif x.tag == 'symbol' or x.tag == 'key' or x.tag == 'string' or x.tag == 'number' then
-				return x.contents
-			else
-				return tostring(x)
-			end
-		elseif type(x) == 'string' then
-			return ("%q"):format(x)
-		else
-			return tostring(x)
-		end
-	end
 	return {
 		['='] = function(x, y) return x == y end,
 		['/='] = function(x, y) return x ~= y end,
@@ -131,7 +112,7 @@ local _temp = (function()
 	return io
 end)()
 for k, v in pairs(_temp) do _libs["lib/lua/io/".. k] = v end
-
+local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e_1, _3e3d_1, _2b_1, _2d_1, _25_1, error1, rawget1, rawset1, require1, tostring1, type_23_1, _23_1, concat1, unpack1, emptyStruct1, car1, list1, _21_1, byte1, find1, format1, gsub1, len1, rep1, sub1, upper1, list_3f_1, nil_3f_1, string_3f_1, number_3f_1, symbol_3f_1, key_3f_1, type1, car2, nth1, pushCdr_21_1, charAt1, _2e2e_1, _23_s1, quoted1, struct1, succ1, pred1, number_2d3e_string1, error_21_1, fail_21_1, create1, append_21_1, line_21_1, indent_21_1, unindent_21_1, beginBlock_21_1, nextBlock_21_1, endBlock_21_1, _2d3e_string1, createLookup1, keywords1, createState1, builtins1, builtinVars1, escape1, escapeVar1, isStatement1, compileQuote1, compileExpression1, compileBlock1, prelude1, backend1, estimateLength1, expression1, block1, backend2, wrapGenerate1, wrapNormal1
 _3d_1 = _libs["lib/lua/basic/="]
 _2f3d_1 = _libs["lib/lua/basic//="]
 _3c_1 = _libs["lib/lua/basic/<"]
