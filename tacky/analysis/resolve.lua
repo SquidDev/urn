@@ -64,7 +64,7 @@ local function resolveMacroResult(macro, node, parent, scope, state)
 	end
 
 	if node.tag == "list" then
-		if #node ~= node.n then 
+		if #node ~= node.n then
 			print(pprint.tostring(node, pprint.nodeConfig))
 			print('Mismatch between # and n in ' .. macro.var.name .. '. #node: ' .. #node .. ' node.n: ' .. node.n)
 			os.exit(1)
@@ -141,7 +141,9 @@ function resolveNode(node, scope, state)
 		return node
 	elseif kind == "list" then
 		local first = node[1]
-		if first and first.tag == "symbol" then
+		if not first then
+			errorPositions(node, "Cannot invoke a non-function type 'nil'")
+		elseif first.tag == "symbol" then
 			if not first.var then
 				first.var = scope:get(first.contents, first)
 			end
@@ -309,8 +311,10 @@ function resolveNode(node, scope, state)
 			else
 				error("Unknown kind " .. tostring(func.tag) .. " for variable " .. func.name)
 			end
-		else
+		elseif first.tag == "list" then
 			return resolveList(node, 1, scope, state)
+		else
+			errorPositions(node[1], "Cannot invoke a non-function type '" .. first.tag .. "'")
 		end
 	else
 		error("Unknown type " .. tostring(kind))
