@@ -20,6 +20,6 @@ test_run:
   stage: test
   script:
     - echo -e "\033[36mBuilding initial compiler\033[0m"
-    - make
+    - make all
     - echo -e "\033[36mRunning tests\033[0m"
-    - make compiler_test
+    - make test
