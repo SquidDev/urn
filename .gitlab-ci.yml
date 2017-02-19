@@ -8,12 +8,12 @@ test_diff:
   stage: test
   script:
     - echo -e "\033[36mBuilding initial compiler\033[0m"
-    - make
+    - make all
     - echo -e "\033[36mBuilding compiler using new compiler\033[0m"
-    - make
+    - make all
     - echo -e "\033[36mComparing output of compiler\033[0m"
     - export TEMP_DIR=$(mktemp -d)
-    - make OUT_DIR="$TEMP_DIR"
+    - make OUT_DIR="$TEMP_DIR" all
     - "! (diff -rq \"$TEMP_DIR\" tacky | grep \"$TEMP_DIR\")"
 
 test_run:
