@@ -372,21 +372,34 @@ for i = 1, #libs do
 	end
 end
 
--- Predeclare all variables
--- TEMP HACK to prevent "too many local variable" errors.
---[[
-handle:write("local ")
-local first = true
-for var, _ in pairs(env) do
-	if first then
-		first = false
-	else
-		handle:write(", ")
-	end
-
-	handle:write(backend.lua.backend.escapeVar(var))
+-- Count the number of active variables
+local count = 0
+for i = 1, out.n do
+	local var = out[i].defVar
+	if var then count = count + 1 end
 end
-]]
+
+-- Predeclare all variables. We only do this if we're pretty sure we won't hit the
+-- "too many local variable" errors. The upper bound is actually 200, but lambda inlining
+-- will probably bring it up slightly.
+-- In the future we probably ought to handle this smartly when it is over 150 too.
+if count < 150 then
+	handle:write("local ")
+	local first = true
+	for i = 1, out.n do
+		local var = out[i].defVar
+		if var then
+			if first then
+				first = false
+			else
+				handle:write(", ")
+			end
+
+			handle:write(backend.lua.backend.escapeVar(var, state))
+		end
+	end
+end
+
 handle:write("\n")
 handle:write(compiledLua)
 handle:close()
