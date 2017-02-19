@@ -1,6 +1,6 @@
-(import base (clock))
+(import base (defmacro gensym let* slice))
 (import string (#s sub))
-(import list (prune))
+(import list (prune nth cddr))
 
 (defmacro do (&statements)
   (letrec [(name (gensym))
