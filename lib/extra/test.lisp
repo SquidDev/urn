@@ -49,5 +49,6 @@
         (print! (string/format "\027[1;31m- Failed tests:\027[0m (%d)" (# ,tests-failed)))
         (for-each ,'failed ,tests-failed
           (print! (string/format "\27[1;31m*\27[0m %s" (car ,'failed)))
-          (print! (string/format "  %s" (cadr ,'failed))))
+          (with (,'lines (string/split (cadr ,'failed) "\n"))
+            (for-each ,'line ,'lines (print! (string/format "  %s" ,'line)))))
         (exit! 1))))
