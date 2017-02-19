@@ -43,4 +43,20 @@
   (it "has a cancellative operation reverse"
       (assert (= (reverse (reverse '(1 2 3))) '(1 2 3))
               (= (reverse '(3 2 1)) '(1 2 3))))
+  (it "can be tested for one element matching a predicate"
+      (assert (= true (any (cut = <> 1) (range 1 3)))
+              (= false (any (cut = <> 6) (range 1 3)))))
+  (it "can be tested for all elements matching a predicate"
+      (assert (= true (all (cut = <> 1) '(1 1 1)))
+              (= false (all (cut = <> 1) (range 1 3)))))
+  (it "can be pruned to remove empty elements"
+      (assert (= '(1 2 3) (prune '(1 () 2 () 3)))))
+  (it "can be flattened"
+      (assert (= '(1 2 3 4) (flatten '((1 2) (3 4))))))
+  (it "can be indexed in constant time"
+      (assert (= (nth '(1 2 3) 1) 1)))
+  (it "exists"
+      (assert (= true (exists? '(1 2 3)))
+              (= true (exists? (range 1 3)))
+              (= true (exists? (cons 1 '())))))
 )
