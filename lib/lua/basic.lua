@@ -1,4 +1,23 @@
 local counter = 0
+local function pretty(x)
+	if type(x) == 'table' and x.tag then
+		if x.tag == 'list' then
+			local y = {}
+			for i = 1, #x do
+				y[i] = pretty(x[i])
+			end
+			return '(' .. table.concat(y, ' ') .. ')'
+		elseif x.tag == 'symbol' or x.tag == 'key' or x.tag == 'string' or x.tag == 'number' then
+			return x.contents
+		else
+			return tostring(x)
+		end
+	elseif type(x) == 'string' then
+		return ("%q"):format(x)
+	else
+		return tostring(x)
+	end
+end
 
 local function pretty (x)
 	if type(x) == 'table' and x.tag then

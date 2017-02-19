@@ -81,19 +81,18 @@ local out = {}
 
 for _, var in pairs(resolve.rootScope.variables) do variables[tostring(var)] = var end
 
-local function printRepl(x)
-	local function map(f, xs)
-		for i = 1, #xs do
-			xs[i] = f(xs[i])
-		end
-		return xs
-	end
-
-	if type(x) == 'table' then
-		if x.n then
-			return ("(%s)"):format(table.concat(map(printRepl, x), " "))
-		elseif x.contents then
+local function pretty(x)
+	if type(x) == 'table' and x.tag then
+		if x.tag == 'list' then
+			local y = {}
+			for i = 1, #x do
+				y[i] = pretty(x[i])
+			end
+			return '(' .. table.concat(y, ' ') .. ')'
+		elseif x.tag == 'symbol' or x.tag == 'key' or x.tag == 'string' or x.tag == 'number' then
 			return x.contents
+		else
+			return tostring(x)
 		end
 	elseif type(x) == 'string' then
 		return ("%q"):format(x)
@@ -304,7 +303,7 @@ if #inputs == 0 then
 					end
 
 					if coroutine.status(exec) == "dead" then
-						print("\27[96m" .. printRepl(state[#state]:get()) .. "\27[0m")
+						print("\27[96m" .. pretty(state[#state]:get()) .. "\27[0m")
 						break
 					else
 						local states = data.states
