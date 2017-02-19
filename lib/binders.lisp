@@ -1,4 +1,4 @@
-(import base (defmacro if ! when car cdr and pretty print))
+(import base (defmacro if ! when car cdr and pretty print debug))
 (import type (list? nil?))
 (import list (cars cadrs caar cadar map cadr))
 
@@ -27,6 +27,6 @@
 
 ;; Pre-declare variable and define it, allowing recursive functions to exist
 (defmacro letrec (vars &body)
-  `((lambda ,(map car vars)
-    ,@(map (lambda (var) `(set! ,(car vars) ,(cadr vars))) vars)
-    ,@body)))
+  `((lambda ,(cars vars)
+      ,@(map (lambda (var) `(set! ,(car var) ,(cadr var))) vars)
+      ,@body)))
