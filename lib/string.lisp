@@ -20,7 +20,7 @@
          (start 1)]
     (while loop
       (let* [(pos (list (find text pattern start)))]
-        (if (or (= "nil" (type# pos)) (and limit (>= (# out) limit)))
+        (if (or (= "nil" (type# pos)) (= (list/nth pos 1) nil) (and limit (>= (# out) limit)))
           (progn
             (set! loop false)
             (list/push-cdr! out (sub text start (#s text)))
