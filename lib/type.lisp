@@ -2,7 +2,7 @@
               and or >= = <= /= # rawget defmacro
               error gensym ! debug))
 
-(import lua/string (format))
+(import lua/string (format sub))
 
 (defun table? (x) (= (type# x) "table"))
 (defun list? (x) (= (type x) "list"))
@@ -38,6 +38,12 @@
      (= (rawget x "contents") y)]
     [(and (string? x) (symbol? y))
      (= (rawget y "contents") x)]
+    [(and (key? x) (key? y))
+     (= (rawget x "contents") (rawget y "contents"))]
+    [(and (key? x) (string? y))
+     (= (sub (rawget x "contents") 2) y)]
+    [(and (string? x) (key? y))
+     (= (sub (rawget y "contents") 2) x)]
     [(and (nil? x) (nil? y)) true]
     [(and (list? x) (list? y))
      (and (eq? (car x) (car y))

@@ -27,7 +27,10 @@
   `(with (,prefix (.. ,prefix " won't")) (it ,name ,@body)))
 
 (defmacro is (name &body)
-  `(with (,prefix (.. ,prefix " is")) (is ,name ,@body)))
+  `(with (,prefix (.. ,prefix " is")) (it ,name ,@body)))
+
+(defmacro can (name &body)
+  `(with (,prefix (.. ,prefix " can")) (it ,name ,@body)))
 
 (defmacro describe (name &body)
   `(let ((,tests-passed '())
