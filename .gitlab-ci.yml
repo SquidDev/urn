@@ -1,34 +1,25 @@
 image: ubuntu:16.04
 
-stages:
-  - install
-  - build
-  - test
+before_script:
+  - apt-get -qq update && apt-get -qq install -y lua5.3 make
+  - lua5.3 -v
 
-install:
-  stage: install
-  script:
-    - apt-get update -qq && apt-get install -y -qq lua5.3
-    - lua5.3 -v
-
-build:
-  stage: build
+test_diff:
+  stage: test
   script:
     - echo -e "\033[36mBuilding initial compiler\033[0m"
     - make
     - echo -e "\033[36mBuilding compiler using new compiler\033[0m"
     - make
-
-test_diff:
-  stage: test
-  script:
     - echo -e "\033[36mComparing output of compiler\033[0m"
-    - TEMP=$(mkdir - d)
-    - make OUT_DIR="$TEMP"
-    - !(diff -rq "$TEMP" tacky | grep "$TEMP")
+    - export TEMP_DIR=$(mktemp -d)
+    - make OUT_DIR="$TEMP_DIR"
+    - "! (diff -rq \"$TEMP_DIR\" tacky | grep \"$TEMP_DIR\")"
 
 test_run:
   stage: test
   script:
+    - echo -e "\033[36mBuilding initial compiler\033[0m"
+    - make
     - echo -e "\033[36mRunning tests\033[0m"
     - make test
