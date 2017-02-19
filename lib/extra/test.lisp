@@ -7,17 +7,25 @@
 (define tests-total (gensym))
 (define prefix (gensym))
 
-(defmacro it (name &body) `(progn
-  (inc! ,tests-total)
-  (xpcall
-    (lambda ()
-      ,@body
-      (push-cdr! ,tests-passed (.. ,prefix " " ,name)))
-    (lambda (,'msg)
-      (push-cdr! ,tests-failed (list (.. ,prefix " " ,name) (traceback ,'msg)))))))
+(defmacro it (name &body)
+  `(progn
+    (inc! ,tests-total)
+    (xpcall
+      (lambda ()
+        ,@body
+        (push-cdr! ,tests-passed (.. ,prefix " " ,name)))
+      (lambda (,'msg)
+        (push-cdr! ,tests-failed (list (.. ,prefix " " ,name) (traceback ,'msg)))))))
 
 (defmacro may (name &body)
-  `(with (,prefix (.. ,prefix " " ,name)) ,@body))
+  `(with (,prefix (.. ,prefix " may " ,name ", and"))
+     ,@body))
+
+(defmacro will (name &body)
+  `(with (,prefix (.. ,prefix " will")) (it ,name ,@body)))
+
+(defmacro will-not (name &body)
+  `(with (,prefix (.. ,prefix " won't")) (it ,name ,@body)))
 
 (defmacro describe (name &body)
   `(let ((,tests-passed '())
