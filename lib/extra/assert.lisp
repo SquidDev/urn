@@ -2,12 +2,11 @@
 (import list (elem? traverse))
 
 (defun format-value (value)
-  (pretty (if (and (table? value) (rawget value "contents"))
-            (rawget value "contents")
-            value)))
+  (if (and (table? value) (rawget value "contents"))
+    (rawget value "contents")
+    (pretty value)))
 
-
-(defmacro assert! (cnd msg) `(if (! ,cnd) (error! ,msg 0)))
+(defmacro assert! (cnd msg) `(unless ,cnd (error! ,msg 0)))
 
 (defmacro assert (&assertions)
   (let* [(handle-eq
@@ -42,13 +41,14 @@
                              (format-value x)
                              " to be a " ty))))]
     `(progn
-       ,@(traverse (cars assertions)
-       (lambda (x)
-         (cond
-            [(eq? '= x) (handle-eq (cdr x))]
-            [(eq? '/= x) (handle-neq (cdr x))]
-            [(type-assertion? x)
-             (let* [(str (symbol->string (car x)))
-                    (typ (sub str 1 (- (#s str) 1)))]
-               (handle-ty typ (cadr x)))]
-            [true (print! (pretty x))]))))))
+       ,@(traverse assertions
+           (lambda (assertion)
+             (with (x (car assertion))
+               (cond
+                 [(eq? '= x) (handle-eq (cdr assertion))]
+                 [(eq? '/= x) (handle-neq (cdr assertion))]
+                 [(type-assertion? (symbol->string x))
+                 (let* [(str (symbol->string x))
+                   (typ (sub str 1 (- (#s str) 1)))]
+                   (handle-ty typ (cadr assertion)))]
+                 [true (print! (pretty assertion))])))))))
