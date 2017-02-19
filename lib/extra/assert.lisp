@@ -29,7 +29,8 @@
                   " and "
                   (format-value (cadr tree))
                   " to be unequal"))))
-        (types '("list" "number" "string" "bool" "thread" "function" "table" "userdata"))
+        (types '("list" "number" "string" "bool" "thread" "function" "table" "userdata"
+                 "symbol" "key"))
         (type-assertion? (lambda (str) (and
                                          (= (sub str (#s str) (#s str)) "?")
                                          (elem? (sub str 1 (- (#s str) 1)) types)
