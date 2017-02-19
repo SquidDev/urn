@@ -12,9 +12,9 @@ test_diff:
     - echo -e "\033[36mBuilding compiler using new compiler\033[0m"
     - make
     - echo -e "\033[36mComparing output of compiler\033[0m"
-    - TEMP=$(mkdir - d)
-    - make OUT_DIR="$TEMP"
-    - "! (diff -rq \"$TEMP\" tacky | grep \"$TEMP\")"
+    - export TEMP_DIR=$(mktemp -d)
+    - make OUT_DIR="$TEMP_DIR"
+    - "! (diff -rq \"$TEMP_DIR\" tacky | grep \"$TEMP_DIR\")"
 
 test_run:
   stage: test
