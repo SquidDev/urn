@@ -297,8 +297,9 @@
                   ;; even if it will be discarded. A future enhancement would be to pass the
                   ;; return off to the quote emitter and it can decide there
                   (cond
-                    ((= ret "") (w/append! out "local _ ="))
-                    (ret (w/append! out ret)))
+                    [(= ret "") (w/append! out "local _ =")]
+                    [ret (w/append! out ret)]
+                    [true])
                   (compile-quote (nth node 2) out state 1))
                 ((= var (.> builtins :unquote)) (fail! "unquote outside of quasiquote"))
                 ((= var (.> builtins :unquote-splice)) (fail! "unquote-splice outside of quasiquote"))
