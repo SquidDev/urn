@@ -1,0 +1,8 @@
+(define-native config)
+(define-native cpath)
+(define-native loaded)
+(define-native loadlib)
+(define-native path)
+(define-native preload)
+(define-native searchers)
+(define-native searchpath)
