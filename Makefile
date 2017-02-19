@@ -13,11 +13,16 @@ ifeq (${TIME},1)
 LUA_FLAGS += --time
 endif
 
+.PHONY: ${TESTS}
+
 main: ${OBJS}
+test: main ${TESTS}
 
 ${OBJS}: ${OUT_DIR}/%: urn/%.lisp
 	@mkdir -p $(shell dirname $@)
 	${LUA} run.lua $^ -o $@ ${LUA_FLAGS}
 
-${TESTS}: tests/%.lisp
-	echo $@
+${TESTS}:
+	$(eval TMP := $(shell mktemp -d))
+	${LUA} run.lua $(basename $@) --run -o ${TMP}
+	@rm -rf ${TMP}.lisp ${TMP}.lua ${TMP} 
