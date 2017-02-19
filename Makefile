@@ -17,7 +17,7 @@ endif
 
 test: ${TESTS}
 all: ${OBJS}
-compiler_test: main test
+compiler_test: all test
 
 ${OBJS}: ${OUT_DIR}/%: urn/%.lisp
 	@mkdir -p $(shell dirname $@)
