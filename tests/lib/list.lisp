@@ -25,4 +25,22 @@
   (it "can be appended to another quoted list"
       (assert (= (append '(1 2) '(3 4)) '(1 2 3 4))
               (= (# (append '(1 2) '(3 4))) (# '(1 2 3 4)))))
+  (it "can be mapped over"
+      (assert (= (map (cut + <> 1) '(0 1 2)) '(1 2 3))
+              (= (map (const 1) '(1 2 3)) '(1 1 1))))
+  (it "remains the same when mapped over with id"
+      (assert (= (map id '(1 2 3)) '(1 2 3))
+              (= (traverse '(1 2 3) id) '(1 2 3))))
+  (it "has two equivalent operations: map and traverse"
+      (assert (= (map (cut + <> 1) '(1 2 3))
+                 (traverse '(1 2 3) (cut + <> 1)))))
+  (it "can be checked for the presence of an element"
+      (assert (= true (elem? 1 '(1 2 3)))
+              (= true (elem? 2 '(1 2 3)))
+              (= false (elem? 1 '(2 3 4)))))
+  (it "can be built using range"
+      (assert (= (range 1 3) '(1 2 3))))
+  (it "has a cancellative operation reverse"
+      (assert (= (reverse (reverse '(1 2 3))) '(1 2 3))
+              (= (reverse '(3 2 1)) '(1 2 3))))
 )
