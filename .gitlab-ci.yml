@@ -1,7 +1,7 @@
 image: ubuntu:16.04
 
 before_script:
-  - apt-get update -qq && apt-get install -y -qq lua5.3 make
+  - apt-get -qq updateq && apt-get -qq install -y lua5.3 make
   - lua5.3 -v
 
 test_diff:
