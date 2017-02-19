@@ -54,6 +54,13 @@ local function resolveMacroResult(macro, node, parent, scope, state)
 		node = { tag = "symbol", contents = node and declaredVars["true"] or declaredVars["false"] }
 	elseif ty == "function" then
 		error("Returned function from macro")
+	else
+		-- Shallow copy the node: we'll deep copy the important things later
+		-- We have to do this as entries may appear multiple times in this expansion
+		-- or other expansions.
+		local newNode = {}
+		for k, v in pairs(node) do newNode[k] = v end
+		node = newNode
 	end
 
 	node.parent = parent

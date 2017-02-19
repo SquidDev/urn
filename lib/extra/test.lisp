@@ -5,20 +5,25 @@
 (define tests-passed (gensym))
 (define tests-failed (gensym))
 (define tests-total (gensym))
+(define prefix (gensym))
 
 (defmacro it (name &body) `(progn
   (inc! ,tests-total)
   (xpcall
     (lambda ()
       ,@body
-      (push-cdr! ,tests-passed ,name))
+      (push-cdr! ,tests-passed (.. ,prefix " " ,name)))
     (lambda (,'msg)
-      (push-cdr! ,tests-failed (list ,name (traceback ,'msg)))))))
+      (push-cdr! ,tests-failed (list (.. ,prefix " " ,name) (traceback ,'msg)))))))
+
+(defmacro may (name &body)
+  `(with (,prefix (.. ,prefix " " ,name)) ,@body))
 
 (defmacro describe (name &body)
   `(let ((,tests-passed '())
          (,tests-failed '())
-         (,tests-total 0))
+         (,tests-total 0)
+         (,prefix ,name))
       ,@body
 
       (print! "Test results: ")
@@ -28,13 +33,13 @@
 
       (print! (string/format "\027[1;32m- Passed tests:\027[0m (%d)" (# ,tests-passed)))
       (for-each ,'passed ,tests-passed
-        (print! (string/format "\27[1;32m+\27[0m %s %s" ,name ,'passed)))
+        (print! (string/format "\27[1;32m+\27[0m %s" ,'passed)))
 
       (unless (nil? ,tests-failed)
         (print!)
 
         (print! (string/format "\027[1;31m- Failed tests:\027[0m (%d)" (# ,tests-failed)))
         (for-each ,'failed ,tests-failed
-          (print! (string/format "\27[1;31m*\27[0m %s %s" ,name (car ,'failed)))
+          (print! (string/format "\27[1;31m*\27[0m %s" (car ,'failed)))
           (print! (string/format "  %s" (cadr ,'failed))))
         (exit! 1))))
