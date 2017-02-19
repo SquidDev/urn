@@ -1,9 +1,10 @@
 (import base (defun getmetatable if # progn with
-              type# >= = + - car or and list when
+              type# >= = + - car or and list when rawset
               rawget getmetatable let* while))
 (import base (concat) :export)
 (import list)
 (import lua/string () :export)
+(import lua/table (empty-struct))
 
 
 (defun char-at (xs x)
@@ -33,8 +34,15 @@
               (set! loop false))))))
     out))
 
-(defun quoted (str)
-  ;; We have to store it in a temp variable to ensure
-  ;; we only return one value.
-  (with (result (gsub (format "%q" str) "\n" "\\n"))
-    result))
+
+(define quoted
+  (with (escapes (empty-struct))
+    ;; Define some mappings for escape characters
+    (rawset escapes "\t" "\\9")
+    (rawset escapes "\n" "n")
+
+    (lambda (str)
+      ;; We have to store it in a temp variable to ensure
+      ;; we only return one value.
+      (with (result (gsub (format "%q" str) "." escapes))
+        result))))
