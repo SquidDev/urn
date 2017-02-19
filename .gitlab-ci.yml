@@ -1,15 +1,8 @@
 image: ubuntu:16.04
 
-stages:
-  - install
-  - build
-  - test
-
-install:
-  stage: install
-  script:
-    - apt-get update -qq && apt-get install -y -qq lua5.3
-    - lua5.3 -v
+before_script:
+  - apt-get update -qq && apt-get install -y -qq lua5.3 make
+  - lua5.3 --version
 
 build:
   stage: build
