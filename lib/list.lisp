@@ -1,7 +1,7 @@
 (import base (defun defmacro when let* rawset
               rawget car cdr and cons for gensym
-              pretty print error tostring
-              if # + - >= with))
+              pretty print error tostring or
+              if # + - >= = ! with))
 
 (import lua/table)
 (import type (list? nil?))
@@ -30,24 +30,21 @@
               (filter p tail)))]))
 
 (defun any (p xs)
-  (cond
-    [(nil? xs) xs]
-    [true (let* [(head (car xs))
-                 (tail (cdr xs))]
-            (if (p head)
-              true
-              (any p tail)))]))
+  (foldr (lambda (x y) (or x y)) false (map p xs)))
+
+(defun all (p xs)
+  (foldr (lambda (x y) (and x y)) true (map p xs)))
+
+(defun elem? (x xs)
+  (any (lambda (y) (= x y)) xs))
+
+(defun prune (xs)
+  (filter (lambda (x) (! (nil? x))) xs))
 
 (defun traverse (xs f) (map f xs))
 (defun last (xs) (rawget xs (# xs)))
 
-(defun nth (xs n)
-  (cond
-    [(and (nil? xs)
-          (>= (# xs) n)
-          (>= n 0))
-     (rawget xs n)]
-    [true nil]))
+(define nth rawget)
 
 (defun push-cdr! (xs val)
   (let* [(len (+ (# xs) 1))]
