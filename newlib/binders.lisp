@@ -1,4 +1,5 @@
-(import base (defmacro if ! when))
+(import base (defmacro if ! when car cdr and))
+(import type (list? nil?))
 (import list ())
 
 ;; Bind multiple variables in succession
@@ -8,8 +9,7 @@
     `((lambda () ,@body))))
 
 ;; Binds a variable to an expression
-(defmacro let (vars &body)
-  `((lambda ,(cars vars) ,@body) ,@(cadrs vars)))
+(define let let*)
 
 (defmacro when-let (vars &body)
   `((lambda ,(cars vars)

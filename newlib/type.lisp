@@ -1,5 +1,5 @@
 (import base (defun let* type# if car cdr when
-              and or >= = <= #))
+              and or >= = <= # rawget))
 
 (defun table? (x) (= (type# x) "table"))
 (defun list? (x) (= (type x) "list"))
@@ -23,7 +23,7 @@
 (defun eq? (x y)
   (cond
     [(and (symbol? x) (symbol? y))
-     (= (rawget x "contents") (get-idx y "contents"))]
+     (= (rawget x "contents") (rawget y "contents"))]
     [(and (symbol? x) (string? y))
      (= (rawget x "contents") y)]
     [(and (string? x) (symbol? y))

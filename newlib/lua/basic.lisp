@@ -17,6 +17,7 @@
 (define-native _ENV)
 (define-native gensym)
 (define-native slice)
+(define-native pretty)
 
 (define-native assert)
 (define-native collectgarbage)

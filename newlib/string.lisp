@@ -1,8 +1,8 @@
 (import base (defun getmetatable
               type# >= = + - car
               rawget getmetatable let* while))
-(import lua/string ())
-(import lua/table (concat))
+(import lua/string () :export)
+(import lua/table (concat) :export)
 
 (import list)
 

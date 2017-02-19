@@ -1,11 +1,9 @@
 (import base (defmacro defun let* when if getmetatable setmetatable
-              rawget rawset error empty-struct
-              = % - + #))
+              rawget rawset error = % - + # or for))
 
-(import lua/table ())
-(import types)
+(import lua/string (sub))
+(import type)
 (import list ())
-(import string)
 
 (defun assoc (list key or-val)
   (cond
@@ -50,13 +48,13 @@
 
 (defun struct (&keys)
   (if (= (% (# keys) 1) 1)
-    (error! "Expected an even number of arguments to struct" 2)
+    (error "Expected an even number of arguments to struct" 2)
     '())
   (let* [(contents (lambda (key)
-                     (string/sub (get-idx key "contents") 2)))
+                     (sub (get-idx key "contents") 2)))
          (out (empty-struct))]
     (for i 1 (# keys) 2
       (let ((key (get-idx keys i))
             (val (get-idx keys (+ 1 i))))
-        (rawget out (if (types/key? key) (contents key) key) val)))
+        (rawset out (if (types/key? key) (contents key) key) val)))
     out))

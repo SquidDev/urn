@@ -1,4 +1,7 @@
-(import base (defun when let* rawset rawget car cdr and))
+(import base (defun defmacro when let* rawset
+              rawget car cdr and cons for gensym
+              if # + - with))
+
 (import type (list? nil?))
 
 (defun foldr (f z xs)
@@ -46,6 +49,12 @@
   (rawset xs (# xs) nil)
   (rawset xs "n" (- (# xs) 1))
   xs)
+
+(defmacro for-each (var lst &body)
+  (let* [(ctr' (gensym))
+         (lst' (gensym))]
+    `(with (,lst' ,lst)
+       (for ,ctr' 1 (# ,lst') 1 (with (,var (rawget ,lst' ,ctr')) ,@body)))))
 
 ;; AUTOMATICALLY GENERATED
 ;; DO NOT EDIT please.

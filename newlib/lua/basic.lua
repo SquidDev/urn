@@ -20,6 +20,7 @@ return {
 		if not finish then finish = xs.n end
 		return { tag = "list", n = finish - start + 1, table.unpack(xs, start, finish) }
 	end,
+	['pretty'] = function (x) return pprint.tostring(x, pprint.nodeConfig) end,
 	['gensym'] = function(name)
 		if name then
 			name = "_" .. tostring(name)
@@ -40,5 +41,5 @@ return {
 	rawlen = rawlen, rawset = rawset,
 	require = require, select = select,
 	setmetatable = setmetatable, tonumber = tonumber,
-	tostring = tostring, ["type"] = type,
+	tostring = tostring, ["type#"] = type,
 	xpcall = xpcall }

@@ -1,18 +1,18 @@
 (import base (defun defmacro progn for while if
-              and or with xpcall rawget 
-              format pretty empty-struct
+              and or with xpcall rawget pretty 
               gensym tostring tonumber require
               unpack list  cons car cdr
-              = /= < <= > >= + - * / % ^ .. !
-              # exit))
+              = /= < <= > >= + - * / % ^ .. !  #) :export)
 
 (import base)
-(import binders ())
-(import list ())
-(import types ())
-(import function ())
-(import table ())
-(import lua/io ())
+(import lua/os)
+(import binders () :export)
+(import list () :export)
+(import type () :export)
+(import function () :export)
+(import table () :export)
+(import lua/io (close flush input lines open output popen read stderr stdin stdout tmpfile write) :export)
+(import string (#s format) :export)
 
 (defun succ (x) (+ x 1))
 (defun pred (x) (- x 1))
@@ -33,5 +33,12 @@
 
 (define error! base/error)
 (define print! base/print)
-(defun fail (x)
+
+(defun fail! (x)
   (error! x 0))
+
+(defun apply (f xs)
+  (f (unpack xs)))
+
+(defun exit! (&args)
+  (apply lua/os/exit args))

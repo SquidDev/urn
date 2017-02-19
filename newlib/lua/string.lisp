@@ -1,5 +1,4 @@
 (define-native byte)
-(define-native sub)
 (define-native char)
 (define-native dump)
 (define-native find)

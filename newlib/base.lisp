@@ -1,5 +1,5 @@
-(import lua/basic ())
-(import lua/table (unpack))
+(import lua/basic () :export)
+(import lua/table (unpack) :export)
 
 (define-macro defun (lambda (name args &body)
   `(define ,name (lambda ,args ,@body))))
@@ -19,10 +19,12 @@
 (defmacro when (c &body) `(cond (,c ,@body) (true)))
 (defmacro unless (c &body) `(cond (,c) (true ,@body)))
 
+(defun debug (x) (print (pretty x)) x)
+
 (defmacro let* (vars &body)
   (if (/= (# vars) 0)
     `((lambda (,(car (car vars)))
-       (let* ,(cdr vars) ,@body)) ,(cdr (car vars)))
+        (let* ,(cdr vars) ,@body)) ,(car (car vars)))
     `((lambda () ,@body))))
 
 (defun ! (expr) (if expr false true))
@@ -35,13 +37,12 @@
     `(let* [(,end' ,end)
             (,step' ,step)
             (,impl nil)]
-       (set! ,impl
-         (lambda (,ctr)
-           (cond
-             [(if (< 0 ,step) (<= ,ctr' ,end') (>= ,ctr' ,end'))
-              (let* ((,ctr ,ctr')) ,@body)
-              (,impl (+ ,ctr' ,step'))]
-             [true])))
+       (set! ,impl (lambda (,ctr')
+                     (cond
+                       ((if (< 0 ,step) (<= ,ctr' ,end') (>= ,ctr' ,end'))
+                         (let* ((,ctr ,ctr')) ,@body)
+                         (,impl (+ ,ctr' ,step')))
+                       (true))))
        (,impl ,start))))
 
 (defmacro while (check &body)
