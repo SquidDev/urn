@@ -1,6 +1,6 @@
 (import string)
 (import lua/debug (traceback))
-(import extra/assert (assert!))
+(import extra/assert (assert!) :export)
 
 (define tests-passed (gensym))
 (define tests-failed (gensym))
@@ -36,4 +36,4 @@
         (print! (string/format "\027[1;31m- Failed tests:\027[0m (%d)" (# ,tests-failed)))
         (for-each ,'failed ,tests-failed
           (print! (string/format "\27[1;31m*\27[0m %s" (car ,'failed)))
-          (print! (string/format "\27[1;90m  %s\27[0m" (cadr ,'failed)))))))
+          (print! (string/format "  %" (cadr ,'failed)))))))
