@@ -18,14 +18,16 @@
         (push-cdr! ,tests-failed (list (.. ,prefix " " ,name) (traceback ,'msg)))))))
 
 (defmacro may (name &body)
-  `(with (,prefix (.. ,prefix " may " ,name ", and"))
-     ,@body))
+  `(with (,prefix (.. ,prefix " may " ,name ", and")) ,@body))
 
 (defmacro will (name &body)
   `(with (,prefix (.. ,prefix " will")) (it ,name ,@body)))
 
 (defmacro will-not (name &body)
   `(with (,prefix (.. ,prefix " won't")) (it ,name ,@body)))
+
+(defmacro is (name &body)
+  `(with (,prefix (.. ,prefix " is")) (is ,name ,@body)))
 
 (defmacro describe (name &body)
   `(let ((,tests-passed '())
