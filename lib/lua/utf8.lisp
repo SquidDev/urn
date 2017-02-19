@@ -1,0 +1,6 @@
+(define-native char)
+(define-native charpattern)
+(define-native codepoint)
+(define-native codes)
+(define-native len)
+(define-native offset)
