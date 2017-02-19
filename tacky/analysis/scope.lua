@@ -83,7 +83,7 @@ function Scope:import(name, var, node, export)
 
 	if node then logger.printDebug("Importing " .. name .. " into " .. logger.getSource(node).name) end
 
-	if self.variables[name] then
+	if self.variables[name] and self.variables[name] ~= var then
 		local current = var.node
 		local previous = self.variables[name].node
 
