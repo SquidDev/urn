@@ -1,12 +1,22 @@
 (import base (defun defmacro when let* rawset
-              rawget car cdr and cons for gensym
+              rawget and cons for gensym
               pretty print error tostring or
               if # + - >= = ! with))
-
+(import base)
 (import lua/table)
-(import type (list? nil?))
+(import type (list? nil? assert-type!))
+
+(defun car (x)
+  (assert-type! x list)
+  (base/car x))
+
+(defun cdr (x)
+  (assert-type! x list)
+  (base/cdr x))
 
 (defun foldr (f z xs)
+  (assert-type! f function)
+  (assert-type! xs list)
   (cond
     [(nil? xs) z]
     [true (let* [(head (car xs))
@@ -14,6 +24,8 @@
             (f head (foldr f z tail)))]))
 
 (defun map (f xs)
+  (assert-type! f function)
+  (assert-type! xs list)
   (cond
     [(nil? xs) xs]
     [true (let* [(head (car xs))
@@ -21,6 +33,8 @@
             (cons (f head) (map f tail)))]))
 
 (defun filter (p xs)
+  (assert-type! p function)
+  (assert-type! xs list)
   (cond
     [(nil? xs) xs]
     [true (let* [(head (car xs))
@@ -30,38 +44,50 @@
               (filter p tail)))]))
 
 (defun any (p xs)
+  (assert-type! p function)
+  (assert-type! xs list)
   (foldr (lambda (x y) (or x y)) false (map p xs)))
 
 (defun all (p xs)
+  (assert-type! p function)
+  (assert-type! xs list)
   (foldr (lambda (x y) (and x y)) true (map p xs)))
 
 (defun elem? (x xs)
+  (assert-type! xs list)
   (any (lambda (y) (= x y)) xs))
 
 (defun prune (xs)
+  (assert-type! xs list)
   (filter (lambda (x) (! (nil? x))) xs))
 
 (defun traverse (xs f) (map f xs))
-(defun last (xs) (rawget xs (# xs)))
+(defun last (xs)
+  (assert-type! xs list)
+  (rawget xs (# xs)))
 
 (define nth rawget)
 
 (defun push-cdr! (xs val)
+  (assert-type! xs list)
   (let* [(len (+ (# xs) 1))]
     (rawset xs "n" len)
     (rawset xs len val)
     xs))
 
 (defun pop-last! (xs)
+  (assert-type! xs list)
   (rawset xs (# xs) nil)
   (rawset xs "n" (- (# xs) 1))
   xs)
 
 (defun remove-nth! (li idx)
+  (assert-type! li list)
   (rawset li "n" (- (rawget li "n") 1))
   (lua/table/remove li idx))
 
 (defmacro for-each (var lst &body)
+  (assert-type! var symbol)
   (let* [(ctr' (gensym))
          (lst' (gensym))]
     `(with (,lst' ,lst)

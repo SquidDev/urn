@@ -1,6 +1,6 @@
 (import base (defun let* type# if car cdr when
               and or >= = <= /= # rawget defmacro
-              error gensym))
+              error gensym !))
 
 (import lua/string (format))
 
@@ -12,6 +12,13 @@
 (defun symbol? (x) (= (type x) "symbol"))
 (defun boolean? (x) (= (type x) "boolean"))
 (defun function? (x) (= (type x) "function"))
+(defun atom? (x)
+  (or (boolean? x)
+      (string? x)
+      (number? x)
+      (symbol? x)
+      (key? x)))
+(defun exists? (x) (! (= (type x) "nil")))
 (defun key? (x) (= (type x) "key"))
 (defun between? (val min max)
   (and (>= val min) (<= val max)))
@@ -37,7 +44,8 @@
     [true (= x y)]))
 
 (defmacro assert-type! (arg ty)
-  (let* [(sym (gensym))]
+  (let* [(sym (gensym))
+         (ty (rawget ty "contents"))]
     `(let* [(,sym (type ,arg))]
       (when (/= ,sym ,ty)
         (error (format "bad argment %s (expected %s, got %s)" ,(rawget arg "contents") ,ty ,sym) 2)))))

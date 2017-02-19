@@ -1,4 +1,4 @@
-(import base (defmacro defun let* when if car cdr cons list
+(import base (defmacro defun let* when if cons list
               rawget rawset error = % - + # or for with ! unpack))
 (import lua/string (sub))
 (import lua/table (empty-struct iter-pairs) :export)

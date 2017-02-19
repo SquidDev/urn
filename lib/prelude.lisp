@@ -1,7 +1,7 @@
 (import base (defun defmacro progn for while if
               and or with xpcall rawget rawset pretty 
               gensym tostring tonumber require
-              unpack list  cons car cdr when unless
+              unpack list cons when unless
               = /= < <= > >= + - * / % ^ ! # debug) :export)
 
 (import base)
