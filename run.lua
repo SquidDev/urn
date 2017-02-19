@@ -7,7 +7,7 @@ local parser = require "tacky.parser"
 local pprint = require "tacky.pprint"
 local resolve = require "tacky.analysis.resolve"
 
-local paths = { "?", "newlib/?" }
+local paths = { "?", "lib/?" }
 local inputs, output, verbosity, run, prelude, time = {}, "out", 0, false, "lib/prelude", false
 
 -- Tiny Lua stub
