@@ -34,4 +34,5 @@
     out))
 
 (defun quoted (str)
-  (gsub (format "%q" str) "\n" "\\n"))
+  (let* [(x (gsub (format "%q" str) "\n" "\\n"))]
+    x))
