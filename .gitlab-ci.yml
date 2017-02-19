@@ -22,4 +22,4 @@ test_run:
     - echo -e "\033[36mBuilding initial compiler\033[0m"
     - make
     - echo -e "\033[36mRunning tests\033[0m"
-    - make test
+    - make compiler_test

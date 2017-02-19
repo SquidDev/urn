@@ -13,10 +13,11 @@ ifeq (${TIME},1)
 LUA_FLAGS += --time
 endif
 
-.PHONY: ${TESTS}
+.PHONY: ${TESTS} all test compiler_test
 
-main: ${OBJS}
-test: main ${TESTS}
+test: ${TESTS}
+all: ${OBJS}
+compiler_test: main test
 
 ${OBJS}: ${OUT_DIR}/%: urn/%.lisp
 	@mkdir -p $(shell dirname $@)
