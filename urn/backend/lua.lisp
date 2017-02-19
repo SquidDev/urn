@@ -286,7 +286,7 @@
                 ((= var (.> builtins :define-macro))
                   (compile-expression (nth node 3) out state (.. (escape-var (.> node :defVar) state) " = ")))
                 ((= var (.> builtins :define-native))
-                  (w/append! out (string/format "%s = _libs[%q]" (escape-var (.> node :defVar) state) (.> node 2 :contents))))
+                  (w/append! out (string/format "%s = _libs[%q]" (escape-var (.> node :defVar) state) (.> node :defVar :fullName))))
                 ((= var (.> builtins :quote))
                   ;; Quotations are "pure" so we don't have to emit anything
                   (unless (= ret "")
@@ -315,7 +315,7 @@
                 (true
                   ;; As we're invoking a known symbol here, we can do some fancy stuff. In this case, we just
                   ;; "inline" anything defined in library meta data (such as arithmetic operators).
-                  (with (meta (and (symbol? head) (= (.> head :var :tag) "native") (.> state :meta (.> head :var :name))))
+                  (with (meta (and (symbol? head) (= (.> head :var :tag) "native") (.> state :meta (.> head :var :fullName))))
                     ;; Obviously metadata only exists for native expressions. We can only emit it if
                     ;; we're in the right context (statements cannot be emitted when we require an expression) and
                     ;; we've passed in the correct number of arguments.

@@ -886,7 +886,7 @@ compileExpression1 = (function(node3, out5, state3, ret1)
 			elseif (var2 == builtins1["define-macro"]) then
 				return compileExpression1(nth1(node3, 3), out5, state3, (escapeVar1(node3["defVar"], state3) .. " = "))
 			elseif (var2 == builtins1["define-native"]) then
-				return append_21_1(out5, format2("%s = _libs[%q]", escapeVar1(node3["defVar"], state3), node3[2]["contents"]))
+				return append_21_1(out5, format2("%s = _libs[%q]", escapeVar1(node3["defVar"], state3), node3["defVar"]["fullName"]))
 			elseif (var2 == builtins1["quote"]) then
 				if (ret1 == "") then
 				else
@@ -923,7 +923,7 @@ compileExpression1 = (function(node3, out5, state3, ret1)
 				if r_1801 then
 					local r_1811 = (head1["var"]["tag"] == "native")
 					if r_1811 then
-						meta2 = state3["meta"][head1["var"]["name"]]
+						meta2 = state3["meta"][head1["var"]["fullName"]]
 					else
 						meta2 = r_1811
 					end

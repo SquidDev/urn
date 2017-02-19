@@ -1,4 +1,4 @@
-(import base (defun getmetatable if # progn
+(import base (defun getmetatable if # progn with
               type# >= = + - car or and list when
               rawget getmetatable let* while))
 (import base (concat) :export)
@@ -9,7 +9,7 @@
 (defun char-at (xs x)
   (sub xs x x))
 
-(defun .. (&args) 
+(defun .. (&args)
   (concat args))
 
 (define #s len)
@@ -34,5 +34,7 @@
     out))
 
 (defun quoted (str)
-  (let* [(x (gsub (format "%q" str) "\n" "\\n"))]
-    x))
+  ;; We have to store it in a temp variable to ensure
+  ;; we only return one value.
+  (with (result (gsub (format "%q" str) "\n" "\\n"))
+    result))

@@ -13,6 +13,9 @@ function Scope.child(parent)
 
 		-- Lookup of exported variables
 		exported = {},
+
+		-- Prefix for all variables
+		prefix = parent and parent.prefix or "",
 	}, Scope)
 
 	return child
@@ -65,6 +68,7 @@ function Scope:add(name, kind, node)
 	local var = {
 		tag = kind,
 		name = name,
+		fullName = self.prefix .. name,
 		scope = self,
 		const = kind ~= "arg",
 		node = node,
