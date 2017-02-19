@@ -14,7 +14,7 @@
             (when (> i 1) (inc! sum))
             (inc! i))
           sum))
-      (true (fail (.. "Unknown tag " tag))))))
+      (true (fail! (.. "Unknown tag " tag))))))
 
 (defun expression (node writer)
   (with (tag (.> node :tag))
@@ -47,7 +47,7 @@
 
               (when newline (writer/unindent! writer))
               (writer/append! writer ")"))))
-        (true (fail (.. "Unknown tag " tag))))))
+        (true (fail! (.. "Unknown tag " tag))))))
 
 (defun block (list writer)
   (for-each node list

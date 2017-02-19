@@ -7,7 +7,7 @@
 
 ;; Append a string to the writer
 (defun append! (writer text)
-  (assert-type! text "string")
+  (assert-type! text string)
 
   ;; Write the indent when required
   (when (.> writer :tabs-pending)

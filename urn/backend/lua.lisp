@@ -15,8 +15,8 @@
                              :var-lookup (empty-struct)
                              :meta (or meta (empty-struct))))
 
-(define builtins (get-idx (require "tacky.analysis.resolve") :builtins))
-(define builtin-vars (get-idx (require "tacky.analysis.resolve") :declaredVars))
+(define builtins (rawget (require "tacky.analysis.resolve") :builtins))
+(define builtin-vars (rawget (require "tacky.analysis.resolve") :declaredVars))
 
 ;; Escape an urn identifier, converting it into a form that is valid Lua.
 (defun escape (name)
@@ -286,7 +286,7 @@
                 ((= var (.> builtins :define-macro))
                   (compile-expression (nth node 3) out state (.. (escape-var (.> node :defVar) state) " = ")))
                 ((= var (.> builtins :define-native))
-                  (w/append! out (string/format "%s = _libs[%q]" (escape-var (.> node :defVar) state) (.> node 2 :contents))))
+                  (w/append! out (string/format "%s = _libs[%q]" (escape-var (.> node :defVar) state) (.> node :defVar :fullName))))
                 ((= var (.> builtins :quote))
                   ;; Quotations are "pure" so we don't have to emit anything
                   (unless (= ret "")
@@ -297,11 +297,12 @@
                   ;; even if it will be discarded. A future enhancement would be to pass the
                   ;; return off to the quote emitter and it can decide there
                   (cond
-                    ((= ret "") (w/append! out "local _ ="))
-                    (ret (w/append! out ret)))
+                    [(= ret "") (w/append! out "local _ =")]
+                    [ret (w/append! out ret)]
+                    [true])
                   (compile-quote (nth node 2) out state 1))
-                ((= var (.> builtins :unquote)) (fail "unquote outside of quasiquote"))
-                ((= var (.> builtins :unquote-splice)) (fail "unquote-splice outside of quasiquote"))
+                ((= var (.> builtins :unquote)) (fail! "unquote outside of quasiquote"))
+                ((= var (.> builtins :unquote-splice)) (fail! "unquote-splice outside of quasiquote"))
                 ((= var (.> builtins :import))
                   ;; Imports don't do anything at all (and should have be stripped by the optimiser)
                   ;; so we handle the return expression if required.
@@ -314,7 +315,7 @@
                 (true
                   ;; As we're invoking a known symbol here, we can do some fancy stuff. In this case, we just
                   ;; "inline" anything defined in library meta data (such as arithmetic operators).
-                  (with (meta (and (symbol? head) (= (.> head :var :tag) "native") (.> state :meta (.> head :var :name))))
+                  (with (meta (and (symbol? head) (= (.> head :var :tag) "native") (.> state :meta (.> head :var :fullName))))
                     ;; Obviously metadata only exists for native expressions. We can only emit it if
                     ;; we're in the right context (statements cannot be emitted when we require an expression) and
                     ;; we've passed in the correct number of arguments.
@@ -404,11 +405,12 @@
       (unless (= ret "")
         (when ret (w/append! out ret))
         (cond
-          ((symbol? node) (w/append! out (escape-var (.> node :var) state)))
-          ((string? node) (w/append! out (.> node :contents)))
-          ((number? node) (w/append! out (number->string (.> node :contents))))
-          ((key? node) (w/append! out (string/quoted (string/sub (.> node :contents) 2)))) ;; TODO: Should this be a table instead? If so, can we make this more efficient?
-          (true (error! (.. "Unknown type: " (type node)))))))))
+          [(symbol? node) (w/append! out (escape-var (.> node :var) state))]
+          [(string? node) (w/append! out (.> node :contents))]
+          [(number? node) (w/append! out (number->string (.> node :contents)))]
+          [(key? node) (w/append! out (string/quoted (string/sub (.> node :contents) 2)))] ;; TODO: Should this be a table instead? If so, can we make this more efficient?
+          [true (error! (.. "Unknown type: " (type node)))]
+          )))))
 
 ;; Compile a block of expressions
 (defun compile-block (nodes out state start ret)

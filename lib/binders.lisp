@@ -1,7 +1,6 @@
-;; Rewritten, type-safe binders.
-
-(import base (defmacro if when and !))
-(import list ())
+(import base (defmacro if ! when car cdr and pretty print debug))
+(import type (list? nil?))
+(import list (cars cadrs caar cadar map cadr))
 
 ;; Bind multiple variables in succession
 (defmacro let* (vars &body)
@@ -28,10 +27,6 @@
 
 ;; Pre-declare variable and define it, allowing recursive functions to exist
 (defmacro letrec (vars &body)
-  `((lambda ,(map car vars)
-    ,@(map (lambda (var) `(set! ,(car var) ,(cadr var))) vars)
-    ,@body)))
-
-;; Declare a variable and evaluate the body if it is truthy.
-(defmacro when-with (var &body)
-  `((lambda (,(car var)) (when ,(car var) ,@body)) ,(nth var 2)))
+  `((lambda ,(cars vars)
+      ,@(map (lambda (var) `(set! ,(car var) ,(cadr var))) vars)
+      ,@body)))

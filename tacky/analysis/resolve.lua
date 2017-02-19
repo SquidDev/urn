@@ -1,5 +1,6 @@
 local Scope = require "tacky.analysis.scope"
 local errorPositions = require "tacky.logger".errorPositions
+local pprint = require 'tacky.pprint'
 
 local function expectType(node, parent, type, name)
 	if not node or node.tag ~= type then
@@ -63,7 +64,11 @@ local function resolveMacroResult(macro, node, parent, scope, state)
 	end
 
 	if node.tag == "list" then
-		if #node ~= node.n then print(macro.var.name, #node, node.n) os.exit(1) end
+		if #node ~= node.n then 
+			print(pprint.tostring(node, pprint.nodeConfig))
+			print('Mismatch between # and n in ' .. macro.var.name .. '. #node: ' .. #node .. ' node.n: ' .. node.n)
+			os.exit(1)
+		end
 		for i = 1, node.n do
 			node[i] = resolveMacroResult(macro, node[i], node, scope, state)
 		end

@@ -69,7 +69,7 @@
                       (logger/put-lines! false
                         start  "string started here"
                         finish "end of file here")
-                      (fail "Lexing failed")))
+                      (fail! "Lexing failed")))
                   ((= char "\\") (consume!))
                   (true))
                 (consume!)
@@ -177,7 +177,7 @@
                 (logger/put-lines! false
                   (.> head :range) "quote opened here"
                   (.> tok :range)  "attempting to close here")
-                (fail "Parsing failed"))
+                (fail! "Parsing failed"))
               ((/= (.> head :close) (.> tok :contents))
                 ;; Mismatched brackets
                 (logger/print-error! (string/format "Expected '%s', got '%s'" (.> head :close) (.> tok :contents)))
@@ -186,7 +186,7 @@
                 (logger/put-lines! false
                   (.> head :range) (string/format "block opened with '%s'" (.> head :open))
                   (.> tok :range) (string/format "'%s' used here" (.> tok :contents)))
-                (fail "Parsing failed"))
+                (fail! "Parsing failed"))
               (true
                 ;; All OK!
                 (.<! head :range :finish (.> tok :range :finish))
@@ -212,13 +212,13 @@
               (logger/put-lines! false
                 (.> head :range) "block opened here"
                 (.> tok :range)  "end of file here")
-              (fail "Parsing failed")))
+              (fail! "Parsing failed")))
           (true (error! (string/.. "Unsupported type" tag))))
         (unless auto-close
           (while (.> head :auto-close)
             (when (nil? stack)
               (logger/error-positions! tok (string/format "'%s' without matching '%s'" (.> tok :contents) (.> tok :open)))
-              (fail "Parsing failed"))
+              (fail! "Parsing failed"))
             (.<! head :range :finish (.> tok :range :finish))
             (pop!)))))
     head))

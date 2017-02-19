@@ -164,8 +164,7 @@ local function libLoader(name, shouldResolve)
 		if not fun then error(msg, 0) end
 
 		for k, v in pairs(fun()) do
-			-- TODO: Make name specific for each library
-			libEnv[k] = v
+			libEnv[lib.path .. "/" .. k] = v
 		end
 
 		-- Parse the meta info
@@ -200,7 +199,7 @@ local function libLoader(name, shouldResolve)
 					v.contents = buffer
 				end
 
-				libMeta[k] = v
+				libMeta[lib.path .. "/" .. k] = v
 			end
 		end
 	end
@@ -212,6 +211,7 @@ local function libLoader(name, shouldResolve)
 
 	local scope = rootScope:child()
 	scope.isRoot = true
+	scope.prefix = lib.path .. "/"
 
 	local compiled, state = compile.compile(parsed, global, variables, states, scope, compileState, libLoader)
 
@@ -353,6 +353,7 @@ handle:write(backend.lua.prelude())
 
 handle:write("local _libs = {}\n")
 for i = 1, #libs do
+	local prefix = ("%q"):format(libs[i].path .. "/")
 	local native = libs[i].native
 	if native then
 		handle:write("local _temp = (function()\n")
@@ -366,7 +367,7 @@ for i = 1, #libs do
 				handle:write("\n")
 			end
 		end
-		handle:write("end)()\nfor k, v in pairs(_temp) do _libs[k] = v end\n")
+		handle:write("end)()\nfor k, v in pairs(_temp) do _libs[" .. prefix .. ".. k] = v end\n")
 	end
 end
 

@@ -45,16 +45,16 @@
                   ((= func (.> builtins :quasiquote))
                     (visit-quote (nth node 2) visitor 1))
                   ((or (= func (.> builtins :unquote)) (= func (.> builtins :unquote-splice)))
-                    (fail "unquote/unquote-splice should never appear head"))
+                    (fail! "unquote/unquote-splice should never appear head"))
                   ((or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
                     (visit-block node 3 visitor))
                   ((= func (.> builtins :define-native))) ;; Nothing needs doing here
                   ((= func (.> builtins :import))) ;; Nothing needs doing here
-                  ((= funct "macro") (fail "Macros should have been expanded"))
+                  ((= funct "macro") (fail! "Macros should have been expanded"))
                   ((or (= funct "defined") (= funct "arg") (= funct "native"))
                     (visit-block node 1 visitor))
                   (true
-                    (fail (.. "Unknown kind " funct " for variable " (.> func :name))))))
+                    (fail! (.. "Unknown kind " funct " for variable " (.> func :name))))))
               (visit-block node 1 visitor))))
         (true (error! (.. "Unknown tag " tag)))))))
 
