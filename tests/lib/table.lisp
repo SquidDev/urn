@@ -37,14 +37,13 @@
            (affirm (= "z" (assoc li' :foo))
                    (= "y" (assoc li' :bar)))))
     (can "be converted to a structure"
-      ;; TODO: Use colon notation here
       (let* [(li '((:foo "x") (:bar "y") (:foo "z")))
              (st (assoc->struct li))]
         (print! (pretty st))
         (affirm (= (assoc li :foo) (rawget st :foo))
                 (/= (assoc li :foo) (rawget st :bar)))))
   ]
-  
+
   [may "be a structure"
     (can "be created"
          (with (st (struct :foo "x" :bar "y"))
