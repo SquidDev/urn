@@ -1,7 +1,8 @@
-LUA       ?= lua5.3
-LUA_FLAGS ?=
-OUT_DIR   ?= tacky
-OBJS      :=                    \
+LUA        ?= lua5.3
+LUA_FLAGS  ?=
+TEST_FLAGS ?=
+OUT_DIR    ?= tacky
+OBJS       :=                    \
 	${OUT_DIR}/logger             \
 	${OUT_DIR}/parser             \
 	${OUT_DIR}/analysis/optimise  \
@@ -11,6 +12,10 @@ TESTS     := $(shell find tests -type f)
 
 ifeq (${TIME},1)
 LUA_FLAGS += --time
+endif
+
+ifeq (${QUIET},1)
+TEST_FLAGS += --quiet
 endif
 
 .PHONY: ${TESTS} all test compiler_test
@@ -25,5 +30,5 @@ ${OBJS}: ${OUT_DIR}/%: urn/%.lisp
 
 ${TESTS}:
 	$(eval TMP := $(shell mktemp -d))
-	${LUA} run.lua $(basename $@) --run -o ${TMP}
-	@rm -rf ${TMP}.lisp ${TMP}.lua ${TMP} 
+	${LUA} run.lua $(basename $@) --run -o ${TMP} -- ${TEST_FLAGS}
+	@rm -rf ${TMP}.lisp ${TMP}.lua ${TMP}
