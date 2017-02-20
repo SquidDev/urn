@@ -68,11 +68,20 @@
            (set-idx! st :foo "z")
            (affirm (= "z" (get-idx st :foo :bar :baz))
                    (= "y" (get-idx st :bar)))))
+    (can "be converted to an alist"
+      (let* [(st (struct :foo "x" :bar "y" :foo "z"))
+             (li (struct->assoc st))]
+        (affirm (= (get-idx st :foo) (assoc li :foo))
+                (/= (get-idx st :bar) (assoc li :foo)))))
+    (will "be a constant size"
+      (affirm (= 0 (#keys (empty-struct)))
+              (= 0 (#keys (struct)))
+              (= 1 (#keys (struct :foo "x")))
+              (= 2 (#keys (struct :foo "x" :bar "y")))))
     (will "be empty"
           (affirm (empty-struct? (empty-struct))
                   (empty-struct? (struct))
                   (empty-struct? (struct :foo nil))))
-
     (will "not be empty"
           (affirm (! (empty-struct? (struct :foo "x")))
                   (! (empty-struct? (struct :foo false)))
