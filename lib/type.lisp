@@ -18,6 +18,7 @@
       (number? x)
       (symbol? x)
       (key? x)))
+(defun falsey? (x) (! x))
 (defun exists? (x) (! (= (type x) "nil")))
 (defun key? (x) (= (type x) "key"))
 (defun between? (val min max)
