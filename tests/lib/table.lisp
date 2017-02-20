@@ -61,7 +61,6 @@
                    (= nil (.> st :foo :bar :qux))
                    (= "table" (type (.> st :foo :bar)))
                    (= "x" (.> st :foo (.. "b" "ar") :baz)))))
-    ;; ree mutation.
     (can "mutate children"
          (with (st (struct :foo "x"))
            (.<! st :bar "y")
