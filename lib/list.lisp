@@ -1,7 +1,7 @@
 (import base (defun defmacro when let* set-idx!
               get-idx and cons for gensym
               pretty print error tostring or
-              if # + - >= = ! with))
+              debug if # + - >= = ! with))
 (import base)
 (import lua/table)
 (import type (list? nil? assert-type! exists?))
@@ -12,7 +12,9 @@
 
 (defun cdr (x)
   (assert-type! x list)
-  (base/cdr x))
+  (if (nil? x)
+    '()
+    (base/cdr x)))
 
 (defun foldr (f z xs)
   (assert-type! f function)
@@ -23,14 +25,13 @@
                  (tail (cdr xs))]
             (f head (foldr f z tail)))]))
 
-(defun map (f xs)
+(defun map (f xs acc)
   (assert-type! f function)
   (assert-type! xs list)
   (cond
-    [(nil? xs) xs]
-    [true (let* [(head (car xs))
-                 (tail (cdr xs))]
-            (cons (f head) (map f tail)))]))
+    [(! (exists? acc)) (map f xs '())]
+    [(nil? xs) (reverse acc)]
+    [true (map f (cdr xs) (cons (f (car xs)) acc))]))
 
 (defun filter (p xs)
   (assert-type! p function)
