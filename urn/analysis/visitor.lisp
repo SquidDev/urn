@@ -62,3 +62,5 @@
 (defun visit-block (node start visitor)
   (for i start (# node) 1
     (visit-node (nth node i) visitor)))
+
+(define visit-list visit-block)
