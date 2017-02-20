@@ -2,8 +2,8 @@
 (import urn/analysis/visitor visitor)
 (import urn/analysis/traverse traverse)
 
-(define builtins (rawget (require "tacky.analysis.resolve") :builtins))
-(define builtin-vars (rawget (require "tacky.analysis.resolve") :declaredVars))
+(define builtins (get-idx (require "tacky.analysis.resolve") :builtins))
+(define builtin-vars (get-idx (require "tacky.analysis.resolve") :declaredVars))
 
 (defun has-side-effect (node)
   "Checks if NODE has a side effect"
@@ -44,7 +44,7 @@
           ;; We replace the last node in the block with a nil: otherwise we might change
           ;; what is returned
           (if (= i (# nodes))
-            (rawset nodes i (struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil)))
+            (set-idx! nodes i (struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil)))
             (remove-nth! nodes i))
           (set! changed true))))
 
@@ -88,7 +88,7 @@
         (with (node (nth nodes i))
           (when (and (.> node :defVar) (! (.> (usage/get-var lookup (.> node :defVar)) :active)))
             (if (= i (# nodes))
-              (rawset nodes i (struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil)))
+              (set-idx! nodes i (struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil)))
               (remove-nth! nodes i))
             (set! changed true)))))
 

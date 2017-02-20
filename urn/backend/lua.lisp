@@ -15,8 +15,8 @@
                              :var-lookup (empty-struct)
                              :meta (or meta (empty-struct))))
 
-(define builtins (rawget (require "tacky.analysis.resolve") :builtins))
-(define builtin-vars (rawget (require "tacky.analysis.resolve") :declaredVars))
+(define builtins (get-idx (require "tacky.analysis.resolve") :builtins))
+(define builtin-vars (get-idx (require "tacky.analysis.resolve") :declaredVars))
 
 ;; Escape an urn identifier, converting it into a form that is valid Lua.
 (defun escape (name)
