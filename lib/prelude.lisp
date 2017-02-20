@@ -37,11 +37,11 @@
 (defun fail! (x)
   (error! x 0))
 
-(defun apply (f xs)
-  (f (unpack xs)))
-
-(defun exit! (&args)
-  (apply lua/os/exit args))
+(defun exit! (reason code)
+  (let* [(code (if (string? reason)
+                 code reason))]
+    (print! reason)
+    (lua/os/exit code)))
 
 (defun id (x) x)
 (defun const (x)
