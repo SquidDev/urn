@@ -83,7 +83,7 @@
   "Determine whether NODE is a truthy value"
   ;; TODO: Move this to the optimiser instead
   (cond
-    ((or (string? node) (key? node) (number? node)) true)
+    ;;((or (string? node) (key? node) (number? node)) true)
     ((symbol? node) (= (.> builtin-vars :true) (.> node :var)))
     (true false)))
 
