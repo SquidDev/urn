@@ -4,19 +4,22 @@
               debug if # + - >= = ! with))
 (import base)
 (import lua/table)
-(import type (list? nil? assert-type! exists?))
+(import type (list? nil? assert-type! exists? falsey?))
 
 (defun car (x)
+  "Return the first element of the array X"
   (assert-type! x list)
   (base/car x))
 
 (defun cdr (x)
+  "Drop the first element of the array X, and return the rest."
   (assert-type! x list)
   (if (nil? x)
     '()
     (base/cdr x)))
 
 (defun foldr (f z xs)
+  "Fold over the list XS using the binary operator F and the starting value Z."
   (assert-type! f function)
   (assert-type! xs list)
   (cond
@@ -26,6 +29,7 @@
             (f head (foldr f z tail)))]))
 
 (defun map (f xs acc)
+  "Map over the list XS using the unary function F. The parameter ACC is for internal use only."
   (assert-type! f function)
   (assert-type! xs list)
   (cond
@@ -33,43 +37,52 @@
     [(nil? xs) (reverse acc)]
     [true (map f (cdr xs) (cons (f (car xs)) acc))]))
 
-(defun filter (p xs)
+(defun filter (p xs acc)
+  "Filter the list XS using the predicate P. The parameter ACC is for internal use only."
   (assert-type! p function)
   (assert-type! xs list)
   (cond
-    [(nil? xs) xs]
-    [true (let* [(head (car xs))
-                 (tail (cdr xs))]
-            (if (p head)
-              (cons head (filter p tail))
-              (filter p tail)))]))
+    [(falsey? acc) (filter p xs '())]
+    [(nil? xs) (reverse acc)]
+    [true (if (p (car xs))
+            (filter p (cdr xs) (cons (car xs) acc))
+            (filter p (cdr xs) acc))]))
 
 (defun any (p xs)
+  "Test for the existence of any element in XS matching the predicate P."
   (assert-type! p function)
   (assert-type! xs list)
   (foldr (lambda (x y) (or x y)) false (map p xs)))
 
 (defun all (p xs)
+  "Test if all elements of XS match the predicate P."
   (assert-type! p function)
   (assert-type! xs list)
   (foldr (lambda (x y) (and x y)) true (map p xs)))
 
 (defun elem? (x xs)
+  "Test if X is present in the list XS."
   (assert-type! xs list)
   (any (lambda (y) (= x y)) xs))
 
 (defun prune (xs)
+  "Remove values matching the predicate `nil?' from the list XS"
   (assert-type! xs list)
   (filter (lambda (x) (! (nil? x))) xs))
 
-(defun traverse (xs f) (map f xs))
+(defun traverse (xs f)
+  "An alias for `map' with the arguments XS and F flipped."
+  (map f xs))
+
 (defun last (xs)
+  "Return the last element of the list XS. (Counterintutively, this function runs in constant time)."
   (assert-type! xs list)
   (get-idx xs (# xs)))
 
 (define nth get-idx)
 
 (defun push-cdr! (xs val)
+  "Mutate the list XS, adding VAL to its end."
   (assert-type! xs list)
   (let* [(len (+ (# xs) 1))]
     (set-idx! xs "n" len)
@@ -77,17 +90,20 @@
     xs))
 
 (defun pop-last! (xs)
+  "Mutate the list XS, removing and returning its last element."
   (assert-type! xs list)
   (set-idx! xs (# xs) nil)
   (set-idx! xs "n" (- (# xs) 1))
   xs)
 
 (defun remove-nth! (li idx)
+  "Mutate the list LI, removing the value at IDX and returning it."
   (assert-type! li list)
   (set-idx! li "n" (- (get-idx li "n") 1))
   (lua/table/remove li idx))
 
 (defmacro for-each (var lst &body)
+  "Perform the set of actions BODY for all values in LST, binding the current value to VAR."
   (assert-type! var symbol)
   (let* [(ctr' (gensym))
          (lst' (gensym))]
@@ -95,20 +111,24 @@
        (for ,ctr' 1 (# ,lst') 1 (with (,var (get-idx ,lst' ,ctr')) ,@body)))))
 
 (defun append (xs ys)
+  "Concatenate XS and YS."
   (cond
     [(nil? xs) ys]
     [true (cons (car xs) (append (cdr xs) ys))]))
 
 (defun flatten (xss)
+  "Concatenate all the lists in XSS. XSS must not contain elements which are not lists."
   (foldr append '() xss)) 
 
 (defun range (start end acc)
+  "Build a list from START to END. This function is tail recursive, and uses the parameter ACC as an accumulator."
   (cond
     [(! (exists? acc)) (range start end '())]
     [(>= start end) (reverse (cons start acc))]
     [true (range (+ 1 start) end (cons start acc))]))
 
 (defun reverse (xs acc)
+  "Reverse the list XS, using the accumulator ACC."
   (cond
     [(! (exists? acc)) (reverse xs '())]
     [(nil? xs) acc]
