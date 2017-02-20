@@ -56,7 +56,7 @@
     (when value
       (with (node-meta (get-node state value))
         ;; This shouldn't ever be possible
-        (when (.> node-meta :definesr) (error! "Value defines multiple variables"))
+        (when (.> node-meta :defines) (error! "Value defines multiple variables"))
         (.<! node-meta :defines var)))
     (.<! var-meta :defs node (struct :tag kind :value value))))
 

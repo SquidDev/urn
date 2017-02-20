@@ -28,7 +28,7 @@
           nil) ;; Skip: Nothing needs to be done for constant terms
         ((= tag "list")
           (with (first (nth node 1))
-            (if (and first (= (.> first :tag) "symbol"))
+            (if (= (.> first :tag) "symbol")
               (let* ((func (.> first :var))
                      (funct (.> func :tag)))
                 (cond
@@ -47,7 +47,7 @@
                   ((or (= func (.> builtins :unquote)) (= func (.> builtins :unquote-splice)))
                     (fail! "unquote/unquote-splice should never appear head"))
                   ((or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
-                    (visit-block node 3 visitor))
+                    (visit-node (nth node 3) visitor))
                   ((= func (.> builtins :define-native))) ;; Nothing needs doing here
                   ((= func (.> builtins :import))) ;; Nothing needs doing here
                   ((= funct "macro") (fail! "Macros should have been expanded"))
@@ -58,13 +58,7 @@
               (visit-block node 1 visitor))))
         (true (error! (.. "Unknown tag " tag)))))))
 
-
 ;; Visit a list of nodes
 (defun visit-block (node start visitor)
   (for i start (# node) 1
     (visit-node (nth node i) visitor)))
-
-(struct
-  :visitNode  visit-node
-  :visitBlock visit-block
-  :visitList  visit-block)

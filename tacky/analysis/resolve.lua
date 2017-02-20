@@ -144,6 +144,9 @@ function resolveNode(node, scope, state)
 		if not node.var then
 			node.var = scope:get(node.contents, node)
 		end
+		if node.var.tag == "builtin" then
+			errorPositions(node, "Cannot have a raw builtin")
+		end
 		state:require(node.var)
 		return node
 	elseif kind == "list" then
