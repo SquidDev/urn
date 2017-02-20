@@ -1,6 +1,7 @@
 (import urn/analysis/usage usage)
 (import urn/analysis/visitor visitor)
 (import urn/analysis/traverse traverse)
+(import urn/logger logger)
 
 (import string)
 (import base (type#))
@@ -97,11 +98,21 @@
         (if (and (list? node) (all constant? (cdr node)))
           ;; If we're invoking a function with entirely constant arguments then
           (let* [(head (car node))
-                 (meta (and (symbol? head) (= (.> head :var :tag) "native") (.> state :meta (.> head :var :fullName))))]
+                 (meta (and (symbol? head) (! (.> head :folded)) (= (.> head :var :tag) "native") (.> state :meta (.> head :var :fullName))))]
             ;; Determine whether we have a native (and pure) function. If so, we'll invoke it.
             (if (and meta (.> meta :pure) (.> meta :value))
-              (with (res ((.> meta :value) (unpack (map urn->val (cdr node)))))
-                (val->urn res))
+              (with (res (list (pcall (.> meta :value) (unpack (map urn->val (cdr node))))))
+                (if (car res)
+                  (val->urn (nth res 2))
+                  (progn
+                    ;; Mark this head as folded so we don't try again
+                    (.<! head :folded true)
+                    ;; Print a warning message
+                    (logger/print-warning! (.. "Cannot execute constant expression"))
+                    (logger/put-trace! node)
+                    (logger/put-lines! true
+                      (logger/get-source node) (.. "Executed " (pretty node) ", failed with: " (nth res 2)))
+                    node)))
               node))
           node)))
 
