@@ -1,5 +1,5 @@
-(import base (defmacro defun let* when if cons list
-              rawget rawset error = % - + # or for with ! unpack))
+(import base (defmacro defun let* when if cons list unless debug
+              progn rawget rawset error = % - + # or for with ! unpack))
 (import lua/string (sub))
 (import lua/table (empty-struct iter-pairs) :export)
 (import lua/basic (getmetatable setmetatable next) :export)
@@ -28,11 +28,17 @@
 (defun insert (list_ key val)
   (cons (list key val) list_))
 
+
 (defun assoc->struct (list)
   (let [(ret '())]
     (traverse list
       (lambda (x)
-        (rawset ret (car x) (cadr x))))
+        (let [(hd (cond
+                    [(key? (car x)) (sub (rawget (car x) "contents") 2)]
+                    [true (car x)]))]
+          (if (! (rawget ret hd))
+            (rawset ret hd (cadr x))
+            nil))))
     ret))
 
 ;; Chain a series of index accesses together
