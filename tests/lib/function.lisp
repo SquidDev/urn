@@ -54,12 +54,11 @@
     (will "work with slots"
           (affirm (= 5 (-> 2 (* <> 2) (+ 1 <>)))
                   (= 7 (-> 2 succ (* <> 2) (+ 1 <>)))))
-    (will-not "evaluate args each time"
+    (pending "evaluate args once"
       (let* [(count 0)
              (get! (lambda () (inc! count) count))]
         (affirm
-          ;;(= 2 (-> nil get! (+ <> <>)))
-          ;;(= 4 (-> (get!) (+ <> <>)))]))]
-          )))]
+          (= 2 (-> nil get! (+ <> <>)))
+          (= 4 (-> (get!) (+ <> <>))))))]
   (will "be invokable"
         (affirm (invokable? +))))

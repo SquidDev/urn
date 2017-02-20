@@ -4,6 +4,7 @@
 
 (define tests-passed (gensym))
 (define tests-failed (gensym))
+(define tests-pending (gensym))
 (define tests-total (gensym))
 (define prefix (gensym))
 
@@ -16,6 +17,9 @@
         (push-cdr! ,tests-passed (.. ,prefix " " ,name)))
       (lambda (,'msg)
         (push-cdr! ,tests-failed (list (.. ,prefix " " ,name) (traceback ,'msg)))))))
+
+(defmacro pending (name &body)
+  `(push-cdr! ,tests-pending (.. ,prefix " " ,name)))
 
 (defmacro may (name &body)
   `(with (,prefix (.. ,prefix " may " ,name ", and")) ,@body))
@@ -35,6 +39,7 @@
 (defmacro describe (name &body)
   `(let ((,tests-passed '())
          (,tests-failed '())
+         (,tests-pending '())
          (,tests-total 0)
          (,prefix ,name))
       ,@body
@@ -47,6 +52,13 @@
       (print! (string/format "\027[1;32m- Passed tests:\027[0m (%d)" (# ,tests-passed)))
       (for-each ,'passed ,tests-passed
         (print! (string/format "\27[1;32m+\27[0m %s" ,'passed)))
+
+      (unless (nil? ,tests-pending)
+        (print!)
+
+        (print! (string/format "\027[1;33m- Pending tests:\027[0m (%d)" (# ,tests-pending)))
+        (for-each ,'pending ,tests-pending
+          (print! (string/format "\27[1;33m*\27[0m %s" ,'pending))))
 
       (unless (nil? ,tests-failed)
         (print!)
