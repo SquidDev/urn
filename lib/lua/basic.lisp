@@ -15,6 +15,7 @@
 
 (define-native _G)
 (define-native _ENV)
+(define-native arg)
 (define-native gensym)
 (define-native slice)
 (define-native pretty)

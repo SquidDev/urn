@@ -19,6 +19,13 @@ local function pretty(x)
 	end
 end
 
+if arg then
+	if not arg.n then arg.n = #arg end
+	if not arg.tag then arg.tag = "list" end
+else
+	arg = { tag = "list", n = 0 }
+end
+
 return {
 	['='] = function(x, y) return x == y end,
 	['/='] = function(x, y) return x ~= y end,
@@ -49,7 +56,7 @@ return {
 		counter = counter + 1
 		return { tag = "symbol", contents = ("r_%d%s"):format(counter, name) }
 	end,
-	_G = _G, _ENV = _ENV, _VERSION = _VERSION,
+	_G = _G, _ENV = _ENV, _VERSION = _VERSION, arg = arg,
 	assert = assert, collectgarbage = collectgarbage,
 	dofile = dofile, error = error,
 	getmetatable = getmetatable, ipairs = ipairs,

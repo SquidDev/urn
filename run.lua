@@ -8,7 +8,7 @@ local pprint = require "tacky.pprint"
 local resolve = require "tacky.analysis.resolve"
 
 local paths = { "?", "lib/?" }
-local inputs, output, verbosity, run, prelude, time, removeOut = {}, "out", 0, false, "lib/prelude", false, false
+local inputs, output, verbosity, run, prelude, time, removeOut, scriptArgs = {}, "out", 0, false, "lib/prelude", false, false, {}
 
 -- Tiny Lua stub
 if _VERSION:find("5.1") then
@@ -59,6 +59,13 @@ while i <= args.n do
 		local command = table.concat({wrapper, interp, prog}, " ")
 		os.execute(command .. " " .. table.concat(args, " "))
 		return
+	elseif arg == '--' then
+		i = i + 1
+		while i <= args.n do
+			scriptArgs[#scriptArgs + 1] = args[i]
+			i = i + 1
+		end
+		break
 	elseif arg:sub(1, 1) == "-" then
 		error("Unknown option " .. arg, 0)
 	else
@@ -412,6 +419,7 @@ handle:write(compiledLisp)
 handle:close()
 
 if run then
+	_G.arg = scriptArgs -- Execute using specified arguments
 	dofile(output .. ".lua")
 end
 
