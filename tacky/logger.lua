@@ -65,7 +65,10 @@ local _temp = (function()
 		require = require, select = select,
 		setmetatable = setmetatable, tonumber = tonumber,
 		tostring = tostring, ["type#"] = type,
-		xpcall = xpcall }
+		xpcall = xpcall,
+		["get-idx"] = function(x, i) return x[i] end,
+		["set-idx!"] = function(x, k, v) x[k] = v end
+	}
 end)()
 for k, v in pairs(_temp) do _libs["lib/lua/basic/".. k] = v end
 local _temp = (function()
@@ -112,7 +115,7 @@ local _temp = (function()
 	return io
 end)()
 for k, v in pairs(_temp) do _libs["lib/lua/io/".. k] = v end
-local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e_1, _3e3d_1, _2b_1, _2d_1, _25_1, slice1, error1, print1, rawget1, rawset1, tostring1, type_23_1, _23_1, concat1, emptyStruct1, car1, cdr1, list1, _21_1, find1, format1, len1, rep1, sub1, list_3f_1, nil_3f_1, key_3f_1, type1, car2, cdr2, nth1, pushCdr_21_1, cadr1, _2e2e_1, _23_s1, split1, struct1, succ1, pred1, number_2d3e_string1, error_21_1, print_21_1, fail_21_1, verbosity1, setVerbosity_21_1, showExplain1, setExplain_21_1, colored1, printError_21_1, printWarning_21_1, printVerbose_21_1, printDebug_21_1, formatPosition1, formatRange1, formatNode1, getSource1, putLines_21_1, putTrace_21_1, putExplain_21_1, errorPositions_21_1
+local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e_1, _3e3d_1, _2b_1, _2d_1, _25_1, slice1, error1, print1, getIdx1, setIdx_21_1, tostring1, type_23_1, _23_1, concat1, emptyStruct1, car1, cdr1, list1, _21_1, find1, format1, len1, rep1, sub1, list_3f_1, nil_3f_1, key_3f_1, type1, car2, cdr2, nth1, pushCdr_21_1, cadr1, _2e2e_1, _23_s1, split1, struct1, succ1, pred1, number_2d3e_string1, error_21_1, print_21_1, fail_21_1, verbosity1, setVerbosity_21_1, showExplain1, setExplain_21_1, colored1, printError_21_1, printWarning_21_1, printVerbose_21_1, printDebug_21_1, formatPosition1, formatRange1, formatNode1, getSource1, putLines_21_1, putTrace_21_1, putExplain_21_1, errorPositions_21_1
 _3d_1 = _libs["lib/lua/basic/="]
 _2f3d_1 = _libs["lib/lua/basic//="]
 _3c_1 = _libs["lib/lua/basic/<"]
@@ -125,8 +128,8 @@ _25_1 = _libs["lib/lua/basic/%"]
 slice1 = _libs["lib/lua/basic/slice"]
 error1 = _libs["lib/lua/basic/error"]
 print1 = _libs["lib/lua/basic/print"]
-rawget1 = _libs["lib/lua/basic/rawget"]
-rawset1 = _libs["lib/lua/basic/rawset"]
+getIdx1 = _libs["lib/lua/basic/get-idx"]
+setIdx_21_1 = _libs["lib/lua/basic/set-idx!"]
 tostring1 = _libs["lib/lua/basic/tostring"]
 type_23_1 = _libs["lib/lua/basic/type#"]
 _23_1 = (function(x1)
@@ -204,7 +207,7 @@ cdr2 = (function(x6)
 	end
 	return cdr1(x6)
 end)
-nth1 = rawget1
+nth1 = getIdx1
 pushCdr_21_1 = (function(xs4, val2)
 	local r_271 = type1(xs4)
 	if (r_271 ~= "list") then
@@ -232,24 +235,24 @@ split1 = (function(text1, pattern1, limit1)
 	r_381 = (function()
 		if loop1 then
 			local pos1 = list1(find1(text1, pattern1, start1))
-			local _temp
+			local temp1
 			local r_391 = ("nil" == type_23_1(pos1))
 			if r_391 then
-				_temp = r_391
+				temp1 = r_391
 			else
 				local r_401 = (nth1(pos1, 1) == nil)
 				if r_401 then
-					_temp = r_401
+					temp1 = r_401
 				else
 					local r_411 = limit1
 					if r_411 then
-						_temp = (_23_1(out1) >= limit1)
+						temp1 = (_23_1(out1) >= limit1)
 					else
-						_temp = r_411
+						temp1 = r_411
 					end
 				end
 			end
-			if _temp then
+			if temp1 then
 				loop1 = false
 				pushCdr_21_1(out1, sub1(text1, start1, _23_s1(text1)))
 				start1 = (_23_s1(text1) + 1)
@@ -282,13 +285,13 @@ struct1 = (function(...)
 	local r_531 = 2
 	local r_501 = nil
 	r_501 = (function(r_511)
-		local _temp
+		local temp2
 		if (0 < 2) then
-			_temp = (r_511 <= r_521)
+			temp2 = (r_511 <= r_521)
 		else
-			_temp = (r_511 >= r_521)
+			temp2 = (r_511 >= r_521)
 		end
-		if _temp then
+		if temp2 then
 			local i1 = r_511
 			local key2 = keys1[i1]
 			local val3 = keys1[(1 + i1)]
@@ -371,14 +374,14 @@ formatRange1 = (function(range1)
 	end
 end)
 formatNode1 = (function(node1)
-	local _temp
+	local temp3
 	local r_821 = node1["range"]
 	if r_821 then
-		_temp = node1["contents"]
+		temp3 = node1["contents"]
 	else
-		_temp = r_821
+		temp3 = r_821
 	end
-	if _temp then
+	if temp3 then
 		return format1("%s (%q)", formatRange1(node1["range"]), node1["contents"])
 	elseif node1["range"] then
 		return formatRange1(node1["range"])
@@ -393,14 +396,14 @@ getSource1 = (function(node2)
 	local result1 = nil
 	local r_831 = nil
 	r_831 = (function()
-		local _temp
+		local temp4
 		local r_841 = node2
 		if r_841 then
-			_temp = _21_1(result1)
+			temp4 = _21_1(result1)
 		else
-			_temp = r_841
+			temp4 = r_841
 		end
-		if _temp then
+		if temp4 then
 			result1 = node2["range"]
 			node2 = node2["parent"]
 			return r_831()
@@ -427,24 +430,24 @@ putLines_21_1 = (function(range2, ...)
 	local r_951 = 2
 	local r_921 = nil
 	r_921 = (function(r_931)
-		local _temp
+		local temp5
 		if (0 < 2) then
-			_temp = (r_931 <= r_941)
+			temp5 = (r_931 <= r_941)
 		else
-			_temp = (r_931 >= r_941)
+			temp5 = (r_931 >= r_941)
 		end
-		if _temp then
+		if temp5 then
 			local i2 = r_931
 			local position1 = entries1[i2]
 			local message1 = entries1[succ1(i2)]
-			local _temp
+			local temp6
 			local r_961 = (previous1 ~= -1)
 			if r_961 then
-				_temp = ((position1["start"]["line"] - previous1) > 2)
+				temp6 = ((position1["start"]["line"] - previous1) > 2)
 			else
-				_temp = r_961
+				temp6 = r_961
 			end
-			if _temp then
+			if temp6 then
 				print_21_1(" \27[92m...\27[0m")
 			else
 			end
@@ -454,14 +457,14 @@ putLines_21_1 = (function(range2, ...)
 			if _21_1(range2) then
 				pointer1 = "^"
 			else
-				local _temp
+				local temp7
 				local r_971 = position1["finish"]
 				if r_971 then
-					_temp = (position1["start"]["line"] == position1["finish"]["line"])
+					temp7 = (position1["start"]["line"] == position1["finish"]["line"])
 				else
-					_temp = r_971
+					temp7 = r_971
 				end
-				if _temp then
+				if temp7 then
 					pointer1 = rep1("^", _2d_1(position1["finish"]["column"], position1["start"]["column"], -1))
 				else
 					pointer1 = "^..."
@@ -502,13 +505,13 @@ putExplain_21_1 = (function(...)
 		local r_911 = 1
 		local r_881 = nil
 		r_881 = (function(r_891)
-			local _temp
+			local temp8
 			if (0 < 1) then
-				_temp = (r_891 <= r_901)
+				temp8 = (r_891 <= r_901)
 			else
-				_temp = (r_891 >= r_901)
+				temp8 = (r_891 >= r_901)
 			end
-			if _temp then
+			if temp8 then
 				local r_861 = r_891
 				local line1 = r_871[r_861]
 				print_21_1(_2e2e_1("  ", line1))
