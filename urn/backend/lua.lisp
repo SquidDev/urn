@@ -80,12 +80,8 @@
     false))
 
 (defun truthy? (node)
-  "Determine whether NODE is a truthy value"
-  ;; TODO: Move this to the optimiser instead
-  (cond
-    ((or (string? node) (key? node) (number? node)) true)
-    ((symbol? node) (= (.> builtin-vars :true) (.> node :var)))
-    (true false)))
+  "Determine whether NODE is true. A more comprehensive implementation exists in the optimiser"
+  (and (symbol? node) (= (.> builtin-vars :true) (.> node :var))))
 
 ;; Compile quoted nodeessions.
 ;; If the level is nil then we are compiling quotes, otherwise it determines how deep

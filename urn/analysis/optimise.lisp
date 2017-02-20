@@ -1,11 +1,12 @@
 (import urn/analysis/usage usage)
 (import urn/analysis/visitor visitor)
+(import urn/analysis/traverse traverse)
 
 (define builtins (rawget (require "tacky.analysis.resolve") :builtins))
 (define builtin-vars (rawget (require "tacky.analysis.resolve") :declaredVars))
 
-;;; Checks if a node has a side effect
 (defun has-side-effect (node)
+  "Checks if NODE has a side effect"
   (with (tag (type node))
     (cond
       ;; Constant terms are obviously side effect free
@@ -19,7 +20,22 @@
               (and (/= var (.> builtins :lambda)) (/= var (.> builtins :quote))))
             true))))))
 
+(defun truthy? (node)
+  "Determine whether NODE is a truthy value"
+  (cond
+    ((or (string? node) (key? node) (number? node)) true)
+    ((symbol? node) (= (.> builtin-vars :true) (.> node :var)))
+    (true false)))
+
+(defun make-progn (body)
+  (with (lambda (struct
+                   :tag "symbol"
+                   :contents "lambda"
+                   :var (.> builtins :lambda)))
+    `((,lambda () ,@body))))
+
 (defun optimise-once (nodes)
+  "Run all optimisations on NODES once"
   (with (changed false)
     ;; Strip import expressions
     (for i (# nodes) 1 -1
@@ -38,6 +54,30 @@
         (when (! (has-side-effect node))
           (remove-nth! nodes i)
           (set! changed true))))
+
+    ;; Simplify cond expressions
+    (traverse/traverse-list nodes 1
+      (lambda (node)
+        (if (and (list? node) (symbol? (car node)) (= (.> (car node) :var) (.> builtins :cond)))
+          (with (final nil)
+            (for i 2 (# node) 1
+              (with (case (nth node i))
+                (cond
+                  (final
+                    (set! changed true)
+                    (remove-nth! node final))
+                  ((truthy? (car (nth node i)))
+                    (set! final (succ i)))
+                  (true))))
+            (if (and (= (# node) 2) (truthy? (car (nth node 2))))
+              (progn
+                (set! changed true)
+                (with (body (cdr (nth node 2)))
+                  (if (= (# body) 1)
+                    (car body)
+                    (make-progn (cdr (nth node 2))))))
+              node))
+          node)))
 
     ;; Strip unused definitions
     (with (lookup (usage/create-state))

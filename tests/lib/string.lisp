@@ -26,7 +26,8 @@
             (= '("foo" "bar-baz") (split "foo-bar-baz" "-" 1))
             (= '("foo" "bar" "") (split "foo-bar-" "-"))
             (= '("" "foo" "bar") (split "-foo-bar" "-"))))
-            ;; (= '("foo" "" "" "bar") (split "foo--bar" "-"))
+  (pending "can be split"
+    (assert (= '("foo" "" "" "bar") (split "foo--bar" "-"))))
   (it "can be quoted"
     (assert (= "\"foo\"" (quoted "foo"))
             (= "\"\\9\"" (quoted "\t"))
