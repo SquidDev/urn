@@ -204,34 +204,34 @@ type1 = (function(val2)
 	end
 end)
 car2 = (function(x7)
-	local r_141 = type1(x7)
-	if (r_141 ~= "list") then
-		error1(format1("bad argment %s (expected %s, got %s)", "x", "list", r_141), 2)
+	local r_171 = type1(x7)
+	if (r_171 ~= "list") then
+		error1(format1("bad argment %s (expected %s, got %s)", "x", "list", r_171), 2)
 	else
 	end
 	return car1(x7)
 end)
 cdr2 = (function(x8)
-	local r_151 = type1(x8)
-	if (r_151 ~= "list") then
-		error1(format1("bad argment %s (expected %s, got %s)", "x", "list", r_151), 2)
+	local r_181 = type1(x8)
+	if (r_181 ~= "list") then
+		error1(format1("bad argment %s (expected %s, got %s)", "x", "list", r_181), 2)
 	else
 	end
 	return cdr1(x8)
 end)
 last1 = (function(xs4)
-	local r_231 = type1(xs4)
-	if (r_231 ~= "list") then
-		error1(format1("bad argment %s (expected %s, got %s)", "xs", "list", r_231), 2)
+	local r_261 = type1(xs4)
+	if (r_261 ~= "list") then
+		error1(format1("bad argment %s (expected %s, got %s)", "xs", "list", r_261), 2)
 	else
 	end
 	return xs4[_23_1(xs4)]
 end)
 nth1 = rawget1
 pushCdr_21_1 = (function(xs5, val3)
-	local r_241 = type1(xs5)
-	if (r_241 ~= "list") then
-		error1(format1("bad argment %s (expected %s, got %s)", "xs", "list", r_241), 2)
+	local r_271 = type1(xs5)
+	if (r_271 ~= "list") then
+		error1(format1("bad argment %s (expected %s, got %s)", "xs", "list", r_271), 2)
 	else
 	end
 	local len2 = (_23_1(xs5) + 1)
@@ -240,9 +240,9 @@ pushCdr_21_1 = (function(xs5, val3)
 	return xs5
 end)
 popLast_21_1 = (function(xs6)
-	local r_251 = type1(xs6)
-	if (r_251 ~= "list") then
-		error1(format1("bad argment %s (expected %s, got %s)", "xs", "list", r_251), 2)
+	local r_281 = type1(xs6)
+	if (r_281 ~= "list") then
+		error1(format1("bad argment %s (expected %s, got %s)", "xs", "list", r_281), 2)
 	else
 	end
 	xs6[_23_1(xs6)] = nil
@@ -264,24 +264,24 @@ split1 = (function(text1, pattern1, limit1)
 	local out1 = {tag = "list", n =0}
 	local loop1 = true
 	local start1 = 1
-	local r_351 = nil
-	r_351 = (function()
+	local r_381 = nil
+	r_381 = (function()
 		if loop1 then
 			local pos1 = list1(find1(text1, pattern1, start1))
 			local _temp
-			local r_361 = ("nil" == type_23_1(pos1))
-			if r_361 then
-				_temp = r_361
+			local r_391 = ("nil" == type_23_1(pos1))
+			if r_391 then
+				_temp = r_391
 			else
-				local r_371 = (nth1(pos1, 1) == nil)
-				if r_371 then
-					_temp = r_371
+				local r_401 = (nth1(pos1, 1) == nil)
+				if r_401 then
+					_temp = r_401
 				else
-					local r_381 = limit1
-					if r_381 then
+					local r_411 = limit1
+					if r_411 then
 						_temp = (_23_1(out1) >= limit1)
 					else
-						_temp = r_381
+						_temp = r_411
 					end
 				end
 			end
@@ -297,11 +297,11 @@ split1 = (function(text1, pattern1, limit1)
 					loop1 = false
 				end
 			end
-			return r_351()
+			return r_381()
 		else
 		end
 	end)
-	r_351()
+	r_381()
 	return out1
 end)
 struct1 = (function(...)
@@ -314,18 +314,18 @@ struct1 = (function(...)
 		return sub1(key1["contents"], 2)
 	end)
 	local out2 = emptyStruct1()
-	local r_491 = _23_1(keys1)
-	local r_501 = 2
-	local r_471 = nil
-	r_471 = (function(r_481)
+	local r_521 = _23_1(keys1)
+	local r_531 = 2
+	local r_501 = nil
+	r_501 = (function(r_511)
 		local _temp
 		if (0 < 2) then
-			_temp = (r_481 <= r_491)
+			_temp = (r_511 <= r_521)
 		else
-			_temp = (r_481 >= r_491)
+			_temp = (r_511 >= r_521)
 		end
 		if _temp then
-			local i1 = r_481
+			local i1 = r_511
 			local key2 = keys1[i1]
 			local val4 = keys1[(1 + i1)]
 			out2[(function()
@@ -336,38 +336,38 @@ struct1 = (function(...)
 				end
 			end)()
 			] = val4
-			return r_471((r_481 + r_501))
+			return r_501((r_511 + r_531))
 		else
 		end
 	end)
-	r_471(1)
+	r_501(1)
 	return out2
 end)
 invokable_3f_1 = (function(x11)
-	local r_751 = function_3f_1(x11)
-	if r_751 then
-		return r_751
+	local r_781 = function_3f_1(x11)
+	if r_781 then
+		return r_781
 	else
-		local r_761 = table_3f_1(x11)
-		if r_761 then
-			local r_771 = table_3f_1(getmetatable1(x11))
-			if r_771 then
+		local r_791 = table_3f_1(x11)
+		if r_791 then
+			local r_801 = table_3f_1(getmetatable1(x11))
+			if r_801 then
 				return function_3f_1(getmetatable1(x11)["__call"])
 			else
-				return r_771
+				return r_801
 			end
 		else
-			return r_761
+			return r_791
 		end
 	end
 end)
 compose1 = (function(f1, g1)
 	local _temp
-	local r_781 = invokable_3f_1(f1)
-	if r_781 then
+	local r_811 = invokable_3f_1(f1)
+	if r_811 then
 		_temp = invokable_3f_1(g1)
 	else
-		_temp = r_781
+		_temp = r_811
 	end
 	if _temp then
 		return (function(x12)
@@ -442,11 +442,11 @@ formatRange1 = (function(range1)
 end)
 formatNode1 = (function(node1)
 	local _temp
-	local r_791 = node1["range"]
-	if r_791 then
+	local r_821 = node1["range"]
+	if r_821 then
 		_temp = node1["contents"]
 	else
-		_temp = r_791
+		_temp = r_821
 	end
 	if _temp then
 		return format1("%s (%q)", formatRange1(node1["range"]), node1["contents"])
@@ -461,23 +461,23 @@ formatNode1 = (function(node1)
 end)
 getSource1 = (function(node2)
 	local result1 = nil
-	local r_801 = nil
-	r_801 = (function()
+	local r_831 = nil
+	r_831 = (function()
 		local _temp
-		local r_811 = node2
-		if r_811 then
+		local r_841 = node2
+		if r_841 then
 			_temp = _21_1(result1)
 		else
-			_temp = r_811
+			_temp = r_841
 		end
 		if _temp then
 			result1 = node2["range"]
 			node2 = node2["parent"]
-			return r_801()
+			return r_831()
 		else
 		end
 	end)
-	r_801()
+	r_831()
 	return result1
 end)
 putLines_21_1 = (function(range2, ...)
@@ -493,26 +493,26 @@ putLines_21_1 = (function(range2, ...)
 	local previous1 = -1
 	local maxLine1 = entries1[pred1(_23_1(entries1))]["start"]["line"]
 	local code1 = _2e2e_1("\27[92m %", _23_s1(number_2d3e_string1(maxLine1)), "s |\27[0m %s")
-	local r_911 = _23_1(entries1)
-	local r_921 = 2
-	local r_891 = nil
-	r_891 = (function(r_901)
+	local r_941 = _23_1(entries1)
+	local r_951 = 2
+	local r_921 = nil
+	r_921 = (function(r_931)
 		local _temp
 		if (0 < 2) then
-			_temp = (r_901 <= r_911)
+			_temp = (r_931 <= r_941)
 		else
-			_temp = (r_901 >= r_911)
+			_temp = (r_931 >= r_941)
 		end
 		if _temp then
-			local i2 = r_901
+			local i2 = r_931
 			local position1 = entries1[i2]
 			local message1 = entries1[succ1(i2)]
 			local _temp
-			local r_931 = (previous1 ~= -1)
-			if r_931 then
+			local r_961 = (previous1 ~= -1)
+			if r_961 then
 				_temp = ((position1["start"]["line"] - previous1) > 2)
 			else
-				_temp = r_931
+				_temp = r_961
 			end
 			if _temp then
 				print_21_1(" \27[92m...\27[0m")
@@ -525,11 +525,11 @@ putLines_21_1 = (function(range2, ...)
 				pointer1 = "^"
 			else
 				local _temp
-				local r_941 = position1["finish"]
-				if r_941 then
+				local r_971 = position1["finish"]
+				if r_971 then
 					_temp = (position1["start"]["line"] == position1["finish"]["line"])
 				else
-					_temp = r_941
+					_temp = r_971
 				end
 				if _temp then
 					pointer1 = rep1("^", _2d_1(position1["finish"]["column"], position1["start"]["column"], -1))
@@ -538,16 +538,16 @@ putLines_21_1 = (function(range2, ...)
 				end
 			end
 			print_21_1(format1(code1, "", _2e2e_1(rep1(" ", (position1["start"]["column"] - 1)), pointer1, " ", message1)))
-			return r_891((r_901 + r_921))
+			return r_921((r_931 + r_951))
 		else
 		end
 	end)
-	return r_891(1)
+	return r_921(1)
 end)
 putTrace_21_1 = (function(node3)
 	local previous2 = nil
-	local r_821 = nil
-	r_821 = (function()
+	local r_851 = nil
+	r_851 = (function()
 		if node3 then
 			local formatted1 = formatNode1(node3)
 			if (previous2 == nil) then
@@ -558,35 +558,35 @@ putTrace_21_1 = (function(node3)
 			end
 			previous2 = formatted1
 			node3 = node3["parent"]
-			return r_821()
+			return r_851()
 		else
 		end
 	end)
-	return r_821()
+	return r_851()
 end)
 putExplain_21_1 = (function(...)
 	local lines3 = _pack(...) lines3.tag = "list"
 	if showExplain1["value"] then
-		local r_841 = lines3
-		local r_871 = _23_1(r_841)
-		local r_881 = 1
-		local r_851 = nil
-		r_851 = (function(r_861)
+		local r_871 = lines3
+		local r_901 = _23_1(r_871)
+		local r_911 = 1
+		local r_881 = nil
+		r_881 = (function(r_891)
 			local _temp
 			if (0 < 1) then
-				_temp = (r_861 <= r_871)
+				_temp = (r_891 <= r_901)
 			else
-				_temp = (r_861 >= r_871)
+				_temp = (r_891 >= r_901)
 			end
 			if _temp then
-				local r_831 = r_861
-				local line1 = r_841[r_831]
+				local r_861 = r_891
+				local line1 = r_871[r_861]
 				print_21_1(_2e2e_1("  ", line1))
-				return r_851((r_861 + r_881))
+				return r_881((r_891 + r_911))
 			else
 			end
 		end)
-		return r_851(1)
+		return r_881(1)
 	else
 	end
 end)
@@ -626,16 +626,16 @@ lex1 = (function(str1, name1)
 	end)
 	local appendWith_21_1 = (function(data1, start3, finish2)
 		local start4
-		local r_1151 = start3
-		if r_1151 then
-			start4 = r_1151
+		local r_1181 = start3
+		if r_1181 then
+			start4 = r_1181
 		else
 			start4 = position2()
 		end
 		local finish3
-		local r_1161 = finish2
-		if r_1161 then
-			finish3 = r_1161
+		local r_1191 = finish2
+		if r_1191 then
+			finish3 = r_1191
 		else
 			finish3 = position2()
 		end
@@ -646,18 +646,18 @@ lex1 = (function(str1, name1)
 	local append_21_1 = (function(tag2, start5, finish4)
 		return appendWith_21_1(struct1("tag", tag2), start5, finish4)
 	end)
-	local r_951 = nil
-	r_951 = (function()
+	local r_981 = nil
+	r_981 = (function()
 		if (offset1 <= length1) then
 			local char1 = charAt1(str1, offset1)
 			local _temp
-			local r_961 = (char1 == "\n")
-			if r_961 then
-				_temp = r_961
+			local r_991 = (char1 == "\n")
+			if r_991 then
+				_temp = r_991
 			else
-				local r_971 = (char1 == "\t")
-				if r_971 then
-					_temp = r_971
+				local r_1001 = (char1 == "\t")
+				if r_1001 then
+					_temp = r_1001
 				else
 					_temp = (char1 == " ")
 				end
@@ -689,40 +689,40 @@ lex1 = (function(str1, name1)
 				end
 			else
 				local _temp
-				local r_981 = between_3f_1(char1, "0", "9")
-				if r_981 then
-					_temp = r_981
+				local r_1011 = between_3f_1(char1, "0", "9")
+				if r_1011 then
+					_temp = r_1011
 				else
-					local r_991 = (char1 == "-")
-					if r_991 then
+					local r_1021 = (char1 == "-")
+					if r_1021 then
 						_temp = between_3f_1(charAt1(str1, succ1(offset1)), "0", "9")
 					else
-						_temp = r_991
+						_temp = r_1021
 					end
 				end
 				if _temp then
 					local start7 = position2()
-					local r_1001 = nil
-					r_1001 = (function()
+					local r_1031 = nil
+					r_1031 = (function()
 						if find1(charAt1(str1, succ1(offset1)), "[0-9.e+-]") then
 							consume_21_1()
-							return r_1001()
+							return r_1031()
 						else
 						end
 					end)
-					r_1001()
+					r_1031()
 					append_21_1("number", start7)
 				elseif (char1 == "\"") then
 					local start8 = position2()
 					consume_21_1()
 					char1 = charAt1(str1, offset1)
-					local r_1011 = nil
-					r_1011 = (function()
+					local r_1041 = nil
+					r_1041 = (function()
 						if (char1 ~= "\"") then
 							local _temp
-							local r_1021 = (char1 == nil)
-							if r_1021 then
-								_temp = r_1021
+							local r_1051 = (char1 == nil)
+							if r_1051 then
+								_temp = r_1051
 							else
 								_temp = (char1 == "")
 							end
@@ -739,29 +739,29 @@ lex1 = (function(str1, name1)
 							end
 							consume_21_1()
 							char1 = charAt1(str1, offset1)
-							return r_1011()
+							return r_1041()
 						else
 						end
 					end)
-					r_1011()
+					r_1041()
 					append_21_1("string", start8)
 				elseif (char1 == ";") then
-					local r_1031 = nil
-					r_1031 = (function()
+					local r_1061 = nil
+					r_1061 = (function()
 						local _temp
-						local r_1041 = (offset1 <= length1)
-						if r_1041 then
+						local r_1071 = (offset1 <= length1)
+						if r_1071 then
 							_temp = (charAt1(str1, succ1(offset1)) ~= "\n")
 						else
-							_temp = r_1041
+							_temp = r_1071
 						end
 						if _temp then
 							consume_21_1()
-							return r_1031()
+							return r_1061()
 						else
 						end
 					end)
-					r_1031()
+					r_1061()
 				else
 					local start10 = position2()
 					local tag3
@@ -771,72 +771,72 @@ lex1 = (function(str1, name1)
 						tag3 = "symbol"
 					end
 					char1 = charAt1(str1, succ1(offset1))
-					local r_1051 = nil
-					r_1051 = (function()
+					local r_1081 = nil
+					r_1081 = (function()
 						local _temp
-						local r_1061 = (char1 ~= "\n")
-						if r_1061 then
-							local r_1071 = (char1 ~= " ")
-							if r_1071 then
-								local r_1081 = (char1 ~= "\t")
-								if r_1081 then
-									local r_1091 = (char1 ~= "(")
-									if r_1091 then
-										local r_1101 = (char1 ~= ")")
-										if r_1101 then
-											local r_1111 = (char1 ~= "[")
-											if r_1111 then
-												local r_1121 = (char1 ~= "]")
-												if r_1121 then
-													local r_1131 = (char1 ~= "{")
-													if r_1131 then
-														local r_1141 = (char1 ~= "}")
-														if r_1141 then
+						local r_1091 = (char1 ~= "\n")
+						if r_1091 then
+							local r_1101 = (char1 ~= " ")
+							if r_1101 then
+								local r_1111 = (char1 ~= "\t")
+								if r_1111 then
+									local r_1121 = (char1 ~= "(")
+									if r_1121 then
+										local r_1131 = (char1 ~= ")")
+										if r_1131 then
+											local r_1141 = (char1 ~= "[")
+											if r_1141 then
+												local r_1151 = (char1 ~= "]")
+												if r_1151 then
+													local r_1161 = (char1 ~= "{")
+													if r_1161 then
+														local r_1171 = (char1 ~= "}")
+														if r_1171 then
 															_temp = (char1 ~= "")
 														else
-															_temp = r_1141
+															_temp = r_1171
 														end
 													else
-														_temp = r_1131
+														_temp = r_1161
 													end
 												else
-													_temp = r_1121
+													_temp = r_1151
 												end
 											else
-												_temp = r_1111
+												_temp = r_1141
 											end
 										else
-											_temp = r_1101
+											_temp = r_1131
 										end
 									else
-										_temp = r_1091
+										_temp = r_1121
 									end
 								else
-									_temp = r_1081
+									_temp = r_1111
 								end
 							else
-								_temp = r_1071
+								_temp = r_1101
 							end
 						else
-							_temp = r_1061
+							_temp = r_1091
 						end
 						if _temp then
 							consume_21_1()
 							char1 = charAt1(str1, succ1(offset1))
-							return r_1051()
+							return r_1081()
 						else
 						end
 					end)
-					r_1051()
+					r_1081()
 					append_21_1(tag3, start10)
 				end
 			end
 			consume_21_1()
-			return r_951()
+			return r_981()
 		else
 		end
 	end)
-	r_951()
+	r_981()
 	append_21_1("eof")
 	return out3
 end)
@@ -865,39 +865,39 @@ parse1 = (function(toks1)
 		head1 = last1(stack1)
 		return popLast_21_1(stack1)
 	end)
-	local r_1181 = toks1
-	local r_1211 = _23_1(r_1181)
-	local r_1221 = 1
-	local r_1191 = nil
-	r_1191 = (function(r_1201)
+	local r_1211 = toks1
+	local r_1241 = _23_1(r_1211)
+	local r_1251 = 1
+	local r_1221 = nil
+	r_1221 = (function(r_1231)
 		local _temp
 		if (0 < 1) then
-			_temp = (r_1201 <= r_1211)
+			_temp = (r_1231 <= r_1241)
 		else
-			_temp = (r_1201 >= r_1211)
+			_temp = (r_1231 >= r_1241)
 		end
 		if _temp then
-			local r_1171 = r_1201
-			local tok1 = r_1181[r_1171]
+			local r_1201 = r_1231
+			local tok1 = r_1211[r_1201]
 			local tag4 = tok1["tag"]
 			local autoClose1 = false
 			local previous3 = head1["last-node"]
 			local tokPos1 = tok1["range"]
 			local _temp
-			local r_1231 = (tag4 ~= "eof")
-			if r_1231 then
-				local r_1241 = (tag4 ~= "close")
-				if r_1241 then
+			local r_1261 = (tag4 ~= "eof")
+			if r_1261 then
+				local r_1271 = (tag4 ~= "close")
+				if r_1271 then
 					if head1["range"] then
 						_temp = (tokPos1["start"]["line"] ~= head1["range"]["start"]["line"])
 					else
 						_temp = true
 					end
 				else
-					_temp = r_1241
+					_temp = r_1271
 				end
 			else
-				_temp = r_1231
+				_temp = r_1261
 			end
 			if _temp then
 				if previous3 then
@@ -919,17 +919,17 @@ parse1 = (function(toks1)
 			else
 			end
 			local _temp
-			local r_1251 = (tag4 == "string")
-			if r_1251 then
-				_temp = r_1251
+			local r_1281 = (tag4 == "string")
+			if r_1281 then
+				_temp = r_1281
 			else
-				local r_1261 = (tag4 == "number")
-				if r_1261 then
-					_temp = r_1261
+				local r_1291 = (tag4 == "number")
+				if r_1291 then
+					_temp = r_1291
 				else
-					local r_1271 = (tag4 == "symbol")
-					if r_1271 then
-						_temp = r_1271
+					local r_1301 = (tag4 == "symbol")
+					if r_1301 then
+						_temp = r_1301
 					else
 						_temp = (tag4 == "key")
 					end
@@ -961,17 +961,17 @@ parse1 = (function(toks1)
 				end
 			else
 				local _temp
-				local r_1281 = (tag4 == "quote")
-				if r_1281 then
-					_temp = r_1281
+				local r_1311 = (tag4 == "quote")
+				if r_1311 then
+					_temp = r_1311
 				else
-					local r_1291 = (tag4 == "unquote")
-					if r_1291 then
-						_temp = r_1291
+					local r_1321 = (tag4 == "unquote")
+					if r_1321 then
+						_temp = r_1321
 					else
-						local r_1301 = (tag4 == "quasiquote")
-						if r_1301 then
-							_temp = r_1301
+						local r_1331 = (tag4 == "quasiquote")
+						if r_1331 then
+							_temp = r_1331
 						else
 							_temp = (tag4 == "unquote-splice")
 						end
@@ -997,8 +997,8 @@ parse1 = (function(toks1)
 			end
 			if autoClose1 then
 			else
-				local r_1311 = nil
-				r_1311 = (function()
+				local r_1341 = nil
+				r_1341 = (function()
 					if head1["auto-close"] then
 						if nil_3f_1(stack1) then
 							errorPositions_21_1(tok1, format1("'%s' without matching '%s'", tok1["contents"], tok1["open"]))
@@ -1007,17 +1007,17 @@ parse1 = (function(toks1)
 						end
 						head1["range"]["finish"] = tok1["range"]["finish"]
 						pop_21_1()
-						return r_1311()
+						return r_1341()
 					else
 					end
 				end)
-				r_1311()
+				r_1341()
 			end
-			return r_1191((r_1201 + r_1221))
+			return r_1221((r_1231 + r_1251))
 		else
 		end
 	end)
-	r_1191(1)
+	r_1221(1)
 	return head1
 end)
 read1 = compose1(parse1, lex1)

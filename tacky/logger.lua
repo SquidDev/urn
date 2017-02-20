@@ -189,26 +189,26 @@ type1 = (function(val1)
 	end
 end)
 car2 = (function(x5)
-	local r_141 = type1(x5)
-	if (r_141 ~= "list") then
-		error1(format1("bad argment %s (expected %s, got %s)", "x", "list", r_141), 2)
+	local r_171 = type1(x5)
+	if (r_171 ~= "list") then
+		error1(format1("bad argment %s (expected %s, got %s)", "x", "list", r_171), 2)
 	else
 	end
 	return car1(x5)
 end)
 cdr2 = (function(x6)
-	local r_151 = type1(x6)
-	if (r_151 ~= "list") then
-		error1(format1("bad argment %s (expected %s, got %s)", "x", "list", r_151), 2)
+	local r_181 = type1(x6)
+	if (r_181 ~= "list") then
+		error1(format1("bad argment %s (expected %s, got %s)", "x", "list", r_181), 2)
 	else
 	end
 	return cdr1(x6)
 end)
 nth1 = rawget1
 pushCdr_21_1 = (function(xs4, val2)
-	local r_241 = type1(xs4)
-	if (r_241 ~= "list") then
-		error1(format1("bad argment %s (expected %s, got %s)", "xs", "list", r_241), 2)
+	local r_271 = type1(xs4)
+	if (r_271 ~= "list") then
+		error1(format1("bad argment %s (expected %s, got %s)", "xs", "list", r_271), 2)
 	else
 	end
 	local len2 = (_23_1(xs4) + 1)
@@ -228,24 +228,24 @@ split1 = (function(text1, pattern1, limit1)
 	local out1 = {tag = "list", n =0}
 	local loop1 = true
 	local start1 = 1
-	local r_351 = nil
-	r_351 = (function()
+	local r_381 = nil
+	r_381 = (function()
 		if loop1 then
 			local pos1 = list1(find1(text1, pattern1, start1))
 			local _temp
-			local r_361 = ("nil" == type_23_1(pos1))
-			if r_361 then
-				_temp = r_361
+			local r_391 = ("nil" == type_23_1(pos1))
+			if r_391 then
+				_temp = r_391
 			else
-				local r_371 = (nth1(pos1, 1) == nil)
-				if r_371 then
-					_temp = r_371
+				local r_401 = (nth1(pos1, 1) == nil)
+				if r_401 then
+					_temp = r_401
 				else
-					local r_381 = limit1
-					if r_381 then
+					local r_411 = limit1
+					if r_411 then
 						_temp = (_23_1(out1) >= limit1)
 					else
-						_temp = r_381
+						_temp = r_411
 					end
 				end
 			end
@@ -261,11 +261,11 @@ split1 = (function(text1, pattern1, limit1)
 					loop1 = false
 				end
 			end
-			return r_351()
+			return r_381()
 		else
 		end
 	end)
-	r_351()
+	r_381()
 	return out1
 end)
 struct1 = (function(...)
@@ -278,18 +278,18 @@ struct1 = (function(...)
 		return sub1(key1["contents"], 2)
 	end)
 	local out2 = emptyStruct1()
-	local r_491 = _23_1(keys1)
-	local r_501 = 2
-	local r_471 = nil
-	r_471 = (function(r_481)
+	local r_521 = _23_1(keys1)
+	local r_531 = 2
+	local r_501 = nil
+	r_501 = (function(r_511)
 		local _temp
 		if (0 < 2) then
-			_temp = (r_481 <= r_491)
+			_temp = (r_511 <= r_521)
 		else
-			_temp = (r_481 >= r_491)
+			_temp = (r_511 >= r_521)
 		end
 		if _temp then
-			local i1 = r_481
+			local i1 = r_511
 			local key2 = keys1[i1]
 			local val3 = keys1[(1 + i1)]
 			out2[(function()
@@ -300,11 +300,11 @@ struct1 = (function(...)
 				end
 			end)()
 			] = val3
-			return r_471((r_481 + r_501))
+			return r_501((r_511 + r_531))
 		else
 		end
 	end)
-	r_471(1)
+	r_501(1)
 	return out2
 end)
 succ1 = (function(x8)
@@ -372,11 +372,11 @@ formatRange1 = (function(range1)
 end)
 formatNode1 = (function(node1)
 	local _temp
-	local r_791 = node1["range"]
-	if r_791 then
+	local r_821 = node1["range"]
+	if r_821 then
 		_temp = node1["contents"]
 	else
-		_temp = r_791
+		_temp = r_821
 	end
 	if _temp then
 		return format1("%s (%q)", formatRange1(node1["range"]), node1["contents"])
@@ -391,23 +391,23 @@ formatNode1 = (function(node1)
 end)
 getSource1 = (function(node2)
 	local result1 = nil
-	local r_801 = nil
-	r_801 = (function()
+	local r_831 = nil
+	r_831 = (function()
 		local _temp
-		local r_811 = node2
-		if r_811 then
+		local r_841 = node2
+		if r_841 then
 			_temp = _21_1(result1)
 		else
-			_temp = r_811
+			_temp = r_841
 		end
 		if _temp then
 			result1 = node2["range"]
 			node2 = node2["parent"]
-			return r_801()
+			return r_831()
 		else
 		end
 	end)
-	r_801()
+	r_831()
 	return result1
 end)
 putLines_21_1 = (function(range2, ...)
@@ -423,26 +423,26 @@ putLines_21_1 = (function(range2, ...)
 	local previous1 = -1
 	local maxLine1 = entries1[pred1(_23_1(entries1))]["start"]["line"]
 	local code1 = _2e2e_1("\27[92m %", _23_s1(number_2d3e_string1(maxLine1)), "s |\27[0m %s")
-	local r_911 = _23_1(entries1)
-	local r_921 = 2
-	local r_891 = nil
-	r_891 = (function(r_901)
+	local r_941 = _23_1(entries1)
+	local r_951 = 2
+	local r_921 = nil
+	r_921 = (function(r_931)
 		local _temp
 		if (0 < 2) then
-			_temp = (r_901 <= r_911)
+			_temp = (r_931 <= r_941)
 		else
-			_temp = (r_901 >= r_911)
+			_temp = (r_931 >= r_941)
 		end
 		if _temp then
-			local i2 = r_901
+			local i2 = r_931
 			local position1 = entries1[i2]
 			local message1 = entries1[succ1(i2)]
 			local _temp
-			local r_931 = (previous1 ~= -1)
-			if r_931 then
+			local r_961 = (previous1 ~= -1)
+			if r_961 then
 				_temp = ((position1["start"]["line"] - previous1) > 2)
 			else
-				_temp = r_931
+				_temp = r_961
 			end
 			if _temp then
 				print_21_1(" \27[92m...\27[0m")
@@ -455,11 +455,11 @@ putLines_21_1 = (function(range2, ...)
 				pointer1 = "^"
 			else
 				local _temp
-				local r_941 = position1["finish"]
-				if r_941 then
+				local r_971 = position1["finish"]
+				if r_971 then
 					_temp = (position1["start"]["line"] == position1["finish"]["line"])
 				else
-					_temp = r_941
+					_temp = r_971
 				end
 				if _temp then
 					pointer1 = rep1("^", _2d_1(position1["finish"]["column"], position1["start"]["column"], -1))
@@ -468,16 +468,16 @@ putLines_21_1 = (function(range2, ...)
 				end
 			end
 			print_21_1(format1(code1, "", _2e2e_1(rep1(" ", (position1["start"]["column"] - 1)), pointer1, " ", message1)))
-			return r_891((r_901 + r_921))
+			return r_921((r_931 + r_951))
 		else
 		end
 	end)
-	return r_891(1)
+	return r_921(1)
 end)
 putTrace_21_1 = (function(node3)
 	local previous2 = nil
-	local r_821 = nil
-	r_821 = (function()
+	local r_851 = nil
+	r_851 = (function()
 		if node3 then
 			local formatted1 = formatNode1(node3)
 			if (previous2 == nil) then
@@ -488,35 +488,35 @@ putTrace_21_1 = (function(node3)
 			end
 			previous2 = formatted1
 			node3 = node3["parent"]
-			return r_821()
+			return r_851()
 		else
 		end
 	end)
-	return r_821()
+	return r_851()
 end)
 putExplain_21_1 = (function(...)
 	local lines3 = _pack(...) lines3.tag = "list"
 	if showExplain1["value"] then
-		local r_841 = lines3
-		local r_871 = _23_1(r_841)
-		local r_881 = 1
-		local r_851 = nil
-		r_851 = (function(r_861)
+		local r_871 = lines3
+		local r_901 = _23_1(r_871)
+		local r_911 = 1
+		local r_881 = nil
+		r_881 = (function(r_891)
 			local _temp
 			if (0 < 1) then
-				_temp = (r_861 <= r_871)
+				_temp = (r_891 <= r_901)
 			else
-				_temp = (r_861 >= r_871)
+				_temp = (r_891 >= r_901)
 			end
 			if _temp then
-				local r_831 = r_861
-				local line1 = r_841[r_831]
+				local r_861 = r_891
+				local line1 = r_871[r_861]
 				print_21_1(_2e2e_1("  ", line1))
-				return r_851((r_861 + r_881))
+				return r_881((r_891 + r_911))
 			else
 			end
 		end)
-		return r_851(1)
+		return r_881(1)
 	else
 	end
 end)
