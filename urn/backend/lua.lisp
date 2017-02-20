@@ -65,7 +65,7 @@
         (.. v (number->string id))))))
 
 ;; A rough test to detect if an nodeession can be compiled to a statement
-(defun is-statement (node)
+(defun statement? (node)
   (if (list? node)
     (with (first (car node))
       (cond
@@ -78,6 +78,14 @@
             (and (symbol? func) (= (.> func :var) (.> builtins :lambda)))))
         (true false)))
     false))
+
+(defun truthy? (node)
+  "Determine whether NODE is a truthy value"
+  ;; TODO: Move this to the optimiser instead
+  (cond
+    ((or (string? node) (key? node) (number? node)) true)
+    ((symbol? node) (= (.> builtin-vars :true) (.> node :var)))
+    (true false)))
 
 ;; Compile quoted nodeessions.
 ;; If the level is nil then we are compiling quotes, otherwise it determines how deep
@@ -224,15 +232,15 @@
                       (set! ret "return "))
 
                     (with (i 2)
-                      (while (<= i (# node))
+                      (while (and (! had-final) (<= i (# node)))
                         (let* [(item (nth node i))
                                (case (nth item 1))
-                               (is-final (and (symbol? case) (= (.> case :var) (.> builtin-vars :true))))]
+                               (is-final (truthy? case))]
 
                           ;; We stop iterating after a branch marked "true" and just invoke the code.
                           (cond
                             (is-final (when (= i 2) (w/append! out "do"))) ;; TODO: Could we dec! the ends variable instead?
-                            ((is-statement case)
+                            ((statement? case)
                               ;; We flatten if statements branching on an if by declaring a temp variable
                               ;; and assigning the branch result to it.
                               ;; If we're not the first condition then we also have to indent everything once.
@@ -242,10 +250,11 @@
                                 (w/indent! out)
                                 (w/line! out)
                                 (inc! ends))
-                              (w/line! out "local _temp")
-                              (compile-expression case out state "_temp = ")
-                              (w/line! out)
-                              (w/line! out "if _temp then"))
+                              (with (tmp (escape-var (struct :name "temp") state))
+                                (w/line! out (.. "local " tmp))
+                                (compile-expression case out state (.. tmp " = "))
+                                (w/line! out)
+                                (w/line! out (.. "if " tmp " then"))))
                             (true
                               (w/append! out "if ")
                               (compile-expression case out state)
@@ -377,7 +386,7 @@
                              (ret nil)]
                         (if expr
                           (progn
-                            (if (is-statement expr)
+                            (if (statement? expr)
                               (progn
                                 (set! ret (.. name " = "))
                                 (w/line! out))

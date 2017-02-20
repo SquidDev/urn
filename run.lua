@@ -87,7 +87,7 @@ local function pretty(x)
 	if type(x) == 'table' and x.tag then
 		if x.tag == 'list' then
 			local y = {}
-			for i = 1, #x do
+			for i = 1, x.n do
 				y[i] = pretty(x[i])
 			end
 			return '(' .. table.concat(y, ' ') .. ')'
