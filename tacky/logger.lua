@@ -115,10 +115,9 @@ local _temp = (function()
 	return io
 end)()
 for k, v in pairs(_temp) do _libs["lib/lua/io/".. k] = v end
-local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e_1, _3e3d_1, _2b_1, _2d_1, _25_1, slice1, error1, print1, getIdx1, setIdx_21_1, tostring1, type_23_1, _23_1, concat1, emptyStruct1, car1, cdr1, list1, _21_1, find1, format1, len1, rep1, sub1, list_3f_1, nil_3f_1, key_3f_1, type1, car2, cdr2, nth1, pushCdr_21_1, cadr1, _2e2e_1, _23_s1, split1, struct1, succ1, pred1, number_2d3e_string1, error_21_1, print_21_1, fail_21_1, verbosity1, setVerbosity_21_1, showExplain1, setExplain_21_1, colored1, printError_21_1, printWarning_21_1, printVerbose_21_1, printDebug_21_1, formatPosition1, formatRange1, formatNode1, getSource1, putLines_21_1, putTrace_21_1, putExplain_21_1, errorPositions_21_1
+local _3d_1, _2f3d_1, _3c3d_1, _3e_1, _3e3d_1, _2b_1, _2d_1, _25_1, slice1, error1, print1, getIdx1, setIdx_21_1, tostring1, type_23_1, _23_1, concat1, emptyStruct1, car1, cdr1, list1, _21_1, find1, format1, len1, rep1, sub1, list_3f_1, nil_3f_1, key_3f_1, type1, car2, cdr2, nth1, pushCdr_21_1, cadr1, _2e2e_1, _23_s1, split1, struct1, succ1, pred1, number_2d3e_string1, error_21_1, print_21_1, fail_21_1, verbosity1, setVerbosity_21_1, showExplain1, setExplain_21_1, colored1, printError_21_1, printWarning_21_1, printVerbose_21_1, printDebug_21_1, formatPosition1, formatRange1, formatNode1, getSource1, putLines_21_1, putTrace_21_1, putExplain_21_1, errorPositions_21_1
 _3d_1 = _libs["lib/lua/basic/="]
 _2f3d_1 = _libs["lib/lua/basic//="]
-_3c_1 = _libs["lib/lua/basic/<"]
 _3c3d_1 = _libs["lib/lua/basic/<="]
 _3e_1 = _libs["lib/lua/basic/>"]
 _3e3d_1 = _libs["lib/lua/basic/>="]
@@ -205,7 +204,11 @@ cdr2 = (function(x6)
 		error1(format1("bad argment %s (expected %s, got %s)", "x", "list", r_181), 2)
 	else
 	end
-	return cdr1(x6)
+	if nil_3f_1(x6) then
+		return {tag = "list", n =0}
+	else
+		return cdr1(x6)
+	end
 end)
 nth1 = getIdx1
 pushCdr_21_1 = (function(xs4, val2)
@@ -285,13 +288,7 @@ struct1 = (function(...)
 	local r_531 = 2
 	local r_501 = nil
 	r_501 = (function(r_511)
-		local temp2
-		if (0 < 2) then
-			temp2 = (r_511 <= r_521)
-		else
-			temp2 = (r_511 >= r_521)
-		end
-		if temp2 then
+		if (r_511 <= r_521) then
 			local i1 = r_511
 			local key2 = keys1[i1]
 			local val3 = keys1[(1 + i1)]
@@ -303,7 +300,7 @@ struct1 = (function(...)
 				end
 			end)()
 			] = val3
-			return r_501((r_511 + r_531))
+			return r_501((r_511 + 2))
 		else
 		end
 	end)
@@ -374,14 +371,14 @@ formatRange1 = (function(range1)
 	end
 end)
 formatNode1 = (function(node1)
-	local temp3
+	local temp2
 	local r_821 = node1["range"]
 	if r_821 then
-		temp3 = node1["contents"]
+		temp2 = node1["contents"]
 	else
-		temp3 = r_821
+		temp2 = r_821
 	end
-	if temp3 then
+	if temp2 then
 		return format1("%s (%q)", formatRange1(node1["range"]), node1["contents"])
 	elseif node1["range"] then
 		return formatRange1(node1["range"])
@@ -396,14 +393,14 @@ getSource1 = (function(node2)
 	local result1 = nil
 	local r_831 = nil
 	r_831 = (function()
-		local temp4
+		local temp3
 		local r_841 = node2
 		if r_841 then
-			temp4 = _21_1(result1)
+			temp3 = _21_1(result1)
 		else
-			temp4 = r_841
+			temp3 = r_841
 		end
-		if temp4 then
+		if temp3 then
 			result1 = node2["range"]
 			node2 = node2["parent"]
 			return r_831()
@@ -430,24 +427,18 @@ putLines_21_1 = (function(range2, ...)
 	local r_951 = 2
 	local r_921 = nil
 	r_921 = (function(r_931)
-		local temp5
-		if (0 < 2) then
-			temp5 = (r_931 <= r_941)
-		else
-			temp5 = (r_931 >= r_941)
-		end
-		if temp5 then
+		if (r_931 <= r_941) then
 			local i2 = r_931
 			local position1 = entries1[i2]
 			local message1 = entries1[succ1(i2)]
-			local temp6
+			local temp4
 			local r_961 = (previous1 ~= -1)
 			if r_961 then
-				temp6 = ((position1["start"]["line"] - previous1) > 2)
+				temp4 = ((position1["start"]["line"] - previous1) > 2)
 			else
-				temp6 = r_961
+				temp4 = r_961
 			end
-			if temp6 then
+			if temp4 then
 				print_21_1(" \27[92m...\27[0m")
 			else
 			end
@@ -457,21 +448,21 @@ putLines_21_1 = (function(range2, ...)
 			if _21_1(range2) then
 				pointer1 = "^"
 			else
-				local temp7
+				local temp5
 				local r_971 = position1["finish"]
 				if r_971 then
-					temp7 = (position1["start"]["line"] == position1["finish"]["line"])
+					temp5 = (position1["start"]["line"] == position1["finish"]["line"])
 				else
-					temp7 = r_971
+					temp5 = r_971
 				end
-				if temp7 then
+				if temp5 then
 					pointer1 = rep1("^", _2d_1(position1["finish"]["column"], position1["start"]["column"], -1))
 				else
 					pointer1 = "^..."
 				end
 			end
 			print_21_1(format1(code1, "", _2e2e_1(rep1(" ", (position1["start"]["column"] - 1)), pointer1, " ", message1)))
-			return r_921((r_931 + r_951))
+			return r_921((r_931 + 2))
 		else
 		end
 	end)
@@ -505,17 +496,11 @@ putExplain_21_1 = (function(...)
 		local r_911 = 1
 		local r_881 = nil
 		r_881 = (function(r_891)
-			local temp8
-			if (0 < 1) then
-				temp8 = (r_891 <= r_901)
-			else
-				temp8 = (r_891 >= r_901)
-			end
-			if temp8 then
+			if (r_891 <= r_901) then
 				local r_861 = r_891
 				local line1 = r_871[r_861]
 				print_21_1(_2e2e_1("  ", line1))
-				return r_881((r_891 + r_911))
+				return r_881((r_891 + 1))
 			else
 			end
 		end)
