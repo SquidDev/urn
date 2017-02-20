@@ -2,8 +2,8 @@
 (import urn/analysis/visitor visitor)
 (import urn/analysis/traverse traverse)
 
-(define builtins (get-idx (require "tacky.analysis.resolve") :builtins))
-(define builtin-vars (get-idx (require "tacky.analysis.resolve") :declaredVars))
+(define builtins (.> (require "tacky.analysis.resolve") :builtins))
+(define builtin-vars (.> (require "tacky.analysis.resolve") :declaredVars))
 
 (defun has-side-effect (node)
   "Checks if NODE has a side effect"
@@ -28,11 +28,24 @@
     (true false)))
 
 (defun make-progn (body)
+  "Allow using BODY as an expression"
   (with (lambda (struct
                    :tag "symbol"
                    :contents "lambda"
                    :var (.> builtins :lambda)))
     `((,lambda () ,@body))))
+
+(defun get-constant-val (lookup sym)
+  "Get the value of DEF if it is a constant, otherwise nil"
+  (with (def (usage/get-var lookup (.> sym :var)))
+    (when (= 1 (#keys (.> def :defs)))
+      (let* [(ent (nth (list (next (.> def :defs))) 2))
+             (val (.> ent :value))]
+        (cond
+          ((or (string? val) (number? val) (key? val))
+            val)
+          (true
+            nil))))))
 
 (defun optimise-once (nodes)
   "Run all optimisations on NODES once"
@@ -44,7 +57,7 @@
           ;; We replace the last node in the block with a nil: otherwise we might change
           ;; what is returned
           (if (= i (# nodes))
-            (set-idx! nodes i (struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil)))
+            (.<! nodes i (struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil)))
             (remove-nth! nodes i))
           (set! changed true))))
 
@@ -88,9 +101,20 @@
         (with (node (nth nodes i))
           (when (and (.> node :defVar) (! (.> (usage/get-var lookup (.> node :defVar)) :active)))
             (if (= i (# nodes))
-              (set-idx! nodes i (struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil)))
+              (.<! nodes i (struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil)))
               (remove-nth! nodes i))
-            (set! changed true)))))
+            (set! changed true))))
+
+      (traverse/traverse-list nodes 1
+        (lambda (node)
+          (if (symbol? node)
+            (with (var (get-constant-val lookup node))
+              (if var
+                (progn
+                  (set! changed true)
+                  var)
+                node))
+            node))))
 
     changed))
 
