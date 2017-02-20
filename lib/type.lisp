@@ -1,5 +1,5 @@
 (import base (defun let* type# if car cdr when
-              and or >= = <= /= # rawget defmacro
+              and or >= = <= /= # get-idx defmacro
               error gensym ! debug))
 
 (import lua/string (format sub))
@@ -26,24 +26,24 @@
 (defun type (val)
   (let* [(ty (type# val))]
     (if (= ty "table")
-      (let* [(tag (rawget val "tag"))]
+      (let* [(tag (get-idx val "tag"))]
         (if tag tag "table"))
       ty)))
 
 (defun eq? (x y)
   (cond
     [(and (symbol? x) (symbol? y))
-     (= (rawget x "contents") (rawget y "contents"))]
+     (= (get-idx x "contents") (get-idx y "contents"))]
     [(and (symbol? x) (string? y))
-     (= (rawget x "contents") y)]
+     (= (get-idx x "contents") y)]
     [(and (string? x) (symbol? y))
-     (= (rawget y "contents") x)]
+     (= (get-idx y "contents") x)]
     [(and (key? x) (key? y))
-     (= (rawget x "contents") (rawget y "contents"))]
+     (= (get-idx x "contents") (get-idx y "contents"))]
     [(and (key? x) (string? y))
-     (= (sub (rawget x "contents") 2) y)]
+     (= (sub (get-idx x "contents") 2) y)]
     [(and (string? x) (key? y))
-     (= (sub (rawget y "contents") 2) x)]
+     (= (sub (get-idx y "contents") 2) x)]
     [(and (nil? x) (nil? y)) true]
     [(and (list? x) (list? y))
      (and (eq? (car x) (car y))
@@ -55,7 +55,7 @@
 
 (defmacro assert-type! (arg ty)
   (let* [(sym (gensym))
-         (ty (rawget ty "contents"))]
+         (ty (get-idx ty "contents"))]
     `(let* [(,sym (type ,arg))]
       (when (/= ,sym ,ty)
-        (error (format "bad argment %s (expected %s, got %s)" ,(rawget arg "contents") ,ty ,sym) 2)))))
+        (error (format "bad argment %s (expected %s, got %s)" ,(get-idx arg "contents") ,ty ,sym) 2)))))

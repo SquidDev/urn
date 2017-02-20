@@ -61,4 +61,7 @@ return {
 	require = require, select = select,
 	setmetatable = setmetatable, tonumber = tonumber,
 	tostring = tostring, ["type#"] = type,
-	xpcall = xpcall }
+	xpcall = xpcall,
+	["get-idx"] = function(x, i) return x[i] end,
+	["set-idx!"] = function(x, k, v) x[k] = v end
+}

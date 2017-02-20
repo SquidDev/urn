@@ -32,8 +32,10 @@
 (define-native pcall)
 (define-native print)
 (define-native rawequal)
-(define-native rawget)
+(define-native get-idx)
 (define-native rawlen)
+(define-native set-idx!)
+(define-native rawget)
 (define-native rawset)
 (define-native require)
 (define-native select)
@@ -43,4 +45,4 @@
 (define-native type#)
 (define-native xpcall)
 
-(define # (lambda (x) (rawget x "n")))
+(define # (lambda (x) (get-idx x "n")))

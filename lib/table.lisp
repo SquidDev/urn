@@ -1,5 +1,5 @@
 (import base (defmacro defun let* when if cons list unless debug
-              progn rawget rawset error = % - + # or for with ! unpack))
+              progn get-idx set-idx! error = % - + # or for with ! unpack))
 (import lua/string (sub))
 (import lua/table (empty-struct iter-pairs) :export)
 (import lua/basic (getmetatable setmetatable next) :export)
@@ -34,37 +34,37 @@
     (traverse list
       (lambda (x)
         (let [(hd (cond
-                    [(key? (car x)) (sub (rawget (car x) "contents") 2)]
+                    [(key? (car x)) (sub (get-idx (car x) "contents") 2)]
                     [true (car x)]))]
-          (if (! (rawget ret hd))
-            (rawset ret hd (cadr x))
+          (if (! (get-idx ret hd))
+            (set-idx! ret hd (cadr x))
             nil))))
     ret))
 
 ;; Chain a series of index accesses together
 (defmacro .> (x &keys)
   (with (res x)
-    (for-each key keys (set! res `(rawget ,res ,key)))
+    (for-each key keys (set! res `(get-idx ,res ,key)))
     res))
 
 (defmacro .<! (x &keys value)
   (with (res x)
     (for i 1 (- (# keys) 1) 1
-      (with (key (rawget keys i))
-        (set! res `(rawget ,res ,key))))
-    `(rawset ,res ,(rawget keys (# keys) 1) ,value)))
+      (with (key (get-idx keys i))
+        (set! res `(get-idx ,res ,key))))
+    `(set-idx! ,res ,(get-idx keys (# keys) 1) ,value)))
 
 (defun struct (&keys)
   (if (= (% (# keys) 1) 1)
     (error "Expected an even number of arguments to struct" 2)
     '())
   (let* [(contents (lambda (key)
-                     (sub (rawget key "contents") 2)))
+                     (sub (get-idx key "contents") 2)))
          (out (empty-struct))]
     (for i 1 (# keys) 2
-      (let ((key (rawget keys i))
-            (val (rawget keys (+ 1 i))))
-        (rawset out (if (key? key) (contents key) key) val)))
+      (let ((key (get-idx keys i))
+            (val (get-idx keys (+ 1 i))))
+        (set-idx! out (if (key? key) (contents key) key) val)))
     out))
 
 (defun empty-struct? (xs)

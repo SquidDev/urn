@@ -1,5 +1,5 @@
 (import base (defun defmacro progn for while if
-              and or with xpcall rawget rawset pretty 
+              and or with xpcall get-idx set-idx! pretty 
               gensym tostring tonumber require
               unpack list cons when unless
               = /= < <= > >= + - * / % ^ ! # debug) :export)
@@ -26,7 +26,7 @@
 
 (defun symbol->string (x)
   (if (symbol? x)
-    (rawget x "contents")
+    (get-idx x "contents")
     nil))
 (defun string->symbol (x)
   (struct :tag "symbol" :contents x))

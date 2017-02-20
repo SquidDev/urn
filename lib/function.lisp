@@ -1,5 +1,5 @@
 (import base (defmacro defun with for when if and or
-              rawget gensym unpack =))
+              get-idx gensym unpack =))
 (import binders (let))
 (import list (for-each push-cdr! any map traverse))
 (import type (symbol? list? function? table?))
@@ -7,7 +7,7 @@
 (import lua/os (clock))
 
 ;; Checks if this symbol is a wildcard
-(defun slot? (symb) (and (symbol? symb) (= (rawget symb "contents") "<>")))
+(defun slot? (symb) (and (symbol? symb) (= (get-idx symb "contents") "<>")))
 
 ;; Partially apply a function, where <> is replaced by an argument to a function.
 ;; Values are evaluated every time the resulting function is called.

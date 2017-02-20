@@ -15,6 +15,7 @@ return {
 	['..'] = { tag = "expr", contents = "(${1} .. ${2})", count = 2 },
 
 	-- This is basically a crime.
-	['rawget'] = { tag = "expr", contents = "${1}[${2}]" , count = 2 },
-	['rawset'] = { tag = "stmt", contents = "${1}[${2}] = ${3}", count = 3 },
+	-- * Feb 20th, 2017: no longer a crime!
+	['get-idx'] = { tag = "expr", contents = "${1}[${2}]" , count = 2 },
+	['set-idx!'] = { tag = "stmt", contents = "${1}[${2}] = ${3}", count = 3 },
 }

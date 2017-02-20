@@ -7,7 +7,7 @@
 (define-macro defmacro (lambda (name args &body)
   `(define-macro ,name (lambda ,args ,@body))))
 
-(defun car (xs) (rawget xs 1))
+(defun car (xs) (get-idx xs 1))
 (defun cdr (xs) (slice xs 2))
 (defun list (&xs) xs)
 (defun cons (x xs) (list x (unpack xs)))
@@ -57,7 +57,7 @@
        (,impl))))
 
 (defmacro with (var &body)
-  `((lambda (,(rawget var 1)) ,@body) ,(rawget var 2)))
+  `((lambda (,(get-idx var 1)) ,@body) ,(get-idx var 2)))
 
 (defmacro and (a b &rest)
   (with (symb (gensym))

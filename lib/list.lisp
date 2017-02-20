@@ -1,5 +1,5 @@
-(import base (defun defmacro when let* rawset
-              rawget and cons for gensym
+(import base (defun defmacro when let* set-idx!
+              get-idx and cons for gensym
               pretty print error tostring or
               if # + - >= = ! with))
 (import base)
@@ -64,26 +64,26 @@
 (defun traverse (xs f) (map f xs))
 (defun last (xs)
   (assert-type! xs list)
-  (rawget xs (# xs)))
+  (get-idx xs (# xs)))
 
-(define nth rawget)
+(define nth get-idx)
 
 (defun push-cdr! (xs val)
   (assert-type! xs list)
   (let* [(len (+ (# xs) 1))]
-    (rawset xs "n" len)
-    (rawset xs len val)
+    (set-idx! xs "n" len)
+    (set-idx! xs len val)
     xs))
 
 (defun pop-last! (xs)
   (assert-type! xs list)
-  (rawset xs (# xs) nil)
-  (rawset xs "n" (- (# xs) 1))
+  (set-idx! xs (# xs) nil)
+  (set-idx! xs "n" (- (# xs) 1))
   xs)
 
 (defun remove-nth! (li idx)
   (assert-type! li list)
-  (rawset li "n" (- (rawget li "n") 1))
+  (set-idx! li "n" (- (get-idx li "n") 1))
   (lua/table/remove li idx))
 
 (defmacro for-each (var lst &body)
@@ -91,7 +91,7 @@
   (let* [(ctr' (gensym))
          (lst' (gensym))]
     `(with (,lst' ,lst)
-       (for ,ctr' 1 (# ,lst') 1 (with (,var (rawget ,lst' ,ctr')) ,@body)))))
+       (for ,ctr' 1 (# ,lst') 1 (with (,var (get-idx ,lst' ,ctr')) ,@body)))))
 
 (defun append (xs ys)
   (cond

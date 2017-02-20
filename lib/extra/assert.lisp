@@ -2,8 +2,8 @@
 (import list (elem? traverse))
 
 (defun format-value (value)
-  (if (and (table? value) (rawget value "contents"))
-    (rawget value "contents")
+  (if (and (table? value) (get-idx value "contents"))
+    (get-idx value "contents")
     (pretty value)))
 
 (defmacro assert! (cnd msg) `(unless ,cnd (error! ,msg 0)))
