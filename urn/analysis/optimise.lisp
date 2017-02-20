@@ -2,6 +2,9 @@
 (import urn/analysis/visitor visitor)
 (import urn/analysis/traverse traverse)
 
+(import string)
+(import base (type#))
+
 (define builtins (.> (require "tacky.analysis.resolve") :builtins))
 (define builtin-vars (.> (require "tacky.analysis.resolve") :declaredVars))
 
@@ -19,6 +22,26 @@
             (with (var (.> fst :var))
               (and (/= var (.> builtins :lambda)) (/= var (.> builtins :quote))))
             true))))))
+
+(defun constant? (node)
+  "Checks if NODE is a constant value"
+  (or (string? node) (number? node) (key? node)))
+
+(defun urn->val (node)
+  "Gets the constant value of NODE"
+  (cond
+    ((string? node) (.> node :contents))
+    ((number? node) (number->string (.> node :contents)))
+    ((key? node) (string/sub (.> node :contents) 2))))
+
+(defun val->urn (val)
+  "Gets the AST representation of VAL"
+  (with (ty (type# val))
+    (cond
+      ((= ty "string")  (struct :tag "string" :contents (string/quoted val)))
+      ((= ty "number")  (struct :tag "number" :contents (number->string val)))
+      ((= ty "nil")     (struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil)))
+      ((= ty "boolean") (struct :tag "symbol" :contents (bool->string val) :var (.> builtin-vars (bool->string val)))))))
 
 (defun truthy? (node)
   "Determine whether NODE is a truthy value"
@@ -47,7 +70,7 @@
           (true
             nil))))))
 
-(defun optimise-once (nodes)
+(defun optimise-once (nodes state)
   "Run all optimisations on NODES once"
   (with (changed false)
     ;; Strip import expressions
@@ -67,6 +90,21 @@
         (when (! (has-side-effect node))
           (remove-nth! nodes i)
           (set! changed true))))
+
+    ;; Primitive constant folding
+    (traverse/traverse-list nodes 1
+      (lambda (node)
+        (if (and (list? node) (all constant? (cdr node)))
+          ;; If we're invoking a function with entirely constant arguments then
+          (let* [(head (car node))
+                 (meta (and (symbol? head) (= (.> head :var :tag) "native") (.> state :meta (.> head :var :fullName))))]
+            ;; Determine whether we have a native (and pure) function. If so, we'll invoke it.
+            (if (and meta (.> meta :pure) (.> meta :value))
+              (with (res ((.> meta :value) (unpack (map urn->val (cdr node)))))
+                (val->urn res))
+              node))
+          node)))
+
 
     ;; Simplify cond expressions
     (traverse/traverse-list nodes 1
@@ -118,12 +156,13 @@
 
     changed))
 
-(defun optimise (nodes)
+(defun optimise (nodes state)
+  (unless state (set! state (struct :meta (empty-struct))))
   ;; Run the main optimiser until a "fixed point" is reached
   (let [(iteration 0)
         (changed true)]
     (while (and changed (< iteration 10))
-      (set! changed (optimise-once nodes))
+      (set! changed (optimise-once nodes state))
       (inc! iteration)))
   nodes)
 

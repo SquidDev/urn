@@ -6,25 +6,25 @@
     (with (tag (.> node :tag))
       (cond
         ((or (= tag "string") (= tag "number") (= tag "key") (= tag "symbol"))
-          (visitor node))
+          node)
         ((= tag "list")
           (with (first (nth node 1))
             (if (and first (= (.> first :tag) "symbol"))
               (cond
                 ((or (= (.> first :contents) "unquote") (= (.> first :contents) "unquote-splice"))
                   (.<! node 2 (traverse-quote (nth node 2) visitor (pred level)))
-                  (visitor node))
+                  node)
                 ((= (.> first :contents) "quasiquote")
                   (.<! node 2 (traverse-quote (nth node 2) visitor (succ level)))
-                  (visitor node))
+                  node)
                 (true
                   (for i 1 (# node) 1
-                    (.<! node i node (traverse-quote (nth node i) visitor level)))
-                  (visitor node)))
+                    (.<! node i (traverse-quote (nth node i) visitor level)))
+                  node))
               (progn
                 (for i 1 (# node) 1
-                  (.<! node i node (traverse-quote (nth node i) visitor level)))
-                (visitor node)))))
+                  (.<! node i (traverse-quote (nth node i) visitor level)))
+                node))))
         (error! (.. "Unknown tag " tag))))))
 
 (defun traverse-node (node visitor)
@@ -83,6 +83,8 @@
 (defun traverse-block (node start visitor)
   (with (offset 0)
     (for i start (# node) 1
+      (when (nil? (nth node (+ i offset)))
+        (print! "node" (pretty node)))
       (with (result (traverse-node (nth node (+ i offset)) visitor))
         ;; TODO: Inline expressions of the form ((lambda () ...))
         (.<! node i result))))

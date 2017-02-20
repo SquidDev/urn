@@ -200,6 +200,7 @@ local function libLoader(name, shouldResolve)
 					v.contents = buffer
 				end
 
+				if v.value == nil then v.value = libEnv[lib.path .. "/" .. k] end
 				libMeta[lib.path .. "/" .. k] = v
 			end
 		end
@@ -343,7 +344,7 @@ out.n = #out
 out.tag = "list"
 
 local start = os.clock()
-out = optimise(out)
+out = optimise(out, { meta = libMeta })
 if time then print("Optimised in " .. (os.clock() - start)) end
 
 local state = backend.lua.backend.createState(libMeta)

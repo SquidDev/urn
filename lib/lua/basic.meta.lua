@@ -1,18 +1,18 @@
 return {
-	['='] = { tag = "expr", contents = "(${1} == ${2})", count = 2 },
-	['/='] = { tag = "expr", contents = "(${1} ~= ${2})", count = 2 },
-	['<']  = { tag = "expr", contents = "(${1} < ${2})",  count = 2 },
-	['<='] = { tag = "expr", contents = "(${1} <= ${2})", count = 2 },
-	['>']  = { tag = "expr", contents = "(${1} > ${2})",  count = 2 },
-	['>='] = { tag = "expr", contents = "(${1} >= ${2})", count = 2 },
+	['='] =  { tag = "expr", contents = "(${1} == ${2})", count = 2, pure = true },
+	['/='] = { tag = "expr", contents = "(${1} ~= ${2})", count = 2, pure = true },
+	['<']  = { tag = "expr", contents = "(${1} < ${2})",  count = 2, pure = true },
+	['<='] = { tag = "expr", contents = "(${1} <= ${2})", count = 2, pure = true },
+	['>']  = { tag = "expr", contents = "(${1} > ${2})",  count = 2, pure = true },
+	['>='] = { tag = "expr", contents = "(${1} >= ${2})", count = 2, pure = true },
 
-	['+']  = { tag = "expr", contents = "(${1} + ${2})",  count = 2 },
-	['-']  = { tag = "expr", contents = "(${1} - ${2})",  count = 2 },
-	['*']  = { tag = "expr", contents = "(${1} * ${2})",  count = 2 },
-	['/']  = { tag = "expr", contents = "(${1} / ${2})",  count = 2 },
-	['%']  = { tag = "expr", contents = "(${1} % ${2})",  count = 2 },
-	['^']  = { tag = "expr", contents = "(${1} ^ ${2})",  count = 2 },
-	['..'] = { tag = "expr", contents = "(${1} .. ${2})", count = 2 },
+	['+']  = { tag = "expr", contents = "(${1} + ${2})",  count = 2, pure = true },
+	['-']  = { tag = "expr", contents = "(${1} - ${2})",  count = 2, pure = true },
+	['*']  = { tag = "expr", contents = "(${1} * ${2})",  count = 2, pure = true },
+	['/']  = { tag = "expr", contents = "(${1} / ${2})",  count = 2, pure = true },
+	['%']  = { tag = "expr", contents = "(${1} % ${2})",  count = 2, pure = true },
+	['^']  = { tag = "expr", contents = "(${1} ^ ${2})",  count = 2, pure = true },
+	['..'] = { tag = "expr", contents = "(${1} .. ${2})", count = 2, pure = true },
 
 	-- This is basically a crime.
 	-- * Feb 20th, 2017: no longer a crime!
