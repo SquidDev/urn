@@ -41,6 +41,12 @@
             nil))))
     ret))
 
+(defun struct->assoc (tbl)
+  (with (out '())
+    (iter-pairs tbl (lambda (k v)
+                      (push-cdr! out (list k v))))
+    out))
+
 ;; Chain a series of index accesses together
 (defmacro .> (x &keys)
   (with (res x)
@@ -69,3 +75,8 @@
 
 (defun empty-struct? (xs)
   (! (next xs)))
+
+(defun #keys (st)
+  (with (cnt 0)
+    (iter-pairs st (lambda () (set! cnt (+ cnt 1))))
+    cnt))
