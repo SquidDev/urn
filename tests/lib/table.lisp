@@ -39,22 +39,21 @@
     (can "be converted to a structure"
       (let* [(li '((:foo "x") (:bar "y") (:foo "z")))
              (st (assoc->struct li))]
-        (print! (pretty st))
-        (affirm (= (assoc li :foo) (rawget st :foo))
-                (/= (assoc li :foo) (rawget st :bar)))))
+        (affirm (= (assoc li :foo) (get-idx st :foo))
+                (/= (assoc li :foo) (get-idx st :bar)))))
   ]
 
   [may "be a structure"
     (can "be created"
          (with (st (struct :foo "x" :bar "y"))
-           (affirm (= "x" (rawget st :foo))
-                   (= "y" (rawget st :bar)))))
+           (affirm (= "x" (get-idx st :foo))
+                   (= "y" (get-idx st :bar)))))
     (can "be mutated"
          (with (st (struct :foo "x"))
-           (rawset st :bar "y")
-           (rawset st :foo "z")
-           (affirm (= "z" (rawget st :foo))
-                   (= "y" (rawget st :bar)))))
+           (set-idx! st :bar "y")
+           (set-idx! st :foo "z")
+           (affirm (= "z" (get-idx st :foo))
+                   (= "y" (get-idx st :bar)))))
     (can "be indexed"
          (with (st (struct :foo (struct :bar (struct :baz "x"))))
            (affirm (= "x" (.> st :foo :bar :baz))
@@ -66,9 +65,9 @@
            (.<! st :bar "y")
            (.<! st :foo (empty-struct))
            (.<! st :foo :bar (empty-struct :baz "x"))
-           (rawset st :foo "z")
-           (affirm (= "z" (rawget st :foo :bar :baz))
-                   (= "y" (rawget st :bar)))))
+           (set-idx! st :foo "z")
+           (affirm (= "z" (get-idx st :foo :bar :baz))
+                   (= "y" (get-idx st :bar)))))
     (will "be empty"
           (affirm (empty-struct? (empty-struct))
                   (empty-struct? (struct))
