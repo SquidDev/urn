@@ -3,6 +3,8 @@
               error gensym ! debug))
 
 (import lua/string (format sub))
+(import pair)
+(import pair (pair?) :export)
 
 (defun table? (x) (= (type# x) "table"))
 (defun list? (x) (= (type x) "list"))
@@ -33,23 +35,29 @@
 
 (defun eq? (x y)
   (cond
-    [(and (symbol? x) (symbol? y))
-     (= (get-idx x "contents") (get-idx y "contents"))]
-    [(and (symbol? x) (string? y))
-     (= (get-idx x "contents") y)]
-    [(and (string? x) (symbol? y))
-     (= (get-idx y "contents") x)]
-    [(and (key? x) (key? y))
-     (= (get-idx x "contents") (get-idx y "contents"))]
-    [(and (key? x) (string? y))
-     (= (sub (get-idx x "contents") 2) y)]
-    [(and (string? x) (key? y))
-     (= (sub (get-idx y "contents") 2) x)]
-    [(and (nil? x) (nil? y)) true]
-    [(and (list? x) (list? y))
-     (and (eq? (car x) (car y))
-          (eq? (cdr x) (cdr y)))]
-    [true (= x y)]))
+    [(and (exists? x) (exists? y))
+     (cond
+       [(and (symbol? x) (symbol? y))
+        (= (get-idx x "contents") (get-idx y "contents"))]
+       [(and (symbol? x) (string? y))
+        (= (get-idx x "contents") y)]
+       [(and (string? x) (symbol? y))
+        (= (get-idx y "contents") x)]
+       [(and (key? x) (key? y))
+        (= (get-idx x "contents") (get-idx y "contents"))]
+       [(and (key? x) (string? y))
+        (= (sub (get-idx x "contents") 2) y)]
+       [(and (string? x) (key? y))
+        (= (sub (get-idx y "contents") 2) x)]
+       [(and (pair? x) (pair? y))
+        (and (eq? (pair/fst x) (pair/fst y))
+             (eq? (pair/snd x) (pair/snd y)))]
+       [(and (nil? x) (nil? y)) true]
+       [(and (list? x) (list? y))
+        (and (eq? (car x) (car y))
+             (eq? (cdr x) (cdr y)))]
+       [true (= x y)])]
+    [true true]))
 
 (defun neq? (x y)
   (! (eq? x y)))
