@@ -10,6 +10,7 @@
 (import binders () :export)
 (import list () :export)
 (import type () :export)
+(import pair () :export)
 (import function () :export)
 (import table () :export)
 (import lua/io (close flush input lines open output popen read stderr stdin stdout tmpfile write) :export)
@@ -46,3 +47,9 @@
 (defun id (x) x)
 (defun const (x)
   (lambda (y) x))
+
+(defmacro delay (x)
+  `(lambda () ,x))
+
+(defmacro force (x)
+  `(,x))
