@@ -14,6 +14,16 @@
   "Determines whether CHAR is a terminator of a block"
   (or (= char "\n") (= char " ") (= char "\t") (= char "(") (= char ")") (= char "[") (= char "]") (= char "{") (= char "}") (= char "")))
 
+(defun digit-error! (pos name char)
+  "Generate an error at POS where a NAME digit was expected and CHAR received instead"
+  (logger/print-error! (string/format "Expected %s digit, got %s" name (if (= char "")
+                                                                         "eof"
+                                                                         (string/quoted char))))
+  (logger/put-trace! pos)
+  (logger/put-lines! false
+    pos  "Invalid digit here")
+  (fail! "Lexing failed"))
+
 (defun lex (str name)
   (let* ((lines (string/split str "\n"))
          (line 1)
@@ -47,14 +57,7 @@
                        (let* [(start offset)
                               (char (string/char-at str offset))]
                          ;; Require at least one character
-                         (unless (p char)
-                           (with (pos (range (position)))
-                             (logger/print-error! (string/format "Expected %s digit, got %s" name (if (= char "")
-                                                                                                    "eof"
-                                                                                                    (string/quoted char))))
-                             (logger/put-trace! pos)
-                             (logger/put-lines! false
-                               pos  "Invalid digit here")))
+                         (unless (p char) (digit-error! (range (position)) name char))
 
                          ;; Consume all remaining characters matching this
                          (set! char (string/char-at str (succ offset)))
@@ -145,26 +148,94 @@
                     (range (position))  "Illegal character here. Are you missing whitespace?")
                   (fail! "Lexing failed")))))
           ((= char "\"")
-            (with (start (position))
+            (let* [(start (position))
+                   (buffer '())]
               (consume!)
               (set! char (string/char-at str offset))
               (while (/= char "\"")
                 (cond
-                  ((or (= char nil) (= char ""))
+                  ((= char "")
                     (logger/print-error! "Expected '\"', got eof")
 
                     (let ((start (range start))
                           (finish (range (position))))
-                      (logger/put-trace! (struct :range finish))
+                      (logger/put-trace! finish)
                       (logger/put-lines! false
                         start  "string started here"
                         finish "end of file here")
                       (fail! "Lexing failed")))
-                  ((= char "\\") (consume!))
-                  (true))
+                  ((= char "\\")
+                    (consume!)
+                    (set! char (string/char-at str offset))
+                    (cond
+                      ;; Skip new lines
+                      ((= char "\n"))
+                      ;; Various escape codes
+                      ((= char "a") (push-cdr! buffer "\a"))
+                      ((= char "b") (push-cdr! buffer "\b"))
+                      ((= char "f") (push-cdr! buffer "\f"))
+                      ((= char "n") (push-cdr! buffer "\n"))
+                      ((= char "t") (push-cdr! buffer "\n"))
+                      ((= char "v") (push-cdr! buffer "\v"))
+                      ;; Escaped characters
+                      ((= char "\"") (push-cdr! buffer "\""))
+                      ((= char "\\") (push-cdr! buffer "\\"))
+                      ;; And character codes
+                      ((between? char "0" "9")
+                        (let [(start (position))
+                              (val (if (and (= char "0") (= (string/char-at str (succ offset)) "x"))
+                                     ;; Gobble hexadecimal codes
+                                     (progn
+                                       (consume!)
+                                       (consume!)
+
+                                       (with (start offset)
+                                         ;; Obviously we require the first character to be hex
+                                         (unless (hex-digit? (string/char-at str offset))
+                                           (digit-error! (range (position)) "hexadecimal" (string/char-at str offset)))
+
+                                         ;; The next one doesn't have to be a hex, but it helps :)
+                                         (when (hex-digit? (string/char-at str (succ offset)))
+                                           (consume!))
+                                         (string->number (string/sub str start offset) 16)))
+                                     ;; Gobbal normal character codes
+                                     (let [(start (position))
+                                           (ctr 0)]
+
+                                       (set! char (string/char-at str (succ offset)))
+                                       (while (and (< ctr 2) (between? char "0" "9"))
+                                         (consume!)
+                                         (set! char (string/char-at str (succ offset)))
+                                         (inc! ctr))
+
+                                       (string->number (string/sub str (.> start :offset) offset)))))]
+
+                          (when (>= val 256)
+                            (logger/print-error! "Invalid escape code")
+                            (logger/put-trace! (range start))
+                            (logger/put-lines! true
+                              (range start (position)) (.. "Must be between 0 and 255, is " val))
+                            (fail! "Lexing failed"))
+
+                          (push-cdr! buffer (string/char val))))
+                      ((= char "")
+                        (logger/print-error! "Expected escape code, got eof")
+                        (logger/put-trace! (range (position))
+                          (logger/put-lines! false
+                            (range (position)) "end of file here"))
+                        (fail! "Lexing failed"))
+                      (true
+                        (logger/print-error! "Illegal escape character")
+                        (logger/put-trace! (range (position)))
+                        (logger/put-lines! false
+                          (range (position)) "Unknown escape character")
+                        (fail! "Lexing failed"))))
+                  ;; Boring normal characters
+                  (true
+                    (push-cdr! buffer char)))
                 (consume!)
                 (set! char (string/char-at str offset)))
-              (append! "string" start)))
+              (append-with! (struct :tag "string" :contents (concat buffer)) start)))
           ((= char ";")
             (while (and (<= offset length) (/= (string/char-at str (succ offset)) "\n"))
               (consume!)))

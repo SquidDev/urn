@@ -50,6 +50,8 @@
       (string/format "macro expansion of %s (%s)"
         (.> macro :var :name)
         (format-node (.> macro :node)))))
+  ((and (.> node :start) (.> node :finish))
+    (format-range node))
   (true "?")))
 
 (defun get-source (node)
