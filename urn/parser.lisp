@@ -2,6 +2,18 @@
 (import urn/logger logger)
 (import function (cut))
 
+(defun hex-digit? (char)
+  "Determines whether CHAR is a hecharadecimal digit"
+  (or (between? char "0" "9") (between? char "a" "f") (between? char "A" "F")))
+
+(defun bin-digit? (char)
+  "Determines whether char is a binary digit"
+  (or (= char "0") (= char "1")))
+
+(defun terminator? (char)
+  "Determines whether CHAR is a terminator of a block"
+  (or (= char "\n") (= char " ") (= char "\t") (= char "(") (= char ")") (= char "[") (= char "]") (= char "{") (= char "}") (= char "")))
+
 (defun lex (str name)
   (let* ((lines (string/split str "\n"))
          (line 1)
@@ -11,26 +23,47 @@
          (out '())
          ;; Consumes a single symbol and increments the position
          (consume! (lambda ()
-           (if (= (string/char-at str offset) "\n")
-             (progn
-               (inc! line)
-               (set! column 1))
-             (inc! column))
-           (inc! offset)))
-         ;; Generates a table with the current position
+                     (if (= (string/char-at str offset) "\n")
+                       (progn
+                         (inc! line)
+                         (set! column 1))
+                       (inc! column))
+                     (inc! offset)))
+          ;; Generates a table with the current position
          (position (lambda () (struct :line line :column column :offset offset)))
          ;; Generates a table with a particular range
-         (range (lambda (start finish) (struct :start start :finish finish :lines lines :name name)))
+         (range (lambda (start finish) (struct :start start :finish (or finish start) :lines lines :name name)))
          ;; Appends a struct to the list
          (append-with! (lambda (data start finish)
-           (let ((start (or start (position)))
-                 (finish (or finish (position))))
-             (.<! data :range (range start finish))
-             (.<! data :contents (string/sub str (.> start :offset) (.> finish :offset)))
-             (push-cdr! out data))))
+                         (let ((start (or start (position)))
+                                (finish (or finish (position))))
+                           (.<! data :range (range start finish))
+                           (.<! data :contents (string/sub str (.> start :offset) (.> finish :offset)))
+                           (push-cdr! out data))))
          ;; Appends a token to the list
          (append! (lambda (tag start finish)
-           (append-with! (struct :tag tag) start finish))))
+                    (append-with! (struct :tag tag) start finish)))
+         (parse-base (lambda (name p base)
+                       (let* [(start offset)
+                              (char (string/char-at str offset))]
+                         ;; Require at least one character
+                         (unless (p char)
+                           (with (pos (range (position)))
+                             (logger/print-error! (string/format "Expected %s digit, got %s" name (if (= char "")
+                                                                                                    "eof"
+                                                                                                    (string/quoted char))))
+                             (logger/put-trace! pos)
+                             (logger/put-lines! false
+                               pos  "Invalid digit here")))
+
+                         ;; Consume all remaining characters matching this
+                         (set! char (string/char-at str (succ offset)))
+                         (while (p char)
+                           (consume!)
+                           (set! char (string/char-at str (succ offset))))
+
+                         ;; And conver the digit to a string
+                         (string->number (string/sub str start offset) base)))))
     ;; Scan the input stream, consume one character, then reading til the end of that token.
     (while (<= offset length)
       (with (char (string/char-at str offset))
@@ -49,11 +82,68 @@
               (consume!)
               (append! "unquote-splice" start))
             (append! "unquote")))
-          ((or (between? char "0" "9") (and (= char "-") (between? (string/char-at str (succ offset)) "0" "9")))
-            (with (start (position))
-              (while (string/find (string/char-at str (succ offset)) "[0-9.e+-]")
-                (consume!))
-              (append! "number" start)))
+          ((string/find str "^%-?%.?[0-9]" offset)
+            (let [(start (position))
+                  (negative (= char "-"))]
+              ;; Check whether this number is negative
+              (when negative
+                (consume!)
+                (set! char (string/char-at str offset)))
+
+              (with (val (cond
+                           ;; Parse hexadecimal digits
+                           ((and (= char "0") (= (string/char-at str (succ offset)) "x"))
+                             (consume!)
+                             (consume!)
+                             (with (res (parse-base "hexadecimal" hex-digit? 16))
+                               (when negative (set! res (- 0 res))
+                               res)))
+                           ;; Parse binary digits
+                           ((and (= char "0") (= (string/char-at str (succ offset)) "b"))
+                             (consume!)
+                             (consume!)
+                             (with (res (parse-base "binary" bin-digit? 2))
+                               (when negative (set! res (- 0 res))
+                               res)))
+                           (true
+                             ;; Parse leading digits
+                             (while (between? (string/char-at str (succ offset))  "0" "9")
+                               (consume!))
+
+                             ;; Consume decimal places
+                             (when (= (string/char-at str (succ offset)) ".")
+                               (consume!)
+                               (while (between? (string/char-at str (succ offset))  "0" "9")
+                                 (consume!)))
+
+                             ;; Consume exponent
+                             (set! char (string/char-at str (succ offset)))
+                             (when (or (= char "e") (= char "E"))
+                               (consume!)
+                               (set! char (string/char-at str (succ offset)))
+
+                               ;; Gobble positive/negative bit
+                               (when (or (= char "-") (= char "+")) (consume!))
+
+                               ;; And exponent digits
+                               (while (between? (string/char-at str (succ offset)) "0" "9")
+                                 (consume!)))
+
+                             (string->number (string/sub str (.> start :offset) offset)))))
+                (append-with! (struct :tag "number" :value val) start)
+
+                ;; Ensure the next character is a terminator of some sort, otherwise we'd allow things like 0x2-2
+                (set! char (string/char-at str (succ offset)))
+                (unless (terminator? char)
+                  (consume!)
+
+                  (logger/print-error! (string/format "Expected digit, got %s" (if (= char "")
+                                                                                 "eof"
+                                                                                 char)))
+                  (logger/put-trace! (range (position)))
+                  (logger/put-lines! false
+                    (range (position))  "Illegal character here. Are you missing whitespace?")
+                  (fail! "Lexing failed")))))
           ((= char "\"")
             (with (start (position))
               (consume!)
@@ -82,7 +172,7 @@
             (let ((start (position))
                   (tag (if (= char ":" ) "key" "symbol")))
               (set! char (string/char-at str (succ offset)))
-              (while (and (/= char "\n") (/= char " ") (/= char "\t") (/= char "(") (/= char ")") (/= char "[") (/= char "]") (/= char "{") (/= char "}") (/= char ""))
+              (while (! (terminator? char))
                 (consume!)
                 (set! char (string/char-at str (succ offset))))
               (append! tag start))))
