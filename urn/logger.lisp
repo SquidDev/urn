@@ -85,7 +85,7 @@
           (cond
             ((! range) "^")
             ((and (.> position :finish) (= (.> position :start :line) (.> position :finish :line)))
-              (string/rep "^" (- (.> position :finish :column) (.> position :start :column) -1)))
+              (string/rep "^" (succ (- (.> position :finish :column) (.> position :start :column)))))
             (true "^...")))
 
           (print! (string/format code "" (string/..
