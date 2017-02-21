@@ -9,6 +9,8 @@ local function pretty(x)
 			return '(' .. table.concat(y, ' ') .. ')'
 		elseif x.tag == 'symbol' or x.tag == 'key' or x.tag == 'string' or x.tag == 'number' then
 			return x.contents
+		elseif x.tag.tag and x.tag.tag == 'symbol' and x.tag.contents == 'pair' then
+			return '(pair ' .. pretty(x.fst) .. ' ' .. pretty(x.snd) .. ')'
 		else
 			return tostring(x)
 		end
