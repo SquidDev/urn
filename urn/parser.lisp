@@ -181,12 +181,11 @@
                       ((= char "\"") (push-cdr! buffer "\""))
                       ((= char "\\") (push-cdr! buffer "\\"))
                       ;; And character codes
-                      ((between? char "0" "9")
+                      ((or (= char "x") (= char "X") (between? char "0" "9"))
                         (let [(start (position))
-                              (val (if (and (= char "0") (= (string/char-at str (succ offset)) "x"))
+                              (val (if (or (= char "x") (= char "X"))
                                      ;; Gobble hexadecimal codes
                                      (progn
-                                       (consume!)
                                        (consume!)
 
                                        (with (start offset)
@@ -235,18 +234,21 @@
                     (push-cdr! buffer char)))
                 (consume!)
                 (set! char (string/char-at str offset)))
-              (append-with! (struct :tag "string" :contents (concat buffer)) start)))
+              (append-with! (struct :tag "string" :value (concat buffer)) start)))
           ((= char ";")
             (while (and (<= offset length) (/= (string/char-at str (succ offset)) "\n"))
               (consume!)))
           (true
             (let ((start (position))
-                  (tag (if (= char ":" ) "key" "symbol")))
+                  (key (= char ":" )))
               (set! char (string/char-at str (succ offset)))
               (while (! (terminator? char))
                 (consume!)
                 (set! char (string/char-at str (succ offset))))
-              (append! tag start))))
+
+              (if key
+                (append-with! (struct :tag "key" :value (string/sub str (succ (.> start :offset)) offset)) start)
+                (append! "symbol" start)))))
         (consume!)))
     (append! "eof")
     out))
