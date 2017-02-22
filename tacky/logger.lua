@@ -23,6 +23,8 @@ local _temp = (function()
 				return tostring(x.value)
 			elseif x.tag.tag and x.tag.tag == 'symbol' and x.tag.contents == 'pair' then
 				return '(pair ' .. pretty(x.fst) .. ' ' .. pretty(x.snd) .. ')'
+			elseif x.tag == 'thunk' then
+				return '<<thunk>>'
 			else
 				return tostring(x)
 			end

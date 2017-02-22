@@ -47,7 +47,7 @@
                   ((or (= func (.> builtins :unquote)) (= func (.> builtins :unquote-splice)))
                     (fail! "unquote/unquote-splice should never appear head"))
                   ((or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
-                    (visit-node (nth node 3) visitor))
+                    (visit-node (nth node (# node)) visitor))
                   ((= func (.> builtins :define-native))) ;; Nothing needs doing here
                   ((= func (.> builtins :import))) ;; Nothing needs doing here
                   ((= funct "macro") (fail! "Macros should have been expanded"))

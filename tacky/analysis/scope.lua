@@ -23,7 +23,7 @@ end
 
 Scope.empty = Scope.child(nil)
 
-function Scope:get(name, user)
+function Scope:get(name, user, noYield)
 	local element = self
 
 	while element do
@@ -32,6 +32,8 @@ function Scope:get(name, user)
 
 		element = element.parent
 	end
+
+	if noYield then return end
 
 	-- We don't have a variable. This means we've got a function which hasn't
 	-- been defined yet or doesn't exist.

@@ -23,6 +23,8 @@ local _temp = (function()
 				return tostring(x.value)
 			elseif x.tag.tag and x.tag.tag == 'symbol' and x.tag.contents == 'pair' then
 				return '(pair ' .. pretty(x.fst) .. ' ' .. pretty(x.snd) .. ')'
+			elseif x.tag == 'thunk' then
+				return '<<thunk>>'
 			else
 				return tostring(x)
 			end
@@ -867,9 +869,9 @@ compileExpression1 = (function(node4, out5, state3, ret1)
 				else
 				end
 			elseif (var2 == builtins1["define"]) then
-				return compileExpression1(nth1(node4, 3), out5, state3, _2e2e_1(escapeVar1(node4["defVar"], state3), " = "))
+				return compileExpression1(nth1(node4, _23_1(node4)), out5, state3, _2e2e_1(escapeVar1(node4["defVar"], state3), " = "))
 			elseif (var2 == builtins1["define-macro"]) then
-				return compileExpression1(nth1(node4, 3), out5, state3, _2e2e_1(escapeVar1(node4["defVar"], state3), " = "))
+				return compileExpression1(nth1(node4, _23_1(node4)), out5, state3, _2e2e_1(escapeVar1(node4["defVar"], state3), " = "))
 			elseif (var2 == builtins1["define-native"]) then
 				return append_21_1(out5, format1("%s = _libs[%q]", escapeVar1(node4["defVar"], state3), node4["defVar"]["fullName"]))
 			elseif (var2 == builtins1["quote"]) then

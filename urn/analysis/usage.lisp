@@ -79,7 +79,7 @@
           ((= func (.> builtins :set!))
             (add-definition! state (.> node 2 :var) node "set" (nth node 3)))
           ((or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
-            (add-definition! state (.> node :defVar) node "define" (nth node 3)))
+            (add-definition! state (.> node :defVar) node "define" (nth node (# node))))
           ((= func (.> builtins :define-native))
             (add-definition! state (.> node :defVar) node "native"))
           (true))))

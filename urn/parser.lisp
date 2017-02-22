@@ -4,18 +4,22 @@
 
 (defun hex-digit? (char)
   "Determines whether CHAR is a hecharadecimal digit"
+  :hidden
   (or (between? char "0" "9") (between? char "a" "f") (between? char "A" "F")))
 
 (defun bin-digit? (char)
   "Determines whether char is a binary digit"
+  :hidden
   (or (= char "0") (= char "1")))
 
 (defun terminator? (char)
   "Determines whether CHAR is a terminator of a block"
+  :hidden
   (or (= char "\n") (= char " ") (= char "\t") (= char "(") (= char ")") (= char "[") (= char "]") (= char "{") (= char "}") (= char "")))
 
 (defun digit-error! (pos name char)
   "Generate an error at POS where a NAME digit was expected and CHAR received instead"
+  :hidden
   (logger/print-error! (string/format "Expected %s digit, got %s" name (if (= char "")
                                                                          "eof"
                                                                          (string/quoted char))))

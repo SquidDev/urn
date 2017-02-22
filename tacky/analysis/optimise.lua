@@ -23,6 +23,8 @@ local _temp = (function()
 				return tostring(x.value)
 			elseif x.tag.tag and x.tag.tag == 'symbol' and x.tag.contents == 'pair' then
 				return '(pair ' .. pretty(x.fst) .. ' ' .. pretty(x.snd) .. ')'
+			elseif x.tag == 'thunk' then
+				return '<<thunk>>'
 			else
 				return tostring(x)
 			end
@@ -602,7 +604,7 @@ visitNode1 = (function(node2, visitor2)
 							temp7 = (func1 == builtins1["define-macro"])
 						end
 						if temp7 then
-							return visitNode1(nth1(node2, 3), visitor2)
+							return visitNode1(nth1(node2, _23_1(node2)), visitor2)
 						elseif (func1 == builtins1["define-native"]) then
 						elseif (func1 == builtins1["import"]) then
 						elseif (funct1 == "macro") then
@@ -732,7 +734,7 @@ definitionsVisitor1 = (function(state5, node7)
 				temp10 = (func2 == builtins2["define-macro"])
 			end
 			if temp10 then
-				return addDefinition_21_1(state5, node7["defVar"], node7, "define", nth1(node7, 3))
+				return addDefinition_21_1(state5, node7["defVar"], node7, "define", nth1(node7, _23_1(node7)))
 			elseif (func2 == builtins2["define-native"]) then
 				return addDefinition_21_1(state5, node7["defVar"], node7, "native")
 			else
@@ -1068,7 +1070,7 @@ traverseNode1 = (function(node11, visitor6)
 						temp20 = (func4 == builtins3["define-macro"])
 					end
 					if temp20 then
-						node11[3] = traverseNode1(nth1(node11, 3), visitor6)
+						node11[_23_1(node11)] = traverseNode1(nth1(node11, _23_1(node11)), visitor6)
 						return visitor6(node11)
 					elseif (func4 == builtins3["define-native"]) then
 						return visitor6(node11)

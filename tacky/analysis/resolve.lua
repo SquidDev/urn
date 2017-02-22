@@ -30,6 +30,30 @@ local function internalError(node, message)
 	error("An internal error occured", 2)
 end
 
+local function handleMetadata(node, var, start, finish)
+	for i = start, finish do
+		local child = node[i]
+		if not child then
+			expect(child, node, "variable metadata")
+		elseif child.tag == "string" then
+			if var.doc then
+				errorPositions(child, "Multiple doc strings in definition")
+			else
+				var.doc = child.value
+			end
+		elseif child.tag == "key" then
+			if child.value == "hidden" then
+				-- Prevent exporting this symbol
+				var.scope.exported[var.name] = nil
+			else
+				errorPositions(child, "Unexpected modifier '" .. child.value .. "'")
+			end
+		else
+			errorPositions(child, "Unexpected node of type " .. child.tag .. ", have you got too many values?")
+		end
+	end
+end
+
 local declaredSymbols = {
 	-- Built in
 	"lambda", "define", "define-macro", "define-native",
@@ -246,31 +270,39 @@ function resolveNode(node, scope, state, root)
 				if not root then errorPositions(first, "define can only be used on the top level") end
 				expectType(node[2], node, "symbol", "name")
 				expect(node[3], node, "value")
-				maxLength(node, 3, "define")
 
-				node.defVar = scope:add(node[2].contents, "defined", node)
-				state:define(node.defVar)
+				local var = scope:add(node[2].contents, "defined", node)
+				state:define(var)
+				node.defVar = var
 
-				node[3] = resolveNode(node[3], scope, state)
+				handleMetadata(node, var, 3, node.n - 1)
+
+				node[node.n] = resolveNode(node[node.n], scope, state)
 				return node
 			elseif func == builtins["define-macro"] then
 				if not root then errorPositions(first, "define-macro can only be used on the top level") end
 				expectType(node[2], node, "symbol", "name")
 				expect(node[3], node, "value")
-				maxLength(node, 3, "define-macro")
 
-				node.defVar = scope:add(node[2].contents, "macro", node)
-				state:define(node.defVar)
+				local var = scope:add(node[2].contents, "macro", node)
+				state:define(var)
+				node.defVar = var
 
-				node[3] = resolveNode(node[3], scope, state)
+				handleMetadata(node, var, 3, node.n - 1)
+
+				node[node.n] = resolveNode(node[node.n], scope, state)
 				return node
 			elseif func == builtins["define-native"] then
 				if not root then errorPositions(first, "define-native can only be used on the top level") end
 				expectType(node[2], node, "symbol", "name")
 				maxLength(node, 3, "define-native")
 
-				node.defVar = scope:add(node[2].contents, "native", node)
-				state:define(node.defVar)
+				local var = scope:add(node[2].contents, "native", node)
+				state:define(var)
+				node.defVar = var
+
+				handleMetadata(node, var, 3, node.n)
+
 				return node
 			elseif func == builtins["import"] then
 				expectType(node[2], node, "symbol", "module name")

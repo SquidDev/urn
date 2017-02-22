@@ -272,13 +272,43 @@ if #inputs == 0 then
 			buffer[#buffer + 1] = line
 		else
 			local data = table.concat(buffer) .. (line or "")
-			scope = scope:child()
-			scope.isRoot = true
-
 			buffer = {}
 
-			local state = tryParse(data)
-			if #state ~= 0 then
+			local state
+			if data:sub(1, 1) == ":" then
+				data = data:sub(2)
+				local parts = {}
+				for part in data:gmatch("(%S+)") do parts[#parts + 1] = part end
+				local command = parts[1]
+
+				if not command then
+					logger.printError("Expected command after ':'")
+				elseif command == "doc" then
+					local name = parts[2]
+					if not name then
+						logger.printError(":command <variable>")
+					else
+						local var = scope:get(name, nil, true)
+						if not var then
+							logger.printError("Cannot find '" .. name .. "'")
+						elseif not var.doc then
+							logger.printError("No documentation for '" .. name .. "'")
+						else
+							print("\27[96m" .. var.fullName .. "\27[0m")
+							print(var.doc)
+						end
+					end
+				else
+					logger.printError("Unknown command '" .. command .. "'")
+				end
+			else
+				scope = scope:child()
+				scope.isRoot = true
+
+				state = tryParse(data)
+			end
+
+			if state and #state ~= 0 then
 				local current = 0
 				local exec = coroutine.create(function()
 					for i = 1, #state do

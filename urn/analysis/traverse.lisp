@@ -62,7 +62,7 @@
                 ((or (= func (.> builtins :unquote)) (= func (.> builtins :unquote-splice)))
                   (fail! "unquote/unquote-splice should never appear head"))
                 ((or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
-                  (.<! node 3 (traverse-node (nth node 3) visitor))
+                  (.<! node (# node) (traverse-node (nth node (# node)) visitor))
                   (visitor node))
                 ((= func (.> builtins :define-native))
                   (visitor node))
