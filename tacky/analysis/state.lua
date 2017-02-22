@@ -42,16 +42,19 @@ function State.create(variables, states, scope)
 	return state
 end
 
-function State:require(var)
+function State:require(var, user)
 	if self.stage ~= "parsed" then
 		error("Cannot add requirement when in stage " .. self.stage, 2)
 	end
+
+	if var == nil then error("var is nil", 2) end
+	if user == nil then error("user is nil", 2) end
 
 	if var.scope.isRoot then
 		local state = assert(self.states[var], "Variable's State is nil: it probably hasn't finished parsing: " .. var.name)
 		if not self.requiredSet[state] then
 			-- Ensures they are emitted in the same order
-			self.requiredSet[state] = true
+			self.requiredSet[state] = user
 			self.required[#self.required + 1] = state
 		end
 		return state
@@ -125,13 +128,28 @@ function State:get()
 				return
 			end
 
-			local states = {}
-			for i = idx, #stack do
-				states[#states + 1] = stack[i].var.name
-			end
-			states[#states + 1] = state.var.name
+			-- Push to the stack anyway, we'll want to dump
+			stack[#stack + 1] = state
 
-			error("Loop in macro: " .. table.concat(states, " -> "))
+			local states = {}
+			local nodes = {}
+			local firstNode
+			for i = idx, #stack do
+				local current, previous = stack[i], stack[i - 1]
+				states[#states + 1] = current.var.name
+				if previous then
+					local node = previous.requiredSet[current]
+					if not firstNode then firstNode = node end
+
+					nodes[#nodes + 1] = logger.getSource(node)
+					nodes[#nodes + 1] = current.var.name .. " used in " .. previous.var.name
+				end
+			end
+
+			logger.printError("Loop in macros: " .. table.concat(states, " -> "))
+			logger.putTrace(firstNode)
+			logger.putLines(true, unpack(nodes))
+			error("An error occured", 0)
 		end
 
 		idx = #stack + 1

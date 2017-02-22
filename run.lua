@@ -196,7 +196,7 @@ local function libLoader(name, shouldResolve)
 	end
 
 	local start = os.clock()
-	local lexed = parser.lex(lib.lisp, lib.path)
+	local lexed = parser.lex(lib.lisp, lib.path .. ".lisp")
 	local parsed = parser.parse(lexed, lib.lisp)
 	if time then print(lib.path .. " parsed in " .. (os.clock() - start)) end
 

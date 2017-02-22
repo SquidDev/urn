@@ -1,4 +1,5 @@
 (import string)
+(import lua/math math)
 
 (define verbosity (struct :value 0))
 (defun set-verbosity! (level) (.<! verbosity :value level))
@@ -38,8 +39,8 @@
 ;; Format a range to be user-readable
 (defun format-range (range)
   (if (.> range :finish)
-    (string/format "%s %s-%s" (.> range :name) (format-position (.> range :start)) (format-position (.> range :finish)))
-    (string/format "%s %s" (.> range :name) (format-position (.> range :start)))))
+    (string/format "%s:[%s .. %s]" (.> range :name) (format-position (.> range :start)) (format-position (.> range :finish)))
+    (string/format "%s:[%s]" (.> range :name) (format-position (.> range :start)))))
 
 (defun format-node (node) (cond
   ((and (.> node :range) (.> node :contents))
@@ -66,15 +67,24 @@
   (when (/= (% (# entries) 2) 0) (error! (string/.. "Positions must be a multiple of 2, is " (# entries))))
 
   (let* ((previous -1)
-         (max-line (.> entries (pred (# entries)) :start :line))
+         (file (.> (nth entries 1) :name))
+         (max-line (foldr (lambda (node max)
+                            (if (string? node) max (math/max max (.> node :start :line))))
+                     0 entries))
          (code (string/.. "\27[92m %" (string/#s (number->string max-line)) "s |\27[0m %s")))
     (for i 1 (# entries) 2
       (let ((position (.> entries i))
             (message (.> entries (succ i))))
 
-        ; If we've got a gap in the lines then print a ...
-        (when (and (/= previous -1) (> (- (.> position :start :line) previous) 2))
-          (print! " \27[92m...\27[0m"))
+        (cond
+          ;; If we're in a different file then print the new file name
+          ((/= file (.> position :name))
+            (set! file (.> position :name))
+            (print! (.. "\27[95m " file "\27[0m")))
+          ;; If we've got a gap in the lines then print a ...
+          ((and (/= previous -1) (> (math/abs (- (.> position :start :line) previous)) 2))
+            (print! " \27[92m...\27[0m"))
+          (true))
         (set! previous (.> position :start :line))
 
         ; Write the current line
