@@ -295,7 +295,6 @@ function resolveNode(node, scope, state, root)
 			elseif func == builtins["define-native"] then
 				if not root then errorPositions(first, "define-native can only be used on the top level") end
 				expectType(node[2], node, "symbol", "name")
-				maxLength(node, 3, "define-native")
 
 				local var = scope:add(node[2].contents, "native", node)
 				state:define(var)
