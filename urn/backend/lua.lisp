@@ -91,15 +91,15 @@
     (compile-expression node out state)
     (with (ty (type node))
       (cond
-        ((= ty "string") (w/append! out (.> node :contents)))
-        ((= ty "number") (w/append! out (.> node :contents)))
+        ((= ty "string") (w/append! out (string/quoted (.> node :value))))
+        ((= ty "number") (w/append! out (number->string (.> node :value))))
         ((= ty "symbol")
-          (w/append! out (.. "{ tag=\"symbol\", contents=" (string/quoted(.> node :contents))))
+          (w/append! out (.. "{ tag=\"symbol\", contents=" (string/quoted (.> node :contents))))
           (when (.> node :var)
             (w/append! out (.. ", var=" (string/quoted(number->string (.> node :var))))))
           (w/append! out "}"))
         ((= ty "key")
-          (w/append! out (string/.. "{tag=\"key\", contents=" (string/quoted(.> node :contents)) "}")))
+          (w/append! out (string/.. "{tag=\"key\", value=" (string/quoted (.> node :value)) "}")))
         ((= ty "list")
           (with (first (car node))
             (cond
@@ -411,9 +411,9 @@
         (when ret (w/append! out ret))
         (cond
           [(symbol? node) (w/append! out (escape-var (.> node :var) state))]
-          [(string? node) (w/append! out (.> node :contents))]
-          [(number? node) (w/append! out (number->string (.> node :contents)))]
-          [(key? node) (w/append! out (string/quoted (string/sub (.> node :contents) 2)))] ;; TODO: Should this be a table instead? If so, can we make this more efficient?
+          [(string? node) (w/append! out (string/quoted (.> node :value)))]
+          [(number? node) (w/append! out (number->string (.> node :value)))]
+          [(key? node) (w/append! out (string/quoted (.> node :value)))] ;; TODO: Should this be a table instead? If so, can we make this more efficient?
           [true (error! (.. "Unknown type: " (type node)))]
           )))))
 

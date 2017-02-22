@@ -44,11 +44,11 @@
        [(and (string? x) (symbol? y))
         (= (get-idx y "contents") x)]
        [(and (key? x) (key? y))
-        (= (get-idx x "contents") (get-idx y "contents"))]
+        (= (get-idx x "value") (get-idx y "value"))]
        [(and (key? x) (string? y))
-        (= (sub (get-idx x "contents") 2) y)]
+        (= (get-idx x "value") y)]
        [(and (string? x) (key? y))
-        (= (sub (get-idx y "contents") 2) x)]
+        (= (get-idx y "value") x)]
        [(and (pair? x) (pair? y))
         (and (eq? (pair/fst x) (pair/fst y))
              (eq? (pair/snd x) (pair/snd y)))]

@@ -31,16 +31,16 @@
 (defun urn->val (node)
   "Gets the constant value of NODE"
   (cond
-    ((string? node) (.> node :contents))
-    ((number? node) (number->string (.> node :contents)))
-    ((key? node) (string/sub (.> node :contents) 2))))
+    ((string? node) (.> node :value))
+    ((number? node) (.> node :value))
+    ((key? node) (.> node :value))))
 
 (defun val->urn (val)
   "Gets the AST representation of VAL"
   (with (ty (type# val))
     (cond
-      ((= ty "string")  (struct :tag "string" :contents (string/quoted val)))
-      ((= ty "number")  (struct :tag "number" :contents (number->string val)))
+      ((= ty "string")  (struct :tag "string" :value val))
+      ((= ty "number")  (struct :tag "number" :value val))
       ((= ty "nil")     (struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil)))
       ((= ty "boolean") (struct :tag "symbol" :contents (bool->string val) :var (.> builtin-vars (bool->string val)))))))
 

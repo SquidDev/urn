@@ -2,6 +2,28 @@
 (import urn/logger logger)
 (import function (cut))
 
+(defun hex-digit? (char)
+  "Determines whether CHAR is a hecharadecimal digit"
+  (or (between? char "0" "9") (between? char "a" "f") (between? char "A" "F")))
+
+(defun bin-digit? (char)
+  "Determines whether char is a binary digit"
+  (or (= char "0") (= char "1")))
+
+(defun terminator? (char)
+  "Determines whether CHAR is a terminator of a block"
+  (or (= char "\n") (= char " ") (= char "\t") (= char "(") (= char ")") (= char "[") (= char "]") (= char "{") (= char "}") (= char "")))
+
+(defun digit-error! (pos name char)
+  "Generate an error at POS where a NAME digit was expected and CHAR received instead"
+  (logger/print-error! (string/format "Expected %s digit, got %s" name (if (= char "")
+                                                                         "eof"
+                                                                         (string/quoted char))))
+  (logger/put-trace! pos)
+  (logger/put-lines! false
+    pos  "Invalid digit here")
+  (fail! "Lexing failed"))
+
 (defun lex (str name)
   (let* ((lines (string/split str "\n"))
          (line 1)
@@ -11,26 +33,40 @@
          (out '())
          ;; Consumes a single symbol and increments the position
          (consume! (lambda ()
-           (if (= (string/char-at str offset) "\n")
-             (progn
-               (inc! line)
-               (set! column 1))
-             (inc! column))
-           (inc! offset)))
-         ;; Generates a table with the current position
+                     (if (= (string/char-at str offset) "\n")
+                       (progn
+                         (inc! line)
+                         (set! column 1))
+                       (inc! column))
+                     (inc! offset)))
+          ;; Generates a table with the current position
          (position (lambda () (struct :line line :column column :offset offset)))
          ;; Generates a table with a particular range
-         (range (lambda (start finish) (struct :start start :finish finish :lines lines :name name)))
+         (range (lambda (start finish) (struct :start start :finish (or finish start) :lines lines :name name)))
          ;; Appends a struct to the list
          (append-with! (lambda (data start finish)
-           (let ((start (or start (position)))
-                 (finish (or finish (position))))
-             (.<! data :range (range start finish))
-             (.<! data :contents (string/sub str (.> start :offset) (.> finish :offset)))
-             (push-cdr! out data))))
+                         (let ((start (or start (position)))
+                                (finish (or finish (position))))
+                           (.<! data :range (range start finish))
+                           (.<! data :contents (string/sub str (.> start :offset) (.> finish :offset)))
+                           (push-cdr! out data))))
          ;; Appends a token to the list
          (append! (lambda (tag start finish)
-           (append-with! (struct :tag tag) start finish))))
+                    (append-with! (struct :tag tag) start finish)))
+         (parse-base (lambda (name p base)
+                       (let* [(start offset)
+                              (char (string/char-at str offset))]
+                         ;; Require at least one character
+                         (unless (p char) (digit-error! (range (position)) name char))
+
+                         ;; Consume all remaining characters matching this
+                         (set! char (string/char-at str (succ offset)))
+                         (while (p char)
+                           (consume!)
+                           (set! char (string/char-at str (succ offset))))
+
+                         ;; And conver the digit to a string
+                         (string->number (string/sub str start offset) base)))))
     ;; Scan the input stream, consume one character, then reading til the end of that token.
     (while (<= offset length)
       (with (char (string/char-at str offset))
@@ -49,43 +85,201 @@
               (consume!)
               (append! "unquote-splice" start))
             (append! "unquote")))
-          ((or (between? char "0" "9") (and (= char "-") (between? (string/char-at str (succ offset)) "0" "9")))
-            (with (start (position))
-              (while (string/find (string/char-at str (succ offset)) "[0-9.e+-]")
-                (consume!))
-              (append! "number" start)))
+          ((string/find str "^%-?%.?[0-9]" offset)
+            (let [(start (position))
+                  (negative (= char "-"))]
+              ;; Check whether this number is negative
+              (when negative
+                (consume!)
+                (set! char (string/char-at str offset)))
+
+              (with (val (cond
+                           ;; Parse hexadecimal digits
+                           ((and (= char "0") (= (string/char-at str (succ offset)) "x"))
+                             (consume!)
+                             (consume!)
+                             (with (res (parse-base "hexadecimal" hex-digit? 16))
+                               (when negative (set! res (- 0 res))
+                               res)))
+                           ;; Parse binary digits
+                           ((and (= char "0") (= (string/char-at str (succ offset)) "b"))
+                             (consume!)
+                             (consume!)
+                             (with (res (parse-base "binary" bin-digit? 2))
+                               (when negative (set! res (- 0 res))
+                               res)))
+                           (true
+                             ;; Parse leading digits
+                             (while (between? (string/char-at str (succ offset))  "0" "9")
+                               (consume!))
+
+                             ;; Consume decimal places
+                             (when (= (string/char-at str (succ offset)) ".")
+                               (consume!)
+                               (while (between? (string/char-at str (succ offset))  "0" "9")
+                                 (consume!)))
+
+                             ;; Consume exponent
+                             (set! char (string/char-at str (succ offset)))
+                             (when (or (= char "e") (= char "E"))
+                               (consume!)
+                               (set! char (string/char-at str (succ offset)))
+
+                               ;; Gobble positive/negative bit
+                               (when (or (= char "-") (= char "+")) (consume!))
+
+                               ;; And exponent digits
+                               (while (between? (string/char-at str (succ offset)) "0" "9")
+                                 (consume!)))
+
+                             (string->number (string/sub str (.> start :offset) offset)))))
+                (append-with! (struct :tag "number" :value val) start)
+
+                ;; Ensure the next character is a terminator of some sort, otherwise we'd allow things like 0x2-2
+                (set! char (string/char-at str (succ offset)))
+                (unless (terminator? char)
+                  (consume!)
+
+                  (logger/print-error! (string/format "Expected digit, got %s" (if (= char "")
+                                                                                 "eof"
+                                                                                 char)))
+                  (logger/put-trace! (range (position)))
+                  (logger/put-lines! false
+                    (range (position))  "Illegal character here. Are you missing whitespace?")
+                  (fail! "Lexing failed")))))
           ((= char "\"")
-            (with (start (position))
+            (let* [(start (position))
+                   (start-col column)
+                   (buffer '())]
               (consume!)
               (set! char (string/char-at str offset))
               (while (/= char "\"")
+                (when (= column 1)
+                  (let* [(running true)
+                         (line-off offset)]
+                    (while (and running (< column start-col))
+                      (cond
+                        ((= char " ")
+                          ;; Got a space, gobble a character and continue.
+                          (consume!))
+                        ((= char "\n")
+                          ;; Got a new line, we'll append it to the buffer and reset the start position.
+                          (consume!)
+                          (push-cdr! buffer "\n")
+                          (set! line-off offset))
+                        ((= char "")
+                          ;; Got an EOF, we'll handle this in the next block so just exit.
+                          (set! running false))
+                        (true
+                          (logger/print-warning! (string/format "Expected leading indent, got %q" char))
+                          (logger/put-trace! (range (position)))
+                          (logger/put-explain!
+                            "You should try to align multi-line strings at the initial quote"
+                            "mark. This helps keep programs neat and tidy.")
+                          (logger/put-lines! false
+                            (range start)      "String started with indent here"
+                            (range (position)) "Mis-aligned character here")
+
+                          ;; Append all the spaces.
+                          (push-cdr! buffer (string/sub str line-off (pred offset)))
+                          (set! running false)))
+                      (set! char (string/char-at str offset)))))
                 (cond
-                  ((or (= char nil) (= char ""))
+                  ((= char "")
                     (logger/print-error! "Expected '\"', got eof")
 
                     (let ((start (range start))
                           (finish (range (position))))
-                      (logger/put-trace! (struct :range finish))
+                      (logger/put-trace! finish)
                       (logger/put-lines! false
                         start  "string started here"
                         finish "end of file here")
                       (fail! "Lexing failed")))
-                  ((= char "\\") (consume!))
-                  (true))
+                  ((= char "\\")
+                    (consume!)
+                    (set! char (string/char-at str offset))
+                    (cond
+                      ;; Skip new lines
+                      ((= char "\n"))
+                      ;; Various escape codes
+                      ((= char "a") (push-cdr! buffer "\a"))
+                      ((= char "b") (push-cdr! buffer "\b"))
+                      ((= char "f") (push-cdr! buffer "\f"))
+                      ((= char "n") (push-cdr! buffer "\n"))
+                      ((= char "t") (push-cdr! buffer "\t"))
+                      ((= char "v") (push-cdr! buffer "\v"))
+                      ;; Escaped characters
+                      ((= char "\"") (push-cdr! buffer "\""))
+                      ((= char "\\") (push-cdr! buffer "\\"))
+                      ;; And character codes
+                      ((or (= char "x") (= char "X") (between? char "0" "9"))
+                        (let [(start (position))
+                              (val (if (or (= char "x") (= char "X"))
+                                     ;; Gobble hexadecimal codes
+                                     (progn
+                                       (consume!)
+
+                                       (with (start offset)
+                                         ;; Obviously we require the first character to be hex
+                                         (unless (hex-digit? (string/char-at str offset))
+                                           (digit-error! (range (position)) "hexadecimal" (string/char-at str offset)))
+
+                                         ;; The next one doesn't have to be a hex, but it helps :)
+                                         (when (hex-digit? (string/char-at str (succ offset)))
+                                           (consume!))
+                                         (string->number (string/sub str start offset) 16)))
+                                     ;; Gobbal normal character codes
+                                     (let [(start (position))
+                                           (ctr 0)]
+
+                                       (set! char (string/char-at str (succ offset)))
+                                       (while (and (< ctr 2) (between? char "0" "9"))
+                                         (consume!)
+                                         (set! char (string/char-at str (succ offset)))
+                                         (inc! ctr))
+
+                                       (string->number (string/sub str (.> start :offset) offset)))))]
+
+                          (when (>= val 256)
+                            (logger/print-error! "Invalid escape code")
+                            (logger/put-trace! (range start))
+                            (logger/put-lines! true
+                              (range start (position)) (.. "Must be between 0 and 255, is " val))
+                            (fail! "Lexing failed"))
+
+                          (push-cdr! buffer (string/char val))))
+                      ((= char "")
+                        (logger/print-error! "Expected escape code, got eof")
+                        (logger/put-trace! (range (position))
+                          (logger/put-lines! false
+                            (range (position)) "end of file here"))
+                        (fail! "Lexing failed"))
+                      (true
+                        (logger/print-error! "Illegal escape character")
+                        (logger/put-trace! (range (position)))
+                        (logger/put-lines! false
+                          (range (position)) "Unknown escape character")
+                        (fail! "Lexing failed"))))
+                  ;; Boring normal characters
+                  (true
+                    (push-cdr! buffer char)))
                 (consume!)
                 (set! char (string/char-at str offset)))
-              (append! "string" start)))
+              (append-with! (struct :tag "string" :value (concat buffer)) start)))
           ((= char ";")
             (while (and (<= offset length) (/= (string/char-at str (succ offset)) "\n"))
               (consume!)))
           (true
             (let ((start (position))
-                  (tag (if (= char ":" ) "key" "symbol")))
+                  (key (= char ":" )))
               (set! char (string/char-at str (succ offset)))
-              (while (and (/= char "\n") (/= char " ") (/= char "\t") (/= char "(") (/= char ")") (/= char "[") (/= char "]") (/= char "{") (/= char "}") (/= char ""))
+              (while (! (terminator? char))
                 (consume!)
                 (set! char (string/char-at str (succ offset))))
-              (append! tag start))))
+
+              (if key
+                (append-with! (struct :tag "key" :value (string/sub str (succ (.> start :offset)) offset)) start)
+                (append! "symbol" start)))))
         (consume!)))
     (append! "eof")
     out))

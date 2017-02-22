@@ -114,7 +114,7 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 
 		if head.tag == "init" then
 			-- Start the parser with the initial data
-			resume(head, head.node, scope, head._state)
+			resume(head, head.node, scope, head._state, true)
 		elseif head.tag == "define" then
 			-- We're waiting for a variable to be defined.
 			-- If it exists then resume, otherwise requeue.
