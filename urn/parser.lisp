@@ -175,7 +175,7 @@
                       ((= char "b") (push-cdr! buffer "\b"))
                       ((= char "f") (push-cdr! buffer "\f"))
                       ((= char "n") (push-cdr! buffer "\n"))
-                      ((= char "t") (push-cdr! buffer "\n"))
+                      ((= char "t") (push-cdr! buffer "\t"))
                       ((= char "v") (push-cdr! buffer "\v"))
                       ;; Escaped characters
                       ((= char "\"") (push-cdr! buffer "\""))

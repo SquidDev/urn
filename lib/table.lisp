@@ -34,7 +34,7 @@
     (traverse list
       (lambda (x)
         (let [(hd (cond
-                    [(key? (car x)) (sub (get-idx (car x) "contents") 2)]
+                    [(key? (car x)) (get-idx (car x) "value")]
                     [true (car x)]))]
           (if (! (get-idx ret hd))
             (set-idx! ret hd (cadr x))
@@ -65,7 +65,7 @@
     (error "Expected an even number of arguments to struct" 2)
     '())
   (let* [(contents (lambda (key)
-                     (sub (get-idx key "contents") 2)))
+                     (get-idx key "contents")))
          (out (empty-struct))]
     (for i 1 (# keys) 2
       (let ((key (get-idx keys i))

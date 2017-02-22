@@ -47,11 +47,11 @@ local function resolveMacroResult(macro, node, parent, scope, state)
 
 	local ty = type(node)
 	if ty == "string" then
-		node = { tag = "string", contents = ("%q"):format(node) }
+		node = { tag = "string", contents = ("%q"):format(node), value = node }
 	elseif ty == "number" then
-		node = { tag = "number", contents = node }
+		node = { tag = "number", contents = tostring(node), value = node }
 	elseif ty == "boolean" then
-		node = { tag = "symbol", contents = node and declaredVars["true"] or declaredVars["false"] }
+		node = { tag = "symbol", contents = tostring(node), value = node, var = declaredVars[tostring(node)] }
 	elseif ty == "function" then
 		error("Returned function from macro")
 	else
