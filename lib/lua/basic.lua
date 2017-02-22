@@ -7,8 +7,14 @@ local function pretty(x)
 				y[i] = pretty(x[i])
 			end
 			return '(' .. table.concat(y, ' ') .. ')'
-		elseif x.tag == 'symbol' or x.tag == 'key' or x.tag == 'string' or x.tag == 'number' then
+		elseif x.tag == 'symbol' then
 			return x.contents
+		elseif x.tag == 'key' then
+			return ":" .. x.value
+		elseif x.tag == 'string' then
+			return (("%q"):format(x.value):gsub("\n", "n"):gsub("\t", "\\9"))
+		elseif x.tag == 'number' then
+			return tostring(x.value)
 		elseif x.tag.tag and x.tag.tag == 'symbol' and x.tag.contents == 'pair' then
 			return '(pair ' .. pretty(x.fst) .. ' ' .. pretty(x.snd) .. ')'
 		else
