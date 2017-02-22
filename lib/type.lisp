@@ -71,8 +71,7 @@
 (defun between? (val min max)
   "Check if the numerical value X is between
    MIN and MAX."
-  (and (number? val)
-       (>= val min) (<= val max)))
+  (and (>= val min) (<= val max)))
 
 (defun type (val)
   "Return the type of VAL."
