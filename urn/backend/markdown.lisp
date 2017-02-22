@@ -4,6 +4,8 @@
 (import string)
 (import lua/table table)
 
+(define builtins (get-idx (require "tacky.analysis.resolve") :builtins))
+
 (defun format-range (range)
   "Format a range."
   :hidden
@@ -29,6 +31,19 @@
       ((= ty "defined")
         (.. "*Defined at " (format-range (logger/get-source (.> var :node))) "*")))))
 
+(defun extract-signature (var)
+  "Attempt to extract the function signature from VAR"
+  :hidden
+  (with (ty (type var))
+    (cond
+      ((or (= ty "macro") (= ty "defined"))
+        (let* [(root (.> var :node))
+               (node (nth root (# root)))]
+          (if (and (list? node) (symbol? (car node)) (= (.> (car node) :var) (.> builtins :lambda)))
+            (pretty (nth node 2))
+            "")))
+      (true ""))))
+
 (defun exported (out title vars)
   "Print out a list of all exported variables"
   (let* [(documented '())
@@ -47,7 +62,7 @@
       (let* [(name (car entry))
              (var  (nth entry 2))]
 
-        (writer/line! out (.. "## " name))
+        (writer/line! out (.. "## `" name (extract-signature var) "`"))
         (writer/line! out (format-variable var))
         (writer/line! out "" true)
         (writer/line! out (.> var :doc))
@@ -57,7 +72,7 @@
     (for-each entry undocumented
        (let* [(name (car entry))
              (var  (nth entry 2))]
-         (writer/line! out (.. " - " name " " (format-variable var)))))))
+         (writer/line! out (.. " - `" name (extract-signature var) "` " (format-variable var)))))))
 
 (define backend (struct
                   :exported exported))
