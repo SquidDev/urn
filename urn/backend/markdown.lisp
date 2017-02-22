@@ -1,4 +1,5 @@
 (import urn/backend/writer writer)
+(import urn/documentation doc)
 (import urn/logger logger)
 
 (import string)
@@ -34,17 +35,13 @@
 (defun format-signature (name var)
   "Attempt to extract the function signature from VAR"
   :hidden
-  (with (ty (type var))
+  (with (sig (doc/extract-signature var))
     (cond
-      ((or (= ty "macro") (= ty "defined"))
-        (let* [(root (.> var :node))
-               (node (nth root (# root)))]
-          (if (and (list? node) (symbol? (car node)) (= (.> (car node) :var) (.> builtins :lambda)))
-            (if (nil? (nth node 2))
-                  (.. "(" name ")")
-                  (.. "(" name " " (concat (traverse (nth node 2) (cut get-idx <> "contents")) " ") ")"))
-            name)))
-      (true name))))
+      ((= sig nil) name)
+      ((nil? sig)
+        (.. "(" name .. ")"))
+      (true
+        (.. "(" name " " (concat (traverse sig (cut get-idx <> "contents")) " ") ")")))))
 
 (defun exported (out title vars)
   "Print out a list of all exported variables"
@@ -67,7 +64,31 @@
         (writer/line! out (.. "## `" (format-signature name var) "`"))
         (writer/line! out (.. "*" (format-definition var) "*"))
         (writer/line! out "" true)
-        (writer/line! out (.> var :doc))
+
+        (for-each tok (doc/parse-docstring (.> var :doc))
+          (with (ty (type tok))
+            (cond
+              ((= ty "text") (writer/append! out (.> tok :contents)))
+              ((= ty "arg")  (writer/append! out (.. "`" (.> tok :contents) "`")))
+              ((= ty "mono") (writer/append! out (.. "`" (.> tok :contents) "`")))
+              ((= ty "link")
+                (let* [(name  (.> tok :contents))
+                       (scope (.> var :scope))
+                       (ovar  ((.> scope :get) scope name nil true))]
+                  (if ovar
+                    (let* [(loc (-> (.> ovar :node)
+                                  logger/get-source
+                                  (.> <> :name)
+                                  (string/gsub <> "%.lisp$" "")
+                                  (string/gsub <> "/" ".")))
+                           (sig (doc/extract-signature ovar))
+                           (hash (cond
+                                   ((= sig nil) (.> ovar :name))
+                                   ((nil? sig) (.> ovar :name))
+                                   (true (.. name " " (concat (traverse sig (cut get-idx <> "contents")) " ")))))]
+                      (writer/append! out (string/format "[`%s`](%s.md#%s)" name loc (string/gsub hash "%A+" "-"))))
+                    (writer/append! out (string/format "`%s`" name))))))))
+        (writer/line! out)
         (writer/line! out "" true)))
 
     (writer/line! out "## Undocumented symbols")

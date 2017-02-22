@@ -66,12 +66,12 @@
   (any (lambda (y) (= x y)) xs))
 
 (defun prune (xs)
-  "Remove values matching the predicate `nil?' from the list XS"
+  "Remove values matching the predicate [[nil?]] from the list XS"
   (assert-type! xs list)
   (filter (lambda (x) (! (nil? x))) xs))
 
 (defun traverse (xs f)
-  "An alias for `map' with the arguments XS and F flipped."
+  "An alias for [[map]] with the arguments XS and F flipped."
   (map f xs))
 
 (defun last (xs)
@@ -118,7 +118,7 @@
 
 (defun flatten (xss)
   "Concatenate all the lists in XSS. XSS must not contain elements which are not lists."
-  (foldr append '() xss)) 
+  (foldr append '() xss))
 
 (defun range (start end acc)
   "Build a list from START to END. This function is tail recursive, and uses the parameter ACC as an accumulator."

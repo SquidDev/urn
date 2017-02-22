@@ -6,6 +6,7 @@ local optimise = require "tacky.analysis.optimise"
 local parser = require "tacky.parser"
 local pprint = require "tacky.pprint"
 local resolve = require "tacky.analysis.resolve"
+local documentation = require "tacky.documentation"
 
 local paths = { "?", "lib/?" }
 local inputs, output, verbosity, run, prelude, time, removeOut, scriptArgs, docs = {}, "out", 0, false, "lib/prelude", false, false, {}, false
@@ -309,8 +310,28 @@ if #inputs == 0 then
 						elseif not var.doc then
 							logger.printError("No documentation for '" .. name .. "'")
 						else
-							print("\27[96m" .. var.fullName .. "\27[0m")
-							print(var.doc)
+							local sig = documentation.extractSignature(var)
+							local name = var.fullName
+							if sig then
+								local buffer = {name}
+								for i = 1, sig.n do buffer[i + 1] = sig[i].contents end
+								name = "(" .. table.concat(buffer, " ") .. ")"
+							end
+							print("\27[96m" .. name .. "\27[0m")
+
+							local docs = documentation.parseDocs(var.doc)
+							for i = 1, #docs do
+								local tok = docs[i]
+								if tok.tag == "text" then
+									io.write(tok.contents)
+								elseif tok.tag == "arg" then
+									io.write(logger.colored(36, tok.contents))
+								elseif tok.tag == "mono" then
+									io.write(logger.colored(97, tok.contents))
+								elseif tok.tag == "link" then
+									io.write(logger.colored(94, tok.contents))
+								end
+							end
 						end
 					end
 				else
