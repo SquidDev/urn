@@ -132,7 +132,7 @@
 
 (defun neq? (x y)
   "Compare X and Y for inequality deeply. X and Y are `neq?`
-  if `([[eq?]] x y)` is falsey."
+   if `([[eq?]] x y)` is falsey."
   (! (eq? x y)))
 
 (defmacro assert-type! (arg ty)
