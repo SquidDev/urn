@@ -3,10 +3,11 @@ LUA_FLAGS  ?=
 TEST_FLAGS ?=
 OUT_DIR    ?= tacky
 OBJS       :=                    \
-	${OUT_DIR}/logger             \
-	${OUT_DIR}/parser             \
 	${OUT_DIR}/analysis/optimise  \
-	${OUT_DIR}/backend/init
+	${OUT_DIR}/backend/init       \
+	${OUT_DIR}/documentation      \
+	${OUT_DIR}/logger             \
+	${OUT_DIR}/parser
 
 TESTS     := $(shell find tests -type f)
 

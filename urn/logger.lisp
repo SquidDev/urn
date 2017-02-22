@@ -140,6 +140,8 @@
   (fail! "An error occured"))
 
 (struct
+  :colored        colored
+
   :formatPosition format-position
   :formatRange    format-range
   :formatNode     format-node
