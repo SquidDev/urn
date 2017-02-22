@@ -149,10 +149,41 @@
                   (fail! "Lexing failed")))))
           ((= char "\"")
             (let* [(start (position))
+                   (start-col column)
                    (buffer '())]
               (consume!)
               (set! char (string/char-at str offset))
               (while (/= char "\"")
+                (when (= column 1)
+                  (let* [(running true)
+                         (line-off offset)]
+                    (while (and running (< column start-col))
+                      (cond
+                        ((= char " ")
+                          ;; Got a space, gobble a character and continue.
+                          (consume!))
+                        ((= char "\n")
+                          ;; Got a new line, we'll append it to the buffer and reset the start position.
+                          (consume!)
+                          (push-cdr! buffer "\n")
+                          (set! line-off offset))
+                        ((= char "")
+                          ;; Got an EOF, we'll handle this in the next block so just exit.
+                          (set! running false))
+                        (true
+                          (logger/print-warning! (string/format "Expected leading indent, got %q" char))
+                          (logger/put-trace! (range (position)))
+                          (logger/put-explain!
+                            "You should try to align multi-line strings at the initial quote"
+                            "mark. This helps keep programs neat and tidy.")
+                          (logger/put-lines! false
+                            (range start)      "String started with indent here"
+                            (range (position)) "Mis-aligned character here")
+
+                          ;; Append all the spaces.
+                          (push-cdr! buffer (string/sub str line-off (pred offset)))
+                          (set! running false)))
+                      (set! char (string/char-at str offset)))))
                 (cond
                   ((= char "")
                     (logger/print-error! "Expected '\"', got eof")
