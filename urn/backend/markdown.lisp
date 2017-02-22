@@ -17,21 +17,21 @@
   (table/sort list (lambda (a b)
                         (< (car a) (car b)))))
 
-(defun format-variable (var)
+(defun format-definition (var)
   "Format a variable VAR, including it's kind and the position it was defined at."
   :hidden
   (with (ty (type var))
     (cond
       ((= ty "builtin")
-        "*Builtin term*")
+        "Builtin term")
       ((= ty "macro")
-        (.. "*Macro defined at " (format-range (logger/get-source (.> var :node))) "*"))
+        (.. "Macro defined at " (format-range (logger/get-source (.> var :node)))))
       ((= ty "native")
-       (.. "*Native defined at " (format-range (logger/get-source (.> var :node))) "*"))
+        (.. "Native defined at " (format-range (logger/get-source (.> var :node)))))
       ((= ty "defined")
-        (.. "*Defined at " (format-range (logger/get-source (.> var :node))) "*")))))
+        (.. "Defined at " (format-range (logger/get-source (.> var :node))))))))
 
-(defun extract-signature (var)
+(defun format-signature (name var)
   "Attempt to extract the function signature from VAR"
   :hidden
   (with (ty (type var))
@@ -40,9 +40,11 @@
         (let* [(root (.> var :node))
                (node (nth root (# root)))]
           (if (and (list? node) (symbol? (car node)) (= (.> (car node) :var) (.> builtins :lambda)))
-            (pretty (nth node 2))
-            "")))
-      (true ""))))
+            (if (nil? (nth node 2))
+                  (.. "(" name ")")
+                  (.. "(" name " " (concat (traverse (nth node 2) (cut get-idx <> "contents")) " ") ")"))
+            name)))
+      (true name))))
 
 (defun exported (out title vars)
   "Print out a list of all exported variables"
@@ -62,8 +64,8 @@
       (let* [(name (car entry))
              (var  (nth entry 2))]
 
-        (writer/line! out (.. "## `" name (extract-signature var) "`"))
-        (writer/line! out (format-variable var))
+        (writer/line! out (.. "## `" (format-signature name var) "`"))
+        (writer/line! out (.. "*" (format-definition var) "*"))
         (writer/line! out "" true)
         (writer/line! out (.> var :doc))
         (writer/line! out "" true)))
@@ -72,7 +74,7 @@
     (for-each entry undocumented
        (let* [(name (car entry))
              (var  (nth entry 2))]
-         (writer/line! out (.. " - `" name (extract-signature var) "` " (format-variable var)))))))
+         (writer/line! out (.. " - `" (format-signature name var) "` *" (format-definition var) "*"))))))
 
 (define backend (struct
                   :exported exported))
