@@ -982,7 +982,7 @@ lex1 = (function(str2, name2)
 				end
 			elseif (char7 == "\"") then
 				local start9 = position2()
-				local startCol1 = column1
+				local startCol1 = succ1(column1)
 				local buffer1 = {tag = "list", n =0}
 				consume_21_1()
 				char7 = charAt1(str2, offset1)

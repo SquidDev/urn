@@ -153,7 +153,7 @@
                   (fail! "Lexing failed")))))
           ((= char "\"")
             (let* [(start (position))
-                   (start-col column)
+                   (start-col (succ column))
                    (buffer '())]
               (consume!)
               (set! char (string/char-at str offset))
