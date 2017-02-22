@@ -11,6 +11,8 @@ local function pretty(x)
 			return x.contents
 		elseif x.tag.tag and x.tag.tag == 'symbol' and x.tag.contents == 'pair' then
 			return '(pair ' .. pretty(x.fst) .. ' ' .. pretty(x.snd) .. ')'
+		elseif x.tag == 'thunk' then
+			return '<<thunk>>'
 		else
 			return tostring(x)
 		end
