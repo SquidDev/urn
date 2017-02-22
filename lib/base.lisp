@@ -2,13 +2,19 @@
 (import lua/table (unpack concat) :export)
 
 (define-macro defun (lambda (name args &body)
-  `(define ,name (lambda ,args ,@body))))
+  (cond
+    [(= (type# (car body)) "string")
+     `(define ,name ,(car body) (lambda ,args ,@(cdr body)))]
+    [true `(define ,name (lambda ,args ,@body))])))
 
 (define-macro defmacro (lambda (name args &body)
-  `(define-macro ,name (lambda ,args ,@body))))
+  (cond
+    [(= (type# (car body)) "string")
+     `(define-macro ,name ,(car body) (lambda ,args ,@(cdr body)))]
+    [true `(define-macro ,name (lambda ,args ,@body))])))
 
-(defun car (xs) (get-idx xs 1))
-(defun cdr (xs) (slice xs 2))
+(define car (lambda (xs) (get-idx xs 1)))
+(define cdr (lambda (xs) (slice xs 2)))
 (defun list (&xs) xs)
 (defun cons (x xs) (list x (unpack xs)))
 
