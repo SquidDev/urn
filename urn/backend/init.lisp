@@ -2,6 +2,7 @@
 
 (import urn/backend/lua back-lua)
 (import urn/backend/lisp back-lisp)
+(import urn/backend/markdown back-markdown)
 
 (defun wrap-generate (func)
   (lambda (node &args)
@@ -24,4 +25,7 @@
   :lisp (struct
           :expression (wrap-generate back-lisp/expression)
           :block (wrap-generate back-lisp/block)
-          :backend back-lisp/backend))
+          :backend back-lisp/backend)
+  :markdown (struct
+              :exported (wrap-normal back-markdown/exported)
+              :backend back-markdown/backend))

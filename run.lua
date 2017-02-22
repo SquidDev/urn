@@ -8,7 +8,7 @@ local pprint = require "tacky.pprint"
 local resolve = require "tacky.analysis.resolve"
 
 local paths = { "?", "lib/?" }
-local inputs, output, verbosity, run, prelude, time, removeOut, scriptArgs = {}, "out", 0, false, "lib/prelude", false, false, {}
+local inputs, output, verbosity, run, prelude, time, removeOut, scriptArgs, docs = {}, "out", 0, false, "lib/prelude", false, false, {}, false
 
 -- Tiny Lua stub
 if _VERSION:find("5.1") then
@@ -39,6 +39,9 @@ while i <= args.n do
 		run = true
 	elseif arg == "--time" or arg == "-t" then
 		time = true
+	elseif arg == "--docs" or arg == "-d" then
+		i = i + 1
+		docs = args[i] or error("Expected directory after " .. arg, 0)
 	elseif arg == "--include" or arg == "-i" then
 		i = i + 1
 		local path = args[i] or error("Expected directory after " .. arg, 0)
@@ -222,6 +225,18 @@ local _, preludeVars = assert(libLoader(prelude, false))
 rootScope = rootScope:child()
 for name, var in pairs(preludeVars) do
 	rootScope:import(name, var)
+end
+
+if docs then
+	for _, lib in ipairs(libs) do
+		local out = backend.markdown.exported(lib.path, libCache[lib.name])
+
+		local handle = io.open(docs .. "/" .. lib.path:gsub("/", ".") .. ".md", "w+")
+		handle:write(out)
+		handle:close()
+	end
+
+	if not run then return end
 end
 
 if #inputs == 0 then

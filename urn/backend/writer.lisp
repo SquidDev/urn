@@ -17,11 +17,11 @@
   (push-cdr! (.> writer :out) text))
 
 ;; Append a line to the buffer
-(defun line! (writer text)
+(defun line! (writer text force)
   (when text (append! writer text))
 
   ;; Don't write empty lines
-  (unless (.> writer :tabs-pending)
+  (when (or force (! (.> writer :tabs-pending)))
     (.<! writer :tabs-pending true)
     (push-cdr! (.> writer :out) "\n")))
 
