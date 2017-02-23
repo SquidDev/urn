@@ -26,30 +26,41 @@
 (define bool->string tostring)
 
 (defun symbol->string (x)
+  "Convert the symbol X to a string."
   (if (symbol? x)
     (get-idx x "contents")
     nil))
+
 (defun string->symbol (x)
+  "Convert the string X to a symbol."
   (struct :tag "symbol" :contents x))
 
-(define error! base/error)
-(define print! base/print)
+(define error!
+  "Throw an error."
+  base/error)
+
+(define print!
+  "Print to standard output."
+  base/print)
 
 (defun fail! (x)
+  "Fail with the error message X, that is, exit the program immediately,
+   without unwinding for an error handler."
   (error! x 0))
 
 (defun exit! (reason code)
+  "Exit the program with the exit code CODE, and optionally, print the
+   error message REASON."
   (let* [(code (if (string? reason)
                  code reason))]
     (print! reason)
     (lua/os/exit code)))
 
-(defun id (x) x)
+(defun id (x)
+  "Return the value X unmodified."
+  x)
+
 (defun const (x)
+  "Return a function which always returns X. This is equivalent to the `K`
+   combinator in SK combinator calculus."
   (lambda (y) x))
-
-(defmacro delay (x)
-  `(lambda () ,x))
-
-(defmacro force (x)
-  `(,x))
