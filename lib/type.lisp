@@ -6,27 +6,75 @@
 (import pair)
 (import pair (pair?) :export)
 
-(defun table? (x) (= (type# x) "table"))
-(defun list? (x) (= (type x) "list"))
-(defun nil? (x) (and x (list? x) (= (# x) 0)))
-(defun string? (x) (= (type x) "string"))
-(defun number? (x) (= (type x) "number"))
-(defun symbol? (x) (= (type x) "symbol"))
-(defun boolean? (x) (= (type x) "boolean"))
-(defun function? (x) (= (type x) "function"))
+(defun table? (x)
+  "Check whether the value X is a table. This might be a structure,
+   a list, an associative list, a quoted key, or a quoted symbol."
+  (= (type# x) "table"))
+
+(defun list? (x)
+  "Check whether X is a list."
+  (= (type x) "list"))
+
+(defun nil? (x)
+  "Check whether X is the empty list."
+  (and x (list? x) (= (# x) 0)))
+
+(defun string? (x)
+  "Check whether X is a string."
+  (= (type x) "string"))
+
+(defun number? (x)
+  "Check whether X is a number."
+  (= (type x) "number"))
+
+(defun symbol? (x)
+  "Check whether X is a symbol."
+  (= (type x) "symbol"))
+
+(defun boolean? (x)
+  "Check whether X is a boolean."
+  (= (type x) "boolean"))
+
+(defun function? (x)
+  "Check whether X is a function."
+  (= (type x) "function"))
+
+(defun key? (x)
+  "Check whether X is a key."
+  (= (type x) "key"))
+
 (defun atom? (x)
+  "Check whether X is an atomic object, that is, one of
+   - A boolean
+   - A string
+   - A number
+   - A symbol
+   - A key
+   - A function"
   (or (boolean? x)
       (string? x)
       (number? x)
       (symbol? x)
+      (function? x)
       (key? x)))
-(defun falsey? (x) (! x))
-(defun exists? (x) (! (= (type x) "nil")))
-(defun key? (x) (= (type x) "key"))
+
+(defun falsey? (x)
+  "Check whether X is falsey, that is, it is either `false` or does
+   not exist."
+  (! x))
+
+(defun exists? (x)
+  "Check if X exists, i.e. it is not the special value `nil`.
+   Note that, in Urn, `nil` is not the empty list."
+  (! (= (type x) "nil")))
+
 (defun between? (val min max)
+  "Check if the numerical value X is between
+   MIN and MAX."
   (and (>= val min) (<= val max)))
 
 (defun type (val)
+  "Return the type of VAL."
   (let* [(ty (type# val))]
     (if (= ty "table")
       (let* [(tag (get-idx val "tag"))]
@@ -34,6 +82,28 @@
       ty)))
 
 (defun eq? (x y)
+  "Compare X and Y for equality deeply.
+   Rules:
+   - If X and Y exist, X and Y are equal if:
+     - If X or Y are a symbol
+       - Both are symbols, and their contents are equal.
+       - X is a symbol, and Y is a string equal to the symbol's contents.
+       - Y is a symbol, and X is a string equal to the symbol's contents.
+     - If X or Y are a key
+       - Both are keys, and their values are equal.
+       - X is a key, and Y is a string equal to the key's contents.
+       - Y is a key, and X is a string equal to the key's contents.
+     - If X or Y are a pair
+       - X and Y are equal if both their `fst` are equal (according to `eq?`)
+         and their `snd` are equal.
+     - If X or Y are lists
+       - Both are empty.
+       - Both have the same length, their `car`s are equal, and their `cdr`s
+         are equal.
+     - Otherwise, X and Y are equal if they are the same value.
+   - If X or Y do not exist
+     - They are not equal if one exists and the other does not.
+     - They are equal if neither exists.  "
   (cond
     [(and (exists? x) (exists? y))
      (cond
@@ -57,12 +127,16 @@
         (and (eq? (car x) (car y))
              (eq? (cdr x) (cdr y)))]
        [true (= x y)])]
-    [true true]))
+    [true (and (! x) (! y))]))
 
 (defun neq? (x y)
+  "Compare X and Y for inequality deeply. X and Y are `neq?`
+   if `([[eq?]] x y)` is falsey."
   (! (eq? x y)))
 
 (defmacro assert-type! (arg ty)
+  "Assert that the argument ARG has type TY, as reported by the function
+   [[type]]."
   (let* [(sym (gensym))
          (ty (get-idx ty "contents"))]
     `(let* [(,sym (type ,arg))]

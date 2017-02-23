@@ -7,55 +7,63 @@
 (define show-explain (struct :value false))
 (defun set-explain! (value) (.<! show-explain :value value))
 
-;; Color a string using ANSI escape codes
-(defun colored (col msg) (string/.. "\27[" col "m" msg "\27[0m"))
+(defun colored (col msg)
+  "Color a string MSG colored with COL, using ANSI escape codes"
+  (string/.. "\27[" col "m" msg "\27[0m"))
 
-;; Print an error message
 (defun print-error! (msg)
+  "Print an error messaage, MSG"
   (with (lines (string/split msg "\n" 1))
     (print! (colored 31 (string/.. "[ERROR] " (car lines))))
     (when (cadr lines) (print! (cadr lines)))))
 
-;; Print a warning message
 (defun print-warning! (msg)
+  "Print a warning message, MSG"
   (with (lines (string/split msg "\n" 1))
     (print! (colored 33 (string/.. "[WARN] " (car lines))))
     (when (cadr lines) (print! (cadr lines)))))
 
-;; Print a verbose message
 (defun print-verbose! (msg)
+  "Print a verbose message, MSG"
   (when (> (.> verbosity :value) 0)
     (print! (string/.. "[VERBOSE] " msg))))
 
-;; Print a debug message
 (defun print-debug! (msg)
+  "Print a debug message, MSG"
   (when (> (.> verbosity :value) 1)
     (print! (string/.. "[DEBUG] " msg))))
 
-;; Format a position to be user-readable
 (defun format-position (pos)
+  "Format position POS to be user-readable"
   (string/.. (.> pos :line) ":" (.> pos :column)))
 
-;; Format a range to be user-readable
 (defun format-range (range)
+  "Format RANGE to be user-readable"
   (if (.> range :finish)
     (string/format "%s:[%s .. %s]" (.> range :name) (format-position (.> range :start)) (format-position (.> range :finish)))
     (string/format "%s:[%s]" (.> range :name) (format-position (.> range :start)))))
 
-(defun format-node (node) (cond
-  ((and (.> node :range) (.> node :contents))
-    (string/format "%s (%q)" (format-range (.> node :range)) (.> node :contents)))
-  ((.> node :range) (format-range (.> node :range)))
-  ((.> node :macro)
-    (with (macro (.> node :macro))
-      (string/format "macro expansion of %s (%s)"
-        (.> macro :var :name)
-        (format-node (.> macro :node)))))
-  ((and (.> node :start) (.> node :finish))
-    (format-range node))
-  (true "?")))
+(defun format-node (node)
+  "Format NODE to give a description of its position
+
+   This is either its position in a source file or the macro which created it"
+  (cond
+    ((and (.> node :range) (.> node :contents))
+      (string/format "%s (%q)" (format-range (.> node :range)) (.> node :contents)))
+    ((.> node :range) (format-range (.> node :range)))
+    ((.> node :macro)
+      (with (macro (.> node :macro))
+        (string/format "macro expansion of %s (%s)"
+          (.> macro :var :name)
+          (format-node (.> macro :node)))))
+    ((and (.> node :start) (.> node :finish))
+      (format-range node))
+    (true "?")))
 
 (defun get-source (node)
+  "Get the nearest source position of NODE
+
+   This will walk up NODE's tree until a non-macro node is found"
   (with (result nil)
     (while (and node (! result))
       (set! result (.> node :range))
@@ -63,6 +71,19 @@
     result))
 
 (defun put-lines! (range &entries)
+  "Put a series of lines from various ranges to standard output. RANGE controls whether
+   the whole range is selected, or just the first character.
+
+   ENTRIES is a list composed of pairs of elements, the first designating its position,
+   the second a descriptive piece of text
+
+   Example:
+   ```
+   > (put-lines! true
+       source \"this text\")
+    2 | (+ 2 3)
+      | ^^^^^^^ this text
+   ```"
   (when (nil? entries) (error! "Positions cannot be empty"))
   (when (/= (% (# entries) 2) 0) (error! (string/.. "Positions must be a multiple of 2, is " (# entries))))
 
@@ -107,6 +128,7 @@
             message))))))))
 
 (defun put-trace! (node)
+  "Put a trace of the positions of NODE and all its parents, using the output of [[format-node]]"
   (with (previous nil)
     (while node
       (with (formatted (format-node node))
@@ -119,11 +141,13 @@
         (set! node (.> node :parent))))))
 
 (defun put-explain! (&lines)
+  "Put all LINES when explaining is enabled"
   (when (.> show-explain :value)
     (for-each line lines
       (print! (string/.. "  " line)))))
 
 (defun put-error! (node msg)
+  "Print error message MSG for NODE, including its trace and line"
   (print-error! msg)
   (put-trace! node)
 
@@ -131,6 +155,7 @@
     (when source (put-lines! true source ""))))
 
 (defun error-positions! (node msg)
+  "Print error message MSG for NODE, including its trace and line, then exit"
   (print-error! msg)
   (put-trace! node)
 
