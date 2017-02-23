@@ -29,6 +29,7 @@
   (fail! "Lexing failed"))
 
 (defun lex (str name)
+  "Lex STR from a file called NAME, returning a series of tokens"
   (let* ((lines (string/split str "\n"))
          (line 1)
          (column 1)
@@ -289,6 +290,7 @@
     out))
 
 (defun parse (toks)
+  "Parse tokens TOKS, the result of [[lex]]"
   (let* ((index 1)
          (head '())
          (stack '())
@@ -421,6 +423,8 @@
             (pop!)))))
     head))
 
-(define read (compose parse lex))
+(define read
+  "Combination of [[lex]] and [[parse]]"
+  (compose parse lex))
 
 (struct :lex lex :parse parse :read read)

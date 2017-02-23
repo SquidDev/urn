@@ -32,10 +32,11 @@
   (lambda (name args &body)
                       (copy-meta `(define ,name) args body)))
 
-(define-macro defmacro (lambda (name args &body)
+(define-macro defmacro
   "Define NAME to be the macro given by (lambda ARGS @BODY), with
    optional metadata at the start of BODY."
-  (copy-meta `(define-macro ,name) args body)))
+  (lambda (name args &body)
+                      (copy-meta `(define-macro ,name) args body)))
 
 (define car (lambda (xs) (get-idx xs 1)))
 (define cdr (lambda (xs) (slice xs 2)))
