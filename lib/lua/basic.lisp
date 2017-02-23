@@ -22,7 +22,7 @@
   "Take a slice of XS, with all values at indexes between START and FINISH (or the last
    entry of XS if not specified).")
 (define-native pretty
-  "Create a user-readable version of VALUE")
+  "Format VALUE as a valid Lisp expression which can be parsed.")
 
 (define-native assert)
 (define-native collectgarbage)
