@@ -15,11 +15,21 @@
 (import table () :export)
 (import lua/io (close flush input lines open output popen read stderr stdin stdout tmpfile write) :export)
 
-(defun succ (x) (+ x 1))
-(defun pred (x) (- x 1))
+(defun succ (x)
+  "Return the successor of the number X."
+  (+ x 1))
 
-(defmacro inc! (x) `(set! ,x (+ ,x 1)))
-(defmacro dec! (x) `(set! ,x (- ,x 1)))
+(defun pred (x)
+  "Return the predecessor of the number X."
+  (- x 1))
+
+(defmacro inc! (x)
+  "Increment the variable X in place."
+  `(set! ,x (+ ,x 1)))
+
+(defmacro dec! (x)
+  "Decrement the variable X in place."
+  `(set! ,x (- ,x 1)))
 
 (define string->number tonumber)
 (define number->string tostring)
