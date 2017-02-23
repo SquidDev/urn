@@ -26,25 +26,45 @@
       (true
         `(,@header (lambda ,args ,@body))))))
 
-(define-macro defun (lambda (name args &body)
+(define-macro defun
+  "Define NAME to be the function given by (lambda ARGS @BODY), with
+   optional metadata at the start of BODY."
+  (lambda (name args &body)
                       (copy-meta `(define ,name) args body)))
 
 (define-macro defmacro (lambda (name args &body)
-                         (copy-meta `(define-macro ,name) args body)))
+  "Define NAME to be the macro given by (lambda ARGS @BODY), with
+   optional metadata at the start of BODY."
+  (copy-meta `(define-macro ,name) args body)))
 
 (define car (lambda (xs) (get-idx xs 1)))
 (define cdr (lambda (xs) (slice xs 2)))
-(defun list (&xs) xs)
-(defun cons (x xs) (list x (unpack xs)))
+(defun list (&xs)
+  "Return the list of variadic arguments given."
+  xs)
+(defun cons (x xs)
+  "Add X to the start of the list XS. Note: this is linear in time."
+  (list x (unpack xs)))
 
 (defmacro progn (&body)
+  "Group a series of expressions together."
   `((lambda () ,@body)))
 
-(defmacro if (c t b) `(cond (,c ,t) (true ,b)))
-(defmacro when (c &body) `(cond (,c ,@body) (true)))
-(defmacro unless (c &body) `(cond (,c) (true ,@body)))
+(defmacro if (c t b)
+  "Evaluate T if C is true, otherwise, evaluate B."
+  `(cond (,c ,t) (true ,b)))
 
-(defun debug (x) (print (pretty x)) x)
+(defmacro when (c &body)
+  "Evaluate BODY when C is true, otherwise, evaluate `nil`."
+  `(cond (,c ,@body) (true)))
+
+(defmacro unless (c &body)
+  "Evaluate BODY if C is false, otherwise, evaluate `nil`."
+  `(cond (,c) (true ,@body)))
+
+(defun debug (x)
+  "Print the value X, then return it unmodified."
+  (print (pretty x)) x)
 
 (defmacro let* (vars &body)
   (if (= (# vars) 0)
@@ -53,9 +73,14 @@
         (let* ,(cdr vars) ,@body))
       ,(car (cdr (car vars))))))
 
-(defun ! (expr) (if expr false true))
+(defun ! (expr)
+  "Negate the expresison EXPR."
+  (if expr false true))
 
 (defmacro for (ctr start end step &body)
+  "Iterate BODY, with the counter CTR bound to START, being incremented
+   by STEP every iteration until CTR is outside of the range given by
+   [START .. END]"
   (let* [(impl (gensym))
          (ctr' (gensym))
          (end' (gensym))
@@ -72,6 +97,7 @@
        (,impl ,start))))
 
 (defmacro while (check &body)
+  "Iterate BODY while the expression CHECK evaluates to `true`."
   (let* [(impl (gensym))]
     `(let* [(,impl nil)]
        (set! ,impl
@@ -82,12 +108,17 @@
        (,impl))))
 
 (defmacro with (var &body)
+  "Bind the single variable VAR, then evaluate BODY."
   `((lambda (,(get-idx var 1)) ,@body) ,(get-idx var 2)))
 
 (defmacro and (a b &rest)
+  "Return the logical and of values A and B, and, if present, the
+   logical and of all the values in REST."
   (with (symb (gensym))
     `(with (,symb ,a) (if ,symb ,(if (= (# rest) 0) b `(and ,b ,@rest)) ,symb))))
 
 (defmacro or (a b &rest)
+  "Return the logical or of values A and B, and, if present, the
+   logical or of all the values in REST."
   (with (symb (gensym))
     `(with (,symb ,a) (if ,symb ,symb ,(if (= (# rest) 0) b `(or ,b ,@rest))))))
