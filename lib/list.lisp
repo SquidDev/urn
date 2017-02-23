@@ -118,7 +118,7 @@
 
 (defun flatten (xss)
   "Concatenate all the lists in XSS. XSS must not contain elements which are not lists."
-  (foldr append '() xss)) 
+  (foldr append '() xss))
 
 (defun range (start end acc)
   "Build a list from START to END. This function is tail recursive, and uses the parameter ACC as an accumulator."

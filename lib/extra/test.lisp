@@ -3,18 +3,21 @@
 (import lua/debug (traceback))
 (import extra/assert (assert!) :export)
 
-(define tests-passed (gensym))
-(define tests-failed (gensym))
-(define tests-pending (gensym))
-(define tests-total (gensym))
-(define prefix (gensym))
-(define quiet (gensym))
+(define tests-passed  :hidden (gensym))
+(define tests-failed  :hidden (gensym))
+(define tests-pending :hidden (gensym))
+(define tests-total   :hidden (gensym))
+(define prefix        :hidden (gensym))
+(define quiet         :hidden (gensym))
 
-(defmacro marker (col)
+(defmacro marker (color)
+  "Add a dot with the given COLOR to mark a single test's result"
+  :hidden
   `(when ,quiet
-     (write (.. "\27[1;" ,col "m\226\128\162" "\27[0m"))))
+     (write (.. "\27[1;" ,color "m\226\128\162" "\27[0m"))))
 
 (defmacro it (name &body)
+  "Create a test NAME which executes all expressions and assertions in BODY"
   `(progn
     (inc! ,tests-total)
     (xpcall
@@ -27,26 +30,36 @@
         (push-cdr! ,tests-failed (list (.. ,prefix " " ,name) (if ,quiet ,'msg (traceback ,'msg))))))))
 
 (defmacro pending (name &body)
+  "Create a test NAME whose BODY will not be run.
+
+   This is primarily designed for assertions you know will fail and need to be fixed,
+   or features which have not been implemented yet"
   `(progn
      (marker 33)
      (push-cdr! ,tests-pending (.. ,prefix " " ,name))))
 
 (defmacro may (name &body)
+  "Create a group of tests defined in BODY whose names take the form `<prefix> may NAME, and <test_name>`"
   `(with (,prefix (.. ,prefix " may " ,name ", and")) ,@body))
 
 (defmacro will (name &body)
+  "Create a test whose BODY asserts NAME will happen"
   `(with (,prefix (.. ,prefix " will")) (it ,name ,@body)))
 
 (defmacro will-not (name &body)
+  "Create a test whose BODY asserts NAME will not happen"
   `(with (,prefix (.. ,prefix " won't")) (it ,name ,@body)))
 
 (defmacro is (name &body)
+  "Create a test whose BODY asserts NAME is true"
   `(with (,prefix (.. ,prefix " is")) (it ,name ,@body)))
 
 (defmacro can (name &body)
+  "Create a test whose BODY asserts NAME can happen"
   `(with (,prefix (.. ,prefix " can")) (it ,name ,@body)))
 
 (defmacro describe (name &body)
+  "Create a group of tests, defined in BODY, which test NAME"
   `(let ((,tests-passed '())
          (,tests-failed '())
          (,tests-pending '())
