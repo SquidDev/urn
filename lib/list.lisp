@@ -29,7 +29,8 @@
             (f head (foldr f z tail)))]))
 
 (defun map (f xs acc)
-  "Map over the list XS using the unary function F. The parameter ACC is for internal use only."
+  "Map over the list XS using the unary function F. The parameter ACC
+   is for internal use only."
   (assert-type! f function)
   (assert-type! xs list)
   (cond
