@@ -1,4 +1,9 @@
 #!/usr/bin/env lua
+
+local compiler_dir = debug.getinfo(1).source
+      compiler_dir = compiler_dir:sub(2, #compiler_dir - #('run.lua'))
+package.path = package.path .. ';./' .. compiler_dir .. '/?.lua'
+
 local backend = require "tacky.backend.init"
 local compile = require "tacky.compile"
 local logger = require "tacky.logger"
@@ -8,8 +13,8 @@ local pprint = require "tacky.pprint"
 local resolve = require "tacky.analysis.resolve"
 local documentation = require "tacky.documentation"
 
-local paths = { "?", "lib/?" }
-local inputs, output, verbosity, run, prelude, time, removeOut, scriptArgs, docs = {}, "out", 0, false, "lib/prelude", false, false, {}, false
+local paths = { "?", "lib/?", compiler_dir .. '/lib/?' }
+local inputs, output, verbosity, run, prelude, time, removeOut, scriptArgs, docs = {}, "out", 0, false, compiler_dir .. "lib/prelude", false, false, {}, false
 
 -- Tiny Lua stub
 if _VERSION:find("5.1") then
@@ -332,6 +337,7 @@ if #inputs == 0 then
 									io.write(logger.colored(94, tok.contents))
 								end
 							end
+							print()
 						end
 					end
 				else
