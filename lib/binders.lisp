@@ -72,6 +72,19 @@
                 [true nil]))
             ,(cadar vars))]))
 
+(defmacro when-with (var &body)
+  "Bind the PAIR var of the form `(name value)`, only evaluating BODY if the
+   value is truthy
+
+   Example:
+   ```
+   (when-with (foo (get-idx bar :baz))
+      (print! foo))
+   ```
+   When `bar` has an index `baz`, it will be bound to `foo` and printed. If not,
+   the print statement will not be executed."
+  `((lambda (,(car var)) (when ,(car var) ,@body)) ,(cadr var)))
+
 ;; Pre-declare variable and define it, allowing recursive functions to exist
 (defmacro letrec (vars &body)
   "Bind several variables (given in VARS), which may be recursive.

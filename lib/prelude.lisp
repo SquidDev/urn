@@ -74,3 +74,7 @@
   "Return a function which always returns X. This is equivalent to the `K`
    combinator in SK combinator calculus."
   (lambda (y) x))
+
+(defun self (x key &args)
+  "Index X with KEY and invoke the resulting function with X and ARGS"
+  ((get-idx x key) x (unpack args)))

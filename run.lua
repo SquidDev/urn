@@ -9,7 +9,6 @@ local compile = require "tacky.compile"
 local logger = require "tacky.logger"
 local optimise = require "tacky.analysis.optimise"
 local parser = require "tacky.parser"
-local pprint = require "tacky.pprint"
 local resolve = require "tacky.analysis.resolve"
 local documentation = require "tacky.documentation"
 
