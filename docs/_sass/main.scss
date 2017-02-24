@@ -1,4 +1,5 @@
 @import "reset.scss";
+@import "layout.scss";
 
 $grey00: #151515;
 $grey01: #202020;
@@ -11,81 +12,59 @@ $grey07: #ECF0F1;
 $grey08: #FAFAFA;
 $grey09: #FFFFFF;
 
+$sepia01: #5B3022;
+$sepia02: #A23A43;
+$sepia03: #F4E2AF;
+$sepia04: #F0C164;
+$sepia05: #E5A644;
+
+@mixin link($normal, $hover) {
+	a {
+		&, &:visited, &:active { color: $normal; }
+		&:hover { color: $hover; }
+	}
+}
+
 body {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans",
 	"Droid Sans", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
-.container {
-	max-width: 1000px;
-	width: 100%;
+header {
+	height: 64px;
+	overflow: hidden;
+	background-color: $sepia05;
+	color: $sepia01;
 
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-between;
+	@include link($sepia01, lighten($sepia01, 20%));
 
-	margin: 15px auto;
-	padding: 0px 15px;
+	.button-group {
+		height: 100%;
+		a {
+			display: inline-block;
+			height: 100%;
+			padding: 0px 10px;
+			box-sizing: border-box;
+			color: inherit;
 
-	.content {
-		order: 2;
-		box-sizing: border-box;
-		flex: 0 0 80%;
-		max-width: 80%;
-		padding-left: 15px;
-
-		ul {
-			list-style-type: disc;
-			list-style-position: outside;
-			padding-left: 2em;
-
-			li {
-				padding: 3px 0px;
+			&:hover {
+				color: inherit;
+				background-color: darken($sepia05, 10%);
 			}
-		}
-	}
 
-	.sidebar {
-		order: 1;
-		box-sizing: border-box;
-		flex: 0 0 20%;
-		max-width: 20%;
-		padding-right: 15px;
-
-		text-align: right;
-
-		li {
-			padding-top: 2px;
-			padding-bottom: 2px;
-		}
-	}
-
-	@media(max-width: 1000px) {
-		.content {
-			order: 1;
-			flex-basis: 100%;
-			max-width: 100%;
-			padding-left: 15px;
-			padding-right: 15px;
-		}
-
-		.sidebar {
-			order: 2;
-			text-align: left;
-			flex-basis: 100%;
-			max-width: 100%;
-			padding-right: 0px;
+			@include middle;
 		}
 	}
 }
 
-$link: #3777E6;
-a, a:visited, a:active {
-	text-decoration: none;
-	color: $link;
-}
+@include link($sepia02, lighten($sepia02, 20%));
+a { text-decoration: none; }
+.content a { font-weight: bold; }
 
-a:hover { color: darken($link, 20%); }
+h1, h2, h3 {
+	color: $sepia01;
+	pre, code { color: #000; }
+}
 
 h1 {
 	font-size: 2em;
@@ -105,6 +84,8 @@ h3 {
 	padding-top: 8px;
 	padding-bottom: 4px;
 }
+
+h2:first-child, h3:first-child { padding-top: 0px; }
 
 p, pre {
 	line-height: 1.3em;

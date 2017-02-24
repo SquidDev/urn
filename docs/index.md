@@ -1,5 +1,4 @@
-# ![](images/logo.png) Urn
-## A Lisp implementation for Lua
+# Urn: A Lisp implementation for Lua
 
 Urn is a new language developed by me, SquidDev, and demhydraz. Urn is a Lisp dialect with a focus on minimism which
 compiles to Lua.

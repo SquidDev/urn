@@ -6,9 +6,32 @@
 
 		<title>{% if page.title %}{{ page.title | escape }} | {{ site.title | escape }}{% else %}{{ site.title | escape }}{% endif %}</title>
 		<link rel="stylesheet" href="{{ "/assets/main.css" | relative_url }}" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
 	</head>
 
 	<body>
+		<header>
+			<div class="pull-left">
+				<a href="{{ "/" | relative_url }}" class="title">
+					<img src="{{ "images/logo.png" | relative_url }}" alt="The Urn Logo" title="Urn"/>
+				</a>
+			</div>
+			<div class="pull-right button-group hide-tiny">
+				<a href="https://gitlab.com/SquidDev/urn" title="View on GitLab">
+					<span>
+						<span class="fa fa-gitlab" aria-hidden="true"></span>
+						GitLab
+					</span>
+				</a>
+				<a href="https://github.com/SquidDev/urn" title="View on GitHub">
+					<span>
+						<span class="fa fa-github" aria-hidden="true"></span>
+						GitHub
+					</span>
+				</a>
+			</div>
+		</header>
+
 		<div class="container">
 			<div class="content">
 				{{content}}
