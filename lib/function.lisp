@@ -80,7 +80,7 @@
   "Test if the expression X makes sense as something that can be applied to a set
    of arguments.
 
-   Example:
+   ### Example
    ```
    > (invokable? invokable?)
    true

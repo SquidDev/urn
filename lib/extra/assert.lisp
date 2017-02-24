@@ -21,7 +21,7 @@
     - `(/= a b)`: Assert that A and B are not equal, printing their values if they are
     - Type assertions of the form `(list? a)`: Assert that A is of the required type.
 
-   Example:
+   ### Example
    ```
    > (assert (= (+ 2 3) 4))
    [ERROR] expected (+ 2 3) and 4 to be equal
@@ -82,7 +82,7 @@
    final function executed. If it returns a falsey value (nil or false) then each argument
    will be have it's value printed out.
 
-   Example:
+   ### Example
    ```
    > (affirm (= (+ 2 3) (* 2 3)))
    [ERROR] Assertion failed

@@ -37,9 +37,10 @@
    - If `(car STATEMENTS)` is the symbol `'do`, then evaluate `(cadr STATEMENTS)`
      without adding the result to the output list.
 
-   Examples:
+   ### Examples
 
    - The cartesian product of two lists:
+
      ```cl
      (do for x in xs
          for y in ys

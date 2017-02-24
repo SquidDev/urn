@@ -8,7 +8,7 @@
    Variables bound with `let*' can refer to variables bound previously,
    as they are evaluated in order.
 
-   Example:
+   ### Example
    ```cl
    (let* [(foo 1)
           (bar (+ foo 1))]
@@ -24,7 +24,7 @@
    In contrast to `let*', variables bound with [[let]] can not refer to
    eachother.
 
-   Example:
+   ### Example
    ```cl
    (let [(foo 1)
          (bar 2)]
@@ -55,7 +55,7 @@
    before binding the next, and finally evaluating BODY. As with [[let*]],
    bindings inside 'when-let*' can refer to previously bound names.
 
-   Example:
+   ### Example
    ```cl
    (when-let* [(foo 1)
                (bar nil)
@@ -76,7 +76,7 @@
   "Bind the PAIR var of the form `(name value)`, only evaluating BODY if the
    value is truthy
 
-   Example:
+   ### Example
    ```cl
    (when-with (foo (get-idx bar :baz))
       (print! foo))
@@ -89,7 +89,7 @@
 (defmacro letrec (vars &body)
   "Bind several variables (given in VARS), which may be recursive.
 
-   Example:
+   ### Example
    ```
    > (letrec [(is-even? (lambda (n)
                           (or (= 0 n)
