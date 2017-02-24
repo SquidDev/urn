@@ -74,17 +74,17 @@
 (defun struct (&keys)
   "Return the structure given by the list of pairs XS. Note that, in contrast
    to variations of [[LET]], the pairs are given \"unpacked\": Instead of invoking
-   ```
+   ```cl
    (struct [(:foo bar)])
    ```
    or
-   ```
+   ```cl
    (struct {:foo bar})
    ```
    , you must instead invoke it like
-   ```
+   ```cl
    (struct :foo bar)
-   ```."
+   ```"
   (if (= (% (# keys) 1) 1)
     (error "Expected an even number of arguments to struct" 2)
     '())
