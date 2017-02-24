@@ -31,9 +31,19 @@
   "Decrement the variable X in place."
   `(set! ,x (- ,x 1)))
 
-(define string->number tonumber)
-(define number->string tostring)
-(define bool->string tostring)
+(define string->number
+  "Convert the string X into a number. Returns `nil` if it could not be parsed.
+
+   Optionally takes a BASE which the number is in (such as 16 for hexadecimal)."
+  tonumber)
+
+(define number->string
+  "Convert the number X into a string."
+  tostring)
+
+(define bool->string
+  "Convert the boolean X into a string."
+  tostring)
 
 (defun symbol->string (x)
   "Convert the symbol X to a string."

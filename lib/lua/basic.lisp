@@ -50,4 +50,6 @@
 (define-native type#)
 (define-native xpcall)
 
-(define # (lambda (x) (get-idx x "n")))
+(define #
+  "Get the length of list X"
+  (lambda (x) (get-idx x "n")))

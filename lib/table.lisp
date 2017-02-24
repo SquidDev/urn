@@ -81,7 +81,7 @@
    ```cl
    (struct {:foo bar})
    ```
-   , you must instead invoke it like
+   you must instead invoke it like
    ```cl
    (struct :foo bar)
    ```"

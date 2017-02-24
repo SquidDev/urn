@@ -80,7 +80,9 @@
   (assert-type! xs list)
   (get-idx xs (# xs)))
 
-(define nth get-idx)
+(defun nth (xs idx)
+  "Get the IDX th element in the list XS. The first element is 1."
+  (get-idx xs idx))
 
 (defun push-cdr! (xs val)
   "Mutate the list XS, adding VAL to its end."

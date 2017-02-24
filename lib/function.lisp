@@ -6,15 +6,22 @@
 (import table (.> getmetatable))
 (import lua/os (clock))
 
-;; Checks if this symbol is a wildcard
 (defun slot? (symb)
   "Test whether SYMB is a slot. For this, it must be a symbol, whose contents
    are `<>`."
   (and (symbol? symb) (= (get-idx symb "contents") "<>")))
 
-;; Partially apply a function, where <> is replaced by an argument to a function.
-;; Values are evaluated every time the resulting function is called.
 (defmacro cut (&func)
+  "Partially apply a function FUNC, where each `<>` is replaced by an
+   argument to a function. Values are evaluated every time the resulting
+   function is called.
+
+   ### Example
+   ```
+   > (define double (cut * <> 2))
+   > (double 3)
+   6
+   ```"
   (let [(args '())
         (call '())]
     (for-each item func
@@ -25,9 +32,17 @@
         (push-cdr! call item)))
     `(lambda ,args ,call)))
 
-;; Partially apply a function, where <> is replaced by an argument to a function.
-;; Values are evaluated when this function is defined.
 (defmacro cute (&func)
+  "Partially apply a function FUNC, where each `<>` is replaced by an
+   argument to a function. Values are evaluated when this function is
+   defined.
+
+   ### Example
+   ```
+   > (define double (cute * <> 2))
+   > (double 3)
+   6
+   ```"
   (let ((args '())
         (vals '())
         (call '()))
@@ -39,10 +54,19 @@
           (push-cdr! vals `(,symb ,item)))))
     `(let ,vals (lambda ,args ,call))))
 
-;; Chain a series of method calls together.
-;; If the list contains <> then the value is placed there, otherwise the expression is invoked
-;; with the previous entry as an argument
 (defmacro -> (x &funcs)
+  "Chain a series of method calls together. If the list contains `<>`
+   then the value is placed there, otherwise the expression is invoked with
+   the previous entry as an argument.
+
+   ### Example
+   ```
+   > (-> '(1 2 3)
+       succ
+       (* <> 2))
+   (4 6 8)
+   ```"
+
   (with (res x)
     (for-each form funcs
       (if (and (list? form) (any slot? form))

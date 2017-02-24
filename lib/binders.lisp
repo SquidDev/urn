@@ -56,7 +56,7 @@
    bindings inside 'when-let*' can refer to previously bound names.
 
    Example:
-   ```
+   ```cl
    (when-let* [(foo 1)
                (bar nil)
                (baz 2)
