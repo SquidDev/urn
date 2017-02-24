@@ -21,7 +21,7 @@ ifeq (${QUIET},1)
 TEST_FLAGS += --quiet
 endif
 
-.PHONY: ${TESTS} all test compiler_test
+.PHONY: ${TESTS} all test compiler_test docs
 
 compiler_test: all test
 test: ${TESTS}
