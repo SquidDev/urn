@@ -1,5 +1,5 @@
-(import base (defun getmetatable if # progn with
-              type# >= = + - car or and list when set-idx!
+(import base (defun getmetatable if # progn with print pretty
+              type# >= > < <= = + - car or and list when set-idx!
               get-idx getmetatable let* while))
 (import base (concat) :export)
 (import list)
@@ -18,23 +18,46 @@
 
 (defun split (text pattern limit)
   "Split the string given by TEXT in at most LIMIT components, which are
-   delineated by the Lua pattern PATTERN."
+   delineated by the Lua pattern PATTERN.
+
+   It is worth noting that an empty pattern (`\"\"`) will split the string
+   into individual characters.
+
+   ### Example
+   ```
+   > (split \"foo-bar-baz\" \"-\")
+   (\"foo\" \"bar\" \"baz\")
+   > (split \"foo-bar-baz\" \"-\" 1)
+   (\"foo\" \"bar-baz\")
+   ```"
   (let* [(out '())
          (loop true)
          (start 1)]
     (while loop
-      (let* [(pos (list (find text pattern start)))]
-        (if (or (= "nil" (type# pos)) (= (list/nth pos 1) nil) (and limit (>= (# out) limit)))
-          (progn
+      (let* [(pos (list (find text pattern start)))
+             (nstart (list/car pos))
+             (nend   (list/cadr pos))]
+        (cond
+          ;; If nothing was matched, or we've gone over the limit then append the remaining text
+          ;; and exit.
+          ((or (= nstart nil) (and limit (>= (# out) limit)))
             (set! loop false)
             (list/push-cdr! out (sub text start (#s text)))
             (set! start (+ (#s text) 1)))
-          (progn
-            (if (car pos)
-              (progn
-                (list/push-cdr! out (sub text start (- (car pos) 1)))
-                (set! start (+ (list/cadr pos) 1)))
-              (set! loop false))))))
+          ;; If the start is beyond the string length (somehow) then maybe append the remaining text
+          ;; and exit.
+          ((> nstart (#s text))
+            (when (<= start (#s text))
+              (list/push-cdr! out (sub text start (#s text))))
+            (set! loop false))
+          ;; If the end point is before the start point (0 width match) then we'll gobble just one character
+          ((< nend nstart)
+            (list/push-cdr! out (sub text start nstart))
+            (set! start (+ nstart 1)))
+          ;; Otherwise gobble everything between matches
+          (true
+            (list/push-cdr! out (sub text start (- nstart 1)))
+            (set! start (+ nend 1))))))
     out))
 
 
