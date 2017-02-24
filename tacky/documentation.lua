@@ -249,7 +249,7 @@ pred1 = (function(x7)
 	return (x7 - 1)
 end)
 builtins1 = require1("tacky.analysis.resolve")["builtins"]
-tokens1 = {tag = "list", n =3, {tag = "list", n =2, "arg", "(%f[%a]%u+%f[%A])"}, {tag = "list", n =2, "mono", "`([^`]*)`"}, {tag = "list", n =2, "link", "%[%[(.-)%]%]"}}
+tokens1 = {tag = "list", n =4, {tag = "list", n =2, "arg", "(%f[%a]%u+%f[%A])"}, {tag = "list", n =2, "mono", "```[a-z]*\n([^`]*)\n```"}, {tag = "list", n =2, "mono", "`([^`]*)`"}, {tag = "list", n =2, "link", "%[%[(.-)%]%]"}}
 extractSignature1 = (function(var1)
 	local ty2 = type1(var1)
 	local temp1
@@ -327,7 +327,7 @@ parseDocstring1 = (function(str1)
 					pushCdr_21_1(out2, struct1("tag", "text", "contents", sub1(str1, pos1, pred1(spos1))))
 				else
 				end
-				pushCdr_21_1(out2, struct1("tag", name1, "contents", match1(sub1(str1, spos1, epos1), ptrn1)))
+				pushCdr_21_1(out2, struct1("tag", name1, "whole", sub1(str1, spos1, epos1), "contents", match1(sub1(str1, spos1, epos1), ptrn1)))
 				pos1 = succ1(epos1)
 			else
 				pushCdr_21_1(out2, struct1("tag", "text", "contents", sub1(str1, pos1, len3)))

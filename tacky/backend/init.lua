@@ -1460,7 +1460,7 @@ backend2 = struct1("expression", expression1, "block", block1)
 abs1 = _libs["lib/lua/math/abs"]
 max3 = _libs["lib/lua/math/max"]
 builtins2 = require1("tacky.analysis.resolve")["builtins"]
-tokens1 = {tag = "list", n =3, {tag = "list", n =2, "arg", "(%f[%a]%u+%f[%A])"}, {tag = "list", n =2, "mono", "`([^`]*)`"}, {tag = "list", n =2, "link", "%[%[(.-)%]%]"}}
+tokens1 = {tag = "list", n =4, {tag = "list", n =2, "arg", "(%f[%a]%u+%f[%A])"}, {tag = "list", n =2, "mono", "```[a-z]*\n([^`]*)\n```"}, {tag = "list", n =2, "mono", "`([^`]*)`"}, {tag = "list", n =2, "link", "%[%[(.-)%]%]"}}
 extractSignature1 = (function(var5)
 	local ty3 = type1(var5)
 	local temp19
@@ -1538,7 +1538,7 @@ parseDocstring1 = (function(str2)
 					pushCdr_21_1(out9, struct1("tag", "text", "contents", sub1(str2, pos2, pred1(spos1))))
 				else
 				end
-				pushCdr_21_1(out9, struct1("tag", name3, "contents", match1(sub1(str2, spos1, epos1), ptrn1)))
+				pushCdr_21_1(out9, struct1("tag", name3, "whole", sub1(str2, spos1, epos1), "contents", match1(sub1(str2, spos1, epos1), ptrn1)))
 				pos2 = succ1(epos1)
 			else
 				pushCdr_21_1(out9, struct1("tag", "text", "contents", sub1(str2, pos2, len3)))
@@ -1855,7 +1855,7 @@ exported1 = (function(out10, title1, vars1)
 					elseif (ty5 == "arg") then
 						append_21_1(out10, _2e2e_1("`", tok2["contents"], "`"))
 					elseif (ty5 == "mono") then
-						append_21_1(out10, _2e2e_1("`", tok2["contents"], "`"))
+						append_21_1(out10, tok2["whole"])
 					elseif (ty5 == "link") then
 						local name7 = tok2["contents"]
 						local scope1 = var9["scope"]

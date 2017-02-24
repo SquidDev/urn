@@ -74,7 +74,7 @@
             (cond
               ((= ty "text") (writer/append! out (.> tok :contents)))
               ((= ty "arg")  (writer/append! out (.. "`" (.> tok :contents) "`")))
-              ((= ty "mono") (writer/append! out (.. "`" (.> tok :contents) "`")))
+              ((= ty "mono") (writer/append! out (.> tok :whole)))
               ((= ty "link")
                 (let* [(name  (.> tok :contents))
                        (scope (.> var :scope))

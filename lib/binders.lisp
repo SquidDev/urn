@@ -5,7 +5,7 @@
 ;; Bind multiple variables in succession
 (defmacro let* (vars &body)
   "Bind several variables (given in VARS), then evaluate BODY.
-   Variables bound with `let*' can refer to variables bound previously,
+   Variables bound with [[let*]] can refer to variables bound previously,
    as they are evaluated in order.
 
    ### Example
@@ -21,7 +21,7 @@
 ;; Binds a variable to an expression
 (defmacro let (vars &body)
   "Bind several variables (given in VARS), then evaluate BODY.
-   In contrast to `let*', variables bound with [[let]] can not refer to
+   In contrast to [[let*]], variables bound with [[let]] can not refer to
    eachother.
 
    ### Example
@@ -53,7 +53,7 @@
 (defmacro when-let* (vars &body)
   "Bind each pair of `(name value)` of VARS, checking if the value is truthy
    before binding the next, and finally evaluating BODY. As with [[let*]],
-   bindings inside 'when-let*' can refer to previously bound names.
+   bindings inside [[when-let*]] can refer to previously bound names.
 
    ### Example
    ```cl

@@ -9,6 +9,7 @@
   "The primary tokens for the documentation string"
   :hidden
   '(("arg"    "(%f[%a]%u+%f[%A])")
+    ("mono"   "```[a-z]*\n([^`]*)\n```")
     ("mono"   "`([^`]*)`")
     ("link"   "%[%[(.-)%]%]")))
 
@@ -57,6 +58,7 @@
             ;; And push this token
             (push-cdr! out (struct
                              :tag name
+                             :whole    (string/sub str spos epos)
                              :contents (string/match (string/sub str spos epos) ptrn)))
             (set! pos (succ epos)))
 
