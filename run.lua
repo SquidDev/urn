@@ -232,6 +232,10 @@ for name, var in pairs(preludeVars) do
 	rootScope:import(name, var)
 end
 
+for i = 1, #inputs do
+	assert(libLoader(inputs[i], false))
+end
+
 if docs then
 	for _, lib in ipairs(libs) do
 		local out = backend.markdown.exported(lib.path, libCache[lib.name])
@@ -394,10 +398,6 @@ if #inputs == 0 then
 	end
 
 	return
-end
-
-for i = 1, #inputs do
-	assert(libLoader(inputs[i], nil, false))
 end
 
 out.n = #out

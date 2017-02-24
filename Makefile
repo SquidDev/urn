@@ -38,4 +38,4 @@ ${TESTS}:
 
 docs:
 	@mkdir -p ${DOCS_DIR}
-	${LUA} run.lua --docs ${DOCS_DIR}
+	${LUA} run.lua ${LIBS} --docs ${DOCS_DIR}
