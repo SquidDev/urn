@@ -19,21 +19,19 @@ body {
 .container {
 	max-width: 1000px;
 	width: 100%;
-	margin-left: auto;
-	margin-right: auto;
 
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: space-between;
 
-	margin-bottom: 15px;
-	margin-top: 15px;
+	margin: 15px auto;
+	padding: 0px 15px;
 
 	.content {
 		order: 2;
 		box-sizing: border-box;
-		flex: 0 0 75%;
-		max-width: 75%;
+		flex: 0 0 80%;
+		max-width: 80%;
 		padding-left: 15px;
 
 		ul {
@@ -50,8 +48,8 @@ body {
 	.sidebar {
 		order: 1;
 		box-sizing: border-box;
-		flex: 0 0 25%;
-		max-width: 25%;
+		flex: 0 0 20%;
+		max-width: 20%;
 		padding-right: 15px;
 
 		text-align: right;
@@ -67,7 +65,8 @@ body {
 			order: 1;
 			flex-basis: 100%;
 			max-width: 100%;
-			padding-left: 0px;
+			padding-left: 15px;
+			padding-right: 15px;
 		}
 
 		.sidebar {
@@ -103,11 +102,18 @@ h2 {
 
 h3 {
 	font-size: 1.2em;
-  padding-top: 8px;
+	padding-top: 8px;
+	padding-bottom: 4px;
 }
 
 p {
 	line-height: 1.3em;
+}
+
+p, pre, ul, blockquote, div.highlighter-rouge {
+	h1 + &, h2 + &, h3 + &, &:first-child { margin-top: 0em; }
+
+	margin-top: 0.5em;
 }
 
 em {
@@ -115,6 +121,7 @@ em {
 	font-size: 0.8em;
 	color: $grey03;
 }
+
 strong { font-weight: bold; }
 
 pre, code {
@@ -136,11 +143,6 @@ pre {
 pre {
 	border: solid 1px $grey05;
 	background-color: $grey08;
-
-	margin-top: 1em;
-	margin-bottom: 1em;
-
-	&:last-child { margin-bottom: 0em; }
 
 	code {
 		background-color: transparent;
