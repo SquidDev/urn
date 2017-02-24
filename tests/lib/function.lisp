@@ -54,9 +54,14 @@
     (will "work with slots"
           (affirm (= 5 (-> 2 (* <> 2) (+ 1 <>)))
                   (= 7 (-> 2 succ (* <> 2) (+ 1 <>)))))
-    (pending "evaluate args once"
-      (let* [(count 0)
+    (it "evaluate in correct order"
+       (let* [(count 1)
              (get! (lambda () (inc! count) count))]
+         (affirm (=  1 (-> (get!) (- (get!) <>)))
+                 (= -1 (-> (get!) (- <> (get!)))))))
+    (it "evaluate args once"
+      (let* [(count 0)
+             (get! (lambda (_) (inc! count) count))]
         (affirm
           (= 2 (-> nil get! (+ <> <>)))
           (= 4 (-> (get!) (+ <> <>))))))]

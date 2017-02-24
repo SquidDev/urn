@@ -1,10 +1,12 @@
-(import base (defmacro defun with for when if and or
+(import base (defmacro defun with for when if and or let*
               get-idx gensym unpack =))
 (import binders (let))
 (import list (for-each push-cdr! any map traverse))
 (import type (symbol? list? function? table?))
 (import table (.> getmetatable))
 (import lua/os (clock))
+
+(import base (print pretty))
 
 (defun slot? (symb)
   "Test whether SYMB is a slot. For this, it must be a symbol, whose contents
@@ -66,12 +68,13 @@
        (* <> 2))
    (4 6 8)
    ```"
-
   (with (res x)
     (for-each form funcs
-      (if (and (list? form) (any slot? form))
-        (set! res (map (lambda (x) (if (slot? x) res x)) form))
-        (set! res `(,form ,res))))
+      (let* [(symb (gensym))
+             (body (if (and (list? form) (any slot? form))
+                     (map (lambda (x) (if (slot? x) symb x)) form)
+                     `(,form ,symb)))]
+        (set! res `((lambda (,symb) ,body) ,res))))
     res))
 
 ;; Predicate for determining whether something can safely be invoked, that is,
