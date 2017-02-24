@@ -6,11 +6,12 @@ package.path = package.path .. ';./' .. compiler_dir .. '/?.lua'
 
 local backend = require "tacky.backend.init"
 local compile = require "tacky.compile"
+local documentation = require "tacky.documentation"
 local logger = require "tacky.logger"
 local optimise = require "tacky.analysis.optimise"
 local parser = require "tacky.parser"
 local resolve = require "tacky.analysis.resolve"
-local documentation = require "tacky.documentation"
+local warning = require "tacky.analysis.warning"
 
 local paths = { "?", "lib/?", compiler_dir .. '/lib/?' }
 local inputs, output, verbosity, run, prelude, time, removeOut, scriptArgs, docs = {}, "out", 0, false, compiler_dir .. "lib/prelude", false, false, {}, false
@@ -402,6 +403,8 @@ end
 
 out.n = #out
 out.tag = "list"
+
+warning.analyse(out)
 
 local start = os.clock()
 out = optimise(out, { meta = libMeta })

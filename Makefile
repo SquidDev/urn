@@ -5,6 +5,7 @@ OUT_DIR    ?= tacky
 DOCS_DIR   ?= docs/docs
 OBJS       :=                    \
 	${OUT_DIR}/analysis/optimise  \
+	${OUT_DIR}/analysis/warning   \
 	${OUT_DIR}/backend/init       \
 	${OUT_DIR}/documentation      \
 	${OUT_DIR}/logger             \
