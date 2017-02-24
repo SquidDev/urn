@@ -53,19 +53,13 @@
 ;; Add a definition for a specific variable
 (defun add-definition! (state var node kind value)
   (with (var-meta (get-var state var))
-    (when value
-      (with (node-meta (get-node state value))
-        ;; This shouldn't ever be possible
-        (when (.> node-meta :defines) (error! "Value defines multiple variables"))
-        (.<! node-meta :defines var)))
     (.<! var-meta :defs node (struct :tag kind :value value))))
 
 ;; Add a definition for a specific variable
 (defun remove-definition! (state var node)
   (let* [(var-meta (get-var state var))
          (node-meta (get-node state node))]
-    (.<! var-meta :defs node nil)
-    (.<! node-meta :defines nil)))
+    (.<! var-meta :defs node nil)))
 
 ;; Visit one node and gather its definitions
 (defun definitions-visitor (state node)
