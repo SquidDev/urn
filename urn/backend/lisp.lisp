@@ -1,11 +1,11 @@
 (import urn/backend/writer writer)
-(import string)
+(import string (#s quoted))
 
 (defun estimate-length (node max)
   (with (tag (.> node :tag))
     (cond
       ((or (= tag "string") (= tag "number") (= tag "symbol") (= tag "key"))
-        (string/#s (number->string (.> node :contents))))
+        (#s (number->string (.> node :contents))))
       ((= tag "list")
         (let* ((sum 2)
               (i 1))
@@ -19,8 +19,10 @@
 (defun expression (node writer)
   (with (tag (.> node :tag))
     (cond
-        ((or (= tag "string") (= tag "number") (= tag "symbol") (= tag "key"))
-          (writer/append! writer (number->string (.> node :contents))))
+        ((= tag "string") (writer/append! writer (quoted (.> node :value))))
+        ((= tag "number") (writer/append! writer (number->string (.> node :value))))
+        ((= tag "key") (writer/append! writer (.. ":" (.> node :value))))
+        ((= tag "symbol") (writer/append! writer (.> node :contents)))
         ((= tag "list")
           (writer/append! writer "(")
 
