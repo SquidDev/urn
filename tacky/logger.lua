@@ -252,17 +252,19 @@ foldr1 = (function(f1, z1, xs4)
 		return f1(head1, foldr1(f1, z1, tail1))
 	end
 end)
-nth1 = getIdx1
-pushCdr_21_1 = (function(xs5, val2)
-	local r_341 = type1(xs5)
+nth1 = (function(xs5, idx1)
+	return xs5[idx1]
+end)
+pushCdr_21_1 = (function(xs6, val2)
+	local r_341 = type1(xs6)
 	if (r_341 ~= "list") then
 		error1(format1("bad argment %s (expected %s, got %s)", "xs", "list", r_341), 2)
 	else
 	end
-	local len2 = (_23_1(xs5) + 1)
-	xs5["n"] = len2
-	xs5[len2] = val2
-	return xs5
+	local len2 = (_23_1(xs6) + 1)
+	xs6["n"] = len2
+	xs6[len2] = val2
+	return xs6
 end)
 cadr1 = (function(x8)
 	return car2(cdr2(x8))

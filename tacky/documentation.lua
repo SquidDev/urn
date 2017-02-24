@@ -194,17 +194,19 @@ car2 = (function(x5)
 	end
 	return car1(x5)
 end)
-nth1 = getIdx1
-pushCdr_21_1 = (function(xs3, val2)
-	local r_341 = type1(xs3)
+nth1 = (function(xs3, idx1)
+	return xs3[idx1]
+end)
+pushCdr_21_1 = (function(xs4, val2)
+	local r_341 = type1(xs4)
 	if (r_341 ~= "list") then
 		error1(format1("bad argment %s (expected %s, got %s)", "xs", "list", r_341), 2)
 	else
 	end
-	local len2 = (_23_1(xs3) + 1)
-	xs3["n"] = len2
-	xs3[len2] = val2
-	return xs3
+	local len2 = (_23_1(xs4) + 1)
+	xs4["n"] = len2
+	xs4[len2] = val2
+	return xs4
 end)
 _23_s1 = len1
 struct1 = (function(...)

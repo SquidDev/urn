@@ -255,9 +255,9 @@
                           (push-cdr! buffer (string/char val))))
                       ((= char "")
                         (logger/print-error! "Expected escape code, got eof")
-                        (logger/put-trace! (range (position))
-                          (logger/put-lines! false
-                            (range (position)) "end of file here"))
+                        (logger/put-trace! (range (position)))
+                        (logger/put-lines! false
+                            (range (position)) "end of file here")
                         (fail! "Lexing failed"))
                       (true
                         (logger/print-error! "Illegal escape character")

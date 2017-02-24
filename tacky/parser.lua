@@ -279,33 +279,35 @@ last1 = (function(xs5)
 	end
 	return xs5[_23_1(xs5)]
 end)
-nth1 = getIdx1
-pushCdr_21_1 = (function(xs6, val3)
-	local r_341 = type1(xs6)
+nth1 = (function(xs6, idx1)
+	return xs6[idx1]
+end)
+pushCdr_21_1 = (function(xs7, val3)
+	local r_341 = type1(xs7)
 	if (r_341 ~= "list") then
 		error1(format1("bad argment %s (expected %s, got %s)", "xs", "list", r_341), 2)
 	else
 	end
-	local len2 = (_23_1(xs6) + 1)
-	xs6["n"] = len2
-	xs6[len2] = val3
-	return xs6
+	local len2 = (_23_1(xs7) + 1)
+	xs7["n"] = len2
+	xs7[len2] = val3
+	return xs7
 end)
-popLast_21_1 = (function(xs7)
-	local r_351 = type1(xs7)
+popLast_21_1 = (function(xs8)
+	local r_351 = type1(xs8)
 	if (r_351 ~= "list") then
 		error1(format1("bad argment %s (expected %s, got %s)", "xs", "list", r_351), 2)
 	else
 	end
-	xs7[_23_1(xs7)] = nil
-	xs7["n"] = (_23_1(xs7) - 1)
-	return xs7
+	xs8[_23_1(xs8)] = nil
+	xs8["n"] = (_23_1(xs8) - 1)
+	return xs8
 end)
 cadr1 = (function(x10)
 	return car2(cdr2(x10))
 end)
-charAt1 = (function(xs8, x11)
-	return sub1(xs8, x11, x11)
+charAt1 = (function(xs9, x11)
+	return sub1(xs9, x11, x11)
 end)
 _2e2e_1 = (function(...)
 	local args1 = _pack(...) args1.tag = "list"
@@ -1122,7 +1124,8 @@ lex1 = (function(str2, name2)
 									pushCdr_21_1(buffer1, char1(val6))
 								elseif (char7 == "") then
 									printError_21_1("Expected escape code, got eof")
-									putTrace_21_1(range3(position2()), putLines_21_1(false, range3(position2()), "end of file here"))
+									putTrace_21_1(range3(position2()))
+									putLines_21_1(false, range3(position2()), "end of file here")
 									fail_21_1("Lexing failed")
 								else
 									printError_21_1("Illegal escape character")

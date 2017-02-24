@@ -311,34 +311,36 @@ all1 = (function(p1, xs7)
 		end
 	end), true, map1(p1, xs7))
 end)
-nth1 = getIdx1
-pushCdr_21_1 = (function(xs8, val2)
-	local r_341 = type1(xs8)
+nth1 = (function(xs8, idx1)
+	return xs8[idx1]
+end)
+pushCdr_21_1 = (function(xs9, val2)
+	local r_341 = type1(xs9)
 	if (r_341 ~= "list") then
 		error1(format1("bad argment %s (expected %s, got %s)", "xs", "list", r_341), 2)
 	else
 	end
-	local len2 = (_23_1(xs8) + 1)
-	xs8["n"] = len2
-	xs8[len2] = val2
-	return xs8
+	local len2 = (_23_1(xs9) + 1)
+	xs9["n"] = len2
+	xs9[len2] = val2
+	return xs9
 end)
-removeNth_21_1 = (function(li1, idx1)
+removeNth_21_1 = (function(li1, idx2)
 	local r_361 = type1(li1)
 	if (r_361 ~= "list") then
 		error1(format1("bad argment %s (expected %s, got %s)", "li", "list", r_361), 2)
 	else
 	end
 	li1["n"] = (li1["n"] - 1)
-	return remove1(li1, idx1)
+	return remove1(li1, idx2)
 end)
-reverse1 = (function(xs9, acc2)
+reverse1 = (function(xs10, acc2)
 	if _21_1(exists_3f_1(acc2)) then
-		return reverse1(xs9, {tag = "list", n =0})
-	elseif nil_3f_1(xs9) then
+		return reverse1(xs10, {tag = "list", n =0})
+	elseif nil_3f_1(xs10) then
 		return acc2
 	else
-		return reverse1(cdr2(xs9), cons1(car2(xs9), acc2))
+		return reverse1(cdr2(xs10), cons1(car2(xs10), acc2))
 	end
 end)
 caar1 = (function(x13)
