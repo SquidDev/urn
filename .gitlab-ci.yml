@@ -27,7 +27,7 @@ test_run:
 pages:
   stage: deploy
   before_script:
-    - apt-get -qq update && apt-get -qq install -y lua5.3 build-essential ruby-full ruby-dev
+    - apt-get -qq update && apt-get -qq install -y lua5.3 build-essential ruby-full ruby-dev zlib1g-dev liblzma-dev libxml2-dev
     - lua5.3 -v
     - ruby -v
     - gem install jekyll bundler
