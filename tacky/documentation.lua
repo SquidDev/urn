@@ -219,12 +219,12 @@ struct1 = (function(...)
 		return key1["contents"]
 	end)
 	local out1 = emptyStruct1()
-	local r_591 = _23_1(keys1)
-	local r_601 = 2
-	local r_571 = nil
-	r_571 = (function(r_581)
-		if (r_581 <= r_591) then
-			local i1 = r_581
+	local r_581 = _23_1(keys1)
+	local r_591 = 2
+	local r_561 = nil
+	r_561 = (function(r_571)
+		if (r_571 <= r_581) then
+			local i1 = r_571
 			local key2 = keys1[i1]
 			local val3 = keys1[(1 + i1)]
 			out1[(function()
@@ -235,11 +235,11 @@ struct1 = (function(...)
 				end
 			end)()
 			] = val3
-			return r_571((r_581 + 2))
+			return r_561((r_571 + 2))
 		else
 		end
 	end)
-	r_571(1)
+	r_561(1)
 	return out1
 end)
 succ1 = (function(x6)
@@ -253,9 +253,9 @@ tokens1 = {tag = "list", n =3, {tag = "list", n =2, "arg", "(%f[%a]%u+%f[%A])"},
 extractSignature1 = (function(var1)
 	local ty2 = type1(var1)
 	local temp1
-	local r_891 = (ty2 == "macro")
-	if r_891 then
-		temp1 = r_891
+	local r_881 = (ty2 == "macro")
+	if r_881 then
+		temp1 = r_881
 	else
 		temp1 = (ty2 == "defined")
 	end
@@ -263,16 +263,16 @@ extractSignature1 = (function(var1)
 		local root1 = var1["node"]
 		local node1 = nth1(root1, _23_1(root1))
 		local temp2
-		local r_901 = list_3f_1(node1)
-		if r_901 then
-			local r_911 = symbol_3f_1(car2(node1))
-			if r_911 then
+		local r_891 = list_3f_1(node1)
+		if r_891 then
+			local r_901 = symbol_3f_1(car2(node1))
+			if r_901 then
 				temp2 = (car2(node1)["var"] == builtins1["lambda"])
 			else
-				temp2 = r_911
+				temp2 = r_901
 			end
 		else
-			temp2 = r_901
+			temp2 = r_891
 		end
 		if temp2 then
 			return nth1(node1, 2)
@@ -287,28 +287,28 @@ parseDocstring1 = (function(str1)
 	local out2 = {tag = "list", n =0}
 	local pos1 = 1
 	local len3 = _23_s1(str1)
-	local r_921 = nil
-	r_921 = (function()
+	local r_911 = nil
+	r_911 = (function()
 		if (pos1 <= len3) then
 			local spos1 = len3
 			local epos1 = nil
 			local name1 = nil
 			local ptrn1 = nil
-			local r_941 = tokens1
-			local r_971 = _23_1(r_941)
-			local r_981 = 1
-			local r_951 = nil
-			r_951 = (function(r_961)
-				if (r_961 <= r_971) then
-					local r_931 = r_961
-					local tok1 = r_941[r_931]
+			local r_931 = tokens1
+			local r_961 = _23_1(r_931)
+			local r_971 = 1
+			local r_941 = nil
+			r_941 = (function(r_951)
+				if (r_951 <= r_961) then
+					local r_921 = r_951
+					local tok1 = r_931[r_921]
 					local npos1 = list1(find1(str1, nth1(tok1, 2), pos1))
 					local temp3
-					local r_991 = car2(npos1)
-					if r_991 then
+					local r_981 = car2(npos1)
+					if r_981 then
 						temp3 = (car2(npos1) < spos1)
 					else
-						temp3 = r_991
+						temp3 = r_981
 					end
 					if temp3 then
 						spos1 = car2(npos1)
@@ -317,11 +317,11 @@ parseDocstring1 = (function(str1)
 						ptrn1 = nth1(tok1, 2)
 					else
 					end
-					return r_951((r_961 + 1))
+					return r_941((r_951 + 1))
 				else
 				end
 			end)
-			r_951(1)
+			r_941(1)
 			if name1 then
 				if (pos1 < spos1) then
 					pushCdr_21_1(out2, struct1("tag", "text", "contents", sub1(str1, pos1, pred1(spos1))))
@@ -333,11 +333,11 @@ parseDocstring1 = (function(str1)
 				pushCdr_21_1(out2, struct1("tag", "text", "contents", sub1(str1, pos1, len3)))
 				pos1 = succ1(len3)
 			end
-			return r_921()
+			return r_911()
 		else
 		end
 	end)
-	r_921()
+	r_911()
 	return out2
 end)
 return struct1("parseDocs", parseDocstring1, "extractSignature", extractSignature1)
