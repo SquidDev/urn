@@ -1,4 +1,4 @@
-(import base (defun getmetatable if # progn with print pretty
+(import base (defun getmetatable if # progn with
               type# >= > < <= = + - car or and list when set-idx!
               get-idx getmetatable let* while))
 (import base (concat) :export)
