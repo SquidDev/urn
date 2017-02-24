@@ -27,7 +27,8 @@ test_run:
 pages:
   stage: deploy
   before_script:
-    - curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+    - apt-get -qq update && apt-get -qq install -y curl sudo
+    - curl -sL https://deb.nodesource.com/setup_6.x | bash -
     - apt-get -qq update && apt-get -qq install -y lua5.3 build-essential ruby-full ruby-dev zlib1g-dev liblzma-dev libxml2-dev nodejs
     - lua5.3 -v
     - ruby -v
