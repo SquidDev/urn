@@ -9,7 +9,7 @@
    as they are evaluated in order.
 
    Example:
-   ```
+   ```cl
    (let* [(foo 1)
           (bar (+ foo 1))]
      foo
@@ -25,7 +25,7 @@
    eachother.
 
    Example:
-   ```
+   ```cl
    (let [(foo 1)
          (bar 2)]
      (+ foo bar))
@@ -35,7 +35,7 @@
 (defmacro when-let (vars &body)
   "Bind VARS, as with [[let]], and check they are all truthy before evaluating
    BODY.
-   ```
+   ```cl
    (when-let [(foo 1)
               (bar nil)]
      foo)
@@ -77,7 +77,7 @@
    value is truthy
 
    Example:
-   ```
+   ```cl
    (when-with (foo (get-idx bar :baz))
       (print! foo))
    ```

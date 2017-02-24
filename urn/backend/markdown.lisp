@@ -55,6 +55,10 @@
     (sort-vars! documented)
     (sort-vars! undocumented)
 
+    (writer/line! out "---")
+    (writer/line! out (.. "title: " title))
+    (writer/line! out "---")
+
     (writer/line! out (.. "# " title))
 
     (for-each entry documented
@@ -91,7 +95,8 @@
         (writer/line! out)
         (writer/line! out "" true)))
 
-    (writer/line! out "## Undocumented symbols")
+    (unless (nil? undocumented)
+      (writer/line! out "## Undocumented symbols"))
     (for-each entry undocumented
        (let* [(name (car entry))
              (var  (nth entry 2))]

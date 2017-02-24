@@ -1816,6 +1816,9 @@ exported1 = (function(out10, title1, vars1)
 	end))
 	sortVars_21_1(documented1)
 	sortVars_21_1(undocumented1)
+	line_21_1(out10, "---")
+	line_21_1(out10, _2e2e_1("title: ", title1))
+	line_21_1(out10, "---")
 	line_21_1(out10, _2e2e_1("# ", title1))
 	local r_2401 = documented1
 	local r_2431 = _23_1(r_2401)
@@ -1881,7 +1884,10 @@ exported1 = (function(out10, title1, vars1)
 		end
 	end)
 	r_2411(1)
-	line_21_1(out10, "## Undocumented symbols")
+	if nil_3f_1(undocumented1) then
+	else
+		line_21_1(out10, "## Undocumented symbols")
+	end
 	local r_2531 = undocumented1
 	local r_2561 = _23_1(r_2531)
 	local r_2571 = 1

@@ -2,7 +2,7 @@ LUA        ?= lua5.3
 LUA_FLAGS  ?=
 TEST_FLAGS ?=
 OUT_DIR    ?= tacky
-DOCS_DIR   ?= docs
+DOCS_DIR   ?= site/docs
 OBJS       :=                    \
 	${OUT_DIR}/analysis/optimise  \
 	${OUT_DIR}/backend/init       \
