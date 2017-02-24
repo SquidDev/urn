@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+		<title>{% if page.title %}{{ page.title | escape }} | {{ site.title | escape }}{% else %}{{ site.title | escape }}{% endif %}</title>
+		<link rel="stylesheet" href="{{ "/assets/main.css" | relative_url }}" />
+	</head>
+
+	<body>
+		<div class="container">
+			<div class="content">
+				{{content}}
+			</div>
+			<div class="sidebar">
+				<h2>All libraries</h2>
+				<ul>
+					{% for page in site.pages %}
+						{% if page.url contains "docs/" %}
+							<li><a href="{{ page.url | relative_url }}">{{ page.title }}</a></li>
+						{% endif %}
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+	</body>
+</html>

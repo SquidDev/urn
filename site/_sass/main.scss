@@ -1,0 +1,151 @@
+@import "reset.scss";
+
+$grey00: #151515;
+$grey01: #202020;
+$grey02: #505050;
+$grey03: #707070;
+$grey04: #B0B0B0;
+$grey05: #D0D0D0;
+$grey06: #E0E0E0;
+$grey07: #ECF0F1;
+$grey08: #FAFAFA;
+$grey09: #FFFFFF;
+
+body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans",
+	"Droid Sans", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+.container {
+	max-width: 1000px;
+	width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+
+	margin-bottom: 15px;
+	margin-top: 15px;
+
+	.content {
+		order: 2;
+		box-sizing: border-box;
+		flex: 0 0 75%;
+		max-width: 75%;
+		padding-left: 15px;
+
+		ul {
+			list-style-type: disc;
+			list-style-position: outside;
+			padding-left: 2em;
+
+			li {
+				padding: 3px 0px;
+			}
+		}
+	}
+
+	.sidebar {
+		order: 1;
+		box-sizing: border-box;
+		flex: 0 0 25%;
+		max-width: 25%;
+		padding-right: 15px;
+
+		text-align: right;
+
+		li {
+			padding-top: 2px;
+			padding-bottom: 2px;
+		}
+	}
+
+	@media(max-width: 1000px) {
+		.content {
+			order: 1;
+			flex-basis: 100%;
+			max-width: 100%;
+			padding-left: 0px;
+		}
+
+		.sidebar {
+			order: 2;
+			text-align: left;
+			flex-basis: 100%;
+			max-width: 100%;
+			padding-right: 0px;
+		}
+	}
+}
+
+$link: #3777E6;
+a, a:visited, a:active {
+	text-decoration: none;
+	color: $link;
+}
+
+a:hover { color: darken($link, 20%); }
+
+h1 {
+	font-size: 2em;
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+	border-bottom: solid 1px $grey05;
+}
+
+h2 {
+	font-size: 1.6em;
+	padding-top: 16px;
+	padding-bottom: 8px;
+}
+
+p {
+	line-height: 1.3em;
+}
+
+em {
+	font-style: italic;
+	font-size: 0.8em;
+	color: $grey03;
+}
+strong { font-weight: bold; }
+
+pre, code {
+	font-family: "Consolas", "Courier New", monospace;
+}
+
+code {
+	background-color: $grey07;
+	padding: 0.1em;
+	font-size: 0.8em;
+}
+
+pre {
+	padding: 1.2em;
+	font-size: 0.8em;
+	white-space: pre-wrap;
+}
+
+pre {
+	border: solid 1px $grey05;
+	background-color: $grey08;
+
+	margin-top: 1em;
+	margin-bottom: 1em;
+
+	&:last-child { margin-bottom: 0em; }
+
+	code {
+		background-color: transparent;
+		color: inherit;
+		padding: 0px;
+		font-size: inherit;
+	}
+
+	.o, .ow, .kd, .k { color: #FF0086; }
+	.s2 { color: #FD8900; }
+	.c1 { color: $grey03; }
+	.kc { color: #3777E6; }
+}

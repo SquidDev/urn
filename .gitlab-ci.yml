@@ -23,3 +23,21 @@ test_run:
     - make all
     - echo -e "\033[36mRunning tests\033[0m"
     - make test
+
+pages:
+  stage: deploy
+  before_script:
+    - apt-get -qq update && apt-get -qq install -y lua5.3 make ruby-full
+    - lua5.3 -v
+    - ruby -v
+    - gem install jekyll bundler
+  script:
+    - make docs
+    - cd site
+    - bundle
+    - bundle exec jekyll build -d ../public
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
