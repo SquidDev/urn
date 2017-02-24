@@ -33,7 +33,7 @@ pages:
     - gem install jekyll bundler
   script:
     - make docs
-    - cd site
+    - cd docs
     - bundle
     - bundle exec jekyll build -d ../public
   artifacts:
