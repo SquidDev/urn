@@ -52,17 +52,5 @@ return {
 		counter = counter + 1
 		return { tag = "symbol", contents = ("r_%d%s"):format(counter, name) }
 	end,
-	_G = _G, _ENV = _ENV, _VERSION = _VERSION, arg = arg,
-	assert = assert, collectgarbage = collectgarbage,
-	dofile = dofile, error = error,
-	getmetatable = getmetatable, ipairs = ipairs,
-	load = load, loadfile = loadfile,
-	next = next, pairs = pairs,
-	pcall = pcall, print = print,
-	rawequal = rawequal, rawget = rawget,
-	rawlen = rawlen, rawset = rawset,
-	require = require, select = select,
-	setmetatable = setmetatable, tonumber = tonumber,
-	tostring = tostring, ["type#"] = type,
-	xpcall = xpcall,
+	arg = arg,
 }
