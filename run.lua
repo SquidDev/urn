@@ -154,6 +154,7 @@ local function libLoader(name, shouldResolve)
 		end
 	end
 
+	-- Load the native file
 	local handle = io.open(path .. ".lua", "r")
 	if handle then
 		lib.native = handle:read("*a")
@@ -165,51 +166,52 @@ local function libLoader(name, shouldResolve)
 		for k, v in pairs(fun()) do
 			libEnv[lib.path .. "/" .. k] = v
 		end
+	end
 
-		-- Parse the meta info
-		local metaHadle = io.open(path .. ".meta.lua", "r")
-		if metaHadle then
-			local meta = metaHadle:read("*a")
-			metaHadle:close()
+	-- Parse the meta info
+	local metaHadle = io.open(path .. ".meta.lua", "r")
+	if metaHadle then
+		local meta = metaHadle:read("*a")
+		metaHadle:close()
 
-			local fun, msg = load(meta, "@" .. lib.name .. ".meta", "t", _ENV)
-			if not fun then error(msg, 0) end
+		local fun, msg = load(meta, "@" .. lib.name .. ".meta", "t", _ENV)
+		if not fun then error(msg, 0) end
 
-			for name, entry in pairs(fun()) do
-				local full = lib.path .. "/" .. name
+		for name, entry in pairs(fun()) do
+			local full = lib.path .. "/" .. name
 
-				if type(entry.contents) == "string" then
-					local buffer = {tag="list"}
-					local str = entry.contents
-					local current = 1
-					while current <= #str do
-						local start, finish = str:find("%${(%d+)}", current)
-						if not start then
-							buffer[#buffer + 1] = str:sub(current, #str)
-							current = #str + 1
-						else
-							if start > current then
-								buffer[#buffer + 1] = str:sub(current, start - 1)
-							end
-							buffer[#buffer + 1] = tonumber(str:sub(start + 2, finish - 1))
-							current = finish + 1
+			if (entry.tag == "expr" or entry.tag == "stmt") and type(entry.contents) == "string" then
+				local buffer = {tag="list"}
+				local str = entry.contents
+				local current = 1
+				while current <= #str do
+					local start, finish = str:find("%${(%d+)}", current)
+					if not start then
+						buffer[#buffer + 1] = str:sub(current, #str)
+						current = #str + 1
+					else
+						if start > current then
+							buffer[#buffer + 1] = str:sub(current, start - 1)
 						end
+						buffer[#buffer + 1] = tonumber(str:sub(start + 2, finish - 1))
+						current = finish + 1
 					end
-
-					buffer.n = #buffer
-					entry.contents = buffer
 				end
 
-				-- Extract the value from one of the nodes
-				if entry.value == nil then
-					entry.value = libEnv[full]
-				elseif entry.value ~= nil then
-					if libEnv[full] ~= nil then error("Duplicate value for " .. full .. " (in native and meta file)", 0) end
-					libEnv[full] = entry.value
-				end
-
-				libMeta[full] = entry
+				buffer.n = #buffer
+				entry.contents = buffer
 			end
+
+
+			-- Extract the value from one of the nodes
+			if entry.value == nil then
+				entry.value = libEnv[full]
+			elseif entry.value ~= nil then
+				if libEnv[full] ~= nil then error("Duplicate value for " .. full .. " (in native and meta file)", 0) end
+				libEnv[full] = entry.value
+			end
+
+			libMeta[full] = entry
 		end
 	end
 

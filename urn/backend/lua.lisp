@@ -291,28 +291,36 @@
                 ((= var (.> builtins :define-macro))
                   (compile-expression (nth node (# node)) out state (.. (escape-var (.> node :defVar) state) " = ")))
                 ((= var (.> builtins :define-native))
-                  (with (meta (.> state :meta (.> node :defVar :fullName)))
-                    (if meta
-                      ;; Generate a custom function wrapper
-                      (with (count (.> meta :count))
-                        (w/append! out (string/format "%s = function(" (escape-var (.> node :defVar) state)))
-                        (for i 1 count 1
-                          (unless (= i 1) (w/append! out ", "))
-                          (w/append! out (.. "v" (string->number i))))
-                        (w/append! out ") ")
+                  (let* [(meta (.> state :meta (.> node :defVar :fullName)))
+                         (ty (type meta))]
+                    (cond
+                      ((= ty "nil")
+                        ;; Otherwise just copy it from the normal value
+                        (w/append! out (string/format "%s = _libs[%q]" (escape-var (.> node :defVar) state) (.> node :defVar :fullName))))
 
-                        ;; Return the value if required
-                        (when (= (.> meta :tag) "expr") (w/append! out "return "))
+                      ((= ty "var")
+                        ;; Create an alias to a variable
+                        (w/append! out (string/format "%s = %s" (escape-var (.> node :defVar) state) (.> meta :contents))))
 
-                        ;; And create the template
-                        (for-each entry (.> meta :contents)
-                          (if (number? entry)
-                            (w/append! out (.. "v" (string->number entry)))
-                            (w/append! out entry)))
+                      ((or (= ty "expr") (= ty "stmt"))
+                        ;; Generate a custom function wrapper
+                        (with (count (.> meta :count))
+                          (w/append! out (string/format "%s = function(" (escape-var (.> node :defVar) state)))
+                          (for i 1 count 1
+                            (unless (= i 1) (w/append! out ", "))
+                            (w/append! out (.. "v" (string->number i))))
+                          (w/append! out ") ")
 
-                        (w/append! out " end"))
-                      ;; Otherwise just copy it from the normal value
-                      (w/append! out (string/format "%s = _libs[%q]" (escape-var (.> node :defVar) state) (.> node :defVar :fullName))))))
+                          ;; Return the value if required
+                          (when (= ty "expr") (w/append! out "return "))
+
+                          ;; And create the template
+                          (for-each entry (.> meta :contents)
+                            (if (number? entry)
+                              (w/append! out (.. "v" (string->number entry)))
+                              (w/append! out entry)))
+
+                          (w/append! out " end"))))))
                 ((= var (.> builtins :quote))
                   ;; Quotations are "pure" so we don't have to emit anything
                   (unless (= ret "")
@@ -341,11 +349,23 @@
                 (true
                   ;; As we're invoking a known symbol here, we can do some fancy stuff. In this case, we just
                   ;; "inline" anything defined in library meta data (such as arithmetic operators).
-                  (with (meta (and (symbol? head) (= (.> head :var :tag) "native") (.> state :meta (.> head :var :fullName))))
+                  (let* [(meta (and (symbol? head) (= (.> head :var :tag) "native") (.> state :meta (.> head :var :fullName))))
+                         (meta-ty (type meta))]
                     ;; Obviously metadata only exists for native expressions. We can only emit it if
                     ;; we're in the right context (statements cannot be emitted when we require an expression) and
                     ;; we've passed in the correct number of arguments.
-                    (if (and meta (or ret (= (.> meta :tag) "expr")) (= (pred (# node)) (.> meta :count)))
+                    (cond
+                      ((= meta-ty "nil"))
+                      ((= meta-ty "boolean"))
+                      ((= meta-ty "expr"))
+                      ((= meta-ty "stmt")
+                        ;; Cannot use statements if we're in an expression
+                        (unless ret (set! meta nil)))
+                      ((= meta-ty "var")
+                        ;; We'll have cached the global lookup above
+                        (set! meta nil)))
+
+                    (if (and meta (= (pred (# node)) (.> meta :count)))
                       (progn
                         ;; If we're dealing with an expression then we emit the returner first. Statements just
                         ;; return nil.
