@@ -15,7 +15,8 @@
 
 (define-native _G)
 (define-native _ENV)
-(define-native arg)
+(define-native arg#)
+(define-native len#)
 (define-native slice
   "Take a slice of XS, with all values at indexes between START and FINISH (or the last
    entry of XS if not specified).")

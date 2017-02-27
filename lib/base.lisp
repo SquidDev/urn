@@ -1,4 +1,7 @@
-(import lua/basic () :export)
+(import lua/basic (get-idx set-idx! getmetatable type# print
+                   pcall xpcall tostring tonumber require error
+                   = /= < <= > >= + - * / % ^ #) :export)
+(import lua/basic ())
 (import lua/string string)
 (import lua/table (unpack concat) :export)
 (import lua/table table)
@@ -162,3 +165,15 @@
             (true (tostring value)))))
       ((= ty "string") (string/format "%q" value))
       (true (tostring value)))))
+
+(define arg
+  "The arguments passed to the currently executing program"
+  (cond
+    ((= nil arg#) '())
+    (true
+      ;; Ensure we're got a list
+      (set-idx! arg# :tag "list")
+      (cond
+        ((get-idx arg# :n))
+        (true (set-idx! arg# :n (len# arg#))))
+      arg#)))

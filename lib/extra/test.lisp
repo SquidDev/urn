@@ -1,5 +1,4 @@
 (import string)
-(import lua/basic (arg))
 (import lua/debug (traceback))
 (import extra/assert (assert!) :export)
 

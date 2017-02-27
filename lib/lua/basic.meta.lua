@@ -14,12 +14,15 @@ return {
 	['^']  = { tag = "expr", contents = "(${1} ^ ${2})",  count = 2, pure = true, value = function(x, y) return x ^ y end  },
 	['..'] = { tag = "expr", contents = "(${1} .. ${2})", count = 2, pure = true, value = function(x, y) return x .. y end },
 
+	['len#'] = { tag = "expr", contents = "#(${1})", count = 1, pure = true, value = function(x) return #x end },
+
 	['get-idx']  = { tag = "expr", contents = "${1}[${2}]",        count = 2, value = function(x, k) return x[k] end },
 	['set-idx!'] = { tag = "stmt", contents = "${1}[${2}] = ${3}", count = 3, value = function(x, k, v) x[k] = v end },
 
 	["_ENV"] =           { tag = "var", contents = "_ENV",           value = _ENV,                         },
 	["_G"] =             { tag = "var", contents = "_G",             value = _G,                           },
 	["assert"] =         { tag = "var", contents = "assert",         value = assert,                       },
+	["arg#"] =           { tag = "var", contents = "arg",            value = arg,                          },
 	["collectgarbage"] = { tag = "var", contents = "collectgarbage", value = collectgarbage,               },
 	["dofile"] =         { tag = "var", contents = "dofile",         value = dofile,                       },
 	["error"] =          { tag = "var", contents = "error",          value = error,                        },
