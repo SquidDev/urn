@@ -175,10 +175,12 @@ local function libLoader(name, shouldResolve)
 			local fun, msg = load(meta, "@" .. lib.name .. ".meta", "t", _ENV)
 			if not fun then error(msg, 0) end
 
-			for k, v in pairs(fun()) do
-				if type(v.contents) == "string" then
+			for name, entry in pairs(fun()) do
+				local full = lib.path .. "/" .. name
+
+				if type(entry.contents) == "string" then
 					local buffer = {tag="list"}
-					local str = v.contents
+					local str = entry.contents
 					local current = 1
 					while current <= #str do
 						local start, finish = str:find("%${(%d+)}", current)
@@ -195,11 +197,18 @@ local function libLoader(name, shouldResolve)
 					end
 
 					buffer.n = #buffer
-					v.contents = buffer
+					entry.contents = buffer
 				end
 
-				if v.value == nil then v.value = libEnv[lib.path .. "/" .. k] end
-				libMeta[lib.path .. "/" .. k] = v
+				-- Extract the value from one of the nodes
+				if entry.value == nil then
+					entry.value = libEnv[full]
+				elseif entry.value ~= nil then
+					if libEnv[full] ~= nil then error("Duplicate value for " .. full .. " (in native and meta file)", 0) end
+					libEnv[full] = entry.value
+				end
+
+				libMeta[full] = entry
 			end
 		end
 	end

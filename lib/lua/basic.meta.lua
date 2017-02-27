@@ -1,21 +1,19 @@
 return {
-	['='] =  { tag = "expr", contents = "(${1} == ${2})", count = 2, pure = true },
-	['/='] = { tag = "expr", contents = "(${1} ~= ${2})", count = 2, pure = true },
-	['<']  = { tag = "expr", contents = "(${1} < ${2})",  count = 2, pure = true },
-	['<='] = { tag = "expr", contents = "(${1} <= ${2})", count = 2, pure = true },
-	['>']  = { tag = "expr", contents = "(${1} > ${2})",  count = 2, pure = true },
-	['>='] = { tag = "expr", contents = "(${1} >= ${2})", count = 2, pure = true },
+	['='] =  { tag = "expr", contents = "(${1} == ${2})", count = 2, pure = true, value = function(x, y) return x == y end },
+	['/='] = { tag = "expr", contents = "(${1} ~= ${2})", count = 2, pure = true, value = function(x, y) return x ~= y end },
+	['<']  = { tag = "expr", contents = "(${1} < ${2})",  count = 2, pure = true, value = function(x, y) return x < y end  },
+	['<='] = { tag = "expr", contents = "(${1} <= ${2})", count = 2, pure = true, value = function(x, y) return x <= y end },
+	['>']  = { tag = "expr", contents = "(${1} > ${2})",  count = 2, pure = true, value = function(x, y) return x > y end  },
+	['>='] = { tag = "expr", contents = "(${1} >= ${2})", count = 2, pure = true, value = function(x, y) return x >= y end },
 
-	['+']  = { tag = "expr", contents = "(${1} + ${2})",  count = 2, pure = true },
-	['-']  = { tag = "expr", contents = "(${1} - ${2})",  count = 2, pure = true },
-	['*']  = { tag = "expr", contents = "(${1} * ${2})",  count = 2, pure = true },
-	['/']  = { tag = "expr", contents = "(${1} / ${2})",  count = 2, pure = true },
-	['%']  = { tag = "expr", contents = "(${1} % ${2})",  count = 2, pure = true },
-	['^']  = { tag = "expr", contents = "(${1} ^ ${2})",  count = 2, pure = true },
-	['..'] = { tag = "expr", contents = "(${1} .. ${2})", count = 2, pure = true },
+	['+']  = { tag = "expr", contents = "(${1} + ${2})",  count = 2, pure = true, value = function(x, y) return x + y end  },
+	['-']  = { tag = "expr", contents = "(${1} - ${2})",  count = 2, pure = true, value = function(x, y) return x - y end  },
+	['*']  = { tag = "expr", contents = "(${1} * ${2})",  count = 2, pure = true, value = function(x, y) return x * y end  },
+	['/']  = { tag = "expr", contents = "(${1} / ${2})",  count = 2, pure = true, value = function(x, y) return x / y end  },
+	['%']  = { tag = "expr", contents = "(${1} % ${2})",  count = 2, pure = true, value = function(x, y) return x % y end  },
+	['^']  = { tag = "expr", contents = "(${1} ^ ${2})",  count = 2, pure = true, value = function(x, y) return x ^ y end  },
+	['..'] = { tag = "expr", contents = "(${1} .. ${2})", count = 2, pure = true, value = function(x, y) return x .. y end },
 
-	-- This is basically a crime.
-	-- * Feb 20th, 2017: no longer a crime!
-	['get-idx'] = { tag = "expr", contents = "${1}[${2}]" , count = 2 },
-	['set-idx!'] = { tag = "stmt", contents = "${1}[${2}] = ${3}", count = 3 },
+	['get-idx']  = { tag = "expr", contents = "${1}[${2}]",        count = 2, value = function(x, k) return x[k] end },
+	['set-idx!'] = { tag = "stmt", contents = "${1}[${2}] = ${3}", count = 3, value = function(x, k, v) x[k] = v end },
 }

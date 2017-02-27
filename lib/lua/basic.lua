@@ -37,20 +37,6 @@ else
 end
 
 return {
-	['='] = function(x, y) return x == y end,
-	['/='] = function(x, y) return x ~= y end,
-	['<'] = function(x, y) return x < y end,
-	['<='] = function(x, y) return x <= y end,
-	['>'] = function(x, y) return x > y end,
-	['>='] = function(x, y) return x >= y end,
-
-	['+'] = function(x, y) return x + y end,
-	['-'] = function(x, y) return x - y end,
-	['*'] = function(x, y) return x * y end,
-	['/'] = function(x, y) return x / y end,
-	['%'] = function(x, y) return x % y end,
-	['^'] = function(x, y) return x ^ y end,
-	['..'] = function(x, y) return x .. y end,
 	['slice'] = function(xs, start, finish)
 		if not finish then finish = xs.n end
 		if not finish then finish = #xs end
@@ -79,6 +65,4 @@ return {
 	setmetatable = setmetatable, tonumber = tonumber,
 	tostring = tostring, ["type#"] = type,
 	xpcall = xpcall,
-	["get-idx"] = function(x, i) return x[i] end,
-	["set-idx!"] = function(x, k, v) x[k] = v end
 }

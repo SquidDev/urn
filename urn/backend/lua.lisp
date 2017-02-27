@@ -291,7 +291,28 @@
                 ((= var (.> builtins :define-macro))
                   (compile-expression (nth node (# node)) out state (.. (escape-var (.> node :defVar) state) " = ")))
                 ((= var (.> builtins :define-native))
-                  (w/append! out (string/format "%s = _libs[%q]" (escape-var (.> node :defVar) state) (.> node :defVar :fullName))))
+                  (with (meta (.> state :meta (.> node :defVar :fullName)))
+                    (if meta
+                      ;; Generate a custom function wrapper
+                      (with (count (.> meta :count))
+                        (w/append! out (string/format "%s = function(" (escape-var (.> node :defVar) state)))
+                        (for i 1 count 1
+                          (unless (= i 1) (w/append! out ", "))
+                          (w/append! out (.. "v" (string->number i))))
+                        (w/append! out ") ")
+
+                        ;; Return the value if required
+                        (when (= (.> meta :tag) "expr") (w/append! out "return "))
+
+                        ;; And create the template
+                        (for-each entry (.> meta :contents)
+                          (if (number? entry)
+                            (w/append! out (.. "v" (string->number entry)))
+                            (w/append! out entry)))
+
+                        (w/append! out " end"))
+                      ;; Otherwise just copy it from the normal value
+                      (w/append! out (string/format "%s = _libs[%q]" (escape-var (.> node :defVar) state) (.> node :defVar :fullName))))))
                 ((= var (.> builtins :quote))
                   ;; Quotations are "pure" so we don't have to emit anything
                   (unless (= ret "")
