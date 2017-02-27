@@ -16,13 +16,9 @@
 (define-native _G)
 (define-native _ENV)
 (define-native arg)
-(define-native gensym
-  "Create a unique symbol, suitable for using in macros")
 (define-native slice
   "Take a slice of XS, with all values at indexes between START and FINISH (or the last
    entry of XS if not specified).")
-(define-native pretty
-  "Format VALUE as a valid Lisp expression which can be parsed.")
 
 (define-native assert)
 (define-native collectgarbage)

@@ -7,4 +7,13 @@ return {
 	["remove"] =       { tag = "var", contents = "table.remove",       value = table.remove,       },
 	["sort"] =         { tag = "var", contents = "table.sort",         value = table.sort,         },
 	["unpack"] =       { tag = "var", contents = "table.unpack",       value = table.unpack,       },
+
+	["empty-struct"] = { tag = "expr", contents = "{}", count = 0, value = "function() return {} end" },
+
+	-- OK, it is a little horrible include this.
+	["iter-pairs" ] = {
+		tag = "var",
+		contents = "function(x, f) for k, v in pairs(x) do f(k, v) end end",
+		value = function(x, f) for k, v in pairs(x) do f(k, v) end end,
+	}
 }

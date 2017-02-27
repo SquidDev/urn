@@ -1,5 +1,7 @@
 (import lua/basic () :export)
+(import lua/string string)
 (import lua/table (unpack concat) :export)
+(import lua/table table)
 
 (define copy-meta
   "Copies metadata from the inner body to the outer body"
@@ -40,9 +42,11 @@
 
 (define car (lambda (xs) (get-idx xs 1)))
 (define cdr (lambda (xs) (slice xs 2)))
+
 (defun list (&xs)
   "Return the list of variadic arguments given."
   xs)
+
 (defun cons (x xs)
   "Add X to the start of the list XS. Note: this is linear in time."
   (list x (unpack xs)))
@@ -63,10 +67,6 @@
   "Evaluate BODY if C is false, otherwise, evaluate `nil`."
   `(cond (,c) (true ,@body)))
 
-(defun debug (x)
-  "Print the value X, then return it unmodified."
-  (print (pretty x)) x)
-
 (defmacro let* (vars &body)
   (if (= (# vars) 0)
     `((lambda () ,@body))
@@ -77,6 +77,19 @@
 (defun ! (expr)
   "Negate the expresison EXPR."
   (if expr false true))
+
+(define gensym
+  "Create a unique symbol, suitable for using in macros"
+  (with (counter 0)
+    (lambda (name)
+      (if name
+        (set! name (.. "_" name))
+        (set! name ""))
+      (set! counter (+ counter 1))
+      (with (res (table/empty-struct))
+        (set-idx! res :tag "symbol")
+        (set-idx! res :contents (string/format "r_%d%s" counter name))
+        res))))
 
 (defmacro for (ctr start end step &body)
   "Iterate BODY, with the counter CTR bound to START, being incremented
@@ -123,3 +136,29 @@
    logical or of all the values in REST."
   (with (symb (gensym))
     `(with (,symb ,a) (if ,symb ,symb ,(if (= (# rest) 0) b `(or ,b ,@rest))))))
+
+(defun debug (x)
+  "Print the value X, then return it unmodified."
+  (print (pretty x)) x)
+
+(defun pretty (value)
+  "Format VALUE as a valid Lisp expression which can be parsed."
+  (with (ty (type# value))
+    (cond
+      ((= ty "table")
+        (with (tag (get-idx value :tag))
+          (cond
+            ((= tag "list")
+              (with (out '())
+                (for i 1 (# value) 1
+                  (set-idx! out i (pretty (get-idx value i))))
+                (.. "(" (concat out " ") ")")))
+            ((= tag "list") (get-idx value :contents))
+            ((= tag "symbol") (get-idx value :contents))
+            ((= tag "key") (.. ":" (get-idx value :contents)))
+            ((= tag "key") (.. ":" (get-idx value :contents)))
+            ((= tag "string") (string/format "%q" (get-idx value :value)))
+            ((= tag "number") (tostring (get-idx value :value)))
+            (true (tostring value)))))
+      ((= ty "string") (string/format "%q" value))
+      (true (tostring value)))))

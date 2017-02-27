@@ -99,8 +99,6 @@ local out = {}
 
 for _, var in pairs(resolve.rootScope.variables) do variables[tostring(var)] = var end
 
-local pretty = require('lib.lua.basic').pretty
-
 local function libLoader(name, shouldResolve)
 	if name:sub(-5) == ".lisp" then
 		name = name:sub(1, -6)
@@ -258,6 +256,36 @@ if docs then
 	end
 
 	if not run then return end
+end
+
+local function pretty(x)
+	if type(x) == 'table' and x.tag then
+		if x.tag == 'list' then
+			local y = {}
+			for i = 1, x.n do
+				y[i] = pretty(x[i])
+			end
+			return '(' .. table.concat(y, ' ') .. ')'
+		elseif x.tag == 'symbol' then
+			return x.contents
+		elseif x.tag == 'key' then
+			return ":" .. x.value
+		elseif x.tag == 'string' then
+			return (("%q"):format(x.value):gsub("\n", "n"):gsub("\t", "\\9"))
+		elseif x.tag == 'number' then
+			return tostring(x.value)
+		elseif x.tag.tag and x.tag.tag == 'symbol' and x.tag.contents == 'pair' then
+			return '(pair ' .. pretty(x.fst) .. ' ' .. pretty(x.snd) .. ')'
+		elseif x.tag == 'thunk' then
+			return '<<thunk>>'
+		else
+			return tostring(x)
+		end
+	elseif type(x) == 'string' then
+		return ("%q"):format(x)
+	else
+		return tostring(x)
+	end
 end
 
 if #inputs == 0 then
