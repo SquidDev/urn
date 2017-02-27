@@ -1,7 +1,7 @@
 (import base (defun defmacro progn for while if
               and or with xpcall get-idx set-idx! pretty pcall
               gensym tostring tonumber require
-              unpack list cons when unless
+              unpack list cons when unless arg
               = /= < <= > >= + - * / % ^ ! # debug) :export)
 
 (import base)
@@ -71,9 +71,8 @@
 (defun exit! (reason code)
   "Exit the program with the exit code CODE, and optionally, print the
    error message REASON."
-  (let* [(code (if (string? reason)
-                 code reason))]
-    (print! reason)
+  (with (code (if (string? reason) code reason))
+    (when reason (print! reason))
     (lua/os/exit code)))
 
 (defun id (x)

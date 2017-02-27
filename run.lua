@@ -99,8 +99,6 @@ local out = {}
 
 for _, var in pairs(resolve.rootScope.variables) do variables[tostring(var)] = var end
 
-local pretty = require('lib.lua.basic').pretty
-
 local function libLoader(name, shouldResolve)
 	if name:sub(-5) == ".lisp" then
 		name = name:sub(1, -6)
@@ -154,6 +152,7 @@ local function libLoader(name, shouldResolve)
 		end
 	end
 
+	-- Load the native file
 	local handle = io.open(path .. ".lua", "r")
 	if handle then
 		lib.native = handle:read("*a")
@@ -165,42 +164,52 @@ local function libLoader(name, shouldResolve)
 		for k, v in pairs(fun()) do
 			libEnv[lib.path .. "/" .. k] = v
 		end
+	end
 
-		-- Parse the meta info
-		local metaHadle = io.open(path .. ".meta.lua", "r")
-		if metaHadle then
-			local meta = metaHadle:read("*a")
-			metaHadle:close()
+	-- Parse the meta info
+	local metaHadle = io.open(path .. ".meta.lua", "r")
+	if metaHadle then
+		local meta = metaHadle:read("*a")
+		metaHadle:close()
 
-			local fun, msg = load(meta, "@" .. lib.name .. ".meta", "t", _ENV)
-			if not fun then error(msg, 0) end
+		local fun, msg = load(meta, "@" .. lib.name .. ".meta", "t", _ENV)
+		if not fun then error(msg, 0) end
 
-			for k, v in pairs(fun()) do
-				if type(v.contents) == "string" then
-					local buffer = {tag="list"}
-					local str = v.contents
-					local current = 1
-					while current <= #str do
-						local start, finish = str:find("%${(%d+)}", current)
-						if not start then
-							buffer[#buffer + 1] = str:sub(current, #str)
-							current = #str + 1
-						else
-							if start > current then
-								buffer[#buffer + 1] = str:sub(current, start - 1)
-							end
-							buffer[#buffer + 1] = tonumber(str:sub(start + 2, finish - 1))
-							current = finish + 1
+		for name, entry in pairs(fun()) do
+			local full = lib.path .. "/" .. name
+
+			if (entry.tag == "expr" or entry.tag == "stmt") and type(entry.contents) == "string" then
+				local buffer = {tag="list"}
+				local str = entry.contents
+				local current = 1
+				while current <= #str do
+					local start, finish = str:find("%${(%d+)}", current)
+					if not start then
+						buffer[#buffer + 1] = str:sub(current, #str)
+						current = #str + 1
+					else
+						if start > current then
+							buffer[#buffer + 1] = str:sub(current, start - 1)
 						end
+						buffer[#buffer + 1] = tonumber(str:sub(start + 2, finish - 1))
+						current = finish + 1
 					end
-
-					buffer.n = #buffer
-					v.contents = buffer
 				end
 
-				if v.value == nil then v.value = libEnv[lib.path .. "/" .. k] end
-				libMeta[lib.path .. "/" .. k] = v
+				buffer.n = #buffer
+				entry.contents = buffer
 			end
+
+
+			-- Extract the value from one of the nodes
+			if entry.value == nil then
+				entry.value = libEnv[full]
+			elseif entry.value ~= nil then
+				if libEnv[full] ~= nil then error("Duplicate value for " .. full .. " (in native and meta file)", 0) end
+				libEnv[full] = entry.value
+			end
+
+			libMeta[full] = entry
 		end
 	end
 
@@ -247,6 +256,36 @@ if docs then
 	end
 
 	if not run then return end
+end
+
+local function pretty(x)
+	if type(x) == 'table' and x.tag then
+		if x.tag == 'list' then
+			local y = {}
+			for i = 1, x.n do
+				y[i] = pretty(x[i])
+			end
+			return '(' .. table.concat(y, ' ') .. ')'
+		elseif x.tag == 'symbol' then
+			return x.contents
+		elseif x.tag == 'key' then
+			return ":" .. x.value
+		elseif x.tag == 'string' then
+			return (("%q"):format(x.value):gsub("\n", "n"):gsub("\t", "\\9"))
+		elseif x.tag == 'number' then
+			return tostring(x.value)
+		elseif x.tag.tag and x.tag.tag == 'symbol' and x.tag.contents == 'pair' then
+			return '(pair ' .. pretty(x.fst) .. ' ' .. pretty(x.snd) .. ')'
+		elseif x.tag == 'thunk' then
+			return '<<thunk>>'
+		else
+			return tostring(x)
+		end
+	elseif type(x) == 'string' then
+		return ("%q"):format(x)
+	else
+		return tostring(x)
+	end
 end
 
 if #inputs == 0 then
