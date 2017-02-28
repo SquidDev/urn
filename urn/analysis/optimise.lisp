@@ -5,6 +5,7 @@
 
 (import string)
 (import base (type#))
+(import lua/math math)
 
 (define builtins (.> (require "tacky.analysis.resolve") :builtins))
 (define builtin-vars (.> (require "tacky.analysis.resolve") :declaredVars))
@@ -103,7 +104,16 @@
             (if (and meta (.> meta :pure) (.> meta :value))
               (with (res (list (pcall (.> meta :value) (unpack (map urn->val (cdr node))))))
                 (if (car res)
-                  (val->urn (nth res 2))
+                  (with (val (nth res 2))
+                    (if (and (number? val) (or (/= (snd (pair (math/modf val))) 0) (= (math/abs val) math/huge)))
+                      (progn
+                        ;; Don't fold non-integer values as we cannot accurately represent them
+                        ;; To consider: could we fold this if a parent expression could be folded (so simplify
+                        ;; (math/cos math/pi)) but revert otherwise.
+                        ;; That might be overly complicated for a simple constant folding system though.
+                        (.<! head :folded true)
+                        node)
+                      (val->urn val)))
                   (progn
                     ;; Mark this head as folded so we don't try again
                     (.<! head :folded true)
