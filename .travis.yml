@@ -1,0 +1,26 @@
+language: c
+
+sudo: false
+
+env:
+  matrix:
+    - LUA=lua-5.1.5
+    - LUA=lua-5.2.4
+    - LUA=lua-5.3.2
+
+before_install:
+  - source .build/setup_env.sh
+
+script:
+  - echo -e "\033[36mBuilding initial compiler\033[0m"
+  - make LUA=lua all
+  - echo -e "\033[36mBuilding compiler using new compiler\033[0m"
+  - make LUA=lua all
+  - echo -e "\033[36mComparing output of compiler\033[0m"
+  - export TEMP_DIR=$(mktemp -d)
+  - make LUA=lua OUT_DIR="$TEMP_DIR" all
+  - "! (diff -rq \"$TEMP_DIR\" tacky | grep \"$TEMP_DIR\")"
+  - echo -e "\033[36mRunning tests\033[0m"
+  - make LUA=lua test
+  - echo -e "\033[36mBuilding docs\033[0m"
+  - make LUA=lua docs
