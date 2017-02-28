@@ -62,7 +62,7 @@
     (.<! var-meta :defs node nil)))
 
 ;; Visit one node and gather its definitions
-(defun definitions-visitor (state node)
+(defun definitions-visitor (state node visitor)
   (cond
     ((and (list? node) (symbol? (car node)))
       (with (func (.> (car node) :var))
@@ -96,15 +96,14 @@
                                                                        :tag "symbol"
                                                                        :contents "nil"
                                                                        :var (.> builtin-vars :nil)))))))
-        (with (visitor (cut definitions-visitor state <>))
-          (visitor/visit-list node 2 visitor)
-          (visitor/visit-block lam 3 visitor)))
+        (visitor/visit-list node 2 visitor)
+        (visitor/visit-block lam 3 visitor))
       false)
     (true)))
 
 ;; Visit all nodes, gathering the definitions for a set of variables.
 (defun definitions-visit (state nodes)
-  (visitor/visit-block nodes 1 (cut definitions-visitor state <>)))
+  (visitor/visit-block nodes 1 (cut definitions-visitor state <> <>)))
 
 ;;; Build a lookup of usages. Note, this will only visit "active" nodes: those
 ;; which have a side effect or are used somewhere else.

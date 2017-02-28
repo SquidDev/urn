@@ -21,7 +21,7 @@
         (error! (.. "Unknown tag " tag))))))
 
 (defun visit-node (node visitor)
-  (unless (= (visitor node) false)
+  (unless (= (visitor node visitor) false)
     (with (tag (.> node :tag))
       (cond
         ((or (= tag "string") (= tag "number") (= tag "key") (= tag "symbol"))

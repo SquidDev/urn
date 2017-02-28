@@ -156,11 +156,11 @@
               node))
           node)))
 
-    ;; Strip unused definitions
     (with (lookup (usage/create-state))
       (usage/definitions-visit lookup nodes)
       (usage/usages-visit lookup nodes has-side-effect)
 
+      ;; Strip unused definitions
       (for i (# nodes) 1 -1
         (with (node (nth nodes i))
           (when (and (.> node :defVar) (! (.> (usage/get-var lookup (.> node :defVar)) :active)))
@@ -168,6 +168,35 @@
               (.<! nodes i (struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil)))
               (remove-nth! nodes i))
             (set! changed true))))
+
+      ;; Strip unused variables
+      (visitor/visit-list nodes 1
+        (lambda (node)
+          (when (and (list? node) (list? (car node)) (symbol? (caar node)) (= (.> (caar node) :var) (.> builtins :lambda)))
+            (let* [(lam (car node))
+                   (args (nth lam 2))
+                   (offset 1)
+                   (rem-offset '0)]
+              (for i 1 (# args) 1
+                (let [(arg (nth args (- i rem-offset)))
+                      (val (nth node (- (+ i offset) rem-offset)))]
+                  (cond
+                    ((.> arg :var :isVariadic)
+                      (with (count (- (# node) (# args)))
+                        ;; If it's a variable number of args then just skip them
+                        (when (< count 0) (set! count 0))
+                        (set! offset count)))
+
+                    ((= nil val))
+                    ;; Obviously don't remove values which have an effect
+                    ((has-side-effect val))
+                    ;; And keep values which are actually used
+                    ((> (#keys (.> (usage/get-var lookup (.> arg :var)) :usages)) 0))
+                    ;; So remove things which aren't used and have no side effects.
+                    (true
+                      (remove-nth! args (- i rem-offset))
+                      (remove-nth! node (- (+ i offset) rem-offset))
+                      (inc! rem-offset)))))))))
 
       (traverse/traverse-list nodes 1
         (lambda (node)
