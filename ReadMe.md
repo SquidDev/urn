@@ -1,4 +1,4 @@
-# ![](http://i.imgur.com/XqKyCMC.png) Urn
+# ![](http://i.imgur.com/XqKyCMC.png) Urn [![Travis Build Status](https://travis-ci.org/SquidDev/urn.svg?branch=master)](https://travis-ci.org/SquidDev/urn) [![Build status](https://gitlab.com/SquidDev/urn/badges/master/build.svg)](https://gitlab.com/SquidDev/urn/commits/master)
 ## A Lisp implementation for Lua
 
 Urn is a new language developed by me, SquidDev, and demhydraz. Urn is a Lisp dialect with a focus on minimism which
