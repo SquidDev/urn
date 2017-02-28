@@ -138,7 +138,7 @@
                       (w/line! out "return _result")
                       (w/end-block! out "end)()"))
                     (progn
-                      (w/append! out (.. "{tag = \"list\", n =" (number->string (# node))))
+                      (w/append! out (.. "{tag = \"list\", n = " (number->string (# node))))
                       (for-each sub node
                         (w/append! out ", ")
                         (compile-quote sub out state level))

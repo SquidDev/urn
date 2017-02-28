@@ -65,12 +65,17 @@
   (with (def (usage/get-var lookup (.> sym :var)))
     (when (= 1 (#keys (.> def :defs)))
       (let* [(ent (nth (list (next (.> def :defs))) 2))
-             (val (.> ent :value))]
+             (val (.> ent :value))
+             (ty  (.> ent :tag))]
         (cond
           ((or (string? val) (number? val) (key? val))
             val)
+          ((and (symbol? val) (or (= ty "define") (= ty "set") (= ty "let")))
+            ;; Attempt to get this value, or fallback to just the symbol
+            ;; This allows us to simplify reference chains to their top immutable variable
+            (or (get-constant-val lookup val) sym))
           (true
-            nil))))))
+            sym))))))
 
 (defun optimise-once (nodes state)
   "Run all optimisations on NODES once"
@@ -168,7 +173,7 @@
         (lambda (node)
           (if (symbol? node)
             (with (var (get-constant-val lookup node))
-              (if var
+              (if (and var (/= var node))
                 (progn
                   (set! changed true)
                   var)
