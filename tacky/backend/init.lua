@@ -13,7 +13,7 @@ local _temp = (function()
 	}
 end)()
 for k, v in pairs(_temp) do _libs["lib/lua/basic/".. k] = v end
-local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e_1, _3e3d_1, _2b_1, _2d_1, _25_1, slice1, error1, print1, getIdx1, setIdx_21_1, require1, tonumber1, tostring1, type_23_1, _23_1, byte1, find1, format1, gsub1, len1, match1, rep1, sub1, upper1, concat1, sort1, unpack1, emptyStruct1, iterPairs1, car1, cdr1, list1, cons1, _21_1, list_3f_1, nil_3f_1, string_3f_1, number_3f_1, symbol_3f_1, key_3f_1, exists_3f_1, type1, car2, cdr2, foldr1, map1, traverse1, nth1, pushCdr_21_1, reverse1, cadr1, charAt1, _2e2e_1, _23_s1, split1, quoted1, struct1, succ1, pred1, string_2d3e_number1, number_2d3e_string1, error_21_1, print_21_1, fail_21_1, create1, append_21_1, line_21_1, indent_21_1, unindent_21_1, beginBlock_21_1, nextBlock_21_1, endBlock_21_1, _2d3e_string1, createLookup1, keywords1, createState1, builtins1, builtinVars1, escape1, escapeVar1, statement_3f_1, truthy_3f_1, compileQuote1, compileExpression1, compileBlock1, prelude1, backend1, estimateLength1, expression1, block1, backend2, abs1, max3, builtins2, tokens1, extractSignature1, parseDocstring1, verbosity1, setVerbosity_21_1, showExplain1, setExplain_21_1, colored1, printError_21_1, printWarning_21_1, printVerbose_21_1, printDebug_21_1, formatPosition1, formatRange1, formatNode1, getSource1, putLines_21_1, putTrace_21_1, putExplain_21_1, errorPositions_21_1, formatRange2, sortVars_21_1, formatDefinition1, formatSignature1, exported1, backend3, wrapGenerate1, wrapNormal1
+local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e_1, _3e3d_1, _2b_1, _2d_1, _25_1, slice1, error1, print1, getIdx1, setIdx_21_1, require1, tonumber1, tostring1, type_23_1, _23_1, byte1, find1, format1, gsub1, len1, match1, rep1, sub1, upper1, concat1, sort1, unpack1, emptyStruct1, iterPairs1, car1, cdr1, list1, cons1, _21_1, list_3f_1, nil_3f_1, string_3f_1, number_3f_1, symbol_3f_1, key_3f_1, exists_3f_1, type1, car2, cdr2, foldr1, map1, traverse1, nth1, pushCdr_21_1, reverse1, cadr1, charAt1, _2e2e_1, _23_s1, split1, quoted1, getenv1, struct1, succ1, pred1, string_2d3e_number1, number_2d3e_string1, error_21_1, print_21_1, fail_21_1, create1, append_21_1, line_21_1, indent_21_1, unindent_21_1, beginBlock_21_1, nextBlock_21_1, endBlock_21_1, _2d3e_string1, createLookup1, keywords1, createState1, builtins1, builtinVars1, escape1, escapeVar1, statement_3f_1, truthy_3f_1, compileQuote1, compileExpression1, compileBlock1, prelude1, backend1, estimateLength1, expression1, block1, backend2, abs1, max3, builtins2, tokens1, extractSignature1, parseDocstring1, config1, coloredAnsi1, colored_3f_1, colored1, verbosity1, setVerbosity_21_1, showExplain1, setExplain_21_1, printError_21_1, printWarning_21_1, printVerbose_21_1, printDebug_21_1, formatPosition1, formatRange1, formatNode1, getSource1, putLines_21_1, putTrace_21_1, putExplain_21_1, errorPositions_21_1, formatRange2, sortVars_21_1, formatDefinition1, formatSignature1, exported1, backend3, wrapGenerate1, wrapNormal1
 _3d_1 = function(v1, v2) return (v1 == v2) end
 _2f3d_1 = function(v1, v2) return (v1 ~= v2) end
 _3c_1 = function(v1, v2) return (v1 < v2) end
@@ -261,6 +261,7 @@ quoted1 = (function(str1)
 	local result1 = gsub1(format1("%q", str1), ".", escapes1)
 	return result1
 end)
+getenv1 = os.getenv
 struct1 = (function(...)
 	local keys1 = _pack(...) keys1.tag = "list"
 	if ((_23_1(keys1) % 1) == 1) then
@@ -1495,6 +1496,56 @@ parseDocstring1 = (function(str2)
 	return out9
 end)
 struct1("parseDocs", parseDocstring1, "extractSignature", extractSignature1)
+config1 = package.config
+coloredAnsi1 = (function(col1, msg1)
+	return _2e2e_1("\27[", col1, "m", msg1, "\27[0m")
+end)
+local temp23
+local r_2481 = config1
+if r_2481 then
+	temp23 = (charAt1(config1, 1) ~= "\\")
+else
+	temp23 = r_2481
+end
+if temp23 then
+	colored_3f_1 = true
+else
+	local temp24
+	local r_2491 = getenv1
+	if r_2491 then
+		temp24 = (getenv1("ANSICON") ~= nil)
+	else
+		temp24 = r_2491
+	end
+	if temp24 then
+		colored_3f_1 = true
+	else
+		local temp25
+		local r_2501 = getenv1
+		if r_2501 then
+			local term1 = getenv1("TERM")
+			if term1 then
+				temp25 = find1(term1, "xterm")
+			else
+				temp25 = nil
+			end
+		else
+			temp25 = r_2501
+		end
+		if temp25 then
+			colored_3f_1 = true
+		else
+			colored_3f_1 = false
+		end
+	end
+end
+if colored_3f_1 then
+	colored1 = coloredAnsi1
+else
+	colored1 = (function(col2, msg2)
+		return msg2
+	end)
+end
 verbosity1 = struct1("value", 0)
 setVerbosity_21_1 = (function(level2)
 	verbosity1["value"] = level2
@@ -1505,34 +1556,31 @@ setExplain_21_1 = (function(value1)
 	showExplain1["value"] = value1
 	return nil
 end)
-colored1 = (function(col1, msg1)
-	return _2e2e_1("\27[", col1, "m", msg1, "\27[0m")
-end)
-printError_21_1 = (function(msg2)
-	local lines1 = split1(msg2, "\n", 1)
+printError_21_1 = (function(msg3)
+	local lines1 = split1(msg3, "\n", 1)
 	print_21_1(colored1(31, _2e2e_1("[ERROR] ", car2(lines1))))
 	if cadr1(lines1) then
 		return print_21_1(cadr1(lines1))
 	else
 	end
 end)
-printWarning_21_1 = (function(msg3)
-	local lines2 = split1(msg3, "\n", 1)
+printWarning_21_1 = (function(msg4)
+	local lines2 = split1(msg4, "\n", 1)
 	print_21_1(colored1(33, _2e2e_1("[WARN] ", car2(lines2))))
 	if cadr1(lines2) then
 		return print_21_1(cadr1(lines2))
 	else
 	end
 end)
-printVerbose_21_1 = (function(msg4)
+printVerbose_21_1 = (function(msg5)
 	if (verbosity1["value"] > 0) then
-		return print_21_1(_2e2e_1("[VERBOSE] ", msg4))
+		return print_21_1(_2e2e_1("[VERBOSE] ", msg5))
 	else
 	end
 end)
-printDebug_21_1 = (function(msg5)
+printDebug_21_1 = (function(msg6)
 	if (verbosity1["value"] > 1) then
-		return print_21_1(_2e2e_1("[DEBUG] ", msg5))
+		return print_21_1(_2e2e_1("[DEBUG] ", msg6))
 	else
 	end
 end)
@@ -1547,14 +1595,14 @@ formatRange1 = (function(range1)
 	end
 end)
 formatNode1 = (function(node9)
-	local temp23
+	local temp26
 	local r_2381 = node9["range"]
 	if r_2381 then
-		temp23 = node9["contents"]
+		temp26 = node9["contents"]
 	else
-		temp23 = r_2381
+		temp26 = r_2381
 	end
-	if temp23 then
+	if temp26 then
 		return format1("%s (%q)", formatRange1(node9["range"]), node9["contents"])
 	elseif node9["range"] then
 		return formatRange1(node9["range"])
@@ -1562,14 +1610,14 @@ formatNode1 = (function(node9)
 		local macro1 = node9["macro"]
 		return format1("macro expansion of %s (%s)", macro1["var"]["name"], formatNode1(macro1["node"]))
 	else
-		local temp24
-		local r_2481 = node9["start"]
-		if r_2481 then
-			temp24 = node9["finish"]
+		local temp27
+		local r_2511 = node9["start"]
+		if r_2511 then
+			temp27 = node9["finish"]
 		else
-			temp24 = r_2481
+			temp27 = r_2511
 		end
-		if temp24 then
+		if temp27 then
 			return formatRange1(node9)
 		else
 			return "?"
@@ -1580,14 +1628,14 @@ getSource1 = (function(node10)
 	local result2 = nil
 	local r_2391 = nil
 	r_2391 = (function()
-		local temp25
+		local temp28
 		local r_2401 = node10
 		if r_2401 then
-			temp25 = _21_1(result2)
+			temp28 = _21_1(result2)
 		else
-			temp25 = r_2401
+			temp28 = r_2401
 		end
-		if temp25 then
+		if temp28 then
 			result2 = node10["range"]
 			node10 = node10["parent"]
 			return r_2391()
@@ -1617,26 +1665,26 @@ putLines_21_1 = (function(range2, ...)
 		end
 	end), 0, entries1)
 	local code1 = _2e2e_1("\27[92m %", _23_s1(number_2d3e_string1(maxLine1)), "s |\27[0m %s")
-	local r_2511 = _23_1(entries1)
-	local r_2521 = 2
-	local r_2491 = nil
-	r_2491 = (function(r_2501)
-		if (r_2501 <= r_2511) then
-			local i19 = r_2501
+	local r_2541 = _23_1(entries1)
+	local r_2551 = 2
+	local r_2521 = nil
+	r_2521 = (function(r_2531)
+		if (r_2531 <= r_2541) then
+			local i19 = r_2531
 			local position1 = entries1[i19]
 			local message1 = entries1[succ1(i19)]
 			if (file1 ~= position1["name"]) then
 				file1 = position1["name"]
 				print_21_1(_2e2e_1("\27[95m ", file1, "\27[0m"))
 			else
-				local temp26
-				local r_2531 = (previous1 ~= -1)
-				if r_2531 then
-					temp26 = (abs1((position1["start"]["line"] - previous1)) > 2)
+				local temp29
+				local r_2561 = (previous1 ~= -1)
+				if r_2561 then
+					temp29 = (abs1((position1["start"]["line"] - previous1)) > 2)
 				else
-					temp26 = r_2531
+					temp29 = r_2561
 				end
-				if temp26 then
+				if temp29 then
 					print_21_1(" \27[92m...\27[0m")
 				else
 				end
@@ -1647,25 +1695,25 @@ putLines_21_1 = (function(range2, ...)
 			if _21_1(range2) then
 				pointer1 = "^"
 			else
-				local temp27
-				local r_2541 = position1["finish"]
-				if r_2541 then
-					temp27 = (position1["start"]["line"] == position1["finish"]["line"])
+				local temp30
+				local r_2571 = position1["finish"]
+				if r_2571 then
+					temp30 = (position1["start"]["line"] == position1["finish"]["line"])
 				else
-					temp27 = r_2541
+					temp30 = r_2571
 				end
-				if temp27 then
+				if temp30 then
 					pointer1 = rep1("^", succ1((position1["finish"]["column"] - position1["start"]["column"])))
 				else
 					pointer1 = "^..."
 				end
 			end
 			print_21_1(format1(code1, "", _2e2e_1(rep1(" ", (position1["start"]["column"] - 1)), pointer1, " ", message1)))
-			return r_2491((r_2501 + 2))
+			return r_2521((r_2531 + 2))
 		else
 		end
 	end)
-	return r_2491(1)
+	return r_2521(1)
 end)
 putTrace_21_1 = (function(node12)
 	local previous2 = nil
@@ -1707,8 +1755,8 @@ putExplain_21_1 = (function(...)
 	else
 	end
 end)
-errorPositions_21_1 = (function(node13, msg6)
-	printError_21_1(msg6)
+errorPositions_21_1 = (function(node13, msg7)
+	printError_21_1(msg7)
 	putTrace_21_1(node13)
 	local source1 = getSource1(node13)
 	if source1 then
@@ -1747,8 +1795,8 @@ formatSignature1 = (function(name4, var7)
 	elseif nil_3f_1(sig1) then
 		return _2e2e_1("(", name4, _2e2e_1, ")")
 	else
-		return _2e2e_1("(", name4, " ", concat1(traverse1(sig1, (function(r_2551)
-			return r_2551["contents"]
+		return _2e2e_1("(", name4, " ", concat1(traverse1(sig1, (function(r_2581)
+			return r_2581["contents"]
 		end)), " "), ")")
 	end
 end)
@@ -1771,27 +1819,27 @@ exported1 = (function(out10, title1, vars1)
 	line_21_1(out10, _2e2e_1("title: ", title1))
 	line_21_1(out10, "---")
 	line_21_1(out10, _2e2e_1("# ", title1))
-	local r_2571 = documented1
-	local r_2601 = _23_1(r_2571)
-	local r_2611 = 1
-	local r_2581 = nil
-	r_2581 = (function(r_2591)
-		if (r_2591 <= r_2601) then
-			local r_2561 = r_2591
-			local entry5 = r_2571[r_2561]
+	local r_2601 = documented1
+	local r_2631 = _23_1(r_2601)
+	local r_2641 = 1
+	local r_2611 = nil
+	r_2611 = (function(r_2621)
+		if (r_2621 <= r_2631) then
+			local r_2591 = r_2621
+			local entry5 = r_2601[r_2591]
 			local name6 = car2(entry5)
 			local var9 = nth1(entry5, 2)
 			line_21_1(out10, _2e2e_1("## `", formatSignature1(name6, var9), "`"))
 			line_21_1(out10, _2e2e_1("*", formatDefinition1(var9), "*"))
 			line_21_1(out10, "", true)
-			local r_2631 = parseDocstring1(var9["doc"])
-			local r_2661 = _23_1(r_2631)
-			local r_2671 = 1
-			local r_2641 = nil
-			r_2641 = (function(r_2651)
-				if (r_2651 <= r_2661) then
-					local r_2621 = r_2651
-					local tok2 = r_2631[r_2621]
+			local r_2661 = parseDocstring1(var9["doc"])
+			local r_2691 = _23_1(r_2661)
+			local r_2701 = 1
+			local r_2671 = nil
+			r_2671 = (function(r_2681)
+				if (r_2681 <= r_2691) then
+					local r_2651 = r_2681
+					local tok2 = r_2661[r_2651]
 					local ty6 = type1(tok2)
 					if (ty6 == "text") then
 						append_21_1(out10, tok2["contents"])
@@ -1805,14 +1853,14 @@ exported1 = (function(out10, title1, vars1)
 						local ovar1 = scope1["get"](scope1, name7, nil, true)
 						if ovar1 then
 							local loc1
-							local r_2721
-							local r_2711
-							local r_2701
-							local r_2691 = ovar1["node"]
-							r_2701 = getSource1(r_2691)
-							r_2711 = r_2701["name"]
-							r_2721 = gsub1(r_2711, "%.lisp$", "")
-							loc1 = gsub1(r_2721, "/", ".")
+							local r_2751
+							local r_2741
+							local r_2731
+							local r_2721 = ovar1["node"]
+							r_2731 = getSource1(r_2721)
+							r_2741 = r_2731["name"]
+							r_2751 = gsub1(r_2741, "%.lisp$", "")
+							loc1 = gsub1(r_2751, "/", ".")
 							local sig2 = extractSignature1(ovar1)
 							local hash1
 							if (sig2 == nil) then
@@ -1820,8 +1868,8 @@ exported1 = (function(out10, title1, vars1)
 							elseif nil_3f_1(sig2) then
 								hash1 = ovar1["name"]
 							else
-								hash1 = _2e2e_1(name7, " ", concat1(traverse1(sig2, (function(r_2681)
-									return r_2681["contents"]
+								hash1 = _2e2e_1(name7, " ", concat1(traverse1(sig2, (function(r_2711)
+									return r_2711["contents"]
 								end)), " "))
 							end
 							append_21_1(out10, format1("[`%s`](%s.md#%s)", name7, loc1, gsub1(hash1, "%A+", "-")))
@@ -1831,38 +1879,38 @@ exported1 = (function(out10, title1, vars1)
 					else
 						_error("unmatched item")
 					end
-					return r_2641((r_2651 + 1))
+					return r_2671((r_2681 + 1))
 				else
 				end
 			end)
-			r_2641(1)
+			r_2671(1)
 			line_21_1(out10)
 			line_21_1(out10, "", true)
-			return r_2581((r_2591 + 1))
+			return r_2611((r_2621 + 1))
 		else
 		end
 	end)
-	r_2581(1)
+	r_2611(1)
 	if nil_3f_1(undocumented1) then
 	else
 		line_21_1(out10, "## Undocumented symbols")
 	end
-	local r_2741 = undocumented1
-	local r_2771 = _23_1(r_2741)
-	local r_2781 = 1
-	local r_2751 = nil
-	r_2751 = (function(r_2761)
-		if (r_2761 <= r_2771) then
-			local r_2731 = r_2761
-			local entry6 = r_2741[r_2731]
+	local r_2771 = undocumented1
+	local r_2801 = _23_1(r_2771)
+	local r_2811 = 1
+	local r_2781 = nil
+	r_2781 = (function(r_2791)
+		if (r_2791 <= r_2801) then
+			local r_2761 = r_2791
+			local entry6 = r_2771[r_2761]
 			local name8 = car2(entry6)
 			local var10 = nth1(entry6, 2)
 			line_21_1(out10, _2e2e_1(" - `", formatSignature1(name8, var10), "` *", formatDefinition1(var10), "*"))
-			return r_2751((r_2761 + 1))
+			return r_2781((r_2791 + 1))
 		else
 		end
 	end)
-	return r_2751(1)
+	return r_2781(1)
 end)
 backend3 = struct1("exported", exported1)
 wrapGenerate1 = (function(func2)

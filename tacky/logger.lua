@@ -13,7 +13,7 @@ local _temp = (function()
 	}
 end)()
 for k, v in pairs(_temp) do _libs["lib/lua/basic/".. k] = v end
-local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e_1, _3e3d_1, _2b_1, _2d_1, _25_1, slice1, error1, print1, getIdx1, setIdx_21_1, tostring1, type_23_1, _23_1, find1, format1, len1, rep1, sub1, concat1, emptyStruct1, car1, cdr1, list1, _21_1, list_3f_1, nil_3f_1, string_3f_1, key_3f_1, type1, car2, cdr2, foldr1, nth1, pushCdr_21_1, cadr1, _2e2e_1, _23_s1, split1, struct1, succ1, number_2d3e_string1, error_21_1, print_21_1, fail_21_1, abs1, max1, verbosity1, setVerbosity_21_1, showExplain1, setExplain_21_1, colored1, printError_21_1, printWarning_21_1, printVerbose_21_1, printDebug_21_1, formatPosition1, formatRange1, formatNode1, getSource1, putLines_21_1, putTrace_21_1, putExplain_21_1, errorPositions_21_1
+local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e_1, _3e3d_1, _2b_1, _2d_1, _25_1, slice1, error1, print1, getIdx1, setIdx_21_1, tostring1, type_23_1, _23_1, find1, format1, len1, rep1, sub1, concat1, emptyStruct1, car1, cdr1, list1, _21_1, list_3f_1, nil_3f_1, string_3f_1, key_3f_1, type1, car2, cdr2, foldr1, nth1, pushCdr_21_1, cadr1, charAt1, _2e2e_1, _23_s1, split1, getenv1, struct1, succ1, number_2d3e_string1, error_21_1, print_21_1, fail_21_1, config1, coloredAnsi1, colored_3f_1, colored1, abs1, max1, verbosity1, setVerbosity_21_1, showExplain1, setExplain_21_1, printError_21_1, printWarning_21_1, printVerbose_21_1, printDebug_21_1, formatPosition1, formatRange1, formatNode1, getSource1, putLines_21_1, putTrace_21_1, putExplain_21_1, errorPositions_21_1
 _3d_1 = function(v1, v2) return (v1 == v2) end
 _2f3d_1 = function(v1, v2) return (v1 ~= v2) end
 _3c_1 = function(v1, v2) return (v1 < v2) end
@@ -148,6 +148,9 @@ end)
 cadr1 = (function(x8)
 	return car2(cdr2(x8))
 end)
+charAt1 = (function(xs7, x9)
+	return sub1(xs7, x9, x9)
+end)
 _2e2e_1 = (function(...)
 	local args1 = _pack(...) args1.tag = "list"
 	return concat1(args1)
@@ -199,6 +202,7 @@ split1 = (function(text1, pattern1, limit1)
 	r_491()
 	return out1
 end)
+getenv1 = os.getenv
 struct1 = (function(...)
 	local keys1 = _pack(...) keys1.tag = "list"
 	if ((_23_1(keys1) % 1) == 1) then
@@ -232,15 +236,65 @@ struct1 = (function(...)
 	r_581(1)
 	return out2
 end)
-succ1 = (function(x9)
-	return (x9 + 1)
+succ1 = (function(x10)
+	return (x10 + 1)
 end)
 number_2d3e_string1 = tostring1
 error_21_1 = error1
 print_21_1 = print1
-fail_21_1 = (function(x10)
-	return error_21_1(x10, 0)
+fail_21_1 = (function(x11)
+	return error_21_1(x11, 0)
 end)
+config1 = package.config
+coloredAnsi1 = (function(col1, msg1)
+	return _2e2e_1("\27[", col1, "m", msg1, "\27[0m")
+end)
+local temp2
+local r_1021 = config1
+if r_1021 then
+	temp2 = (charAt1(config1, 1) ~= "\\")
+else
+	temp2 = r_1021
+end
+if temp2 then
+	colored_3f_1 = true
+else
+	local temp3
+	local r_1031 = getenv1
+	if r_1031 then
+		temp3 = (getenv1("ANSICON") ~= nil)
+	else
+		temp3 = r_1031
+	end
+	if temp3 then
+		colored_3f_1 = true
+	else
+		local temp4
+		local r_1041 = getenv1
+		if r_1041 then
+			local term1 = getenv1("TERM")
+			if term1 then
+				temp4 = find1(term1, "xterm")
+			else
+				temp4 = nil
+			end
+		else
+			temp4 = r_1041
+		end
+		if temp4 then
+			colored_3f_1 = true
+		else
+			colored_3f_1 = false
+		end
+	end
+end
+if colored_3f_1 then
+	colored1 = coloredAnsi1
+else
+	colored1 = (function(col2, msg2)
+		return msg2
+	end)
+end
 abs1 = math.abs
 max1 = math.max
 verbosity1 = struct1("value", 0)
@@ -253,34 +307,31 @@ setExplain_21_1 = (function(value1)
 	showExplain1["value"] = value1
 	return nil
 end)
-colored1 = (function(col1, msg1)
-	return _2e2e_1("\27[", col1, "m", msg1, "\27[0m")
-end)
-printError_21_1 = (function(msg2)
-	local lines1 = split1(msg2, "\n", 1)
+printError_21_1 = (function(msg3)
+	local lines1 = split1(msg3, "\n", 1)
 	print_21_1(colored1(31, _2e2e_1("[ERROR] ", car2(lines1))))
 	if cadr1(lines1) then
 		return print_21_1(cadr1(lines1))
 	else
 	end
 end)
-printWarning_21_1 = (function(msg3)
-	local lines2 = split1(msg3, "\n", 1)
+printWarning_21_1 = (function(msg4)
+	local lines2 = split1(msg4, "\n", 1)
 	print_21_1(colored1(33, _2e2e_1("[WARN] ", car2(lines2))))
 	if cadr1(lines2) then
 		return print_21_1(cadr1(lines2))
 	else
 	end
 end)
-printVerbose_21_1 = (function(msg4)
+printVerbose_21_1 = (function(msg5)
 	if (verbosity1["value"] > 0) then
-		return print_21_1(_2e2e_1("[VERBOSE] ", msg4))
+		return print_21_1(_2e2e_1("[VERBOSE] ", msg5))
 	else
 	end
 end)
-printDebug_21_1 = (function(msg5)
+printDebug_21_1 = (function(msg6)
 	if (verbosity1["value"] > 1) then
-		return print_21_1(_2e2e_1("[DEBUG] ", msg5))
+		return print_21_1(_2e2e_1("[DEBUG] ", msg6))
 	else
 	end
 end)
@@ -295,14 +346,14 @@ formatRange1 = (function(range1)
 	end
 end)
 formatNode1 = (function(node1)
-	local temp2
+	local temp5
 	local r_921 = node1["range"]
 	if r_921 then
-		temp2 = node1["contents"]
+		temp5 = node1["contents"]
 	else
-		temp2 = r_921
+		temp5 = r_921
 	end
-	if temp2 then
+	if temp5 then
 		return format1("%s (%q)", formatRange1(node1["range"]), node1["contents"])
 	elseif node1["range"] then
 		return formatRange1(node1["range"])
@@ -310,14 +361,14 @@ formatNode1 = (function(node1)
 		local macro1 = node1["macro"]
 		return format1("macro expansion of %s (%s)", macro1["var"]["name"], formatNode1(macro1["node"]))
 	else
-		local temp3
-		local r_1021 = node1["start"]
-		if r_1021 then
-			temp3 = node1["finish"]
+		local temp6
+		local r_1051 = node1["start"]
+		if r_1051 then
+			temp6 = node1["finish"]
 		else
-			temp3 = r_1021
+			temp6 = r_1051
 		end
-		if temp3 then
+		if temp6 then
 			return formatRange1(node1)
 		else
 			return "?"
@@ -328,14 +379,14 @@ getSource1 = (function(node2)
 	local result1 = nil
 	local r_931 = nil
 	r_931 = (function()
-		local temp4
+		local temp7
 		local r_941 = node2
 		if r_941 then
-			temp4 = _21_1(result1)
+			temp7 = _21_1(result1)
 		else
-			temp4 = r_941
+			temp7 = r_941
 		end
-		if temp4 then
+		if temp7 then
 			result1 = node2["range"]
 			node2 = node2["parent"]
 			return r_931()
@@ -365,26 +416,26 @@ putLines_21_1 = (function(range2, ...)
 		end
 	end), 0, entries1)
 	local code1 = _2e2e_1("\27[92m %", _23_s1(number_2d3e_string1(maxLine1)), "s |\27[0m %s")
-	local r_1051 = _23_1(entries1)
-	local r_1061 = 2
-	local r_1031 = nil
-	r_1031 = (function(r_1041)
-		if (r_1041 <= r_1051) then
-			local i2 = r_1041
+	local r_1081 = _23_1(entries1)
+	local r_1091 = 2
+	local r_1061 = nil
+	r_1061 = (function(r_1071)
+		if (r_1071 <= r_1081) then
+			local i2 = r_1071
 			local position1 = entries1[i2]
 			local message1 = entries1[succ1(i2)]
 			if (file1 ~= position1["name"]) then
 				file1 = position1["name"]
 				print_21_1(_2e2e_1("\27[95m ", file1, "\27[0m"))
 			else
-				local temp5
-				local r_1071 = (previous1 ~= -1)
-				if r_1071 then
-					temp5 = (abs1((position1["start"]["line"] - previous1)) > 2)
+				local temp8
+				local r_1101 = (previous1 ~= -1)
+				if r_1101 then
+					temp8 = (abs1((position1["start"]["line"] - previous1)) > 2)
 				else
-					temp5 = r_1071
+					temp8 = r_1101
 				end
-				if temp5 then
+				if temp8 then
 					print_21_1(" \27[92m...\27[0m")
 				else
 				end
@@ -395,25 +446,25 @@ putLines_21_1 = (function(range2, ...)
 			if _21_1(range2) then
 				pointer1 = "^"
 			else
-				local temp6
-				local r_1081 = position1["finish"]
-				if r_1081 then
-					temp6 = (position1["start"]["line"] == position1["finish"]["line"])
+				local temp9
+				local r_1111 = position1["finish"]
+				if r_1111 then
+					temp9 = (position1["start"]["line"] == position1["finish"]["line"])
 				else
-					temp6 = r_1081
+					temp9 = r_1111
 				end
-				if temp6 then
+				if temp9 then
 					pointer1 = rep1("^", succ1((position1["finish"]["column"] - position1["start"]["column"])))
 				else
 					pointer1 = "^..."
 				end
 			end
 			print_21_1(format1(code1, "", _2e2e_1(rep1(" ", (position1["start"]["column"] - 1)), pointer1, " ", message1)))
-			return r_1031((r_1041 + 2))
+			return r_1061((r_1071 + 2))
 		else
 		end
 	end)
-	return r_1031(1)
+	return r_1061(1)
 end)
 putTrace_21_1 = (function(node4)
 	local previous2 = nil
@@ -455,8 +506,8 @@ putExplain_21_1 = (function(...)
 	else
 	end
 end)
-errorPositions_21_1 = (function(node5, msg6)
-	printError_21_1(msg6)
+errorPositions_21_1 = (function(node5, msg7)
+	printError_21_1(msg7)
 	putTrace_21_1(node5)
 	local source1 = getSource1(node5)
 	if source1 then
