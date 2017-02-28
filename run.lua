@@ -1,8 +1,13 @@
 #!/usr/bin/env lua
 
 local compiler_dir = debug.getinfo(1).source
-      compiler_dir = compiler_dir:sub(2, #compiler_dir - #('run.lua'))
-package.path = package.path .. ';./' .. compiler_dir .. '/?.lua'
+compiler_dir = compiler_dir:sub(2, #compiler_dir - #('run.lua'))
+
+if compiler_dir:sub(#compiler_dir) == "/" then
+	compiler_dir = compiler_dir:sub(1, #compiler_dir - 1)
+end
+
+package.path = package.path .. ';' .. compiler_dir .. '/?.lua'
 
 local backend = require "tacky.backend.init"
 local compile = require "tacky.compile"
@@ -14,7 +19,7 @@ local resolve = require "tacky.analysis.resolve"
 local warning = require "tacky.analysis.warning"
 
 local paths = { "?", "lib/?", compiler_dir .. '/lib/?' }
-local inputs, output, verbosity, run, prelude, time, removeOut, scriptArgs, docs = {}, "out", 0, false, compiler_dir .. "lib/prelude", false, false, {}, false
+local inputs, output, verbosity, run, prelude, time, removeOut, scriptArgs, docs = {}, "out", 0, false, compiler_dir .. "/lib/prelude", false, false, {}, false
 
 -- Tiny Lua stub
 if _VERSION:find("5.1") then
