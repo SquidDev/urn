@@ -177,3 +177,17 @@
         ((get-idx arg# :n))
         (true (set-idx! arg# :n (len# arg#))))
       arg#)))
+
+(defun const-val (val)
+  "Get the actual value of VAL, an argument to a macro.
+
+   Due to how macros are implemented, all values are wrapped as tables
+   in order to preserve positional data about nodes. You will need to
+   unwrap them in order to use them."
+  (if (type# val)
+    (with (tag (get-idx val :tag))
+      (cond
+        ((= tag "number") (get-idx val :value))
+        ((= tag "string") (get-idx val :value))
+        (true val)))
+    val))
