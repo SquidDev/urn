@@ -13,7 +13,7 @@ local _temp = (function()
 	}
 end)()
 for k, v in pairs(_temp) do _libs["lib/lua/basic/".. k] = v end
-local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _2b_1, _2d_1, _25_1, error1, getIdx1, setIdx_21_1, require1, type_23_1, _23_1, find1, format1, len1, match1, sub1, emptyStruct1, car1, list1, list_3f_1, symbol_3f_1, key_3f_1, type1, car2, nth1, pushCdr_21_1, _23_s1, struct1, succ1, pred1, builtins1, tokens1, extractSignature1, parseDocstring1
+local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _2b_1, _2d_1, _25_1, error1, getIdx1, setIdx_21_1, require1, type_23_1, _23_1, find1, format1, len1, match1, sub1, emptyStruct1, car1, list1, list_3f_1, symbol_3f_1, key_3f_1, type1, car2, nth1, pushCdr_21_1, struct1, succ1, pred1, builtins1, tokens1, extractSignature1, parseDocstring1
 _3d_1 = function(v1, v2) return (v1 == v2) end
 _2f3d_1 = function(v1, v2) return (v1 ~= v2) end
 _3c_1 = function(v1, v2) return (v1 < v2) end
@@ -86,7 +86,6 @@ pushCdr_21_1 = (function(xs4, val2)
 	xs4[len2] = val2
 	return xs4
 end)
-_23_s1 = len1
 struct1 = (function(...)
 	local keys1 = _pack(...) keys1.tag = "list"
 	if ((_23_1(keys1) % 1) == 1) then
@@ -103,8 +102,8 @@ struct1 = (function(...)
 	r_581 = (function(r_591)
 		if (r_591 <= r_601) then
 			local i1 = r_591
-			local key2 = keys1[i1]
-			local val3 = keys1[(1 + i1)]
+			local key2 = keys1[r_591]
+			local val3 = keys1[(1 + r_591)]
 			out1[(function()
 				if key_3f_1(key2) then
 					return contents1(key2)
@@ -127,7 +126,7 @@ pred1 = (function(x7)
 	return (x7 - 1)
 end)
 builtins1 = require1("tacky.analysis.resolve")["builtins"]
-tokens1 = {tag = "list", n =4, {tag = "list", n =2, "arg", "(%f[%a]%u+%f[%A])"}, {tag = "list", n =2, "mono", "```[a-z]*\n([^`]*)\n```"}, {tag = "list", n =2, "mono", "`([^`]*)`"}, {tag = "list", n =2, "link", "%[%[(.-)%]%]"}}
+tokens1 = {tag = "list", n = 4, {tag = "list", n = 2, "arg", "(%f[%a]%u+%f[%A])"}, {tag = "list", n = 2, "mono", "```[a-z]*\n([^`]*)\n```"}, {tag = "list", n = 2, "mono", "`([^`]*)`"}, {tag = "list", n = 2, "link", "%[%[(.-)%]%]"}}
 extractSignature1 = (function(var1)
 	local ty2 = type1(var1)
 	local temp1
@@ -162,9 +161,9 @@ extractSignature1 = (function(var1)
 	end
 end)
 parseDocstring1 = (function(str1)
-	local out2 = {tag = "list", n =0}
+	local out2 = {tag = "list", n = 0}
 	local pos1 = 1
-	local len3 = _23_s1(str1)
+	local len3 = len1(str1)
 	local r_931 = nil
 	r_931 = (function()
 		if (pos1 <= len3) then
@@ -173,13 +172,13 @@ parseDocstring1 = (function(str1)
 			local name1 = nil
 			local ptrn1 = nil
 			local r_971 = tokens1
-			local r_1001 = _23_1(r_971)
+			local r_1001 = _23_1(tokens1)
 			local r_1011 = 1
 			local r_981 = nil
 			r_981 = (function(r_991)
 				if (r_991 <= r_1001) then
 					local r_961 = r_991
-					local tok1 = r_971[r_961]
+					local tok1 = tokens1[r_991]
 					local npos1 = list1(find1(str1, nth1(tok1, 2), pos1))
 					local temp3
 					local r_1021 = car2(npos1)

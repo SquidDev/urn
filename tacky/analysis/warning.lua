@@ -13,7 +13,7 @@ local _temp = (function()
 	}
 end)()
 for k, v in pairs(_temp) do _libs["lib/lua/basic/".. k] = v end
-local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e_1, _3e3d_1, _2b_1, _2d_1, _25_1, slice1, error1, next1, print1, getIdx1, setIdx_21_1, require1, tonumber1, tostring1, type_23_1, _23_1, find1, format1, len1, rep1, sub1, concat1, remove1, unpack1, emptyStruct1, iterPairs1, car1, cdr1, list1, cons1, _21_1, list_3f_1, nil_3f_1, string_3f_1, symbol_3f_1, key_3f_1, exists_3f_1, type1, car2, cdr2, foldr1, map1, any1, nth1, pushCdr_21_1, removeNth_21_1, reverse1, caar1, cadr1, charAt1, _2e2e_1, _23_s1, split1, getenv1, struct1, _23_keys1, succ1, pred1, string_2d3e_number1, number_2d3e_string1, symbol_2d3e_string1, error_21_1, print_21_1, fail_21_1, builtins1, visitQuote1, visitNode1, visitBlock1, visitList1, builtins2, builtinVars1, createState1, getVar1, getNode1, addUsage_21_1, addDefinition_21_1, definitionsVisitor1, definitionsVisit1, usagesVisit1, config1, coloredAnsi1, colored_3f_1, colored1, abs1, max1, verbosity1, setVerbosity_21_1, showExplain1, setExplain_21_1, printError_21_1, printWarning_21_1, printVerbose_21_1, printDebug_21_1, formatPosition1, formatRange1, formatNode1, getSource1, putLines_21_1, putTrace_21_1, putExplain_21_1, errorPositions_21_1, builtins3, sideEffect_3f_1, warnArity1, analyse1
+local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e_1, _3e3d_1, _2b_1, _2d_1, _25_1, _2e2e_1, slice1, error1, next1, print1, getIdx1, setIdx_21_1, require1, tonumber1, tostring1, type_23_1, _23_1, find1, format1, len1, rep1, sub1, concat1, remove1, unpack1, emptyStruct1, iterPairs1, car1, cdr1, list1, cons1, _21_1, pretty1, list_3f_1, nil_3f_1, string_3f_1, symbol_3f_1, key_3f_1, exists_3f_1, type1, car2, cdr2, foldr1, map1, any1, nth1, pushCdr_21_1, removeNth_21_1, reverse1, caar1, cadr1, charAt1, _2e2e_2, split1, getenv1, struct1, _23_keys1, succ1, pred1, symbol_2d3e_string1, fail_21_1, builtins1, visitQuote1, visitNode1, visitBlock1, builtins2, builtinVars1, createState1, getVar1, getNode1, addUsage_21_1, addDefinition_21_1, definitionsVisitor1, definitionsVisit1, usagesVisit1, config1, coloredAnsi1, colored_3f_1, colored1, abs1, max1, verbosity1, setVerbosity_21_1, showExplain1, setExplain_21_1, printError_21_1, printWarning_21_1, printVerbose_21_1, printDebug_21_1, formatPosition1, formatRange1, formatNode1, getSource1, putLines_21_1, putTrace_21_1, putExplain_21_1, errorPositions_21_1, builtins3, sideEffect_3f_1, warnArity1, analyse1
 _3d_1 = function(v1, v2) return (v1 == v2) end
 _2f3d_1 = function(v1, v2) return (v1 ~= v2) end
 _3c_1 = function(v1, v2) return (v1 < v2) end
@@ -23,6 +23,7 @@ _3e3d_1 = function(v1, v2) return (v1 >= v2) end
 _2b_1 = function(v1, v2) return (v1 + v2) end
 _2d_1 = function(v1, v2) return (v1 - v2) end
 _25_1 = function(v1, v2) return (v1 % v2) end
+_2e2e_1 = function(v1, v2) return (v1 .. v2) end
 slice1 = _libs["lib/lua/basic/slice"]
 error1 = error
 next1 = next
@@ -66,12 +67,52 @@ _21_1 = (function(expr1)
 		return true
 	end
 end)
+pretty1 = (function(value1)
+	local ty1 = type_23_1(value1)
+	if (ty1 == "table") then
+		local tag1 = value1["tag"]
+		if (tag1 == "list") then
+			local out1 = {tag = "list", n = 0}
+			local r_31 = _23_1(value1)
+			local r_41 = 1
+			local r_11 = nil
+			r_11 = (function(r_21)
+				if (r_21 <= r_31) then
+					local i1 = r_21
+					out1[r_21] = pretty1(value1[r_21])
+					return r_11((r_21 + 1))
+				else
+				end
+			end)
+			r_11(1)
+			return _2e2e_1("(", concat1(out1, " "), ")")
+		elseif (tag1 == "list") then
+			return value1["contents"]
+		elseif (tag1 == "symbol") then
+			return value1["contents"]
+		elseif (tag1 == "key") then
+			return (":" .. value1["contents"])
+		elseif (tag1 == "key") then
+			return (":" .. value1["contents"])
+		elseif (tag1 == "string") then
+			return format1("%q", value1["value"])
+		elseif (tag1 == "number") then
+			return tostring1(value1["value"])
+		else
+			return tostring1(value1)
+		end
+	elseif (ty1 == "string") then
+		return format1("%q", value1)
+	else
+		return tostring1(value1)
+	end
+end)
 list_3f_1 = (function(x3)
 	return (type1(x3) == "list")
 end)
 nil_3f_1 = (function(x4)
 	local r_71 = x4
-	if r_71 then
+	if x4 then
 		local r_81 = list_3f_1(x4)
 		if r_81 then
 			return (_23_1(x4) == 0)
@@ -79,7 +120,7 @@ nil_3f_1 = (function(x4)
 			return r_81
 		end
 	else
-		return r_71
+		return x4
 	end
 end)
 string_3f_1 = (function(x5)
@@ -95,16 +136,16 @@ exists_3f_1 = (function(x8)
 	return _21_1((type1(x8) == "nil"))
 end)
 type1 = (function(val1)
-	local ty1 = type_23_1(val1)
-	if (ty1 == "table") then
-		local tag1 = val1["tag"]
-		if tag1 then
-			return tag1
+	local ty2 = type_23_1(val1)
+	if (ty2 == "table") then
+		local tag2 = val1["tag"]
+		if tag2 then
+			return tag2
 		else
 			return "table"
 		end
 	else
-		return ty1
+		return ty2
 	end
 end)
 car2 = (function(x9)
@@ -122,7 +163,7 @@ cdr2 = (function(x10)
 	else
 	end
 	if nil_3f_1(x10) then
-		return {tag = "list", n =0}
+		return {tag = "list", n = 0}
 	else
 		return cdr1(x10)
 	end
@@ -158,7 +199,7 @@ map1 = (function(f2, xs6, acc1)
 	else
 	end
 	if _21_1(exists_3f_1(acc1)) then
-		return map1(f2, xs6, {tag = "list", n =0})
+		return map1(f2, xs6, {tag = "list", n = 0})
 	elseif nil_3f_1(xs6) then
 		return reverse1(acc1)
 	else
@@ -178,8 +219,8 @@ any1 = (function(p1, xs7)
 	end
 	return foldr1((function(x11, y1)
 		local r_461 = x11
-		if r_461 then
-			return r_461
+		if x11 then
+			return x11
 		else
 			return y1
 		end
@@ -210,7 +251,7 @@ removeNth_21_1 = (function(li1, idx2)
 end)
 reverse1 = (function(xs10, acc2)
 	if _21_1(exists_3f_1(acc2)) then
-		return reverse1(xs10, {tag = "list", n =0})
+		return reverse1(xs10, {tag = "list", n = 0})
 	elseif nil_3f_1(xs10) then
 		return acc2
 	else
@@ -226,13 +267,12 @@ end)
 charAt1 = (function(xs11, x14)
 	return sub1(xs11, x14, x14)
 end)
-_2e2e_1 = (function(...)
+_2e2e_2 = (function(...)
 	local args1 = _pack(...) args1.tag = "list"
 	return concat1(args1)
 end)
-_23_s1 = len1
 split1 = (function(text1, pattern1, limit1)
-	local out1 = {tag = "list", n =0}
+	local out2 = {tag = "list", n = 0}
 	local loop1 = true
 	local start1 = 1
 	local r_491 = nil
@@ -247,27 +287,27 @@ split1 = (function(text1, pattern1, limit1)
 				temp1 = r_501
 			else
 				local r_511 = limit1
-				if r_511 then
-					temp1 = (_23_1(out1) >= limit1)
+				if limit1 then
+					temp1 = (_23_1(out2) >= limit1)
 				else
-					temp1 = r_511
+					temp1 = limit1
 				end
 			end
 			if temp1 then
 				loop1 = false
-				pushCdr_21_1(out1, sub1(text1, start1, _23_s1(text1)))
-				start1 = (_23_s1(text1) + 1)
-			elseif (nstart1 > _23_s1(text1)) then
-				if (start1 <= _23_s1(text1)) then
-					pushCdr_21_1(out1, sub1(text1, start1, _23_s1(text1)))
+				pushCdr_21_1(out2, sub1(text1, start1, len1(text1)))
+				start1 = (len1(text1) + 1)
+			elseif (nstart1 > len1(text1)) then
+				if (start1 <= len1(text1)) then
+					pushCdr_21_1(out2, sub1(text1, start1, len1(text1)))
 				else
 				end
 				loop1 = false
 			elseif (nend1 < nstart1) then
-				pushCdr_21_1(out1, sub1(text1, start1, nstart1))
+				pushCdr_21_1(out2, sub1(text1, start1, nstart1))
 				start1 = (nstart1 + 1)
 			else
-				pushCdr_21_1(out1, sub1(text1, start1, (nstart1 - 1)))
+				pushCdr_21_1(out2, sub1(text1, start1, (nstart1 - 1)))
 				start1 = (nend1 + 1)
 			end
 			return r_491()
@@ -275,7 +315,7 @@ split1 = (function(text1, pattern1, limit1)
 		end
 	end)
 	r_491()
-	return out1
+	return out2
 end)
 getenv1 = os.getenv
 struct1 = (function(...)
@@ -287,16 +327,16 @@ struct1 = (function(...)
 	local contents1 = (function(key1)
 		return key1["contents"]
 	end)
-	local out2 = {}
+	local out3 = {}
 	local r_601 = _23_1(keys1)
 	local r_611 = 2
 	local r_581 = nil
 	r_581 = (function(r_591)
 		if (r_591 <= r_601) then
-			local i1 = r_591
-			local key2 = keys1[i1]
-			local val3 = keys1[(1 + i1)]
-			out2[(function()
+			local i2 = r_591
+			local key2 = keys1[r_591]
+			local val3 = keys1[(1 + r_591)]
+			out3[(function()
 				if key_3f_1(key2) then
 					return contents1(key2)
 				else
@@ -309,7 +349,7 @@ struct1 = (function(...)
 		end
 	end)
 	r_581(1)
-	return out2
+	return out3
 end)
 _23_keys1 = (function(st1)
 	local cnt1 = 0
@@ -325,8 +365,6 @@ end)
 pred1 = (function(x16)
 	return (x16 - 1)
 end)
-string_2d3e_number1 = tonumber1
-number_2d3e_string1 = tostring1
 symbol_2d3e_string1 = (function(x17)
 	if symbol_3f_1(x17) then
 		return x17["contents"]
@@ -334,44 +372,42 @@ symbol_2d3e_string1 = (function(x17)
 		return nil
 	end
 end)
-error_21_1 = error1
-print_21_1 = print1
 fail_21_1 = (function(x18)
-	return error_21_1(x18, 0)
+	return error1(x18, 0)
 end)
 builtins1 = require1("tacky.analysis.resolve")["builtins"]
 visitQuote1 = (function(node1, visitor1, level1)
 	if (level1 == 0) then
 		return visitNode1(node1, visitor1)
 	else
-		local tag2 = node1["tag"]
+		local tag3 = node1["tag"]
 		local temp2
-		local r_1111 = (tag2 == "string")
+		local r_1111 = (tag3 == "string")
 		if r_1111 then
 			temp2 = r_1111
 		else
-			local r_1121 = (tag2 == "number")
+			local r_1121 = (tag3 == "number")
 			if r_1121 then
 				temp2 = r_1121
 			else
-				local r_1131 = (tag2 == "key")
+				local r_1131 = (tag3 == "key")
 				if r_1131 then
 					temp2 = r_1131
 				else
-					temp2 = (tag2 == "symbol")
+					temp2 = (tag3 == "symbol")
 				end
 			end
 		end
 		if temp2 then
 			return nil
-		elseif (tag2 == "list") then
+		elseif (tag3 == "list") then
 			local first1 = nth1(node1, 1)
 			local temp3
 			local r_1141 = first1
-			if r_1141 then
+			if first1 then
 				temp3 = (first1["tag"] == "symbol")
 			else
-				temp3 = r_1141
+				temp3 = first1
 			end
 			if temp3 then
 				local temp4
@@ -387,13 +423,13 @@ visitQuote1 = (function(node1, visitor1, level1)
 					return visitQuote1(nth1(node1, 2), visitor1, succ1(level1))
 				else
 					local r_1171 = node1
-					local r_1201 = _23_1(r_1171)
+					local r_1201 = _23_1(node1)
 					local r_1211 = 1
 					local r_1181 = nil
 					r_1181 = (function(r_1191)
 						if (r_1191 <= r_1201) then
 							local r_1161 = r_1191
-							local sub2 = r_1171[r_1161]
+							local sub2 = node1[r_1191]
 							visitQuote1(sub2, visitor1, level1)
 							return r_1181((r_1191 + 1))
 						else
@@ -403,13 +439,13 @@ visitQuote1 = (function(node1, visitor1, level1)
 				end
 			else
 				local r_1231 = node1
-				local r_1261 = _23_1(r_1231)
+				local r_1261 = _23_1(node1)
 				local r_1271 = 1
 				local r_1241 = nil
 				r_1241 = (function(r_1251)
 					if (r_1251 <= r_1261) then
 						local r_1221 = r_1251
-						local sub3 = r_1231[r_1221]
+						local sub3 = node1[r_1251]
 						visitQuote1(sub3, visitor1, level1)
 						return r_1241((r_1251 + 1))
 					else
@@ -417,8 +453,8 @@ visitQuote1 = (function(node1, visitor1, level1)
 				end)
 				return r_1241(1)
 			end
-		elseif error_21_1 then
-			return _2e2e_1("Unknown tag ", tag2)
+		elseif error1 then
+			return _2e2e_2("Unknown tag ", tag3)
 		else
 			_error("unmatched item")
 		end
@@ -427,27 +463,27 @@ end)
 visitNode1 = (function(node2, visitor2)
 	if (visitor2(node2) == false) then
 	else
-		local tag3 = node2["tag"]
+		local tag4 = node2["tag"]
 		local temp5
-		local r_1281 = (tag3 == "string")
+		local r_1281 = (tag4 == "string")
 		if r_1281 then
 			temp5 = r_1281
 		else
-			local r_1291 = (tag3 == "number")
+			local r_1291 = (tag4 == "number")
 			if r_1291 then
 				temp5 = r_1291
 			else
-				local r_1301 = (tag3 == "key")
+				local r_1301 = (tag4 == "key")
 				if r_1301 then
 					temp5 = r_1301
 				else
-					temp5 = (tag3 == "symbol")
+					temp5 = (tag4 == "symbol")
 				end
 			end
 		end
 		if temp5 then
 			return nil
-		elseif (tag3 == "list") then
+		elseif (tag4 == "list") then
 			local first2 = nth1(node2, 1)
 			if (first2["tag"] == "symbol") then
 				local func1 = first2["var"]
@@ -460,8 +496,8 @@ visitNode1 = (function(node2, visitor2)
 					local r_1311 = nil
 					r_1311 = (function(r_1321)
 						if (r_1321 <= r_1331) then
-							local i2 = r_1321
-							local case1 = nth1(node2, i2)
+							local i3 = r_1321
+							local case1 = nth1(node2, r_1321)
 							visitNode1(nth1(case1, 1), visitor2)
 							visitBlock1(case1, 2, visitor2)
 							return r_1311((r_1321 + 1))
@@ -514,7 +550,7 @@ visitNode1 = (function(node2, visitor2)
 							if temp8 then
 								return visitBlock1(node2, 1, visitor2)
 							else
-								return fail_21_1(_2e2e_1("Unknown kind ", funct1, " for variable ", func1["name"]))
+								return fail_21_1(_2e2e_2("Unknown kind ", funct1, " for variable ", func1["name"]))
 							end
 						end
 					end
@@ -523,7 +559,7 @@ visitNode1 = (function(node2, visitor2)
 				return visitBlock1(node2, 1, visitor2)
 			end
 		else
-			return error_21_1(_2e2e_1("Unknown tag ", tag3))
+			return error1(_2e2e_2("Unknown tag ", tag4))
 		end
 	end
 end)
@@ -533,15 +569,14 @@ visitBlock1 = (function(node3, start2, visitor3)
 	local r_1071 = nil
 	r_1071 = (function(r_1081)
 		if (r_1081 <= r_1091) then
-			local i3 = r_1081
-			visitNode1(nth1(node3, i3), visitor3)
+			local i4 = r_1081
+			visitNode1(nth1(node3, r_1081), visitor3)
 			return r_1071((r_1081 + 1))
 		else
 		end
 	end)
 	return r_1071(start2)
 end)
-visitList1 = visitBlock1
 builtins2 = require1("tacky.analysis.resolve")["builtins"]
 builtinVars1 = require1("tacky.analysis.resolve")["declaredVars"]
 createState1 = (function()
@@ -560,7 +595,7 @@ getNode1 = (function(state2, node4)
 	local entry2 = state2["nodes"][node4]
 	if entry2 then
 	else
-		entry2 = struct1("uses", {tag = "list", n =0})
+		entry2 = struct1("uses", {tag = "list", n = 0})
 		state2["nodes"][node4] = entry2
 	end
 	return entry2
@@ -573,9 +608,9 @@ addUsage_21_1 = (function(state3, var2, node5)
 	nodeMeta1["uses"][var2] = true
 	return nil
 end)
-addDefinition_21_1 = (function(state4, var3, node6, kind1, value1)
+addDefinition_21_1 = (function(state4, var3, node6, kind1, value2)
 	local varMeta2 = getVar1(state4, var3)
-	varMeta2["defs"][node6] = struct1("tag", kind1, "value", value1)
+	varMeta2["defs"][node6] = struct1("tag", kind1, "value", value2)
 	return nil
 end)
 definitionsVisitor1 = (function(state5, node7)
@@ -596,7 +631,7 @@ definitionsVisitor1 = (function(state5, node7)
 			r_991 = (function(r_1001)
 				if (r_1001 <= r_1011) then
 					local r_971 = r_1001
-					local arg1 = r_981[r_971]
+					local arg1 = r_981[r_1001]
 					addDefinition_21_1(state5, arg1["var"], arg1, "arg", arg1)
 					return r_991((r_1001 + 1))
 				else
@@ -647,9 +682,9 @@ definitionsVisitor1 = (function(state5, node7)
 			local r_1391 = nil
 			r_1391 = (function(r_1401)
 				if (r_1401 <= r_1411) then
-					local i4 = r_1401
-					local arg2 = nth1(args2, i4)
-					local val4 = nth1(node7, (i4 + offset1))
+					local i5 = r_1401
+					local arg2 = nth1(args2, r_1401)
+					local val4 = nth1(node7, (r_1401 + offset1))
 					if arg2["var"]["isVariadic"] then
 						local count1 = (_23_1(node7) - _23_1(args2))
 						if (count1 < 0) then
@@ -660,8 +695,8 @@ definitionsVisitor1 = (function(state5, node7)
 						addDefinition_21_1(state5, arg2["var"], arg2, "arg", arg2)
 					else
 						addDefinition_21_1(state5, arg2["var"], arg2, "let", (function(r_1431)
-							if r_1431 then
-								return r_1431
+							if val4 then
+								return val4
 							else
 								return struct1("tag", "symbol", "contents", "nil", "var", builtinVars1["nil"])
 							end
@@ -675,7 +710,7 @@ definitionsVisitor1 = (function(state5, node7)
 			local visitor4 = (function(r_1511)
 				return definitionsVisitor1(state5, r_1511)
 			end)
-			visitList1(node7, 2, visitor4)
+			visitBlock1(node7, 2, visitor4)
 			visitBlock1(lam1, 3, visitor4)
 			return false
 		else
@@ -694,7 +729,7 @@ usagesVisit1 = (function(state7, nodes2, pred2)
 			return true
 		end)
 	end
-	local queue1 = {tag = "list", n =0}
+	local queue1 = {tag = "list", n = 0}
 	local visited1 = {}
 	local addUsage1 = (function(var4, user1)
 		addUsage_21_1(state7, var4, user1)
@@ -704,10 +739,10 @@ usagesVisit1 = (function(state7, nodes2, pred2)
 				local val5 = def1["value"]
 				local temp12
 				local r_1571 = val5
-				if r_1571 then
+				if val5 then
 					temp12 = _21_1(visited1[val5])
 				else
-					temp12 = r_1571
+					temp12 = val5
 				end
 				if temp12 then
 					return pushCdr_21_1(queue1, val5)
@@ -768,13 +803,13 @@ usagesVisit1 = (function(state7, nodes2, pred2)
 		end
 	end)
 	local r_1451 = nodes2
-	local r_1481 = _23_1(r_1451)
+	local r_1481 = _23_1(nodes2)
 	local r_1491 = 1
 	local r_1461 = nil
 	r_1461 = (function(r_1471)
 		if (r_1471 <= r_1481) then
 			local r_1441 = r_1471
-			local node9 = r_1451[r_1441]
+			local node9 = nodes2[r_1471]
 			pushCdr_21_1(queue1, node9)
 			return r_1461((r_1471 + 1))
 		else
@@ -793,31 +828,31 @@ usagesVisit1 = (function(state7, nodes2, pred2)
 end)
 config1 = package.config
 coloredAnsi1 = (function(col1, msg1)
-	return _2e2e_1("\27[", col1, "m", msg1, "\27[0m")
+	return _2e2e_2("\27[", col1, "m", msg1, "\27[0m")
 end)
 local temp15
 local r_1681 = config1
-if r_1681 then
+if config1 then
 	temp15 = (charAt1(config1, 1) ~= "\\")
 else
-	temp15 = r_1681
+	temp15 = config1
 end
 if temp15 then
 	colored_3f_1 = true
 else
 	local temp16
 	local r_1691 = getenv1
-	if r_1691 then
+	if getenv1 then
 		temp16 = (getenv1("ANSICON") ~= nil)
 	else
-		temp16 = r_1691
+		temp16 = getenv1
 	end
 	if temp16 then
 		colored_3f_1 = true
 	else
 		local temp17
 		local r_1701 = getenv1
-		if r_1701 then
+		if getenv1 then
 			local term1 = getenv1("TERM")
 			if term1 then
 				temp17 = find1(term1, "xterm")
@@ -825,7 +860,7 @@ else
 				temp17 = nil
 			end
 		else
-			temp17 = r_1701
+			temp17 = getenv1
 		end
 		if temp17 then
 			colored_3f_1 = true
@@ -849,40 +884,44 @@ setVerbosity_21_1 = (function(level2)
 	return nil
 end)
 showExplain1 = struct1("value", false)
-setExplain_21_1 = (function(value2)
-	showExplain1["value"] = value2
+setExplain_21_1 = (function(value3)
+	showExplain1["value"] = value3
 	return nil
 end)
 printError_21_1 = (function(msg3)
+	if string_3f_1(msg3) then
+	else
+		msg3 = pretty1(msg3)
+	end
 	local lines1 = split1(msg3, "\n", 1)
-	print_21_1(colored1(31, _2e2e_1("[ERROR] ", car2(lines1))))
+	print1(colored1(31, _2e2e_2("[ERROR] ", car2(lines1))))
 	if cadr1(lines1) then
-		return print_21_1(cadr1(lines1))
+		return print1(cadr1(lines1))
 	else
 	end
 end)
 printWarning_21_1 = (function(msg4)
 	local lines2 = split1(msg4, "\n", 1)
-	print_21_1(colored1(33, _2e2e_1("[WARN] ", car2(lines2))))
+	print1(colored1(33, _2e2e_2("[WARN] ", car2(lines2))))
 	if cadr1(lines2) then
-		return print_21_1(cadr1(lines2))
+		return print1(cadr1(lines2))
 	else
 	end
 end)
 printVerbose_21_1 = (function(msg5)
 	if (verbosity1["value"] > 0) then
-		return print_21_1(_2e2e_1("[VERBOSE] ", msg5))
+		return print1(_2e2e_2("[VERBOSE] ", msg5))
 	else
 	end
 end)
 printDebug_21_1 = (function(msg6)
 	if (verbosity1["value"] > 1) then
-		return print_21_1(_2e2e_1("[DEBUG] ", msg6))
+		return print1(_2e2e_2("[DEBUG] ", msg6))
 	else
 	end
 end)
 formatPosition1 = (function(pos2)
-	return _2e2e_1(pos2["line"], ":", pos2["column"])
+	return _2e2e_2(pos2["line"], ":", pos2["column"])
 end)
 formatRange1 = (function(range1)
 	if range1["finish"] then
@@ -945,11 +984,11 @@ end)
 putLines_21_1 = (function(range2, ...)
 	local entries1 = _pack(...) entries1.tag = "list"
 	if nil_3f_1(entries1) then
-		error_21_1("Positions cannot be empty")
+		error1("Positions cannot be empty")
 	else
 	end
 	if ((_23_1(entries1) % 2) ~= 0) then
-		error_21_1(_2e2e_1("Positions must be a multiple of 2, is ", _23_1(entries1)))
+		error1(_2e2e_2("Positions must be a multiple of 2, is ", _23_1(entries1)))
 	else
 	end
 	local previous1 = -1
@@ -961,18 +1000,18 @@ putLines_21_1 = (function(range2, ...)
 			return max1(max2, node12["start"]["line"])
 		end
 	end), 0, entries1)
-	local code1 = _2e2e_1(colored1(92, _2e2e_1(" %", _23_s1(number_2d3e_string1(maxLine1)), "s |")), " %s")
+	local code1 = _2e2e_2(colored1(92, _2e2e_2(" %", len1(tostring1(maxLine1)), "s |")), " %s")
 	local r_1741 = _23_1(entries1)
 	local r_1751 = 2
 	local r_1721 = nil
 	r_1721 = (function(r_1731)
 		if (r_1731 <= r_1741) then
-			local i5 = r_1731
-			local position1 = entries1[i5]
-			local message1 = entries1[succ1(i5)]
+			local i6 = r_1731
+			local position1 = entries1[r_1731]
+			local message1 = entries1[succ1(r_1731)]
 			if (file1 ~= position1["name"]) then
 				file1 = position1["name"]
-				print_21_1(colored1(95, _2e2e_1(" ", file1)))
+				print1(colored1(95, _2e2e_2(" ", file1)))
 			else
 				local temp21
 				local r_1761 = (previous1 ~= -1)
@@ -982,12 +1021,12 @@ putLines_21_1 = (function(range2, ...)
 					temp21 = r_1761
 				end
 				if temp21 then
-					print_21_1(colored1(92, " ..."))
+					print1(colored1(92, " ..."))
 				else
 				end
 			end
 			previous1 = position1["start"]["line"]
-			print_21_1(format1(code1, number_2d3e_string1(position1["start"]["line"]), position1["lines"][position1["start"]["line"]]))
+			print1(format1(code1, tostring1(position1["start"]["line"]), position1["lines"][position1["start"]["line"]]))
 			local pointer1
 			if _21_1(range2) then
 				pointer1 = "^"
@@ -1005,7 +1044,7 @@ putLines_21_1 = (function(range2, ...)
 					pointer1 = "^..."
 				end
 			end
-			print_21_1(format1(code1, "", _2e2e_1(rep1(" ", (position1["start"]["column"] - 1)), pointer1, " ", message1)))
+			print1(format1(code1, "", _2e2e_2(rep1(" ", (position1["start"]["column"] - 1)), pointer1, " ", message1)))
 			return r_1721((r_1731 + 2))
 		else
 		end
@@ -1019,9 +1058,9 @@ putTrace_21_1 = (function(node13)
 		if node13 then
 			local formatted1 = formatNode1(node13)
 			if (previous2 == nil) then
-				print_21_1(colored1(96, _2e2e_1("  => ", formatted1)))
+				print1(colored1(96, _2e2e_2("  => ", formatted1)))
 			elseif (previous2 ~= formatted1) then
-				print_21_1(_2e2e_1("  in ", formatted1))
+				print1(_2e2e_2("  in ", formatted1))
 			else
 			end
 			previous2 = formatted1
@@ -1036,14 +1075,14 @@ putExplain_21_1 = (function(...)
 	local lines3 = _pack(...) lines3.tag = "list"
 	if showExplain1["value"] then
 		local r_1631 = lines3
-		local r_1661 = _23_1(r_1631)
+		local r_1661 = _23_1(lines3)
 		local r_1671 = 1
 		local r_1641 = nil
 		r_1641 = (function(r_1651)
 			if (r_1651 <= r_1661) then
 				local r_1621 = r_1651
-				local line1 = r_1631[r_1621]
-				print_21_1(_2e2e_1("  ", line1))
+				local line1 = lines3[r_1651]
+				print1(_2e2e_2("  ", line1))
 				return r_1641((r_1651 + 1))
 			else
 			end
@@ -1065,27 +1104,27 @@ end)
 struct1("colored", colored1, "formatPosition", formatPosition1, "formatRange", formatRange1, "formatNode", formatNode1, "putLines", putLines_21_1, "putTrace", putTrace_21_1, "putInfo", putExplain_21_1, "getSource", getSource1, "printWarning", printWarning_21_1, "printError", printError_21_1, "printVerbose", printVerbose_21_1, "printDebug", printDebug_21_1, "errorPositions", errorPositions_21_1, "setVerbosity", setVerbosity_21_1, "setExplain", setExplain_21_1)
 builtins3 = require1("tacky.analysis.resolve")["builtins"]
 sideEffect_3f_1 = (function(node15)
-	local tag4 = type1(node15)
+	local tag5 = type1(node15)
 	local temp23
-	local r_921 = (tag4 == "number")
+	local r_921 = (tag5 == "number")
 	if r_921 then
 		temp23 = r_921
 	else
-		local r_931 = (tag4 == "string")
+		local r_931 = (tag5 == "string")
 		if r_931 then
 			temp23 = r_931
 		else
-			local r_941 = (tag4 == "key")
+			local r_941 = (tag5 == "key")
 			if r_941 then
 				temp23 = r_941
 			else
-				temp23 = (tag4 == "symbol")
+				temp23 = (tag5 == "symbol")
 			end
 		end
 	end
 	if temp23 then
 		return false
-	elseif (tag4 == "list") then
+	elseif (tag5 == "list") then
 		local fst1 = car2(node15)
 		if (type1(fst1) == "symbol") then
 			local var5 = fst1["var"]
@@ -1165,13 +1204,13 @@ warnArity1 = (function(lookup1, nodes3)
 			local arity2 = getArity1(car2(node16))
 			local temp26
 			local r_1811 = arity2
-			if r_1811 then
+			if arity2 then
 				temp26 = (arity2 < pred1(_23_1(node16)))
 			else
-				temp26 = r_1811
+				temp26 = arity2
 			end
 			if temp26 then
-				printWarning_21_1(_2e2e_1("Calling ", symbol_2d3e_string1(car2(node16)), " with ", string_2d3e_number1(pred1(_23_1(node16))), " arguments, expected ", string_2d3e_number1(arity2)))
+				printWarning_21_1(_2e2e_2("Calling ", symbol_2d3e_string1(car2(node16)), " with ", tonumber1(pred1(_23_1(node16))), " arguments, expected ", tonumber1(arity2)))
 				putTrace_21_1(node16)
 				return putLines_21_1(true, getSource1(node16), "Called here")
 			else
