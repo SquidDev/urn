@@ -155,7 +155,7 @@
               (with (out '())
                 (for i 1 (# value) 1
                   (set-idx! out i (pretty (get-idx value i))))
-                (.. "(" (concat out " ") ")")))
+                (.. "(" (.. (concat out " ") ")"))))
             ((= tag "list") (get-idx value :contents))
             ((= tag "symbol") (get-idx value :contents))
             ((= tag "key") (.. ":" (get-idx value :contents)))
