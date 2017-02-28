@@ -1,4 +1,5 @@
 (import string)
+(import term (colored) :export)
 (import lua/math math)
 
 (define verbosity (struct :value 0))
@@ -7,9 +8,6 @@
 (define show-explain (struct :value false))
 (defun set-explain! (value) (.<! show-explain :value value))
 
-(defun colored (col msg)
-  "Color a string MSG colored with COL, using ANSI escape codes"
-  (string/.. "\27[" col "m" msg "\27[0m"))
 
 (defun print-error! (msg)
   "Print an error messaage, MSG"

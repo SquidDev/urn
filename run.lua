@@ -319,9 +319,9 @@ if #inputs == 0 then
 	local buffer = {}
 	while true do
 		if #buffer == 0 then
-			io.write("\27[92m>\27[0m ")
+			io.write(logger.colored(92, "> "))
 		else
-			io.write("\27[92m.\27[0m ")
+			io.write(logger.colored(92, ". "))
 		end
 		io.flush()
 
@@ -365,7 +365,7 @@ if #inputs == 0 then
 								for i = 1, sig.n do buffer[i + 1] = sig[i].contents end
 								name = "(" .. table.concat(buffer, " ") .. ")"
 							end
-							print("\27[96m" .. name .. "\27[0m")
+							print(logger.colored(96, name))
 
 							local docs = documentation.parseDocs(var.doc)
 							for i = 1, #docs do
@@ -410,7 +410,7 @@ if #inputs == 0 then
 					end
 
 					if coroutine.status(exec) == "dead" then
-						print("\27[96m" .. pretty(state[#state]:get()) .. "\27[0m")
+						print(logger.colored(96, pretty(state[#state]:get())))
 						break
 					else
 						local states = data.states
