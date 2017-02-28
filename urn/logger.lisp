@@ -11,6 +11,7 @@
 
 (defun print-error! (msg)
   "Print an error messaage, MSG"
+  (unless (string? msg) (set! msg (pretty msg)))
   (with (lines (string/split msg "\n" 1))
     (print! (colored 31 (string/.. "[ERROR] " (car lines))))
     (when (cadr lines) (print! (cadr lines)))))
