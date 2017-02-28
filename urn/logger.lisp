@@ -90,7 +90,7 @@
          (max-line (foldr (lambda (node max)
                             (if (string? node) max (math/max max (.> node :start :line))))
                      0 entries))
-         (code (.. (colored 92 " %" (string/#s (number->string max-line)) "s |") " %s")))
+         (code (.. (colored 92 (.. " %" (string/#s (number->string max-line)) "s |")) " %s")))
     (for i 1 (# entries) 2
       (let ((position (.> entries i))
             (message (.> entries (succ i))))

@@ -1664,7 +1664,7 @@ putLines_21_1 = (function(range2, ...)
 			return max3(max4, node11["start"]["line"])
 		end
 	end), 0, entries1)
-	local code1 = _2e2e_1(colored1(92, " %", _23_s1(number_2d3e_string1(maxLine1)), "s |"), " %s")
+	local code1 = _2e2e_1(colored1(92, _2e2e_1(" %", _23_s1(number_2d3e_string1(maxLine1)), "s |")), " %s")
 	local r_2541 = _23_1(entries1)
 	local r_2551 = 2
 	local r_2521 = nil
