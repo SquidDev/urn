@@ -1,4 +1,4 @@
-(import lua/basic (get-idx set-idx! getmetatable type# print
+(import lua/basic (get-idx set-idx! getmetatable type# print slice
                    pcall xpcall tostring tonumber require error
                    = /= < <= > >= + - * / % ^ #) :export)
 (import lua/basic ())
