@@ -97,11 +97,9 @@ struct1 = (function(...)
 	end)
 	local out1 = {}
 	local r_601 = _23_1(keys1)
-	local r_611 = 2
 	local r_581 = nil
 	r_581 = (function(r_591)
 		if (r_591 <= r_601) then
-			local i1 = r_591
 			local key2 = keys1[r_591]
 			local val3 = keys1[(1 + r_591)]
 			out1[(function()
@@ -171,13 +169,10 @@ parseDocstring1 = (function(str1)
 			local epos1 = nil
 			local name1 = nil
 			local ptrn1 = nil
-			local r_971 = tokens1
 			local r_1001 = _23_1(tokens1)
-			local r_1011 = 1
 			local r_981 = nil
 			r_981 = (function(r_991)
 				if (r_991 <= r_1001) then
-					local r_961 = r_991
 					local tok1 = tokens1[r_991]
 					local npos1 = list1(find1(str1, nth1(tok1, 2), pos1))
 					local temp3

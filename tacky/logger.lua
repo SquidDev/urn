@@ -65,18 +65,16 @@ pretty1 = (function(value1)
 		if (tag1 == "list") then
 			local out1 = {tag = "list", n = 0}
 			local r_31 = _23_1(value1)
-			local r_41 = 1
 			local r_11 = nil
 			r_11 = (function(r_21)
 				if (r_21 <= r_31) then
-					local i1 = r_21
 					out1[r_21] = pretty1(value1[r_21])
 					return r_11((r_21 + 1))
 				else
 				end
 			end)
 			r_11(1)
-			return _2e2e_1("(", concat1(out1, " "), ")")
+			return ("(" .. (concat1(out1, " ") .. ")"))
 		elseif (tag1 == "list") then
 			return value1["contents"]
 		elseif (tag1 == "symbol") then
@@ -102,7 +100,6 @@ list_3f_1 = (function(x2)
 	return (type1(x2) == "list")
 end)
 nil_3f_1 = (function(x3)
-	local r_71 = x3
 	if x3 then
 		local r_81 = list_3f_1(x3)
 		if r_81 then
@@ -211,7 +208,6 @@ split1 = (function(text1, pattern1, limit1)
 			if r_501 then
 				temp1 = r_501
 			else
-				local r_511 = limit1
 				if limit1 then
 					temp1 = (_23_1(out2) >= limit1)
 				else
@@ -254,11 +250,9 @@ struct1 = (function(...)
 	end)
 	local out3 = {}
 	local r_601 = _23_1(keys1)
-	local r_611 = 2
 	local r_581 = nil
 	r_581 = (function(r_591)
 		if (r_591 <= r_601) then
-			local i2 = r_591
 			local key2 = keys1[r_591]
 			local val3 = keys1[(1 + r_591)]
 			out3[(function()
@@ -287,7 +281,6 @@ coloredAnsi1 = (function(col1, msg1)
 	return _2e2e_2("\27[", col1, "m", msg1, "\27[0m")
 end)
 local temp2
-local r_1021 = config1
 if config1 then
 	temp2 = (charAt1(config1, 1) ~= "\\")
 else
@@ -297,7 +290,6 @@ if temp2 then
 	colored_3f_1 = true
 else
 	local temp3
-	local r_1031 = getenv1
 	if getenv1 then
 		temp3 = (getenv1("ANSICON") ~= nil)
 	else
@@ -307,7 +299,6 @@ else
 		colored_3f_1 = true
 	else
 		local temp4
-		local r_1041 = getenv1
 		if getenv1 then
 			local term1 = getenv1("TERM")
 			if term1 then
@@ -458,11 +449,9 @@ putLines_21_1 = (function(range2, ...)
 	end), 0, entries1)
 	local code1 = _2e2e_2(colored1(92, _2e2e_2(" %", len1(tostring1(maxLine1)), "s |")), " %s")
 	local r_1081 = _23_1(entries1)
-	local r_1091 = 2
 	local r_1061 = nil
 	r_1061 = (function(r_1071)
 		if (r_1071 <= r_1081) then
-			local i3 = r_1071
 			local position1 = entries1[r_1071]
 			local message1 = entries1[succ1(r_1071)]
 			if (file1 ~= position1["name"]) then
@@ -530,13 +519,10 @@ end)
 putExplain_21_1 = (function(...)
 	local lines3 = _pack(...) lines3.tag = "list"
 	if showExplain1["value"] then
-		local r_971 = lines3
 		local r_1001 = _23_1(lines3)
-		local r_1011 = 1
 		local r_981 = nil
 		r_981 = (function(r_991)
 			if (r_991 <= r_1001) then
-				local r_961 = r_991
 				local line1 = lines3[r_991]
 				print1(_2e2e_2("  ", line1))
 				return r_981((r_991 + 1))

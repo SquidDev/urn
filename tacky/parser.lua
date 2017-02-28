@@ -69,18 +69,16 @@ pretty1 = (function(value1)
 		if (tag1 == "list") then
 			local out1 = {tag = "list", n = 0}
 			local r_31 = _23_1(value1)
-			local r_41 = 1
 			local r_11 = nil
 			r_11 = (function(r_21)
 				if (r_21 <= r_31) then
-					local i1 = r_21
 					out1[r_21] = pretty1(value1[r_21])
 					return r_11((r_21 + 1))
 				else
 				end
 			end)
 			r_11(1)
-			return _2e2e_1("(", concat1(out1, " "), ")")
+			return ("(" .. (concat1(out1, " ") .. ")"))
 		elseif (tag1 == "list") then
 			return value1["contents"]
 		elseif (tag1 == "symbol") then
@@ -109,7 +107,6 @@ list_3f_1 = (function(x3)
 	return (type1(x3) == "list")
 end)
 nil_3f_1 = (function(x4)
-	local r_71 = x4
 	if x4 then
 		local r_81 = list_3f_1(x4)
 		if r_81 then
@@ -247,7 +244,6 @@ split1 = (function(text1, pattern1, limit1)
 			if r_501 then
 				temp1 = r_501
 			else
-				local r_511 = limit1
 				if limit1 then
 					temp1 = (_23_1(out2) >= limit1)
 				else
@@ -297,11 +293,9 @@ struct1 = (function(...)
 	end)
 	local out3 = {}
 	local r_601 = _23_1(keys1)
-	local r_611 = 2
 	local r_581 = nil
 	r_581 = (function(r_591)
 		if (r_591 <= r_601) then
-			local i2 = r_591
 			local key2 = keys1[r_591]
 			local val4 = keys1[(1 + r_591)]
 			out3[(function()
@@ -367,7 +361,6 @@ coloredAnsi1 = (function(col1, msg1)
 	return _2e2e_2("\27[", col1, "m", msg1, "\27[0m")
 end)
 local temp3
-local r_1141 = config1
 if config1 then
 	temp3 = (charAt1(config1, 1) ~= "\\")
 else
@@ -377,7 +370,6 @@ if temp3 then
 	colored_3f_1 = true
 else
 	local temp4
-	local r_1151 = getenv1
 	if getenv1 then
 		temp4 = (getenv1("ANSICON") ~= nil)
 	else
@@ -387,7 +379,6 @@ else
 		colored_3f_1 = true
 	else
 		local temp5
-		local r_1161 = getenv1
 		if getenv1 then
 			local term1 = getenv1("TERM")
 			if term1 then
@@ -538,11 +529,9 @@ putLines_21_1 = (function(range2, ...)
 	end), 0, entries1)
 	local code1 = _2e2e_2(colored1(92, _2e2e_2(" %", len1(tostring1(maxLine1)), "s |")), " %s")
 	local r_1201 = _23_1(entries1)
-	local r_1211 = 2
 	local r_1181 = nil
 	r_1181 = (function(r_1191)
 		if (r_1191 <= r_1201) then
-			local i3 = r_1191
 			local position1 = entries1[r_1191]
 			local message1 = entries1[succ1(r_1191)]
 			if (file1 ~= position1["name"]) then
@@ -610,13 +599,10 @@ end)
 putExplain_21_1 = (function(...)
 	local lines3 = _pack(...) lines3.tag = "list"
 	if showExplain1["value"] then
-		local r_1091 = lines3
 		local r_1121 = _23_1(lines3)
-		local r_1131 = 1
 		local r_1101 = nil
 		r_1101 = (function(r_1111)
 			if (r_1111 <= r_1121) then
-				local r_1081 = r_1111
 				local line1 = lines3[r_1111]
 				print1(_2e2e_2("  ", line1))
 				return r_1101((r_1111 + 1))
@@ -741,24 +727,22 @@ lex1 = (function(str2, name2)
 		return struct1("line", line2, "column", column1, "offset", offset1)
 	end)
 	local range3 = (function(start2, finish1)
-		return struct1("start", start2, "finish", (function(r_1631)
+		return struct1("start", start2, "finish", (function()
 			if finish1 then
 				return finish1
 			else
 				return start2
 			end
-		end)(finish1), "lines", lines4, "name", name2)
+		end)(), "lines", lines4, "name", name2)
 	end)
 	local appendWith_21_1 = (function(data1, start3, finish2)
 		local start4
-		local r_1611 = start3
 		if start3 then
 			start4 = start3
 		else
 			start4 = position2()
 		end
 		local finish3
-		local r_1621 = finish2
 		if finish2 then
 			finish3 = finish2
 		else
@@ -1160,20 +1144,18 @@ lex1 = (function(str2, name2)
 	return out4
 end)
 parse1 = (function(toks1)
-	local index1 = 1
 	local head2 = {tag = "list", n = 0}
 	local stack1 = {tag = "list", n = 0}
 	local append_21_2 = (function(node6)
-		local next1 = {tag = "list", n = 0}
 		pushCdr_21_1(head2, node6)
 		node6["parent"] = head2
 		return nil
 	end)
 	local push_21_1 = (function()
-		local next2 = {tag = "list", n = 0}
+		local next1 = {tag = "list", n = 0}
 		pushCdr_21_1(stack1, head2)
-		append_21_2(next2)
-		head2 = next2
+		append_21_2(next1)
+		head2 = next1
 		return nil
 	end)
 	local pop_21_1 = (function()
@@ -1184,13 +1166,10 @@ parse1 = (function(toks1)
 		head2 = last1(stack1)
 		return popLast_21_1(stack1)
 	end)
-	local r_1411 = toks1
 	local r_1441 = _23_1(toks1)
-	local r_1451 = 1
 	local r_1421 = nil
 	r_1421 = (function(r_1431)
 		if (r_1431 <= r_1441) then
-			local r_1401 = r_1431
 			local tok1 = toks1[r_1431]
 			local tag4 = tok1["tag"]
 			local autoClose1 = false
