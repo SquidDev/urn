@@ -90,7 +90,7 @@
          (max-line (foldr (lambda (node max)
                             (if (string? node) max (math/max max (.> node :start :line))))
                      0 entries))
-         (code (string/.. "\27[92m %" (string/#s (number->string max-line)) "s |\27[0m %s")))
+         (code (.. (colored 92 " %" (string/#s (number->string max-line)) "s |") " %s")))
     (for i 1 (# entries) 2
       (let ((position (.> entries i))
             (message (.> entries (succ i))))
@@ -99,10 +99,10 @@
           ;; If we're in a different file then print the new file name
           ((/= file (.> position :name))
             (set! file (.> position :name))
-            (print! (.. "\27[95m " file "\27[0m")))
+            (print! (colored 95 (.. " " file))))
           ;; If we've got a gap in the lines then print a ...
           ((and (/= previous -1) (> (math/abs (- (.> position :start :line) previous)) 2))
-            (print! " \27[92m...\27[0m"))
+            (print! (colored 92 " ...")))
           (true))
         (set! previous (.> position :start :line))
 

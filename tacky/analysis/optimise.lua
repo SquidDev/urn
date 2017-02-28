@@ -1246,7 +1246,7 @@ putLines_21_1 = (function(range2, ...)
 			return max1(max2, node16["start"]["line"])
 		end
 	end), 0, entries1)
-	local code1 = _2e2e_2("\27[92m %", _23_s1(number_2d3e_string1(maxLine1)), "s |\27[0m %s")
+	local code1 = _2e2e_2(colored1(92, " %", _23_s1(number_2d3e_string1(maxLine1)), "s |"), " %s")
 	local r_2181 = _23_1(entries1)
 	local r_2191 = 2
 	local r_2161 = nil
@@ -1257,7 +1257,7 @@ putLines_21_1 = (function(range2, ...)
 			local message1 = entries1[succ1(i11)]
 			if (file1 ~= position1["name"]) then
 				file1 = position1["name"]
-				print_21_1(_2e2e_2("\27[95m ", file1, "\27[0m"))
+				print_21_1(colored1(95, _2e2e_2(" ", file1)))
 			else
 				local temp28
 				local r_2201 = (previous1 ~= -1)
@@ -1267,7 +1267,7 @@ putLines_21_1 = (function(range2, ...)
 					temp28 = r_2201
 				end
 				if temp28 then
-					print_21_1(" \27[92m...\27[0m")
+					print_21_1(colored1(92, " ..."))
 				else
 				end
 			end
