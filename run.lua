@@ -5,6 +5,8 @@ compiler_dir = compiler_dir:sub(2, #compiler_dir - #('run.lua'))
 
 if compiler_dir:sub(#compiler_dir) == "/" then
 	compiler_dir = compiler_dir:sub(1, #compiler_dir - 1)
+elseif compiler_dir == "" then
+	compiler_dir = "."
 end
 
 package.path = package.path .. ';' .. compiler_dir .. '/?.lua'
