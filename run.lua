@@ -3,13 +3,16 @@
 local compiler_dir = debug.getinfo(1).source
 compiler_dir = compiler_dir:sub(2, #compiler_dir - #('run.lua'))
 
-if compiler_dir:sub(#compiler_dir) == "/" then
-	compiler_dir = compiler_dir:sub(1, #compiler_dir - 1)
-elseif compiler_dir == "" then
-	compiler_dir = "."
+-- Normalise compiler directory
+if compiler_dir ~= "" and compiler_dir:sub(#compiler_dir) ~= "/" then
+	compiler_dir = compiler_dir .. "/"
+end
+while compiler_dir:sub(1, 2) == "./" do
+	compiler_dir = compiler_dir:sub(3)
 end
 
-package.path = package.path .. ';' .. compiler_dir .. '/?.lua'
+local sep = package.config:sub(2, 2)
+package.path = package.path .. sep .. compiler_dir .. '?.lua' .. sep .. compiler_dir .. "?/init.lua"
 
 local backend = require "tacky.backend.init"
 local compile = require "tacky.compile"
@@ -20,8 +23,8 @@ local parser = require "tacky.parser"
 local resolve = require "tacky.analysis.resolve"
 local warning = require "tacky.analysis.warning"
 
-local paths = { "?", "lib/?", compiler_dir .. '/lib/?' }
-local inputs, output, verbosity, run, prelude, time, removeOut, scriptArgs, docs = {}, "out", 0, false, compiler_dir .. "/lib/prelude", false, false, {}, false
+local paths = { "?", "?/init", compiler_dir .. 'lib/?', compiler_dir .. "lib/?/init" }
+local inputs, output, verbosity, run, prelude, time, removeOut, scriptArgs, docs = {}, "out", 0, false, compiler_dir .. "lib/prelude", false, false, {}, false
 
 -- Tiny Lua stub
 if _VERSION:find("5.1") then
@@ -115,7 +118,7 @@ local function libLoader(name, shouldResolve)
 	if current == true then
 		error("Loop: already loading " .. name, 2)
 	elseif current ~= nil then
-		return true, current
+		return true, current.scope.exported
 	end
 
 	logger.printVerbose("Loading " .. name)
@@ -155,7 +158,7 @@ local function libLoader(name, shouldResolve)
 			logger.printVerbose("Reusing " .. tempLib.name .. " for " .. name)
 			local current = libCache[tempLib.name]
 			libCache[name] = current
-			return true, current
+			return true, current.scope.exported
 		end
 	end
 
@@ -228,11 +231,19 @@ local function libLoader(name, shouldResolve)
 	local scope = rootScope:child()
 	scope.isRoot = true
 	scope.prefix = lib.path .. "/"
+	lib.scope = scope
 
 	local compiled, state = compile.compile(parsed, global, variables, states, scope, compileState, libLoader)
 
 	libs[#libs + 1] = lib
-	libCache[name] = scope.exported
+	libCache[name] = lib
+
+	-- Extract the documentation node if it is there.
+	if compiled[1] and compiled[1].tag == "string" then
+		lib.docs = compiled[1].value
+		table.remove(compiled, 1)
+	end
+
 	for i = 1, #compiled do
 		out[#out + 1] = compiled[i]
 	end
@@ -254,10 +265,14 @@ for i = 1, #inputs do
 end
 
 if docs then
-	for _, lib in ipairs(libs) do
-		local out = backend.markdown.exported(lib.path, libCache[lib.name])
+	for i = 1, #inputs do
+		local path = inputs[i]
+		if path:sub(-5) == ".lisp" then path = path:sub(1, -6) end
 
-		local handle = io.open(docs .. "/" .. lib.path:gsub("/", ".") .. ".md", "w+")
+		local lib = libCache[path]
+		local out = backend.markdown.exported(path, lib.docs, lib.scope.exported)
+
+		local handle = io.open(docs .. "/" .. path:gsub("/", ".") .. ".md", "w+")
 		handle:write(out)
 		handle:close()
 	end
@@ -340,7 +355,7 @@ if #inputs == 0 then
 		elseif line and line:sub(#line, #line) == "\\" then
 			buffer[#buffer + 1] = line:sub(1, #line - 1) .. "\n"
 		elseif line and #buffer > 0 and #line > 0 then
-			buffer[#buffer + 1] = line
+			buffer[#buffer + 1] = line .. "\n"
 		else
 			local data = table.concat(buffer) .. (line or "")
 			buffer = {}
@@ -390,6 +405,22 @@ if #inputs == 0 then
 							print()
 						end
 					end
+				elseif parts[1] == "scope" then
+					local vars, varSet = {}, {}
+					local current = scope
+					while current do
+						for name, var in pairs(current.variables) do
+							if not varSet[name] then
+								varSet[name] = true
+								vars[#vars + 1] = name
+							end
+						end
+						current = current.parent
+					end
+
+					table.sort(vars)
+
+					print(table.concat(vars, " "))
 				else
 					logger.printError("Unknown command '" .. command .. "'")
 				end

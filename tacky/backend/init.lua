@@ -1476,7 +1476,7 @@ end)
 struct1("parseDocs", parseDocstring1, "extractSignature", extractSignature1)
 config1 = package.config
 coloredAnsi1 = (function(col1, msg1)
-	return _2e2e_2("\27[", col1, "m", msg1, "\27[0m")
+	return _2e2e_2("[", col1, "m", msg1, "[0m")
 end)
 local temp23
 if config1 then
@@ -1774,7 +1774,7 @@ formatSignature1 = (function(name4, var7)
 		end)), " "), ")")
 	end
 end)
-exported1 = (function(out11, title1, vars1)
+exported1 = (function(out11, title1, primary1, vars1)
 	local documented1 = {tag = "list", n = 0}
 	local undocumented1 = {tag = "list", n = 0}
 	iterPairs1(vars1, (function(name5, var8)
@@ -1793,6 +1793,10 @@ exported1 = (function(out11, title1, vars1)
 	line_21_1(out11, _2e2e_2("title: ", title1))
 	line_21_1(out11, "---")
 	line_21_1(out11, _2e2e_2("# ", title1))
+	if primary1 then
+		line_21_1(out11, primary1)
+	else
+	end
 	local r_2631 = _23_1(documented1)
 	local r_2611 = nil
 	r_2611 = (function(r_2621)
@@ -1883,7 +1887,7 @@ wrapGenerate1 = (function(func2)
 	return (function(node14, ...)
 		local args4 = _pack(...) args4.tag = "list"
 		local writer11 = create1()
-		func2(node14, writer11, unpack1(args4))
+		func2(node14, writer11, unpack1(args4, 1, _23_1(args4)))
 		return _2d3e_string1(writer11)
 	end)
 end)
@@ -1891,7 +1895,7 @@ wrapNormal1 = (function(func3)
 	return (function(...)
 		local args5 = _pack(...) args5.tag = "list"
 		local writer12 = create1()
-		func3(writer12, unpack1(args5))
+		func3(writer12, unpack1(args5, 1, _23_1(args5)))
 		return _2d3e_string1(writer12)
 	end)
 end)

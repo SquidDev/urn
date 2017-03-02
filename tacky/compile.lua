@@ -38,7 +38,6 @@ local function executeStates(compileState, states, global)
 
 		out.n = out.n + 1
 		out[out.n] = "return {" .. table.concat(nameTable, ", ") .. "}"
-		-- builder.add("return {" .. table.concat(nameTable, ", ") .. "}")
 
 		local str = table.concat(out)
 		local fun, msg = load(str, "=compile{" .. table.concat(nameList, ",") .. "}", "t", global)
@@ -62,7 +61,6 @@ local function executeStates(compileState, states, global)
 end
 
 local function compile(parsed, global, env, inStates, scope, compileState, loader)
-
 	local queue = {}
 	local out = {}
 	local states = { scope = scope }

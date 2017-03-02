@@ -43,7 +43,7 @@
       (true
         (.. "(" name " " (concat (traverse sig (cut get-idx <> "contents")) " ") ")")))))
 
-(defun exported (out title vars)
+(defun exported (out title primary vars)
   "Print out a list of all exported variables"
   (let* [(documented '())
          (undocumented '())]
@@ -60,6 +60,7 @@
     (writer/line! out "---")
 
     (writer/line! out (.. "# " title))
+    (when primary (writer/line! out primary))
 
     (for-each entry documented
       (let* [(name (car entry))

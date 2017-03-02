@@ -7,13 +7,13 @@
 (defun wrap-generate (func)
   (lambda (node &args)
     (with (writer (writer/create))
-      (func node writer (unpack args))
+      (func node writer (unpack args 1 (# args)))
       (writer/->string writer))))
 
 (defun wrap-normal (func)
   (lambda (&args)
     (with (writer (writer/create))
-      (func writer (unpack args))
+      (func writer (unpack args 1 (# args)))
       (writer/->string writer))))
 
 (struct
