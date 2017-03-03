@@ -1,4 +1,4 @@
-(import base (defun getmetatable if # progn with
+(import base (defun getmetatable if # progn with for tostring
               type# >= > < <= = + - car or and list when set-idx!
               get-idx getmetatable let* while))
 (import base (concat) :export)
@@ -65,7 +65,7 @@
   "Quote the string STR so it is suitable for printing."
   (with (escapes (empty-struct))
     ;; Define some mappings for escape characters
-    (set-idx! escapes "\t" "\\9")
+    (for i 0 31 1 (set-idx! escapes (char i) (.. "\\" (tostring i))))
     (set-idx! escapes "\n" "n")
 
     (lambda (str)
