@@ -1,0 +1,139 @@
+@import "reset.scss";
+@import "layout.scss";
+
+$grey00: #151515;
+$grey01: #202020;
+$grey02: #505050;
+$grey03: #707070;
+$grey04: #B0B0B0;
+$grey05: #D0D0D0;
+$grey06: #E0E0E0;
+$grey07: #ECF0F1;
+$grey08: #FAFAFA;
+$grey09: #FFFFFF;
+
+$sepia01: #5B3022;
+$sepia02: #A23A43;
+$sepia03: #F4E2AF;
+$sepia04: #F0C164;
+$sepia05: #E5A644;
+
+@mixin link($normal, $hover) {
+	a {
+		&, &:visited, &:active { color: $normal; }
+		&:hover { color: $hover; }
+	}
+}
+
+body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans",
+	"Droid Sans", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+header {
+	height: 64px;
+	overflow: hidden;
+	background-color: $sepia05;
+	color: $sepia01;
+
+	@include link($sepia01, lighten($sepia01, 20%));
+
+	.button-group {
+		height: 100%;
+		a {
+			display: inline-block;
+			height: 100%;
+			padding: 0px 10px;
+			box-sizing: border-box;
+			color: inherit;
+
+			&:hover {
+				color: inherit;
+				background-color: darken($sepia05, 10%);
+			}
+
+			@include middle;
+		}
+	}
+}
+
+@include link($sepia02, lighten($sepia02, 20%));
+a { text-decoration: none; }
+.content a { font-weight: bold; }
+
+h1, h2, h3 {
+	color: $sepia01;
+	pre, code { color: #000; }
+}
+
+h1 {
+	font-size: 2em;
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+	border-bottom: solid 1px $grey05;
+}
+
+h2 {
+	font-size: 1.6em;
+	padding-top: 16px;
+	padding-bottom: 8px;
+}
+
+h3 {
+	font-size: 1.2em;
+	padding-top: 8px;
+	padding-bottom: 4px;
+}
+
+h2:first-child, h3:first-child { padding-top: 0px; }
+
+p, pre {
+	line-height: 1.3em;
+}
+
+p, pre, ul, blockquote, div.highlighter-rouge {
+	h1 + &, h2 + &, h3 + &, &:first-child { margin-top: 0em; }
+
+	margin-top: 0.5em;
+}
+
+em {
+	font-style: italic;
+	font-size: 0.8em;
+	color: $grey03;
+}
+
+strong { font-weight: bold; }
+
+pre, code {
+	font-family: "Consolas", "Courier New", monospace;
+}
+
+code {
+	background-color: $grey07;
+	padding: 0.1em;
+	font-size: 0.8em;
+}
+
+pre {
+	padding: 1.2em;
+	font-size: 0.8em;
+	white-space: pre-wrap;
+}
+
+pre {
+	border: solid 1px $grey05;
+	background-color: $grey08;
+
+	code {
+		background-color: transparent;
+		color: inherit;
+		padding: 0px;
+		font-size: inherit;
+	}
+
+	.o, .ow, .kd, .k { color: #FF0086; }
+	.s2 { color: #FD8900; }
+	.c1 { color: $grey03; }
+	.kc { color: #3777E6; }
+}
