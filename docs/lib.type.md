@@ -1,0 +1,127 @@
+---
+title: lib/type
+---
+# lib/type
+## `(assert-type! arg ty)`
+*Macro defined at lib/type.lisp:137:1*
+
+Assert that the argument `ARG` has type `TY`, as reported by the function
+[`type`](lib.type.md#type-val).
+
+## `(atom? x)`
+*Defined at lib/type.lisp:46:1*
+
+Check whether `X` is an atomic object, that is, one of
+- `A` boolean
+- `A` string
+- `A` number
+- `A` symbol
+- `A` key
+- `A` function
+
+## `(between? val min max)`
+*Defined at lib/type.lisp:71:1*
+
+Check if the numerical value `X` is between
+`MIN` and `MAX`.
+
+## `(boolean? x)`
+*Defined at lib/type.lisp:34:1*
+
+Check whether `X` is a boolean.
+
+## `(eq? x y)`
+*Defined at lib/type.lisp:84:1*
+
+Compare `X` and `Y` for equality deeply.
+Rules:
+- If `X` and `Y` exist, `X` and `Y` are equal if:
+  - If `X` or `Y` are a symbol
+    - Both are symbols, and their contents are equal.
+    - `X` is a symbol, and `Y` is a string equal to the symbol's contents.
+    - `Y` is a symbol, and `X` is a string equal to the symbol's contents.
+  - If `X` or `Y` are a key
+    - Both are keys, and their values are equal.
+    - `X` is a key, and `Y` is a string equal to the key's contents.
+    - `Y` is a key, and `X` is a string equal to the key's contents.
+  - If `X` or `Y` are a pair
+    - `X` and `Y` are equal if both their `fst` are equal (according to `eq?`)
+      and their `snd` are equal.
+  - If `X` or `Y` are lists
+    - Both are empty.
+    - Both have the same length, their `car`s are equal, and their `cdr`s
+      are equal.
+  - Otherwise, `X` and `Y` are equal if they are the same value.
+- If `X` or `Y` do not exist
+  - They are not equal if one exists and the other does not.
+  - They are equal if neither exists.  
+
+## `(exists? x)`
+*Defined at lib/type.lisp:66:1*
+
+Check if `X` exists, i.e. it is not the special value `nil`.
+Note that, in Urn, `nil` is not the empty list.
+
+## `(falsey? x)`
+*Defined at lib/type.lisp:61:1*
+
+Check whether `X` is falsey, that is, it is either `false` or does
+not exist.
+
+## `(function? x)`
+*Defined at lib/type.lisp:38:1*
+
+Check whether `X` is a function.
+
+## `(key? x)`
+*Defined at lib/type.lisp:42:1*
+
+Check whether `X` is a key.
+
+## `(list? x)`
+*Defined at lib/type.lisp:14:1*
+
+Check whether `X` is a list.
+
+## `(neq? x y)`
+*Defined at lib/type.lisp:132:1*
+
+Compare `X` and `Y` for inequality deeply. `X` and `Y` are `neq?`
+if `([[eq?]] x y)` is falsey.
+
+## `(nil? x)`
+*Defined at lib/type.lisp:18:1*
+
+Check whether `X` is the empty list.
+
+## `(number? x)`
+*Defined at lib/type.lisp:26:1*
+
+Check whether `X` is a number.
+
+## `(pair? x)`
+*Defined at lib/pair.lisp:43:1*
+
+Test if `X` is a pair.
+
+## `(string? x)`
+*Defined at lib/type.lisp:22:1*
+
+Check whether `X` is a string.
+
+## `(symbol? x)`
+*Defined at lib/type.lisp:30:1*
+
+Check whether `X` is a symbol.
+
+## `(table? x)`
+*Defined at lib/type.lisp:9:1*
+
+Check whether the value `X` is a table. This might be a structure,
+a list, an associative list, a quoted key, or a quoted symbol.
+
+## `(type val)`
+*Defined at lib/type.lisp:76:1*
+
+Return the type of `VAL`.
+

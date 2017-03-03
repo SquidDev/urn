@@ -1,0 +1,32 @@
+---
+title: lib/lua/math
+---
+# lib/lua/math
+## Undocumented symbols
+ - `abs` *Native defined at lib/lua/math.lisp:1:1*
+ - `acos` *Native defined at lib/lua/math.lisp:2:1*
+ - `asin` *Native defined at lib/lua/math.lisp:3:1*
+ - `atan` *Native defined at lib/lua/math.lisp:4:1*
+ - `ceil` *Native defined at lib/lua/math.lisp:5:1*
+ - `cos` *Native defined at lib/lua/math.lisp:6:1*
+ - `deg` *Native defined at lib/lua/math.lisp:7:1*
+ - `exp` *Native defined at lib/lua/math.lisp:8:1*
+ - `floor` *Native defined at lib/lua/math.lisp:9:1*
+ - `fmod` *Native defined at lib/lua/math.lisp:10:1*
+ - `huge` *Native defined at lib/lua/math.lisp:11:1*
+ - `log` *Native defined at lib/lua/math.lisp:12:1*
+ - `max` *Native defined at lib/lua/math.lisp:13:1*
+ - `maxinteger` *Native defined at lib/lua/math.lisp:14:1*
+ - `min` *Native defined at lib/lua/math.lisp:15:1*
+ - `mininteger` *Native defined at lib/lua/math.lisp:16:1*
+ - `modf` *Native defined at lib/lua/math.lisp:17:1*
+ - `pi` *Native defined at lib/lua/math.lisp:18:1*
+ - `rad` *Native defined at lib/lua/math.lisp:19:1*
+ - `random` *Native defined at lib/lua/math.lisp:20:1*
+ - `randomseed` *Native defined at lib/lua/math.lisp:21:1*
+ - `sin` *Native defined at lib/lua/math.lisp:22:1*
+ - `sqrt` *Native defined at lib/lua/math.lisp:23:1*
+ - `tan` *Native defined at lib/lua/math.lisp:24:1*
+ - `tointeger` *Native defined at lib/lua/math.lisp:25:1*
+ - `type` *Native defined at lib/lua/math.lisp:26:1*
+ - `ult` *Native defined at lib/lua/math.lisp:27:1*
