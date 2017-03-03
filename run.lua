@@ -11,8 +11,8 @@ while compiler_dir:sub(1, 2) == "./" do
 	compiler_dir = compiler_dir:sub(3)
 end
 
-local sep = package.config:sub(2, 2)
-package.path = package.path .. sep .. compiler_dir .. '?.lua' .. sep .. compiler_dir .. "?/init.lua"
+local sep = package.config:sub(3, 3)
+package.path = package.path .. sep .. compiler_dir .. '?.lua' .. sep .. compiler_dir .. "?/init.lua" .. sep
 
 local backend = require "tacky.backend.init"
 local compile = require "tacky.compile"
@@ -37,7 +37,7 @@ if _VERSION:find("5.1") then
 end
 
 local args = table.pack(...)
-local interp, prog = arg[-1], arg[0]
+local interp, prog, wi = arg[-1], arg[0]
 local i = 1
 while i <= args.n do
 	local arg = args[i]
@@ -78,6 +78,8 @@ while i <= args.n do
 		local command = table.concat({wrapper, interp, prog}, " ")
 		os.execute(command .. " " .. table.concat(args, " "))
 		return
+	elseif arg == '--with-interpreter' then
+		_, wi = table.remove(args, i), table.remove(args, i)
 	elseif arg == '--' then
 		i = i + 1
 		while i <= args.n do
@@ -85,9 +87,9 @@ while i <= args.n do
 			i = i + 1
 		end
 		break
-	elseif arg:sub(1, 1) == "-" then
+	elseif arg and arg:sub(1, 1) == "-" then
 		error("Unknown option " .. arg, 0)
-	else
+	elseif arg then
 		inputs[#inputs + 1] = arg:gsub("\\", "/"):gsub("^%./", "")
 	end
 
@@ -491,6 +493,7 @@ local state = backend.lua.backend.createState(libMeta)
 local compiledLua = backend.lua.block(out, state, 1, "return ")
 local handle = io.open(output .. ".lua", "w")
 
+handle:write("#!/usr/bin/env " .. (wi or interp) .. '\n')
 handle:write(backend.lua.prelude())
 
 handle:write("local _libs = {}\n")
