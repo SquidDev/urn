@@ -85,6 +85,7 @@
           ((= char "}") (append-with! (struct :tag "close" :open "{")))
           ((= char "'") (append! "quote"))
           ((= char "`") (append! "syntax-quote"))
+          ((= char "~") (append! "quasiquote"))
           ((= char ",") (if (= (string/char-at str (succ offset)) "@")
             (with (start (position))
               (consume!)
@@ -391,7 +392,7 @@
                 ;; All OK!
                 (.<! head :range :finish (.> tok :range :finish))
                 (pop!))))
-          ((or (= tag "quote") (= tag "unquote") (= tag "syntax-quote") (= tag "unquote-splice"))
+          ((or (= tag "quote") (= tag "unquote") (= tag "syntax-quote") (= tag "unquote-splice") (= tag "quasiquote"))
             (push!)
             (.<! head :range (struct
                 :start (.> tok :range :start)

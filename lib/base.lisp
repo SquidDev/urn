@@ -212,5 +212,8 @@
     val))
 
 (defmacro quasiquote (val)
-  "Quote VAL, but replacing all `unquote` and `unquote-splice` with their actual value"
+  "Quote VAL, but replacing all `unquote` and `unquote-splice` with their actual value.
+
+   Be warned, by using this you loose all macro hygiene. Variables may not be bound to their
+   expected values."
   (list `syntax-quote (quasiquote# val)))
