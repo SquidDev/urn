@@ -95,7 +95,7 @@
   (or (function? x)
       (and (table? x)
            (table? (getmetatable x))
-           (function? (.> (getmetatable x) :__call)))))
+           (invokable? (.> (getmetatable x) :__call)))))
 
 (defun compose (f g)
   "Return the pointwise composition of functions F and G. This corresponds to
