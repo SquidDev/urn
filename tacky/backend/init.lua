@@ -1476,7 +1476,7 @@ end)
 struct1("parseDocs", parseDocstring1, "extractSignature", extractSignature1)
 config1 = package.config
 coloredAnsi1 = (function(col1, msg1)
-	return _2e2e_2("[", col1, "m", msg1, "[0m")
+	return _2e2e_2("\27[", col1, "m", msg1, "\27[0m")
 end)
 local temp23
 if config1 then
