@@ -35,5 +35,5 @@ a [zipped version](https://gitlab.com/SquidDev/urn/repository/archive.zip?ref=ma
 You should just be able to execute `run.lua` to launch the REPL, or specify a series of `.lisp` files in order to
 compile a set of files.
 
-You can find some auto-generated [documentation online](https://squiddev.gitlab.io/urn/). Hopefully this will be
+You can find some auto-generated [documentation online](https://squiddev.github.io/urn/). Hopefully this will be
 expanded in the future to include tutorials and what not.

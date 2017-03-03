@@ -24,7 +24,7 @@ local resolve = require "tacky.analysis.resolve"
 local warning = require "tacky.analysis.warning"
 
 local paths = { "?", "?/init", compiler_dir .. 'lib/?', compiler_dir .. "lib/?/init" }
-local inputs, output, verbosity, run, prelude, time, removeOut, scriptArgs, docs = {}, "out", 0, false, compiler_dir .. "lib/prelude", false, false, {}, false
+local inputs, output, verbosity, run, prelude, time, removeOut, scriptArgs, docs, emitLisp = {}, "out", 0, false, compiler_dir .. "lib/prelude", false, false, {}, false, false
 
 -- Tiny Lua stub
 if _VERSION:find("5.1") then
@@ -44,6 +44,7 @@ while i <= args.n do
 	if arg == "--output" or arg == "-o" or arg == "--out" then
 		i = i + 1
 		output = args[i] or error("Expected output after " .. arg, 0)
+		output = output:gsub("%.lua$", "")
 	elseif arg == "--remove-out" or arg == "--rm-out" then
 		removeOut = true
 	elseif arg == "-v" then
@@ -55,6 +56,8 @@ while i <= args.n do
 		run = true
 	elseif arg == "--time" or arg == "-t" then
 		time = true
+	elseif arg == "--emit-lisp" then
+		emitLisp = true
 	elseif arg == "--docs" or arg == "-d" then
 		i = i + 1
 		docs = args[i] or error("Expected directory after " .. arg, 0)
@@ -548,11 +551,13 @@ handle:write("\n")
 handle:write(compiledLua)
 handle:close()
 
-local compiledLisp = backend.lisp.block(out, 1)
-local handle = io.open(output .. ".lisp", "w")
+if emitLisp then
+	local compiledLisp = backend.lisp.block(out, 1)
+	local handle = io.open(output .. ".lisp", "w")
 
-handle:write(compiledLisp)
-handle:close()
+	handle:write(compiledLisp)
+	handle:close()
+end
 
 if run then
 	_G.arg = scriptArgs -- Execute using specified arguments
