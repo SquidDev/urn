@@ -2,7 +2,7 @@ LUA        ?= lua5.3
 LUA_FLAGS  ?=
 TEST_FLAGS ?=
 OUT_DIR    ?= tacky
-DOCS_DIR   ?= docs/docs
+DOCS_DIR   ?= docs
 OBJS       :=                    \
 	${OUT_DIR}/analysis/optimise  \
 	${OUT_DIR}/analysis/warning   \
@@ -40,3 +40,10 @@ ${TESTS}:
 docs:
 	@mkdir -p ${DOCS_DIR}
 	${LUA} run.lua ${LIBS} --docs ${DOCS_DIR}
+
+publish_docs: docs
+	git checkout gh-pages
+	git add docs
+	git commit -m "Update docs"
+	git push origin gh-pages
+	git checkout master

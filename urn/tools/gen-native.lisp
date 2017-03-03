@@ -1,4 +1,5 @@
-(import lua/basic (arg assert))
+(import base (arg))
+(import lua/basic (assert))
 (import lua/io io)
 (import lua/math math)
 (import lua/table table)
