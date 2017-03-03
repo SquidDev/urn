@@ -65,9 +65,9 @@ type1 = (function(val1)
 	end
 end)
 car2 = (function(x5)
-	local r_281 = type1(x5)
-	if (r_281 ~= "list") then
-		error1(format1("bad argment %s (expected %s, got %s)", "x", "list", r_281), 2)
+	local r_291 = type1(x5)
+	if (r_291 ~= "list") then
+		error1(format1("bad argment %s (expected %s, got %s)", "x", "list", r_291), 2)
 	else
 	end
 	return car1(x5)
@@ -76,9 +76,9 @@ nth1 = (function(xs3, idx1)
 	return xs3[idx1]
 end)
 pushCdr_21_1 = (function(xs4, val2)
-	local r_381 = type1(xs4)
-	if (r_381 ~= "list") then
-		error1(format1("bad argment %s (expected %s, got %s)", "xs", "list", r_381), 2)
+	local r_391 = type1(xs4)
+	if (r_391 ~= "list") then
+		error1(format1("bad argment %s (expected %s, got %s)", "xs", "list", r_391), 2)
 	else
 	end
 	local len2 = (_23_1(xs4) + 1)
@@ -96,12 +96,12 @@ struct1 = (function(...)
 		return key1["contents"]
 	end)
 	local out1 = {}
-	local r_601 = _23_1(keys1)
-	local r_581 = nil
-	r_581 = (function(r_591)
-		if (r_591 <= r_601) then
-			local key2 = keys1[r_591]
-			local val3 = keys1[(1 + r_591)]
+	local r_611 = _23_1(keys1)
+	local r_591 = nil
+	r_591 = (function(r_601)
+		if (r_601 <= r_611) then
+			local key2 = keys1[r_601]
+			local val3 = keys1[(1 + r_601)]
 			out1[(function()
 				if key_3f_1(key2) then
 					return contents1(key2)
@@ -110,11 +110,11 @@ struct1 = (function(...)
 				end
 			end)()
 			] = val3
-			return r_581((r_591 + 2))
+			return r_591((r_601 + 2))
 		else
 		end
 	end)
-	r_581(1)
+	r_591(1)
 	return out1
 end)
 succ1 = (function(x6)
@@ -128,9 +128,9 @@ tokens1 = {tag = "list", n = 4, {tag = "list", n = 2, "arg", "(%f[%a]%u+%f[%A])"
 extractSignature1 = (function(var1)
 	local ty2 = type1(var1)
 	local temp1
-	local r_921 = (ty2 == "macro")
-	if r_921 then
-		temp1 = r_921
+	local r_931 = (ty2 == "macro")
+	if r_931 then
+		temp1 = r_931
 	else
 		temp1 = (ty2 == "defined")
 	end
@@ -138,16 +138,16 @@ extractSignature1 = (function(var1)
 		local root1 = var1["node"]
 		local node1 = nth1(root1, _23_1(root1))
 		local temp2
-		local r_941 = list_3f_1(node1)
-		if r_941 then
-			local r_951 = symbol_3f_1(car2(node1))
-			if r_951 then
+		local r_951 = list_3f_1(node1)
+		if r_951 then
+			local r_961 = symbol_3f_1(car2(node1))
+			if r_961 then
 				temp2 = (car2(node1)["var"] == builtins1["lambda"])
 			else
-				temp2 = r_951
+				temp2 = r_961
 			end
 		else
-			temp2 = r_941
+			temp2 = r_951
 		end
 		if temp2 then
 			return nth1(node1, 2)
@@ -162,25 +162,25 @@ parseDocstring1 = (function(str1)
 	local out2 = {tag = "list", n = 0}
 	local pos1 = 1
 	local len3 = len1(str1)
-	local r_931 = nil
-	r_931 = (function()
+	local r_941 = nil
+	r_941 = (function()
 		if (pos1 <= len3) then
 			local spos1 = len3
 			local epos1 = nil
 			local name1 = nil
 			local ptrn1 = nil
-			local r_1001 = _23_1(tokens1)
-			local r_981 = nil
-			r_981 = (function(r_991)
-				if (r_991 <= r_1001) then
-					local tok1 = tokens1[r_991]
+			local r_1011 = _23_1(tokens1)
+			local r_991 = nil
+			r_991 = (function(r_1001)
+				if (r_1001 <= r_1011) then
+					local tok1 = tokens1[r_1001]
 					local npos1 = list1(find1(str1, nth1(tok1, 2), pos1))
 					local temp3
-					local r_1021 = car2(npos1)
-					if r_1021 then
+					local r_1031 = car2(npos1)
+					if r_1031 then
 						temp3 = (car2(npos1) < spos1)
 					else
-						temp3 = r_1021
+						temp3 = r_1031
 					end
 					if temp3 then
 						spos1 = car2(npos1)
@@ -189,11 +189,11 @@ parseDocstring1 = (function(str1)
 						ptrn1 = nth1(tok1, 2)
 					else
 					end
-					return r_981((r_991 + 1))
+					return r_991((r_1001 + 1))
 				else
 				end
 			end)
-			r_981(1)
+			r_991(1)
 			if name1 then
 				if (pos1 < spos1) then
 					pushCdr_21_1(out2, struct1("tag", "text", "contents", sub1(str1, pos1, pred1(spos1))))
@@ -205,11 +205,11 @@ parseDocstring1 = (function(str1)
 				pushCdr_21_1(out2, struct1("tag", "text", "contents", sub1(str1, pos1, len3)))
 				pos1 = succ1(len3)
 			end
-			return r_931()
+			return r_941()
 		else
 		end
 	end)
-	r_931()
+	r_941()
 	return out2
 end)
 return struct1("parseDocs", parseDocstring1, "extractSignature", extractSignature1)
