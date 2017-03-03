@@ -24,7 +24,7 @@ local resolve = require "tacky.analysis.resolve"
 local warning = require "tacky.analysis.warning"
 
 local paths = { "?", "?/init", compiler_dir .. 'lib/?', compiler_dir .. "lib/?/init" }
-local inputs, output, verbosity, run, prelude, time, removeOut, scriptArgs, docs, emitLisp = {}, "out", 0, false, compiler_dir .. "lib/prelude", false, false, {}, false, false
+local inputs, output, verbosity, run, prelude, time, removeOut, scriptArgs, docs, emitLisp, shebang = {}, "out", 0, false, compiler_dir .. "lib/prelude", false, false, {}, false, false, true
 
 -- Tiny Lua stub
 if _VERSION:find("5.1") then
@@ -47,6 +47,8 @@ while i <= args.n do
 		output = output:gsub("%.lua$", "")
 	elseif arg == "--remove-out" or arg == "--rm-out" then
 		removeOut = true
+	elseif arg == "--no-shebang" then
+		shebang = false
 	elseif arg == "-v" then
 		verbosity = verbosity + 1
 		logger.setVerbosity(verbosity)
@@ -496,7 +498,9 @@ local state = backend.lua.backend.createState(libMeta)
 local compiledLua = backend.lua.block(out, state, 1, "return ")
 local handle = io.open(output .. ".lua", "w")
 
-handle:write("#!/usr/bin/env " .. (wi or interp) .. '\n')
+if shebang then
+	handle:write("#!/usr/bin/env " .. (wi or interp) .. '\n')
+end
 handle:write(backend.lua.prelude())
 
 handle:write("local _libs = {}\n")

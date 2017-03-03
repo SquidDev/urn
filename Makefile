@@ -30,7 +30,7 @@ all: ${OBJS}
 
 ${OBJS}: ${OUT_DIR}/%: urn/%.lisp
 	@mkdir -p $(shell dirname $@)
-	${LUA} run.lua $^ -o $@ ${LUA_FLAGS}
+	${LUA} run.lua --no-shebang $^ -o $@ ${LUA_FLAGS}
 
 ${TESTS}:
 	$(eval TMP := $(shell mktemp -d))
