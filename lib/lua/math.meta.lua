@@ -1,4 +1,11 @@
 local math = math or {}
+
+if os.time and math.randomseed then
+	-- N.B. Lua is a very silly language. It seeds the random number generator
+	-- with the same value every time. So, here, we "fix" it.
+	math.randomseed(os.time())
+end
+
 return {
 	["abs"] =        { tag = "var", contents = "math.abs",        value = math.abs,        pure = true, },
 	["acos"] =       { tag = "var", contents = "math.acos",       value = math.acos,       pure = true, },
