@@ -351,6 +351,7 @@ function resolveNode(node, scope, state, root)
 					as = as,
 					symbols = symbols,
 					export = export,
+					scope = scope,
 				})
 				return node
 			elseif func.tag == "macro" then

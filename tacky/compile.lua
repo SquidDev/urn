@@ -148,6 +148,7 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 			end
 
 			local export = head.export
+			local scope = head.scope
 			for name, var in pairs(module) do
 				if head.as then
 					name = head.as .. '/' .. name
