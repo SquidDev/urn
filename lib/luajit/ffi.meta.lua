@@ -1,4 +1,5 @@
-local ffi = require 'ffi'
+local ok, ffi = pcall(require, 'ffi')
+if not ok then ffi = {} end
 
 return {
 	["C"] =        { tag = "var", contents = "require('ffi').C",        value = ffi.C,        },
