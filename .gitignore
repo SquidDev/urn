@@ -1,5 +1,5 @@
 out.*
 /tacky/**/*.lisp
 /test.lisp
-/docs
+/docs_tmp
 /_site
