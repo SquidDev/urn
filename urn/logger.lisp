@@ -1,5 +1,5 @@
 (import string)
-(import term (colored) :export)
+(import extra/term (colored) :export)
 (import lua/math math)
 
 (define verbosity (struct :value 0))

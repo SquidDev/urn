@@ -11,14 +11,16 @@
   "Constant defining whether the current terminal has color support"
   (cond
     ;; If '\' isn't the path separator then we're probably OK.
-    ((and package/config (/= (string/char-at package/config 1) "\\")) true)
+    [(and package/config (/= (string/char-at package/config 1) "\\")) true]
     ;; If we have ANSICON defined then we're probably OK.
-    ((and os/getenv (/= (os/getenv "ANSICON") nil)) true)
+    [(and os/getenv (/= (os/getenv "ANSICON") nil)) true]
     ;; If we're running under xterm then we're OK - covers Git for bash
-    ((and os/getenv (with (term (os/getenv "TERM"))
-                      (if term (string/find term "xterm") nil))) true)
+    [(and os/getenv
+          (with (term (os/getenv "TERM"))
+            (if term (string/find term "xterm") nil)))
+     true]
     ;; Otherwise we're probably not
-    (true false)))
+    [true false]))
 
 (define colored
   "Color a string MSG using COL if supported under the current terminal"
