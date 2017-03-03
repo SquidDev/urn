@@ -11,7 +11,7 @@ while compiler_dir:sub(1, 2) == "./" do
 	compiler_dir = compiler_dir:sub(3)
 end
 
-local sep = package.config:sub(2, 2)
+local sep = package.config:sub(3, 3)
 package.path = package.path .. sep .. compiler_dir .. '?.lua' .. sep .. compiler_dir .. "?/init.lua"
 
 local backend = require "tacky.backend.init"
