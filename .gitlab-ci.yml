@@ -24,22 +24,10 @@ test_run:
     - echo -e "\033[36mRunning tests\033[0m"
     - make test
 
-pages:
-  stage: deploy
-  before_script:
-    - apt-get -qq update && apt-get -qq install -y curl sudo
-    - curl -sL https://deb.nodesource.com/setup_6.x | bash -
-    - apt-get -qq update && apt-get -qq install -y lua5.3 build-essential ruby-full ruby-dev zlib1g-dev liblzma-dev libxml2-dev nodejs
-    - lua5.3 -v
-    - ruby -v
-    - gem install jekyll bundler
+test_docs:
+  stage: test
   script:
+    - echo -e "\033[36mBuilding initial compiler\033[0m"
+    - make all
+    - echo -e "\033[36mGenerating docs\033[0m"
     - make docs
-    - cd docs
-    - bundle
-    - bundle exec jekyll build -d ../public
-  artifacts:
-    paths:
-      - public
-  only:
-    - master
