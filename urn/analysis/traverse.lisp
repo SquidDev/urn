@@ -14,7 +14,7 @@
                 ((or (= (.> first :contents) "unquote") (= (.> first :contents) "unquote-splice"))
                   (.<! node 2 (traverse-quote (nth node 2) visitor (pred level)))
                   node)
-                ((= (.> first :contents) "quasiquote")
+                ((= (.> first :contents) "syntax-quote")
                   (.<! node 2 (traverse-quote (nth node 2) visitor (succ level)))
                   node)
                 (true
@@ -56,7 +56,7 @@
                   (visitor node visitor))
                 ((= func (.> builtins :quote))
                   (visitor node visitor))
-                ((= func (.> builtins :quasiquote))
+                ((= func (.> builtins :syntax-quote))
                   (.<! node 2 (traverse-quote (nth node 2) visitor 1))
                   (visitor node visitor))
                 ((or (= func (.> builtins :unquote)) (= func (.> builtins :unquote-splice)))

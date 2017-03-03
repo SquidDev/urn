@@ -411,7 +411,7 @@ visitQuote1 = (function(node1, visitor1, level1)
 				end
 				if temp4 then
 					return visitQuote1(nth1(node1, 2), visitor1, pred1(level1))
-				elseif (first1["contents"] == "quasiquote") then
+				elseif (first1["contents"] == "syntax-quote") then
 					return visitQuote1(nth1(node1, 2), visitor1, succ1(level1))
 				else
 					local r_1241 = _23_1(node1)
@@ -492,7 +492,7 @@ visitNode1 = (function(node2, visitor2)
 				elseif (func1 == builtins1["set!"]) then
 					return visitNode1(nth1(node2, 3), visitor2)
 				elseif (func1 == builtins1["quote"]) then
-				elseif (func1 == builtins1["quasiquote"]) then
+				elseif (func1 == builtins1["syntax-quote"]) then
 					return visitQuote1(nth1(node2, 2), visitor2, 1)
 				else
 					local temp6

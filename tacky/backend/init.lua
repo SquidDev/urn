@@ -603,7 +603,7 @@ compileQuote1 = (function(node3, out6, state2, level1)
 				local temp6
 				local r_1141 = symbol_3f_1(first2)
 				if r_1141 then
-					temp6 = (first2["var"] == builtins1["quasiquote"])
+					temp6 = (first2["var"] == builtins1["syntax-quote"])
 				else
 					temp6 = r_1141
 				end
@@ -988,7 +988,7 @@ compileExpression1 = (function(node4, out7, state3, ret1)
 					end
 					return compileQuote1(nth1(node4, 2), out7, state3)
 				end
-			elseif (var2 == builtins1["quasiquote"]) then
+			elseif (var2 == builtins1["syntax-quote"]) then
 				if (ret1 == "") then
 					append_21_1(out7, "local _ =")
 				elseif ret1 then
@@ -997,9 +997,9 @@ compileExpression1 = (function(node4, out7, state3, ret1)
 				end
 				return compileQuote1(nth1(node4, 2), out7, state3, 1)
 			elseif (var2 == builtins1["unquote"]) then
-				return fail_21_1("unquote outside of quasiquote")
+				return fail_21_1("unquote outside of syntax-quote")
 			elseif (var2 == builtins1["unquote-splice"]) then
-				return fail_21_1("unquote-splice outside of quasiquote")
+				return fail_21_1("unquote-splice outside of syntax-quote")
 			elseif (var2 == builtins1["import"]) then
 				if (ret1 == nil) then
 					return append_21_1(out7, "nil")

@@ -815,7 +815,7 @@ lex1 = (function(str2, name2)
 			elseif (char7 == "'") then
 				append_21_1("quote")
 			elseif (char7 == "`") then
-				append_21_1("quasiquote")
+				append_21_1("syntax-quote")
 			elseif (char7 == ",") then
 				if (charAt1(str2, succ1(offset1)) == "@") then
 					local start7 = position2()
@@ -1269,7 +1269,7 @@ parse1 = (function(toks1)
 					if r_1561 then
 						temp23 = r_1561
 					else
-						local r_1571 = (tag4 == "quasiquote")
+						local r_1571 = (tag4 == "syntax-quote")
 						if r_1571 then
 							temp23 = r_1571
 						else
