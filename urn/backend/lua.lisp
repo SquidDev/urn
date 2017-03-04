@@ -105,7 +105,7 @@
             (cond
               ((and (symbol? first) (or (= (.> first :var) (.> builtins :unquote)) (= (.> :var) (.> builtins :unquote-splice))))
                 (compile-quote (nth node 2) out state (and level (pred level))))
-              ((and (symbol? first) (= (.> first :var) (.> builtins :quasiquote)))
+              ((and (symbol? first) (= (.> first :var) (.> builtins :syntax-quote)))
                 (compile-quote (nth node 2) out state (and level (succ level))))
               (true
                 (with (contains-unsplice false)
@@ -326,8 +326,8 @@
                   (unless (= ret "")
                     (when ret (w/append! out ret))
                     (compile-quote (nth node 2) out state)))
-                ((= var (.> builtins :quasiquote))
-                  ;; Sadly quasiquotations may have a side effect so we have to emit
+                ((= var (.> builtins :syntax-quote))
+                  ;; Sadly syntax-quotes may have a side effect so we have to emit
                   ;; even if it will be discarded. A future enhancement would be to pass the
                   ;; return off to the quote emitter and it can decide there
                   (cond
@@ -335,8 +335,8 @@
                     [ret (w/append! out ret)]
                     [true])
                   (compile-quote (nth node 2) out state 1))
-                ((= var (.> builtins :unquote)) (fail! "unquote outside of quasiquote"))
-                ((= var (.> builtins :unquote-splice)) (fail! "unquote-splice outside of quasiquote"))
+                ((= var (.> builtins :unquote)) (fail! "unquote outside of syntax-quote"))
+                ((= var (.> builtins :unquote-splice)) (fail! "unquote-splice outside of syntax-quote"))
                 ((= var (.> builtins :import))
                   ;; Imports don't do anything at all (and should have be stripped by the optimiser)
                   ;; so we handle the return expression if required.

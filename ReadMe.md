@@ -10,7 +10,7 @@ Urn aims to be a minimal implementation of Lua, with full support for compile ti
 or loops) being implemented by macros.
 
  - `define`, `define-macro` and `define-native` allow you to create top level definitions.
- - `quote`, `quasiquote`, `unquote` and `unquote-splice` allow you to easily switch between code and data.
+ - `quote`, `syntax-quote`, `unquote` and `unquote-splice` allow you to easily switch between code and data.
  - `lambda` creates a new function with the specified arguments and body.
  - `cond` is an `if`-`elseif` chain, executing the first body whose corresponding expression is truthy.
  - `set!` assigns an already existing variable (such as a function argument) a new value.

@@ -1,4 +1,4 @@
-(import base (defun defmacro progn for while if
+(import base (defun defmacro progn for while if quasiquote
               and or with xpcall get-idx set-idx! pretty pcall
               gensym tostring tonumber require
               unpack list cons when unless arg
