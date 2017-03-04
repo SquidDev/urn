@@ -40,24 +40,24 @@
         (cond
           ;; If nothing was matched, or we've gone over the limit then append the remaining text
           ;; and exit.
-          ((or (= nstart nil) (and limit (>= (# out) limit)))
-            (set! loop false)
-            (list/push-cdr! out (sub text start (#s text)))
-            (set! start (+ (#s text) 1)))
+          [(or (= nstart nil) (and limit (>= (# out) limit)))
+           (set! loop false)
+           (list/push-cdr! out (sub text start (#s text)))
+           (set! start (+ (#s text) 1))]
           ;; If the start is beyond the string length (somehow) then maybe append the remaining text
           ;; and exit.
-          ((> nstart (#s text))
-            (when (<= start (#s text))
-              (list/push-cdr! out (sub text start (#s text))))
-            (set! loop false))
+          [(> nstart (#s text))
+           (when (<= start (#s text))
+             (list/push-cdr! out (sub text start (#s text))))
+           (set! loop false)]
           ;; If the end point is before the start point (0 width match) then we'll gobble just one character
-          ((< nend nstart)
-            (list/push-cdr! out (sub text start nstart))
-            (set! start (+ nstart 1)))
+          [(< nend nstart)
+           (list/push-cdr! out (sub text start nstart))
+           (set! start (+ nstart 1))]
           ;; Otherwise gobble everything between matches
-          (true
+          [true
             (list/push-cdr! out (sub text start (- nstart 1)))
-            (set! start (+ nend 1))))))
+            (set! start (+ nend 1))])))
     out))
 
 

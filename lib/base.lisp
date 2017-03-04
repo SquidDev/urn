@@ -13,23 +13,21 @@
     (cond
       ;; If we've only got one entry in the body then use that: we don't want
       ;; to break functions which return a constant value
-      ((= (get-idx body "n") 1)
-        `(,@header (lambda ,args ,@body)))
+      [(= (get-idx body "n") 1)
+       `(,@header (lambda ,args ,@body))]
       ;; If we've got a string literal then yoink it
-      ((= (type# (car body)) "string")
-        (copy-meta `(,@header ,(car body)) args (cdr body)))
+      [(= (type# (car body)) "string")
+       (copy-meta `(,@header ,(car body)) args (cdr body))]
       ;; If we've got a table then check if it is a string or key.
-      ((= (type# (car body)) "table")
-        (cond
-          ((= (get-idx (car body) "tag") "string")
-            (copy-meta `(,@header ,(car body)) args (cdr body)))
-          ((= (get-idx (car body) "tag") "key")
-            (copy-meta `(,@header ,(car body)) args (cdr body)))
-          ;; Simply splice everything together into our final definition
-          (true
-            `(,@header (lambda ,args ,@body)))))
-      (true
-        `(,@header (lambda ,args ,@body))))))
+      [(= (type# (car body)) "table")
+       (cond
+         [(= (get-idx (car body) "tag") "string")
+          (copy-meta `(,@header ,(car body)) args (cdr body))]
+         [(= (get-idx (car body) "tag") "key")
+          (copy-meta `(,@header ,(car body)) args (cdr body))]
+         ;; Simply splice everything together into our final definition
+         [true `(,@header (lambda ,args ,@body))])]
+      [true `(,@header (lambda ,args ,@body))])))
 
 (define-macro defun
   "Define NAME to be the function given by (lambda ARGS @BODY), with
@@ -107,10 +105,10 @@
             (,impl nil)]
        (set! ,impl (lambda (,ctr')
                      (cond
-                       ((if (< 0 ,step) (<= ,ctr' ,end') (>= ,ctr' ,end'))
-                         (let* ((,ctr ,ctr')) ,@body)
-                         (,impl (+ ,ctr' ,step')))
-                       (true))))
+                       [(if (< 0 ,step) (<= ,ctr' ,end') (>= ,ctr' ,end'))
+                        (let* ((,ctr ,ctr')) ,@body)
+                        (,impl (+ ,ctr' ,step'))]
+                       [true])))
        (,impl ,start))))
 
 (defmacro while (check &body)
@@ -148,35 +146,37 @@
   "Format VALUE as a valid Lisp expression which can be parsed."
   (with (ty (type# value))
     (cond
-      ((= ty "table")
-        (with (tag (get-idx value :tag))
-          (cond
-            ((= tag "list")
-              (with (out '())
-                (for i 1 (# value) 1
-                  (set-idx! out i (pretty (get-idx value i))))
-                (.. "(" (.. (concat out " ") ")"))))
-            ((= tag "list") (get-idx value :contents))
-            ((= tag "symbol") (get-idx value :contents))
-            ((= tag "key") (.. ":" (get-idx value :contents)))
-            ((= tag "key") (.. ":" (get-idx value :contents)))
-            ((= tag "string") (string/format "%q" (get-idx value :value)))
-            ((= tag "number") (tostring (get-idx value :value)))
-            (true (tostring value)))))
-      ((= ty "string") (string/format "%q" value))
-      (true (tostring value)))))
+      [(= ty "table")
+       (with (tag (get-idx value :tag))
+         (cond
+           [(= tag "list")
+            (with (out '())
+                  (for i 1 (# value) 1
+                       (set-idx! out i (pretty (get-idx value i))))
+                  (.. "(" (.. (concat out " ") ")")))]
+           [(and (= (type# (getmetatable value)) "table")
+                 (= (type# (get-idx (getmetatable value) :--pretty-print)) "function"))
+            ((get-idx (getmetatable value) :--pretty-print) value)]
+           [(= tag "list") (get-idx value :contents)]
+           [(= tag "symbol") (get-idx value :contents)]
+           [(= tag "key") (.. ":" (get-idx value :contents))]
+           [(= tag "string") (string/format "%q" (get-idx value :value))]
+           [(= tag "number") (tostring (get-idx value :value))]
+           [true (tostring value)]))]
+      [(= ty "string") (string/format "%q" value)]
+      [true (tostring value)])))
 
 (define arg
   "The arguments passed to the currently executing program"
   (cond
-    ((= nil arg#) '())
-    (true
+    [(= nil arg#) '()]
+    [true
       ;; Ensure we're got a list
       (set-idx! arg# :tag "list")
       (cond
         ((get-idx arg# :n))
         (true (set-idx! arg# :n (len# arg#))))
-      arg#)))
+      arg#]))
 
 (defun const-val (val)
   "Get the actual value of VAL, an argument to a macro.
@@ -187,9 +187,9 @@
   (if (type# val)
     (with (tag (get-idx val :tag))
       (cond
-        ((= tag "number") (get-idx val :value))
-        ((= tag "string") (get-idx val :value))
-        (true val)))
+        [(= tag "number") (get-idx val :value)]
+        [(= tag "string") (get-idx val :value)]
+        [true val]))
     val))
 
 (defun quasiquote# (val)

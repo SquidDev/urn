@@ -64,41 +64,41 @@
 ;; Visit one node and gather its definitions
 (defun definitions-visitor (state node visitor)
   (cond
-    ((and (list? node) (symbol? (car node)))
-      (with (func (.> (car node) :var))
-        (cond
-          ((= func (.> builtins :lambda))
-            (for-each arg (nth node 2) 1
-              (add-definition! state (.> arg :var) arg "arg" arg)))
-          ((= func (.> builtins :set!))
-            (add-definition! state (.> node 2 :var) node "set" (nth node 3)))
-          ((or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
-            (add-definition! state (.> node :defVar) node "define" (nth node (# node))))
-          ((= func (.> builtins :define-native))
-            (add-definition! state (.> node :defVar) node "native"))
-          (true))))
-    ((and (list? node) (list? (car node)) (symbol? (caar node)) (= (.> (caar node) :var) (.> builtins :lambda)))
-      ;; Inline arguments to a directly called lambda
-      (let* [(lam (car node))
-             (args (nth lam 2))
-             (offset 1)]
-        (for i 1 (# args) 1
-          (let [(arg (nth args i))
-                (val (nth node (+ i offset)))]
-            (if (.> arg :var :isVariadic)
-              (with (count (- (# node) (# args)))
-                ;; If it's a variable number of args then just skip them
-                (when (< count 0) (set! count 0))
-                (set! offset count)
-                ;; And define as a normal argument
-                (add-definition! state (.> arg :var) arg "arg" arg))
-              (add-definition! state (.> arg :var) arg "let" (or val (struct
-                                                                       :tag "symbol"
-                                                                       :contents "nil"
-                                                                       :var (.> builtin-vars :nil)))))))
-        (visitor/visit-list node 2 visitor)
-        (visitor/visit-block lam 3 visitor))
-      false)
+    [(and (list? node) (symbol? (car node)))
+     (with (func (.> (car node) :var))
+           (cond
+             [(= func (.> builtins :lambda))
+              (for-each arg (nth node 2) 1
+                        (add-definition! state (.> arg :var) arg "arg" arg))]
+             [(= func (.> builtins :set!))
+              (add-definition! state (.> node 2 :var) node "set" (nth node 3))]
+             [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
+              (add-definition! state (.> node :defVar) node "define" (nth node (# node)))]
+             [(= func (.> builtins :define-native))
+              (add-definition! state (.> node :defVar) node "native")]
+             [true]))]
+    [(and (list? node) (list? (car node)) (symbol? (caar node)) (= (.> (caar node) :var) (.> builtins :lambda)))
+     ;; Inline arguments to a directly called lambda
+     (let* [(lam (car node))
+            (args (nth lam 2))
+            (offset 1)]
+       (for i 1 (# args) 1
+            (let [(arg (nth args i))
+                  (val (nth node (+ i offset)))]
+              (if (.> arg :var :isVariadic)
+                (with (count (- (# node) (# args)))
+                      ;; If it's a variable number of args then just skip them
+                      (when (< count 0) (set! count 0))
+                      (set! offset count)
+                      ;; And define as a normal argument
+                      (add-definition! state (.> arg :var) arg "arg" arg))
+                (add-definition! state (.> arg :var) arg "let" (or val (struct
+                                                                         :tag "symbol"
+                                                                         :contents "nil"
+                                                                         :var (.> builtin-vars :nil)))))))
+       (visitor/visit-list node 2 visitor)
+       (visitor/visit-block lam 3 visitor))
+     false]
     (true)))
 
 ;; Visit all nodes, gathering the definitions for a set of variables.
@@ -127,16 +127,16 @@
                     (progn
                       (.<! visited node true)
                       (cond
-                        ((symbol? node)
-                          (add-usage (.> node :var) node)
-                          true)
-                        ((and (list? node) (> (# node) 0) (symbol? (car node)))
-                          (with (func (.> (car node) :var))
-                            (if (or (= func (.> builtins :set!)) (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
-                              ;; If this is a definition and the predicate fails then skip
-                              (if (pred (nth node 3)) true false)
-                              true)))
-                        (true true))))))]
+                        [(symbol? node)
+                         (add-usage (.> node :var) node)
+                         true]
+                        [(and (list? node) (> (# node) 0) (symbol? (car node)))
+                         (with (func (.> (car node) :var))
+                               (if (or (= func (.> builtins :set!)) (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
+                                 ;; If this is a definition and the predicate fails then skip
+                                 (if (pred (nth node 3)) true false)
+                                 true))]
+                        [true true])))))]
     (for-each node nodes
       (push-cdr! queue node))
     (while (> (# queue) 0)

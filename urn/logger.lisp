@@ -1,5 +1,5 @@
 (import string)
-(import term (colored) :export)
+(import extra/term (colored) :export)
 (import lua/math math)
 
 (define verbosity (struct :value 0))
@@ -47,17 +47,17 @@
 
    This is either its position in a source file or the macro which created it"
   (cond
-    ((and (.> node :range) (.> node :contents))
-      (string/format "%s (%q)" (format-range (.> node :range)) (.> node :contents)))
-    ((.> node :range) (format-range (.> node :range)))
-    ((.> node :macro)
-      (with (macro (.> node :macro))
-        (string/format "macro expansion of %s (%s)"
-          (.> macro :var :name)
-          (format-node (.> macro :node)))))
-    ((and (.> node :start) (.> node :finish))
-      (format-range node))
-    (true "?")))
+    [(and (.> node :range) (.> node :contents))
+     (string/format "%s (%q)" (format-range (.> node :range)) (.> node :contents))]
+    [(.> node :range) (format-range (.> node :range))]
+    [(.> node :macro)
+     (with (macro (.> node :macro))
+       (string/format "macro expansion of %s (%s)"
+                      (.> macro :var :name)
+                      (format-node (.> macro :node))))]
+    [(and (.> node :start) (.> node :finish))
+     (format-range node)]
+    [true "?"]))
 
 (defun get-source (node)
   "Get the nearest source position of NODE
@@ -98,13 +98,13 @@
 
         (cond
           ;; If we're in a different file then print the new file name
-          ((/= file (.> position :name))
-            (set! file (.> position :name))
-            (print! (colored 95 (.. " " file))))
+          [(/= file (.> position :name))
+           (set! file (.> position :name))
+           (print! (colored 95 (.. " " file)))]
           ;; If we've got a gap in the lines then print a ...
-          ((and (/= previous -1) (> (math/abs (- (.> position :start :line) previous)) 2))
-            (print! (colored 92 " ...")))
-          (true))
+          [(and (/= previous -1) (> (math/abs (- (.> position :start :line) previous)) 2))
+           (print! (colored 92 " ..."))]
+          [true])
         (set! previous (.> position :start :line))
 
         ; Write the current line
@@ -115,10 +115,10 @@
         ; Write a pointer to the current line
         (with (pointer
           (cond
-            ((! range) "^")
-            ((and (.> position :finish) (= (.> position :start :line) (.> position :finish :line)))
-              (string/rep "^" (succ (- (.> position :finish :column) (.> position :start :column)))))
-            (true "^...")))
+            [(! range) "^"]
+            [(and (.> position :finish) (= (.> position :start :line) (.> position :finish :line)))
+             (string/rep "^" (succ (- (.> position :finish :column) (.> position :start :column))))]
+            [true "^..."]))
 
           (print! (string/format code "" (string/..
             (string/rep " " (- (.> position :start :column) 1))
@@ -132,9 +132,9 @@
     (while node
       (with (formatted (format-node node))
         (cond
-          ((= previous nil) (print! (colored 96 (string/.. "  => " formatted))))
-          ((/= previous formatted) (print! (string/.. "  in " formatted)))
-          (true nil))
+          [(= previous nil) (print! (colored 96 (string/.. "  => " formatted)))]
+          [(/= previous formatted) (print! (string/.. "  in " formatted))]
+          [true nil])
 
         (set! previous formatted)
         (set! node (.> node :parent))))))

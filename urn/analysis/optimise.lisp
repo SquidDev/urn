@@ -15,15 +15,15 @@
   (with (tag (type node))
     (cond
       ;; Constant terms are obviously side effect free
-      ((or (= tag "number") (= tag "string") (= tag "key") (= tag "symbol")) false)
-      ((= tag "list")
-        (with (fst (car node))
-          ;; We simply check if we're defining a lambda/quoting something
-          ;; Everything else *may* have a side effect.
-          (if (= (type fst) "symbol")
-            (with (var (.> fst :var))
-              (and (/= var (.> builtins :lambda)) (/= var (.> builtins :quote))))
-            true))))))
+      [(or (= tag "number") (= tag "string") (= tag "key") (= tag "symbol")) false]
+      [(= tag "list")
+       (with (fst (car node))
+         ;; We simply check if we're defining a lambda/quoting something
+         ;; Everything else *may* have a side effect.
+         (if (= (type fst) "symbol")
+           (with (var (.> fst :var))
+             (and (/= var (.> builtins :lambda)) (/= var (.> builtins :quote))))
+           true))])))
 
 (defun constant? (node)
   "Checks if NODE is a constant value"
@@ -32,25 +32,25 @@
 (defun urn->val (node)
   "Gets the constant value of NODE"
   (cond
-    ((string? node) (.> node :value))
-    ((number? node) (.> node :value))
-    ((key? node) (.> node :value))))
+    [(string? node) (.> node :value)]
+    [(number? node) (.> node :value)]
+    [(key? node) (.> node :value)]))
 
 (defun val->urn (val)
   "Gets the AST representation of VAL"
   (with (ty (type# val))
     (cond
-      ((= ty "string")  (struct :tag "string" :value val))
-      ((= ty "number")  (struct :tag "number" :value val))
-      ((= ty "nil")     (struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil)))
-      ((= ty "boolean") (struct :tag "symbol" :contents (bool->string val) :var (.> builtin-vars (bool->string val)))))))
+      [(= ty "string")  (struct :tag "string" :value val)]
+      [(= ty "number")  (struct :tag "number" :value val)]
+      [(= ty "nil")     (struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil))]
+      [(= ty "boolean") (struct :tag "symbol" :contents (bool->string val) :var (.> builtin-vars (bool->string val)))])))
 
 (defun truthy? (node)
   "Determine whether NODE is a truthy value"
   (cond
-    ((or (string? node) (key? node) (number? node)) true)
-    ((symbol? node) (= (.> builtin-vars :true) (.> node :var)))
-    (true false)))
+    [(or (string? node) (key? node) (number? node)) true]
+    [(symbol? node) (= (.> builtin-vars :true) (.> node :var))]
+    [true false]))
 
 (defun make-progn (body)
   "Allow using BODY as an expression"
@@ -68,14 +68,14 @@
              (val (.> ent :value))
              (ty  (.> ent :tag))]
         (cond
-          ((or (string? val) (number? val) (key? val))
-            val)
-          ((and (symbol? val) (or (= ty "define") (= ty "set") (= ty "let")))
-            ;; Attempt to get this value, or fallback to just the symbol
-            ;; This allows us to simplify reference chains to their top immutable variable
-            (or (get-constant-val lookup val) sym))
-          (true
-            sym))))))
+          [(or (string? val) (number? val) (key? val))
+           val]
+          [(and (symbol? val) (or (= ty "define") (= ty "set") (= ty "let")))
+           ;; Attempt to get this value, or fallback to just the symbol
+           ;; This allows us to simplify reference chains to their top immutable variable
+           (or (get-constant-val lookup val) sym)]
+          [true
+            sym])))))
 
 (defun optimise-once (nodes state)
   "Run all optimisations on NODES once"
@@ -140,12 +140,12 @@
             (for i 2 (# node) 1
               (with (case (nth node i))
                 (cond
-                  (final
+                  [final
                     (set! changed true)
-                    (remove-nth! node final))
-                  ((truthy? (car (nth node i)))
-                    (set! final (succ i)))
-                  (true))))
+                    (remove-nth! node final)]
+                  [(truthy? (car (nth node i)))
+                   (set! final (succ i))]
+                  [true])))
             (if (and (= (# node) 2) (truthy? (car (nth node 2))))
               (progn
                 (set! changed true)
@@ -181,22 +181,22 @@
                 (let [(arg (nth args (- i rem-offset)))
                       (val (nth node (- (+ i offset) rem-offset)))]
                   (cond
-                    ((.> arg :var :isVariadic)
-                      (with (count (- (# node) (# args)))
-                        ;; If it's a variable number of args then just skip them
-                        (when (< count 0) (set! count 0))
-                        (set! offset count)))
+                    [(.> arg :var :isVariadic)
+                     (with (count (- (# node) (# args)))
+                           ;; If it's a variable number of args then just skip them
+                           (when (< count 0) (set! count 0))
+                           (set! offset count))]
 
-                    ((= nil val))
+                    [(= nil val)]
                     ;; Obviously don't remove values which have an effect
-                    ((has-side-effect val))
+                    [(has-side-effect val)]
                     ;; And keep values which are actually used
-                    ((> (#keys (.> (usage/get-var lookup (.> arg :var)) :usages)) 0))
+                    [(> (#keys (.> (usage/get-var lookup (.> arg :var)) :usages)) 0)]
                     ;; So remove things which aren't used and have no side effects.
-                    (true
+                    [true
                       (remove-nth! args (- i rem-offset))
                       (remove-nth! node (- (+ i offset) rem-offset))
-                      (inc! rem-offset)))))))))
+                      (inc! rem-offset)])))))))
 
       (traverse/traverse-list nodes 1
         (lambda (node)

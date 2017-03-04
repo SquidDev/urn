@@ -17,12 +17,12 @@
   "Attempt to extract the function signature from VAR"
   (with (ty (type var))
     (cond
-      ((or (= ty "macro") (= ty "defined"))
-        (let* [(root (.> var :node))
-               (node (nth root (# root)))]
-          (if (and (list? node) (symbol? (car node)) (= (.> (car node) :var) (.> builtins :lambda)))
-            (nth node 2)
-            nil)))
+      [(or (= ty "macro") (= ty "defined"))
+       (let* [(root (.> var :node))
+              (node (nth root (# root)))]
+         (if (and (list? node) (symbol? (car node)) (= (.> (car node) :var) (.> builtins :lambda)))
+           (nth node 2)
+           nil))]
       (true nil))))
 
 (defun parse-docstring (str)

@@ -11,15 +11,15 @@
   (with (tag (type node))
     (cond
       ;; Constant terms are obviously side effect free
-      ((or (= tag "number") (= tag "string") (= tag "key") (= tag "symbol")) false)
-      ((= tag "list")
-        (with (fst (car node))
-          ;; We simply check if we're defining a lambda/quoting something
-          ;; Everything else *may* have a side effect.
-          (if (= (type fst) "symbol")
-            (with (var (.> fst :var))
-              (and (/= var (.> builtins :lambda)) (/= var (.> builtins :quote))))
-            true))))))
+      [(or (= tag "number") (= tag "string") (= tag "key") (= tag "symbol")) false]
+      [(= tag "list")
+       (with (fst (car node))
+             ;; We simply check if we're defining a lambda/quoting something
+             ;; Everything else *may* have a side effect.
+             (if (= (type fst) "symbol")
+               (with (var (.> fst :var))
+                     (and (/= var (.> builtins :lambda)) (/= var (.> builtins :quote))))
+               true))])))
 
 (defun warn-arity (lookup nodes)
   "Produce a warning if any NODE in NODES calls a function with too many arguments.
@@ -31,9 +31,9 @@
                         (let* [(var (usage/get-var lookup (.> symbol :var)))
                           (ari (get-idx arity var))]
                           (cond
-                            ((/= ari nil) ari)
-                            ((/= (#keys (.> var :defs)) 1) false)
-                            (true
+                            [(/= ari nil) ari]
+                            [(/= (#keys (.> var :defs)) 1) false]
+                            [true
                               ;; We should never hit recursive definitions but you never know
                               (.<! arity var false)
 
@@ -44,15 +44,15 @@
                                   (if (= (.> def-data :tag) "arg")
                                     false
                                     (cond
-                                      ((symbol? def) (get-arity def))
-                                      ((and (list? def) (symbol? (car def)) (= (.> (car def) :var) (.> builtins :lambda)))
-                                        (with (args (nth def 2))
-                                          (if (any (lambda (x) (.> x :var :isVariadic)) args)
-                                            false
-                                            (# args))))
+                                      [(symbol? def) (get-arity def)]
+                                      [(and (list? def) (symbol? (car def)) (= (.> (car def) :var) (.> builtins :lambda)))
+                                       (with (args (nth def 2))
+                                             (if (any (lambda (x) (.> x :var :isVariadic)) args)
+                                               false
+                                               (# args)))]
                                       (true false))))
                                 (.<! arity var ari)
-                                ari))))))]
+                                ari)]))))]
 
     (visitor/visit-block nodes 1
       (lambda (node)
