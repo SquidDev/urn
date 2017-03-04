@@ -1,4 +1,4 @@
-(import base (defun defmacro progn for while if
+(import base (defun defmacro progn for while if quasiquote
               and or with xpcall get-idx set-idx! pretty pcall
               gensym tostring tonumber require
               unpack list cons when unless arg
@@ -13,7 +13,7 @@
 (import pair () :export)
 (import function () :export)
 (import table () :export)
-(import lua/io (close flush input lines open output popen read stderr stdin stdout tmpfile write) :export)
+(import lua/io (write) :export)
 
 (defun succ (x)
   "Return the successor of the number X."

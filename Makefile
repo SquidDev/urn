@@ -2,7 +2,8 @@ LUA        ?= lua5.3
 LUA_FLAGS  ?=
 TEST_FLAGS ?=
 OUT_DIR    ?= tacky
-DOCS_DIR   ?= docs
+DOCS_DIR   ?= docs_tmp
+PAGES_DIR  ?= docs
 OBJS       :=                    \
 	${OUT_DIR}/analysis/optimise  \
 	${OUT_DIR}/analysis/warning   \
@@ -30,7 +31,7 @@ all: ${OBJS}
 
 ${OBJS}: ${OUT_DIR}/%: urn/%.lisp
 	@mkdir -p $(shell dirname $@)
-	${LUA} run.lua $^ -o $@ ${LUA_FLAGS}
+	${LUA} run.lua --no-shebang $^ -o $@ ${LUA_FLAGS}
 
 ${TESTS}:
 	$(eval TMP := $(shell mktemp -d))
@@ -43,7 +44,9 @@ docs:
 
 publish_docs: docs
 	git checkout gh-pages
-	git add docs
+	rm -rf ${PAGES_DIR}
+	mv ${DOCS_DIR} ${PAGES_DIR}
+	git add ${PAGES_DIR}
 	git commit -m "Update docs"
 	git push origin gh-pages
 	git checkout master

@@ -13,7 +13,7 @@
               (cond
                 ((or (= (.> first :contents) "unquote") (= (.> first :contents) "unquote-splice"))
                   (visit-quote (nth node 2) visitor (pred level)))
-                ((= (.> first :contents) "quasiquote")
+                ((= (.> first :contents) "syntax-quote")
                   (visit-quote (nth node 2) visitor (succ level)))
                 (true
                   (for-each sub node (visit-quote sub visitor level))))
@@ -42,7 +42,7 @@
                   ((= func (.> builtins :set!))
                     (visit-node (nth node 3) visitor))
                   ((= func (.> builtins :quote))) ;; Nothing needs doing here
-                  ((= func (.> builtins :quasiquote))
+                  ((= func (.> builtins :syntax-quote))
                     (visit-quote (nth node 2) visitor 1))
                   ((or (= func (.> builtins :unquote)) (= func (.> builtins :unquote-splice)))
                     (fail! "unquote/unquote-splice should never appear head"))

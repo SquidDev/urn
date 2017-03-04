@@ -191,3 +191,29 @@
         ((= tag "string") (get-idx val :value))
         (true val)))
     val))
+
+(defun quasiquote# (val)
+  :hidden
+  (if (= (type# val) "table")
+    (cond
+      ((= (get-idx val "tag") "list")
+        (with (first (car val))
+          ;; Don't expand "unquote" and "unquote-splice" calls, otherwise recurse into the children
+          (unless (and (= (type# first) "table") (= (get-idx first "tag") "symbol")
+                (or (= (get-idx first "contents") "unquote") (= (get-idx first "contents") "unquote-splice")))
+            (for i 1 (# val) 1
+              (set-idx! val i (quasiquote# (get-idx val i)))))
+          val))
+
+      ((= (get-idx val "tag") "symbol")
+        (list `unquote `(quote ,val)))
+
+      (true val))
+    val))
+
+(defmacro quasiquote (val)
+  "Quote VAL, but replacing all `unquote` and `unquote-splice` with their actual value.
+
+   Be warned, by using this you loose all macro hygiene. Variables may not be bound to their
+   expected values."
+  (list `syntax-quote (quasiquote# val)))

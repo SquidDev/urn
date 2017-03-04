@@ -58,7 +58,7 @@ local declaredSymbols = {
 	-- Built in
 	"lambda", "define", "define-macro", "define-native",
 	"set!", "cond",
-	"quote", "quasiquote", "unquote", "unquote-splice",
+	"quote", "syntax-quote", "unquote", "unquote-splice",
 	"import",
 }
 
@@ -142,7 +142,7 @@ function resolveQuote(node, scope, state, level)
 			node.var = scope:get(node.contents, node)
 
 			if not node.var.scope.isRoot and not node.var.scope.builtin then
-				errorPositions(node, "Cannot use non-top level definition in quasiquote")
+				errorPositions(node, "Cannot use non-top level definition in syntax-quote")
 			end
 		end
 		return node
@@ -156,7 +156,7 @@ function resolveQuote(node, scope, state, level)
 			if first.var == builtins["unquote"] or first.var == builtins["unquote-splice"] then
 				node[2] = resolveQuote(node[2], scope, state, level - 1)
 				return node
-			elseif first.var == builtins["quasiquote"] then
+			elseif first.var == builtins["syntax-quote"] then
 				node[2] = resolveQuote(node[2], scope, state, level + 1)
 				return node
 			end
@@ -258,14 +258,14 @@ function resolveNode(node, scope, state, root)
 				expect(node[2], node, "value")
 				maxLength(node, 2, "quote")
 				return node
-			elseif func == builtins["quasiquote"] then
+			elseif func == builtins["syntax-quote"] then
 				expect(node[2], node, "value")
-				maxLength(node, 2, "quasiquote")
+				maxLength(node, 2, "syntax-quote")
 
 				node[2] = resolveQuote(node[2], scope, state, 1)
 				return node
 			elseif func == builtins["unquote"] or func == builtins["unquote-splice"] then
-				errorPositions(node[1] or node, "Unquote outside of quasiquote")
+				errorPositions(node[1] or node, "Unquote outside of syntax-quote")
 			elseif func == builtins["define"] then
 				if not root then errorPositions(first, "define can only be used on the top level") end
 				expectType(node[2], node, "symbol", "name")
