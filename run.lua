@@ -11,8 +11,8 @@ while compiler_dir:sub(1, 2) == "./" do
 	compiler_dir = compiler_dir:sub(3)
 end
 
-local sep = package.config:sub(2, 2)
-package.path = package.path .. sep .. compiler_dir .. '?.lua' .. sep .. compiler_dir .. "?/init.lua"
+local sep = package.config:sub(3, 3)
+package.path = package.path .. sep .. compiler_dir .. '?.lua' .. sep .. compiler_dir .. "?/init.lua" .. sep
 
 local backend = require "tacky.backend.init"
 local compile = require "tacky.compile"
@@ -24,7 +24,7 @@ local resolve = require "tacky.analysis.resolve"
 local warning = require "tacky.analysis.warning"
 
 local paths = { "?", "?/init", compiler_dir .. 'lib/?', compiler_dir .. "lib/?/init" }
-local inputs, output, verbosity, run, prelude, time, removeOut, scriptArgs, docs = {}, "out", 0, false, compiler_dir .. "lib/prelude", false, false, {}, false
+local inputs, output, verbosity, run, prelude, time, removeOut, scriptArgs, docs, emitLisp = {}, "out", 0, false, compiler_dir .. "lib/prelude", false, false, {}, false, false
 
 -- Tiny Lua stub
 if _VERSION:find("5.1") then
@@ -37,13 +37,14 @@ if _VERSION:find("5.1") then
 end
 
 local args = table.pack(...)
-local interp, prog = arg[-1], arg[0]
+local interp, prog, wi = arg[-1], arg[0]
 local i = 1
 while i <= args.n do
 	local arg = args[i]
 	if arg == "--output" or arg == "-o" or arg == "--out" then
 		i = i + 1
 		output = args[i] or error("Expected output after " .. arg, 0)
+		output = output:gsub("%.lua$", "")
 	elseif arg == "--remove-out" or arg == "--rm-out" then
 		removeOut = true
 	elseif arg == "-v" then
@@ -55,6 +56,8 @@ while i <= args.n do
 		run = true
 	elseif arg == "--time" or arg == "-t" then
 		time = true
+	elseif arg == "--emit-lisp" then
+		emitLisp = true
 	elseif arg == "--docs" or arg == "-d" then
 		i = i + 1
 		docs = args[i] or error("Expected directory after " .. arg, 0)
@@ -78,6 +81,8 @@ while i <= args.n do
 		local command = table.concat({wrapper, interp, prog}, " ")
 		os.execute(command .. " " .. table.concat(args, " "))
 		return
+	elseif arg == '--with-interpreter' then
+		_, wi = table.remove(args, i), table.remove(args, i)
 	elseif arg == '--' then
 		i = i + 1
 		while i <= args.n do
@@ -85,9 +90,9 @@ while i <= args.n do
 			i = i + 1
 		end
 		break
-	elseif arg:sub(1, 1) == "-" then
+	elseif arg and arg:sub(1, 1) == "-" then
 		error("Unknown option " .. arg, 0)
-	else
+	elseif arg then
 		inputs[#inputs + 1] = arg:gsub("\\", "/"):gsub("^%./", "")
 	end
 
@@ -491,6 +496,7 @@ local state = backend.lua.backend.createState(libMeta)
 local compiledLua = backend.lua.block(out, state, 1, "return ")
 local handle = io.open(output .. ".lua", "w")
 
+handle:write("#!/usr/bin/env " .. (wi or interp) .. '\n')
 handle:write(backend.lua.prelude())
 
 handle:write("local _libs = {}\n")
@@ -545,11 +551,13 @@ handle:write("\n")
 handle:write(compiledLua)
 handle:close()
 
-local compiledLisp = backend.lisp.block(out, 1)
-local handle = io.open(output .. ".lisp", "w")
+if emitLisp then
+	local compiledLisp = backend.lisp.block(out, 1)
+	local handle = io.open(output .. ".lisp", "w")
 
-handle:write(compiledLisp)
-handle:close()
+	handle:write(compiledLisp)
+	handle:close()
+end
 
 if run then
 	_G.arg = scriptArgs -- Execute using specified arguments

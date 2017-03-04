@@ -1,4 +1,5 @@
 local math = math or {}
+
 return {
 	["abs"] =        { tag = "var", contents = "math.abs",        value = math.abs,        pure = true, },
 	["acos"] =       { tag = "var", contents = "math.acos",       value = math.acos,       pure = true, },

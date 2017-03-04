@@ -39,7 +39,7 @@
     (cond
       ((= sig nil) name)
       ((nil? sig)
-        (.. "(" name .. ")"))
+        (.. "(" name ")"))
       (true
         (.. "(" name " " (concat (traverse sig (cut get-idx <> "contents")) " ") ")")))))
 
