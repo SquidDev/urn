@@ -43,7 +43,6 @@ header {
 		a {
 			display: inline-block;
 			height: 100%;
-			padding: 0px 10px;
 			box-sizing: border-box;
 			color: inherit;
 
@@ -53,6 +52,12 @@ header {
 			}
 
 			@include middle;
+		}
+	}
+
+	.menu-group {
+		a {
+			padding: 0px 10px;
 		}
 	}
 }
