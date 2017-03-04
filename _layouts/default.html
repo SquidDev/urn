@@ -50,6 +50,14 @@
 				{{content}}
 			</div>
 			<div class="sidebar">
+				<h2>Tutorial</h2>
+				<ul>
+					{% for page in site.pages %}
+						{% if page.url contains "tutorial/" %}
+							<li><a href="{{ page.url | relative_url }}">{{ page.title }}</a></li>
+						{% endif %}
+					{% endfor %}
+				</ul>
 				<h2>All libraries</h2>
 				<ul>
 					{% for page in site.pages %}

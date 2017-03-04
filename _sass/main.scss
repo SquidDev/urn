@@ -93,14 +93,23 @@ p, pre {
 
 p, pre, ul, blockquote, div.highlighter-rouge {
 	h1 + &, h2 + &, h3 + &, &:first-child { margin-top: 0em; }
+	.text-content h1 + &, .text-content h2 + &, .text-content h3 + &, .text-content &:first-child { margin-top: 0em; }
+	.text-content &:last-child { margin-bottom: 0em; }
 
 	margin-top: 0.5em;
+
+	.text-content & {
+		margin-top: 1em;
+		margin-bottom: 1em;
+	}
 }
 
 em {
 	font-style: italic;
-	font-size: 0.8em;
-	color: $grey03;
+	h2 + &, h2 + p > & {
+		font-size: 0.8em;
+		color: $grey03;
+	}
 }
 
 strong { font-weight: bold; }
@@ -132,8 +141,21 @@ pre {
 		font-size: inherit;
 	}
 
-	.o, .ow, .kd, .k { color: #FF0086; }
-	.s2 { color: #FD8900; }
-	.c1 { color: $grey03; }
-	.kc { color: #3777E6; }
+	.o, .ow, .kd, .k, .nb { color: #FF0086; }
+	.s2, .s { color: #FD8900; }
+	.c1, .c { color: $grey03; }
+	.kc, .ss { color: #3777E6; }
+
+}
+
+// Various work arounds for incorrect highlighting
+.language-sh pre {
+	.nb { color: inherit; }
+	.gp { color: #3777E6; }
+}
+
+blockquote {
+	background-color: $grey08;
+	padding: 1em 1em 1em 1.3em;
+	border-left: solid 0.3em $grey04;
 }
