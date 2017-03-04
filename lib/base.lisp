@@ -196,19 +196,19 @@
   :hidden
   (if (= (type# val) "table")
     (cond
-      [(= (get-idx val "tag") "list")
+      ((= (get-idx val "tag") "list")
         (with (first (car val))
           ;; Don't expand "unquote" and "unquote-splice" calls, otherwise recurse into the children
           (unless (and (= (type# first) "table") (= (get-idx first "tag") "symbol")
                 (or (= (get-idx first "contents") "unquote") (= (get-idx first "contents") "unquote-splice")))
             (for i 1 (# val) 1
               (set-idx! val i (quasiquote# (get-idx val i)))))
-          val)]
+          val))
 
-      [(= (get-idx val "tag") "symbol")
-        (list `unquote `(quote ,val))]
+      ((= (get-idx val "tag") "symbol")
+        (list `unquote `(quote ,val)))
 
-      [true val])
+      (true val))
     val))
 
 (defmacro quasiquote (val)
