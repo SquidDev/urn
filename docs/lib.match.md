@@ -30,7 +30,9 @@ Results in `1` being printed to standard output, seeing as it is bound to
 
 List patterns and cons patterns match lists. `A` list pattern will match every
 element in a list, while a cons pattern will only match the car and the cdr.
-Both bind everything bound by their "inner" patterns.## `(case val &pts)`
+Both bind everything bound by their "inner" patterns.
+
+## `(case val &pts)`
 *Macro defined at lib/match.lisp:108:1*
 
 Match a single value against a series of patterns, evaluating the first
