@@ -96,9 +96,9 @@ Run-time     (+ 2 3)
 Value        5
 ```
 
-So let's break this down a little. As you may have guessed, `defmacro` is soft of like `defun` but for macros. Instead
-of getting a series of values as arguments, it instead receives the quoted form of its arguments: in this case you will
-get the equivalent of `'(+ 2 3)`.
+So let's break this down a little. As you may have guessed, `defmacro` is sort of like `defun` but for macros. Instead
+of getting a series of values as arguments, it receives the quoted form of its arguments: in this case you will get the
+equivalent of `'(+ 2 3)`.
 
 The body of the function is executed at compile time, meaning our first print statement executes when the code is
 compiled. It then returns a quoted list, which is composed of two expressions: one which prints out the quoted form of
@@ -113,8 +113,8 @@ exact outputs. In this case, it will be something like:
   (print! (+ 2 3)))
 ```
 
-Of course, this isn't all you can do, anything you can do in a function you can do in a macro. This means you can define
-complex macros which traverse its arguments, perform IO, or anything else you fancy.
+Of course, this isn't all you can do, anything that can be done in a function can be done in a macro. This means you can
+define complex macros which traverse their arguments, perform IO, or anything else you fancy.
 
 There are a couple of things you should be careful of when implementing macros:
  - Macro hygiene
@@ -143,7 +143,7 @@ seems to be working pretty well right? How about this:
 ```
 
 Uh, oh. Due to how we've written the macro, the expression gets evaluated twice if it evaluates to false. Maybe we
-should store the result to a temporary variable.
+should store the result in a temporary variable.
 
 
 ```cl
@@ -212,7 +212,7 @@ fact, there are only a handful of "builtin" constructs, from which everything el
  - `set!`: For assigning variables.
  - `import`: For interfacing with external modules.
 
-So how can we use these to build up the whole language. Let's start with a couple of simple macros. First off: `defun`.
+So, how can we use these to build up the whole language? Let's start with a couple of simple macros. First off: `defun`.
 
 ```cl
 (define-macro defun (lambda (name args &body))
@@ -232,7 +232,7 @@ we'll have to use that. This ends up being pretty simple.
 (defmacro if (c t f)
   `(cond
     [,c ,t]
-    [true ,b]))
+    [true ,f]))
 ```
 
 This should be fairly self-explanatory: if `c` evaluates to true then we'll execute `t`, otherwise we'll execute

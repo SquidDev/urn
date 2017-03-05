@@ -57,11 +57,11 @@ Firstly, if two modules export variables with the same name, you'll get a clash.
 ```
 
 As you can see, both `lua/table` and `lua/os` define a `remove` symbol, resulting in clashes. Instead you should either
-selectively choose just the symbols you need (such as `(import lua/table (insert))`) or qualify your inports: `(import
+selectively choose just the symbols you need (such as `(import lua/table (insert))`) or qualify your imports: `(import
 lua/table table)`.
 
 ## Runtime errors
-Debugging runtime errors in Urn is a tad tricky due to a combination of line numbers and there being no direct mapping
+Debugging runtime errors in Urn is a tad tricky due to the combination of incorrect line numbers and the dissimilarities
 between Urn and Lua tracebacks. Generally my process of fixing code is as follows:
 
  - Compile your Urn to Lua.
@@ -70,4 +70,4 @@ between Urn and Lua tracebacks. Generally my process of fixing code is as follow
    well as what code has and hasn't been executed.
  - Compile and run again.
 
-We have plans to simplify the first two steps, with the help of line mapping, but that has yet to be implemented yet.
+We have plans to simplify the first two steps, with the help of line mapping, but that has yet to be implemented.

@@ -27,7 +27,7 @@ strings: these are normal symbols, but prefixed with `:`.
 ```cl
 (define x (my-complex-table))
 
-;; Equivalent to x.range in Lua
+;; Equivalent to x.size in Lua
 (print! (.> x :size))
 
 ;; You can specify a chained index (this is equivalent to x.range.name)
