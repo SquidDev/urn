@@ -1848,7 +1848,8 @@ writeDocstring1 = (function(out11, str3, scope1)
 		else
 		end
 	end)
-	return r_2611(1)
+	r_2611(1)
+	return line_21_1(out11)
 end)
 exported1 = (function(out12, title1, primary1, vars1, scope2)
 	local documented1 = {tag = "list", n = 0}
@@ -1871,6 +1872,7 @@ exported1 = (function(out12, title1, primary1, vars1, scope2)
 	line_21_1(out12, _2e2e_2("# ", title1))
 	if primary1 then
 		writeDocstring1(out12, primary1, scope2)
+		line_21_1(out12, "", true)
 	else
 	end
 	local r_3071 = _23_1(documented1)
@@ -1884,7 +1886,6 @@ exported1 = (function(out12, title1, primary1, vars1, scope2)
 			line_21_1(out12, _2e2e_2("*", formatDefinition1(var9), "*"))
 			line_21_1(out12, "", true)
 			writeDocstring1(out12, var9["doc"], var9["scope"])
-			line_21_1(out12)
 			line_21_1(out12, "", true)
 			return r_3051((r_3061 + 1))
 		else

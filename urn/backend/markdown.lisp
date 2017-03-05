@@ -65,7 +65,8 @@
                              ((nil? sig) (.> ovar :name))
                              (true (.. name " " (concat (traverse sig (cut get-idx <> "contents")) " ")))))]
                 (writer/append! out (string/format "[`%s`](%s.md#%s)" name loc (string/gsub hash "%A+" "-"))))
-              (writer/append! out (string/format "`%s`" name)))))))))
+              (writer/append! out (string/format "`%s`" name))))))))
+  (writer/line! out))
 
 (defun exported (out title primary vars scope)
   "Print out a list of all exported variables"
@@ -84,7 +85,9 @@
     (writer/line! out "---")
 
     (writer/line! out (.. "# " title))
-    (when primary (write-docstring out primary scope))
+    (when primary
+      (write-docstring out primary scope)
+      (writer/line! out "" true))
 
     (for-each entry documented
       (let* [(name (car entry))
@@ -95,7 +98,6 @@
         (writer/line! out "" true)
 
         (write-docstring out (.> var :doc) (.> var :scope))
-        (writer/line! out)
         (writer/line! out "" true)))
 
     (unless (nil? undocumented)
