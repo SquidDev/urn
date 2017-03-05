@@ -1,4 +1,4 @@
-(import base ( defun defmacro if debug print
+(import base ( defun defmacro if
                let* and gensym error
                quasiquote /= # for
                list or pretty ))
