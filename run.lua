@@ -17,14 +17,16 @@ package.path = package.path .. sep .. compiler_dir .. '?.lua' .. sep .. compiler
 local backend = require "tacky.backend.init"
 local compile = require "tacky.compile"
 local documentation = require "tacky.documentation"
-local logger = require "tacky.logger"
+local logger = require "tacky.logger.init"
 local optimise = require "tacky.analysis.optimise"
 local parser = require "tacky.parser"
 local resolve = require "tacky.analysis.resolve"
 local warning = require "tacky.analysis.warning"
+local term = require "tacky.logger.term"
 
+local termLogger = term.create()
 local paths = { "?", "?/init", compiler_dir .. 'lib/?', compiler_dir .. "lib/?/init" }
-local inputs, output, verbosity, run, prelude, time, removeOut, scriptArgs, docs, emitLisp, shebang = {}, "out", 0, false, compiler_dir .. "lib/prelude", false, false, {}, false, false, true
+local inputs, output, run, prelude, time, removeOut, scriptArgs, docs, emitLisp, shebang = {}, "out", false, compiler_dir .. "lib/prelude", false, false, {}, false, false, true
 
 -- Tiny Lua stub
 if _VERSION:find("5.1") then
@@ -50,10 +52,9 @@ while i <= args.n do
 	elseif arg == "--no-shebang" then
 		shebang = false
 	elseif arg == "-v" then
-		verbosity = verbosity + 1
-		logger.setVerbosity(verbosity)
+		termLogger.verbosity = termLogger.verbosity + 1
 	elseif arg == "--explain" or arg == "-e" then
-		logger.setExplain(true)
+		termLogger.explain = true
 	elseif arg == "--run" or arg == "-r" then
 		run = true
 	elseif arg == "--time" or arg == "-t" then
@@ -101,7 +102,7 @@ while i <= args.n do
 	i = i + 1
 end
 
-logger.printVerbose("Using path: " .. table.concat(paths, ":"))
+logger.putVerbose(termLogger, "Using path: " .. table.concat(paths, ":"))
 
 local libEnv = {}
 local libMeta = {}
@@ -128,7 +129,7 @@ local function libLoader(name, shouldResolve)
 		return true, current.scope.exported
 	end
 
-	logger.printVerbose("Loading " .. name)
+	logger.putVerbose(termLogger, "Loading " .. name)
 
 	libCache[name] = true
 
@@ -162,7 +163,7 @@ local function libLoader(name, shouldResolve)
 	for i = 1, #libs do
 		local tempLib = libs[i]
 		if tempLib.path == path then
-			logger.printVerbose("Reusing " .. tempLib.name .. " for " .. name)
+			logger.putVerbose(termLogger, "Reusing " .. tempLib.name .. " for " .. name)
 			local current = libCache[tempLib.name]
 			libCache[name] = current
 			return true, current.scope.exported
@@ -231,8 +232,8 @@ local function libLoader(name, shouldResolve)
 	end
 
 	local start = os.clock()
-	local lexed = parser.lex(lib.lisp, lib.path .. ".lisp")
-	local parsed = parser.parse(lexed, lib.lisp)
+	local lexed = parser.lex(termLogger, lib.lisp, lib.path .. ".lisp")
+	local parsed = parser.parse(termLogger, lexed, lib.lisp)
 	if time then print(lib.path .. " parsed in " .. (os.clock() - start)) end
 
 	local scope = rootScope:child()
@@ -240,7 +241,7 @@ local function libLoader(name, shouldResolve)
 	scope.prefix = lib.path .. "/"
 	lib.scope = scope
 
-	local compiled, state = compile.compile(parsed, global, variables, states, scope, compileState, libLoader)
+	local compiled, state = compile.compile(parsed, global, variables, states, scope, compileState, libLoader, termLogger)
 
 	libs[#libs + 1] = lib
 	libCache[name] = lib
@@ -255,7 +256,7 @@ local function libLoader(name, shouldResolve)
 		out[#out + 1] = compiled[i]
 	end
 
-	logger.printVerbose("Loaded " .. name)
+	logger.putVerbose(termLogger, "Loaded " .. name)
 
 	return true, scope.exported
 end
@@ -322,23 +323,23 @@ if #inputs == 0 then
 
 	local function tryParse(str)
 		local start = os.clock()
-		local ok, lexed = pcall(parser.lex, str, "<stdin>")
+		local ok, lexed = pcall(parser.lex, termLogger, str, "<stdin>")
 		if not ok then
-			logger.printError(lexed)
+			logger.putError(termLogger, lexed)
 			return {}
 		end
 
-		local ok, parsed = pcall(parser.parse, lexed)
+		local ok, parsed = pcall(parser.parse, termLogger, lexed)
 		if not ok then
-			logger.printError(parsed)
+			logger.putError(termLogger, parsed)
 			return {}
 		end
 
 		if time then print("<stdin>" .. " parsed in " .. (os.clock() - start)) end
 
-		local ok, msg, state = pcall(compile.compile, parsed, global, variables, states, scope, compileState, libLoader)
+		local ok, msg, state = pcall(compile.compile, parsed, global, variables, states, scope, compileState, libLoader, termLogger)
 		if not ok then
-			logger.printError(msg)
+			logger.putError(termLogger, msg)
 			return {}
 		end
 
@@ -348,9 +349,9 @@ if #inputs == 0 then
 	local buffer = {}
 	while true do
 		if #buffer == 0 then
-			io.write(logger.colored(92, "> "))
+			io.write(term.colored(92, "> "))
 		else
-			io.write(logger.colored(92, ". "))
+			io.write(term.colored(92, ". "))
 		end
 		io.flush()
 
@@ -375,17 +376,17 @@ if #inputs == 0 then
 				local command = parts[1]
 
 				if not command then
-					logger.printError("Expected command after ':'")
+					logger.putError(termLogger, "Expected command after ':'")
 				elseif command == "doc" then
 					local name = parts[2]
 					if not name then
-						logger.printError(":command <variable>")
+						logger.putError(termLogger, ":command <variable>")
 					else
 						local var = scope:get(name, nil, true)
 						if not var then
-							logger.printError("Cannot find '" .. name .. "'")
+							logger.putError(termLogger, "Cannot find '" .. name .. "'")
 						elseif not var.doc then
-							logger.printError("No documentation for '" .. name .. "'")
+							logger.putError(termLogger, "No documentation for '" .. name .. "'")
 						else
 							local sig = documentation.extractSignature(var)
 							local name = var.fullName
@@ -394,7 +395,7 @@ if #inputs == 0 then
 								for i = 1, sig.n do buffer[i + 1] = sig[i].contents end
 								name = "(" .. table.concat(buffer, " ") .. ")"
 							end
-							print(logger.colored(96, name))
+							print(term.colored(96, name))
 
 							local docs = documentation.parseDocs(var.doc)
 							for i = 1, #docs do
@@ -402,11 +403,11 @@ if #inputs == 0 then
 								if tok.tag == "text" then
 									io.write(tok.contents)
 								elseif tok.tag == "arg" then
-									io.write(logger.colored(36, tok.contents))
+									io.write(term.colored(36, tok.contents))
 								elseif tok.tag == "mono" then
-									io.write(logger.colored(97, tok.contents))
+									io.write(term.colored(97, tok.contents))
 								elseif tok.tag == "link" then
-									io.write(logger.colored(94, tok.contents))
+									io.write(term.colored(94, tok.contents))
 								end
 							end
 							print()
@@ -429,7 +430,7 @@ if #inputs == 0 then
 
 					print(table.concat(vars, " "))
 				else
-					logger.printError("Unknown command '" .. command .. "'")
+					logger.putError(termLogger, "Unknown command '" .. command .. "'")
 				end
 			else
 				scope = scope:child()
@@ -450,31 +451,31 @@ if #inputs == 0 then
 				while true do
 					local ok, data = coroutine.resume(exec)
 					if not ok then
-						logger.printError(data)
+						logger.putError(termLogger, data)
 						break
 					end
 
 					if coroutine.status(exec) == "dead" then
-						print(logger.colored(96, pretty(state[#state]:get())))
+						print(term.colored(96, pretty(state[#state]:get())))
 						break
 					else
 						local states = data.states
 						if states[1] == current and not current.var then
 							table.remove(states, 1)
-							local ok, msg = pcall(compile.executeStates, compileState, states, global)
-							if not ok then logger.printError(msg) break end
+							local ok, msg = pcall(compile.executeStates, compileState, states, global, termLogger)
+							if not ok then logger.putError(termLogger, msg) break end
 
 							local str = backend.lua.prelude() .. "\n" .. backend.lua.expression(current.node, compileState, "return ")
 							local fun, msg = load(str, "=<input>", "t", global)
 							if not fun then error(msg .. ":\n" .. str, 0) end
 
 							local ok, res = xpcall(fun, debug.traceback)
-							if not ok then logger.printError(res) break end
+							if not ok then logger.putError(termLogger, res) break end
 
 							current:executed(res)
 						else
 							local ok, msg = pcall(compile.executeStates, compileState, states, global)
-							if not ok then logger.printError(msg) break end
+							if not ok then logger.putError(termLogger, msg) break end
 						end
 					end
 				end
@@ -488,10 +489,10 @@ end
 out.n = #out
 out.tag = "list"
 
-warning.analyse(out)
+warning.analyse(out, { meta = libMeta, logger = termLogger })
 
 local start = os.clock()
-out = optimise(out, { meta = libMeta })
+out = optimise(out, { meta = libMeta, logger = termLogger })
 if time then print("Optimised in " .. (os.clock() - start)) end
 
 local state = backend.lua.backend.createState(libMeta)

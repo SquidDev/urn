@@ -13,7 +13,7 @@ local _temp = (function()
 	}
 end)()
 for k, v in pairs(_temp) do _libs["lib/lua/basic/".. k] = v end
-local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e_1, _3e3d_1, _2b_1, _2d_1, _25_1, _2e2e_1, slice1, error1, getmetatable1, print1, getIdx1, setIdx_21_1, tostring1, type_23_1, _23_1, find1, format1, len1, rep1, sub1, concat1, emptyStruct1, car1, cdr1, list1, _21_1, pretty1, list_3f_1, nil_3f_1, string_3f_1, key_3f_1, type1, car2, cdr2, foldr1, nth1, pushCdr_21_1, cadr1, charAt1, _2e2e_2, split1, getenv1, struct1, succ1, fail_21_1, config1, coloredAnsi1, colored_3f_1, colored1, abs1, max1, verbosity1, setVerbosity_21_1, showExplain1, setExplain_21_1, printError_21_1, printWarning_21_1, printVerbose_21_1, printDebug_21_1, formatPosition1, formatRange1, formatNode1, getSource1, putLines_21_1, putTrace_21_1, putExplain_21_1, errorPositions_21_1
+local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e_1, _3e3d_1, _2b_1, _2d_1, _25_1, _2e2e_1, slice1, error1, getmetatable1, print1, getIdx1, setIdx_21_1, tostring1, type_23_1, _23_1, find1, format1, len1, rep1, sub1, concat1, emptyStruct1, car1, cdr1, list1, _21_1, pretty1, list_3f_1, nil_3f_1, string_3f_1, key_3f_1, type1, car2, cdr2, foldr1, nth1, pushCdr_21_1, cadr1, charAt1, _2e2e_2, split1, getenv1, struct1, succ1, formatPosition1, formatRange1, formatNode1, getSource1, config1, coloredAnsi1, colored_3f_1, colored1, printError_21_1, printWarning_21_1, printVerbose_21_1, printDebug_21_1, printExplain_21_1, abs1, max1, create1, putError_21_1, putWarning_21_1, putVerbose_21_1, putDebug_21_1, putNodeError_21_1, putNodeWarning_21_1, putLines_21_1, putTrace_21_1
 _3d_1 = function(v1, v2) return (v1 == v2) end
 _2f3d_1 = function(v1, v2) return (v1 ~= v2) end
 _3c_1 = function(v1, v2) return (v1 < v2) end
@@ -283,43 +283,102 @@ end)
 succ1 = (function(x10)
 	return (x10 + 1)
 end)
-fail_21_1 = (function(x11)
-	return error1(x11, 0)
+formatPosition1 = (function(pos2)
+	return _2e2e_2(pos2["line"], ":", pos2["column"])
 end)
+formatRange1 = (function(range1)
+	if range1["finish"] then
+		return format1("%s:[%s .. %s]", range1["name"], formatPosition1(range1["start"]), formatPosition1(range1["finish"]))
+	else
+		return format1("%s:[%s]", range1["name"], formatPosition1(range1["start"]))
+	end
+end)
+formatNode1 = (function(node1)
+	local temp3
+	local r_1061 = node1["range"]
+	if r_1061 then
+		temp3 = node1["contents"]
+	else
+		temp3 = r_1061
+	end
+	if temp3 then
+		return format1("%s (%q)", formatRange1(node1["range"]), node1["contents"])
+	elseif node1["range"] then
+		return formatRange1(node1["range"])
+	elseif node1["macro"] then
+		local macro1 = node1["macro"]
+		return format1("macro expansion of %s (%s)", macro1["var"]["name"], formatNode1(macro1["node"]))
+	else
+		local temp4
+		local r_1091 = node1["start"]
+		if r_1091 then
+			temp4 = node1["finish"]
+		else
+			temp4 = r_1091
+		end
+		if temp4 then
+			return formatRange1(node1)
+		else
+			return "?"
+		end
+	end
+end)
+getSource1 = (function(node2)
+	local result1 = nil
+	local r_1071 = nil
+	r_1071 = (function()
+		local temp5
+		local r_1081 = node2
+		if r_1081 then
+			temp5 = _21_1(result1)
+		else
+			temp5 = r_1081
+		end
+		if temp5 then
+			result1 = node2["range"]
+			node2 = node2["parent"]
+			return r_1071()
+		else
+		end
+	end)
+	r_1071()
+	return result1
+end)
+struct1("formatPosition", formatPosition1, "formatRange", formatRange1, "formatNode", formatNode1, "getSource", getSource1)
 config1 = package.config
 coloredAnsi1 = (function(col1, msg1)
 	return _2e2e_2("\27[", col1, "m", msg1, "\27[0m")
 end)
-local temp3
+local temp6
 if config1 then
-	temp3 = (charAt1(config1, 1) ~= "\\")
+	temp6 = (charAt1(config1, 1) ~= "\\")
 else
-	temp3 = config1
+	temp6 = config1
 end
-if temp3 then
+if temp6 then
 	colored_3f_1 = true
 else
-	local temp4
+	local temp7
 	if getenv1 then
-		temp4 = (getenv1("ANSICON") ~= nil)
+		temp7 = (getenv1("ANSICON") ~= nil)
 	else
-		temp4 = getenv1
+		temp7 = getenv1
 	end
-	if temp4 then
+	if temp7 then
 		colored_3f_1 = true
 	else
-		local temp5
+		local temp8
 		if getenv1 then
 			local term1 = getenv1("TERM")
 			if term1 then
-				temp5 = find1(term1, "xterm")
+				temp8 = find1(term1, "xterm")
 			else
-				temp5 = nil
+				temp8 = nil
 			end
 		else
-			temp5 = getenv1
+			temp8 = getenv1
 		end
-		if temp5 then
+		if temp8 then
 			colored_3f_1 = true
 		else
 			colored_3f_1 = false
@@ -333,18 +392,6 @@ else
 		return msg2
 	end)
 end
-abs1 = math.abs
-max1 = math.max
-verbosity1 = struct1("value", 0)
-setVerbosity_21_1 = (function(level1)
-	verbosity1["value"] = level1
-	return nil
-end)
-showExplain1 = struct1("value", false)
-setExplain_21_1 = (function(value2)
-	showExplain1["value"] = value2
-	return nil
-end)
 printError_21_1 = (function(msg3)
 	if string_3f_1(msg3) then
 	else
@@ -365,81 +412,77 @@ printWarning_21_1 = (function(msg4)
 	else
 	end
 end)
-printVerbose_21_1 = (function(msg5)
-	if (verbosity1["value"] > 0) then
+printVerbose_21_1 = (function(verbosity1, msg5)
+	if (verbosity1 > 0) then
 		return print1(_2e2e_2("[VERBOSE] ", msg5))
 	else
 	end
 end)
-printDebug_21_1 = (function(msg6)
-	if (verbosity1["value"] > 1) then
+printDebug_21_1 = (function(verbosity2, msg6)
+	if (verbosity2 > 1) then
 		return print1(_2e2e_2("[DEBUG] ", msg6))
 	else
 	end
 end)
-formatPosition1 = (function(pos2)
-	return _2e2e_2(pos2["line"], ":", pos2["column"])
-end)
-formatRange1 = (function(range1)
-	if range1["finish"] then
-		return format1("%s:[%s .. %s]", range1["name"], formatPosition1(range1["start"]), formatPosition1(range1["finish"]))
+printExplain_21_1 = (function(explain1, lines3)
+	if explain1 then
+		local r_1111 = split1(lines3, "\n")
+		local r_1141 = _23_1(r_1111)
+		local r_1121 = nil
+		r_1121 = (function(r_1131)
+			if (r_1131 <= r_1141) then
+				local line1 = r_1111[r_1131]
+				print1(_2e2e_2("  ", line1))
+				return r_1121((r_1131 + 1))
+			else
+			end
+		end)
+		return r_1121(1)
 	else
-		return format1("%s:[%s]", range1["name"], formatPosition1(range1["start"]))
 	end
 end)
-formatNode1 = (function(node1)
-	local temp6
-	local r_1041 = node1["range"]
-	if r_1041 then
-		temp6 = node1["contents"]
-	else
-		temp6 = r_1041
-	end
-	if temp6 then
-		return format1("%s (%q)", formatRange1(node1["range"]), node1["contents"])
-	elseif node1["range"] then
-		return formatRange1(node1["range"])
-	elseif node1["macro"] then
-		local macro1 = node1["macro"]
-		return format1("macro expansion of %s (%s)", macro1["var"]["name"], formatNode1(macro1["node"]))
-	else
-		local temp7
-		local r_1171 = node1["start"]
-		if r_1171 then
-			temp7 = node1["finish"]
+abs1 = math.abs
+max1 = math.max
+create1 = (function(verbosity3, explain2)
+	return struct1("verbosity", (function()
+		if verbosity3 then
+			return verbosity3
 		else
-			temp7 = r_1171
+			return 0
 		end
-		if temp7 then
-			return formatRange1(node1)
-		else
-			return "?"
-		end
-	end
+	end)(), "explain", (explain2 == true), "put-error!", putError_21_1, "put-warning!", putWarning_21_1, "put-verbose!", putVerbose_21_1, "put-debug!", putDebug_21_1, "put-node-error!", putNodeError_21_1, "put-node-warning!", putNodeWarning_21_1)
 end)
-getSource1 = (function(node2)
-	local result1 = nil
-	local r_1051 = nil
-	r_1051 = (function()
-		local temp8
-		local r_1061 = node2
-		if r_1061 then
-			temp8 = _21_1(result1)
-		else
-			temp8 = r_1061
-		end
-		if temp8 then
-			result1 = node2["range"]
-			node2 = node2["parent"]
-			return r_1051()
-		else
-		end
-	end)
-	r_1051()
-	return result1
+putError_21_1 = (function(messenger1, msg7)
+	return printError_21_1(msg7)
 end)
-putLines_21_1 = (function(range2, ...)
-	local entries1 = _pack(...) entries1.tag = "list"
+putWarning_21_1 = (function(messenger2, msg8)
+	return printWarning_21_1(msg8)
+end)
+putVerbose_21_1 = (function(messenger3, msg9)
+	return printVerbose_21_1(messenger3["verbosity"], msg9)
+end)
+putDebug_21_1 = (function(messenger4, msg10)
+	return printDebug_21_1(messenger4["verbosity"], msg10)
+end)
+putNodeError_21_1 = (function(logger1, msg11, node3, explain3, lines4)
+	printError_21_1(msg11)
+	putTrace_21_1(node3)
+	if explain3 then
+		printExplain_21_1(logger1["explain"], explain3)
+	else
+	end
+	return putLines_21_1(true, lines4)
+end)
+putNodeWarning_21_1 = (function(logger2, msg12, node4, explain4, lines5)
+	printWarning_21_1(msg12)
+	putTrace_21_1(node4)
+	if explain4 then
+		printExplain_21_1(logger2["explain"], explain4)
+	else
+	end
+	return putLines_21_1(true, lines5)
+end)
+putLines_21_1 = (function(range2, entries1)
 	if nil_3f_1(entries1) then
 		error1("Positions cannot be empty")
 	else
@@ -450,30 +493,30 @@ putLines_21_1 = (function(range2, ...)
 	end
 	local previous1 = -1
 	local file1 = nth1(entries1, 1)["name"]
-	local maxLine1 = foldr1((function(node3, max2)
-		if string_3f_1(node3) then
+	local maxLine1 = foldr1((function(node5, max2)
+		if string_3f_1(node5) then
 			return max2
 		else
-			return max1(max2, node3["start"]["line"])
+			return max1(max2, node5["start"]["line"])
 		end
 	end), 0, entries1)
 	local code1 = _2e2e_2(colored1(92, _2e2e_2(" %", len1(tostring1(maxLine1)), "s |")), " %s")
-	local r_1201 = _23_1(entries1)
-	local r_1181 = nil
-	r_1181 = (function(r_1191)
-		if (r_1191 <= r_1201) then
-			local position1 = entries1[r_1191]
-			local message1 = entries1[succ1(r_1191)]
+	local r_1211 = _23_1(entries1)
+	local r_1191 = nil
+	r_1191 = (function(r_1201)
+		if (r_1201 <= r_1211) then
+			local position1 = entries1[r_1201]
+			local message1 = entries1[succ1(r_1201)]
 			if (file1 ~= position1["name"]) then
 				file1 = position1["name"]
 				print1(colored1(95, _2e2e_2(" ", file1)))
 			else
 				local temp9
-				local r_1221 = (previous1 ~= -1)
-				if r_1221 then
+				local r_1231 = (previous1 ~= -1)
+				if r_1231 then
 					temp9 = (abs1((position1["start"]["line"] - previous1)) > 2)
 				else
-					temp9 = r_1221
+					temp9 = r_1231
 				end
 				if temp9 then
 					print1(colored1(92, " ..."))
@@ -487,11 +530,11 @@ putLines_21_1 = (function(range2, ...)
 				pointer1 = "^"
 			else
 				local temp10
-				local r_1231 = position1["finish"]
-				if r_1231 then
+				local r_1241 = position1["finish"]
+				if r_1241 then
 					temp10 = (position1["start"]["line"] == position1["finish"]["line"])
 				else
-					temp10 = r_1231
+					temp10 = r_1241
 				end
 				if temp10 then
 					pointer1 = rep1("^", succ1((position1["finish"]["column"] - position1["start"]["column"])))
@@ -500,18 +543,18 @@ putLines_21_1 = (function(range2, ...)
 				end
 			end
 			print1(format1(code1, "", _2e2e_2(rep1(" ", (position1["start"]["column"] - 1)), pointer1, " ", message1)))
-			return r_1181((r_1191 + 2))
+			return r_1191((r_1201 + 2))
 		else
 		end
 	end)
-	return r_1181(1)
+	return r_1191(1)
 end)
-putTrace_21_1 = (function(node4)
+putTrace_21_1 = (function(node6)
 	local previous2 = nil
-	local r_1071 = nil
-	r_1071 = (function()
-		if node4 then
-			local formatted1 = formatNode1(node4)
+	local r_1051 = nil
+	r_1051 = (function()
+		if node6 then
+			local formatted1 = formatNode1(node6)
 			if (previous2 == nil) then
 				print1(colored1(96, _2e2e_2("  => ", formatted1)))
 			elseif (previous2 ~= formatted1) then
@@ -519,38 +562,11 @@ putTrace_21_1 = (function(node4)
 			else
 			end
 			previous2 = formatted1
-			node4 = node4["parent"]
-			return r_1071()
+			node6 = node6["parent"]
+			return r_1051()
 		else
 		end
 	end)
-	return r_1071()
+	return r_1051()
 end)
-putExplain_21_1 = (function(...)
-	local lines3 = _pack(...) lines3.tag = "list"
-	if showExplain1["value"] then
-		local r_1121 = _23_1(lines3)
-		local r_1101 = nil
-		r_1101 = (function(r_1111)
-			if (r_1111 <= r_1121) then
-				local line1 = lines3[r_1111]
-				print1(_2e2e_2("  ", line1))
-				return r_1101((r_1111 + 1))
-			else
-			end
-		end)
-		return r_1101(1)
-	else
-	end
-end)
-errorPositions_21_1 = (function(node5, msg7)
-	printError_21_1(msg7)
-	putTrace_21_1(node5)
-	local source1 = getSource1(node5)
-	if source1 then
-		putLines_21_1(true, source1, "")
-	else
-	end
-	return fail_21_1("An error occured")
-end)
-return struct1("colored", colored1, "formatPosition", formatPosition1, "formatRange", formatRange1, "formatNode", formatNode1, "putLines", putLines_21_1, "putTrace", putTrace_21_1, "putInfo", putExplain_21_1, "getSource", getSource1, "printWarning", printWarning_21_1, "printError", printError_21_1, "printVerbose", printVerbose_21_1, "printDebug", printDebug_21_1, "errorPositions", errorPositions_21_1, "setVerbosity", setVerbosity_21_1, "setExplain", setExplain_21_1)
+return struct1("create", create1, "colored", colored1)
