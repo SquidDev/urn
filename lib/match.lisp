@@ -4,7 +4,7 @@
                list or pretty ))
 (import type ( eq? list? symbol? string?
                boolean? number? ))
-(import list ( car caddr cadr cdr
+(import list ( car caddr cadr cdr append for-each
                map filter push-cdr!
                nth ))
 (import string (..))
@@ -44,15 +44,16 @@
       [(list? pattern)
        (cond
          [(cons-pattern? pattern)
-          (list (compile-pattern-bindings (car pattern) `(car ,symb))
-                (compile-pattern-bindings (caddr pattern) `(cdr ,symb)))]
+          (append (compile-pattern-bindings (car pattern) `(car ,symb))
+                  (compile-pattern-bindings (caddr pattern) `(cdr ,symb)))]
          [true
           (let* [(out '())]
             (for i 1 (# pattern) 1
-              (push-cdr! out (compile-pattern-bindings (nth pattern i) `(nth ,symb ,i))))
+              (for-each elem (compile-pattern-bindings (nth pattern i) `(nth ,symb ,i))
+                (push-cdr! out elem)))
             out)])]
       [(symbol? pattern)
-       `(,pattern ,symb)]
+       `((,pattern ,symb))]
       [(or (number? pattern) (boolean? pattern) (string? pattern) (eq? pattern '_))
        '()]
       [true (error (.. "unsupported pattern " (pretty pattern)))])))
@@ -86,4 +87,3 @@
     `(let* [(,val-sym ,val)]
        (cond ,@(map compile-arm pts)
              [true (error "pattern matching failure")]))))
-
