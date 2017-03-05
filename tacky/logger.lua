@@ -389,11 +389,11 @@ formatRange1 = (function(range1)
 end)
 formatNode1 = (function(node1)
 	local temp6
-	local r_1041 = node1["range"]
-	if r_1041 then
+	local r_1241 = node1["range"]
+	if r_1241 then
 		temp6 = node1["contents"]
 	else
-		temp6 = r_1041
+		temp6 = r_1241
 	end
 	if temp6 then
 		return format1("%s (%q)", formatRange1(node1["range"]), node1["contents"])
@@ -404,11 +404,11 @@ formatNode1 = (function(node1)
 		return format1("macro expansion of %s (%s)", macro1["var"]["name"], formatNode1(macro1["node"]))
 	else
 		local temp7
-		local r_1171 = node1["start"]
-		if r_1171 then
+		local r_1371 = node1["start"]
+		if r_1371 then
 			temp7 = node1["finish"]
 		else
-			temp7 = r_1171
+			temp7 = r_1371
 		end
 		if temp7 then
 			return formatRange1(node1)
@@ -419,23 +419,23 @@ formatNode1 = (function(node1)
 end)
 getSource1 = (function(node2)
 	local result1 = nil
-	local r_1051 = nil
-	r_1051 = (function()
+	local r_1251 = nil
+	r_1251 = (function()
 		local temp8
-		local r_1061 = node2
-		if r_1061 then
+		local r_1261 = node2
+		if r_1261 then
 			temp8 = _21_1(result1)
 		else
-			temp8 = r_1061
+			temp8 = r_1261
 		end
 		if temp8 then
 			result1 = node2["range"]
 			node2 = node2["parent"]
-			return r_1051()
+			return r_1251()
 		else
 		end
 	end)
-	r_1051()
+	r_1251()
 	return result1
 end)
 putLines_21_1 = (function(range2, ...)
@@ -458,22 +458,22 @@ putLines_21_1 = (function(range2, ...)
 		end
 	end), 0, entries1)
 	local code1 = _2e2e_2(colored1(92, _2e2e_2(" %", len1(tostring1(maxLine1)), "s |")), " %s")
-	local r_1201 = _23_1(entries1)
-	local r_1181 = nil
-	r_1181 = (function(r_1191)
-		if (r_1191 <= r_1201) then
-			local position1 = entries1[r_1191]
-			local message1 = entries1[succ1(r_1191)]
+	local r_1401 = _23_1(entries1)
+	local r_1381 = nil
+	r_1381 = (function(r_1391)
+		if (r_1391 <= r_1401) then
+			local position1 = entries1[r_1391]
+			local message1 = entries1[succ1(r_1391)]
 			if (file1 ~= position1["name"]) then
 				file1 = position1["name"]
 				print1(colored1(95, _2e2e_2(" ", file1)))
 			else
 				local temp9
-				local r_1221 = (previous1 ~= -1)
-				if r_1221 then
+				local r_1421 = (previous1 ~= -1)
+				if r_1421 then
 					temp9 = (abs1((position1["start"]["line"] - previous1)) > 2)
 				else
-					temp9 = r_1221
+					temp9 = r_1421
 				end
 				if temp9 then
 					print1(colored1(92, " ..."))
@@ -487,11 +487,11 @@ putLines_21_1 = (function(range2, ...)
 				pointer1 = "^"
 			else
 				local temp10
-				local r_1231 = position1["finish"]
-				if r_1231 then
+				local r_1431 = position1["finish"]
+				if r_1431 then
 					temp10 = (position1["start"]["line"] == position1["finish"]["line"])
 				else
-					temp10 = r_1231
+					temp10 = r_1431
 				end
 				if temp10 then
 					pointer1 = rep1("^", succ1((position1["finish"]["column"] - position1["start"]["column"])))
@@ -500,16 +500,16 @@ putLines_21_1 = (function(range2, ...)
 				end
 			end
 			print1(format1(code1, "", _2e2e_2(rep1(" ", (position1["start"]["column"] - 1)), pointer1, " ", message1)))
-			return r_1181((r_1191 + 2))
+			return r_1381((r_1391 + 2))
 		else
 		end
 	end)
-	return r_1181(1)
+	return r_1381(1)
 end)
 putTrace_21_1 = (function(node4)
 	local previous2 = nil
-	local r_1071 = nil
-	r_1071 = (function()
+	local r_1271 = nil
+	r_1271 = (function()
 		if node4 then
 			local formatted1 = formatNode1(node4)
 			if (previous2 == nil) then
@@ -520,26 +520,26 @@ putTrace_21_1 = (function(node4)
 			end
 			previous2 = formatted1
 			node4 = node4["parent"]
-			return r_1071()
+			return r_1271()
 		else
 		end
 	end)
-	return r_1071()
+	return r_1271()
 end)
 putExplain_21_1 = (function(...)
 	local lines3 = _pack(...) lines3.tag = "list"
 	if showExplain1["value"] then
-		local r_1121 = _23_1(lines3)
-		local r_1101 = nil
-		r_1101 = (function(r_1111)
-			if (r_1111 <= r_1121) then
-				local line1 = lines3[r_1111]
+		local r_1321 = _23_1(lines3)
+		local r_1301 = nil
+		r_1301 = (function(r_1311)
+			if (r_1311 <= r_1321) then
+				local line1 = lines3[r_1311]
 				print1(_2e2e_2("  ", line1))
-				return r_1101((r_1111 + 1))
+				return r_1301((r_1311 + 1))
 			else
 			end
 		end)
-		return r_1101(1)
+		return r_1301(1)
 	else
 	end
 end)

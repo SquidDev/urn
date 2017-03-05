@@ -391,17 +391,17 @@ visitQuote1 = (function(node1, visitor1, level1)
 	else
 		local tag3 = node1["tag"]
 		local temp3
-		local r_1391 = (tag3 == "string")
-		if r_1391 then
-			temp3 = r_1391
+		local r_1591 = (tag3 == "string")
+		if r_1591 then
+			temp3 = r_1591
 		else
-			local r_1401 = (tag3 == "number")
-			if r_1401 then
-				temp3 = r_1401
+			local r_1601 = (tag3 == "number")
+			if r_1601 then
+				temp3 = r_1601
 			else
-				local r_1411 = (tag3 == "key")
-				if r_1411 then
-					temp3 = r_1411
+				local r_1611 = (tag3 == "key")
+				if r_1611 then
+					temp3 = r_1611
 				else
 					temp3 = (tag3 == "symbol")
 				end
@@ -419,9 +419,9 @@ visitQuote1 = (function(node1, visitor1, level1)
 			end
 			if temp4 then
 				local temp5
-				local r_1431 = (first1["contents"] == "unquote")
-				if r_1431 then
-					temp5 = r_1431
+				local r_1631 = (first1["contents"] == "unquote")
+				if r_1631 then
+					temp5 = r_1631
 				else
 					temp5 = (first1["contents"] == "unquote-splice")
 				end
@@ -430,30 +430,30 @@ visitQuote1 = (function(node1, visitor1, level1)
 				elseif (first1["contents"] == "syntax-quote") then
 					return visitQuote1(nth1(node1, 2), visitor1, succ1(level1))
 				else
-					local r_1481 = _23_1(node1)
-					local r_1461 = nil
-					r_1461 = (function(r_1471)
-						if (r_1471 <= r_1481) then
-							local sub2 = node1[r_1471]
+					local r_1681 = _23_1(node1)
+					local r_1661 = nil
+					r_1661 = (function(r_1671)
+						if (r_1671 <= r_1681) then
+							local sub2 = node1[r_1671]
 							visitQuote1(sub2, visitor1, level1)
-							return r_1461((r_1471 + 1))
+							return r_1661((r_1671 + 1))
 						else
 						end
 					end)
-					return r_1461(1)
+					return r_1661(1)
 				end
 			else
-				local r_1541 = _23_1(node1)
-				local r_1521 = nil
-				r_1521 = (function(r_1531)
-					if (r_1531 <= r_1541) then
-						local sub3 = node1[r_1531]
+				local r_1741 = _23_1(node1)
+				local r_1721 = nil
+				r_1721 = (function(r_1731)
+					if (r_1731 <= r_1741) then
+						local sub3 = node1[r_1731]
 						visitQuote1(sub3, visitor1, level1)
-						return r_1521((r_1531 + 1))
+						return r_1721((r_1731 + 1))
 					else
 					end
 				end)
-				return r_1521(1)
+				return r_1721(1)
 			end
 		elseif error1 then
 			return _2e2e_2("Unknown tag ", tag3)
@@ -467,17 +467,17 @@ visitNode1 = (function(node2, visitor2)
 	else
 		local tag4 = node2["tag"]
 		local temp6
-		local r_1321 = (tag4 == "string")
-		if r_1321 then
-			temp6 = r_1321
+		local r_1521 = (tag4 == "string")
+		if r_1521 then
+			temp6 = r_1521
 		else
-			local r_1331 = (tag4 == "number")
-			if r_1331 then
-				temp6 = r_1331
+			local r_1531 = (tag4 == "number")
+			if r_1531 then
+				temp6 = r_1531
 			else
-				local r_1341 = (tag4 == "key")
-				if r_1341 then
-					temp6 = r_1341
+				local r_1541 = (tag4 == "key")
+				if r_1541 then
+					temp6 = r_1541
 				else
 					temp6 = (tag4 == "symbol")
 				end
@@ -493,18 +493,18 @@ visitNode1 = (function(node2, visitor2)
 				if (func1 == builtins1["lambda"]) then
 					return visitBlock1(node2, 3, visitor2)
 				elseif (func1 == builtins1["cond"]) then
-					local r_1581 = _23_1(node2)
-					local r_1561 = nil
-					r_1561 = (function(r_1571)
-						if (r_1571 <= r_1581) then
-							local case1 = nth1(node2, r_1571)
+					local r_1781 = _23_1(node2)
+					local r_1761 = nil
+					r_1761 = (function(r_1771)
+						if (r_1771 <= r_1781) then
+							local case1 = nth1(node2, r_1771)
 							visitNode1(nth1(case1, 1), visitor2)
 							visitBlock1(case1, 2, visitor2)
-							return r_1561((r_1571 + 1))
+							return r_1761((r_1771 + 1))
 						else
 						end
 					end)
-					return r_1561(2)
+					return r_1761(2)
 				elseif (func1 == builtins1["set!"]) then
 					return visitNode1(nth1(node2, 3), visitor2)
 				elseif (func1 == builtins1["quote"]) then
@@ -512,9 +512,9 @@ visitNode1 = (function(node2, visitor2)
 					return visitQuote1(nth1(node2, 2), visitor2, 1)
 				else
 					local temp7
-					local r_1601 = (func1 == builtins1["unquote"])
-					if r_1601 then
-						temp7 = r_1601
+					local r_1801 = (func1 == builtins1["unquote"])
+					if r_1801 then
+						temp7 = r_1801
 					else
 						temp7 = (func1 == builtins1["unquote-splice"])
 					end
@@ -522,9 +522,9 @@ visitNode1 = (function(node2, visitor2)
 						return fail_21_1("unquote/unquote-splice should never appear head")
 					else
 						local temp8
-						local r_1611 = (func1 == builtins1["define"])
-						if r_1611 then
-							temp8 = r_1611
+						local r_1811 = (func1 == builtins1["define"])
+						if r_1811 then
+							temp8 = r_1811
 						else
 							temp8 = (func1 == builtins1["define-macro"])
 						end
@@ -532,19 +532,22 @@ visitNode1 = (function(node2, visitor2)
 							return visitNode1(nth1(node2, _23_1(node2)), visitor2)
 						elseif (func1 == builtins1["define-native"]) then
 						elseif (func1 == builtins1["import"]) then
-						elseif (funct1 == "macro") then
-							return fail_21_1("Macros should have been expanded")
 						else
 							local temp9
-							local r_1621 = (funct1 == "defined")
-							if r_1621 then
-								temp9 = r_1621
+							local r_1821 = (funct1 == "defined")
+							if r_1821 then
+								temp9 = r_1821
 							else
-								local r_1631 = (funct1 == "arg")
-								if r_1631 then
-									temp9 = r_1631
+								local r_1831 = (funct1 == "arg")
+								if r_1831 then
+									temp9 = r_1831
 								else
-									temp9 = (funct1 == "native")
+									local r_1841 = (funct1 == "native")
+									if r_1841 then
+										temp9 = r_1841
+									else
+										temp9 = (funct1 == "macro")
+									end
 								end
 							end
 							if temp9 then
@@ -564,16 +567,16 @@ visitNode1 = (function(node2, visitor2)
 	end
 end)
 visitBlock1 = (function(node3, start2, visitor3)
-	local r_1371 = _23_1(node3)
-	local r_1351 = nil
-	r_1351 = (function(r_1361)
-		if (r_1361 <= r_1371) then
-			visitNode1(nth1(node3, r_1361), visitor3)
-			return r_1351((r_1361 + 1))
+	local r_1571 = _23_1(node3)
+	local r_1551 = nil
+	r_1551 = (function(r_1561)
+		if (r_1561 <= r_1571) then
+			visitNode1(nth1(node3, r_1561), visitor3)
+			return r_1551((r_1561 + 1))
 		else
 		end
 	end)
-	return r_1351(start2)
+	return r_1551(start2)
 end)
 builtins2 = require1("tacky.analysis.resolve")["builtins"]
 builtinVars1 = require1("tacky.analysis.resolve")["declaredVars"]
@@ -613,34 +616,34 @@ addDefinition_21_1 = (function(state4, var3, node6, kind1, value2)
 end)
 definitionsVisitor1 = (function(state5, node7, visitor4)
 	local temp10
-	local r_1211 = list_3f_1(node7)
-	if r_1211 then
+	local r_1411 = list_3f_1(node7)
+	if r_1411 then
 		temp10 = symbol_3f_1(car2(node7))
 	else
-		temp10 = r_1211
+		temp10 = r_1411
 	end
 	if temp10 then
 		local func2 = car2(node7)["var"]
 		if (func2 == builtins2["lambda"]) then
-			local r_1231 = nth1(node7, 2)
-			local r_1261 = _23_1(r_1231)
-			local r_1241 = nil
-			r_1241 = (function(r_1251)
-				if (r_1251 <= r_1261) then
-					local arg1 = r_1231[r_1251]
+			local r_1431 = nth1(node7, 2)
+			local r_1461 = _23_1(r_1431)
+			local r_1441 = nil
+			r_1441 = (function(r_1451)
+				if (r_1451 <= r_1461) then
+					local arg1 = r_1431[r_1451]
 					addDefinition_21_1(state5, arg1["var"], arg1, "arg", arg1)
-					return r_1241((r_1251 + 1))
+					return r_1441((r_1451 + 1))
 				else
 				end
 			end)
-			return r_1241(1)
+			return r_1441(1)
 		elseif (func2 == builtins2["set!"]) then
 			return addDefinition_21_1(state5, node7[2]["var"], node7, "set", nth1(node7, 3))
 		else
 			local temp11
-			local r_1281 = (func2 == builtins2["define"])
-			if r_1281 then
-				temp11 = r_1281
+			local r_1481 = (func2 == builtins2["define"])
+			if r_1481 then
+				temp11 = r_1481
 			else
 				temp11 = (func2 == builtins2["define-macro"])
 			end
@@ -653,32 +656,32 @@ definitionsVisitor1 = (function(state5, node7, visitor4)
 		end
 	else
 		local temp12
-		local r_1291 = list_3f_1(node7)
-		if r_1291 then
-			local r_1301 = list_3f_1(car2(node7))
-			if r_1301 then
-				local r_1311 = symbol_3f_1(caar1(node7))
-				if r_1311 then
+		local r_1491 = list_3f_1(node7)
+		if r_1491 then
+			local r_1501 = list_3f_1(car2(node7))
+			if r_1501 then
+				local r_1511 = symbol_3f_1(caar1(node7))
+				if r_1511 then
 					temp12 = (caar1(node7)["var"] == builtins2["lambda"])
 				else
-					temp12 = r_1311
+					temp12 = r_1511
 				end
 			else
-				temp12 = r_1301
+				temp12 = r_1501
 			end
 		else
-			temp12 = r_1291
+			temp12 = r_1491
 		end
 		if temp12 then
 			local lam1 = car2(node7)
 			local args2 = nth1(lam1, 2)
 			local offset1 = 1
-			local r_1661 = _23_1(args2)
-			local r_1641 = nil
-			r_1641 = (function(r_1651)
-				if (r_1651 <= r_1661) then
-					local arg2 = nth1(args2, r_1651)
-					local val4 = nth1(node7, (r_1651 + offset1))
+			local r_1871 = _23_1(args2)
+			local r_1851 = nil
+			r_1851 = (function(r_1861)
+				if (r_1861 <= r_1871) then
+					local arg2 = nth1(args2, r_1861)
+					local val4 = nth1(node7, (r_1861 + offset1))
 					if arg2["var"]["isVariadic"] then
 						local count1 = (_23_1(node7) - _23_1(args2))
 						if (count1 < 0) then
@@ -696,11 +699,11 @@ definitionsVisitor1 = (function(state5, node7, visitor4)
 							end
 						end)())
 					end
-					return r_1641((r_1651 + 1))
+					return r_1851((r_1861 + 1))
 				else
 				end
 			end)
-			r_1641(1)
+			r_1851(1)
 			visitBlock1(node7, 2, visitor4)
 			visitBlock1(lam1, 3, visitor4)
 			return false
@@ -709,8 +712,8 @@ definitionsVisitor1 = (function(state5, node7, visitor4)
 	end
 end)
 definitionsVisit1 = (function(state6, nodes1)
-	return visitBlock1(nodes1, 1, (function(r_1761, r_1771)
-		return definitionsVisitor1(state6, r_1761, r_1771)
+	return visitBlock1(nodes1, 1, (function(r_1971, r_1981)
+		return definitionsVisitor1(state6, r_1971, r_1981)
 	end))
 end)
 usagesVisit1 = (function(state7, nodes2, pred2)
@@ -752,27 +755,27 @@ usagesVisit1 = (function(state7, nodes2, pred2)
 				return true
 			else
 				local temp14
-				local r_1781 = list_3f_1(node8)
-				if r_1781 then
-					local r_1791 = (_23_1(node8) > 0)
-					if r_1791 then
+				local r_1991 = list_3f_1(node8)
+				if r_1991 then
+					local r_2001 = (_23_1(node8) > 0)
+					if r_2001 then
 						temp14 = symbol_3f_1(car2(node8))
 					else
-						temp14 = r_1791
+						temp14 = r_2001
 					end
 				else
-					temp14 = r_1781
+					temp14 = r_1991
 				end
 				if temp14 then
 					local func3 = car2(node8)["var"]
 					local temp15
-					local r_1801 = (func3 == builtins2["set!"])
-					if r_1801 then
-						temp15 = r_1801
+					local r_2011 = (func3 == builtins2["set!"])
+					if r_2011 then
+						temp15 = r_2011
 					else
-						local r_1811 = (func3 == builtins2["define"])
-						if r_1811 then
-							temp15 = r_1811
+						local r_2021 = (func3 == builtins2["define"])
+						if r_2021 then
+							temp15 = r_2021
 						else
 							temp15 = (func3 == builtins2["define-macro"])
 						end
@@ -792,26 +795,26 @@ usagesVisit1 = (function(state7, nodes2, pred2)
 			end
 		end
 	end)
-	local r_1731 = _23_1(nodes2)
-	local r_1711 = nil
-	r_1711 = (function(r_1721)
-		if (r_1721 <= r_1731) then
-			local node9 = nodes2[r_1721]
+	local r_1941 = _23_1(nodes2)
+	local r_1921 = nil
+	r_1921 = (function(r_1931)
+		if (r_1931 <= r_1941) then
+			local node9 = nodes2[r_1931]
 			pushCdr_21_1(queue1, node9)
-			return r_1711((r_1721 + 1))
+			return r_1921((r_1931 + 1))
 		else
 		end
 	end)
-	r_1711(1)
-	local r_1751 = nil
-	r_1751 = (function()
+	r_1921(1)
+	local r_1961 = nil
+	r_1961 = (function()
 		if (_23_1(queue1) > 0) then
 			visitNode1(removeNth_21_1(queue1, 1), visit1)
-			return r_1751()
+			return r_1961()
 		else
 		end
 	end)
-	return r_1751()
+	return r_1961()
 end)
 builtins3 = require1("tacky.analysis.resolve")["builtins"]
 traverseQuote1 = (function(node10, visitor5, level2)
@@ -820,17 +823,17 @@ traverseQuote1 = (function(node10, visitor5, level2)
 	else
 		local tag5 = node10["tag"]
 		local temp16
-		local r_1941 = (tag5 == "string")
-		if r_1941 then
-			temp16 = r_1941
+		local r_2151 = (tag5 == "string")
+		if r_2151 then
+			temp16 = r_2151
 		else
-			local r_1951 = (tag5 == "number")
-			if r_1951 then
-				temp16 = r_1951
+			local r_2161 = (tag5 == "number")
+			if r_2161 then
+				temp16 = r_2161
 			else
-				local r_1961 = (tag5 == "key")
-				if r_1961 then
-					temp16 = r_1961
+				local r_2171 = (tag5 == "key")
+				if r_2171 then
+					temp16 = r_2171
 				else
 					temp16 = (tag5 == "symbol")
 				end
@@ -848,9 +851,9 @@ traverseQuote1 = (function(node10, visitor5, level2)
 			end
 			if temp17 then
 				local temp18
-				local r_1981 = (first3["contents"] == "unquote")
-				if r_1981 then
-					temp18 = r_1981
+				local r_2191 = (first3["contents"] == "unquote")
+				if r_2191 then
+					temp18 = r_2191
 				else
 					temp18 = (first3["contents"] == "unquote-splice")
 				end
@@ -861,29 +864,29 @@ traverseQuote1 = (function(node10, visitor5, level2)
 					node10[2] = traverseQuote1(nth1(node10, 2), visitor5, succ1(level2))
 					return node10
 				else
-					local r_2011 = _23_1(node10)
-					local r_1991 = nil
-					r_1991 = (function(r_2001)
-						if (r_2001 <= r_2011) then
-							node10[r_2001] = traverseQuote1(nth1(node10, r_2001), visitor5, level2)
-							return r_1991((r_2001 + 1))
+					local r_2221 = _23_1(node10)
+					local r_2201 = nil
+					r_2201 = (function(r_2211)
+						if (r_2211 <= r_2221) then
+							node10[r_2211] = traverseQuote1(nth1(node10, r_2211), visitor5, level2)
+							return r_2201((r_2211 + 1))
 						else
 						end
 					end)
-					r_1991(1)
+					r_2201(1)
 					return node10
 				end
 			else
-				local r_2051 = _23_1(node10)
-				local r_2031 = nil
-				r_2031 = (function(r_2041)
-					if (r_2041 <= r_2051) then
-						node10[r_2041] = traverseQuote1(nth1(node10, r_2041), visitor5, level2)
-						return r_2031((r_2041 + 1))
+				local r_2261 = _23_1(node10)
+				local r_2241 = nil
+				r_2241 = (function(r_2251)
+					if (r_2251 <= r_2261) then
+						node10[r_2251] = traverseQuote1(nth1(node10, r_2251), visitor5, level2)
+						return r_2241((r_2251 + 1))
 					else
 					end
 				end)
-				r_2031(1)
+				r_2241(1)
 				return node10
 			end
 		elseif error1 then
@@ -896,17 +899,17 @@ end)
 traverseNode1 = (function(node11, visitor6)
 	local tag6 = node11["tag"]
 	local temp19
-	local r_1831 = (tag6 == "string")
-	if r_1831 then
-		temp19 = r_1831
+	local r_2041 = (tag6 == "string")
+	if r_2041 then
+		temp19 = r_2041
 	else
-		local r_1841 = (tag6 == "number")
-		if r_1841 then
-			temp19 = r_1841
+		local r_2051 = (tag6 == "number")
+		if r_2051 then
+			temp19 = r_2051
 		else
-			local r_1851 = (tag6 == "key")
-			if r_1851 then
-				temp19 = r_1851
+			local r_2061 = (tag6 == "key")
+			if r_2061 then
+				temp19 = r_2061
 			else
 				temp19 = (tag6 == "symbol")
 			end
@@ -925,18 +928,18 @@ traverseNode1 = (function(node11, visitor6)
 				traverseBlock1(node11, 3, visitor6)
 				return visitor6(node11, visitor6)
 			elseif (func4 == builtins3["cond"]) then
-				local r_2091 = _23_1(node11)
-				local r_2071 = nil
-				r_2071 = (function(r_2081)
-					if (r_2081 <= r_2091) then
-						local case2 = nth1(node11, r_2081)
+				local r_2301 = _23_1(node11)
+				local r_2281 = nil
+				r_2281 = (function(r_2291)
+					if (r_2291 <= r_2301) then
+						local case2 = nth1(node11, r_2291)
 						case2[1] = traverseNode1(nth1(case2, 1), visitor6)
 						traverseBlock1(case2, 2, visitor6)
-						return r_2071((r_2081 + 1))
+						return r_2281((r_2291 + 1))
 					else
 					end
 				end)
-				r_2071(2)
+				r_2281(2)
 				return visitor6(node11, visitor6)
 			elseif (func4 == builtins3["set!"]) then
 				node11[3] = traverseNode1(nth1(node11, 3), visitor6)
@@ -948,9 +951,9 @@ traverseNode1 = (function(node11, visitor6)
 				return visitor6(node11, visitor6)
 			else
 				local temp20
-				local r_2111 = (func4 == builtins3["unquote"])
-				if r_2111 then
-					temp20 = r_2111
+				local r_2321 = (func4 == builtins3["unquote"])
+				if r_2321 then
+					temp20 = r_2321
 				else
 					temp20 = (func4 == builtins3["unquote-splice"])
 				end
@@ -958,9 +961,9 @@ traverseNode1 = (function(node11, visitor6)
 					return fail_21_1("unquote/unquote-splice should never appear head")
 				else
 					local temp21
-					local r_2121 = (func4 == builtins3["define"])
-					if r_2121 then
-						temp21 = r_2121
+					local r_2331 = (func4 == builtins3["define"])
+					if r_2331 then
+						temp21 = r_2331
 					else
 						temp21 = (func4 == builtins3["define-macro"])
 					end
@@ -973,17 +976,17 @@ traverseNode1 = (function(node11, visitor6)
 						return visitor6(node11, visitor6)
 					else
 						local temp22
-						local r_2131 = (funct2 == "defined")
-						if r_2131 then
-							temp22 = r_2131
+						local r_2341 = (funct2 == "defined")
+						if r_2341 then
+							temp22 = r_2341
 						else
-							local r_2141 = (funct2 == "arg")
-							if r_2141 then
-								temp22 = r_2141
+							local r_2351 = (funct2 == "arg")
+							if r_2351 then
+								temp22 = r_2351
 							else
-								local r_2151 = (funct2 == "native")
-								if r_2151 then
-									temp22 = r_2151
+								local r_2361 = (funct2 == "native")
+								if r_2361 then
+									temp22 = r_2361
 								else
 									temp22 = (funct2 == "macro")
 								end
@@ -1007,30 +1010,30 @@ traverseNode1 = (function(node11, visitor6)
 	end
 end)
 traverseBlock1 = (function(node12, start3, visitor7)
-	local r_1881 = _23_1(node12)
-	local r_1861 = nil
-	r_1861 = (function(r_1871)
-		if (r_1871 <= r_1881) then
-			local result1 = traverseNode1(nth1(node12, (r_1871 + 0)), visitor7)
-			node12[r_1871] = result1
-			return r_1861((r_1871 + 1))
+	local r_2091 = _23_1(node12)
+	local r_2071 = nil
+	r_2071 = (function(r_2081)
+		if (r_2081 <= r_2091) then
+			local result1 = traverseNode1(nth1(node12, (r_2081 + 0)), visitor7)
+			node12[r_2081] = result1
+			return r_2071((r_2081 + 1))
 		else
 		end
 	end)
-	r_1861(start3)
+	r_2071(start3)
 	return node12
 end)
 traverseList1 = (function(node13, start4, visitor8)
-	local r_1921 = _23_1(node13)
-	local r_1901 = nil
-	r_1901 = (function(r_1911)
-		if (r_1911 <= r_1921) then
-			node13[r_1911] = traverseNode1(nth1(node13, r_1911), visitor8)
-			return r_1901((r_1911 + 1))
+	local r_2131 = _23_1(node13)
+	local r_2111 = nil
+	r_2111 = (function(r_2121)
+		if (r_2121 <= r_2131) then
+			node13[r_2121] = traverseNode1(nth1(node13, r_2121), visitor8)
+			return r_2111((r_2121 + 1))
 		else
 		end
 	end)
-	r_1901(start4)
+	r_2111(start4)
 	return node13
 end)
 config1 = package.config
@@ -1138,11 +1141,11 @@ formatRange1 = (function(range1)
 end)
 formatNode1 = (function(node14)
 	local temp26
-	local r_2161 = node14["range"]
-	if r_2161 then
+	local r_2371 = node14["range"]
+	if r_2371 then
 		temp26 = node14["contents"]
 	else
-		temp26 = r_2161
+		temp26 = r_2371
 	end
 	if temp26 then
 		return format1("%s (%q)", formatRange1(node14["range"]), node14["contents"])
@@ -1153,11 +1156,11 @@ formatNode1 = (function(node14)
 		return format1("macro expansion of %s (%s)", macro1["var"]["name"], formatNode1(macro1["node"]))
 	else
 		local temp27
-		local r_2291 = node14["start"]
-		if r_2291 then
+		local r_2501 = node14["start"]
+		if r_2501 then
 			temp27 = node14["finish"]
 		else
-			temp27 = r_2291
+			temp27 = r_2501
 		end
 		if temp27 then
 			return formatRange1(node14)
@@ -1168,23 +1171,23 @@ formatNode1 = (function(node14)
 end)
 getSource1 = (function(node15)
 	local result2 = nil
-	local r_2171 = nil
-	r_2171 = (function()
+	local r_2381 = nil
+	r_2381 = (function()
 		local temp28
-		local r_2181 = node15
-		if r_2181 then
+		local r_2391 = node15
+		if r_2391 then
 			temp28 = _21_1(result2)
 		else
-			temp28 = r_2181
+			temp28 = r_2391
 		end
 		if temp28 then
 			result2 = node15["range"]
 			node15 = node15["parent"]
-			return r_2171()
+			return r_2381()
 		else
 		end
 	end)
-	r_2171()
+	r_2381()
 	return result2
 end)
 putLines_21_1 = (function(range2, ...)
@@ -1207,22 +1210,22 @@ putLines_21_1 = (function(range2, ...)
 		end
 	end), 0, entries1)
 	local code1 = _2e2e_2(colored1(92, _2e2e_2(" %", len1(tostring1(maxLine1)), "s |")), " %s")
-	local r_2321 = _23_1(entries1)
-	local r_2301 = nil
-	r_2301 = (function(r_2311)
-		if (r_2311 <= r_2321) then
-			local position1 = entries1[r_2311]
-			local message1 = entries1[succ1(r_2311)]
+	local r_2531 = _23_1(entries1)
+	local r_2511 = nil
+	r_2511 = (function(r_2521)
+		if (r_2521 <= r_2531) then
+			local position1 = entries1[r_2521]
+			local message1 = entries1[succ1(r_2521)]
 			if (file1 ~= position1["name"]) then
 				file1 = position1["name"]
 				print1(colored1(95, _2e2e_2(" ", file1)))
 			else
 				local temp29
-				local r_2341 = (previous1 ~= -1)
-				if r_2341 then
+				local r_2551 = (previous1 ~= -1)
+				if r_2551 then
 					temp29 = (abs1((position1["start"]["line"] - previous1)) > 2)
 				else
-					temp29 = r_2341
+					temp29 = r_2551
 				end
 				if temp29 then
 					print1(colored1(92, " ..."))
@@ -1236,11 +1239,11 @@ putLines_21_1 = (function(range2, ...)
 				pointer1 = "^"
 			else
 				local temp30
-				local r_2351 = position1["finish"]
-				if r_2351 then
+				local r_2561 = position1["finish"]
+				if r_2561 then
 					temp30 = (position1["start"]["line"] == position1["finish"]["line"])
 				else
-					temp30 = r_2351
+					temp30 = r_2561
 				end
 				if temp30 then
 					pointer1 = rep1("^", succ1((position1["finish"]["column"] - position1["start"]["column"])))
@@ -1249,16 +1252,16 @@ putLines_21_1 = (function(range2, ...)
 				end
 			end
 			print1(format1(code1, "", _2e2e_2(rep1(" ", (position1["start"]["column"] - 1)), pointer1, " ", message1)))
-			return r_2301((r_2311 + 2))
+			return r_2511((r_2521 + 2))
 		else
 		end
 	end)
-	return r_2301(1)
+	return r_2511(1)
 end)
 putTrace_21_1 = (function(node17)
 	local previous2 = nil
-	local r_2191 = nil
-	r_2191 = (function()
+	local r_2401 = nil
+	r_2401 = (function()
 		if node17 then
 			local formatted1 = formatNode1(node17)
 			if (previous2 == nil) then
@@ -1269,26 +1272,26 @@ putTrace_21_1 = (function(node17)
 			end
 			previous2 = formatted1
 			node17 = node17["parent"]
-			return r_2191()
+			return r_2401()
 		else
 		end
 	end)
-	return r_2191()
+	return r_2401()
 end)
 putExplain_21_1 = (function(...)
 	local lines3 = _pack(...) lines3.tag = "list"
 	if showExplain1["value"] then
-		local r_2241 = _23_1(lines3)
-		local r_2221 = nil
-		r_2221 = (function(r_2231)
-			if (r_2231 <= r_2241) then
-				local line1 = lines3[r_2231]
+		local r_2451 = _23_1(lines3)
+		local r_2431 = nil
+		r_2431 = (function(r_2441)
+			if (r_2441 <= r_2451) then
+				local line1 = lines3[r_2441]
 				print1(_2e2e_2("  ", line1))
-				return r_2221((r_2231 + 1))
+				return r_2431((r_2441 + 1))
 			else
 			end
 		end)
-		return r_2221(1)
+		return r_2431(1)
 	else
 	end
 end)
@@ -1308,17 +1311,17 @@ builtinVars2 = require1("tacky.analysis.resolve")["declaredVars"]
 hasSideEffect1 = (function(node19)
 	local tag7 = type1(node19)
 	local temp31
-	local r_1041 = (tag7 == "number")
-	if r_1041 then
-		temp31 = r_1041
+	local r_1241 = (tag7 == "number")
+	if r_1241 then
+		temp31 = r_1241
 	else
-		local r_1051 = (tag7 == "string")
-		if r_1051 then
-			temp31 = r_1051
+		local r_1251 = (tag7 == "string")
+		if r_1251 then
+			temp31 = r_1251
 		else
-			local r_1061 = (tag7 == "key")
-			if r_1061 then
-				temp31 = r_1061
+			local r_1261 = (tag7 == "key")
+			if r_1261 then
+				temp31 = r_1261
 			else
 				temp31 = (tag7 == "symbol")
 			end
@@ -1330,11 +1333,11 @@ hasSideEffect1 = (function(node19)
 		local fst1 = car2(node19)
 		if (type1(fst1) == "symbol") then
 			local var5 = fst1["var"]
-			local r_1071 = (var5 ~= builtins4["lambda"])
-			if r_1071 then
+			local r_1271 = (var5 ~= builtins4["lambda"])
+			if r_1271 then
 				return (var5 ~= builtins4["quote"])
 			else
-				return r_1071
+				return r_1271
 			end
 		else
 			return true
@@ -1344,13 +1347,13 @@ hasSideEffect1 = (function(node19)
 	end
 end)
 constant_3f_1 = (function(node20)
-	local r_1081 = string_3f_1(node20)
-	if r_1081 then
-		return r_1081
+	local r_1281 = string_3f_1(node20)
+	if r_1281 then
+		return r_1281
 	else
-		local r_1091 = number_3f_1(node20)
-		if r_1091 then
-			return r_1091
+		local r_1291 = number_3f_1(node20)
+		if r_1291 then
+			return r_1291
 		else
 			return key_3f_1(node20)
 		end
@@ -1383,13 +1386,13 @@ val_2d3e_urn1 = (function(val6)
 end)
 truthy_3f_1 = (function(node22)
 	local temp32
-	local r_1101 = string_3f_1(node22)
-	if r_1101 then
-		temp32 = r_1101
+	local r_1301 = string_3f_1(node22)
+	if r_1301 then
+		temp32 = r_1301
 	else
-		local r_1111 = key_3f_1(node22)
-		if r_1111 then
-			temp32 = r_1111
+		local r_1311 = key_3f_1(node22)
+		if r_1311 then
+			temp32 = r_1311
 		else
 			temp32 = number_3f_1(node22)
 		end
@@ -1430,13 +1433,13 @@ getConstantVal1 = (function(lookup1, sym1)
 		local val7 = ent1["value"]
 		local ty4 = ent1["tag"]
 		local temp33
-		local r_2361 = string_3f_1(val7)
-		if r_2361 then
-			temp33 = r_2361
+		local r_2571 = string_3f_1(val7)
+		if r_2571 then
+			temp33 = r_2571
 		else
-			local r_2371 = number_3f_1(val7)
-			if r_2371 then
-				temp33 = r_2371
+			local r_2581 = number_3f_1(val7)
+			if r_2581 then
+				temp33 = r_2581
 			else
 				temp33 = key_3f_1(val7)
 			end
@@ -1445,26 +1448,26 @@ getConstantVal1 = (function(lookup1, sym1)
 			return val7
 		else
 			local temp34
-			local r_2381 = symbol_3f_1(val7)
-			if r_2381 then
-				local r_2391 = (ty4 == "define")
-				if r_2391 then
-					temp34 = r_2391
+			local r_2591 = symbol_3f_1(val7)
+			if r_2591 then
+				local r_2601 = (ty4 == "define")
+				if r_2601 then
+					temp34 = r_2601
 				else
-					local r_2401 = (ty4 == "set")
-					if r_2401 then
-						temp34 = r_2401
+					local r_2611 = (ty4 == "set")
+					if r_2611 then
+						temp34 = r_2611
 					else
 						temp34 = (ty4 == "let")
 					end
 				end
 			else
-				temp34 = r_2381
+				temp34 = r_2591
 			end
 			if temp34 then
-				local r_2411 = getConstantVal1(lookup1, val7)
-				if r_2411 then
-					return r_2411
+				local r_2621 = getConstantVal1(lookup1, val7)
+				if r_2621 then
+					return r_2621
 				else
 					return sym1
 				end
@@ -1478,101 +1481,101 @@ getConstantVal1 = (function(lookup1, sym1)
 end)
 optimiseOnce1 = (function(nodes3, state8)
 	local changed1 = false
-	local r_1121 = nil
-	r_1121 = (function(r_1131)
+	local r_1321 = nil
+	r_1321 = (function(r_1331)
 		local temp35
 		if false then
-			temp35 = (r_1131 <= 1)
+			temp35 = (r_1331 <= 1)
 		else
-			temp35 = (r_1131 >= 1)
+			temp35 = (r_1331 >= 1)
 		end
 		if temp35 then
-			local node23 = nth1(nodes3, r_1131)
+			local node23 = nth1(nodes3, r_1331)
 			local temp36
-			local r_1161 = list_3f_1(node23)
-			if r_1161 then
-				local r_1171 = (_23_1(node23) > 0)
-				if r_1171 then
-					local r_1181 = symbol_3f_1(car2(node23))
-					if r_1181 then
+			local r_1361 = list_3f_1(node23)
+			if r_1361 then
+				local r_1371 = (_23_1(node23) > 0)
+				if r_1371 then
+					local r_1381 = symbol_3f_1(car2(node23))
+					if r_1381 then
 						temp36 = (car2(node23)["var"] == builtins4["import"])
 					else
-						temp36 = r_1181
+						temp36 = r_1381
 					end
 				else
-					temp36 = r_1171
+					temp36 = r_1371
 				end
 			else
-				temp36 = r_1161
+				temp36 = r_1361
 			end
 			if temp36 then
-				if (r_1131 == _23_1(nodes3)) then
-					nodes3[r_1131] = struct1("tag", "symbol", "contents", "nil", "var", builtinVars2["nil"])
+				if (r_1331 == _23_1(nodes3)) then
+					nodes3[r_1331] = struct1("tag", "symbol", "contents", "nil", "var", builtinVars2["nil"])
 				else
-					removeNth_21_1(nodes3, r_1131)
+					removeNth_21_1(nodes3, r_1331)
 				end
 				changed1 = true
 			else
 			end
-			return r_1121((r_1131 + -1))
+			return r_1321((r_1331 + -1))
 		else
 		end
 	end)
-	r_1121(_23_1(nodes3))
-	local r_2421 = nil
-	r_2421 = (function(r_2431)
+	r_1321(_23_1(nodes3))
+	local r_2631 = nil
+	r_2631 = (function(r_2641)
 		local temp37
 		if false then
-			temp37 = (r_2431 <= 1)
+			temp37 = (r_2641 <= 1)
 		else
-			temp37 = (r_2431 >= 1)
+			temp37 = (r_2641 >= 1)
 		end
 		if temp37 then
-			local node24 = nth1(nodes3, r_2431)
+			local node24 = nth1(nodes3, r_2641)
 			if _21_1(hasSideEffect1(node24)) then
-				removeNth_21_1(nodes3, r_2431)
+				removeNth_21_1(nodes3, r_2641)
 				changed1 = true
 			else
 			end
-			return r_2421((r_2431 + -1))
+			return r_2631((r_2641 + -1))
 		else
 		end
 	end)
-	r_2421(pred1(_23_1(nodes3)))
+	r_2631(pred1(_23_1(nodes3)))
 	traverseList1(nodes3, 1, (function(node25)
 		local temp38
-		local r_2461 = list_3f_1(node25)
-		if r_2461 then
+		local r_2671 = list_3f_1(node25)
+		if r_2671 then
 			temp38 = all1(constant_3f_1, cdr2(node25))
 		else
-			temp38 = r_2461
+			temp38 = r_2671
 		end
 		if temp38 then
 			local head2 = car2(node25)
 			local meta1
-			local r_2511 = symbol_3f_1(head2)
-			if r_2511 then
-				local r_2521 = _21_1(head2["folded"])
-				if r_2521 then
-					local r_2531 = (head2["var"]["tag"] == "native")
-					if r_2531 then
+			local r_2721 = symbol_3f_1(head2)
+			if r_2721 then
+				local r_2731 = _21_1(head2["folded"])
+				if r_2731 then
+					local r_2741 = (head2["var"]["tag"] == "native")
+					if r_2741 then
 						meta1 = state8["meta"][head2["var"]["fullName"]]
 					else
-						meta1 = r_2531
+						meta1 = r_2741
 					end
 				else
-					meta1 = r_2521
+					meta1 = r_2731
 				end
 			else
-				meta1 = r_2511
+				meta1 = r_2721
 			end
 			local temp39
 			if meta1 then
-				local r_2481 = meta1["pure"]
-				if r_2481 then
+				local r_2691 = meta1["pure"]
+				if r_2691 then
 					temp39 = meta1["value"]
 				else
-					temp39 = r_2481
+					temp39 = r_2691
 				end
 			else
 				temp39 = meta1
@@ -1582,16 +1585,16 @@ optimiseOnce1 = (function(nodes3, state8)
 				if car2(res1) then
 					local val8 = nth1(res1, 2)
 					local temp40
-					local r_2491 = number_3f_1(val8)
-					if r_2491 then
-						local r_2501 = (snd1(pair1(modf1(val8))) ~= 0)
-						if r_2501 then
-							temp40 = r_2501
+					local r_2701 = number_3f_1(val8)
+					if r_2701 then
+						local r_2711 = (snd1(pair1(modf1(val8))) ~= 0)
+						if r_2711 then
+							temp40 = r_2711
 						else
 							temp40 = (abs1(val8) == huge1)
 						end
 					else
-						temp40 = r_2491
+						temp40 = r_2701
 					end
 					if temp40 then
 						head2["folded"] = true
@@ -1615,42 +1618,42 @@ optimiseOnce1 = (function(nodes3, state8)
 	end))
 	traverseList1(nodes3, 1, (function(node26)
 		local temp41
-		local r_2541 = list_3f_1(node26)
-		if r_2541 then
-			local r_2551 = symbol_3f_1(car2(node26))
-			if r_2551 then
+		local r_2751 = list_3f_1(node26)
+		if r_2751 then
+			local r_2761 = symbol_3f_1(car2(node26))
+			if r_2761 then
 				temp41 = (car2(node26)["var"] == builtins4["cond"])
 			else
-				temp41 = r_2551
+				temp41 = r_2761
 			end
 		else
-			temp41 = r_2541
+			temp41 = r_2751
 		end
 		if temp41 then
 			local final1 = nil
-			local r_2581 = _23_1(node26)
-			local r_2561 = nil
-			r_2561 = (function(r_2571)
-				if (r_2571 <= r_2581) then
-					local case3 = nth1(node26, r_2571)
+			local r_2791 = _23_1(node26)
+			local r_2771 = nil
+			r_2771 = (function(r_2781)
+				if (r_2781 <= r_2791) then
+					local case3 = nth1(node26, r_2781)
 					if final1 then
 						changed1 = true
 						removeNth_21_1(node26, final1)
-					elseif truthy_3f_1(car2(nth1(node26, r_2571))) then
-						final1 = succ1(r_2571)
+					elseif truthy_3f_1(car2(nth1(node26, r_2781))) then
+						final1 = succ1(r_2781)
 					else
 					end
-					return r_2561((r_2571 + 1))
+					return r_2771((r_2781 + 1))
 				else
 				end
 			end)
-			r_2561(2)
+			r_2771(2)
 			local temp42
-			local r_2601 = (_23_1(node26) == 2)
-			if r_2601 then
+			local r_2811 = (_23_1(node26) == 2)
+			if r_2811 then
 				temp42 = truthy_3f_1(car2(nth1(node26, 2)))
 			else
-				temp42 = r_2601
+				temp42 = r_2811
 			end
 			if temp42 then
 				changed1 = true
@@ -1670,66 +1673,66 @@ optimiseOnce1 = (function(nodes3, state8)
 	local lookup2 = createState1()
 	definitionsVisit1(lookup2, nodes3)
 	usagesVisit1(lookup2, nodes3, hasSideEffect1)
-	local r_2611 = nil
-	r_2611 = (function(r_2621)
+	local r_2821 = nil
+	r_2821 = (function(r_2831)
 		local temp43
 		if false then
-			temp43 = (r_2621 <= 1)
+			temp43 = (r_2831 <= 1)
 		else
-			temp43 = (r_2621 >= 1)
+			temp43 = (r_2831 >= 1)
 		end
 		if temp43 then
-			local node27 = nth1(nodes3, r_2621)
+			local node27 = nth1(nodes3, r_2831)
 			local temp44
-			local r_2651 = node27["defVar"]
-			if r_2651 then
+			local r_2861 = node27["defVar"]
+			if r_2861 then
 				temp44 = _21_1(getVar1(lookup2, node27["defVar"])["active"])
 			else
-				temp44 = r_2651
+				temp44 = r_2861
 			end
 			if temp44 then
-				if (r_2621 == _23_1(nodes3)) then
-					nodes3[r_2621] = struct1("tag", "symbol", "contents", "nil", "var", builtinVars2["nil"])
+				if (r_2831 == _23_1(nodes3)) then
+					nodes3[r_2831] = struct1("tag", "symbol", "contents", "nil", "var", builtinVars2["nil"])
 				else
-					removeNth_21_1(nodes3, r_2621)
+					removeNth_21_1(nodes3, r_2831)
 				end
 				changed1 = true
 			else
 			end
-			return r_2611((r_2621 + -1))
+			return r_2821((r_2831 + -1))
 		else
 		end
 	end)
-	r_2611(_23_1(nodes3))
+	r_2821(_23_1(nodes3))
 	visitBlock1(nodes3, 1, (function(node28)
 		local temp45
-		local r_2661 = list_3f_1(node28)
-		if r_2661 then
-			local r_2671 = list_3f_1(car2(node28))
-			if r_2671 then
-				local r_2681 = symbol_3f_1(caar1(node28))
-				if r_2681 then
+		local r_2871 = list_3f_1(node28)
+		if r_2871 then
+			local r_2881 = list_3f_1(car2(node28))
+			if r_2881 then
+				local r_2891 = symbol_3f_1(caar1(node28))
+				if r_2891 then
 					temp45 = (caar1(node28)["var"] == builtins4["lambda"])
 				else
-					temp45 = r_2681
+					temp45 = r_2891
 				end
 			else
-				temp45 = r_2671
+				temp45 = r_2881
 			end
 		else
-			temp45 = r_2661
+			temp45 = r_2871
 		end
 		if temp45 then
 			local lam2 = car2(node28)
 			local args3 = nth1(lam2, 2)
 			local offset2 = 1
 			local remOffset1 = 0
-			local r_2711 = _23_1(args3)
-			local r_2691 = nil
-			r_2691 = (function(r_2701)
-				if (r_2701 <= r_2711) then
-					local arg3 = nth1(args3, (r_2701 - remOffset1))
-					local val9 = nth1(node28, ((r_2701 + offset2) - remOffset1))
+			local r_2921 = _23_1(args3)
+			local r_2901 = nil
+			r_2901 = (function(r_2911)
+				if (r_2911 <= r_2921) then
+					local arg3 = nth1(args3, (r_2911 - remOffset1))
+					local val9 = nth1(node28, ((r_2911 + offset2) - remOffset1))
 					if arg3["var"]["isVariadic"] then
 						local count2 = (_23_1(node28) - _23_1(args3))
 						if (count2 < 0) then
@@ -1741,15 +1744,15 @@ optimiseOnce1 = (function(nodes3, state8)
 					elseif hasSideEffect1(val9) then
 					elseif (_23_keys1(getVar1(lookup2, arg3["var"])["usages"]) > 0) then
 					else
-						removeNth_21_1(args3, (r_2701 - remOffset1))
-						removeNth_21_1(node28, ((r_2701 + offset2) - remOffset1))
+						removeNth_21_1(args3, (r_2911 - remOffset1))
+						removeNth_21_1(node28, ((r_2911 + offset2) - remOffset1))
 						remOffset1 = (remOffset1 + 1)
 					end
-					return r_2691((r_2701 + 1))
+					return r_2901((r_2911 + 1))
 				else
 				end
 			end)
-			return r_2691(1)
+			return r_2901(1)
 		else
 		end
 	end))
@@ -1781,23 +1784,23 @@ optimise1 = (function(nodes4, state9)
 	end
 	local iteration1 = 0
 	local changed2 = true
-	local r_1191 = nil
-	r_1191 = (function()
+	local r_1391 = nil
+	r_1391 = (function()
 		local temp47
-		local r_1201 = changed2
-		if r_1201 then
+		local r_1401 = changed2
+		if r_1401 then
 			temp47 = (iteration1 < 10)
 		else
-			temp47 = r_1201
+			temp47 = r_1401
 		end
 		if temp47 then
 			changed2 = optimiseOnce1(nodes4, state9)
 			iteration1 = (iteration1 + 1)
-			return r_1191()
+			return r_1391()
 		else
 		end
 	end)
-	r_1191()
+	r_1391()
 	return nodes4
 end)
 return optimise1

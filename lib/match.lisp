@@ -28,7 +28,7 @@
  element in a list, while a cons pattern will only match the car and the cdr.
  Both bind everything bound by their \"inner\" patterns."
 
-(import base ( defun defmacro if debug print
+(import base ( defun defmacro if
                let* and gensym error
                quasiquote /= # for
                list or pretty ))
