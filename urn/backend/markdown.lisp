@@ -80,7 +80,7 @@
                 (let* [(name  (.> tok :contents))
                        (scope (.> var :scope))
                        (ovar  ((.> scope :get) scope name nil true))]
-                  (if ovar
+                  (if (and ovar (.> ovar :node))
                     (let* [(loc (-> (.> ovar :node)
                                   logger/get-source
                                   (.> <> :name)
