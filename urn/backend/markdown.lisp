@@ -43,7 +43,31 @@
       (true
         (.. "(" name " " (concat (traverse sig (cut get-idx <> "contents")) " ") ")")))))
 
-(defun exported (out title primary vars)
+(defun write-docstring (out str scope)
+  (for-each tok (doc/parse-docstring str)
+    (with (ty (type tok))
+      (cond
+        ((= ty "text") (writer/append! out (.> tok :contents)))
+        ((= ty "arg")  (writer/append! out (.. "`" (.> tok :contents) "`")))
+        ((= ty "mono") (writer/append! out (.> tok :whole)))
+        ((= ty "link")
+          (let* [(name (.> tok :contents))
+                 (ovar ((.> scope :get) scope name nil true))]
+            (if (and ovar (.> ovar :node))
+              (let* [(loc (-> (.> ovar :node)
+                          logger/get-source
+                          (.> <> :name)
+                          (string/gsub <> "%.lisp$" "")
+                          (string/gsub <> "/" ".")))
+                     (sig (doc/extract-signature ovar))
+                     (hash (cond
+                             ((= sig nil) (.> ovar :name))
+                             ((nil? sig) (.> ovar :name))
+                             (true (.. name " " (concat (traverse sig (cut get-idx <> "contents")) " ")))))]
+                (writer/append! out (string/format "[`%s`](%s.md#%s)" name loc (string/gsub hash "%A+" "-"))))
+              (writer/append! out (string/format "`%s`" name)))))))))
+
+(defun exported (out title primary vars scope)
   "Print out a list of all exported variables"
   (let* [(documented '())
          (undocumented '())]
@@ -60,7 +84,7 @@
     (writer/line! out "---")
 
     (writer/line! out (.. "# " title))
-    (when primary (writer/line! out primary))
+    (when primary (write-docstring out primary scope))
 
     (for-each entry documented
       (let* [(name (car entry))
@@ -70,29 +94,7 @@
         (writer/line! out (.. "*" (format-definition var) "*"))
         (writer/line! out "" true)
 
-        (for-each tok (doc/parse-docstring (.> var :doc))
-          (with (ty (type tok))
-            (cond
-              ((= ty "text") (writer/append! out (.> tok :contents)))
-              ((= ty "arg")  (writer/append! out (.. "`" (.> tok :contents) "`")))
-              ((= ty "mono") (writer/append! out (.> tok :whole)))
-              ((= ty "link")
-                (let* [(name  (.> tok :contents))
-                       (scope (.> var :scope))
-                       (ovar  ((.> scope :get) scope name nil true))]
-                  (if (and ovar (.> ovar :node))
-                    (let* [(loc (-> (.> ovar :node)
-                                  logger/get-source
-                                  (.> <> :name)
-                                  (string/gsub <> "%.lisp$" "")
-                                  (string/gsub <> "/" ".")))
-                           (sig (doc/extract-signature ovar))
-                           (hash (cond
-                                   ((= sig nil) (.> ovar :name))
-                                   ((nil? sig) (.> ovar :name))
-                                   (true (.. name " " (concat (traverse sig (cut get-idx <> "contents")) " ")))))]
-                      (writer/append! out (string/format "[`%s`](%s.md#%s)" name loc (string/gsub hash "%A+" "-"))))
-                    (writer/append! out (string/format "`%s`" name))))))))
+        (write-docstring out (.> var :doc) (.> var :scope))
         (writer/line! out)
         (writer/line! out "" true)))
 

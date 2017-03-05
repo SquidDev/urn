@@ -277,7 +277,7 @@ if docs then
 		if path:sub(-5) == ".lisp" then path = path:sub(1, -6) end
 
 		local lib = libCache[path]
-		local out = backend.markdown.exported(path, lib.docs, lib.scope.exported)
+		local out = backend.markdown.exported(path, lib.docs, lib.scope.exported, lib.scope)
 
 		local handle = io.open(docs .. "/" .. path:gsub("/", ".") .. ".md", "w+")
 		handle:write(out)

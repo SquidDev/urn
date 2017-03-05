@@ -10,7 +10,7 @@
            | ( pattern * ) ;; list
            | ( pattern . pattern ) ;; cons
  ```
- 
+
  A literal pattern matches only if the scrutinee (what's being matched)
  compares [[eq?]] to the literal.
 

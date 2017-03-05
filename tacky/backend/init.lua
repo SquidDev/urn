@@ -13,7 +13,7 @@ local _temp = (function()
 	}
 end)()
 for k, v in pairs(_temp) do _libs["lib/lua/basic/".. k] = v end
-local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e_1, _3e3d_1, _2b_1, _2d_1, _25_1, _2e2e_1, slice1, error1, getmetatable1, print1, getIdx1, setIdx_21_1, require1, tonumber1, tostring1, type_23_1, _23_1, byte1, char1, find1, format1, gsub1, len1, match1, rep1, sub1, upper1, concat1, sort1, unpack1, emptyStruct1, iterPairs1, car1, cdr1, list1, cons1, _21_1, pretty1, list_3f_1, nil_3f_1, string_3f_1, number_3f_1, symbol_3f_1, key_3f_1, exists_3f_1, type1, car2, cdr2, foldr1, map1, traverse1, nth1, pushCdr_21_1, reverse1, cadr1, charAt1, _2e2e_2, split1, quoted1, getenv1, struct1, succ1, pred1, fail_21_1, create1, append_21_1, line_21_1, indent_21_1, unindent_21_1, beginBlock_21_1, nextBlock_21_1, endBlock_21_1, _2d3e_string1, createLookup1, keywords1, createState1, builtins1, builtinVars1, escape1, escapeVar1, statement_3f_1, truthy_3f_1, compileQuote1, compileExpression1, compileBlock1, prelude1, backend1, estimateLength1, expression1, block1, backend2, abs1, max3, builtins2, tokens1, extractSignature1, parseDocstring1, config1, coloredAnsi1, colored_3f_1, colored1, verbosity1, setVerbosity_21_1, showExplain1, setExplain_21_1, printError_21_1, printWarning_21_1, printVerbose_21_1, printDebug_21_1, formatPosition1, formatRange1, formatNode1, getSource1, putLines_21_1, putTrace_21_1, putExplain_21_1, errorPositions_21_1, formatRange2, sortVars_21_1, formatDefinition1, formatSignature1, exported1, backend3, wrapGenerate1, wrapNormal1
+local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e_1, _3e3d_1, _2b_1, _2d_1, _25_1, _2e2e_1, slice1, error1, getmetatable1, print1, getIdx1, setIdx_21_1, require1, tonumber1, tostring1, type_23_1, _23_1, byte1, char1, find1, format1, gsub1, len1, match1, rep1, sub1, upper1, concat1, sort1, unpack1, emptyStruct1, iterPairs1, car1, cdr1, list1, cons1, _21_1, pretty1, list_3f_1, nil_3f_1, string_3f_1, number_3f_1, symbol_3f_1, key_3f_1, exists_3f_1, type1, car2, cdr2, foldr1, map1, traverse1, nth1, pushCdr_21_1, reverse1, cadr1, charAt1, _2e2e_2, split1, quoted1, getenv1, struct1, succ1, pred1, fail_21_1, create1, append_21_1, line_21_1, indent_21_1, unindent_21_1, beginBlock_21_1, nextBlock_21_1, endBlock_21_1, _2d3e_string1, createLookup1, keywords1, createState1, builtins1, builtinVars1, escape1, escapeVar1, statement_3f_1, truthy_3f_1, compileQuote1, compileExpression1, compileBlock1, prelude1, backend1, estimateLength1, expression1, block1, backend2, abs1, max3, builtins2, tokens1, extractSignature1, parseDocstring1, config1, coloredAnsi1, colored_3f_1, colored1, verbosity1, setVerbosity_21_1, showExplain1, setExplain_21_1, printError_21_1, printWarning_21_1, printVerbose_21_1, printDebug_21_1, formatPosition1, formatRange1, formatNode1, getSource1, putLines_21_1, putTrace_21_1, putExplain_21_1, errorPositions_21_1, formatRange2, sortVars_21_1, formatDefinition1, formatSignature1, writeDocstring1, exported1, backend3, wrapGenerate1, wrapNormal1
 _3d_1 = function(v1, v2) return (v1 == v2) end
 _2f3d_1 = function(v1, v2) return (v1 ~= v2) end
 _3c_1 = function(v1, v2) return (v1 < v2) end
@@ -1408,9 +1408,9 @@ tokens1 = {tag = "list", n = 4, {tag = "list", n = 2, "arg", "(%f[%a]%u+%f[%A])"
 extractSignature1 = (function(var5)
 	local ty5 = type1(var5)
 	local temp21
-	local r_2591 = (ty5 == "macro")
-	if r_2591 then
-		temp21 = r_2591
+	local r_2651 = (ty5 == "macro")
+	if r_2651 then
+		temp21 = r_2651
 	else
 		temp21 = (ty5 == "defined")
 	end
@@ -1418,16 +1418,16 @@ extractSignature1 = (function(var5)
 		local root1 = var5["node"]
 		local node8 = nth1(root1, _23_1(root1))
 		local temp22
-		local r_2601 = list_3f_1(node8)
-		if r_2601 then
-			local r_2611 = symbol_3f_1(car2(node8))
-			if r_2611 then
+		local r_2661 = list_3f_1(node8)
+		if r_2661 then
+			local r_2671 = symbol_3f_1(car2(node8))
+			if r_2671 then
 				temp22 = (car2(node8)["var"] == builtins2["lambda"])
 			else
-				temp22 = r_2611
+				temp22 = r_2671
 			end
 		else
-			temp22 = r_2601
+			temp22 = r_2661
 		end
 		if temp22 then
 			return nth1(node8, 2)
@@ -1442,25 +1442,25 @@ parseDocstring1 = (function(str2)
 	local out10 = {tag = "list", n = 0}
 	local pos2 = 1
 	local len3 = len1(str2)
-	local r_2621 = nil
-	r_2621 = (function()
+	local r_2681 = nil
+	r_2681 = (function()
 		if (pos2 <= len3) then
 			local spos1 = len3
 			local epos1 = nil
 			local name3 = nil
 			local ptrn1 = nil
-			local r_2671 = _23_1(tokens1)
-			local r_2651 = nil
-			r_2651 = (function(r_2661)
-				if (r_2661 <= r_2671) then
-					local tok1 = tokens1[r_2661]
+			local r_2731 = _23_1(tokens1)
+			local r_2711 = nil
+			r_2711 = (function(r_2721)
+				if (r_2721 <= r_2731) then
+					local tok1 = tokens1[r_2721]
 					local npos1 = list1(find1(str2, nth1(tok1, 2), pos2))
 					local temp23
-					local r_2691 = car2(npos1)
-					if r_2691 then
+					local r_2751 = car2(npos1)
+					if r_2751 then
 						temp23 = (car2(npos1) < spos1)
 					else
-						temp23 = r_2691
+						temp23 = r_2751
 					end
 					if temp23 then
 						spos1 = car2(npos1)
@@ -1469,11 +1469,11 @@ parseDocstring1 = (function(str2)
 						ptrn1 = nth1(tok1, 2)
 					else
 					end
-					return r_2651((r_2661 + 1))
+					return r_2711((r_2721 + 1))
 				else
 				end
 			end)
-			r_2651(1)
+			r_2711(1)
 			if name3 then
 				if (pos2 < spos1) then
 					pushCdr_21_1(out10, struct1("tag", "text", "contents", sub1(str2, pos2, pred1(spos1))))
@@ -1485,11 +1485,11 @@ parseDocstring1 = (function(str2)
 				pushCdr_21_1(out10, struct1("tag", "text", "contents", sub1(str2, pos2, len3)))
 				pos2 = succ1(len3)
 			end
-			return r_2621()
+			return r_2681()
 		else
 		end
 	end)
-	r_2621()
+	r_2681()
 	return out10
 end)
 struct1("parseDocs", parseDocstring1, "extractSignature", extractSignature1)
@@ -1594,11 +1594,11 @@ formatRange1 = (function(range1)
 end)
 formatNode1 = (function(node9)
 	local temp27
-	local r_2701 = node9["range"]
-	if r_2701 then
+	local r_2761 = node9["range"]
+	if r_2761 then
 		temp27 = node9["contents"]
 	else
-		temp27 = r_2701
+		temp27 = r_2761
 	end
 	if temp27 then
 		return format1("%s (%q)", formatRange1(node9["range"]), node9["contents"])
@@ -1609,11 +1609,11 @@ formatNode1 = (function(node9)
 		return format1("macro expansion of %s (%s)", macro1["var"]["name"], formatNode1(macro1["node"]))
 	else
 		local temp28
-		local r_2831 = node9["start"]
-		if r_2831 then
+		local r_2891 = node9["start"]
+		if r_2891 then
 			temp28 = node9["finish"]
 		else
-			temp28 = r_2831
+			temp28 = r_2891
 		end
 		if temp28 then
 			return formatRange1(node9)
@@ -1624,23 +1624,23 @@ formatNode1 = (function(node9)
 end)
 getSource1 = (function(node10)
 	local result2 = nil
-	local r_2711 = nil
-	r_2711 = (function()
+	local r_2771 = nil
+	r_2771 = (function()
 		local temp29
-		local r_2721 = node10
-		if r_2721 then
+		local r_2781 = node10
+		if r_2781 then
 			temp29 = _21_1(result2)
 		else
-			temp29 = r_2721
+			temp29 = r_2781
 		end
 		if temp29 then
 			result2 = node10["range"]
 			node10 = node10["parent"]
-			return r_2711()
+			return r_2771()
 		else
 		end
 	end)
-	r_2711()
+	r_2771()
 	return result2
 end)
 putLines_21_1 = (function(range2, ...)
@@ -1663,22 +1663,22 @@ putLines_21_1 = (function(range2, ...)
 		end
 	end), 0, entries1)
 	local code1 = _2e2e_2(colored1(92, _2e2e_2(" %", len1(tostring1(maxLine1)), "s |")), " %s")
-	local r_2861 = _23_1(entries1)
-	local r_2841 = nil
-	r_2841 = (function(r_2851)
-		if (r_2851 <= r_2861) then
-			local position1 = entries1[r_2851]
-			local message1 = entries1[succ1(r_2851)]
+	local r_2921 = _23_1(entries1)
+	local r_2901 = nil
+	r_2901 = (function(r_2911)
+		if (r_2911 <= r_2921) then
+			local position1 = entries1[r_2911]
+			local message1 = entries1[succ1(r_2911)]
 			if (file1 ~= position1["name"]) then
 				file1 = position1["name"]
 				print1(colored1(95, _2e2e_2(" ", file1)))
 			else
 				local temp30
-				local r_2881 = (previous1 ~= -1)
-				if r_2881 then
+				local r_2941 = (previous1 ~= -1)
+				if r_2941 then
 					temp30 = (abs1((position1["start"]["line"] - previous1)) > 2)
 				else
-					temp30 = r_2881
+					temp30 = r_2941
 				end
 				if temp30 then
 					print1(colored1(92, " ..."))
@@ -1692,11 +1692,11 @@ putLines_21_1 = (function(range2, ...)
 				pointer1 = "^"
 			else
 				local temp31
-				local r_2891 = position1["finish"]
-				if r_2891 then
+				local r_2951 = position1["finish"]
+				if r_2951 then
 					temp31 = (position1["start"]["line"] == position1["finish"]["line"])
 				else
-					temp31 = r_2891
+					temp31 = r_2951
 				end
 				if temp31 then
 					pointer1 = rep1("^", succ1((position1["finish"]["column"] - position1["start"]["column"])))
@@ -1705,16 +1705,16 @@ putLines_21_1 = (function(range2, ...)
 				end
 			end
 			print1(format1(code1, "", _2e2e_2(rep1(" ", (position1["start"]["column"] - 1)), pointer1, " ", message1)))
-			return r_2841((r_2851 + 2))
+			return r_2901((r_2911 + 2))
 		else
 		end
 	end)
-	return r_2841(1)
+	return r_2901(1)
 end)
 putTrace_21_1 = (function(node12)
 	local previous2 = nil
-	local r_2731 = nil
-	r_2731 = (function()
+	local r_2791 = nil
+	r_2791 = (function()
 		if node12 then
 			local formatted1 = formatNode1(node12)
 			if (previous2 == nil) then
@@ -1725,26 +1725,26 @@ putTrace_21_1 = (function(node12)
 			end
 			previous2 = formatted1
 			node12 = node12["parent"]
-			return r_2731()
+			return r_2791()
 		else
 		end
 	end)
-	return r_2731()
+	return r_2791()
 end)
 putExplain_21_1 = (function(...)
 	local lines3 = _pack(...) lines3.tag = "list"
 	if showExplain1["value"] then
-		local r_2781 = _23_1(lines3)
-		local r_2761 = nil
-		r_2761 = (function(r_2771)
-			if (r_2771 <= r_2781) then
-				local line1 = lines3[r_2771]
+		local r_2841 = _23_1(lines3)
+		local r_2821 = nil
+		r_2821 = (function(r_2831)
+			if (r_2831 <= r_2841) then
+				local line1 = lines3[r_2831]
 				print1(_2e2e_2("  ", line1))
-				return r_2761((r_2771 + 1))
+				return r_2821((r_2831 + 1))
 			else
 			end
 		end)
-		return r_2761(1)
+		return r_2821(1)
 	else
 	end
 end)
@@ -1788,15 +1788,72 @@ formatSignature1 = (function(name4, var7)
 	elseif nil_3f_1(sig1) then
 		return _2e2e_2("(", name4, ")")
 	else
-		return _2e2e_2("(", name4, " ", concat1(traverse1(sig1, (function(r_2901)
-			return r_2901["contents"]
+		return _2e2e_2("(", name4, " ", concat1(traverse1(sig1, (function(r_2961)
+			return r_2961["contents"]
 		end)), " "), ")")
 	end
 end)
-exported1 = (function(out11, title1, primary1, vars1)
+writeDocstring1 = (function(out11, str3, scope1)
+	local r_2601 = parseDocstring1(str3)
+	local r_2631 = _23_1(r_2601)
+	local r_2611 = nil
+	r_2611 = (function(r_2621)
+		if (r_2621 <= r_2631) then
+			local tok2 = r_2601[r_2621]
+			local ty7 = type1(tok2)
+			if (ty7 == "text") then
+				append_21_1(out11, tok2["contents"])
+			elseif (ty7 == "arg") then
+				append_21_1(out11, _2e2e_2("`", tok2["contents"], "`"))
+			elseif (ty7 == "mono") then
+				append_21_1(out11, tok2["whole"])
+			elseif (ty7 == "link") then
+				local name5 = tok2["contents"]
+				local ovar1 = scope1["get"](scope1, name5, nil, true)
+				local temp32
+				if ovar1 then
+					temp32 = ovar1["node"]
+				else
+					temp32 = ovar1
+				end
+				if temp32 then
+					local loc1
+					local r_3021
+					local r_3011
+					local r_3001
+					local r_2991 = ovar1["node"]
+					r_3001 = getSource1(r_2991)
+					r_3011 = r_3001["name"]
+					r_3021 = gsub1(r_3011, "%.lisp$", "")
+					loc1 = gsub1(r_3021, "/", ".")
+					local sig2 = extractSignature1(ovar1)
+					local hash1
+					if (sig2 == nil) then
+						hash1 = ovar1["name"]
+					elseif nil_3f_1(sig2) then
+						hash1 = ovar1["name"]
+					else
+						hash1 = _2e2e_2(name5, " ", concat1(traverse1(sig2, (function(r_2981)
+							return r_2981["contents"]
+						end)), " "))
+					end
+					append_21_1(out11, format1("[`%s`](%s.md#%s)", name5, loc1, gsub1(hash1, "%A+", "-")))
+				else
+					append_21_1(out11, format1("`%s`", name5))
+				end
+			else
+				_error("unmatched item")
+			end
+			return r_2611((r_2621 + 1))
+		else
+		end
+	end)
+	return r_2611(1)
+end)
+exported1 = (function(out12, title1, primary1, vars1, scope2)
 	local documented1 = {tag = "list", n = 0}
 	local undocumented1 = {tag = "list", n = 0}
-	iterPairs1(vars1, (function(name5, var8)
+	iterPairs1(vars1, (function(name6, var8)
 		return pushCdr_21_1((function()
 			if var8["doc"] then
 				return documented1
@@ -1804,94 +1861,39 @@ exported1 = (function(out11, title1, primary1, vars1)
 				return undocumented1
 			end
 		end)()
-		, list1(name5, var8))
+		, list1(name6, var8))
 	end))
 	sortVars_21_1(documented1)
 	sortVars_21_1(undocumented1)
-	line_21_1(out11, "---")
-	line_21_1(out11, _2e2e_2("title: ", title1))
-	line_21_1(out11, "---")
-	line_21_1(out11, _2e2e_2("# ", title1))
+	line_21_1(out12, "---")
+	line_21_1(out12, _2e2e_2("title: ", title1))
+	line_21_1(out12, "---")
+	line_21_1(out12, _2e2e_2("# ", title1))
 	if primary1 then
-		line_21_1(out11, primary1)
+		writeDocstring1(out12, primary1, scope2)
 	else
 	end
-	local r_2951 = _23_1(documented1)
-	local r_2931 = nil
-	r_2931 = (function(r_2941)
-		if (r_2941 <= r_2951) then
-			local entry5 = documented1[r_2941]
-			local name6 = car2(entry5)
+	local r_3071 = _23_1(documented1)
+	local r_3051 = nil
+	r_3051 = (function(r_3061)
+		if (r_3061 <= r_3071) then
+			local entry5 = documented1[r_3061]
+			local name7 = car2(entry5)
 			local var9 = nth1(entry5, 2)
-			line_21_1(out11, _2e2e_2("## `", formatSignature1(name6, var9), "`"))
-			line_21_1(out11, _2e2e_2("*", formatDefinition1(var9), "*"))
-			line_21_1(out11, "", true)
-			local r_2981 = parseDocstring1(var9["doc"])
-			local r_3011 = _23_1(r_2981)
-			local r_2991 = nil
-			r_2991 = (function(r_3001)
-				if (r_3001 <= r_3011) then
-					local tok2 = r_2981[r_3001]
-					local ty7 = type1(tok2)
-					if (ty7 == "text") then
-						append_21_1(out11, tok2["contents"])
-					elseif (ty7 == "arg") then
-						append_21_1(out11, _2e2e_2("`", tok2["contents"], "`"))
-					elseif (ty7 == "mono") then
-						append_21_1(out11, tok2["whole"])
-					elseif (ty7 == "link") then
-						local name7 = tok2["contents"]
-						local scope1 = var9["scope"]
-						local ovar1 = scope1["get"](scope1, name7, nil, true)
-						local temp32
-						if ovar1 then
-							temp32 = ovar1["node"]
-						else
-							temp32 = ovar1
-						end
-						if temp32 then
-							local loc1
-							local r_3081
-							local r_3071
-							local r_3061
-							local r_3051 = ovar1["node"]
-							r_3061 = getSource1(r_3051)
-							r_3071 = r_3061["name"]
-							r_3081 = gsub1(r_3071, "%.lisp$", "")
-							loc1 = gsub1(r_3081, "/", ".")
-							local sig2 = extractSignature1(ovar1)
-							local hash1
-							if (sig2 == nil) then
-								hash1 = ovar1["name"]
-							elseif nil_3f_1(sig2) then
-								hash1 = ovar1["name"]
-							else
-								hash1 = _2e2e_2(name7, " ", concat1(traverse1(sig2, (function(r_3041)
-									return r_3041["contents"]
-								end)), " "))
-							end
-							append_21_1(out11, format1("[`%s`](%s.md#%s)", name7, loc1, gsub1(hash1, "%A+", "-")))
-						else
-							append_21_1(out11, format1("`%s`", name7))
-						end
-					else
-						_error("unmatched item")
-					end
-					return r_2991((r_3001 + 1))
-				else
-				end
-			end)
-			r_2991(1)
-			line_21_1(out11)
-			line_21_1(out11, "", true)
-			return r_2931((r_2941 + 1))
+			line_21_1(out12, _2e2e_2("## `", formatSignature1(name7, var9), "`"))
+			line_21_1(out12, _2e2e_2("*", formatDefinition1(var9), "*"))
+			line_21_1(out12, "", true)
+			writeDocstring1(out12, var9["doc"], var9["scope"])
+			line_21_1(out12)
+			line_21_1(out12, "", true)
+			return r_3051((r_3061 + 1))
 		else
 		end
 	end)
-	r_2931(1)
+	r_3051(1)
 	if nil_3f_1(undocumented1) then
 	else
-		line_21_1(out11, "## Undocumented symbols")
+		line_21_1(out12, "## Undocumented symbols")
 	end
 	local r_3131 = _23_1(undocumented1)
 	local r_3111 = nil
@@ -1900,7 +1902,7 @@ exported1 = (function(out11, title1, primary1, vars1)
 			local entry6 = undocumented1[r_3121]
 			local name8 = car2(entry6)
 			local var10 = nth1(entry6, 2)
-			line_21_1(out11, _2e2e_2(" - `", formatSignature1(name8, var10), "` *", formatDefinition1(var10), "*"))
+			line_21_1(out12, _2e2e_2(" - `", formatSignature1(name8, var10), "` *", formatDefinition1(var10), "*"))
 			return r_3111((r_3121 + 1))
 		else
 		end
