@@ -137,9 +137,13 @@
     [(nil? xs) acc]
     [true (reverse (cdr xs) (cons (car xs) acc))]))
 
-(defun sum (xs)
-  "Calculate the sum of all elements of xs."
-  (foldr + 0 xs))
+(defun accumulate-with (f ac z xs)
+  "A composition of foldr and map.
+   Transform the values of XS using the function F, then accumulate them
+   starting form Z using the function AC."
+  (assert-type! f function)
+  (assert-type! ac function)
+  (foldr ac z (map f xs)))
 
 
 ;; AUTOMATICALLY GENERATED
