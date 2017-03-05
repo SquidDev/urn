@@ -1,6 +1,6 @@
 (import urn/backend/writer writer)
 (import urn/documentation doc)
-(import urn/logger logger)
+(import urn/range (get-source format-position))
 
 (import string)
 (import lua/table table)
@@ -10,7 +10,7 @@
 (defun format-range (range)
   "Format a range."
   :hidden
-  (string/format "%s:%s" (.> range :name) (logger/format-position (.> range :start))))
+  (string/format "%s:%s" (.> range :name) (format-position (.> range :start))))
 
 (defun sort-vars! (list)
   "Sort a list of variables"
@@ -26,11 +26,11 @@
       ((= ty "builtin")
         "Builtin term")
       ((= ty "macro")
-        (.. "Macro defined at " (format-range (logger/get-source (.> var :node)))))
+        (.. "Macro defined at " (format-range (get-source (.> var :node)))))
       ((= ty "native")
-        (.. "Native defined at " (format-range (logger/get-source (.> var :node)))))
+        (.. "Native defined at " (format-range (get-source (.> var :node)))))
       ((= ty "defined")
-        (.. "Defined at " (format-range (logger/get-source (.> var :node))))))))
+        (.. "Defined at " (format-range (get-source (.> var :node))))))))
 
 (defun format-signature (name var)
   "Attempt to extract the function signature from VAR"
@@ -55,7 +55,7 @@
                  (ovar ((.> scope :get) scope name nil true))]
             (if (and ovar (.> ovar :node))
               (let* [(loc (-> (.> ovar :node)
-                          logger/get-source
+                          get-source
                           (.> <> :name)
                           (string/gsub <> "%.lisp$" "")
                           (string/gsub <> "/" ".")))

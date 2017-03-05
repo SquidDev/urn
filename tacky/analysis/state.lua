@@ -1,10 +1,11 @@
-local logger = require "tacky.logger"
+local logger = require "tacky.logger.init"
+local range = require "tacky.range"
 
 local State = {}
 State.__index = State
 
 local ctr = 0
-function State.create(variables, states, scope)
+function State.create(variables, states, scope, logger)
 	if not variables then error("variables cannot be nil", 2) end
 	if not states then error("states cannot be nil", 2) end
 	if not scope then error("scope cannot be nil", 2) end
@@ -18,6 +19,9 @@ function State.create(variables, states, scope)
 
 		-- Variable ID to variable mapping
 		variables = variables,
+
+		-- The logger instance
+		logger = logger,
 
 		--- List of all required variables
 		required = {},
@@ -90,14 +94,7 @@ function State:built(node)
 	self.node = node
 
 	if node.defVar ~= self.var then
-		logger.printError("Variables are different for " .. self.var.name)
-		print("Original variable defined at")
-		logger.putTrace(self.var.node)
-
-		print("New variable defined at")
-		logger.putTrace(node)
-
-		error("An error occured", 0)
+		logger.putError(self.logger, "Variables are different for " .. self.var.name)
 	end
 end
 
@@ -141,15 +138,16 @@ function State:get()
 					local node = previous.requiredSet[current]
 					if not firstNode then firstNode = node end
 
-					nodes[#nodes + 1] = logger.getSource(node)
+					nodes[#nodes + 1] = range.getSource(node)
 					nodes[#nodes + 1] = current.var.name .. " used in " .. previous.var.name
 				end
 			end
 
-			logger.printError("Loop in macros: " .. table.concat(states, " -> "))
-			logger.putTrace(firstNode)
-			logger.putLines(true, unpack(nodes))
-			error("An error occured", 0)
+			logger.doNodeError(self.logger,
+				"Loop in macros: " .. table.concat(states, " -> "),
+				firstNode, nil,
+				unpack(nodes)
+			)
 		end
 
 		idx = #stack + 1

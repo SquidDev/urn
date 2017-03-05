@@ -1,6 +1,7 @@
+(import urn/logger/init logger)
+(import urn/range ())
+
 (import string)
-(import urn/logger logger)
-(import function (cut))
 
 (defun hex-digit? (char)
   "Determines whether CHAR is a hecharadecimal digit"
@@ -17,18 +18,17 @@
   :hidden
   (or (= char "\n") (= char " ") (= char "\t") (= char "(") (= char ")") (= char "[") (= char "]") (= char "{") (= char "}") (= char "")))
 
-(defun digit-error! (pos name char)
+(defun digit-error! (logger pos name char)
   "Generate an error at POS where a NAME digit was expected and CHAR received instead"
   :hidden
-  (logger/print-error! (string/format "Expected %s digit, got %s" name (if (= char "")
-                                                                         "eof"
-                                                                         (string/quoted char))))
-  (logger/put-trace! pos)
-  (logger/put-lines! false
-    pos  "Invalid digit here")
-  (fail! "Lexing failed"))
+  (logger/do-node-error! logger
+    (string/format "Expected %s digit, got %s" name (if (= char "")
+                                                      "eof"
+                                                      (string/quoted char)))
+    pos nil
+    pos "Invalid digit here"))
 
-(defun lex (str name)
+(defun lex (logger str name)
   "Lex STR from a file called NAME, returning a series of tokens"
   (let* ((lines (string/split str "\n"))
          (line 1)
@@ -146,13 +146,12 @@
                 (unless (terminator? char)
                   (consume!)
 
-                  (logger/print-error! (string/format "Expected digit, got %s" (if (= char "")
-                                                                                 "eof"
-                                                                                 char)))
-                  (logger/put-trace! (range (position)))
-                  (logger/put-lines! false
-                    (range (position))  "Illegal character here. Are you missing whitespace?")
-                  (fail! "Lexing failed")))))
+                  (logger/do-node-error! logger
+                    (string/format "Expected digit, got %s" (if (= char "")
+                                                              "eof"
+                                                              char))
+                    (range (position)) nil
+                    (range (position)) "Illegal character here. Are you missing whitespace?")))))
           ((= char "\"")
             (let* [(start (position))
                    (start-col (succ column))
@@ -177,13 +176,10 @@
                          ;; Got an EOF, we'll handle this in the next block so just exit.
                          (set! running false)]
                         [true
-                          (logger/print-warning! (string/format "Expected leading indent, got %q" char))
-                          (logger/put-trace! (range (position)))
-                          (logger/put-explain!
-                            "You should try to align multi-line strings at the initial quote"
-                            "mark. This helps keep programs neat and tidy.")
-                          (logger/put-lines!
-                            false
+                          (logger/put-node-warning! logger (string/format "Expected leading indent, got %q" char)
+                            (range (position))
+                            "You should try to align multi-line strings at the initial quote
+                             mark. This helps keep programs neat and tidy."
                             (range start)      "String started with indent here"
                             (range (position)) "Mis-aligned character here")
 
@@ -193,15 +189,13 @@
                       (set! char (string/char-at str offset)))))
                 (cond
                   [(= char "")
-                   (logger/print-error! "Expected '\"', got eof")
-
                    (let ((start (range start))
                          (finish (range (position))))
-                     (logger/put-trace! finish)
-                     (logger/put-lines! false
-                                        start  "string started here"
-                                        finish "end of file here")
-                     (fail! "Lexing failed"))]
+                     (logger/do-node-error! logger
+                       "Expected '\"', got eof"
+                       finish nil
+                       start "string started here"
+                       finish "end of file here"))]
                   [(= char "\\")
                    (consume!)
                    (set! char (string/char-at str offset))
@@ -248,26 +242,22 @@
                                      (string->number (string/sub str (.> start :offset) offset)))))]
 
                         (when (>= val 256)
-                          (logger/print-error! "Invalid escape code")
-                          (logger/put-trace! (range start))
-                          (logger/put-lines!
-                            true
-                            (range start (position)) (.. "Must be between 0 and 255, is " val))
-                          (fail! "Lexing failed"))
+                          (logger/do-node-error! logger
+                            "Invalid escape code"
+                            (range (start)) nil
+                            (range (start) position) (.. "Must be between 0 and 255, is " val)))
 
                         (push-cdr! buffer (string/char val)))]
                      [(= char "")
-                      (logger/print-error! "Expected escape code, got eof")
-                      (logger/put-trace! (range (position)))
-                      (logger/put-lines! false
-                                         (range (position)) "end of file here")
-                      (fail! "Lexing failed")]
+                      (logger/do-node-error! logger
+                        "Expected escape code, got eof"
+                        (range (position)) nil
+                        (range (position)) "end of file here")]
                      [true
-                       (logger/print-error! "Illegal escape character")
-                       (logger/put-trace! (range (position)))
-                       (logger/put-lines! false
-                                          (range (position)) "Unknown escape character")
-                       (fail! "Lexing failed")])]
+                       (logger/do-node-error! logger
+                         "Illegal escape character"
+                         (range (position)) nil
+                         (range (position)) "Unknown escape character")])]
                   ;; Boring normal characters
                   [true
                    (push-cdr! buffer char)])
@@ -292,7 +282,7 @@
     (append! "eof")
     out))
 
-(defun parse (toks)
+(defun parse (logger toks)
   "Parse tokens TOKS, the result of [[lex]]"
   (let* ((index 1)
          (head '())
@@ -343,15 +333,13 @@
                   (.<! head :last-node tok)
                   ;; Then ensure we're on the same column
                   (when (/= (.> tok-pos :start :column) (.> prev-pos :start :column))
-                    (logger/print-warning! "Different indent compared with previous expressions.")
-                    (logger/put-trace! tok)
+                    (logger/put-node-warning! logger
+                      "Different indent compared with previous expressions."
+                      tok
+                      "You should try to maintain consistent indentation across a program,
+                       try to ensure all expressions are lined up.
+                       If this looks OK to you, check you're not missing a closing ')'."
 
-                    (logger/put-explain!
-                      "You should try to maintain consistent indentation across a program,"
-                      "try to ensure all expressions are lined up."
-                      "If this looks OK to you, check you're not missing a closing ')'.")
-
-                    (logger/put-lines! false
                       prev-pos ""
                       tok-pos  ""))))
               ;; Otherwise this is the first line so set the previous node
@@ -371,25 +359,24 @@
            (cond
              [(nil? stack)
               ;; Unmatched closing bracket.
-              (logger/error-positions! tok (string/format "'%s' without matching '%s'" (.> tok :contents) (.> tok :open)))]
+              (logger/do-node-error! logger
+                (string/format "'%s' without matching '%s'" (.> tok :contents) (.> tok :open))
+                tok nil
+                (get-source tok) "")]
              [(.> head :auto-close)
               ;; Attempting to close a quote
-              (logger/print-error! (string/format "'%s' without matching '%s' inside quote" (.> tok :contents) (.> tok :open)))
-              (logger/put-trace! tok)
-
-              (logger/put-lines! false
-                                 (.> head :range) "quote opened here"
-                                 (.> tok :range)  "attempting to close here")
-              (fail! "Parsing failed")]
+              (logger/do-node-error! logger
+                (string/format "'%s' without matching '%s' inside quote" (.> tok :contents) (.> tok :open))
+                tok nil
+                (.> head :range) "quote opened here"
+                (.> tok :range)  "attempting to close here")]
              [(/= (.> head :close) (.> tok :contents))
               ;; Mismatched brackets
-              (logger/print-error! (string/format "Expected '%s', got '%s'" (.> head :close) (.> tok :contents)))
-              (logger/put-trace! tok)
-
-              (logger/put-lines! false
-                                 (.> head :range) (string/format "block opened with '%s'" (.> head :open))
-                                 (.> tok :range) (string/format "'%s' used here" (.> tok :contents)))
-              (fail! "Parsing failed")]
+              (logger/do-node-error! logger
+                (string/format "Expected '%s', got '%s'" (.> head :close) (.> tok :contents))
+                tok nil
+                (.> head :range) (string/format "block opened with '%s'" (.> head :open))
+                (.> tok :range) (string/format "'%s' used here" (.> tok :contents)))]
              [true
                ;; All OK!
                (.<! head :range :finish (.> tok :range :finish))
@@ -409,19 +396,19 @@
            (.<! head :auto-close true)]
           [(= tag "eof")
            (when (/= 0 (# stack))
-             (logger/print-error! "Expected ')', got eof")
-             (logger/put-trace! tok)
-
-             (logger/put-lines! false
-                                (.> head :range) "block opened here"
-                                (.> tok :range)  "end of file here")
-             (fail! "Parsing failed"))]
+             (logger/do-node-error! logger
+               "Expected ')', got eof"
+               tok nil
+               (.> head :range) "block opened here"
+               (.> tok :range)  "end of file here"))]
           [true (error! (string/.. "Unsupported type" tag))])
         (unless auto-close
           (while (.> head :auto-close)
             (when (nil? stack)
-              (logger/error-positions! tok (string/format "'%s' without matching '%s'" (.> tok :contents) (.> tok :open)))
-              (fail! "Parsing failed"))
+              (logger/do-node-error! logger
+                (string/format "'%s' without matching '%s'" (.> tok :contents) (.> tok :open))
+                tok nil
+                (get-source tok) ""))
             (.<! head :range :finish (.> tok :range :finish))
             (pop!)))))
     head))

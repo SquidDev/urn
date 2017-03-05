@@ -1,9 +1,10 @@
 local backend = require "tacky.backend.init"
-local logger = require "tacky.logger"
+local logger = require "tacky.logger.init"
+local range = require "tacky.range"
 local resolve = require "tacky.analysis.resolve"
 local State = require "tacky.analysis.state"
 
-local function executeStates(compileState, states, global)
+local function executeStates(compileState, states, global, loggerI)
 	local stateList, nameTable, nameList, escapeList = {}, {}, {}, {}
 
 	for j = #states, 1, -1 do
@@ -45,7 +46,7 @@ local function executeStates(compileState, states, global)
 
 		local success, result = xpcall(fun, debug.traceback)
 		if not success then
-			logger.printDebug(str)
+			logger.putDebug(loggerI, str)
 			error(result, 0)
 		end
 
@@ -60,13 +61,13 @@ local function executeStates(compileState, states, global)
 	end
 end
 
-local function compile(parsed, global, env, inStates, scope, compileState, loader)
+local function compile(parsed, global, env, inStates, scope, compileState, loader, loggerI)
 	local queue = {}
 	local out = {}
 	local states = { scope = scope }
 
 	for i = 1, #parsed do
-		local state = State.create(env, inStates, scope)
+		local state = State.create(env, inStates, scope, loggerI)
 		states[i] = state
 		queue[i] = {
 			tag  = "init",
@@ -89,7 +90,7 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 		if not status then
 			error(result .. "\n" .. debug.traceback(action._co), 0)
 		elseif coroutine.status(action._co) == "dead" then
-			logger.printDebug("  Finished: " .. #queue .. " remaining")
+			logger.putDebug(loggerI, "  Finished: " .. #queue .. " remaining")
 			-- We have successfully built the node.
 			action._state:built(result)
 			out[action._idx] = result
@@ -108,7 +109,7 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 	while #queue > 0 and iterations <= #queue do
 		local head = table.remove(queue, 1)
 
-		logger.printDebug(head.tag .. " for " .. head._state.stage .. " at " .. logger.formatNode(head._node) .. " (" .. (head._state.var and head._state.var.name or "?") .. ")")
+		logger.putDebug(loggerI, head.tag .. " for " .. head._state.stage .. " at " .. range.formatNode(head._node) .. " (" .. (head._state.var and head._state.var.name or "?") .. ")")
 
 		if head.tag == "init" then
 			-- Start the parser with the initial data
@@ -120,7 +121,7 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 			if scope.variables[head.name] then
 				resume(head, scope.variables[head.name])
 			else
-				logger.printDebug("  Awaiting definition of " .. head.name)
+				logger.putDebug(loggerI, "  Awaiting definition of " .. head.name)
 
 				-- Increment the fact that we've done nothing
 				iterations = iterations + 1
@@ -130,7 +131,7 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 			if head.state.stage ~= "parsed" then
 				resume(head)
 			else
-				logger.printDebug("  Awaiting building of node (" .. (head.state.var and head.state.var.name or "?") .. ")")
+				logger.putDebug(loggerI, "  Awaiting building of node (" .. (head.state.var and head.state.var.name or "?") .. ")")
 
 				-- Increment the fact that we've done nothing
 				iterations = iterations + 1
@@ -138,13 +139,17 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 				queue[#queue + 1] = head
 			end
 		elseif head.tag == "execute" then
-			executeStates(compileState, head.states, global)
+			executeStates(compileState, head.states, global, loggerI)
 			resume(head)
 		elseif head.tag == "import" then
 			local success, module = loader(head.module)
 
 			if not success then
-				logger.errorPositions(head._node, module)
+				logger.doNodeError(loggerI,
+					module,
+					head._node, nil,
+					range.getSource(head._node), ""
+				)
 			end
 
 			local export = head.export
@@ -152,13 +157,13 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 			for name, var in pairs(module) do
 				if head.as then
 					name = head.as .. '/' .. name
-					scope:import(name, var, head._node, export)
+					scope:importVerbose(name, var, head._node, export, loggerI)
 				elseif head.symbols then
 					if head.symbols[name] then
-						scope:import(name, var, head._node, export)
+						scope:importVerbose(name, var, head._node, export, loggerI)
 					end
 				else
-					scope:import(name, var, head._node, export)
+					scope:importVerbose(name, var, head._node, export, loggerI)
 				end
 			end
 
@@ -166,11 +171,11 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 				local failure = false
 				for name, nameNode in pairs(head.symbols) do
 					if not module[name] then
-						logger.printError("Cannot find " .. name)
-						logger.putTrace(nameNode)
-						logger.putLines(true,
-							logger.getSource(head._node), "Importing here",
-							logger.getSource(nameNode), "Required here"
+						logger.putNodeError(loggerI,
+							"Cannot find " .. name,
+							nameNode, nil,
+							range.getSource(head._node), "Importing here",
+							range.getSource(nameNode), "Required here"
 						)
 						failure = true
 					end
@@ -189,8 +194,8 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 			local entry = queue[i]
 
 			if entry.tag == "define" then
-				logger.printError("Cannot find variable " .. entry.name)
 
+				local info
 				if entry.scope then
 					local vars, varSet = {tag="list"}, {}
 
@@ -209,17 +214,18 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 					vars.n = #vars
 					table.sort(vars)
 
-					logger.putInfo("Variables in scope are " .. table.concat(vars, ", "))
+					info = "Variables in scope are " .. table.concat(vars, ", ")
 				end
 
-				if entry.node then
-					logger.putTrace(entry.node)
+				local node = entry.node or entry._node
 
-					local source = logger.getSource(entry.node)
-					if source then logger.putLines(true, source, "") end
-				end
+				logger.doNodeError(loggerI,
+					"Cannot find variable " .. entry.name,
+					node, info,
+					range.getSource(node), ""
+				)
 			elseif entry.tag == "build" then
-				logger.printError("Could not build " .. entry.state.var.name)
+				logger.putError(loggerI, "Could not build " .. entry.state.var.name)
 			else
 				error("State should not be " .. entry.tag)
 			end
