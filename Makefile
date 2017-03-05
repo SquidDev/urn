@@ -4,13 +4,15 @@ TEST_FLAGS ?=
 OUT_DIR    ?= tacky
 DOCS_DIR   ?= docs_tmp
 PAGES_DIR  ?= docs
-OBJS       :=                    \
+OBJS       :=                     \
 	${OUT_DIR}/analysis/optimise  \
 	${OUT_DIR}/analysis/warning   \
 	${OUT_DIR}/backend/init       \
 	${OUT_DIR}/documentation      \
-	${OUT_DIR}/logger             \
-	${OUT_DIR}/parser
+	${OUT_DIR}/logger/init        \
+	${OUT_DIR}/logger/term        \
+	${OUT_DIR}/parser             \
+	${OUT_DIR}/range              \
 
 TESTS     := $(shell find tests -type f)
 LIBS      := $(shell find lib -type f -name "*.lisp")

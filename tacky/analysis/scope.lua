@@ -1,4 +1,5 @@
-local logger = require "tacky.logger"
+local logger = require "tacky.logger.init"
+local range = require "tacky.range"
 
 local Scope = {}
 Scope.__index = Scope
@@ -51,21 +52,7 @@ local kinds = { defined = true, native = true, macro = true, arg = true, builtin
 function Scope:add(name, kind, node)
 	if name == nil then error("name is nil", 2) end
 	if not kinds[kind] then error("unknown kind " .. tostring(kind), 2) end
-
-	local previous = self.variables[name]
-	if previous then
-		local previous = self.variables[name].node
-
-		logger.printError("Previous declaration of " .. name)
-		logger.putTrace(node)
-
-		logger.putLines(true,
-			logger.getSource(node), "new definition here",
-			logger.getSource(previous), "old definition here"
-		)
-
-		error("An error occured", 0)
-	end
+	if self.variables[name] then error("Previous declaration of " .. name) end
 
 	local var = {
 		tag = kind,
@@ -80,34 +67,59 @@ function Scope:add(name, kind, node)
 	return var
 end
 
+function Scope:addVerbose(name, kind, node, loggerI)
+	if name == nil then error("name is nil", 2) end
+	if not kinds[kind] then error("unknown kind " .. tostring(kind), 2) end
+
+	local previous = self.variables[name]
+	if previous then
+		local previous = self.variables[name].node
+
+		logger.doNodeError(loggerI,
+			"Previous declaration of " .. name,
+			node, nil,
+			range.getSource(node), "new definition here",
+			range.getSource(previous), "old definition here"
+		)
+	end
+
+	return self:add(name, kind, node)
+end
+
 function Scope:import(name, var, node, export)
 	if var == nil then error("var is nil", 2) end
+	if self.variables[name] and self.variables[name] ~= var then error("Previous declaration of " .. name) end
 
-	if node then logger.printDebug("Importing " .. name .. " into " .. logger.getSource(node).name) end
+	self.variables[name] = var
+
+	if export then
+		self.exported[name] = var
+	end
+
+	return var
+end
+
+function Scope:importVerbose(name, var, node, export, loggerI)
+	if var == nil then error("var is nil", 2) end
+
+	if node then logger.putDebug(loggerI, "Importing " .. name .. " into " .. range.getSource(node).name) end
 
 	if self.variables[name] and self.variables[name] ~= var then
 		local current = var.node
 		local previous = self.variables[name].node
 
-		logger.printError("Previous declaration of " .. name)
-		logger.putTrace(node)
-
-		logger.putLines(true,
-			logger.getSource(node), "imported here",
-			logger.getSource(current), "new definition here",
-			logger.getSource(previous), "old definition here"
+		logger.putNodeError(loggerI,
+			"Previous declaration of " .. name,
+			node, nil,
+			range.getSource(node), "imported here",
+			range.getSource(current), "new definition here",
+			range.getSource(previous), "old definition here"
 		)
-
-		error("An error occured", 0)
 	end
 
-	self.variables[name] = var
-	if export then
-		if node then logger.printDebug("Exporting " .. name .. " from " .. logger.getSource(node).name) end
-		self.exported[name] = var
-	end
+	if export and node then logger.putDebug(loggerI, "Exporting " .. name .. " from " .. range.getSource(node).name) end
 
-	return var
+	return self:import(name, var, node, export)
 end
 
 return Scope

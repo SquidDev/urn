@@ -1,6 +1,7 @@
 (import urn/analysis/usage usage)
 (import urn/analysis/visitor visitor)
-(import urn/logger logger)
+(import urn/logger/init logger)
+(import urn/range (get-source))
 
 (define builtins (.> (require "tacky.analysis.resolve") :builtins))
 (define builtin-vars (.> (require "tacky.analysis.resolve") :declaredVars))
@@ -21,7 +22,7 @@
                      (and (/= var (.> builtins :lambda)) (/= var (.> builtins :quote))))
                true))])))
 
-(defun warn-arity (lookup nodes)
+(defun warn-arity (lookup nodes state)
   "Produce a warning if any NODE in NODES calls a function with too many arguments.
 
    LOOKUP is the variable usage lookup table"
@@ -59,17 +60,17 @@
         (when (and (list? node) (symbol? (car node)))
           (with (arity (get-arity (car node)))
             (when (and arity (< arity (pred (# node))))
-              (logger/print-warning! (.. "Calling " (symbol->string (car node)) " with " (string->number (pred (# node))) " arguments, expected " (string->number arity)))
-              (logger/put-trace! node)
-              (logger/put-lines! true
-                (logger/get-source node) "Called here"))))))))
+              (logger/put-node-warning! (.> state :logger)
+                (.. "Calling " (symbol->string (car node)) " with " (string->number (pred (# node))) " arguments, expected " (string->number arity))
+                node nil
+                (get-source node) "Called here"))))))))
 
-(defun analyse (nodes)
+(defun analyse (nodes state)
   (with (lookup (usage/create-state))
     (usage/definitions-visit lookup nodes)
     (usage/usages-visit lookup nodes side-effect?)
 
-    (warn-arity lookup nodes))
+    (warn-arity lookup nodes state))
   nodes)
 
 (struct

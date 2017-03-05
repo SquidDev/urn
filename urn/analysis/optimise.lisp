@@ -1,7 +1,8 @@
 (import urn/analysis/usage usage)
 (import urn/analysis/visitor visitor)
 (import urn/analysis/traverse traverse)
-(import urn/logger logger)
+(import urn/logger/init logger)
+(import urn/range (get-source))
 
 (import string)
 (import base (type#))
@@ -127,10 +128,10 @@
                     ;; Mark this head as folded so we don't try again
                     (.<! head :folded true)
                     ;; Print a warning message
-                    (logger/print-warning! (.. "Cannot execute constant expression"))
-                    (logger/put-trace! node)
-                    (logger/put-lines! true
-                      (logger/get-source node) (.. "Executed " (pretty node) ", failed with: " (nth res 2)))
+                    (logger/put-node-warning! (.> state :logger)
+                      (.. "Cannot execute constant expression")
+                      node nil
+                      (get-source node) (.. "Executed " (pretty node) ", failed with: " (nth res 2)))
                     node)))
               node))
           node)))

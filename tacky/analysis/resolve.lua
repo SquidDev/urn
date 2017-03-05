@@ -1,43 +1,46 @@
 local Scope = require "tacky.analysis.scope"
-local logger = require "tacky.logger"
+local logger = require "tacky.logger.init"
+local range = require "tacky.range"
 local pprint = require 'tacky.pprint'
 
-local errorPositions = logger.errorPositions
+local function errorPositions(log, node, message)
+	logger.doNodeError(log,
+		message, node, nil,
+		range.getSource(node), ""
+	)
+end
 
-local function expectType(node, parent, type, name)
+local function expectType(log, node, parent, type, name)
 	if not node or node.tag ~= type then
-		errorPositions(node or parent, "Expected " .. (name or type) .. ", got " .. (node and node.tag or "nothing"))
+		errorPositions(log, node or parent, "Expected " .. (name or type) .. ", got " .. (node and node.tag or "nothing"))
 	end
 end
 
-local function expect(node, parent, name)
+local function expect(log, node, parent, name)
 	if not node then
-		errorPositions(parent, "Expected " .. name .. ", got nothing")
+		errorPositions(log, parent, "Expected " .. name .. ", got nothing")
 	end
 end
 
-local function maxLength(node, len, name)
+local function maxLength(log, node, len, name)
 	if node.n > len then
 		local last = node[len + 1]
-		errorPositions(last, "Unexpected node in '" .. name .. "' (expected " .. len .. " values, got " .. node.n .. ")")
+		errorPositions(log, last, "Unexpected node in '" .. name .. "' (expected " .. len .. " values, got " .. node.n .. ")")
 	end
 end
 
-local function internalError(node, message)
-	logger.printError(message)
-	logger.putTrace(node)
-	logger.putLines(true, logger.getSource(node), "")
-	error("An internal error occured", 2)
+local function internalError(log, node, message)
+	errorPositions(log, node, "[Internal]" .. message .. "\n" .. debug.traceback())
 end
 
-local function handleMetadata(node, var, start, finish)
+local function handleMetadata(log, node, var, start, finish)
 	for i = start, finish do
 		local child = node[i]
 		if not child then
-			expect(child, node, "variable metadata")
+			expect(log, child, node, "variable metadata")
 		elseif child.tag == "string" then
 			if var.doc then
-				errorPositions(child, "Multiple doc strings in definition")
+				errorPositions(log, child, "Multiple doc strings in definition")
 			else
 				var.doc = child.value
 			end
@@ -46,10 +49,10 @@ local function handleMetadata(node, var, start, finish)
 				-- Prevent exporting this symbol
 				var.scope.exported[var.name] = nil
 			else
-				errorPositions(child, "Unexpected modifier '" .. child.value .. "'")
+				errorPositions(log, child, "Unexpected modifier '" .. child.value .. "'")
 			end
 		else
-			errorPositions(child, "Unexpected node of type " .. child.tag .. ", have you got too many values?")
+			errorPositions(log, child, "Unexpected node of type " .. child.tag .. ", have you got too many values?")
 		end
 	end
 end
@@ -99,10 +102,10 @@ local function resolveMacroResult(macro, node, parent, scope, state)
 			node = newNode
 		else
 			if tag then ty = tostring(tag) end
-			errorPositions(parent, "Invalid node of type '" .. ty .. "' from macro '" .. macro.var.name .. "'")
+			errorPositions(state.logger, parent, "Invalid node of type '" .. ty .. "' from macro '" .. macro.var.name .. "'")
 		end
 	else
-		errorPositions(parent, "Invalid node of type '" .. ty .. "' from macro '" .. macro.var.name .. "'")
+		errorPositions(state.logger, parent, "Invalid node of type '" .. ty .. "' from macro '" .. macro.var.name .. "'")
 	end
 
 	node.parent = parent
@@ -119,7 +122,7 @@ local function resolveMacroResult(macro, node, parent, scope, state)
 	elseif node.tag == "symbol" and type(node.var) == "string" then
 		local var = state.variables[node.var]
 		if not var then
-			errorPositions(node, "Invalid variable key '" .. node.var .. "' for '" .. node.contents .. "'")
+			errorPositions(state.logger, node, "Invalid variable key '" .. node.var .. "' for '" .. node.contents .. "'")
 		else
 			node.var = var
 		end
@@ -142,7 +145,7 @@ function resolveQuote(node, scope, state, level)
 			node.var = scope:get(node.contents, node)
 
 			if not node.var.scope.isRoot and not node.var.scope.builtin then
-				errorPositions(node, "Cannot use non-top level definition in syntax-quote")
+				errorPositions(state.logger, node, "Cannot use non-top level definition in syntax-quote")
 			end
 		end
 		return node
@@ -168,12 +171,13 @@ function resolveQuote(node, scope, state, level)
 
 		return node
 	else
-		internalError(expr, "Unknown tag " .. expr.tag)
+		internalError(state.logger, expr, "Unknown tag " .. expr.tag)
 	end
 end
 
 function resolveNode(node, scope, state, root)
 	local kind = node.tag
+	local log = state.logger
 	if kind == "number" or kind == "boolean" or kind == "string" or node.tag == "key" then
 		-- Do nothing: this is a constant term after all
 		return node
@@ -182,14 +186,14 @@ function resolveNode(node, scope, state, root)
 			node.var = scope:get(node.contents, node)
 		end
 		if node.var.tag == "builtin" then
-			errorPositions(node, "Cannot have a raw builtin")
+			errorPositions(log, node, "Cannot have a raw builtin")
 		end
 		state:require(node.var, node)
 		return node
 	elseif kind == "list" then
 		local first = node[1]
 		if not first then
-			errorPositions(node, "Cannot invoke a non-function type 'nil'")
+			errorPositions(log, node, "Cannot invoke a non-function type 'nil'")
 		elseif first.tag == "symbol" then
 			if not first.var then
 				first.var = scope:get(first.contents, first)
@@ -199,7 +203,7 @@ function resolveNode(node, scope, state, root)
 			local funcState = state:require(func, first)
 
 			if func == builtins["lambda"] then
-				expectType(node[2], node, "list", "argument list")
+				expectType(log, node[2], node, "list", "argument list")
 
 				local childScope = scope:child()
 
@@ -207,21 +211,21 @@ function resolveNode(node, scope, state, root)
 
 				local hasVariadic
 				for i = 1, #args do
-					expectType(args[i], args, "symbol", "argument")
+					expectType(log, args[i], args, "symbol", "argument")
 					local name = args[i].contents
 
 					-- Strip "&" for variadic arguments.
 					local isVar = name:sub(1, 1) == "&"
 					if isVar then
 						if hasVariadic then
-							errorPositions(args[i], "Cannot have multiple variadic arguments")
+							errorPositions(log, args[i], "Cannot have multiple variadic arguments")
 						else
 							name = name:sub(2)
 							hasVariadic = true
 						end
 					end
 
-					args[i].var = childScope:add(name, "arg", args[i])
+					args[i].var = childScope:addVerbose(name, "arg", args[i], log)
 					args[i].var.isVariadic = isVar
 				end
 
@@ -230,8 +234,8 @@ function resolveNode(node, scope, state, root)
 			elseif func == builtins["cond"] then
 				for i = 2, #node do
 					local case = node[i]
-					expectType(case, node, "list", "case expression")
-					expect(case[1], case, "condition")
+					expectType(log, case, node, "list", "case expression")
+					expect(log, case[1], case, "condition")
 
 					case[1] = resolveNode(case[1], scope, state)
 
@@ -241,71 +245,71 @@ function resolveNode(node, scope, state, root)
 
 				return node
 			elseif func == builtins["set!"] then
-				expectType(node[2], node, "symbol")
-				expect(node[3], node, "value")
-				maxLength(node, 3, "set!")
+				expectType(log, node[2], node, "symbol")
+				expect(log, node[3], node, "value")
+				maxLength(log, node, 3, "set!")
 
 				local var = scope:get(node[2].contents, node[2])
 				state:require(var, node[2])
 				node[2].var = var
 				if var.const then
-					errorPositions(node, "Cannot rebind constant " .. var.name)
+					errorPositions(log, node, "Cannot rebind constant " .. var.name)
 				end
 
 				node[3] = resolveNode(node[3], scope, state)
 				return node
 			elseif func == builtins["quote"] then
-				expect(node[2], node, "value")
-				maxLength(node, 2, "quote")
+				expect(log, node[2], node, "value")
+				maxLength(log, node, 2, "quote")
 				return node
 			elseif func == builtins["syntax-quote"] then
-				expect(node[2], node, "value")
-				maxLength(node, 2, "syntax-quote")
+				expect(log, node[2], node, "value")
+				maxLength(log, node, 2, "syntax-quote")
 
 				node[2] = resolveQuote(node[2], scope, state, 1)
 				return node
 			elseif func == builtins["unquote"] or func == builtins["unquote-splice"] then
-				errorPositions(node[1] or node, "Unquote outside of syntax-quote")
+				errorPositions(log, node[1] or node, "Unquote outside of syntax-quote")
 			elseif func == builtins["define"] then
-				if not root then errorPositions(first, "define can only be used on the top level") end
-				expectType(node[2], node, "symbol", "name")
-				expect(node[3], node, "value")
+				if not root then errorPositions(log, first, "define can only be used on the top level") end
+				expectType(log, node[2], node, "symbol", "name")
+				expect(log, node[3], node, "value")
 
-				local var = scope:add(node[2].contents, "defined", node)
+				local var = scope:addVerbose(node[2].contents, "defined", node, log)
 				state:define(var)
 				node.defVar = var
 
-				handleMetadata(node, var, 3, node.n - 1)
+				handleMetadata(log, node, var, 3, node.n - 1)
 
 				node[node.n] = resolveNode(node[node.n], scope, state)
 				return node
 			elseif func == builtins["define-macro"] then
-				if not root then errorPositions(first, "define-macro can only be used on the top level") end
-				expectType(node[2], node, "symbol", "name")
-				expect(node[3], node, "value")
+				if not root then errorPositions(log, first, "define-macro can only be used on the top level") end
+				expectType(log, node[2], node, "symbol", "name")
+				expect(log, node[3], node, "value")
 
-				local var = scope:add(node[2].contents, "macro", node)
+				local var = scope:addVerbose(node[2].contents, "macro", node, log)
 				state:define(var)
 				node.defVar = var
 
-				handleMetadata(node, var, 3, node.n - 1)
+				handleMetadata(log, node, var, 3, node.n - 1)
 
 				node[node.n] = resolveNode(node[node.n], scope, state)
 				return node
 			elseif func == builtins["define-native"] then
-				if not root then errorPositions(first, "define-native can only be used on the top level") end
-				expectType(node[2], node, "symbol", "name")
+				if not root then errorPositions(log, first, "define-native can only be used on the top level") end
+				expectType(log, node[2], node, "symbol", "name")
 
-				local var = scope:add(node[2].contents, "native", node)
+				local var = scope:addVerbose(node[2].contents, "native", node, log)
 				state:define(var)
 				node.defVar = var
 
-				handleMetadata(node, var, 3, node.n)
+				handleMetadata(log, node, var, 3, node.n)
 
 				return node
 			elseif func == builtins["import"] then
-				expectType(node[2], node, "symbol", "module name")
-				maxLength(node, 4, "import")
+				expectType(log, node[2], node, "symbol", "module name")
+				maxLength(log, node, 4, "import")
 
 				local as = node[2].contents
 				local as, symbols
@@ -321,13 +325,13 @@ function resolveNode(node, scope, state, root)
 							symbols = {}
 							for i = 1, node[3].n do
 								local entry = node[3][i]
-								expectType(entry, node[3], "symbol")
+								expectType(log, entry, node[3], "symbol")
 
 								symbols[entry.contents] = entry
 							end
 						end
 					else
-						expectType(node[3], node, "symbol", "alias name or import list")
+						expectType(log, node[3], node, "symbol", "alias name or import list")
 					end
 				else
 					as = node[2].contents
@@ -336,12 +340,12 @@ function resolveNode(node, scope, state, root)
 
 				local export = false
 				if node[4] then
-					expectType(node[4], node, "key", "key expected for import attributes")
+					expectType(log, node[4], node, "key", "key expected for import attributes")
 
 					if node[4].contents == ":export" then
 						export = true
 					else
-						errorPositions(node[4], "unknown import modifier")
+						errorPositions(log, node[4], "unknown import modifier")
 					end
 				end
 
@@ -355,7 +359,7 @@ function resolveNode(node, scope, state, root)
 				})
 				return node
 			elseif func.tag == "macro" then
-				if not funcState then errorPositions(first, "Macro is not defined correctly") end
+				if not funcState then errorPositions(log, first, "Macro is not defined correctly") end
 				local builder = funcState:get()
 				if type(builder) ~= "function" then
 					errorPositions(first, "Macro is of type " .. type(builder))
@@ -363,7 +367,7 @@ function resolveNode(node, scope, state, root)
 
 				local success, replacement = xpcall(function() return builder(table.unpack(node, 2, #node)) end, debug.traceback)
 				if not success then
-					errorPositions(first, replacement)
+					errorPositions(log, first, replacement)
 				end
 
 				replacement = resolveMacroResult(funcState, replacement, node, scope, state)
@@ -372,15 +376,15 @@ function resolveNode(node, scope, state, root)
 			elseif func.tag == "defined" or func.tag == "arg" or func.tag == "native" or func.tag == "builtin" then
 				return resolveList(node, 1, scope, state)
 			else
-				internalError(first, "Unknown kind " .. tostring(func.tag) .. " for variable " .. func.name)
+				internalError(log, first, "Unknown kind " .. tostring(func.tag) .. " for variable " .. func.name)
 			end
 		elseif first.tag == "list" then
 			return resolveList(node, 1, scope, state)
 		else
-			errorPositions(node[1], "Cannot invoke a non-function type '" .. first.tag .. "'")
+			errorPositions(log, node[1], "Cannot invoke a non-function type '" .. first.tag .. "'")
 		end
 	else
-		intenalError(node, "Unknown type " .. tostring(kind))
+		intenalError(log, node, "Unknown type " .. tostring(kind))
 	end
 end
 
