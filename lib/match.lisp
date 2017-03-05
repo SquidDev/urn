@@ -8,7 +8,7 @@
            | symbol
            | _
            | ( pattern * ) ;; list
-           | ( pattern . pattern ) ;; cons
+           | ( pattern + . pattern ) ;; list+rest
  ```
  
  A literal pattern matches only if the scrutinee (what's being matched)
@@ -24,36 +24,57 @@
  Results in `1` being printed to standard output, seeing as it is bound to
  `x`.
 
- List patterns and cons patterns match lists. A list pattern will match every
- element in a list, while a cons pattern will only match the car and the cdr.
+ List patterns and _list with rest_ patterns match lists. A list pattern will
+ match every element in a list, while a cons pattern will only match a certain
+ number of cars and the cdr.
  Both bind everything bound by their \"inner\" patterns."
 
-(import base ( defun defmacro if
-               let* and gensym error
-               quasiquote /= # for
-               list or pretty ))
+(import base ( defun defmacro if get-idx
+               let* and gensym error for
+               quasiquote list or pretty
+               slice
+               /= # = ! - + / * >= ))
 (import type ( eq? list? symbol? string?
                boolean? number? ))
+
 (import list ( car caddr cadr cdr append for-each
                map filter push-cdr!
-               nth ))
-(import string (..))
+               nth last ))
 
-(defun cons-pattern? (pattern) :hidden
-  (eq? (cadr pattern) '.))
+(import table (struct))
+(import string (.. char-at sub))
 
-(defun compile-pattern-test (pattern symb) :hidden
+(defun cons-pattern? (pattern)
+  (eq? (nth pattern (- (# pattern) 1)) '.))
+
+(defun cons-pat-left-side (pattern)
+  (slice pattern 1 (- (# pattern) 2)))
+
+(defun cons-pat-right-side (pattern)
+  (last pattern))
+
+(defun meta? (symbol)
+  (and (symbol? symbol)
+       (eq? (char-at (get-idx symbol "contents") 1) "?")))
+
+(defun compile-pattern-test (pattern symb)
   (cond
     [(list? pattern)
      (cond
        [(cons-pattern? pattern)
-        (let* [(pattern-sym (gensym))]
+        (let* [(pattern-sym (gensym))
+               (lhs (cons-pat-left-side pattern))
+               (rhs (cons-pat-right-side pattern))
+               (lhs-test '())]
+          (for i 1 (# lhs) 1
+            (push-cdr! lhs-test (compile-pattern-test (nth lhs i)
+                                                      `(nth ,pattern-sym ,i))))
           `(let* [(,pattern-sym ,symb)]
              (and (list? ,pattern-sym)
+                  (>= (# ,pattern-sym) ,(- (# pattern) 2))
+                  ,@lhs-test
                   ,(compile-pattern-test
-                     (car pattern) ~(car ,pattern-sym))
-                  ,(compile-pattern-test
-                     (caddr pattern) ~(cdr ,pattern-sym)))))]
+                     (last pattern) `(slice ,pattern-sym ,(+ 1 (# lhs)))))))]
        [true
         (let* [(out '())
                (sym (gensym))]
@@ -61,35 +82,42 @@
             (push-cdr! out (compile-pattern-test (nth pattern i)
                                                 ~(nth ,sym ,i))))
           `(let* [(,sym ,symb)]
-             (and (list? ,sym) ,@out)))])]
-    [(or (eq? '_ pattern) (symbol? pattern))
+             (and (list? ,sym) (= (# ,sym) ,(# pattern)) ,@out)))])]
+    [(or (eq? '_ pattern) (meta? pattern))
      `true]
+    [(and (! (meta? pattern)) (symbol? pattern))
+     ~(eq? ,symb ',pattern)]
     [(or (number? pattern) (boolean? pattern) (string? pattern))
      `(eq? ,symb ,pattern)]
     [true (error (.. "unsupported pattern " (pretty pattern)))]))
 
-(defun compile-pattern-bindings (pattern symb) :hidden
+(defun compile-pattern-bindings (pattern symb)
   (filter (lambda (x) (/= (# x) 0))
     (cond
       [(list? pattern)
        (cond
          [(cons-pattern? pattern)
-          (append (compile-pattern-bindings (car pattern) `(car ,symb))
-                  (compile-pattern-bindings (caddr pattern) `(cdr ,symb)))]
+          (let* [(lhs (cons-pat-left-side pattern))
+                 (rhs (cons-pat-right-side pattern))
+                 (lhs-bindings '())]
+            (for i 1 (# lhs) 1
+              (for-each elem (compile-pattern-bindings (nth lhs i) `(nth ,symb ,i))
+                (push-cdr! lhs-bindings elem)))
+            (append lhs-bindings (compile-pattern-bindings rhs `(slice ,symb ,(+ 1 (# lhs))))))]
          [true
           (let* [(out '())]
             (for i 1 (# pattern) 1
               (for-each elem (compile-pattern-bindings (nth pattern i) `(nth ,symb ,i))
                 (push-cdr! out elem)))
             out)])]
-      [(symbol? pattern)
-       `((,pattern ,symb))]
-      [(or (number? pattern) (boolean? pattern) (string? pattern) (eq? pattern '_))
+      [(meta? pattern)
+       `((,(struct :tag "symbol" :contents (sub (get-idx pattern "contents") 2)) ,symb))]
+      [(or (number? pattern) (boolean? pattern) (string? pattern) (eq? pattern '_) (and (! (meta? pattern)) (symbol? pattern)))
        '()]
       [true (error (.. "unsupported pattern " (pretty pattern)))])))
 
 
-(defun compile-pattern (pattern symb body) :hidden
+(defun compile-pattern (pattern symb body)
   `(if ,(compile-pattern-test pattern symb)
      (let* ,(compile-pattern-bindings pattern symb)
        ,@body)
