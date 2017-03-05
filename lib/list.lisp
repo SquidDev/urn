@@ -137,6 +137,11 @@
     [(nil? xs) acc]
     [true (reverse (cdr xs) (cons (car xs) acc))]))
 
+(defun sum (xs)
+  "Calculate the sum of all elements of xs."
+  (foldr + 0 xs))
+
+
 ;; AUTOMATICALLY GENERATED
 ;; DO NOT EDIT please.
 (defun caar (x) (car (car x)))
