@@ -62,20 +62,24 @@
 
 (defun get-constant-val (lookup sym)
   "Get the value of DEF if it is a constant, otherwise nil"
-  (with (def (usage/get-var lookup (.> sym :var)))
-    (when (= 1 (#keys (.> def :defs)))
-      (let* [(ent (nth (list (next (.> def :defs))) 2))
-             (val (.> ent :value))
-             (ty  (.> ent :tag))]
-        (cond
-          [(or (string? val) (number? val) (key? val))
-           val]
-          [(and (symbol? val) (or (= ty "define") (= ty "set") (= ty "let")))
-           ;; Attempt to get this value, or fallback to just the symbol
-           ;; This allows us to simplify reference chains to their top immutable variable
-           (or (get-constant-val lookup val) sym)]
-          [true
-            sym])))))
+  (let* [(var (.> sym :var))
+         (def (usage/get-var lookup (.> sym :var)))]
+    (cond
+      [(= var (.> builtin-vars :true)) sym]
+      [(= var (.> builtin-vars :false)) sym]
+      [(= var (.> builtin-vars :nil)) sym]
+      [(= (#keys (.> def :defs)) 1)
+       (let* [(ent (nth (list (next (.> def :defs))) 2))
+              (val (.> ent :value))
+              (ty  (.> ent :tag))]
+         (cond
+           [(or (string? val) (number? val) (key? val)) val]
+           [(and (symbol? val) (or (= ty "define") (= ty "set") (= ty "let")))
+            ;; Attempt to get this value, or fallback to just the symbol
+            ;; This allows us to simplify reference chains to their top immutable variable
+            (or (get-constant-val lookup val) sym)]
+           [true sym]))]
+      [true nil])))
 
 (defun optimise-once (nodes state)
   "Run all optimisations on NODES once"

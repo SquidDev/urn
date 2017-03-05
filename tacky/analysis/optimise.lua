@@ -1417,8 +1417,15 @@ makeProgn1 = (function(body1)
 	}
 end)
 getConstantVal1 = (function(lookup1, sym1)
+	local var6 = sym1["var"]
 	local def2 = getVar1(lookup1, sym1["var"])
-	if (1 == _23_keys1(def2["defs"])) then
+	if (var6 == builtinVars2["true"]) then
+		return sym1
+	elseif (var6 == builtinVars2["false"]) then
+		return sym1
+	elseif (var6 == builtinVars2["nil"]) then
+		return sym1
+	elseif (_23_keys1(def2["defs"]) == 1) then
 		local ent1 = nth1(list1(next1(def2["defs"])), 2)
 		local val7 = ent1["value"]
 		local ty4 = ent1["tag"]
@@ -1466,6 +1473,7 @@ getConstantVal1 = (function(lookup1, sym1)
 			end
 		end
 	else
+		return nil
 	end
 end)
 optimiseOnce1 = (function(nodes3, state8)
@@ -1747,16 +1755,16 @@ optimiseOnce1 = (function(nodes3, state8)
 	end))
 	traverseList1(nodes3, 1, (function(node29)
 		if symbol_3f_1(node29) then
-			local var6 = getConstantVal1(lookup2, node29)
+			local var7 = getConstantVal1(lookup2, node29)
 			local temp46
-			if var6 then
-				temp46 = (var6 ~= node29)
+			if var7 then
+				temp46 = (var7 ~= node29)
 			else
-				temp46 = var6
+				temp46 = var7
 			end
 			if temp46 then
 				changed1 = true
-				return var6
+				return var7
 			else
 				return node29
 			end
