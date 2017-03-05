@@ -3,7 +3,7 @@ title: lib/prelude
 ---
 # lib/prelude
 ## `(! expr)`
-*Defined at lib/base.lisp:80:1*
+*Defined at lib/base.lisp:78:1*
 
 Negate the expresison `EXPR`.
 
@@ -58,7 +58,7 @@ Index the structure `X` with the sequence of accesses given by `KEYS`.
 Test if all elements of `XS` match the predicate `P`.
 
 ## `(and a b &rest)`
-*Macro defined at lib/base.lisp:131:1*
+*Macro defined at lib/base.lisp:129:1*
 
 Return the logical and of values `A` and `B`, and, if present, the
 logical and of all the values in `REST`.
@@ -120,7 +120,7 @@ Check if the numerical value `X` is between
 `MIN` and `MAX`.
 
 ## `bool->string`
-*Defined at lib/prelude.lisp:44:1*
+*Defined at lib/prelude.lisp:45:1*
 
 Convert the boolean `X` into a string.
 
@@ -133,6 +133,12 @@ Check whether `X` is a boolean.
 *Defined at lib/list.lisp:9:1*
 
 Return the first element of the array X
+
+## `(case val &pts)`
+*Macro defined at lib/match.lisp:108:1*
+
+Match a single value against a series of patterns, evaluating the first
+body that matches, much like `cond`.
 
 ## `(cdr x)`
 *Defined at lib/list.lisp:14:1*
@@ -147,7 +153,7 @@ the mathematical operator `∘`, i.e. `(compose f g)` corresponds to
 `h(x) = f (g x)` (`(lambda (x) (f (g x)))`).
 
 ## `(cons x xs)`
-*Defined at lib/base.lisp:53:1*
+*Defined at lib/base.lisp:51:1*
 
 Add `X` to the start of the list `XS`. Note: this is linear in time.
 
@@ -161,7 +167,7 @@ and
   `(eq? (cdr x) (snd (cons->pair x)))`
 
 ## `(const x)`
-*Defined at lib/prelude.lisp:82:1*
+*Defined at lib/prelude.lisp:83:1*
 
 Return a function which always returns `X`. This is equivalent to the `K`
 combinator in `SK` combinator calculus.
@@ -195,26 +201,33 @@ defined.
 ```
 
 ## `(debug x)`
-*Defined at lib/base.lisp:143:1*
+*Defined at lib/base.lisp:141:1*
 
 Print the value `X`, then return it unmodified.
 
 ## `(dec! x)`
-*Macro defined at lib/prelude.lisp:30:1*
+*Macro defined at lib/prelude.lisp:31:1*
 
 Decrement the variable `X` in place.
 
 ## `(defmacro name args &body)`
-*Macro defined at lib/base.lisp:40:1*
+*Macro defined at lib/base.lisp:38:1*
 
 Define `NAME` to be the macro given by (lambda `ARGS` @`BODY`), with
 optional metadata at the start of `BODY`.
 
 ## `(defun name args &body)`
-*Macro defined at lib/base.lisp:34:1*
+*Macro defined at lib/base.lisp:32:1*
 
 Define `NAME` to be the function given by (lambda `ARGS` @`BODY`), with
 optional metadata at the start of `BODY`.
+
+## `(destructuring-bind pt &body)`
+*Macro defined at lib/match.lisp:98:1*
+
+Match a single pattern against a single value, then evaluate the `BODY`.
+The pattern is given as `(car PT)` and the value as `(cadr PT)`.
+If the pattern does not match, an error is thrown.
 
 ## `(elem? x xs)`
 *Defined at lib/list.lisp:64:1*
@@ -258,7 +271,7 @@ Rules:
   - They are equal if neither exists.  
 
 ## `error!`
-*Defined at lib/prelude.lisp:58:1*
+*Defined at lib/prelude.lisp:59:1*
 
 Throw an error.
 
@@ -269,13 +282,13 @@ Check if `X` exists, i.e. it is not the special value `nil`.
 Note that, in Urn, `nil` is not the empty list.
 
 ## `(exit! reason code)`
-*Defined at lib/prelude.lisp:71:1*
+*Defined at lib/prelude.lisp:72:1*
 
 Exit the program with the exit code `CODE`, and optionally, print the
 error message `REASON`.
 
 ## `(fail! x)`
-*Defined at lib/prelude.lisp:66:1*
+*Defined at lib/prelude.lisp:67:1*
 
 Fail with the error message `X`, that is, exit the program immediately,
 without unwinding for an error handler.
@@ -302,7 +315,7 @@ Concatenate all the lists in `XSS`. `XSS` must not contain elements which are no
 Fold over the list `XS` using the binary operator `F` and the starting value `Z`.
 
 ## `(for ctr start end step &body)`
-*Macro defined at lib/base.lisp:97:1*
+*Macro defined at lib/base.lisp:95:1*
 
 Iterate `BODY`, with the counter `CTR` bound to `START`, being incremented
 by `STEP` every iteration until `CTR` is outside of the range given by
@@ -324,22 +337,22 @@ Extract the first component of the pair `X`.
 Check whether `X` is a function.
 
 ## `gensym`
-*Defined at lib/base.lisp:84:1*
+*Defined at lib/base.lisp:82:1*
 
 Create a unique symbol, suitable for using in macros
 
 ## `(id x)`
-*Defined at lib/prelude.lisp:78:1*
+*Defined at lib/prelude.lisp:79:1*
 
 Return the value `X` unmodified.
 
 ## `(if c t b)`
-*Macro defined at lib/base.lisp:61:1*
+*Macro defined at lib/base.lisp:59:1*
 
 Evaluate `T` if `C` is true, otherwise, evaluate `B`.
 
 ## `(inc! x)`
-*Macro defined at lib/prelude.lisp:26:1*
+*Macro defined at lib/prelude.lisp:27:1*
 
 Increment the variable `X` in place.
 
@@ -425,7 +438,7 @@ true
 ```
 
 ## `(list &xs)`
-*Defined at lib/base.lisp:49:1*
+*Defined at lib/base.lisp:47:1*
 
 Return the list of variadic arguments given.
 
@@ -457,7 +470,7 @@ Check whether `X` is the empty list.
 Get the `IDX` th element in the list `XS`. The first element is 1.
 
 ## `number->string`
-*Defined at lib/prelude.lisp:40:1*
+*Defined at lib/prelude.lisp:41:1*
 
 Convert the number `X` into a string.
 
@@ -467,7 +480,7 @@ Convert the number `X` into a string.
 Check whether `X` is a number.
 
 ## `(or a b &rest)`
-*Macro defined at lib/base.lisp:137:1*
+*Macro defined at lib/base.lisp:135:1*
 
 Return the logical or of values `A` and `B`, and, if present, the
 logical or of all the values in `REST`.
@@ -498,22 +511,22 @@ Test if `X` is a pair.
 Mutate the list `XS`, removing and returning its last element.
 
 ## `(pred x)`
-*Defined at lib/prelude.lisp:22:1*
+*Defined at lib/prelude.lisp:23:1*
 
 Return the predecessor of the number `X`.
 
 ## `(pretty value)`
-*Defined at lib/base.lisp:147:1*
+*Defined at lib/base.lisp:145:1*
 
 Format `VALUE` as a valid Lisp expression which can be parsed.
 
 ## `print!`
-*Defined at lib/prelude.lisp:62:1*
+*Defined at lib/prelude.lisp:63:1*
 
 Print to standard output.
 
 ## `(progn &body)`
-*Macro defined at lib/base.lisp:57:1*
+*Macro defined at lib/base.lisp:55:1*
 
 Group a series of expressions together.
 
@@ -526,6 +539,14 @@ Remove values matching the predicate [`nil?`](lib.type.md#nil-x) from the list `
 *Defined at lib/list.lisp:87:1*
 
 Mutate the list `XS`, adding `VAL` to its end.
+
+## `(quasiquote val)`
+*Macro defined at lib/base.lisp:214:1*
+
+Quote `VAL`, but replacing all `unquote` and `unquote-splice` with their actual value.
+
+Be warned, by using this you loose all macro hygiene. Variables may not be bound to their
+expected values.
 
 ## `(range start end acc)`
 *Defined at lib/list.lisp:126:1*
@@ -543,7 +564,7 @@ Mutate the list `LI`, removing the value at `IDX` and returning it.
 Reverse the list `XS`, using the accumulator `ACC`.
 
 ## `(self x key &args)`
-*Defined at lib/prelude.lisp:87:1*
+*Defined at lib/prelude.lisp:88:1*
 
 Index `X` with `KEY` and invoke the resulting function with `X` and `ARGS`
 
@@ -559,14 +580,14 @@ are `<>`.
 Extract the second component of the pair `X`.
 
 ## `string->number`
-*Defined at lib/prelude.lisp:34:1*
+*Defined at lib/prelude.lisp:35:1*
 
 Convert the string `X` into a number. Returns `nil` if it could not be parsed.
 
 Optionally takes a `BASE` which the number is in (such as 16 for hexadecimal).
 
 ## `(string->symbol x)`
-*Defined at lib/prelude.lisp:54:1*
+*Defined at lib/prelude.lisp:55:1*
 
 Convert the string `X` to a symbol.
 
@@ -600,12 +621,12 @@ Convert the structure `TBL` into an association list. Note that
 because duplicate elements will be removed.
 
 ## `(succ x)`
-*Defined at lib/prelude.lisp:18:1*
+*Defined at lib/prelude.lisp:19:1*
 
 Return the successor of the number `X`.
 
 ## `(symbol->string x)`
-*Defined at lib/prelude.lisp:48:1*
+*Defined at lib/prelude.lisp:49:1*
 
 Convert the symbol `X` to a string.
 
@@ -631,12 +652,12 @@ An alias for [`map`](lib.list.md#map-f-xs-acc) with the arguments `XS` and `F` f
 Return the type of `VAL`.
 
 ## `(unless c &body)`
-*Macro defined at lib/base.lisp:69:1*
+*Macro defined at lib/base.lisp:67:1*
 
 Evaluate `BODY` if `C` is false, otherwise, evaluate `nil`.
 
 ## `(when c &body)`
-*Macro defined at lib/base.lisp:65:1*
+*Macro defined at lib/base.lisp:63:1*
 
 Evaluate `BODY` when `C` is true, otherwise, evaluate `nil`.
 
@@ -690,12 +711,12 @@ When `bar` has an index `baz`, it will be bound to `foo` and printed. If not,
 the print statement will not be executed.
 
 ## `(while check &body)`
-*Macro defined at lib/base.lisp:116:1*
+*Macro defined at lib/base.lisp:114:1*
 
 Iterate `BODY` while the expression `CHECK` evaluates to `true`.
 
 ## `(with var &body)`
-*Macro defined at lib/base.lisp:127:1*
+*Macro defined at lib/base.lisp:125:1*
 
 Bind the single variable `VAR`, then evaluate `BODY`.
 
