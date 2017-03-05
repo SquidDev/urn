@@ -44,20 +44,20 @@
 (import table (struct))
 (import string (.. char-at sub))
 
-(defun cons-pattern? (pattern)
+(defun cons-pattern? (pattern) :hidden
   (eq? (nth pattern (- (# pattern) 1)) '.))
 
-(defun cons-pat-left-side (pattern)
+(defun cons-pat-left-side (pattern) :hidden
   (slice pattern 1 (- (# pattern) 2)))
 
-(defun cons-pat-right-side (pattern)
+(defun cons-pat-right-side (pattern) :hidden
   (last pattern))
 
-(defun meta? (symbol)
+(defun meta? (symbol) :hidden
   (and (symbol? symbol)
        (eq? (char-at (get-idx symbol "contents") 1) "?")))
 
-(defun compile-pattern-test (pattern symb)
+(defun compile-pattern-test (pattern symb) :hidden
   (cond
     [(list? pattern)
      (cond
@@ -91,7 +91,7 @@
      `(eq? ,symb ,pattern)]
     [true (error (.. "unsupported pattern " (pretty pattern)))]))
 
-(defun compile-pattern-bindings (pattern symb)
+(defun compile-pattern-bindings (pattern symb) :hidden
   (filter (lambda (x) (/= (# x) 0))
     (cond
       [(list? pattern)
@@ -117,7 +117,7 @@
       [true (error (.. "unsupported pattern " (pretty pattern)))])))
 
 
-(defun compile-pattern (pattern symb body)
+(defun compile-pattern (pattern symb body) :hidden
   `(if ,(compile-pattern-test pattern symb)
      (let* ,(compile-pattern-bindings pattern symb)
        ,@body)
