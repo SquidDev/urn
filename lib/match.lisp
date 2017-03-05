@@ -1,4 +1,4 @@
-(import base ( defun defmacro if
+(import base ( defun defmacro if debug print
                let* and gensym error
                quasiquote /= # for
                list or pretty ))
@@ -23,7 +23,7 @@
                   ,(compile-pattern-test
                      (car pattern) ~(car ,pattern-sym))
                   ,(compile-pattern-test
-                     (caddr pattern) ~(caddr ,pattern-sym)))))]
+                     (caddr pattern) ~(cdr ,pattern-sym)))))]
        [true
         (let* [(out '())
                (sym (gensym))]
