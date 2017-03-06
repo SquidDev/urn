@@ -292,7 +292,7 @@ if docs then
 		local lib = libCache[path]
 		local out = backend.markdown.exported(lib.name, lib.docs, lib.scope.exported, lib.scope)
 
-		local handle = io.open(docs .. "/" .. lib.name:gsub("/", ".") .. ".md", "w+")
+		local handle = io.open(docs .. "/" .. path:gsub("/", ".") .. ".md", "w+")
 		handle:write(out)
 		handle:close()
 	end
