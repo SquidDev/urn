@@ -5,17 +5,20 @@
  The grammar of patterns is described below:
  ```
  pattern ::= literal
-           | symbol
+           | metavar
            | _
+           | ( as pattern metavar ) ;; as
            | ( pattern * ) ;; list
            | ( pattern + . pattern ) ;; list+rest
+ literal ::= int | string | boolean | symbol
+ metavar ::= '?' symbol
  ```
 
  A literal pattern matches only if the scrutinee (what's being matched)
  compares [[eq?]] to the literal.
 
- Both symbol patterns and the wildcard, `_`, match anything. However, a
- symbol will bind the result of matching to that symbol. For example,
+ Both metavariable patterns and the wildcard, `_`, match anything. However,
+ a metavariable will bind the result of matching to that symbol. For example,
 
  ```
  (destructuring-bind [x 1]
@@ -32,7 +35,7 @@
 (import base ( defun defmacro if get-idx
                let* and gensym error for
                quasiquote list or pretty
-               slice
+               slice concat debug
                /= # = ! - + / * >= ))
 (import type ( eq? list? symbol? string?
                boolean? number? ))
@@ -61,6 +64,8 @@
   (cond
     [(list? pattern)
      (cond
+       [(eq? (car pattern) 'as)
+        (compile-pattern-test (cadr pattern))]
        [(cons-pattern? pattern)
         (let* [(pattern-sym (gensym))
                (lhs (cons-pat-left-side pattern))
@@ -96,6 +101,8 @@
     (cond
       [(list? pattern)
        (cond
+         [(eq? (car pattern) 'as)
+          `(,@(compile-pattern-bindings (caddr pattern) symb) ,@(compile-pattern-bindings (cadr pattern) symb))]
          [(cons-pattern? pattern)
           (let* [(lhs (cons-pat-left-side pattern))
                  (rhs (cons-pat-right-side pattern))
@@ -121,7 +128,7 @@
   `(if ,(compile-pattern-test pattern symb)
      (let* ,(compile-pattern-bindings pattern symb)
        ,@body)
-     (error (.. ,(.. "failed to match pattern " (pretty pattern) " against ") (pretty ,symb)))))
+     (error (.. ,(.. "Pattern matching failure! Can not match the pattern `" (pretty pattern) "` against `") (pretty ,symb) "`."))))
 
 (defmacro destructuring-bind (pt &body)
   "Match a single pattern against a single value, then evaluate the BODY.
@@ -132,6 +139,12 @@
          (val-sym (gensym))]
     `(let* [(,val-sym ,value)]
        ,(compile-pattern pattern val-sym body))))
+
+(defun generate-case-error (arms val) :hidden
+  (let* [(patterns (map (lambda (x) (pretty (car x))) arms))
+         ]
+    `(error (.. "Pattern matching failure!\nTried to match the following patterns against " (pretty ,val) ", but none matched.\n"
+                ,(concat (map (lambda (x) (.. "  Tried: `" x "`")) patterns) "\n")))))
 
 (defmacro case (val &pts)
   "Match a single value against a series of patterns, evaluating the first
@@ -144,4 +157,4 @@
                  ,@(cdr pt)))))]
     `(let* [(,val-sym ,val)]
        (cond ,@(map compile-arm pts)
-             [true (error "pattern matching failure")]))))
+             [true ,(generate-case-error pts val-sym)]))))
