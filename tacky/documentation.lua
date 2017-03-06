@@ -12,7 +12,7 @@ local _temp = (function()
 		end,
 	}
 end)()
-for k, v in pairs(_temp) do _libs["lib/lua/basic/".. k] = v end
+for k, v in pairs(_temp) do _libs["lua/basic-0/".. k] = v end
 local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _2b_1, _2d_1, _25_1, error1, getIdx1, setIdx_21_1, require1, type_23_1, _23_1, find1, format1, len1, match1, sub1, emptyStruct1, car1, list1, list_3f_1, symbol_3f_1, key_3f_1, type1, car2, nth1, pushCdr_21_1, struct1, succ1, pred1, builtins1, tokens1, extractSignature1, parseDocstring1
 _3d_1 = function(v1, v2) return (v1 == v2) end
 _2f3d_1 = function(v1, v2) return (v1 ~= v2) end

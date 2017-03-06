@@ -12,7 +12,7 @@ local _temp = (function()
 		end,
 	}
 end)()
-for k, v in pairs(_temp) do _libs["lib/lua/basic/".. k] = v end
+for k, v in pairs(_temp) do _libs["lua/basic-0/".. k] = v end
 local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e_1, _3e3d_1, _2b_1, _2d_1, _25_1, _2e2e_1, slice1, error1, getmetatable1, print1, getIdx1, setIdx_21_1, tostring1, type_23_1, _23_1, find1, format1, len1, rep1, sub1, concat1, emptyStruct1, car1, cdr1, list1, _21_1, pretty1, list_3f_1, nil_3f_1, string_3f_1, key_3f_1, type1, car2, cdr2, foldr1, nth1, pushCdr_21_1, cadr1, charAt1, _2e2e_2, split1, getenv1, struct1, succ1, formatPosition1, formatRange1, formatNode1, getSource1, config1, coloredAnsi1, colored_3f_1, colored1, printError_21_1, printWarning_21_1, printVerbose_21_1, printDebug_21_1, printExplain_21_1, abs1, max1, create1, putError_21_1, putWarning_21_1, putVerbose_21_1, putDebug_21_1, putNodeError_21_1, putNodeWarning_21_1, putLines_21_1, putTrace_21_1
 _3d_1 = function(v1, v2) return (v1 == v2) end
 _2f3d_1 = function(v1, v2) return (v1 ~= v2) end
@@ -24,7 +24,7 @@ _2b_1 = function(v1, v2) return (v1 + v2) end
 _2d_1 = function(v1, v2) return (v1 - v2) end
 _25_1 = function(v1, v2) return (v1 % v2) end
 _2e2e_1 = function(v1, v2) return (v1 .. v2) end
-slice1 = _libs["lib/lua/basic/slice"]
+slice1 = _libs["lua/basic-0/slice"]
 error1 = error
 getmetatable1 = getmetatable
 print1 = print

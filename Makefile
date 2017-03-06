@@ -41,6 +41,7 @@ ${TESTS}:
 	@rm -rf ${TMP}.lisp ${TMP}.lua ${TMP}
 
 docs:
+	rm -rf ${DOCS_DIR}
 	@mkdir -p ${DOCS_DIR}
 	${LUA} run.lua ${LIBS} --docs ${DOCS_DIR}
 

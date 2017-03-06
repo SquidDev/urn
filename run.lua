@@ -133,13 +133,22 @@ local function libLoader(name, shouldResolve)
 
 	libCache[name] = true
 
-	local lib = { name = name }
+	local lib = { id = name, name = name }
 
 	local path, handle
 	local looked = {}
 	if shouldResolve == false then
 		path = name
 		looked[#looked + 1] = path
+
+		local current = name
+		for i = 1, #paths do
+			local sub = name:match("^" .. paths[i]:gsub("%?", "(.*)") .. "$")
+			if sub and #sub < #current then
+				current = sub
+			end
+		end
+		lib.name = current
 
 		handle = io.open(path .. ".lisp", "r")
 	else
@@ -163,12 +172,15 @@ local function libLoader(name, shouldResolve)
 	for i = 1, #libs do
 		local tempLib = libs[i]
 		if tempLib.path == path then
-			logger.putVerbose(termLogger, "Reusing " .. tempLib.name .. " for " .. name)
-			local current = libCache[tempLib.name]
+			logger.putVerbose(termLogger, "Reusing " .. tempLib.id .. " for " .. name)
+			local current = libCache[tempLib.id]
 			libCache[name] = current
 			return true, current.scope.exported
 		end
 	end
+
+	local prefix = lib.name .. "-" .. #libs .. "/"
+	lib.prefix = prefix
 
 	-- Load the native file
 	local handle = io.open(path .. ".lua", "r")
@@ -180,7 +192,7 @@ local function libLoader(name, shouldResolve)
 		if not fun then error(msg, 0) end
 
 		for k, v in pairs(fun()) do
-			libEnv[lib.path .. "/" .. k] = v
+			libEnv[prefix .. k] = v
 		end
 	end
 
@@ -194,7 +206,7 @@ local function libLoader(name, shouldResolve)
 		if not fun then error(msg, 0) end
 
 		for name, entry in pairs(fun()) do
-			local full = lib.path .. "/" .. name
+			local full = prefix .. name
 
 			if (entry.tag == "expr" or entry.tag == "stmt") and type(entry.contents) == "string" then
 				local buffer = {tag="list"}
@@ -238,7 +250,7 @@ local function libLoader(name, shouldResolve)
 
 	local scope = rootScope:child()
 	scope.isRoot = true
-	scope.prefix = lib.path .. "/"
+	scope.prefix = prefix
 	lib.scope = scope
 
 	local compiled, state = compile.compile(parsed, global, variables, states, scope, compileState, libLoader, termLogger)
@@ -278,9 +290,9 @@ if docs then
 		if path:sub(-5) == ".lisp" then path = path:sub(1, -6) end
 
 		local lib = libCache[path]
-		local out = backend.markdown.exported(path, lib.docs, lib.scope.exported, lib.scope)
+		local out = backend.markdown.exported(lib.name, lib.docs, lib.scope.exported, lib.scope)
 
-		local handle = io.open(docs .. "/" .. path:gsub("/", ".") .. ".md", "w+")
+		local handle = io.open(docs .. "/" .. lib.name:gsub("/", ".") .. ".md", "w+")
 		handle:write(out)
 		handle:close()
 	end
@@ -506,7 +518,7 @@ handle:write(backend.lua.prelude())
 
 handle:write("local _libs = {}\n")
 for i = 1, #libs do
-	local prefix = ("%q"):format(libs[i].path .. "/")
+	local prefix = ("%q"):format(libs[i].prefix)
 	local native = libs[i].native
 	if native then
 		handle:write("local _temp = (function()\n")
