@@ -7,6 +7,7 @@
  pattern ::= literal
            | metavar
            | _
+           | ( view symbol pattern )
            | ( as pattern metavar ) ;; as
            | ( pattern * ) ;; list
            | ( pattern + . pattern ) ;; list+rest
@@ -65,7 +66,9 @@
     [(list? pattern)
      (cond
        [(eq? (car pattern) 'as)
-        (compile-pattern-test (cadr pattern))]
+        (compile-pattern-test (cadr pattern) symb)]
+       [(eq? (car pattern) '->)
+        (compile-pattern-test (caddr pattern) `(,(cadr pattern) ,symb))]
        [(cons-pattern? pattern)
         (let* [(pattern-sym (gensym))
                (lhs (cons-pat-left-side pattern))
@@ -103,6 +106,8 @@
        (cond
          [(eq? (car pattern) 'as)
           `(,@(compile-pattern-bindings (caddr pattern) symb) ,@(compile-pattern-bindings (cadr pattern) symb))]
+         [(eq? (car pattern) '->)
+          (compile-pattern-bindings (caddr pattern) `(,(cadr pattern) ,symb))]
          [(cons-pattern? pattern)
           (let* [(lhs (cons-pat-left-side pattern))
                  (rhs (cons-pat-right-side pattern))
