@@ -1,7 +1,7 @@
 ---
-title: lib/type
+title: type
 ---
-# lib/type
+# type
 ## `(assert-type! arg ty)`
 *Macro defined at lib/type.lisp:137:1*
 

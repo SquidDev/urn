@@ -1,7 +1,7 @@
 ---
-title: lib/extra/do
+title: extra/do
 ---
-# lib/extra/do
+# extra/do
 ## `(do &statements)`
 *Macro defined at lib/extra/do.lisp:5:1*
 

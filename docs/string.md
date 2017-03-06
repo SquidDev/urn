@@ -1,7 +1,7 @@
 ---
-title: lib/string
+title: string
 ---
-# lib/string
+# string
 ## `#s`
 *Defined at lib/string.lisp:17:1*
 

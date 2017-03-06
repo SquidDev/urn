@@ -1,7 +1,7 @@
 ---
-title: lib/prelude
+title: prelude
 ---
-# lib/prelude
+# prelude
 ## `(! expr)`
 *Defined at lib/base.lisp:78:1*
 
@@ -51,6 +51,13 @@ Set the value at `KEYS` in the structure `X` to `VALUE`.
 *Macro defined at lib/table.lisp:60:1*
 
 Index the structure `X` with the sequence of accesses given by `KEYS`.
+
+## `(accumulate-with f ac z xs)`
+*Defined at lib/list.lisp:140:1*
+
+`A` composition of foldr and map.
+Transform the values of `XS` using the function `F`, then accumulate them
+starting form `Z` using the function `AC`.
 
 ## `(all p xs)`
 *Defined at lib/list.lisp:58:1*
@@ -135,7 +142,7 @@ Check whether `X` is a boolean.
 Return the first element of the array X
 
 ## `(case val &pts)`
-*Macro defined at lib/match.lisp:108:1*
+*Macro defined at lib/match.lisp:154:1*
 
 Match a single value against a series of patterns, evaluating the first
 body that matches, much like `cond`.
@@ -223,7 +230,7 @@ Define `NAME` to be the function given by (lambda `ARGS` @`BODY`), with
 optional metadata at the start of `BODY`.
 
 ## `(destructuring-bind pt &body)`
-*Macro defined at lib/match.lisp:98:1*
+*Macro defined at lib/match.lisp:138:1*
 
 Match a single pattern against a single value, then evaluate the `BODY`.
 The pattern is given as `(car PT)` and the value as `(cadr PT)`.
@@ -733,64 +740,64 @@ Bind the single variable `VAR`, then evaluate `BODY`.
  - `>` *Native defined at lib/lua/basic.lisp:5:1*
  - `>=` *Native defined at lib/lua/basic.lisp:6:1*
  - `^` *Native defined at lib/lua/basic.lisp:13:1*
- - `(caaaar x)` *Defined at lib/list.lisp:155:1*
- - `(caaaars xs)` *Defined at lib/list.lisp:186:1*
- - `(caaadr x)` *Defined at lib/list.lisp:156:1*
- - `(caaadrs xs)` *Defined at lib/list.lisp:187:1*
- - `(caaar x)` *Defined at lib/list.lisp:147:1*
- - `(caaars xs)` *Defined at lib/list.lisp:178:1*
- - `(caadar x)` *Defined at lib/list.lisp:157:1*
- - `(caadars xs)` *Defined at lib/list.lisp:188:1*
- - `(caaddr x)` *Defined at lib/list.lisp:158:1*
- - `(caaddrs xs)` *Defined at lib/list.lisp:189:1*
- - `(caadr x)` *Defined at lib/list.lisp:148:1*
- - `(caadrs xs)` *Defined at lib/list.lisp:179:1*
- - `(caar x)` *Defined at lib/list.lisp:142:1*
- - `(caars xs)` *Defined at lib/list.lisp:174:1*
- - `(cadaar x)` *Defined at lib/list.lisp:159:1*
- - `(cadaars xs)` *Defined at lib/list.lisp:190:1*
- - `(cadadr x)` *Defined at lib/list.lisp:160:1*
- - `(cadadrs xs)` *Defined at lib/list.lisp:191:1*
- - `(cadar x)` *Defined at lib/list.lisp:149:1*
- - `(cadars xs)` *Defined at lib/list.lisp:180:1*
- - `(caddar x)` *Defined at lib/list.lisp:161:1*
- - `(caddars xs)` *Defined at lib/list.lisp:192:1*
- - `(cadddr x)` *Defined at lib/list.lisp:162:1*
- - `(cadddrs xs)` *Defined at lib/list.lisp:193:1*
- - `(caddr x)` *Defined at lib/list.lisp:150:1*
- - `(caddrs xs)` *Defined at lib/list.lisp:181:1*
- - `(cadr x)` *Defined at lib/list.lisp:143:1*
- - `(cadrs xs)` *Defined at lib/list.lisp:175:1*
- - `(cars xs)` *Defined at lib/list.lisp:172:1*
- - `(cdaaar x)` *Defined at lib/list.lisp:163:1*
- - `(cdaaars xs)` *Defined at lib/list.lisp:194:1*
- - `(cdaadr x)` *Defined at lib/list.lisp:164:1*
- - `(cdaadrs xs)` *Defined at lib/list.lisp:195:1*
- - `(cdaar x)` *Defined at lib/list.lisp:151:1*
- - `(cdaars xs)` *Defined at lib/list.lisp:182:1*
- - `(cdadar x)` *Defined at lib/list.lisp:165:1*
- - `(cdadars xs)` *Defined at lib/list.lisp:196:1*
- - `(cdaddr x)` *Defined at lib/list.lisp:166:1*
- - `(cdaddrs xs)` *Defined at lib/list.lisp:197:1*
- - `(cdadr x)` *Defined at lib/list.lisp:152:1*
- - `(cdadrs xs)` *Defined at lib/list.lisp:183:1*
- - `(cdar x)` *Defined at lib/list.lisp:144:1*
- - `(cdars xs)` *Defined at lib/list.lisp:176:1*
- - `(cddaar x)` *Defined at lib/list.lisp:167:1*
- - `(cddaars xs)` *Defined at lib/list.lisp:198:1*
- - `(cddadr x)` *Defined at lib/list.lisp:168:1*
- - `(cddadrs xs)` *Defined at lib/list.lisp:199:1*
- - `(cddar x)` *Defined at lib/list.lisp:153:1*
- - `(cddars xs)` *Defined at lib/list.lisp:184:1*
- - `(cdddar x)` *Defined at lib/list.lisp:169:1*
- - `(cdddars xs)` *Defined at lib/list.lisp:200:1*
- - `(cddddr x)` *Defined at lib/list.lisp:170:1*
- - `(cddddrs xs)` *Defined at lib/list.lisp:201:1*
- - `(cdddr x)` *Defined at lib/list.lisp:154:1*
- - `(cdddrs xs)` *Defined at lib/list.lisp:185:1*
- - `(cddr x)` *Defined at lib/list.lisp:145:1*
- - `(cddrs xs)` *Defined at lib/list.lisp:177:1*
- - `(cdrs xs)` *Defined at lib/list.lisp:173:1*
+ - `(caaaar x)` *Defined at lib/list.lisp:164:1*
+ - `(caaaars xs)` *Defined at lib/list.lisp:195:1*
+ - `(caaadr x)` *Defined at lib/list.lisp:165:1*
+ - `(caaadrs xs)` *Defined at lib/list.lisp:196:1*
+ - `(caaar x)` *Defined at lib/list.lisp:156:1*
+ - `(caaars xs)` *Defined at lib/list.lisp:187:1*
+ - `(caadar x)` *Defined at lib/list.lisp:166:1*
+ - `(caadars xs)` *Defined at lib/list.lisp:197:1*
+ - `(caaddr x)` *Defined at lib/list.lisp:167:1*
+ - `(caaddrs xs)` *Defined at lib/list.lisp:198:1*
+ - `(caadr x)` *Defined at lib/list.lisp:157:1*
+ - `(caadrs xs)` *Defined at lib/list.lisp:188:1*
+ - `(caar x)` *Defined at lib/list.lisp:151:1*
+ - `(caars xs)` *Defined at lib/list.lisp:183:1*
+ - `(cadaar x)` *Defined at lib/list.lisp:168:1*
+ - `(cadaars xs)` *Defined at lib/list.lisp:199:1*
+ - `(cadadr x)` *Defined at lib/list.lisp:169:1*
+ - `(cadadrs xs)` *Defined at lib/list.lisp:200:1*
+ - `(cadar x)` *Defined at lib/list.lisp:158:1*
+ - `(cadars xs)` *Defined at lib/list.lisp:189:1*
+ - `(caddar x)` *Defined at lib/list.lisp:170:1*
+ - `(caddars xs)` *Defined at lib/list.lisp:201:1*
+ - `(cadddr x)` *Defined at lib/list.lisp:171:1*
+ - `(cadddrs xs)` *Defined at lib/list.lisp:202:1*
+ - `(caddr x)` *Defined at lib/list.lisp:159:1*
+ - `(caddrs xs)` *Defined at lib/list.lisp:190:1*
+ - `(cadr x)` *Defined at lib/list.lisp:152:1*
+ - `(cadrs xs)` *Defined at lib/list.lisp:184:1*
+ - `(cars xs)` *Defined at lib/list.lisp:181:1*
+ - `(cdaaar x)` *Defined at lib/list.lisp:172:1*
+ - `(cdaaars xs)` *Defined at lib/list.lisp:203:1*
+ - `(cdaadr x)` *Defined at lib/list.lisp:173:1*
+ - `(cdaadrs xs)` *Defined at lib/list.lisp:204:1*
+ - `(cdaar x)` *Defined at lib/list.lisp:160:1*
+ - `(cdaars xs)` *Defined at lib/list.lisp:191:1*
+ - `(cdadar x)` *Defined at lib/list.lisp:174:1*
+ - `(cdadars xs)` *Defined at lib/list.lisp:205:1*
+ - `(cdaddr x)` *Defined at lib/list.lisp:175:1*
+ - `(cdaddrs xs)` *Defined at lib/list.lisp:206:1*
+ - `(cdadr x)` *Defined at lib/list.lisp:161:1*
+ - `(cdadrs xs)` *Defined at lib/list.lisp:192:1*
+ - `(cdar x)` *Defined at lib/list.lisp:153:1*
+ - `(cdars xs)` *Defined at lib/list.lisp:185:1*
+ - `(cddaar x)` *Defined at lib/list.lisp:176:1*
+ - `(cddaars xs)` *Defined at lib/list.lisp:207:1*
+ - `(cddadr x)` *Defined at lib/list.lisp:177:1*
+ - `(cddadrs xs)` *Defined at lib/list.lisp:208:1*
+ - `(cddar x)` *Defined at lib/list.lisp:162:1*
+ - `(cddars xs)` *Defined at lib/list.lisp:193:1*
+ - `(cdddar x)` *Defined at lib/list.lisp:178:1*
+ - `(cdddars xs)` *Defined at lib/list.lisp:209:1*
+ - `(cddddr x)` *Defined at lib/list.lisp:179:1*
+ - `(cddddrs xs)` *Defined at lib/list.lisp:210:1*
+ - `(cdddr x)` *Defined at lib/list.lisp:163:1*
+ - `(cdddrs xs)` *Defined at lib/list.lisp:194:1*
+ - `(cddr x)` *Defined at lib/list.lisp:154:1*
+ - `(cddrs xs)` *Defined at lib/list.lisp:186:1*
+ - `(cdrs xs)` *Defined at lib/list.lisp:182:1*
  - `concat` *Native defined at lib/lua/table.lisp:1:1*
  - `format` *Native defined at lib/lua/string.lisp:5:1*
  - `get-idx` *Native defined at lib/lua/basic.lisp:37:1*

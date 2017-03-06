@@ -1,7 +1,7 @@
 ---
-title: lib/binders
+title: binders
 ---
-# lib/binders
+# binders
 ## `(let vars &body)`
 *Macro defined at lib/binders.lisp:22:1*
 

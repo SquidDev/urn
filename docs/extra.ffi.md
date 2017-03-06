@@ -1,7 +1,7 @@
 ---
-title: lib/luajit/ffi
+title: extra/ffi
 ---
-# lib/luajit/ffi
+# extra/ffi
 ## Undocumented symbols
  - `C` *Native defined at lib/luajit/ffi.lisp:19:1*
  - `abi` *Native defined at lib/luajit/ffi.lisp:9:1*
@@ -10,6 +10,7 @@ title: lib/luajit/ffi
  - `cast` *Native defined at lib/luajit/ffi.lisp:2:1*
  - `cdef` *Native defined at lib/luajit/ffi.lisp:8:1*
  - `copy` *Native defined at lib/luajit/ffi.lisp:11:1*
+ - `(defun-ffi name typedecl)` *Macro defined at lib/extra/ffi.lisp:4:1*
  - `errno` *Native defined at lib/luajit/ffi.lisp:18:1*
  - `fill` *Native defined at lib/luajit/ffi.lisp:7:1*
  - `foobar` *Defined at lib/luajit/ffi.lisp:21:1*

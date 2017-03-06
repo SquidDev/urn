@@ -1,7 +1,7 @@
 ---
-title: lib/match
+title: match
 ---
-# lib/match
+# match
 `A` pattern matching library.
 Utilities for manipulating deeply-nested data and lists in general,
 as well as binding multiple values.
@@ -9,17 +9,21 @@ as well as binding multiple values.
 The grammar of patterns is described below:
 ```
 pattern ::= literal
-          | symbol
+          | metavar
           | _
+          | ( view symbol pattern )
+          | ( as pattern metavar ) ;; as
           | ( pattern * ) ;; list
-          | ( pattern . pattern ) ;; cons
+          | ( pattern + . pattern ) ;; list+rest
+literal ::= int | string | boolean | symbol
+metavar ::= '?' symbol
 ```
 
 `A` literal pattern matches only if the scrutinee (what's being matched)
 compares [`eq?`](lib.type.md#eq-x-y) to the literal.
 
-Both symbol patterns and the wildcard, `_`, match anything. However, a
-symbol will bind the result of matching to that symbol. For example,
+Both metavariable patterns and the wildcard, `_`, match anything. However,
+a metavariable will bind the result of matching to that symbol. For example,
 
 ```
 (destructuring-bind [x 1]
@@ -28,18 +32,19 @@ symbol will bind the result of matching to that symbol. For example,
 Results in `1` being printed to standard output, seeing as it is bound to
 `x`.
 
-List patterns and cons patterns match lists. `A` list pattern will match every
-element in a list, while a cons pattern will only match the car and the cdr.
+List patterns and _list with rest_ patterns match lists. `A` list pattern will
+match every element in a list, while a cons pattern will only match a certain
+number of cars and the cdr.
 Both bind everything bound by their "inner" patterns.
 
 ## `(case val &pts)`
-*Macro defined at lib/match.lisp:108:1*
+*Macro defined at lib/match.lisp:154:1*
 
 Match a single value against a series of patterns, evaluating the first
 body that matches, much like `cond`.
 
 ## `(destructuring-bind pt &body)`
-*Macro defined at lib/match.lisp:98:1*
+*Macro defined at lib/match.lisp:138:1*
 
 Match a single pattern against a single value, then evaluate the `BODY`.
 The pattern is given as `(car PT)` and the value as `(cadr PT)`.

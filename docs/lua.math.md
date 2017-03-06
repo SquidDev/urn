@@ -1,7 +1,7 @@
 ---
-title: lib/lua/math
+title: lua/math
 ---
-# lib/lua/math
+# lua/math
 ## Undocumented symbols
  - `abs` *Native defined at lib/lua/math.lisp:1:1*
  - `acos` *Native defined at lib/lua/math.lisp:2:1*

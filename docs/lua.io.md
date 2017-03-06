@@ -1,7 +1,7 @@
 ---
-title: lib/lua/io
+title: lua/io
 ---
-# lib/lua/io
+# lua/io
 ## Undocumented symbols
  - `close` *Native defined at lib/lua/io.lisp:1:1*
  - `flush` *Native defined at lib/lua/io.lisp:2:1*

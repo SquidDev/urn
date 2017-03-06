@@ -1,7 +1,7 @@
 ---
-title: lib/pair
+title: pair
 ---
-# lib/pair
+# pair
 ## `(cons->pair x)`
 *Defined at lib/pair.lisp:22:1*
 
