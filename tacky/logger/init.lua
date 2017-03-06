@@ -53,12 +53,12 @@ struct1 = (function(...)
 		return key1["contents"]
 	end)
 	local out1 = {}
-	local r_721 = _23_1(keys1)
-	local r_701 = nil
-	r_701 = (function(r_711)
-		if (r_711 <= r_721) then
-			local key2 = keys1[r_711]
-			local val2 = keys1[(1 + r_711)]
+	local r_741 = _23_1(keys1)
+	local r_721 = nil
+	r_721 = (function(r_731)
+		if (r_731 <= r_741) then
+			local key2 = keys1[r_731]
+			local val2 = keys1[(1 + r_731)]
 			out1[(function()
 				if key_3f_1(key2) then
 					return contents1(key2)
@@ -67,11 +67,11 @@ struct1 = (function(...)
 				end
 			end)()
 			] = val2
-			return r_701((r_711 + 2))
+			return r_721((r_731 + 2))
 		else
 		end
 	end)
-	r_701(1)
+	r_721(1)
 	return out1
 end)
 fail_21_1 = (function(x3)

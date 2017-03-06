@@ -166,9 +166,9 @@ foldr1 = (function(f1, z1, xs4)
 		error1(format1("bad argment %s (expected %s, got %s)", "f", "function", r_381), 2)
 	else
 	end
-	local r_501 = type1(xs4)
-	if (r_501 ~= "list") then
-		error1(format1("bad argment %s (expected %s, got %s)", "xs", "list", r_501), 2)
+	local r_511 = type1(xs4)
+	if (r_511 ~= "list") then
+		error1(format1("bad argment %s (expected %s, got %s)", "xs", "list", r_511), 2)
 	else
 	end
 	if nil_3f_1(xs4) then
@@ -207,16 +207,16 @@ split1 = (function(text1, pattern1, limit1)
 	local out2 = {tag = "list", n = 0}
 	local loop1 = true
 	local start1 = 1
-	local r_611 = nil
-	r_611 = (function()
+	local r_631 = nil
+	r_631 = (function()
 		if loop1 then
 			local pos1 = list1(find1(text1, pattern1, start1))
 			local nstart1 = car2(pos1)
 			local nend1 = cadr1(pos1)
 			local temp2
-			local r_621 = (nstart1 == nil)
-			if r_621 then
-				temp2 = r_621
+			local r_641 = (nstart1 == nil)
+			if r_641 then
+				temp2 = r_641
 			else
 				if limit1 then
 					temp2 = (_23_1(out2) >= limit1)
@@ -241,11 +241,11 @@ split1 = (function(text1, pattern1, limit1)
 				pushCdr_21_1(out2, sub1(text1, start1, (nstart1 - 1)))
 				start1 = (nend1 + 1)
 			end
-			return r_611()
+			return r_631()
 		else
 		end
 	end)
-	r_611()
+	r_631()
 	return out2
 end)
 getenv1 = os.getenv
@@ -259,12 +259,12 @@ struct1 = (function(...)
 		return key1["contents"]
 	end)
 	local out3 = {}
-	local r_721 = _23_1(keys1)
-	local r_701 = nil
-	r_701 = (function(r_711)
-		if (r_711 <= r_721) then
-			local key2 = keys1[r_711]
-			local val3 = keys1[(1 + r_711)]
+	local r_741 = _23_1(keys1)
+	local r_721 = nil
+	r_721 = (function(r_731)
+		if (r_731 <= r_741) then
+			local key2 = keys1[r_731]
+			local val3 = keys1[(1 + r_731)]
 			out3[(function()
 				if key_3f_1(key2) then
 					return contents1(key2)
@@ -273,11 +273,11 @@ struct1 = (function(...)
 				end
 			end)()
 			] = val3
-			return r_701((r_711 + 2))
+			return r_721((r_731 + 2))
 		else
 		end
 	end)
-	r_701(1)
+	r_721(1)
 	return out3
 end)
 succ1 = (function(x10)
@@ -295,11 +295,11 @@ formatRange1 = (function(range1)
 end)
 formatNode1 = (function(node1)
 	local temp3
-	local r_1261 = node1["range"]
-	if r_1261 then
+	local r_1461 = node1["range"]
+	if r_1461 then
 		temp3 = node1["contents"]
 	else
-		temp3 = r_1261
+		temp3 = r_1461
 	end
 	if temp3 then
 		return format1("%s (%q)", formatRange1(node1["range"]), node1["contents"])
@@ -310,11 +310,11 @@ formatNode1 = (function(node1)
 		return format1("macro expansion of %s (%s)", macro1["var"]["name"], formatNode1(macro1["node"]))
 	else
 		local temp4
-		local r_1291 = node1["start"]
-		if r_1291 then
+		local r_1491 = node1["start"]
+		if r_1491 then
 			temp4 = node1["finish"]
 		else
-			temp4 = r_1291
+			temp4 = r_1491
 		end
 		if temp4 then
 			return formatRange1(node1)
@@ -325,23 +325,23 @@ formatNode1 = (function(node1)
 end)
 getSource1 = (function(node2)
 	local result1 = nil
-	local r_1271 = nil
-	r_1271 = (function()
+	local r_1471 = nil
+	r_1471 = (function()
 		local temp5
-		local r_1281 = node2
-		if r_1281 then
+		local r_1481 = node2
+		if r_1481 then
 			temp5 = _21_1(result1)
 		else
-			temp5 = r_1281
+			temp5 = r_1481
 		end
 		if temp5 then
 			result1 = node2["range"]
 			node2 = node2["parent"]
-			return r_1271()
+			return r_1471()
 		else
 		end
 	end)
-	r_1271()
+	r_1471()
 	return result1
 end)
 struct1("formatPosition", formatPosition1, "formatRange", formatRange1, "formatNode", formatNode1, "getSource", getSource1)
@@ -426,18 +426,18 @@ printDebug_21_1 = (function(verbosity2, msg6)
 end)
 printExplain_21_1 = (function(explain1, lines3)
 	if explain1 then
-		local r_1311 = split1(lines3, "\n")
-		local r_1341 = _23_1(r_1311)
-		local r_1321 = nil
-		r_1321 = (function(r_1331)
-			if (r_1331 <= r_1341) then
-				local line1 = r_1311[r_1331]
+		local r_1511 = split1(lines3, "\n")
+		local r_1541 = _23_1(r_1511)
+		local r_1521 = nil
+		r_1521 = (function(r_1531)
+			if (r_1531 <= r_1541) then
+				local line1 = r_1511[r_1531]
 				print1(_2e2e_2("  ", line1))
-				return r_1321((r_1331 + 1))
+				return r_1521((r_1531 + 1))
 			else
 			end
 		end)
-		return r_1321(1)
+		return r_1521(1)
 	else
 	end
 end)
@@ -501,22 +501,22 @@ putLines_21_1 = (function(range2, entries1)
 		end
 	end), 0, entries1)
 	local code1 = _2e2e_2(colored1(92, _2e2e_2(" %", len1(tostring1(maxLine1)), "s |")), " %s")
-	local r_1411 = _23_1(entries1)
-	local r_1391 = nil
-	r_1391 = (function(r_1401)
-		if (r_1401 <= r_1411) then
-			local position1 = entries1[r_1401]
-			local message1 = entries1[succ1(r_1401)]
+	local r_1611 = _23_1(entries1)
+	local r_1591 = nil
+	r_1591 = (function(r_1601)
+		if (r_1601 <= r_1611) then
+			local position1 = entries1[r_1601]
+			local message1 = entries1[succ1(r_1601)]
 			if (file1 ~= position1["name"]) then
 				file1 = position1["name"]
 				print1(colored1(95, _2e2e_2(" ", file1)))
 			else
 				local temp9
-				local r_1431 = (previous1 ~= -1)
-				if r_1431 then
+				local r_1631 = (previous1 ~= -1)
+				if r_1631 then
 					temp9 = (abs1((position1["start"]["line"] - previous1)) > 2)
 				else
-					temp9 = r_1431
+					temp9 = r_1631
 				end
 				if temp9 then
 					print1(colored1(92, " ..."))
@@ -530,11 +530,11 @@ putLines_21_1 = (function(range2, entries1)
 				pointer1 = "^"
 			else
 				local temp10
-				local r_1441 = position1["finish"]
-				if r_1441 then
+				local r_1641 = position1["finish"]
+				if r_1641 then
 					temp10 = (position1["start"]["line"] == position1["finish"]["line"])
 				else
-					temp10 = r_1441
+					temp10 = r_1641
 				end
 				if temp10 then
 					pointer1 = rep1("^", succ1((position1["finish"]["column"] - position1["start"]["column"])))
@@ -543,16 +543,16 @@ putLines_21_1 = (function(range2, entries1)
 				end
 			end
 			print1(format1(code1, "", _2e2e_2(rep1(" ", (position1["start"]["column"] - 1)), pointer1, " ", message1)))
-			return r_1391((r_1401 + 2))
+			return r_1591((r_1601 + 2))
 		else
 		end
 	end)
-	return r_1391(1)
+	return r_1591(1)
 end)
 putTrace_21_1 = (function(node6)
 	local previous2 = nil
-	local r_1251 = nil
-	r_1251 = (function()
+	local r_1451 = nil
+	r_1451 = (function()
 		if node6 then
 			local formatted1 = formatNode1(node6)
 			if (previous2 == nil) then
@@ -563,10 +563,10 @@ putTrace_21_1 = (function(node6)
 			end
 			previous2 = formatted1
 			node6 = node6["parent"]
-			return r_1251()
+			return r_1451()
 		else
 		end
 	end)
-	return r_1251()
+	return r_1451()
 end)
 return struct1("create", create1, "colored", colored1)
