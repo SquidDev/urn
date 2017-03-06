@@ -7,7 +7,7 @@
  pattern ::= literal
            | metavar
            | _
-           | ( view symbol pattern )
+           | ( -> expr pattern ) ;; view
            | ( as pattern metavar ) ;; as
            | ( pattern * ) ;; list
            | ( pattern + . pattern ) ;; list+rest
