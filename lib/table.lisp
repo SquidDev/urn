@@ -106,3 +106,7 @@
   (with (cnt 0)
     (iter-pairs st (lambda () (set! cnt (+ cnt 1))))
     cnt))
+
+(defmacro for-pairs (vars tbl &body)
+  "Iterate over TBL, binding VARS for each key value pair in BODY"
+  `(iter-pairs ,tbl (lambda ,vars ,@body)))
