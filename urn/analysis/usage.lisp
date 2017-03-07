@@ -8,13 +8,14 @@
 (define builtins (.> (require "tacky.analysis.resolve") :builtins))
 (define builtin-vars (.> (require "tacky.analysis.resolve") :declaredVars))
 
-;;; Create a new, empty usage state
-(defun create-state () (struct
-                         :vars (empty-struct)
-                         :nodes (empty-struct)))
+(defun create-state ()
+  "Create a new, empty usage state."
+  (struct
+    :vars (empty-struct)
+    :nodes (empty-struct)))
 
-;; Find a variable entry in the current state
 (defun get-var (state var)
+  "Find a VAR entry in the current STATE."
   (with (entry (.> state :vars var))
     (unless entry
       (set! entry (struct
@@ -25,8 +26,8 @@
       (.<! state :vars var entry))
     entry))
 
-;; Find a node entry in the current state
 (defun get-node (state node)
+  "Find a NODE entry in the current STATE."
   (with (entry (.> state :nodes node))
     (unless entry
       (set! entry (struct
@@ -34,35 +35,35 @@
       (.<! state :nodes node entry))
     entry))
 
-;; Mark a node as using a specific variable
 (defun add-usage! (state var node)
+  "Mark a NODE as using a specific VAR."
   (let* [(var-meta (get-var state var))
          (node-meta (get-node state node))]
     (.<! var-meta :usages node true)
     (.<! var-meta :active true)
     (.<! node-meta :uses var true)))
 
-;; Remove a node's usage of a specified variable
 (defun remove-usage! (state var node)
+  "Remove a NODE's usage of a specified VAR"
   (let* [(var-meta (get-var state var))
          (node-meta (get-node state node))]
     (.<! var-meta :usages node nil)
     (.<! var-meta :active (! (empty-struct? (.> var-meta :usages))))
     (.<! node-meta :uses var nil)))
 
-;; Add a definition for a specific variable
 (defun add-definition! (state var node kind value)
+  "Add a definition for a specific VAR."
   (with (var-meta (get-var state var))
     (.<! var-meta :defs node (struct :tag kind :value value))))
 
-;; Add a definition for a specific variable
 (defun remove-definition! (state var node)
+  "Add a definition for a specific VAR."
   (let* [(var-meta (get-var state var))
          (node-meta (get-node state node))]
     (.<! var-meta :defs node nil)))
 
-;; Visit one node and gather its definitions
 (defun definitions-visitor (state node visitor)
+  "Visit one NODE and gather its definitions."
   (cond
     [(and (list? node) (symbol? (car node)))
      (with (func (.> (car node) :var))
@@ -101,13 +102,15 @@
      false]
     (true)))
 
-;; Visit all nodes, gathering the definitions for a set of variables.
 (defun definitions-visit (state nodes)
+  "Visit all NODES, gathering the definitions for a set of variables."
   (visitor/visit-block nodes 1 (cut definitions-visitor state <> <>)))
 
-;;; Build a lookup of usages. Note, this will only visit "active" nodes: those
-;; which have a side effect or are used somewhere else.
 (defun usages-visit (state nodes pred)
+  "Build a lookup of usages.
+
+   Note, this will only visit \"active\" nodes: those which have a side effect
+   or are used somewhere else."
   (unless pred (set! pred (lambda() true)))
   (let* [(queue '())
          (visited (empty-struct))

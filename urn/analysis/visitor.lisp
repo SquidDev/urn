@@ -57,8 +57,8 @@
              (visit-block node 1 visitor)))]
         [true (error! (.. "Unknown tag " tag))]))))
 
-;; Visit a list of nodes
 (defun visit-block (node start visitor)
+  "Visit a block of nodes, starting from START."
   (for i start (# node) 1
     (visit-node (nth node i) visitor)))
 

@@ -79,8 +79,8 @@
       [true (error! (.. "Unknown tag " tag))])))
 
 
-;; Visit a block, simplifying trivial nodes
 (defun traverse-block (node start visitor)
+  "Traverse a block of nodes, starting from START."
   (with (offset 0)
     (for i start (# node) 1
       (with (result (traverse-node (nth node (+ i offset)) visitor))
@@ -88,8 +88,8 @@
         (.<! node i result))))
   node)
 
-;; Visit a list of nodes
 (defun traverse-list (node start visitor)
+  "Traverse a list of nodes, starting from START."
   (for i start (# node) 1
     (.<! node i (traverse-node (nth node i) visitor)))
   node)
