@@ -14,6 +14,7 @@ end
 local sep = package.config:sub(3, 3)
 package.path = package.path .. sep .. compiler_dir .. '?.lua' .. sep .. compiler_dir .. "?/init.lua" .. sep
 
+local Scope = require "tacky.analysis.scope"
 local backend = require "tacky.backend.init"
 local compile = require "tacky.compile"
 local documentation = require "tacky.documentation"
@@ -22,9 +23,9 @@ local optimise = require "tacky.analysis.optimise"
 local parser = require "tacky.parser"
 local range = require "tacky.range"
 local resolve = require "tacky.analysis.resolve"
-local warning = require "tacky.analysis.warning"
 local term = require "tacky.logger.term"
 local traceback = require "tacky.traceback"
+local warning = require "tacky.analysis.warning"
 
 local writer = backend.writer
 
@@ -254,7 +255,7 @@ local function libLoader(name, shouldResolve)
 	local parsed = parser.parse(termLogger, lexed, lib.lisp)
 	if time then print(lib.path .. " parsed in " .. (os.clock() - start)) end
 
-	local scope = rootScope:child()
+	local scope = Scope.child(rootScope)
 	scope.isRoot = true
 	scope.prefix = prefix
 	lib.scope = scope
@@ -281,9 +282,9 @@ end
 
 local _, preludeVars = assert(libLoader(prelude, false))
 
-rootScope = rootScope:child()
+rootScope = Scope.child(rootScope)
 for name, var in pairs(preludeVars) do
-	rootScope:import(name, var)
+	Scope.import(rootScope, name, var)
 end
 
 for i = 1, #inputs do
@@ -451,7 +452,7 @@ if #inputs == 0 then
 					logger.putError(termLogger, "Unknown command '" .. command .. "'")
 				end
 			else
-				scope = scope:child()
+				scope = Scope.child(scope)
 				scope.isRoot = true
 
 				state = tryParse(data)

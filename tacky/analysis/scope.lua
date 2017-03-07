@@ -5,7 +5,7 @@ local Scope = {}
 Scope.__index = Scope
 
 function Scope.child(parent)
-	local child = setmetatable({
+	return {
 		--- The parent scope.
 		parent = parent,
 
@@ -17,9 +17,7 @@ function Scope.child(parent)
 
 		-- Prefix for all variables
 		prefix = parent and parent.prefix or "",
-	}, Scope)
-
-	return child
+	}
 end
 
 Scope.empty = Scope.child(nil)
@@ -83,7 +81,7 @@ function Scope:addVerbose(name, kind, node, loggerI)
 		)
 	end
 
-	return self:add(name, kind, node)
+	return Scope.add(self, name, kind, node)
 end
 
 function Scope:import(name, var, export)
@@ -119,7 +117,7 @@ function Scope:importVerbose(name, var, node, export, loggerI)
 
 	if export and node then logger.putDebug(loggerI, "Exporting " .. name .. " from " .. range.getSource(node).name) end
 
-	return self:import(name, var, export)
+	return Scope.import(self, name, var, export)
 end
 
 return Scope
