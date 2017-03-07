@@ -71,7 +71,9 @@ rootScope.builtin = true
 local builtins = {}
 for i = 1, #declaredSymbols do
 	local symbol = declaredSymbols[i]
-	builtins[symbol] = rootScope:add(symbol, "builtin", nil)
+	local var = rootScope:add(symbol, "builtin", nil)
+	rootScope:import("builtin/" .. symbol, var, true)
+	builtins[symbol] = var
 end
 
 local declaredVars = {}
@@ -79,6 +81,7 @@ local declaredVariables = { "nil", "true", "false" }
 for i = 1, #declaredVariables do
 	local defined = declaredVariables[i]
 	local var = rootScope:add(defined, "defined", nil)
+	rootScope:import("builtin/" .. defined, var, true)
 	declaredVars[var] = true
 	declaredVars[defined] = var
 end
