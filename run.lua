@@ -322,10 +322,6 @@ local function pretty(x)
 			return (("%q"):format(x.value):gsub("\n", "n"):gsub("\t", "\\9"))
 		elseif x.tag == 'number' then
 			return tostring(x.value)
-		elseif x.tag.tag and x.tag.tag == 'symbol' and x.tag.contents == 'pair' then
-			return '(pair ' .. pretty(x.fst) .. ' ' .. pretty(x.snd) .. ')'
-		elseif x.tag == 'thunk' then
-			return '<<thunk>>'
 		else
 			return tostring(x)
 		end

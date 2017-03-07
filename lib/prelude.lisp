@@ -10,7 +10,6 @@
 (import binders () :export)
 (import list () :export)
 (import type () :export)
-(import pair () :export)
 (import function () :export)
 (import table () :export)
 (import lua/io (write) :export)

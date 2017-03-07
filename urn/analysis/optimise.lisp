@@ -115,7 +115,7 @@
               (with (res (list (pcall (.> meta :value) (unpack (map urn->val (cdr node))))))
                 (if (car res)
                   (with (val (nth res 2))
-                    (if (and (number? val) (or (/= (snd (pair (math/modf val))) 0) (= (math/abs val) math/huge)))
+                    (if (and (number? val) (or (/= (cadr (list (math/modf val))) 0) (= (math/abs val) math/huge)))
                       (progn
                         ;; Don't fold non-integer values as we cannot accurately represent them
                         ;; To consider: could we fold this if a parent expression could be folded (so simplify

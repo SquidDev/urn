@@ -65,12 +65,12 @@ struct1 = (function(...)
 		return key1["contents"]
 	end)
 	local out1 = {}
-	local r_741 = _23_1(keys1)
-	local r_721 = nil
-	r_721 = (function(r_731)
-		if (r_731 <= r_741) then
-			local key2 = keys1[r_731]
-			local val2 = keys1[(1 + r_731)]
+	local r_701 = _23_1(keys1)
+	local r_681 = nil
+	r_681 = (function(r_691)
+		if (r_691 <= r_701) then
+			local key2 = keys1[r_691]
+			local val2 = keys1[(1 + r_691)]
 			out1[(function()
 				if key_3f_1(key2) then
 					return contents1(key2)
@@ -79,11 +79,11 @@ struct1 = (function(...)
 				end
 			end)()
 			] = val2
-			return r_721((r_731 + 2))
+			return r_681((r_691 + 2))
 		else
 		end
 	end)
-	r_721(1)
+	r_681(1)
 	return out1
 end)
 formatPosition1 = (function(pos1)
@@ -98,11 +98,11 @@ formatRange1 = (function(range1)
 end)
 formatNode1 = (function(node1)
 	local temp1
-	local r_1441 = node1["range"]
-	if r_1441 then
+	local r_1401 = node1["range"]
+	if r_1401 then
 		temp1 = node1["contents"]
 	else
-		temp1 = r_1441
+		temp1 = r_1401
 	end
 	if temp1 then
 		return format1("%s (%q)", formatRange1(node1["range"]), node1["contents"])
@@ -113,11 +113,11 @@ formatNode1 = (function(node1)
 		return format1("macro expansion of %s (%s)", macro1["var"]["name"], formatNode1(macro1["node"]))
 	else
 		local temp2
-		local r_1471 = node1["start"]
-		if r_1471 then
+		local r_1431 = node1["start"]
+		if r_1431 then
 			temp2 = node1["finish"]
 		else
-			temp2 = r_1471
+			temp2 = r_1431
 		end
 		if temp2 then
 			return formatRange1(node1)
@@ -128,23 +128,23 @@ formatNode1 = (function(node1)
 end)
 getSource1 = (function(node2)
 	local result1 = nil
-	local r_1451 = nil
-	r_1451 = (function()
+	local r_1411 = nil
+	r_1411 = (function()
 		local temp3
-		local r_1461 = node2
-		if r_1461 then
+		local r_1421 = node2
+		if r_1421 then
 			temp3 = _21_1(result1)
 		else
-			temp3 = r_1461
+			temp3 = r_1421
 		end
 		if temp3 then
 			result1 = node2["range"]
 			node2 = node2["parent"]
-			return r_1451()
+			return r_1411()
 		else
 		end
 	end)
-	r_1451()
+	r_1411()
 	return result1
 end)
 return struct1("formatPosition", formatPosition1, "formatRange", formatRange1, "formatNode", formatNode1, "getSource", getSource1)

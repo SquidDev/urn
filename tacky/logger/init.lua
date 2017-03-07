@@ -54,12 +54,12 @@ struct1 = (function(...)
 		return key1["contents"]
 	end)
 	local out1 = {}
-	local r_741 = _23_1(keys1)
-	local r_721 = nil
-	r_721 = (function(r_731)
-		if (r_731 <= r_741) then
-			local key2 = keys1[r_731]
-			local val2 = keys1[(1 + r_731)]
+	local r_701 = _23_1(keys1)
+	local r_681 = nil
+	r_681 = (function(r_691)
+		if (r_691 <= r_701) then
+			local key2 = keys1[r_691]
+			local val2 = keys1[(1 + r_691)]
 			out1[(function()
 				if key_3f_1(key2) then
 					return contents1(key2)
@@ -68,11 +68,11 @@ struct1 = (function(...)
 				end
 			end)()
 			] = val2
-			return r_721((r_731 + 2))
+			return r_681((r_691 + 2))
 		else
 		end
 	end)
-	r_721(1)
+	r_681(1)
 	return out1
 end)
 fail_21_1 = (function(x3)
@@ -105,9 +105,9 @@ end)
 doNodeError_21_1 = (function(logger7, msg7, node3, explain3, ...)
 	local lines3 = _pack(...) lines3.tag = "list"
 	self1(logger7, "put-node-error!", msg7, node3, explain3, lines3)
-	return fail_21_1((function(r_1441)
-		if r_1441 then
-			return r_1441
+	return fail_21_1((function(r_1401)
+		if r_1401 then
+			return r_1401
 		else
 			return msg7
 		end

@@ -3,8 +3,6 @@
               error gensym ! debug))
 
 (import lua/string (format sub))
-(import pair)
-(import pair (pair?) :export)
 
 (defun table? (x)
   "Check whether the value X is a table. This might be a structure,
@@ -93,9 +91,6 @@
        - Both are keys, and their values are equal.
        - X is a key, and Y is a string equal to the key's contents.
        - Y is a key, and X is a string equal to the key's contents.
-     - If X or Y are a pair
-       - X and Y are equal if both their `fst` are equal (according to `eq?`)
-         and their `snd` are equal.
      - If X or Y are lists
        - Both are empty.
        - Both have the same length, their `car`s are equal, and their `cdr`s
@@ -119,9 +114,6 @@
         (= (get-idx x "value") y)]
        [(and (string? x) (key? y))
         (= (get-idx y "value") x)]
-       [(and (pair? x) (pair? y))
-        (and (eq? (pair/fst x) (pair/fst y))
-             (eq? (pair/snd x) (pair/snd y)))]
        [(and (nil? x) (nil? y)) true]
        [(and (list? x) (list? y))
         (and (eq? (car x) (car y))

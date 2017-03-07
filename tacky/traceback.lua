@@ -75,12 +75,12 @@ struct1 = (function(...)
 		return key1["contents"]
 	end)
 	local out1 = {}
-	local r_741 = _23_1(keys1)
-	local r_721 = nil
-	r_721 = (function(r_731)
-		if (r_731 <= r_741) then
-			local key2 = keys1[r_731]
-			local val2 = keys1[(1 + r_731)]
+	local r_701 = _23_1(keys1)
+	local r_681 = nil
+	r_681 = (function(r_691)
+		if (r_691 <= r_701) then
+			local key2 = keys1[r_691]
+			local val2 = keys1[(1 + r_691)]
 			out1[(function()
 				if key_3f_1(key2) then
 					return contents1(key2)
@@ -89,11 +89,11 @@ struct1 = (function(...)
 				end
 			end)()
 			] = val2
-			return r_721((r_731 + 2))
+			return r_681((r_691 + 2))
 		else
 		end
 	end)
-	r_721(1)
+	r_681(1)
 	return out1
 end)
 succ1 = (function(x4)
@@ -101,23 +101,23 @@ succ1 = (function(x4)
 end)
 huge1 = math.huge
 remapMessage1 = (function(mappings1, msg1)
-	local r_1441 = list1(match1(msg1, "^(.-):(%d+)(.*)$"))
+	local r_1401 = list1(match1(msg1, "^(.-):(%d+)(.*)$"))
 	local temp1
-	local r_1461 = list_3f_1(r_1441)
-	if r_1461 then
-		local r_1471 = (_23_1(r_1441) == 3)
-		if r_1471 then
+	local r_1421 = list_3f_1(r_1401)
+	if r_1421 then
+		local r_1431 = (_23_1(r_1401) == 3)
+		if r_1431 then
 			temp1 = true
 		else
-			temp1 = r_1471
+			temp1 = r_1431
 		end
 	else
-		temp1 = r_1461
+		temp1 = r_1421
 	end
 	if temp1 then
-		local file1 = nth1(r_1441, 1)
-		local line1 = nth1(r_1441, 2)
-		local extra1 = nth1(r_1441, 3)
+		local file1 = nth1(r_1401, 1)
+		local line1 = nth1(r_1401, 2)
+		local extra1 = nth1(r_1401, 3)
 		local mapping1 = mappings1[file1]
 		if mapping1 then
 			local range1 = mapping1[tonumber1(line1)]
@@ -134,15 +134,15 @@ remapMessage1 = (function(mappings1, msg1)
 	end
 end)
 remapTraceback1 = (function(mappings2, msg2)
-	local r_1521
-	local r_1511
-	r_1511 = gsub1(msg2, "^([^\n:]-:%d+:)", (function(r_1531)
-		return remapMessage1(mappings2, r_1531)
+	local r_1481
+	local r_1471
+	r_1471 = gsub1(msg2, "^([^\n:]-:%d+:)", (function(r_1491)
+		return remapMessage1(mappings2, r_1491)
 	end))
-	r_1521 = gsub1(r_1511, "\9([^\n:]-:%d+:)", (function(msg3)
+	r_1481 = gsub1(r_1471, "\9([^\n:]-:%d+:)", (function(msg3)
 		return _2e2e_1("\9", remapMessage1(mappings2, msg3))
 	end))
-	return gsub1(r_1521, "<([^\n:]-:%d+)>", (function(msg4)
+	return gsub1(r_1481, "<([^\n:]-:%d+)>", (function(msg4)
 		return _2e2e_1("<", remapMessage1(mappings2, msg4), ">")
 	end))
 end)
@@ -158,28 +158,28 @@ generateMappings1 = (function(lines1)
 				rangeList1 = struct1("n", 0, "min", huge1, "max", (0 - huge1))
 				rangeLists1[file2] = rangeList1
 			end
-			local r_1561 = pos1["finish"]["line"]
-			local r_1541 = nil
-			r_1541 = (function(r_1551)
-				if (r_1551 <= r_1561) then
-					if rangeList1[r_1551] then
+			local r_1521 = pos1["finish"]["line"]
+			local r_1501 = nil
+			r_1501 = (function(r_1511)
+				if (r_1511 <= r_1521) then
+					if rangeList1[r_1511] then
 					else
 						rangeList1["n"] = succ1(rangeList1["n"])
-						rangeList1[r_1551] = true
-						if (r_1551 < rangeList1["min"]) then
-							rangeList1["min"] = r_1551
+						rangeList1[r_1511] = true
+						if (r_1511 < rangeList1["min"]) then
+							rangeList1["min"] = r_1511
 						else
 						end
-						if (r_1551 > rangeList1["max"]) then
-							rangeList1["max"] = r_1551
+						if (r_1511 > rangeList1["max"]) then
+							rangeList1["max"] = r_1511
 						else
 						end
 					end
-					return r_1541((r_1551 + 1))
+					return r_1501((r_1511 + 1))
 				else
 				end
 			end)
-			return r_1541(pos1["start"]["line"])
+			return r_1501(pos1["start"]["line"])
 		end))
 		local bestName1 = nil
 		local bestLines1 = nil
