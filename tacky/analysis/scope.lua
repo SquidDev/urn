@@ -86,7 +86,7 @@ function Scope:addVerbose(name, kind, node, loggerI)
 	return self:add(name, kind, node)
 end
 
-function Scope:import(name, var, node, export)
+function Scope:import(name, var, export)
 	if var == nil then error("var is nil", 2) end
 	if self.variables[name] and self.variables[name] ~= var then error("Previous declaration of " .. name) end
 
@@ -119,7 +119,7 @@ function Scope:importVerbose(name, var, node, export, loggerI)
 
 	if export and node then logger.putDebug(loggerI, "Exporting " .. name .. " from " .. range.getSource(node).name) end
 
-	return self:import(name, var, node, export)
+	return self:import(name, var, export)
 end
 
 return Scope
