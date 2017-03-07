@@ -1,3 +1,5 @@
+(import string)
+
 (defun put-error! (logger msg)
   "Push an error message MSG to this LOGGER"
   (self logger :put-error! msg))
@@ -40,7 +42,7 @@
    into pairs of elements with the first designating it's position and the
    second a descriptive piece of text."
   (self logger :put-node-error! msg node explain lines)
-  (fail! msg))
+  (fail! (or (string/match msg "^([^\n]+)\n") msg)))
 
 (struct
   :putError   put-error!

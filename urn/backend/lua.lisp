@@ -108,6 +108,7 @@
              [(and (symbol? first) (= (.> first :var) (.> builtins :syntax-quote)))
               (compile-quote (nth node 2) out state (and level (succ level)))]
              [true
+               (w/push-node! out node)
                (with (contains-unsplice false)
                  (for-each sub node
                    (when (and (list? sub) (symbol? (car sub)) (= (.> sub 1 :var) (.> builtins :unquote-splice)))
@@ -142,12 +143,14 @@
                      (for-each sub node
                                (w/append! out ", ")
                                (compile-quote sub out state level))
-                     (w/append! out "}"))))]))]
+                     (w/append! out "}"))))
+               (w/pop-node! out node)]))]
         (true (error! (.. "Unknown type " ty)))))))
 
 (defun compile-expression (node out state ret)
   (cond
     [(list? node)
+     (w/push-node! out node)
      (with (head (car node))
            (cond
              [(symbol? head)
@@ -446,7 +449,8 @@
                (for i 2 (# node) 1
                  (when (> i 2) (w/append! out ", "))
                  (compile-expression (nth node i) out state))
-               (w/append! out ")")]))]
+               (w/append! out ")")]))
+     (w/pop-node! out node)]
     [true
       (unless (= ret "")
         (when ret (w/append! out ret))

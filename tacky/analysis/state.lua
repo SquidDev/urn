@@ -5,10 +5,12 @@ local State = {}
 State.__index = State
 
 local ctr = 0
-function State.create(variables, states, scope, logger)
+function State.create(variables, states, scope, logger, mappings)
 	if not variables then error("variables cannot be nil", 2) end
 	if not states then error("states cannot be nil", 2) end
 	if not scope then error("scope cannot be nil", 2) end
+	if not logger then error("logger cannot be nil", 2) end
+	if not mappings then error("mappings cannot be nil", 2) end
 
 	local state = setmetatable({
 		--- The scope this top level definition lives under
@@ -22,6 +24,9 @@ function State.create(variables, states, scope, logger)
 
 		-- The logger instance
 		logger = logger,
+
+		-- The logger
+		mappings = mappings,
 
 		--- List of all required variables
 		required = {},

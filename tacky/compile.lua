@@ -2,7 +2,10 @@ local backend = require "tacky.backend.init"
 local logger = require "tacky.logger.init"
 local range = require "tacky.range"
 local resolve = require "tacky.analysis.resolve"
+local traceback = require "tacky.traceback"
 local State = require "tacky.analysis.state"
+
+local writer = backend.writer
 
 local function executeStates(compileState, states, global, loggerI)
 	local stateList, nameTable, nameList, escapeList = {}, {}, {}, {}
@@ -25,29 +28,34 @@ local function executeStates(compileState, states, global, loggerI)
 	end
 
 	if #stateList > 0 then
-		local out = { tag = "list", n = 0}
-		local builder = { indent = 0, out = out}
+		local builder = writer.create()
 		backend.lua.backend.prelude(builder)
-		out.n = out.n + 1
-		out[out.n] = "local " .. table.concat(escapeList, ", ") .. "\n"
+		writer.line(builder, "local " .. table.concat(escapeList, ", "))
 
 		for i = 1, #stateList do
 			backend.lua.backend.expression(stateList[i].node, builder, compileState, "")
-			out.n = out.n + 1
-			out[out.n] = "\n"
+			writer.line(builder)
 		end
 
-		out.n = out.n + 1
-		out[out.n] = "return {" .. table.concat(nameTable, ", ") .. "}"
+		writer.line(builder, "return {" .. table.concat(nameTable, ", ") .. "}")
 
-		local str = table.concat(out)
-		local fun, msg = load(str, "=compile{" .. table.concat(nameList, ",") .. "}", "t", global)
+		local id = compileState.count
+		compileState.count = id + 1
+
+		local names = table.concat(nameList, ",")
+		if #names > 20 then names = names:sub(1, 17) .. "..." end
+		local name = "compile#" .. id .. "{" .. names .. "}"
+
+		local str = writer.tostring(builder)
+		compileState.mappings[name] = traceback.generate(builder.lines)
+
+		local fun, msg = load(str, "=" .. name, "t", global)
 		if not fun then error(msg .. ":\n" .. str, 0) end
 
 		local success, result = xpcall(fun, debug.traceback)
 		if not success then
 			logger.putDebug(loggerI, str)
-			error(result, 0)
+			error(traceback.remapTraceback(compileState.mappings, result), 0)
 		end
 
 		for i = 1, #stateList do
@@ -67,7 +75,7 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 	local states = { scope = scope }
 
 	for i = 1, #parsed do
-		local state = State.create(env, inStates, scope, loggerI)
+		local state = State.create(env, inStates, scope, loggerI, compileState.mappings)
 		states[i] = state
 		queue[i] = {
 			tag  = "init",

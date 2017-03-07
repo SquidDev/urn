@@ -1,7 +1,7 @@
 local Scope = require "tacky.analysis.scope"
 local logger = require "tacky.logger.init"
 local range = require "tacky.range"
-local pprint = require 'tacky.pprint'
+local traceback = require "tacky.traceback"
 
 local function errorPositions(log, node, message)
 	logger.doNodeError(log,
@@ -370,6 +370,7 @@ function resolveNode(node, scope, state, root)
 
 				local success, replacement = xpcall(function() return builder(table.unpack(node, 2, #node)) end, debug.traceback)
 				if not success then
+					replacement = traceback.remapTraceback(state.mappings, replacement)
 					errorPositions(log, first, replacement)
 				end
 

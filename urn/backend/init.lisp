@@ -28,4 +28,9 @@
           :backend back-lisp/backend)
   :markdown (struct
               :exported (wrap-normal back-markdown/exported)
-              :backend back-markdown/backend))
+              :backend back-markdown/backend)
+  :writer (struct
+            :create   writer/create
+            :append   writer/append!
+            :line     writer/line!
+            :tostring writer/->string))

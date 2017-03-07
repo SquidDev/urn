@@ -20,9 +20,13 @@ local documentation = require "tacky.documentation"
 local logger = require "tacky.logger.init"
 local optimise = require "tacky.analysis.optimise"
 local parser = require "tacky.parser"
+local range = require "tacky.range"
 local resolve = require "tacky.analysis.resolve"
 local warning = require "tacky.analysis.warning"
 local term = require "tacky.logger.term"
+local traceback = require "tacky.traceback"
+
+local writer = backend.writer
 
 local termLogger = term.create()
 local paths = { "?", "?/init", compiler_dir .. 'lib/?', compiler_dir .. "lib/?/init" }
@@ -110,6 +114,8 @@ local libs = {}
 local libCache = {}
 local global = setmetatable({ _libs = libEnv }, {__index = _ENV or _G})
 local compileState = backend.lua.backend.createState(libMeta)
+compileState.count = 0
+compileState.mappings = {}
 
 local rootScope = resolve.rootScope
 local variables, states = {}, {}
@@ -333,9 +339,13 @@ end
 if #inputs == 0 then
 	local scope = rootScope
 
+	local count = 0
 	local function tryParse(str)
+		local name = "<stdin#" .. count .. ">"
+		count = count + 1
+
 		local start = os.clock()
-		local ok, lexed = pcall(parser.lex, termLogger, str, "<stdin>")
+		local ok, lexed = pcall(parser.lex, termLogger, str, name)
 		if not ok then
 			logger.putError(termLogger, lexed)
 			return {}
@@ -347,7 +357,7 @@ if #inputs == 0 then
 			return {}
 		end
 
-		if time then print("<stdin>" .. " parsed in " .. (os.clock() - start)) end
+		if time then print(name .. " parsed in " .. (os.clock() - start)) end
 
 		local ok, msg, state = pcall(compile.compile, parsed, global, variables, states, scope, compileState, libLoader, termLogger)
 		if not ok then
@@ -477,12 +487,22 @@ if #inputs == 0 then
 							local ok, msg = pcall(compile.executeStates, compileState, states, global, termLogger)
 							if not ok then logger.putError(termLogger, msg) break end
 
-							local str = backend.lua.prelude() .. "\n" .. backend.lua.expression(current.node, compileState, "return ")
-							local fun, msg = load(str, "=<input>", "t", global)
+							local name = range.getSource(current.node).name
+							local builder = writer.create()
+							backend.lua.backend.prelude(builder)
+							backend.lua.backend.expression(current.node, builder, compileState, "return ")
+
+							-- Generate mappings
+							compileState.mappings[name] = traceback.generate(builder.lines)
+
+							local fun, msg = load(writer.tostring(builder), "=" .. name, "t", global)
 							if not fun then error(msg .. ":\n" .. str, 0) end
 
 							local ok, res = xpcall(fun, debug.traceback)
-							if not ok then logger.putError(termLogger, res) break end
+							if not ok then
+								logger.putError(termLogger, traceback.remapTraceback(compileState.mappings, res))
+								break
+							end
 
 							current:executed(res)
 						else
@@ -508,31 +528,30 @@ out = optimise(out, { meta = libMeta, logger = termLogger })
 if time then print("Optimised in " .. (os.clock() - start)) end
 
 local state = backend.lua.backend.createState(libMeta)
-local compiledLua = backend.lua.block(out, state, 1, "return ")
-local handle = io.open(output .. ".lua", "w")
+local builder = writer.create()
 
 if shebang then
-	handle:write("#!/usr/bin/env " .. (wi or interp) .. '\n')
+	writer.line(builder, "#!/usr/bin/env " .. (wi or interp))
 end
-handle:write(backend.lua.prelude())
+backend.lua.backend.prelude(builder)
 
-handle:write("local _libs = {}\n")
+writer.line(builder, "local _libs = {}")
 for i = 1, #libs do
 	local prefix = ("%q"):format(libs[i].prefix)
 	local native = libs[i].native
 	if native then
-		handle:write("local _temp = (function()\n")
+		writer.line(builder, "local _temp = (function()")
 
 		-- Indent the libraries to make them look prettier
 		for line in native:gmatch("[^\n]*") do
 			if line == "" then
 			else
-				handle:write("\t")
-				handle:write(line)
-				handle:write("\n")
+				writer.append(builder, "\t")
+				writer.line(builder, line)
 			end
 		end
-		handle:write("end)()\nfor k, v in pairs(_temp) do _libs[" .. prefix .. ".. k] = v end\n")
+		writer.line(builder, "end)()")
+		writer.line(builder, "for k, v in pairs(_temp) do _libs[" .. prefix .. ".. k] = v end")
 	end
 end
 
@@ -547,8 +566,8 @@ end
 -- "too many local variable" errors. The upper bound is actually 200, but lambda inlining
 -- will probably bring it up slightly.
 -- In the future we probably ought to handle this smartly when it is over 150 too.
-if count < 150 then
-	handle:write("local ")
+if count > 0 and count < 150 then
+	writer.append(builder, "local ")
 	local first = true
 	for i = 1, out.n do
 		local var = out[i].defVar
@@ -556,16 +575,19 @@ if count < 150 then
 			if first then
 				first = false
 			else
-				handle:write(", ")
+				writer.append(builder, ", ")
 			end
 
-			handle:write(backend.lua.backend.escapeVar(var, state))
+			writer.append(builder, backend.lua.backend.escapeVar(var, state))
 		end
 	end
+	writer.line(builder)
 end
 
-handle:write("\n")
-handle:write(compiledLua)
+backend.lua.backend.block(out, builder, state, 1, "return ")
+
+local handle = io.open(output .. ".lua", "w")
+handle:write(writer.tostring(builder))
 handle:close()
 
 if emitLisp then
@@ -577,8 +599,21 @@ if emitLisp then
 end
 
 if run then
+	local lines = traceback.generate(builder.lines)
+
 	_G.arg = scriptArgs -- Execute using specified arguments
-	dofile(output .. ".lua")
+	local fun, msg = loadfile(output .. ".lua")
+	if not fun then
+		logger.putError(termLogger, "Cannot load compiled file: " .. msg)
+		os.exit(1)
+	end
+
+	local ok, result = xpcall(fun, debug.traceback)
+	if not ok then
+		logger.putError(termLogger, output .. ".lua failed")
+		print(traceback.remapTraceback({[ output .. ".lua" ] = lines}, result))
+		os.exit(1)
+	end
 end
 
 if removeOut then

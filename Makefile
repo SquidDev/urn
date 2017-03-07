@@ -13,6 +13,7 @@ OBJS       :=                     \
 	${OUT_DIR}/logger/term        \
 	${OUT_DIR}/parser             \
 	${OUT_DIR}/range              \
+	${OUT_DIR}/traceback          \
 
 TESTS     := $(shell find tests -type f)
 LIBS      := $(shell find lib -type f -name "*.lisp")
