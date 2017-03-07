@@ -86,7 +86,7 @@ Concatenate `XS` and `YS`.
 The arguments passed to the currently executing program
 
 ## `(assert-type! arg ty)`
-*Macro defined at lib/type.lisp:137:1*
+*Macro defined at lib/type.lisp:129:1*
 
 Assert that the argument `ARG` has type `TY`, as reported by the function
 [`type`](lib.type.md#type-val).
@@ -110,7 +110,7 @@ value is chosen.
 Check that `KEY` is bound in the association list `LIST`.
 
 ## `(atom? x)`
-*Defined at lib/type.lisp:46:1*
+*Defined at lib/type.lisp:44:1*
 
 Check whether `X` is an atomic object, that is, one of
 - `A` boolean
@@ -121,18 +121,18 @@ Check whether `X` is an atomic object, that is, one of
 - `A` function
 
 ## `(between? val min max)`
-*Defined at lib/type.lisp:71:1*
+*Defined at lib/type.lisp:69:1*
 
 Check if the numerical value `X` is between
 `MIN` and `MAX`.
 
 ## `bool->string`
-*Defined at lib/prelude.lisp:45:1*
+*Defined at lib/prelude.lisp:44:1*
 
 Convert the boolean `X` into a string.
 
 ## `(boolean? x)`
-*Defined at lib/type.lisp:34:1*
+*Defined at lib/type.lisp:32:1*
 
 Check whether `X` is a boolean.
 
@@ -142,7 +142,7 @@ Check whether `X` is a boolean.
 Return the first element of the array X
 
 ## `(case val &pts)`
-*Macro defined at lib/match.lisp:154:1*
+*Macro defined at lib/match.lisp:157:1*
 
 Match a single value against a series of patterns, evaluating the first
 body that matches, much like `cond`.
@@ -164,17 +164,8 @@ the mathematical operator `∘`, i.e. `(compose f g)` corresponds to
 
 Add `X` to the start of the list `XS`. Note: this is linear in time.
 
-## `(cons->pair x)`
-*Defined at lib/pair.lisp:22:1*
-
-Convert the cons structure `X` into a pair, where [`cons`](lib.base.md#cons-x-xs)es have been replaced
-by applications of [`pair`](lib.pair.md#pair-x-y). Aditionally, it holds that
-  `(eq? (car x) (fst (cons->pair x)))`
-and
-  `(eq? (cdr x) (snd (cons->pair x)))`
-
 ## `(const x)`
-*Defined at lib/prelude.lisp:83:1*
+*Defined at lib/prelude.lisp:82:1*
 
 Return a function which always returns `X`. This is equivalent to the `K`
 combinator in `SK` combinator calculus.
@@ -213,7 +204,7 @@ defined.
 Print the value `X`, then return it unmodified.
 
 ## `(dec! x)`
-*Macro defined at lib/prelude.lisp:31:1*
+*Macro defined at lib/prelude.lisp:30:1*
 
 Decrement the variable `X` in place.
 
@@ -230,7 +221,7 @@ Define `NAME` to be the function given by (lambda `ARGS` @`BODY`), with
 optional metadata at the start of `BODY`.
 
 ## `(destructuring-bind pt &body)`
-*Macro defined at lib/match.lisp:138:1*
+*Macro defined at lib/match.lisp:141:1*
 
 Match a single pattern against a single value, then evaluate the `BODY`.
 The pattern is given as `(car PT)` and the value as `(cadr PT)`.
@@ -252,7 +243,7 @@ Create an empty structure with no fields
 Check that `XS` is the empty struct.
 
 ## `(eq? x y)`
-*Defined at lib/type.lisp:84:1*
+*Defined at lib/type.lisp:82:1*
 
 Compare `X` and `Y` for equality deeply.
 Rules:
@@ -265,9 +256,6 @@ Rules:
     - Both are keys, and their values are equal.
     - `X` is a key, and `Y` is a string equal to the key's contents.
     - `Y` is a key, and `X` is a string equal to the key's contents.
-  - If `X` or `Y` are a pair
-    - `X` and `Y` are equal if both their `fst` are equal (according to `eq?`)
-      and their `snd` are equal.
   - If `X` or `Y` are lists
     - Both are empty.
     - Both have the same length, their `car`s are equal, and their `cdr`s
@@ -278,30 +266,30 @@ Rules:
   - They are equal if neither exists.  
 
 ## `error!`
-*Defined at lib/prelude.lisp:59:1*
+*Defined at lib/prelude.lisp:58:1*
 
 Throw an error.
 
 ## `(exists? x)`
-*Defined at lib/type.lisp:66:1*
+*Defined at lib/type.lisp:64:1*
 
 Check if `X` exists, i.e. it is not the special value `nil`.
 Note that, in Urn, `nil` is not the empty list.
 
 ## `(exit! reason code)`
-*Defined at lib/prelude.lisp:72:1*
+*Defined at lib/prelude.lisp:71:1*
 
 Exit the program with the exit code `CODE`, and optionally, print the
 error message `REASON`.
 
 ## `(fail! x)`
-*Defined at lib/prelude.lisp:67:1*
+*Defined at lib/prelude.lisp:66:1*
 
 Fail with the error message `X`, that is, exit the program immediately,
 without unwinding for an error handler.
 
 ## `(falsey? x)`
-*Defined at lib/type.lisp:61:1*
+*Defined at lib/type.lisp:59:1*
 
 Check whether `X` is falsey, that is, it is either `false` or does
 not exist.
@@ -333,13 +321,13 @@ by `STEP` every iteration until `CTR` is outside of the range given by
 
 Perform the set of actions `BODY` for all values in `LST`, binding the current value to `VAR`.
 
-## `(fst x)`
-*Defined at lib/pair.lisp:14:1*
+## `(for-pairs vars tbl &body)`
+*Macro defined at lib/table.lisp:110:1*
 
-Extract the first component of the pair `X`.
+Iterate over `TBL`, binding `VARS` for each key value pair in `BODY`
 
 ## `(function? x)`
-*Defined at lib/type.lisp:38:1*
+*Defined at lib/type.lisp:36:1*
 
 Check whether `X` is a function.
 
@@ -349,7 +337,7 @@ Check whether `X` is a function.
 Create a unique symbol, suitable for using in macros
 
 ## `(id x)`
-*Defined at lib/prelude.lisp:79:1*
+*Defined at lib/prelude.lisp:78:1*
 
 Return the value `X` unmodified.
 
@@ -359,7 +347,7 @@ Return the value `X` unmodified.
 Evaluate `T` if `C` is true, otherwise, evaluate `B`.
 
 ## `(inc! x)`
-*Macro defined at lib/prelude.lisp:27:1*
+*Macro defined at lib/prelude.lisp:26:1*
 
 Increment the variable `X` in place.
 
@@ -390,7 +378,7 @@ true
 Iterate over `TABLE` with a function `FUNC` of the form (lambda (`KEY` `VAL`) ...)
 
 ## `(key? x)`
-*Defined at lib/type.lisp:42:1*
+*Defined at lib/type.lisp:40:1*
 
 Check whether `X` is a key.
 
@@ -450,7 +438,7 @@ true
 Return the list of variadic arguments given.
 
 ## `(list? x)`
-*Defined at lib/type.lisp:14:1*
+*Defined at lib/type.lisp:12:1*
 
 Check whether `X` is a list.
 
@@ -461,13 +449,13 @@ Map over the list `XS` using the unary function `F`. The parameter `ACC`
 is for internal use only.
 
 ## `(neq? x y)`
-*Defined at lib/type.lisp:132:1*
+*Defined at lib/type.lisp:124:1*
 
 Compare `X` and `Y` for inequality deeply. `X` and `Y` are `neq?`
 if `([[eq?]] x y)` is falsey.
 
 ## `(nil? x)`
-*Defined at lib/type.lisp:18:1*
+*Defined at lib/type.lisp:16:1*
 
 Check whether `X` is the empty list.
 
@@ -477,12 +465,12 @@ Check whether `X` is the empty list.
 Get the `IDX` th element in the list `XS`. The first element is 1.
 
 ## `number->string`
-*Defined at lib/prelude.lisp:41:1*
+*Defined at lib/prelude.lisp:40:1*
 
 Convert the number `X` into a string.
 
 ## `(number? x)`
-*Defined at lib/type.lisp:26:1*
+*Defined at lib/type.lisp:24:1*
 
 Check whether `X` is a number.
 
@@ -492,33 +480,13 @@ Check whether `X` is a number.
 Return the logical or of values `A` and `B`, and, if present, the
 logical or of all the values in `REST`.
 
-## `(pair x y)`
-*Defined at lib/pair.lisp:5:1*
-
-Build a pair out of the values `X` and `Y`. `X` and `Y` must both `exist?`,
-otherwise an invalid pair will be produced.
-
-## `(pair->cons x)`
-*Defined at lib/pair.lisp:32:1*
-
-The opposite of [`cons->pair`](lib.pair.md#cons-pair-x), building a [`cons`](lib.base.md#cons-x-xs) structure out of the
-(possibly nested) pair `X`. Conversely, it holds that
-  `(eq? (fst x) (cdr (pair->cons x)))`
-and
-  `(eq? (snd x) (car (pair->cons x)))`
-
-## `(pair? x)`
-*Defined at lib/pair.lisp:43:1*
-
-Test if `X` is a pair.
-
 ## `(pop-last! xs)`
 *Defined at lib/list.lisp:95:1*
 
 Mutate the list `XS`, removing and returning its last element.
 
 ## `(pred x)`
-*Defined at lib/prelude.lisp:23:1*
+*Defined at lib/prelude.lisp:22:1*
 
 Return the predecessor of the number `X`.
 
@@ -528,7 +496,7 @@ Return the predecessor of the number `X`.
 Format `VALUE` as a valid Lisp expression which can be parsed.
 
 ## `print!`
-*Defined at lib/prelude.lisp:63:1*
+*Defined at lib/prelude.lisp:62:1*
 
 Print to standard output.
 
@@ -571,7 +539,7 @@ Mutate the list `LI`, removing the value at `IDX` and returning it.
 Reverse the list `XS`, using the accumulator `ACC`.
 
 ## `(self x key &args)`
-*Defined at lib/prelude.lisp:88:1*
+*Defined at lib/prelude.lisp:87:1*
 
 Index `X` with `KEY` and invoke the resulting function with `X` and `ARGS`
 
@@ -581,25 +549,20 @@ Index `X` with `KEY` and invoke the resulting function with `X` and `ARGS`
 Test whether `SYMB` is a slot. For this, it must be a symbol, whose contents
 are `<>`.
 
-## `(snd x)`
-*Defined at lib/pair.lisp:18:1*
-
-Extract the second component of the pair `X`.
-
 ## `string->number`
-*Defined at lib/prelude.lisp:35:1*
+*Defined at lib/prelude.lisp:34:1*
 
 Convert the string `X` into a number. Returns `nil` if it could not be parsed.
 
 Optionally takes a `BASE` which the number is in (such as 16 for hexadecimal).
 
 ## `(string->symbol x)`
-*Defined at lib/prelude.lisp:55:1*
+*Defined at lib/prelude.lisp:54:1*
 
 Convert the string `X` to a symbol.
 
 ## `(string? x)`
-*Defined at lib/type.lisp:22:1*
+*Defined at lib/type.lisp:20:1*
 
 Check whether `X` is a string.
 
@@ -628,22 +591,22 @@ Convert the structure `TBL` into an association list. Note that
 because duplicate elements will be removed.
 
 ## `(succ x)`
-*Defined at lib/prelude.lisp:19:1*
+*Defined at lib/prelude.lisp:18:1*
 
 Return the successor of the number `X`.
 
 ## `(symbol->string x)`
-*Defined at lib/prelude.lisp:49:1*
+*Defined at lib/prelude.lisp:48:1*
 
 Convert the symbol `X` to a string.
 
 ## `(symbol? x)`
-*Defined at lib/type.lisp:30:1*
+*Defined at lib/type.lisp:28:1*
 
 Check whether `X` is a symbol.
 
 ## `(table? x)`
-*Defined at lib/type.lisp:9:1*
+*Defined at lib/type.lisp:7:1*
 
 Check whether the value `X` is a table. This might be a structure,
 a list, an associative list, a quoted key, or a quoted symbol.
@@ -654,7 +617,7 @@ a list, an associative list, a quoted key, or a quoted symbol.
 An alias for [`map`](lib.list.md#map-f-xs-acc) with the arguments `XS` and `F` flipped.
 
 ## `(type val)`
-*Defined at lib/type.lisp:76:1*
+*Defined at lib/type.lisp:74:1*
 
 Return the type of `VAL`.
 

@@ -45,6 +45,11 @@ Create an empty structure with no fields
 
 Check that `XS` is the empty struct.
 
+## `(for-pairs vars tbl &body)`
+*Macro defined at lib/table.lisp:110:1*
+
+Iterate over `TBL`, binding `VARS` for each key value pair in `BODY`
+
 ## `(insert list_ key val)`
 *Defined at lib/table.lisp:31:1*
 
