@@ -6,6 +6,7 @@
 (import lua/table table)
 
 (define builtins (get-idx (require "tacky.analysis.resolve") :builtins))
+(define Scope (require "tacky.analysis.scope"))
 
 (defun format-range (range)
   "Format a range."
@@ -52,7 +53,7 @@
         ((= ty "mono") (writer/append! out (.> tok :whole)))
         ((= ty "link")
           (let* [(name (.> tok :contents))
-                 (ovar ((.> scope :get) scope name nil true))]
+                 (ovar ((.> Scope :get) scope name nil true))]
             (if (and ovar (.> ovar :node))
               (let* [(loc (-> (.> ovar :node)
                           get-source
