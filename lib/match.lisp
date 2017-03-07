@@ -94,7 +94,10 @@
     [(or (eq? '_ pattern) (meta? pattern))
      `true]
     [(and (! (meta? pattern)) (symbol? pattern))
-     ~(eq? ,symb ',pattern)]
+     (cond
+       [(eq? pattern 'true) `(eq? ,symb true)]
+       [(eq? pattern 'false) `(eq? ,symb false)]
+       [true ~(eq? ,symb ',pattern)])]
     [(or (number? pattern) (boolean? pattern) (string? pattern))
      `(eq? ,symb ,pattern)]
     [true (error (.. "unsupported pattern " (pretty pattern)))]))
