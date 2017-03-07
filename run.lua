@@ -401,7 +401,7 @@ if #inputs == 0 then
 					if not name then
 						logger.putError(termLogger, ":command <variable>")
 					else
-						local var = scope:get(name, nil, true)
+						local var = Scope.get(scope, name, nil, true)
 						if not var then
 							logger.putError(termLogger, "Cannot find '" .. name .. "'")
 						elseif not var.doc then
