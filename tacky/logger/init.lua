@@ -13,7 +13,7 @@ local _temp = (function()
 	}
 end)()
 for k, v in pairs(_temp) do _libs["lua/basic-0/".. k] = v end
-local _3d_1, _3c3d_1, _2b_1, _25_1, error1, getIdx1, setIdx_21_1, type_23_1, _23_1, unpack1, emptyStruct1, key_3f_1, type1, struct1, fail_21_1, self1, putError_21_1, putWarning_21_1, putVerbose_21_1, putDebug_21_1, putNodeError_21_1, putNodeWarning_21_1, doNodeError_21_1
+local _3d_1, _3c3d_1, _2b_1, _25_1, error1, getIdx1, setIdx_21_1, type_23_1, _23_1, match1, unpack1, emptyStruct1, key_3f_1, type1, struct1, fail_21_1, self1, putError_21_1, putWarning_21_1, putVerbose_21_1, putDebug_21_1, putNodeError_21_1, putNodeWarning_21_1, doNodeError_21_1
 _3d_1 = function(v1, v2) return (v1 == v2) end
 _3c3d_1 = function(v1, v2) return (v1 <= v2) end
 _2b_1 = function(v1, v2) return (v1 + v2) end
@@ -25,6 +25,7 @@ type_23_1 = type
 _23_1 = (function(x1)
 	return x1["n"]
 end)
+match1 = string.match
 unpack1 = table.unpack
 emptyStruct1 = function() return {} end
 key_3f_1 = (function(x2)
@@ -104,6 +105,12 @@ end)
 doNodeError_21_1 = (function(logger7, msg7, node3, explain3, ...)
 	local lines3 = _pack(...) lines3.tag = "list"
 	self1(logger7, "put-node-error!", msg7, node3, explain3, lines3)
-	return fail_21_1(msg7)
+	return fail_21_1((function(r_1441)
+		if r_1441 then
+			return r_1441
+		else
+			return msg7
+		end
+	end)(match1(msg7, "^([^\n]+)\n")))
 end)
 return struct1("putError", putError_21_1, "putWarning", putWarning_21_1, "putVerbose", putVerbose_21_1, "putDebug", putDebug_21_1, "putNodeError", putNodeError_21_1, "putNodeWarning", putNodeWarning_21_1, "doNodeError", doNodeError_21_1)

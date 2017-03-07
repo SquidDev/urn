@@ -13,7 +13,7 @@ local _temp = (function()
 	}
 end)()
 for k, v in pairs(_temp) do _libs["lua/basic-0/".. k] = v end
-local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e_1, _2b_1, _2d_1, _25_1, slice1, error1, next1, getIdx1, setIdx_21_1, require1, tonumber1, type_23_1, _23_1, format1, concat1, remove1, unpack1, emptyStruct1, iterPairs1, car1, cdr1, list1, cons1, _21_1, list_3f_1, nil_3f_1, symbol_3f_1, key_3f_1, exists_3f_1, type1, car2, cdr2, foldr1, map1, any1, nth1, pushCdr_21_1, removeNth_21_1, reverse1, caar1, cadr1, _2e2e_1, struct1, _23_keys1, succ1, pred1, symbol_2d3e_string1, fail_21_1, self1, builtins1, visitQuote1, visitNode1, visitBlock1, builtins2, builtinVars1, createState1, getVar1, getNode1, addUsage_21_1, addDefinition_21_1, definitionsVisitor1, definitionsVisit1, usagesVisit1, putError_21_1, putWarning_21_1, putVerbose_21_1, putDebug_21_1, putNodeError_21_1, putNodeWarning_21_1, doNodeError_21_1, formatPosition1, formatRange1, formatNode1, getSource1, builtins3, sideEffect_3f_1, warnArity1, analyse1
+local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e_1, _2b_1, _2d_1, _25_1, slice1, error1, next1, getIdx1, setIdx_21_1, require1, tonumber1, type_23_1, _23_1, format1, match1, concat1, remove1, unpack1, emptyStruct1, iterPairs1, car1, cdr1, list1, cons1, _21_1, list_3f_1, nil_3f_1, symbol_3f_1, key_3f_1, exists_3f_1, type1, car2, cdr2, foldr1, map1, any1, nth1, pushCdr_21_1, removeNth_21_1, reverse1, caar1, cadr1, _2e2e_1, struct1, _23_keys1, succ1, pred1, symbol_2d3e_string1, fail_21_1, self1, builtins1, visitQuote1, visitNode1, visitBlock1, builtins2, builtinVars1, createState1, getVar1, getNode1, addUsage_21_1, addDefinition_21_1, definitionsVisitor1, definitionsVisit1, usagesVisit1, putError_21_1, putWarning_21_1, putVerbose_21_1, putDebug_21_1, putNodeError_21_1, putNodeWarning_21_1, doNodeError_21_1, formatPosition1, formatRange1, formatNode1, getSource1, builtins3, sideEffect_3f_1, warnArity1, analyse1
 _3d_1 = function(v1, v2) return (v1 == v2) end
 _2f3d_1 = function(v1, v2) return (v1 ~= v2) end
 _3c_1 = function(v1, v2) return (v1 < v2) end
@@ -34,6 +34,7 @@ _23_1 = (function(x1)
 	return x1["n"]
 end)
 format1 = string.format
+match1 = string.match
 concat1 = table.concat
 remove1 = table.remove
 unpack1 = table.unpack
@@ -729,7 +730,13 @@ end)
 doNodeError_21_1 = (function(logger7, msg7, node12, explain3, ...)
 	local lines3 = _pack(...) lines3.tag = "list"
 	self1(logger7, "put-node-error!", msg7, node12, explain3, lines3)
-	return fail_21_1(msg7)
+	return fail_21_1((function(r_2111)
+		if r_2111 then
+			return r_2111
+		else
+			return msg7
+		end
+	end)(match1(msg7, "^([^\n]+)\n")))
 end)
 struct1("putError", putError_21_1, "putWarning", putWarning_21_1, "putVerbose", putVerbose_21_1, "putDebug", putDebug_21_1, "putNodeError", putNodeError_21_1, "putNodeWarning", putNodeWarning_21_1, "doNodeError", doNodeError_21_1)
 formatPosition1 = (function(pos1)
@@ -744,11 +751,11 @@ formatRange1 = (function(range1)
 end)
 formatNode1 = (function(node13)
 	local temp14
-	local r_2111 = node13["range"]
-	if r_2111 then
+	local r_2121 = node13["range"]
+	if r_2121 then
 		temp14 = node13["contents"]
 	else
-		temp14 = r_2111
+		temp14 = r_2121
 	end
 	if temp14 then
 		return format1("%s (%q)", formatRange1(node13["range"]), node13["contents"])
@@ -759,11 +766,11 @@ formatNode1 = (function(node13)
 		return format1("macro expansion of %s (%s)", macro1["var"]["name"], formatNode1(macro1["node"]))
 	else
 		local temp15
-		local r_2141 = node13["start"]
-		if r_2141 then
+		local r_2151 = node13["start"]
+		if r_2151 then
 			temp15 = node13["finish"]
 		else
-			temp15 = r_2141
+			temp15 = r_2151
 		end
 		if temp15 then
 			return formatRange1(node13)
@@ -774,23 +781,23 @@ formatNode1 = (function(node13)
 end)
 getSource1 = (function(node14)
 	local result1 = nil
-	local r_2121 = nil
-	r_2121 = (function()
+	local r_2131 = nil
+	r_2131 = (function()
 		local temp16
-		local r_2131 = node14
-		if r_2131 then
+		local r_2141 = node14
+		if r_2141 then
 			temp16 = _21_1(result1)
 		else
-			temp16 = r_2131
+			temp16 = r_2141
 		end
 		if temp16 then
 			result1 = node14["range"]
 			node14 = node14["parent"]
-			return r_2121()
+			return r_2131()
 		else
 		end
 	end)
-	r_2121()
+	r_2131()
 	return result1
 end)
 struct1("formatPosition", formatPosition1, "formatRange", formatRange1, "formatNode", formatNode1, "getSource", getSource1)
@@ -855,16 +862,16 @@ warnArity1 = (function(lookup1, nodes3, state8)
 					ari1 = getArity1(def2)
 				else
 					local temp18
-					local r_2151 = list_3f_1(def2)
-					if r_2151 then
-						local r_2161 = symbol_3f_1(car2(def2))
-						if r_2161 then
+					local r_2161 = list_3f_1(def2)
+					if r_2161 then
+						local r_2171 = symbol_3f_1(car2(def2))
+						if r_2171 then
 							temp18 = (car2(def2)["var"] == builtins3["lambda"])
 						else
-							temp18 = r_2161
+							temp18 = r_2171
 						end
 					else
-						temp18 = r_2151
+						temp18 = r_2161
 					end
 					if temp18 then
 						local args4 = nth1(def2, 2)
@@ -886,11 +893,11 @@ warnArity1 = (function(lookup1, nodes3, state8)
 	end)
 	return visitBlock1(nodes3, 1, (function(node16)
 		local temp19
-		local r_2171 = list_3f_1(node16)
-		if r_2171 then
+		local r_2181 = list_3f_1(node16)
+		if r_2181 then
 			temp19 = symbol_3f_1(car2(node16))
 		else
-			temp19 = r_2171
+			temp19 = r_2181
 		end
 		if temp19 then
 			local arity2 = getArity1(car2(node16))
