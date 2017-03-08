@@ -145,7 +145,7 @@ function resolveQuote(node, scope, state, level)
 		return node
 	elseif node.tag == "symbol" then
 		if not node.var then
-			node.var = Scope.get(scope, node.contents, node)
+			node.var = Scope.getAlways(scope, node.contents, node)
 
 			if not node.var.scope.isRoot and not node.var.scope.builtin then
 				errorPositions(state.logger, node, "Cannot use non-top level definition in syntax-quote")
@@ -156,7 +156,7 @@ function resolveQuote(node, scope, state, level)
 		local first = node[1]
 		if first and first.tag == "symbol" then
 			if not first.var then
-				first.var = Scope.get(scope, first.contents, first)
+				first.var = Scope.getAlways(scope, first.contents, first)
 			end
 
 			if first.var == builtins["unquote"] or first.var == builtins["unquote-splice"] then
@@ -186,7 +186,7 @@ function resolveNode(node, scope, state, root)
 		return node
 	elseif kind == "symbol" then
 		if not node.var then
-			node.var = Scope.get(scope, node.contents, node)
+			node.var = Scope.getAlways(scope, node.contents, node)
 		end
 		if node.var.tag == "builtin" then
 			errorPositions(log, node, "Cannot have a raw builtin")
@@ -199,7 +199,7 @@ function resolveNode(node, scope, state, root)
 			errorPositions(log, node, "Cannot invoke a non-function type 'nil'")
 		elseif first.tag == "symbol" then
 			if not first.var then
-				first.var = Scope.get(scope, first.contents, first)
+				first.var = Scope.getAlways(scope, first.contents, first)
 			end
 
 			local func = first.var
@@ -252,7 +252,7 @@ function resolveNode(node, scope, state, root)
 				expect(log, node[3], node, "value")
 				maxLength(log, node, 3, "set!")
 
-				local var = Scope.get(scope, node[2].contents, node[2])
+				local var = Scope.getAlways(scope, node[2].contents, node[2])
 				state:require(var, node[2])
 				node[2].var = var
 				if var.const then

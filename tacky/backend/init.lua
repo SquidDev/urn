@@ -1543,7 +1543,7 @@ writeDocstring1 = (function(out9, str3, scope1)
 				append_21_1(out9, tok2["whole"])
 			elseif (ty6 == "link") then
 				local name5 = tok2["contents"]
-				local ovar1 = Scope1["get"](scope1, name5, nil, true)
+				local ovar1 = Scope1["get"](scope1, name5)
 				local temp25
 				if ovar1 then
 					temp25 = ovar1["node"]

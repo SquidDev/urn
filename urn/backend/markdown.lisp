@@ -53,7 +53,7 @@
         ((= ty "mono") (writer/append! out (.> tok :whole)))
         ((= ty "link")
           (let* [(name (.> tok :contents))
-                 (ovar ((.> Scope :get) scope name nil true))]
+                 (ovar ((.> Scope :get) scope name))]
             (if (and ovar (.> ovar :node))
               (let* [(loc (-> (.> ovar :node)
                           get-source
