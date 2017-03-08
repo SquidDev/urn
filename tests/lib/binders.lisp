@@ -20,7 +20,6 @@
     (letrec [(x (lambda () x))]
       (affirm (= x (x)))))
 
-
   (may "be bound using when-let"
     (will "execute all items"
       (let* [(ctr 0)
