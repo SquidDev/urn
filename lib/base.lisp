@@ -184,7 +184,7 @@
    Due to how macros are implemented, all values are wrapped as tables
    in order to preserve positional data about nodes. You will need to
    unwrap them in order to use them."
-  (if (type# val)
+  (if (= (type# val) "table")
     (with (tag (get-idx val :tag))
       (cond
         [(= tag "number") (get-idx val :value)]
