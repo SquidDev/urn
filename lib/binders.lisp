@@ -5,14 +5,14 @@
 (import list (cars cadrs caar cadar map cadr
               cdar cddr caddar))
 
-(defun make-binding (xs)
+(defun make-binding (xs) :hidden
   (if (= (# xs) 1)
     (car xs)
     (if (>= (# xs) 2)
       `(lambda ,(car xs) ,@(cdr xs))
       (error "Expected binding, got nil."))))
 
-(defun make-let-binding (xs)
+(defun make-let-binding (xs) :hidden
   (debug xs)
   (if (= (# xs) 2)
     (cadr xs)
