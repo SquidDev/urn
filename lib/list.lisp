@@ -120,11 +120,13 @@
     [true (cons (car xs) (append (cdr xs) ys))]))
 
 (defun flatten (xss)
-  "Concatenate all the lists in XSS. XSS must not contain elements which are not lists."
+  "Concatenate all the lists in XSS. XSS must not contain elements which
+   are not lists."
   (foldr append '() xss))
 
 (defun range (start end acc)
-  "Build a list from START to END. This function is tail recursive, and uses the parameter ACC as an accumulator."
+  "Build a list from START to END. This function is tail recursive, and
+   uses the parameter ACC as an accumulator."
   (cond
     [(! (exists? acc)) (range start end '())]
     [(>= start end) (reverse (cons start acc))]
@@ -144,6 +146,21 @@
   (assert-type! f function)
   (assert-type! ac function)
   (foldr ac z (map f xs)))
+
+(defun zip (fn &xss)
+  "Iterate over all the successive cars of XSS, producing a single list
+   by applying FN to all of them. For example:
+
+   ```
+   > (zip list '(1 2 3) '(4 5 6) '(7 8 9))
+   '((1 4 7) (2 5 8) (3 6 9))
+   ```"
+  (cond
+    [(any nil? xss)
+     '()]
+    [true
+      (cons (fn (unpack (cars xss)))
+            (zip fn (unpack (cdrs xss))))]))
 
 
 ;; AUTOMATICALLY GENERATED
