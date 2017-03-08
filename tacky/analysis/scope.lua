@@ -22,8 +22,8 @@ end
 
 Scope.empty = Scope.child(nil)
 
-function Scope:get(name, user, noYield)
-	local element = self
+function Scope:get(name)
+		local element = self
 
 	while element do
 		local var = element.variables[name]
@@ -32,7 +32,12 @@ function Scope:get(name, user, noYield)
 		element = element.parent
 	end
 
-	if noYield then return end
+	return nil
+end
+
+function Scope:getAlways(name, user)
+	local var = Scope.get(self, name)
+	if var then return var end
 
 	-- We don't have a variable. This means we've got a function which hasn't
 	-- been defined yet or doesn't exist.
