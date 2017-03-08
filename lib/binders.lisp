@@ -107,6 +107,13 @@
    the print statement will not be executed."
   `((lambda (,(car var)) (when ,(car var) ,@body)) ,(cadr var)))
 
+(defun make-setting (var)
+  (if (= (# var) 2)
+    `(set! ,(car var) ,(cadr var))
+    (if (>= (# var) 3)
+      `(set! ,(car var) (lambda ,(cadr var) ,@(cddr var)))
+      (error "Expected binding, got nil."))))
+
 ;; Pre-declare variable and define it, allowing recursive functions to exist
 (defmacro letrec (vars &body)
   "Bind several variables (given in VARS), which may be recursive.
@@ -123,5 +130,5 @@
    true
    ```"
   `((lambda ,(cars vars)
-      ,@(map (lambda (var) `(set! ,(car var) ,(cadr var))) vars)
+      ,@(map make-setting vars)
       ,@body)))
