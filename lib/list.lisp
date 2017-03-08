@@ -1,7 +1,7 @@
 (import base (defun defmacro when let* set-idx!
               get-idx and cons for gensym
               pretty print error tostring or
-              debug if # + - >= = ! with))
+              unpack debug if # + - >= = ! with))
 (import base)
 (import lua/table)
 (import type (list? nil? assert-type! exists? falsey?))
