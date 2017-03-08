@@ -1,6 +1,24 @@
-(import base (defmacro if ! when car cdr and pretty print debug))
+(import base (defmacro if ! when car
+              cdr and pretty print debug
+              defun = # >= error))
 (import type (list? nil?))
-(import list (cars cadrs caar cadar map cadr))
+(import list (cars cadrs caar cadar map cadr
+              cdar cddr caddar))
+
+(defun make-binding (xs)
+  (if (= (# xs) 1)
+    (car xs)
+    (if (>= (# xs) 2)
+      `(lambda ,(car xs) ,@(cdr xs))
+      (error "Expected binding, got nil."))))
+
+(defun make-let-binding (xs)
+  (debug xs)
+  (if (= (# xs) 2)
+    (cadr xs)
+    (if (>= (# xs) 3)
+      `(lambda ,(cadr xs) ,@(cddr xs))
+      (error "Expected binding, got nil."))))
 
 ;; Bind multiple variables in succession
 (defmacro let* (vars &body)
@@ -15,7 +33,9 @@
      foo
    ```"
   (if (! (nil? vars))
-    `((lambda (,(caar vars)) (let* ,(cdr vars) ,@body)) ,(cadar vars))
+    `((lambda (,(caar vars))
+        (let* ,(cdr vars) ,@body))
+      ,(make-binding (cdar vars)))
     `((lambda () ,@body))))
 
 ;; Binds a variable to an expression
@@ -30,7 +50,9 @@
          (bar 2)]
      (+ foo bar))
    ```"
-  `((lambda ,(cars vars) ,@body) ,@(cadrs vars)))
+  `((lambda ,(cars vars)
+      ,@body)
+    ,@(map make-let-binding vars)))
 
 (defmacro when-let (vars &body)
   "Bind VARS, as with [[let]], and check they are all truthy before evaluating
@@ -48,7 +70,8 @@
    ```
    does."
   `((lambda ,(cars vars)
-     (when (and ,@(cars vars)) ,@body)) ,@(cadrs vars)))
+     (when (and ,@(cars vars)) ,@body))
+    ,@(map make-let-binding vars)))
 
 (defmacro when-let* (vars &body)
   "Bind each pair of `(name value)` of VARS, checking if the value is truthy
@@ -70,7 +93,7 @@
               (cond
                 [,(caar vars) (when-let* ,(cdr vars) ,@body)]
                 [true nil]))
-            ,(cadar vars))]))
+            ,(make-binding (cdar vars)))]))
 
 (defmacro when-with (var &body)
   "Bind the PAIR var of the form `(name value)`, only evaluating BODY if the
