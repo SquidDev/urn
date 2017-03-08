@@ -13,7 +13,6 @@
       (error "Expected binding, got nil."))))
 
 (defun make-let-binding (xs) :hidden
-  (debug xs)
   (if (= (# xs) 2)
     (cadr xs)
     (if (>= (# xs) 3)
