@@ -62,7 +62,7 @@
                        (let* [(start offset)
                               (char (string/char-at str offset))]
                          ;; Require at least one character
-                         (unless (p char) (digit-error! (range (position)) name char))
+                         (unless (p char) (digit-error! logger (range (position)) name char))
 
                          ;; Consume all remaining characters matching this
                          (set! char (string/char-at str (succ offset)))
@@ -105,15 +105,15 @@
                              (consume!)
                              (consume!)
                              (with (res (parse-base "hexadecimal" hex-digit? 16))
-                               (when negative (set! res (- 0 res))
-                               res)))
+                               (when negative (set! res (- 0 res)))
+                               res))
                            ;; Parse binary digits
                            ((and (= char "0") (= (string/char-at str (succ offset)) "b"))
                              (consume!)
                              (consume!)
                              (with (res (parse-base "binary" bin-digit? 2))
-                               (when negative (set! res (- 0 res))
-                               res)))
+                               (when negative (set! res (- 0 res)))
+                               res))
                            (true
                              ;; Parse leading digits
                              (while (between? (string/char-at str (succ offset))  "0" "9")
@@ -223,7 +223,7 @@
                                      (with (start offset)
                                        ;; Obviously we require the first character to be hex
                                        (unless (hex-digit? (string/char-at str offset))
-                                         (digit-error! (range (position)) "hexadecimal" (string/char-at str offset)))
+                                         (digit-error! logger (range (position)) "hexadecimal" (string/char-at str offset)))
 
                                        ;; The next one doesn't have to be a hex, but it helps :)
                                        (when (hex-digit? (string/char-at str (succ offset)))
