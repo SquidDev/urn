@@ -138,6 +138,16 @@
   (with (symb (gensym))
     `(with (,symb ,a) (if ,symb ,symb ,(if (= (# rest) 0) b `(or ,b ,@rest))))))
 
+(defun -or (a b)
+  "Return the logical disjunction of values A and B.
+   This is a function, not a macro."
+  (or a b))
+
+(defun -and (a b)
+  "Return the logical conjunction of values A and B.
+   This is a function, not a macro."
+  (and a b))
+
 (defun debug (x)
   "Print the value X, then return it unmodified."
   (print (pretty x)) x)
