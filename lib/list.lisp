@@ -18,6 +18,10 @@
     '()
     (base/cdr x)))
 
+(defun snoc (x xs)
+  "Add the element X to the end of the list XS."
+  (list (unpack xs) x))
+
 (defun foldr (f z xs)
   "Fold over the list XS using the binary operator F and the starting value Z."
   (assert-type! f function)
