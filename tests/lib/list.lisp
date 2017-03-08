@@ -17,8 +17,13 @@
       (assert (= 'a (car '(a)))
               (= (cdr '(1 2 3)) (cdr '(1 2 3)))))
   (it "can be extended by cons"
-      (assert (= (cons 1 '(2 3)) '(1 2 3))
-              (= (cons "foo" '(bar baz)) '("foo" bar baz))))
+      (affirm (eq? (cons 1 '(2 3)) '(1 2 3))
+              (eq? (cons "foo" '(bar baz)) '("foo" bar baz))
+              (eq? (cons "foo" (list 1 nil 2)) (list "foo" 1 nil 2))))
+  (it "can be extended by snoc"
+      (assert (= (snoc '(1 2) 3) '(1 2 3))
+              (= (snoc '(bar baz) "foo") '(bar baz "foo"))
+              (= (snoc (list 1 nil 2) "foo") (list 1 nil 2 "foo"))))
   (it "can be reduced to a single value with foldr"
       (assert (= (foldr + 0 '(1 2 3)) (+ (+ 1 2) (+ 3 0)))
               (= (foldr append '() '((1 2) (3 4))) '(1 2 3 4))))
@@ -55,6 +60,13 @@
       (assert (= '(1 2 3 4) (flatten '((1 2) (3 4))))))
   (it "can be indexed in constant time"
       (assert (= (nth '(1 2 3) 1) 1)))
+  (it "has a last element"
+      (assert (= (last '(1 2 3)) 3)
+              (= (last '()) nil)
+              (= (last (list 1 2 nil)) nil)))
+  (it "can be zipped over"
+      (assert (= (zip list '(1 foo "baz") '(2 bar "qux")) '((1 2) (foo bar) ("baz" "qux")))
+              (= (zip + '(1 2 3) '(3 7 9)) '(4 9 12))))
   (it "exists"
       (assert (= true (exists? '(1 2 3)))
               (= true (exists? (range 1 3)))

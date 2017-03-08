@@ -20,7 +20,7 @@
 
 (defun snoc (xs x)
   "Add the element X to the end of the list XS."
-  (base/list (unpack xs) x))
+  `(,@xs ,x))
 
 (defun foldr (f z xs)
   "Fold over the list XS using the binary operator F and the starting value Z."

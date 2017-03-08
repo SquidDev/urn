@@ -50,7 +50,7 @@
 
 (defun cons (x xs)
   "Add X to the start of the list XS. Note: this is linear in time."
-  (list x (unpack xs)))
+  `(,x ,@xs))
 
 (defmacro progn (&body)
   "Group a series of expressions together."
