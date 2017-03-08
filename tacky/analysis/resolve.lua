@@ -71,8 +71,8 @@ rootScope.builtin = true
 local builtins = {}
 for i = 1, #declaredSymbols do
 	local symbol = declaredSymbols[i]
-	local var = rootScope:add(symbol, "builtin", nil)
-	rootScope:import("builtin/" .. symbol, var, true)
+	local var = Scope.add(rootScope, symbol, "builtin", nil)
+	Scope.import(rootScope, "builtin/" .. symbol, var, true)
 	builtins[symbol] = var
 end
 
@@ -80,8 +80,8 @@ local declaredVars = {}
 local declaredVariables = { "nil", "true", "false" }
 for i = 1, #declaredVariables do
 	local defined = declaredVariables[i]
-	local var = rootScope:add(defined, "defined", nil)
-	rootScope:import("builtin/" .. defined, var, true)
+	local var = Scope.add(rootScope, defined, "defined", nil)
+	Scope.import(rootScope, "builtin/" .. defined, var, true)
 	declaredVars[var] = true
 	declaredVars[defined] = var
 end
@@ -145,7 +145,7 @@ function resolveQuote(node, scope, state, level)
 		return node
 	elseif node.tag == "symbol" then
 		if not node.var then
-			node.var = scope:get(node.contents, node)
+			node.var = Scope.get(scope, node.contents, node)
 
 			if not node.var.scope.isRoot and not node.var.scope.builtin then
 				errorPositions(state.logger, node, "Cannot use non-top level definition in syntax-quote")
@@ -156,7 +156,7 @@ function resolveQuote(node, scope, state, level)
 		local first = node[1]
 		if first and first.tag == "symbol" then
 			if not first.var then
-				first.var = scope:get(first.contents, first)
+				first.var = Scope.get(scope, first.contents, first)
 			end
 
 			if first.var == builtins["unquote"] or first.var == builtins["unquote-splice"] then
@@ -186,7 +186,7 @@ function resolveNode(node, scope, state, root)
 		return node
 	elseif kind == "symbol" then
 		if not node.var then
-			node.var = scope:get(node.contents, node)
+			node.var = Scope.get(scope, node.contents, node)
 		end
 		if node.var.tag == "builtin" then
 			errorPositions(log, node, "Cannot have a raw builtin")
@@ -199,7 +199,7 @@ function resolveNode(node, scope, state, root)
 			errorPositions(log, node, "Cannot invoke a non-function type 'nil'")
 		elseif first.tag == "symbol" then
 			if not first.var then
-				first.var = scope:get(first.contents, first)
+				first.var = Scope.get(scope, first.contents, first)
 			end
 
 			local func = first.var
@@ -208,7 +208,7 @@ function resolveNode(node, scope, state, root)
 			if func == builtins["lambda"] then
 				expectType(log, node[2], node, "list", "argument list")
 
-				local childScope = scope:child()
+				local childScope = Scope.child(scope)
 
 				local args = node[2]
 
@@ -228,7 +228,7 @@ function resolveNode(node, scope, state, root)
 						end
 					end
 
-					args[i].var = childScope:addVerbose(name, "arg", args[i], log)
+					args[i].var = Scope.addVerbose(childScope, name, "arg", args[i], log)
 					args[i].var.isVariadic = isVar
 				end
 
@@ -242,7 +242,7 @@ function resolveNode(node, scope, state, root)
 
 					case[1] = resolveNode(case[1], scope, state)
 
-					local childScope = scope:child()
+					local childScope = Scope.child(scope)
 					resolveBlock(case, 2, childScope, state)
 				end
 
@@ -252,7 +252,7 @@ function resolveNode(node, scope, state, root)
 				expect(log, node[3], node, "value")
 				maxLength(log, node, 3, "set!")
 
-				local var = scope:get(node[2].contents, node[2])
+				local var = Scope.get(scope, node[2].contents, node[2])
 				state:require(var, node[2])
 				node[2].var = var
 				if var.const then
@@ -278,7 +278,7 @@ function resolveNode(node, scope, state, root)
 				expectType(log, node[2], node, "symbol", "name")
 				expect(log, node[3], node, "value")
 
-				local var = scope:addVerbose(node[2].contents, "defined", node, log)
+				local var = Scope.addVerbose(scope, node[2].contents, "defined", node, log)
 				state:define(var)
 				node.defVar = var
 
@@ -291,7 +291,7 @@ function resolveNode(node, scope, state, root)
 				expectType(log, node[2], node, "symbol", "name")
 				expect(log, node[3], node, "value")
 
-				local var = scope:addVerbose(node[2].contents, "macro", node, log)
+				local var = Scope.addVerbose(scope, node[2].contents, "macro", node, log)
 				state:define(var)
 				node.defVar = var
 
@@ -303,7 +303,7 @@ function resolveNode(node, scope, state, root)
 				if not root then errorPositions(log, first, "define-native can only be used on the top level") end
 				expectType(log, node[2], node, "symbol", "name")
 
-				local var = scope:addVerbose(node[2].contents, "native", node, log)
+				local var = Scope.addVerbose(scope, node[2].contents, "native", node, log)
 				state:define(var)
 				node.defVar = var
 
@@ -409,7 +409,7 @@ function resolveBlock(list, start, scope, state)
 end
 
 return {
-	createScope = function() return rootScope:child() end,
+	createScope = function() return Scope.create(rootScope) end,
 	rootScope = rootScope,
 	builtins = builtins,
 	declaredVars = declaredVars,

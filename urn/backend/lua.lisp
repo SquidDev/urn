@@ -18,8 +18,8 @@
 (define builtins (get-idx (require "tacky.analysis.resolve") :builtins))
 (define builtin-vars (get-idx (require "tacky.analysis.resolve") :declaredVars))
 
-;; Escape an urn identifier, converting it into a form that is valid Lua.
 (defun escape (name)
+  "Escape an urn identifier NANE, converting it into a form that is valid Lua."
   (cond
     [(.> keywords name) (.. "_e" name)] ;; Keywords are trivial to escape
     [(string/find name "^%w[_%w%d]*$") name] ;; Explicitly forbit leading _ as used for compiler internals
@@ -51,8 +51,8 @@
             (when esc (set! out (.. out "_")))
             out)]))
 
-;; Escape an urn variable, uniquely numbering different variables with the same name(defun escape-var (var state)
 (defun escape-var (var state)
+  "Escape an urn variable, uniquely numbering different variables with the same name."
   (cond
     [(.> builtin-vars var) (.> var :name)]
     [true
@@ -64,8 +64,8 @@
           (.<! state :var-lookup var id))
         (.. v (number->string id)))]))
 
-;; A rough test to detect if an nodeession can be compiled to a statement
 (defun statement? (node)
+  "A rough test to detect if NODE can be compiled to a statement."
   (if (list? node)
     (with (first (car node))
       (cond
@@ -83,10 +83,11 @@
   "Determine whether NODE is true. A more comprehensive implementation exists in the optimiser"
   (and (symbol? node) (= (.> builtin-vars :true) (.> node :var))))
 
-;; Compile quoted nodeessions.
-;; If the level is nil then we are compiling quotes, otherwise it determines how deep
-;; we are down this rabbit hole.
 (defun compile-quote (node out state level)
+  "Compile a quoted NODE to the ouput buffer OUT.
+
+   If the LEVEL is nil then we are compiling `quote`s, otherwise it determines how deep
+   we are down this rabbit hole of `syntax-quote`."
   (if (= level 0)
     (compile-expression node out state)
     (with (ty (type node))
@@ -462,15 +463,17 @@
           [true (error! (.. "Unknown type: " (type node)))]
           ))]))
 
-;; Compile a block of expressions
 (defun compile-block (nodes out state start ret)
+  "Compile a block of expressions."
   (for i start (# nodes) 1
     (with (ret' (if (= i (# nodes)) ret ""))
       (compile-expression (nth nodes i) out state ret'))
     (w/line! out)))
 
-;; Various code to emit before everything else
 (defun prelude (out)
+  "Various code to emit before everything else.
+
+   This includes multi-version compatibility and caches some commonly used globals the compiled code will use."
   ;; Add some compat stuff
   (w/line! out "if not table.pack then table.pack = function(...) return { n = select(\"#\", ...), ... } end end")
   (w/line! out "if not table.unpack then table.unpack = unpack end")

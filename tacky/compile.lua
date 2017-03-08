@@ -1,9 +1,10 @@
+local Scope = require "tacky.analysis.scope"
+local State = require "tacky.analysis.state"
 local backend = require "tacky.backend.init"
 local logger = require "tacky.logger.init"
 local range = require "tacky.range"
 local resolve = require "tacky.analysis.resolve"
 local traceback = require "tacky.traceback"
-local State = require "tacky.analysis.state"
 
 local writer = backend.writer
 
@@ -165,13 +166,13 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 			for name, var in pairs(module) do
 				if head.as then
 					name = head.as .. '/' .. name
-					scope:importVerbose(name, var, head._node, export, loggerI)
+					Scope.importVerbose(scope, name, var, head._node, export, loggerI)
 				elseif head.symbols then
 					if head.symbols[name] then
-						scope:importVerbose(name, var, head._node, export, loggerI)
+						Scope.importVerbose(scope, name, var, head._node, export, loggerI)
 					end
 				else
-					scope:importVerbose(name, var, head._node, export, loggerI)
+					Scope.importVerbose(scope, name, var, head._node, export, loggerI)
 				end
 			end
 
