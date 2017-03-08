@@ -18,7 +18,7 @@
     '()
     (base/cdr x)))
 
-(defun snoc (x xs)
+(defun snoc (xs x)
   "Add the element X to the end of the list XS."
   (list (unpack xs) x))
 
