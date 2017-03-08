@@ -3,7 +3,7 @@ title: type
 ---
 # type
 ## `(assert-type! arg ty)`
-*Macro defined at lib/type.lisp:129:1*
+*Macro defined at lib/type.lisp:131:1*
 
 Assert that the argument `ARG` has type `TY`, as reported by the function
 [`type`](lib.type.md#type-val).
@@ -81,7 +81,7 @@ Check whether `X` is a key.
 Check whether `X` is a list.
 
 ## `(neq? x y)`
-*Defined at lib/type.lisp:124:1*
+*Defined at lib/type.lisp:126:1*
 
 Compare `X` and `Y` for inequality deeply. `X` and `Y` are `neq?`
 if `([[eq?]] x y)` is falsey.

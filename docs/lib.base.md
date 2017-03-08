@@ -12,6 +12,18 @@ Negate the expresison `EXPR`.
 
 Get the length of list X
 
+## `(-and a b)`
+*Defined at lib/base.lisp:146:1*
+
+Return the logical conjunction of values `A` and `B`.
+This is a function, not a macro.
+
+## `(-or a b)`
+*Defined at lib/base.lisp:141:1*
+
+Return the logical disjunction of values `A` and `B`.
+This is a function, not a macro.
+
 ## `(and a b &rest)`
 *Macro defined at lib/base.lisp:129:1*
 
@@ -19,7 +31,7 @@ Return the logical and of values `A` and `B`, and, if present, the
 logical and of all the values in `REST`.
 
 ## `arg`
-*Defined at lib/base.lisp:169:1*
+*Defined at lib/base.lisp:179:1*
 
 The arguments passed to the currently executing program
 
@@ -29,7 +41,7 @@ The arguments passed to the currently executing program
 Add `X` to the start of the list `XS`. Note: this is linear in time.
 
 ## `(const-val val)`
-*Defined at lib/base.lisp:181:1*
+*Defined at lib/base.lisp:191:1*
 
 Get the actual value of `VAL`, an argument to a macro.
 
@@ -38,7 +50,7 @@ in order to preserve positional data about nodes. You will need to
 unwrap them in order to use them.
 
 ## `(debug x)`
-*Defined at lib/base.lisp:141:1*
+*Defined at lib/base.lisp:151:1*
 
 Print the value `X`, then return it unmodified.
 
@@ -83,7 +95,7 @@ Return the logical or of values `A` and `B`, and, if present, the
 logical or of all the values in `REST`.
 
 ## `(pretty value)`
-*Defined at lib/base.lisp:145:1*
+*Defined at lib/base.lisp:155:1*
 
 Format `VALUE` as a valid Lisp expression which can be parsed.
 
@@ -93,7 +105,7 @@ Format `VALUE` as a valid Lisp expression which can be parsed.
 Group a series of expressions together.
 
 ## `(quasiquote val)`
-*Macro defined at lib/base.lisp:214:1*
+*Macro defined at lib/base.lisp:224:1*
 
 Quote `VAL`, but replacing all `unquote` and `unquote-splice` with their actual value.
 
