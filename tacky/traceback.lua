@@ -77,9 +77,9 @@ nth1 = (function(xs2, idx1)
 	return xs2[idx1]
 end)
 pushCdr_21_1 = (function(xs3, val3)
-	local r_421 = type1(xs3)
-	if (r_421 ~= "list") then
-		error1(format1("bad argment %s (expected %s, got %s)", "xs", "list", r_421), 2)
+	local r_441 = type1(xs3)
+	if (r_441 ~= "list") then
+		error1(format1("bad argment %s (expected %s, got %s)", "xs", "list", r_441), 2)
 	else
 	end
 	local len2 = (_23_1(xs3) + 1)
@@ -104,12 +104,12 @@ struct1 = (function(...)
 		return key1["contents"]
 	end)
 	local out1 = {}
-	local r_701 = _23_1(keys1)
-	local r_681 = nil
-	r_681 = (function(r_691)
-		if (r_691 <= r_701) then
-			local key2 = keys1[r_691]
-			local val4 = keys1[(1 + r_691)]
+	local r_721 = _23_1(keys1)
+	local r_701 = nil
+	r_701 = (function(r_711)
+		if (r_711 <= r_721) then
+			local key2 = keys1[r_711]
+			local val4 = keys1[(1 + r_711)]
 			out1[(function()
 				if key_3f_1(key2) then
 					return contents1(key2)
@@ -118,11 +118,11 @@ struct1 = (function(...)
 				end
 			end)()
 			] = val4
-			return r_681((r_691 + 2))
+			return r_701((r_711 + 2))
 		else
 		end
 	end)
-	r_681(1)
+	r_701(1)
 	return out1
 end)
 succ1 = (function(x5)
@@ -139,38 +139,38 @@ unmangleIdent1 = (function(ident1)
 		local buffer1 = {tag = "list", n = 0}
 		local pos1 = 0
 		local len3 = len1(esc1)
-		local r_1571 = nil
-		r_1571 = (function()
+		local r_1591 = nil
+		r_1591 = (function()
 			if (pos1 <= len3) then
 				local char2 = charAt1(esc1, pos1)
 				if (char2 == "_") then
-					local r_1581 = list1(find1(esc1, "^_[%da-z]+_", pos1))
+					local r_1601 = list1(find1(esc1, "^_[%da-z]+_", pos1))
 					local temp1
-					local r_1601 = list_3f_1(r_1581)
-					if r_1601 then
-						local r_1611 = (_23_1(r_1581) == 2)
-						if r_1611 then
+					local r_1621 = list_3f_1(r_1601)
+					if r_1621 then
+						local r_1631 = (_23_1(r_1601) == 2)
+						if r_1631 then
 							temp1 = true
 						else
-							temp1 = r_1611
+							temp1 = r_1631
 						end
 					else
-						temp1 = r_1601
+						temp1 = r_1621
 					end
 					if temp1 then
-						local start1 = nth1(r_1581, 1)
-						local _eend1 = nth1(r_1581, 2)
+						local start1 = nth1(r_1601, 1)
+						local _eend1 = nth1(r_1601, 2)
 						pos1 = (pos1 + 1)
-						local r_1641 = nil
-						r_1641 = (function()
+						local r_1661 = nil
+						r_1661 = (function()
 							if (pos1 < _eend1) then
 								pushCdr_21_1(buffer1, char1(tonumber1(sub1(esc1, pos1, succ1(pos1)), 16)))
 								pos1 = (pos1 + 2)
-								return r_1641()
+								return r_1661()
 							else
 							end
 						end)
-						r_1641()
+						r_1661()
 					else
 						pushCdr_21_1(buffer1, "_")
 					end
@@ -181,51 +181,51 @@ unmangleIdent1 = (function(ident1)
 					pushCdr_21_1(buffer1, char2)
 				end
 				pos1 = (pos1 + 1)
-				return r_1571()
+				return r_1591()
 			else
 			end
 		end)
-		r_1571()
+		r_1591()
 		return concat1(buffer1)
 	end
 end)
 remapError1 = (function(msg1)
 	local res1
+	local r_1451
+	local r_1441
 	local r_1431
-	local r_1421
-	local r_1411
-	r_1411 = gsub1(msg1, "local '([^']+)'", (function(x6)
+	r_1431 = gsub1(msg1, "local '([^']+)'", (function(x6)
 		return _2e2e_1("local '", unmangleIdent1(x6), "'")
 	end))
-	r_1421 = gsub1(r_1411, "global '([^']+)'", (function(x7)
+	r_1441 = gsub1(r_1431, "global '([^']+)'", (function(x7)
 		return _2e2e_1("global '", unmangleIdent1(x7), "'")
 	end))
-	r_1431 = gsub1(r_1421, "upvalue '([^']+)'", (function(x8)
+	r_1451 = gsub1(r_1441, "upvalue '([^']+)'", (function(x8)
 		return _2e2e_1("upvalue '", unmangleIdent1(x8), "'")
 	end))
-	res1 = gsub1(r_1431, "function '([^']+)'", (function(x9)
+	res1 = gsub1(r_1451, "function '([^']+)'", (function(x9)
 		return _2e2e_1("function '", unmangleIdent1(x9), "'")
 	end))
 	return res1
 end)
 remapMessage1 = (function(mappings1, msg2)
-	local r_1441 = list1(match1(msg2, "^(.-):(%d+)(.*)$"))
+	local r_1461 = list1(match1(msg2, "^(.-):(%d+)(.*)$"))
 	local temp2
-	local r_1461 = list_3f_1(r_1441)
-	if r_1461 then
-		local r_1471 = (_23_1(r_1441) == 3)
-		if r_1471 then
+	local r_1481 = list_3f_1(r_1461)
+	if r_1481 then
+		local r_1491 = (_23_1(r_1461) == 3)
+		if r_1491 then
 			temp2 = true
 		else
-			temp2 = r_1471
+			temp2 = r_1491
 		end
 	else
-		temp2 = r_1461
+		temp2 = r_1481
 	end
 	if temp2 then
-		local file1 = nth1(r_1441, 1)
-		local line1 = nth1(r_1441, 2)
-		local extra1 = nth1(r_1441, 3)
+		local file1 = nth1(r_1461, 1)
+		local line1 = nth1(r_1461, 2)
+		local extra1 = nth1(r_1461, 3)
 		local mapping1 = mappings1[file1]
 		if mapping1 then
 			local range1 = mapping1[tonumber1(line1)]
@@ -242,31 +242,31 @@ remapMessage1 = (function(mappings1, msg2)
 	end
 end)
 remapTraceback1 = (function(mappings2, msg3)
+	local r_1581
+	local r_1571
 	local r_1561
 	local r_1551
 	local r_1541
 	local r_1531
-	local r_1521
-	local r_1511
-	r_1511 = gsub1(msg3, "^([^\n:]-:%d+:[^\n]*)", (function(r_1631)
-		return remapMessage1(mappings2, r_1631)
+	r_1531 = gsub1(msg3, "^([^\n:]-:%d+:[^\n]*)", (function(r_1651)
+		return remapMessage1(mappings2, r_1651)
 	end))
-	r_1521 = gsub1(r_1511, "\9([^\n:]-:%d+:)", (function(msg4)
+	r_1541 = gsub1(r_1531, "\9([^\n:]-:%d+:)", (function(msg4)
 		return _2e2e_1("\9", remapMessage1(mappings2, msg4))
 	end))
-	r_1531 = gsub1(r_1521, "<([^\n:]-:%d+)>\n", (function(msg5)
+	r_1551 = gsub1(r_1541, "<([^\n:]-:%d+)>\n", (function(msg5)
 		return _2e2e_1("<", remapMessage1(mappings2, msg5), ">\n")
 	end))
-	r_1541 = gsub1(r_1531, "in local '([^']+)'\n", (function(x10)
+	r_1561 = gsub1(r_1551, "in local '([^']+)'\n", (function(x10)
 		return _2e2e_1("in local '", unmangleIdent1(x10), "'\n")
 	end))
-	r_1551 = gsub1(r_1541, "in global '([^']+)'\n", (function(x11)
+	r_1571 = gsub1(r_1561, "in global '([^']+)'\n", (function(x11)
 		return _2e2e_1("in global '", unmangleIdent1(x11), "'\n")
 	end))
-	r_1561 = gsub1(r_1551, "in upvalue '([^']+)'\n", (function(x12)
+	r_1581 = gsub1(r_1571, "in upvalue '([^']+)'\n", (function(x12)
 		return _2e2e_1("in upvalue '", unmangleIdent1(x12), "'\n")
 	end))
-	return gsub1(r_1561, "in function '([^']+)'\n", (function(x13)
+	return gsub1(r_1581, "in function '([^']+)'\n", (function(x13)
 		return _2e2e_1("in function '", unmangleIdent1(x13), "'\n")
 	end))
 end)
@@ -282,28 +282,28 @@ generateMappings1 = (function(lines1)
 				rangeList1 = struct1("n", 0, "min", huge1, "max", (0 - huge1))
 				rangeLists1[file2] = rangeList1
 			end
-			local r_1671 = pos2["finish"]["line"]
-			local r_1651 = nil
-			r_1651 = (function(r_1661)
-				if (r_1661 <= r_1671) then
-					if rangeList1[r_1661] then
+			local r_1691 = pos2["finish"]["line"]
+			local r_1671 = nil
+			r_1671 = (function(r_1681)
+				if (r_1681 <= r_1691) then
+					if rangeList1[r_1681] then
 					else
 						rangeList1["n"] = succ1(rangeList1["n"])
-						rangeList1[r_1661] = true
-						if (r_1661 < rangeList1["min"]) then
-							rangeList1["min"] = r_1661
+						rangeList1[r_1681] = true
+						if (r_1681 < rangeList1["min"]) then
+							rangeList1["min"] = r_1681
 						else
 						end
-						if (r_1661 > rangeList1["max"]) then
-							rangeList1["max"] = r_1661
+						if (r_1681 > rangeList1["max"]) then
+							rangeList1["max"] = r_1681
 						else
 						end
 					end
-					return r_1651((r_1661 + 1))
+					return r_1671((r_1681 + 1))
 				else
 				end
 			end)
-			return r_1651(pos2["start"]["line"])
+			return r_1671(pos2["start"]["line"])
 		end))
 		local bestName1 = nil
 		local bestLines1 = nil
