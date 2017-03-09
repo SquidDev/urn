@@ -530,7 +530,7 @@ lex1 = (function(logger9, str2, name2)
 		local char6 = charAt1(str2, offset1)
 		if p1(char6) then
 		else
-			digitError_21_1(range2(position1()), name3, char6)
+			digitError_21_1(logger9, range2(position1()), name3, char6)
 		end
 		char6 = charAt1(str2, succ1(offset1))
 		local r_2001 = nil
@@ -610,9 +610,9 @@ lex1 = (function(logger9, str2, name2)
 					local res1 = parseBase1("hexadecimal", hexDigit_3f_1, 16)
 					if negative1 then
 						res1 = (0 - res1)
-						val5 = res1
 					else
 					end
+					val5 = res1
 				else
 					local temp8
 					local r_1671 = (char7 == "0")
@@ -627,9 +627,9 @@ lex1 = (function(logger9, str2, name2)
 						local res2 = parseBase1("binary", binDigit_3f_1, 2)
 						if negative1 then
 							res2 = (0 - res2)
-							val5 = res2
 						else
 						end
+						val5 = res2
 					else
 						local r_1681 = nil
 						r_1681 = (function()
@@ -798,7 +798,7 @@ lex1 = (function(logger9, str2, name2)
 										local start12 = offset1
 										if hexDigit_3f_1(charAt1(str2, offset1)) then
 										else
-											digitError_21_1(range2(position1()), "hexadecimal", charAt1(str2, offset1))
+											digitError_21_1(logger9, range2(position1()), "hexadecimal", charAt1(str2, offset1))
 										end
 										if hexDigit_3f_1(charAt1(str2, succ1(offset1))) then
 											consume_21_1()

@@ -479,33 +479,8 @@ if #inputs == 0 then
 						break
 					else
 						local states = data.states
-						if states[1] == current and not current.var then
-							table.remove(states, 1)
-							local ok, msg = pcall(compile.executeStates, compileState, states, global, termLogger)
-							if not ok then logger.putError(termLogger, msg) break end
-
-							local name = range.getSource(current.node).name
-							local builder = writer.create()
-							backend.lua.backend.prelude(builder)
-							backend.lua.backend.expression(current.node, builder, compileState, "return ")
-
-							-- Generate mappings
-							compileState.mappings[name] = traceback.generate(builder.lines)
-
-							local fun, msg = load(writer.tostring(builder), "=" .. name, "t", global)
-							if not fun then error(msg .. ":\n" .. str, 0) end
-
-							local ok, res = xpcall(fun, debug.traceback)
-							if not ok then
-								logger.putError(termLogger, traceback.remapTraceback(compileState.mappings, res))
-								break
-							end
-
-							current:executed(res)
-						else
-							local ok, msg = pcall(compile.executeStates, compileState, states, global)
-							if not ok then logger.putError(termLogger, msg) break end
-						end
+						local ok, msg = pcall(compile.executeStates, compileState, states, global)
+						if not ok then logger.putError(termLogger, msg) break end
 					end
 				end
 			end

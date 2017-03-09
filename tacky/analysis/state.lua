@@ -4,7 +4,16 @@ local range = require "tacky.range"
 local State = {}
 State.__index = State
 
-local ctr = 0
+--- The state tracks a single node's resolution progress. Namely, it keeps note of:
+--
+-- - All variables this node "depends" on (will access when executed). Does not include syntax-quoted
+--   variables.
+-- - The variable this node declares.
+-- - The final node once resolution is finished.
+-- - The value of this node if it has been executed.
+--
+-- Further more, this also handles gathering all nested dependencies for this node to be executed and built,
+-- detecting cycles in building (say two macros each require the other in order to be expanded).
 function State.create(variables, states, scope, logger, mappings)
 	if not variables then error("variables cannot be nil", 2) end
 	if not states then error("states cannot be nil", 2) end

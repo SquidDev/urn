@@ -33,6 +33,12 @@ local function internalError(log, node, message)
 	errorPositions(log, node, "[Internal]" .. message .. "\n" .. debug.traceback())
 end
 
+--- Reads metadata from the specified node, annotating the variable
+-- @param log    The logger to print error messages to
+-- @param node   The node we're reading from.
+-- @param var    The variable this node defines, on which metadata should be stored.
+-- @param start  The start offset of the node.
+-- @param finish The finish offset of the node.
 local function handleMetadata(log, node, var, start, finish)
 	for i = start, finish do
 		local child = node[i]
@@ -86,6 +92,16 @@ for i = 1, #declaredVariables do
 	declaredVars[defined] = var
 end
 
+--- Resolve the result of a macro, binding the parent node and marking which macro which generated it.
+--
+-- Also correctly will re-associate syntax-quoted variables with their original definition
+--
+-- @param macro   The macro which created this node.
+-- @param node    The resulting node.
+-- @param parent  The parent to this node.
+-- @param scope   The scope we're resolving in.
+-- @param state   The state for this node block.
+-- @return The fully resolved macro result, reading for actual resolution.
 local function resolveMacroResult(macro, node, parent, scope, state)
 	local ty = type(node)
 	if ty == "string" then
@@ -136,6 +152,12 @@ end
 
 local resolveNode, resolveBlock, resolveQuote
 
+--- Resolve a syntax-quoted expression
+-- @param node The node to resolve
+-- @param scope The scope to resolve under.
+-- @param state The state to resolve under.
+-- @param level The level of quoting. 0 represents none, 1 represents one level of syntax-quote.
+-- @return The fully resolved quoted expression.
 function resolveQuote(node, scope, state, level)
 	if level == 0 then
 		return resolveNode(node, scope, state)

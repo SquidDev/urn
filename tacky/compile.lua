@@ -8,6 +8,15 @@ local traceback = require "tacky.traceback"
 
 local writer = backend.writer
 
+--- Attempt to execute a series of states, in the environment.
+--
+-- All nodes are required to be in the built or executed stages, though those in the latter will be skipped
+-- for obvious reasons.
+--
+-- @param compileState The state of the current compiler, including escape mappings and library metadata
+-- @param states The list of states to compile
+-- @param global The environment to execute under. States with variables will be bound to these.
+-- @param loggerI The logger to print all compilation issues too.
 local function executeStates(compileState, states, global, loggerI)
 	local stateList, nameTable, nameList, escapeList = {}, {}, {}, {}
 
@@ -15,7 +24,7 @@ local function executeStates(compileState, states, global, loggerI)
 		local state = states[j]
 		if state.stage ~= "executed" then
 			local node = assert(state.node, "State is in " .. state.stage .. " instead")
-			local var = assert(state.var, "State has no variable")
+			local var = state.var or { name = "temp" }
 
 			local i = #stateList + 1
 
@@ -34,7 +43,17 @@ local function executeStates(compileState, states, global, loggerI)
 		writer.line(builder, "local " .. table.concat(escapeList, ", "))
 
 		for i = 1, #stateList do
-			backend.lua.backend.expression(stateList[i].node, builder, compileState, "")
+			local state = stateList[i]
+
+			-- If we don't have a variable then we'll assign it to this temporary variable we created earlier.
+			local suffix
+			if state.var then
+				suffix = ""
+			else
+				suffix = escapeList[i] .. " = "
+			end
+
+			backend.lua.backend.expression(state.node, builder, compileState, suffix)
 			writer.line(builder)
 		end
 
@@ -70,6 +89,43 @@ local function executeStates(compileState, states, global, loggerI)
 	end
 end
 
+--- Attempt to resolve all variables in a list of expressions, expanding all macros and what not.
+--
+-- This firstly creates a State for each expression in the list. This tracks all variables this state
+-- references, along with the variable it defines, the fully built node, and (if required) the compiled value.
+--
+-- These states are inserted into a task list and resolution starts. Actual variable resolution is only done
+-- in the resolver, yielding out if a variable cannot be found or in a couple of other cases. Each entry in
+-- this task list goes through a series of stages:
+--
+--  - init: The initial state before anything has happened.
+--  - define: Waiting for a variable to be defined.
+--  - build: Waiting for another node to finish being resolved. This is required before we actually compile a
+--  - node as we need to gather all its dependencies.
+--  - execute: Waiting for a state to execute. This is generally entered when the state's node needs to
+--    execute a macro which hasn't been compiled to Lua yet.
+--  - import: When we need to load and import and external module.
+--
+-- Once each task's dependencies have been resolved then resolution of that node will continue.
+--
+-- This rather convoluted algorithm does mean that statements may not resolve or execute in order, leading to
+-- issues where a top level definition shadows an imported one, as the imported one may be used
+-- instead. Whilst the algorithm is, strictly speaking, deterministic, it isn't clear when nodes will be
+-- executed.
+--
+-- A future improvement of this would be to execute as much as possible of one node before continuing, though
+-- this places a much stricter requirement on definition order.
+--
+-- @param parsed       The parsed syntax tree to resolve
+-- @param global       The global environment all code is executed in.
+-- @param env          A lookup of variable hashes to variables. This is used in order to link syntax-quoted
+--                     variables back to their original definition.
+-- @param inStates     A lookup of all currently loaded variables mapped to their corresponding State object.
+-- @param scope        The scope to load variables in.
+-- @param compileState The current compiler state, holding library metadata and variable escape mappings.
+-- @param loader       The function to invoke in order to load an external module.
+-- @param loggerI      The logger which should receive error messages.
+-- @return Returns the resolved nodes and the corresponding states.
 local function compile(parsed, global, env, inStates, scope, compileState, loader, loggerI)
 	local queue = {}
 	local out = {}
