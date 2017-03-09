@@ -498,7 +498,7 @@ putLines_21_1 = (function(range2, entries1)
 	end
 	local previous1 = -1
 	local file1 = nth1(entries1, 1)["name"]
-	local maxLine1 = foldr1((function(node5, max2)
+	local maxLine1 = foldr1((function(max2, node5)
 		if string_3f_1(node5) then
 			return max2
 		else
