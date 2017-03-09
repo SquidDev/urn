@@ -50,14 +50,14 @@
 
    Example:
    ```
-   > (check [(a number)] \
+   > (check [(number a)] \
    .   (= a a))
-   . 
+   .
    (= a a) passed 100 tests.
    nil
-   > (check [(a number)] \
+   > (check [(number a)] \
    .   (= a (+ 1 a)))
-   . 
+   .
    (= a (+ 1 a)) falsified after 1 iteration(s)
    falsifying set of values:
      the number, a, had the value 3867638440
@@ -68,13 +68,13 @@
    iteration. This library has the ability to generate random numbers, strings,
    symbols, booleans, keys and lists."
   (let* [(generate-binding (binding)
-           (destructuring-bind [(?name ?type) binding]
+           (destructuring-bind [(?type ?name) binding]
              `(,name (random-of ,(symbol->string type)))))
          (generate-regenerator (binding)
-           (destructuring-bind [(?name ?type) binding]
+           (destructuring-bind [(?type ?name) binding]
              `(set! ,name (random-of ,(symbol->string type)))))
          (make-printing (binding)
-           (destructuring-bind [(?name ?type) binding]
+           (destructuring-bind [(?type ?name) binding]
              `(print! (.. ,(.. "  the " (symbol->string type) ", "
                                (symbol->string name) ", had the value ") (pretty ,name)))))
          (generate-body (prop)
@@ -96,4 +96,3 @@
                   (print! (.. ,(pretty prop) " passed 100 tests."))))))]
     `(let* ,(map generate-binding bindings)
        ,@(map generate-body props))))
-
