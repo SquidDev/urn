@@ -34,7 +34,9 @@ function State.create(variables, states, scope, logger, mappings)
 		-- The logger instance
 		logger = logger,
 
-		-- The logger
+		-- The current line mappings. This really shouldn't be here
+		-- as ideally we'd just store a reference to the compiler state,
+		-- but this code is kinda legacy after two months.
 		mappings = mappings,
 
 		--- List of all required variables

@@ -18,11 +18,14 @@
     [(and (.> node :range) (.> node :contents))
      (string/format "%s (%q)" (format-range (.> node :range)) (.> node :contents))]
     [(.> node :range) (format-range (.> node :range))]
-    [(.> node :macro)
-     (with (macro (.> node :macro))
-       (string/format "macro expansion of %s (%s)"
-                      (.> macro :var :name)
-                      (format-node (.> macro :node))))]
+    [(.> node :owner)
+     (with (owner (.> node :owner))
+       (if (.> owner :var)
+         (string/format "macro expansion of %s (%s)"
+           (.> owner :var :name)
+           (format-node (.> owner :node)))
+         (string/format "unquote expansion (%s)"
+           (format-node (.> owner :node)))))]
     [(and (.> node :start) (.> node :finish))
      (format-range node)]
     [true "?"]))

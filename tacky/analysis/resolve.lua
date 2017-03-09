@@ -1,4 +1,5 @@
 local Scope = require "tacky.analysis.scope"
+local State = require "tacky.analysis.state"
 local logger = require "tacky.logger.init"
 local range = require "tacky.range"
 local traceback = require "tacky.traceback"
@@ -92,17 +93,25 @@ for i = 1, #declaredVariables do
 	declaredVars[defined] = var
 end
 
---- Resolve the result of a macro, binding the parent node and marking which macro which generated it.
+local function getExecuteName(owner)
+	if owner.var then
+		return "macro '" .. owner.var.name .. "'"
+	else
+		return "unquote"
+	end
+end
+
+--- Resolve the result of a macro or unquote, binding the parent node and marking which macro which generated it.
 --
 -- Also correctly will re-associate syntax-quoted variables with their original definition
 --
--- @param macro   The macro which created this node.
+-- @param owner   The State of this node's creator.
 -- @param node    The resulting node.
 -- @param parent  The parent to this node.
 -- @param scope   The scope we're resolving in.
 -- @param state   The state for this node block.
--- @return The fully resolved macro result, reading for actual resolution.
-local function resolveMacroResult(macro, node, parent, scope, state)
+-- @return The fully resolved result, reading for actual resolution.
+local function resolveExecuteResult(owner, node, parent, scope, state)
 	local ty = type(node)
 	if ty == "string" then
 		node = { tag = "string", contents = ("%q"):format(node), value = node }
@@ -121,22 +130,22 @@ local function resolveMacroResult(macro, node, parent, scope, state)
 			node = newNode
 		else
 			if tag then ty = tostring(tag) end
-			errorPositions(state.logger, parent, "Invalid node of type '" .. ty .. "' from macro '" .. macro.var.name .. "'")
+			errorPositions(state.logger, parent, "Invalid node of type '" .. ty .. "' from " .. getExecuteName(owner))
 		end
 	else
-		errorPositions(state.logger, parent, "Invalid node of type '" .. ty .. "' from macro '" .. macro.var.name .. "'")
+		errorPositions(state.logger, parent, "Invalid node of type '" .. ty .. "' from " .. getExecuteName(owner))
 	end
 
 	node.parent = parent
 
 	-- We've already tagged this so continue
-	if not node.range and not node.macro then
-		node.macro = macro
+	if not node.range and not node.owner then
+		node.owner = owner
 	end
 
 	if node.tag == "list" then
 		for i = 1, node.n do
-			node[i] = resolveMacroResult(macro, node[i], node, scope, state)
+			node[i] = resolveExecuteResult(owner, node[i], node, scope, state)
 		end
 	elseif node.tag == "symbol" and type(node.var) == "string" then
 		local var = state.variables[node.var]
@@ -293,7 +302,33 @@ function resolveNode(node, scope, state, root)
 
 				node[2] = resolveQuote(node[2], scope, state, 1)
 				return node
-			elseif func == builtins["unquote"] or func == builtins["unquote-splice"] then
+			elseif func == builtins["unquote"] then
+				maxLength(log, node, 2, "unquote")
+				local childState = State.create(state.variables, state.states, scope, state.logger, state.mappings)
+
+				local built = resolveNode(node[2], scope, childState)
+
+				-- We wrap the child state in a lambda in order to correctly handle errors inside the system
+				childState:built({
+					tag = "list", n = 3,
+					range = built.range, owner = built.owner, parent = node,
+					{ tag = "symbol", contents = "lambda", var = builtins["lambda"] },
+					{ tag = "list", n = 0 },
+					built
+				})
+
+				local func = childState:get()
+
+				local success, replacement = xpcall(func, debug.traceback)
+				if not success then
+					replacement = traceback.remapTraceback(state.mappings, replacement)
+					errorPositions(log, node, replacement)
+				end
+
+				replacement = resolveExecuteResult(childState, replacement, node, scope, state)
+
+				return resolveNode(replacement, scope, state, root)
+			elseif func == builtins["unquote-splice"] then
 				errorPositions(log, node[1] or node, "Unquote outside of syntax-quote")
 			elseif func == builtins["define"] then
 				if not root then errorPositions(log, first, "define can only be used on the top level") end
@@ -396,7 +431,7 @@ function resolveNode(node, scope, state, root)
 					errorPositions(log, first, replacement)
 				end
 
-				replacement = resolveMacroResult(funcState, replacement, node, scope, state)
+				replacement = resolveExecuteResult(funcState, replacement, node, scope, state)
 
 				return resolveNode(replacement, scope, state, root)
 			elseif func.tag == "defined" or func.tag == "arg" or func.tag == "native" or func.tag == "builtin" then

@@ -290,7 +290,16 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 					range.getSource(node), ""
 				)
 			elseif entry.tag == "build" then
-				logger.putError(loggerI, "Could not build " .. entry.state.var.name)
+				local var, node = entry.state.var, entry.state.node
+				local name
+				if var then
+					name = var.name
+				elseif node then
+					name = range.formatNode(node)
+				else
+					name = "unknown node"
+				end
+				logger.putError(loggerI, "Could not build " .. name)
 			else
 				error("State should not be " .. entry.tag)
 			end
