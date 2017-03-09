@@ -286,9 +286,13 @@ formatNode1 = (function(node1)
 		return format1("%s (%q)", formatRange1(node1["range"]), node1["contents"])
 	elseif node1["range"] then
 		return formatRange1(node1["range"])
-	elseif node1["macro"] then
-		local macro1 = node1["macro"]
-		return format1("macro expansion of %s (%s)", macro1["var"]["name"], formatNode1(macro1["node"]))
+	elseif node1["owner"] then
+		local owner1 = node1["owner"]
+		if owner1["var"] then
+			return format1("macro expansion of %s (%s)", owner1["var"]["name"], formatNode1(owner1["node"]))
+		else
+			return format1("unquote expansion (%s)", formatNode1(owner1["node"]))
+		end
 	else
 		local temp2
 		local r_1511 = node1["start"]
