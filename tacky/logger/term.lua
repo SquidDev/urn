@@ -300,11 +300,11 @@ formatRange1 = (function(range1)
 end)
 formatNode1 = (function(node1)
 	local temp3
-	local r_1481 = node1["range"]
-	if r_1481 then
+	local r_1531 = node1["range"]
+	if r_1531 then
 		temp3 = node1["contents"]
 	else
-		temp3 = r_1481
+		temp3 = r_1531
 	end
 	if temp3 then
 		return format1("%s (%q)", formatRange1(node1["range"]), node1["contents"])
@@ -319,11 +319,11 @@ formatNode1 = (function(node1)
 		end
 	else
 		local temp4
-		local r_1511 = node1["start"]
-		if r_1511 then
+		local r_1561 = node1["start"]
+		if r_1561 then
 			temp4 = node1["finish"]
 		else
-			temp4 = r_1511
+			temp4 = r_1561
 		end
 		if temp4 then
 			return formatRange1(node1)
@@ -334,23 +334,23 @@ formatNode1 = (function(node1)
 end)
 getSource1 = (function(node2)
 	local result1 = nil
-	local r_1491 = nil
-	r_1491 = (function()
+	local r_1541 = nil
+	r_1541 = (function()
 		local temp5
-		local r_1501 = node2
-		if r_1501 then
+		local r_1551 = node2
+		if r_1551 then
 			temp5 = _21_1(result1)
 		else
-			temp5 = r_1501
+			temp5 = r_1551
 		end
 		if temp5 then
 			result1 = node2["range"]
 			node2 = node2["parent"]
-			return r_1491()
+			return r_1541()
 		else
 		end
 	end)
-	r_1491()
+	r_1541()
 	return result1
 end)
 struct1("formatPosition", formatPosition1, "formatRange", formatRange1, "formatNode", formatNode1, "getSource", getSource1)
@@ -435,18 +435,18 @@ printDebug_21_1 = (function(verbosity2, msg6)
 end)
 printExplain_21_1 = (function(explain1, lines3)
 	if explain1 then
-		local r_1531 = split1(lines3, "\n")
-		local r_1561 = _23_1(r_1531)
-		local r_1541 = nil
-		r_1541 = (function(r_1551)
-			if (r_1551 <= r_1561) then
-				local line1 = r_1531[r_1551]
+		local r_1581 = split1(lines3, "\n")
+		local r_1611 = _23_1(r_1581)
+		local r_1591 = nil
+		r_1591 = (function(r_1601)
+			if (r_1601 <= r_1611) then
+				local line1 = r_1581[r_1601]
 				print1(_2e2e_2("  ", line1))
-				return r_1541((r_1551 + 1))
+				return r_1591((r_1601 + 1))
 			else
 			end
 		end)
-		return r_1541(1)
+		return r_1591(1)
 	else
 	end
 end)
@@ -510,22 +510,22 @@ putLines_21_1 = (function(range2, entries1)
 		end
 	end), 0, entries1)
 	local code1 = _2e2e_2(colored1(92, _2e2e_2(" %", len1(tostring1(maxLine1)), "s |")), " %s")
-	local r_1631 = _23_1(entries1)
-	local r_1611 = nil
-	r_1611 = (function(r_1621)
-		if (r_1621 <= r_1631) then
-			local position1 = entries1[r_1621]
-			local message1 = entries1[succ1(r_1621)]
+	local r_1681 = _23_1(entries1)
+	local r_1661 = nil
+	r_1661 = (function(r_1671)
+		if (r_1671 <= r_1681) then
+			local position1 = entries1[r_1671]
+			local message1 = entries1[succ1(r_1671)]
 			if (file1 ~= position1["name"]) then
 				file1 = position1["name"]
 				print1(colored1(95, _2e2e_2(" ", file1)))
 			else
 				local temp9
-				local r_1651 = (previous1 ~= -1)
-				if r_1651 then
+				local r_1701 = (previous1 ~= -1)
+				if r_1701 then
 					temp9 = (abs1((position1["start"]["line"] - previous1)) > 2)
 				else
-					temp9 = r_1651
+					temp9 = r_1701
 				end
 				if temp9 then
 					print1(colored1(92, " ..."))
@@ -539,11 +539,11 @@ putLines_21_1 = (function(range2, entries1)
 				pointer1 = "^"
 			else
 				local temp10
-				local r_1661 = position1["finish"]
-				if r_1661 then
+				local r_1711 = position1["finish"]
+				if r_1711 then
 					temp10 = (position1["start"]["line"] == position1["finish"]["line"])
 				else
-					temp10 = r_1661
+					temp10 = r_1711
 				end
 				if temp10 then
 					pointer1 = rep1("^", succ1((position1["finish"]["column"] - position1["start"]["column"])))
@@ -552,16 +552,16 @@ putLines_21_1 = (function(range2, entries1)
 				end
 			end
 			print1(format1(code1, "", _2e2e_2(rep1(" ", (position1["start"]["column"] - 1)), pointer1, " ", message1)))
-			return r_1611((r_1621 + 2))
+			return r_1661((r_1671 + 2))
 		else
 		end
 	end)
-	return r_1611(1)
+	return r_1661(1)
 end)
 putTrace_21_1 = (function(node6)
 	local previous2 = nil
-	local r_1471 = nil
-	r_1471 = (function()
+	local r_1521 = nil
+	r_1521 = (function()
 		if node6 then
 			local formatted1 = formatNode1(node6)
 			if (previous2 == nil) then
@@ -572,10 +572,10 @@ putTrace_21_1 = (function(node6)
 			end
 			previous2 = formatted1
 			node6 = node6["parent"]
-			return r_1471()
+			return r_1521()
 		else
 		end
 	end)
-	return r_1471()
+	return r_1521()
 end)
 return struct1("create", create1, "colored", colored1)

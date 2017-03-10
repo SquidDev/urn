@@ -98,11 +98,11 @@ formatRange1 = (function(range1)
 end)
 formatNode1 = (function(node1)
 	local temp1
-	local r_1461 = node1["range"]
-	if r_1461 then
+	local r_1511 = node1["range"]
+	if r_1511 then
 		temp1 = node1["contents"]
 	else
-		temp1 = r_1461
+		temp1 = r_1511
 	end
 	if temp1 then
 		return format1("%s (%q)", formatRange1(node1["range"]), node1["contents"])
@@ -117,11 +117,11 @@ formatNode1 = (function(node1)
 		end
 	else
 		local temp2
-		local r_1491 = node1["start"]
-		if r_1491 then
+		local r_1541 = node1["start"]
+		if r_1541 then
 			temp2 = node1["finish"]
 		else
-			temp2 = r_1491
+			temp2 = r_1541
 		end
 		if temp2 then
 			return formatRange1(node1)
@@ -132,23 +132,23 @@ formatNode1 = (function(node1)
 end)
 getSource1 = (function(node2)
 	local result1 = nil
-	local r_1471 = nil
-	r_1471 = (function()
+	local r_1521 = nil
+	r_1521 = (function()
 		local temp3
-		local r_1481 = node2
-		if r_1481 then
+		local r_1531 = node2
+		if r_1531 then
 			temp3 = _21_1(result1)
 		else
-			temp3 = r_1481
+			temp3 = r_1531
 		end
 		if temp3 then
 			result1 = node2["range"]
 			node2 = node2["parent"]
-			return r_1471()
+			return r_1521()
 		else
 		end
 	end)
-	r_1471()
+	r_1521()
 	return result1
 end)
 return struct1("formatPosition", formatPosition1, "formatRange", formatRange1, "formatNode", formatNode1, "getSource", getSource1)

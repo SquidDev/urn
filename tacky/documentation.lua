@@ -128,9 +128,9 @@ tokens1 = {tag = "list", n = 4, {tag = "list", n = 2, "arg", "(%f[%a]%u+%f[%A])"
 extractSignature1 = (function(var1)
 	local ty2 = type1(var1)
 	local temp1
-	local r_1461 = (ty2 == "macro")
-	if r_1461 then
-		temp1 = r_1461
+	local r_1511 = (ty2 == "macro")
+	if r_1511 then
+		temp1 = r_1511
 	else
 		temp1 = (ty2 == "defined")
 	end
@@ -138,16 +138,16 @@ extractSignature1 = (function(var1)
 		local root1 = var1["node"]
 		local node1 = nth1(root1, _23_1(root1))
 		local temp2
-		local r_1481 = list_3f_1(node1)
-		if r_1481 then
-			local r_1491 = symbol_3f_1(car2(node1))
-			if r_1491 then
+		local r_1531 = list_3f_1(node1)
+		if r_1531 then
+			local r_1541 = symbol_3f_1(car2(node1))
+			if r_1541 then
 				temp2 = (car2(node1)["var"] == builtins1["lambda"])
 			else
-				temp2 = r_1491
+				temp2 = r_1541
 			end
 		else
-			temp2 = r_1481
+			temp2 = r_1531
 		end
 		if temp2 then
 			return nth1(node1, 2)
@@ -162,25 +162,25 @@ parseDocstring1 = (function(str1)
 	local out2 = {tag = "list", n = 0}
 	local pos1 = 1
 	local len3 = len1(str1)
-	local r_1471 = nil
-	r_1471 = (function()
+	local r_1521 = nil
+	r_1521 = (function()
 		if (pos1 <= len3) then
 			local spos1 = len3
 			local epos1 = nil
 			local name1 = nil
 			local ptrn1 = nil
-			local r_1541 = _23_1(tokens1)
-			local r_1521 = nil
-			r_1521 = (function(r_1531)
-				if (r_1531 <= r_1541) then
-					local tok1 = tokens1[r_1531]
+			local r_1591 = _23_1(tokens1)
+			local r_1571 = nil
+			r_1571 = (function(r_1581)
+				if (r_1581 <= r_1591) then
+					local tok1 = tokens1[r_1581]
 					local npos1 = list1(find1(str1, nth1(tok1, 2), pos1))
 					local temp3
-					local r_1561 = car2(npos1)
-					if r_1561 then
+					local r_1611 = car2(npos1)
+					if r_1611 then
 						temp3 = (car2(npos1) < spos1)
 					else
-						temp3 = r_1561
+						temp3 = r_1611
 					end
 					if temp3 then
 						spos1 = car2(npos1)
@@ -189,11 +189,11 @@ parseDocstring1 = (function(str1)
 						ptrn1 = nth1(tok1, 2)
 					else
 					end
-					return r_1521((r_1531 + 1))
+					return r_1571((r_1581 + 1))
 				else
 				end
 			end)
-			r_1521(1)
+			r_1571(1)
 			if name1 then
 				if (pos1 < spos1) then
 					pushCdr_21_1(out2, struct1("tag", "text", "contents", sub1(str1, pos1, pred1(spos1))))
@@ -205,11 +205,11 @@ parseDocstring1 = (function(str1)
 				pushCdr_21_1(out2, struct1("tag", "text", "contents", sub1(str1, pos1, len3)))
 				pos1 = succ1(len3)
 			end
-			return r_1471()
+			return r_1521()
 		else
 		end
 	end)
-	r_1471()
+	r_1521()
 	return out2
 end)
 return struct1("parseDocs", parseDocstring1, "extractSignature", extractSignature1)

@@ -105,9 +105,9 @@ end)
 doNodeError_21_1 = (function(logger7, msg7, node3, explain3, ...)
 	local lines3 = _pack(...) lines3.tag = "list"
 	self1(logger7, "put-node-error!", msg7, node3, explain3, lines3)
-	return fail_21_1((function(r_1461)
-		if r_1461 then
-			return r_1461
+	return fail_21_1((function(r_1511)
+		if r_1511 then
+			return r_1511
 		else
 			return msg7
 		end
