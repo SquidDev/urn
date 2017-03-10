@@ -58,7 +58,7 @@
       false)))
 
 (defun write-all! (path data)
-  "Writes the string `data` to the file at PATH.
+  "Writes the string DATA to the file at PATH.
    Creates a new file if it doesn't exist and overwrite the file if it does.
    Returns true if it succeeded or false if it failed.
 
@@ -70,7 +70,7 @@
   (write-all-mode! path false false data))
 
 (defun write-lines! (path data)
-  "Writes the lines (list of strings) `data` to the file at PATH.
+  "Writes the lines (list of strings) DATA to the file at PATH.
    Creates a new file if it doesn't exist and overwrite the file if it does.
    Returns true if it succeeded or false if it failed.
 
@@ -82,7 +82,7 @@
   (write-all! path (concat data "\n")))
 
 (defun write-bytes! (path data)
-  "Writes the bytes (list of numbers) `data` to the file at PATH.
+  "Writes the bytes (list of numbers) DATA to the file at PATH.
    Creates a new file if it doesn't exist and overwrite the file if it does.
    Returns true if it succeeded or false if it failed.
 
@@ -99,7 +99,7 @@
     (write-all-mode! path false true (concat (bytes->string data 1)))))
 
 (defun append-all! (path data)
-  "Appends the string `data` to the file at PATH.
+  "Appends the string DATA to the file at PATH.
    Creates a new file if it doesn't exist.
    Returns true if it succeeded or false if it failed.
 
@@ -111,7 +111,7 @@
   (write-all-mode! path true false data))
 
 (defun append-lines! (path data)
-  "Appends the lines (list of strings) `data` to the file at PATH.
+  "Appends the lines (list of strings) DATA to the file at PATH.
    Creates a new file if it doesn't exist.
    Returns true if it succeeded or false if it failed.
 
@@ -123,7 +123,7 @@
   (append-all! path (concat data "\n")))
 
 (defun append-bytes! (path data)
-  "Appends the bytes (list of numbers) `data` to the file at PATH.
+  "Appends the bytes (list of numbers) DATA to the file at PATH.
    Creates a new file if it doesn't exist.
    Returns true if it succeeded or false if it failed.
 
