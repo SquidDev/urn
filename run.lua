@@ -479,7 +479,7 @@ if #inputs == 0 then
 						break
 					else
 						local states = data.states
-						local ok, msg = pcall(compile.executeStates, compileState, states, global)
+						local ok, msg = pcall(compile.executeStates, compileState, states, global, termLogger)
 						if not ok then logger.putError(termLogger, msg) break end
 					end
 				end

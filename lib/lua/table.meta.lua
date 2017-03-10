@@ -8,7 +8,7 @@ return {
 	["sort"] =         { tag = "var", contents = "table.sort",         value = table.sort,         },
 	["unpack"] =       { tag = "var", contents = "table.unpack",       value = table.unpack,       },
 
-	["empty-struct"] = { tag = "expr", contents = "{}", count = 0, value = "function() return {} end" },
+	["empty-struct"] = { tag = "expr", contents = "({})", count = 0, value = "function() return {} end" },
 
 	-- OK, it is a little horrible include this.
 	["iter-pairs" ] = {

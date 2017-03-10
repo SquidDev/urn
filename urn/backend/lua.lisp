@@ -79,6 +79,20 @@
         [true false]))
     false))
 
+(defun literal? (node)
+  "Determines whether NODE is a literal.
+
+   Strings or numbers are obviously literals, as are any builtin variable (nil
+   or booleans).  If we're invoking quote or syntax-quote then we'll end up with
+   a table literal so that counts."
+  (cond
+    [(list? node)
+     (with (first (car node))
+       (and (symbol? first) (or (= (.> first :var) (.> builtins :quote)) (= (.> first :var) (.> builtins :syntax-quote)))))]
+    [(symbol? node)
+     (.> builtin-vars (.> node :var))]
+    [true true]))
+
 (defun truthy? (node)
   "Determine whether NODE is true. A more comprehensive implementation exists in the optimiser"
   (and (symbol? node) (= (.> builtin-vars :true) (.> node :var))))
@@ -394,7 +408,14 @@
                         (progn
                           ;; Alas, just emit as normal
                           (when ret (w/append! out ret))
-                          (compile-expression head out state)
+                          (if (literal? head)
+                            (progn
+                              ;; If we're invoking false or something then we need to wrap it in parens.
+                              ;; We'll just error anyway, but I can live with that.
+                              (w/append! out "(")
+                              (compile-expression head out state)
+                              (w/append! out ")"))
+                            (compile-expression head out state))
                           (w/append! out "(")
                           (for i 2 (# node) 1
                             (when (> i 2) (w/append! out ", "))
@@ -443,14 +464,21 @@
 
                 (compile-block head out state 3 ret))]
              [true
-               ;; Just invoke the expression as normal
-               (when ret (w/append! out ret))
-               (compile-expression (car node) out state)
-               (w/append! out "(")
-               (for i 2 (# node) 1
-                 (when (> i 2) (w/append! out ", "))
-                 (compile-expression (nth node i) out state))
-               (w/append! out ")")]))
+              ;; Just invoke the expression as normal
+              (when ret (w/append! out ret))
+              (if (literal? (car node))
+                (progn
+                  ;; If we're invoking false or something then we need to wrap it in parens.
+                  ;; We'll just error anyway, but I can live with that.
+                  (w/append! out "(")
+                  (compile-expression (car node) out state)
+                  (w/append! out ")"))
+                (compile-expression (car node) out state))
+              (w/append! out "(")
+              (for i 2 (# node) 1
+                (when (> i 2) (w/append! out ", "))
+                (compile-expression (nth node i) out state))
+              (w/append! out ")")]))
      (w/pop-node! out node)]
     [true
       (unless (= ret "")
