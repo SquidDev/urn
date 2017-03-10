@@ -1,4 +1,5 @@
 (import urn/logger/init logger)
+(import urn/logger/void void)
 (import urn/range ())
 
 (import string)
@@ -413,8 +414,8 @@
             (pop!)))))
     head))
 
-(define read
+(defun read (x path)
   "Combination of [[lex]] and [[parse]]"
-  (compose parse lex))
+  (parse void/void (lex void/void x (or path ""))))
 
 (struct :lex lex :parse parse :read read)
