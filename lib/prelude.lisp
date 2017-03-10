@@ -86,4 +86,4 @@
 
 (defun self (x key &args)
   "Index X with KEY and invoke the resulting function with X and ARGS"
-  ((get-idx x key) x (unpack args)))
+  ((get-idx x key) x (unpack args 1 (# args))))
