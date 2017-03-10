@@ -72,7 +72,7 @@
   "Exit the program with the exit code CODE, and optionally, print the
    error message REASON."
   (with (code (if (string? reason) code reason))
-    (when reason (print! reason))
+    (when (string? reason) (print! reason))
     (lua/os/exit code)))
 
 (defun id (x)
