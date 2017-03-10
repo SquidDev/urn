@@ -61,6 +61,16 @@
   (and (symbol? symbol)
        (eq? (char-at (get-idx symbol "contents") 1) "?")))
 
+(defun pattern-length (pattern correction)
+  (let* [(length 0)]
+    (for i 1 (# pattern) 1
+      (if (and (list? (nth pattern i))
+               (! (eq? (car (nth pattern i)) 'optional)))
+        (set! length (+ length 1))
+        0))
+    (+ length correction)))
+
+
 (defun compile-pattern-test (pattern symb) :hidden
   (cond
     [(list? pattern)
@@ -69,6 +79,8 @@
         (compile-pattern-test (cadr pattern) symb)]
        [(eq? (car pattern) '->)
         (compile-pattern-test (caddr pattern) `(,(cadr pattern) ,symb))]
+       [(eq? (car pattern) 'optional)
+        `(if ,symb ,(compile-pattern-test (cadr pattern)) true)]
        [(cons-pattern? pattern)
         (let* [(pattern-sym (gensym))
                (lhs (cons-pat-left-side pattern))
@@ -79,7 +91,7 @@
                                                       `(nth ,pattern-sym ,i))))
           `(let* [(,pattern-sym ,symb)]
              (and (list? ,pattern-sym)
-                  (>= (# ,pattern-sym) ,(- (# pattern) 2))
+                  (>= (# ,pattern-sym) ,(pattern-length pattern -2))
                   ,@lhs-test
                   ,(compile-pattern-test
                      (last pattern) `(slice ,pattern-sym ,(+ 1 (# lhs)))))))]
@@ -90,7 +102,7 @@
             (push-cdr! out (compile-pattern-test (nth pattern i)
                                                 ~(nth ,sym ,i))))
           `(let* [(,sym ,symb)]
-             (and (list? ,sym) (= (# ,sym) ,(# pattern)) ,@out)))])]
+             (and (list? ,sym) (= (# ,sym) ,(pattern-length pattern 0)) ,@out)))])]
     [(or (eq? '_ pattern) (meta? pattern))
      `true]
     [(and (! (meta? pattern)) (symbol? pattern))
@@ -111,6 +123,8 @@
           `(,@(compile-pattern-bindings (caddr pattern) symb) ,@(compile-pattern-bindings (cadr pattern) symb))]
          [(eq? (car pattern) '->)
           (compile-pattern-bindings (caddr pattern) `(,(cadr pattern) ,symb))]
+         [(eq? (car pattern) 'optional)
+          (compile-pattern-bindings (cadr pattern) symb)]
          [(cons-pattern? pattern)
           (let* [(lhs (cons-pat-left-side pattern))
                  (rhs (cons-pat-right-side pattern))
@@ -163,6 +177,6 @@
              `(,(compile-pattern-test (car pt) val-sym)
                (let* ,(compile-pattern-bindings (car pt) val-sym)
                  ,@(cdr pt)))))]
-    `(let* [(,val-sym ,val)]
+    (debug `(let* [(,val-sym ,val)]
        (cond ,@(map compile-arm pts)
-             [true ,(generate-case-error pts val-sym)]))))
+             [true ,(generate-case-error pts val-sym)])))))
