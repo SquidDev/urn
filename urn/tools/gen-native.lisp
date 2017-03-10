@@ -7,23 +7,24 @@
 (import string (quoted))
 
 (import urn/logger logger)
+(import urn/logger/term term)
 (import urn/parser parser)
 
-(defun gen-native (path prefix)
+(defun gen-native (logger path prefix)
   (set! path (string/gsub path "%.lisp$" ""))
 
   (with (qualifier (if prefix (.. prefix ".") ""))
 
     (with (handle (io/open (.. path ".lisp") "r"))
       (unless handle
-        (logger/print-error! (.. "Cannot find " path ".lisp"))
+        (logger/put-error! logger (.. "Cannot find " path ".lisp"))
         (exit! 1))
 
       (with (contents (self handle :read "*a"))
         (self handle :close)
 
-        (let* [(lexed (parser/lex contents (.. path ".lisp")))
-               (parsed (parser/parse lexed))
+        (let* [(lexed (parser/lex logger contents (.. path ".lisp")))
+               (parsed (parser/parse logger lexed))
                (max-name 0)
                (max-quot 0)
                (max-pref 0)
@@ -49,7 +50,7 @@
                            (number->string (+ max-pref 1))
                            "s },\n"))]
             (unless handle
-              (logger/print-error! (.. "Cannot write to " path ".lua"))
+              (logger/put-error! logger (.. "Cannot write to " path ".lua"))
               (exit! 1))
 
             (when prefix
@@ -65,13 +66,14 @@
 
             (self handle :close)))))))
 
-(let* [(file (car arg))
+(let* [(logger (term/create))
+       (file (car arg))
        (prefix (nth arg 2))]
   (unless file
-    (logger/print-error! (.. "Expected file name"))
+    (logger/put-error! logger (.. "Expected file name"))
     (exit! 1))
 
   (print! (if prefix
             (string/format "Generating natives for %s (for global %s)" file prefix)
             (string/format "Generating natives for %s" file)))
-  (gen-native file prefix))
+  (gen-native logger file prefix))
