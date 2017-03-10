@@ -111,7 +111,7 @@ pretty1 = (function(value1)
 			elseif (tag1 == "symbol") then
 				return value1["contents"]
 			elseif (tag1 == "key") then
-				return (":" .. value1["contents"])
+				return (":" .. value1["value"])
 			elseif (tag1 == "string") then
 				return format1("%q", value1["value"])
 			elseif (tag1 == "number") then

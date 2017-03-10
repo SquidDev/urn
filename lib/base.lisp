@@ -169,7 +169,7 @@
             ((get-idx (getmetatable value) :--pretty-print) value)]
            [(= tag "list") (get-idx value :contents)]
            [(= tag "symbol") (get-idx value :contents)]
-           [(= tag "key") (.. ":" (get-idx value :contents))]
+           [(= tag "key") (.. ":" (get-idx value :value))]
            [(= tag "string") (string/format "%q" (get-idx value :value))]
            [(= tag "number") (tostring (get-idx value :value))]
            [true (tostring value)]))]
