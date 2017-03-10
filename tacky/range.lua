@@ -27,7 +27,7 @@ _23_1 = (function(x1)
 end)
 format1 = string.format
 concat1 = table.concat
-emptyStruct1 = function() return {} end
+emptyStruct1 = function() return ({}) end
 _21_1 = (function(expr1)
 	if expr1 then
 		return false
@@ -64,7 +64,7 @@ struct1 = (function(...)
 	local contents1 = (function(key1)
 		return key1["contents"]
 	end)
-	local out1 = {}
+	local out1 = ({})
 	local r_761 = _23_1(keys1)
 	local r_741 = nil
 	r_741 = (function(r_751)

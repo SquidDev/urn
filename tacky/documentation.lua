@@ -34,7 +34,7 @@ format1 = string.format
 len1 = string.len
 match1 = string.match
 sub1 = string.sub
-emptyStruct1 = function() return {} end
+emptyStruct1 = function() return ({}) end
 car1 = (function(xs1)
 	return xs1[1]
 end)
@@ -95,7 +95,7 @@ struct1 = (function(...)
 	local contents1 = (function(key1)
 		return key1["contents"]
 	end)
-	local out1 = {}
+	local out1 = ({})
 	local r_761 = _23_1(keys1)
 	local r_741 = nil
 	r_741 = (function(r_751)

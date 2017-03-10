@@ -43,7 +43,7 @@ match1 = string.match
 sub1 = string.sub
 concat1 = table.concat
 unpack1 = table.unpack
-emptyStruct1 = function() return {} end
+emptyStruct1 = function() return ({}) end
 car1 = (function(xs1)
 	return xs1[1]
 end)
@@ -210,7 +210,7 @@ split1 = (function(text1, pattern1, limit1)
 	r_651()
 	return out1
 end)
-local escapes1 = {}
+local escapes1 = ({})
 local r_611 = nil
 r_611 = (function(r_621)
 	if (r_621 <= 31) then
@@ -234,7 +234,7 @@ struct1 = (function(...)
 	local contents1 = (function(key1)
 		return key1["contents"]
 	end)
-	local out2 = {}
+	local out2 = ({})
 	local r_761 = _23_1(keys1)
 	local r_741 = nil
 	r_741 = (function(r_751)
@@ -301,7 +301,7 @@ fail_21_1 = (function(x15)
 end)
 self1 = (function(x16, key3, ...)
 	local args2 = _pack(...) args2.tag = "list"
-	return x16[key3](x16, unpack1(args2))
+	return x16[key3](x16, unpack1(args2, 1, _23_1(args2)))
 end)
 putError_21_1 = (function(logger1, msg1)
 	return self1(logger1, "put-error!", msg1)

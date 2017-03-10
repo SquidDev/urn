@@ -40,7 +40,7 @@ lower1 = string.lower
 match1 = string.match
 sub1 = string.sub
 concat1 = table.concat
-emptyStruct1 = function() return {} end
+emptyStruct1 = function() return ({}) end
 iterPairs1 = function(x, f) for k, v in pairs(x) do f(k, v) end end
 list1 = (function(...)
 	local xs1 = _pack(...) xs1.tag = "list"
@@ -103,7 +103,7 @@ struct1 = (function(...)
 	local contents1 = (function(key1)
 		return key1["contents"]
 	end)
-	local out1 = {}
+	local out1 = ({})
 	local r_761 = _23_1(keys1)
 	local r_741 = nil
 	r_741 = (function(r_751)
@@ -271,9 +271,9 @@ remapTraceback1 = (function(mappings2, msg3)
 	end))
 end)
 generateMappings1 = (function(lines1)
-	local outLines1 = {}
+	local outLines1 = ({})
 	iterPairs1(lines1, (function(line2, ranges1)
-		local rangeLists1 = {}
+		local rangeLists1 = ({})
 		iterPairs1(ranges1, (function(pos2)
 			local file2 = pos2["name"]
 			local rangeList1 = rangeLists1["file"]

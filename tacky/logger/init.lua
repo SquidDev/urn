@@ -27,7 +27,7 @@ _23_1 = (function(x1)
 end)
 match1 = string.match
 unpack1 = table.unpack
-emptyStruct1 = function() return {} end
+emptyStruct1 = function() return ({}) end
 key_3f_1 = (function(x2)
 	return (type1(x2) == "key")
 end)
@@ -53,7 +53,7 @@ struct1 = (function(...)
 	local contents1 = (function(key1)
 		return key1["contents"]
 	end)
-	local out1 = {}
+	local out1 = ({})
 	local r_761 = _23_1(keys1)
 	local r_741 = nil
 	r_741 = (function(r_751)
@@ -80,7 +80,7 @@ fail_21_1 = (function(x3)
 end)
 self1 = (function(x4, key3, ...)
 	local args1 = _pack(...) args1.tag = "list"
-	return x4[key3](x4, unpack1(args1))
+	return x4[key3](x4, unpack1(args1, 1, _23_1(args1)))
 end)
 putError_21_1 = (function(logger1, msg1)
 	return self1(logger1, "put-error!", msg1)

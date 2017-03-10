@@ -38,7 +38,7 @@ match1 = string.match
 concat1 = table.concat
 remove1 = table.remove
 unpack1 = table.unpack
-emptyStruct1 = function() return {} end
+emptyStruct1 = function() return ({}) end
 iterPairs1 = function(x, f) for k, v in pairs(x) do f(k, v) end end
 car1 = (function(xs1)
 	return xs1[1]
@@ -252,7 +252,7 @@ struct1 = (function(...)
 	local contents1 = (function(key1)
 		return key1["contents"]
 	end)
-	local out1 = {}
+	local out1 = ({})
 	local r_761 = _23_1(keys1)
 	local r_741 = nil
 	r_741 = (function(r_751)
@@ -300,7 +300,7 @@ fail_21_1 = (function(x15)
 end)
 self1 = (function(x16, key3, ...)
 	local args2 = _pack(...) args2.tag = "list"
-	return x16[key3](x16, unpack1(args2))
+	return x16[key3](x16, unpack1(args2, 1, _23_1(args2)))
 end)
 builtins1 = require1("tacky.analysis.resolve")["builtins"]
 visitQuote1 = (function(node1, visitor1, level1)
@@ -499,7 +499,7 @@ end)
 builtins2 = require1("tacky.analysis.resolve")["builtins"]
 builtinVars1 = require1("tacky.analysis.resolve")["declaredVars"]
 createState1 = (function()
-	return struct1("vars", {}, "nodes", {})
+	return struct1("vars", ({}), "nodes", ({}))
 end)
 getVar1 = (function(state1, var1)
 	local entry1 = state1["vars"][var1]
@@ -642,7 +642,7 @@ usagesVisit1 = (function(state7, nodes2, pred2)
 		end)
 	end
 	local queue1 = {tag = "list", n = 0}
-	local visited1 = {}
+	local visited1 = ({})
 	local addUsage1 = (function(var4, user1)
 		addUsage_21_1(state7, var4, user1)
 		local varMeta3 = getVar1(state7, var4)
@@ -874,7 +874,7 @@ end)
 warnArity1 = (function(lookup1, nodes3, state8)
 	local arity1
 	local getArity1
-	arity1 = {}
+	arity1 = ({})
 	getArity1 = (function(symbol1)
 		local var6 = getVar1(lookup1, symbol1["var"])
 		local ari1 = arity1[var6]
