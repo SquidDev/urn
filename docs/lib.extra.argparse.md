@@ -25,15 +25,14 @@ can parse inputs with [`parse!`](lib.extra.argparse.md#parse-spec-args)
 
   (parse! spec))
 ```
-```
 
 ## `(add-action arg data value)`
-*Defined at lib/extra/argparse.lisp:42:1*
+*Defined at lib/extra/argparse.lisp:41:1*
 
 Append `VALUE` to the appropriate key in `DATA` for `ARG`.
 
 ## `(add-argument! spec names &options)`
-*Defined at lib/extra/argparse.lisp:51:1*
+*Defined at lib/extra/argparse.lisp:50:1*
 
 Add a new argument to `SPEC`, using the specified `NAMES`.
 
@@ -49,35 +48,40 @@ are valid:
  - `:action`:  The action to execute when this option is used. Must be a function which takes three arguments: current arg, data and value.
  - `:many`:    Whether you can specify this argument multiple times.
 
+## `(add-help! spec)`
+*Defined at lib/extra/argparse.lisp:118:1*
+
+Add a help argument to `SPEC`.
+
+This will show the help message whenever --help or -h is used and then quit the program.
+
 ## `(create description)`
-*Defined at lib/extra/argparse.lisp:29:1*
+*Defined at lib/extra/argparse.lisp:28:1*
 
 Create a new argument parser
 
 ## `(help! spec name)`
-*Defined at lib/extra/argparse.lisp:157:1*
+*Defined at lib/extra/argparse.lisp:159:1*
 
 Display the help for the argument parser as defined in `SPEC`.
 
 ## `(parse! spec args)`
-*Defined at lib/extra/argparse.lisp:194:1*
+*Defined at lib/extra/argparse.lisp:196:1*
 
 Parse `ARGS` using the argument parser defined in `SPEC`. Returns a lookup with each argument given its value.
 
 ## `(set-action arg data value)`
-*Defined at lib/extra/argparse.lisp:38:1*
+*Defined at lib/extra/argparse.lisp:37:1*
 
 Set `VALUE` to the appropriate key in `DATA` for `ARG`.
 
 ## `(usage! spec name)`
-*Defined at lib/extra/argparse.lisp:137:1*
+*Defined at lib/extra/argparse.lisp:139:1*
 
 Display a short usage for the argument parser as defined in `SPEC`.
 
 ## `(usage-error! spec name error)`
-*Defined at lib/extra/argparse.lisp:151:1*
+*Defined at lib/extra/argparse.lisp:153:1*
 
 Display the usage of `SPEC` and exit with an `ERROR` message.
 
-## Undocumented symbols
- - `(add-help! spec)` *Defined at lib/extra/argparse.lisp:119:1*
