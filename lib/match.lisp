@@ -65,9 +65,9 @@
   (let* [(length 0)]
     (for i 1 (# pattern) 1
       (if (and (list? (nth pattern i))
-               (! (eq? (car (nth pattern i)) 'optional)))
-        (set! length (+ length 1))
-        0))
+               (eq? (car (nth pattern i)) 'optional))
+        0
+        (set! length (+ length 1))))
     (+ length correction)))
 
 
@@ -177,6 +177,6 @@
              `(,(compile-pattern-test (car pt) val-sym)
                (let* ,(compile-pattern-bindings (car pt) val-sym)
                  ,@(cdr pt)))))]
-    (debug `(let* [(,val-sym ,val)]
+    `(let* [(,val-sym ,val)]
        (cond ,@(map compile-arm pts)
-             [true ,(generate-case-error pts val-sym)])))))
+             [true ,(generate-case-error pts val-sym)]))))
