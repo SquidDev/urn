@@ -180,7 +180,7 @@ Example:
 ```
 
 ## `(case val &pts)`
-*Macro defined at lib/match.lisp:157:1*
+*Macro defined at lib/match.lisp:172:1*
 
 Match a single value against a series of patterns, evaluating the first
 body that matches, much like `cond`.
@@ -276,7 +276,7 @@ Define `NAME` to be the function given by (lambda `ARGS` @`BODY`), with
 optional metadata at the start of `BODY`.
 
 ## `(destructuring-bind pt &body)`
-*Macro defined at lib/match.lisp:141:1*
+*Macro defined at lib/match.lisp:156:1*
 
 Match a single pattern against a single value, then evaluate the `BODY`.
 The pattern is given as `(car PT)` and the value as `(cadr PT)`.
@@ -560,6 +560,11 @@ Example:
 '(1 2 3)
 ```
 
+## `(merge &structs)`
+*Defined at lib/table.lisp:114:1*
+
+Merge all tables in `STRUCTS` together into a new table.
+
 ## `(neq? x y)`
 *Defined at lib/type.lisp:126:1*
 
@@ -747,7 +752,7 @@ Check whether `X` is a string.
 ## `(struct &keys)`
 *Defined at lib/table.lisp:74:1*
 
-Return the structure given by the list of pairs `XS`. Note that, in contrast
+Return the structure given by the list of pairs `KEYS`. Note that, in contrast
 to variations of `LET`, the pairs are given "unpacked": Instead of invoking
 ```cl
 (struct [(:foo bar)])
@@ -809,6 +814,11 @@ Return the type of `VAL`.
 *Macro defined at lib/base.lisp:67:1*
 
 Evaluate `BODY` if `C` is false, otherwise, evaluate `nil`.
+
+## `(update-struct st &keys)`
+*Defined at lib/table.lisp:122:1*
+
+Create a new structure based of `ST`, setting the values given by the pairs in `KEYS`.
 
 ## `(when c &body)`
 *Macro defined at lib/base.lisp:63:1*

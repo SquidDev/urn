@@ -60,10 +60,15 @@ Extend the association list `LIST`_ by inserting `VAL`, bound to the key `KEY`.
 
 Iterate over `TABLE` with a function `FUNC` of the form (lambda (`KEY` `VAL`) ...)
 
+## `(merge &structs)`
+*Defined at lib/table.lisp:114:1*
+
+Merge all tables in `STRUCTS` together into a new table.
+
 ## `(struct &keys)`
 *Defined at lib/table.lisp:74:1*
 
-Return the structure given by the list of pairs `XS`. Note that, in contrast
+Return the structure given by the list of pairs `KEYS`. Note that, in contrast
 to variations of `LET`, the pairs are given "unpacked": Instead of invoking
 ```cl
 (struct [(:foo bar)])
@@ -83,6 +88,11 @@ you must instead invoke it like
 Convert the structure `TBL` into an association list. Note that
 `(eq? x (struct->assoc (assoc->struct x)))` is not guaranteed,
 because duplicate elements will be removed.
+
+## `(update-struct st &keys)`
+*Defined at lib/table.lisp:122:1*
+
+Create a new structure based of `ST`, setting the values given by the pairs in `KEYS`.
 
 ## Undocumented symbols
  - `getmetatable` *Native defined at lib/lua/basic.lisp:28:1*

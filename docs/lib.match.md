@@ -38,15 +38,17 @@ number of cars and the cdr.
 Both bind everything bound by their "inner" patterns.
 
 ## `(case val &pts)`
-*Macro defined at lib/match.lisp:157:1*
+*Macro defined at lib/match.lisp:172:1*
 
 Match a single value against a series of patterns, evaluating the first
 body that matches, much like `cond`.
 
 ## `(destructuring-bind pt &body)`
-*Macro defined at lib/match.lisp:141:1*
+*Macro defined at lib/match.lisp:156:1*
 
 Match a single pattern against a single value, then evaluate the `BODY`.
 The pattern is given as `(car PT)` and the value as `(cadr PT)`.
 If the pattern does not match, an error is thrown.
 
+## Undocumented symbols
+ - `(pattern-length pattern correction)` *Defined at lib/match.lisp:64:1*
