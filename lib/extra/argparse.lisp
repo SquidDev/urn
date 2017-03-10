@@ -20,7 +20,6 @@
      :nargs 1)
 
    (parse! spec))
- ```
  ```"
 
 (import string)
@@ -117,6 +116,9 @@
     result))
 
 (defun add-help! (spec)
+  "Add a help argument to SPEC.
+
+   This will show the help message whenever --help or -h is used and then quit the program."
   (add-argument! spec '("--help" "-h")
     :help    "Show this help message"
     :default nil
