@@ -72,7 +72,7 @@
     `(set-idx! ,res ,(get-idx keys (# keys) 1) ,value)))
 
 (defun struct (&keys)
-  "Return the structure given by the list of pairs XS. Note that, in contrast
+  "Return the structure given by the list of pairs KEYS. Note that, in contrast
    to variations of [[LET]], the pairs are given \"unpacked\": Instead of invoking
    ```cl
    (struct [(:foo bar)])
@@ -110,3 +110,15 @@
 (defmacro for-pairs (vars tbl &body)
   "Iterate over TBL, binding VARS for each key value pair in BODY"
   `(iter-pairs ,tbl (lambda ,vars ,@body)))
+
+(defun merge (&structs)
+  "Merge all tables in STRUCTS together into a new table."
+  (with (out (empty-struct))
+    (for-each st structs
+      (for-pairs (k v) st
+        (.<! out k v)))
+    out))
+
+(defun update-struct (st &keys)
+  "Create a new structure based of ST, setting the values given by the pairs in KEYS."
+  (merge st (struct (unpack keys 1 (# keys)))))

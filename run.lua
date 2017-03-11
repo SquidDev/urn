@@ -574,6 +574,7 @@ if run then
 	local lines = traceback.generate(builder.lines)
 
 	_G.arg = scriptArgs -- Execute using specified arguments
+	_G.arg[0] = inputs[1]
 	local fun, msg = loadfile(output .. ".lua")
 	if not fun then
 		logger.putError(termLogger, "Cannot load compiled file: " .. msg)

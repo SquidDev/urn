@@ -505,7 +505,7 @@
   ;; Add some compat stuff
   (w/line! out "if not table.pack then table.pack = function(...) return { n = select(\"#\", ...), ... } end end")
   (w/line! out "if not table.unpack then table.unpack = unpack end")
-  (w/line! out "local load = load if _VERSION:find(\"5.1\") then load = function(x, _, _, env) local f, e = loadstring(x); if not f then error(e, 1) end; return setfenv(f, env) end end")
+  (w/line! out "local load = load if _VERSION:find(\"5.1\") then load = function(x, n, _, env) local f, e = loadstring(x, n) if not f then error(e, 2) end return setfenv(f, env) end end")
 
   ;; And cache some useful globals
   (w/line! out "local _select, _unpack, _pack, _error = select, table.unpack, table.pack, error"))
