@@ -225,5 +225,3 @@
       (set! changed (optimise-once nodes state))
       (inc! iteration)))
   nodes)
-
-optimise

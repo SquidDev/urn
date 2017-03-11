@@ -69,7 +69,3 @@
                              :contents (string/sub str pos len)))
             (set! pos (succ len))))))
     out))
-
-(struct
-  :parseDocs        parse-docstring
-  :extractSignature extract-signature)
