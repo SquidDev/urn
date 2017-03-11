@@ -308,6 +308,9 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 		error("Compilation could not continue")
 	end
 
+	out.tag = "list" out.n = #out
+	states.tag = "list" states.n = #states
+
 	return out, states
 end
 

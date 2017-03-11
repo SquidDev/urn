@@ -4,13 +4,11 @@ TEST_FLAGS ?=
 OUT_DIR    ?= tacky
 DOCS_DIR   ?= docs_tmp
 PAGES_DIR  ?= docs
+URN        ?= run.lua
 OBJS       :=                     \
-	${OUT_DIR}/analysis/optimise  \
-	${OUT_DIR}/analysis/warning   \
+	${OUT_DIR}/cli                \
 	${OUT_DIR}/backend/init       \
-	${OUT_DIR}/documentation      \
 	${OUT_DIR}/logger/init        \
-	${OUT_DIR}/logger/term        \
 	${OUT_DIR}/parser             \
 	${OUT_DIR}/range              \
 	${OUT_DIR}/traceback          \
@@ -34,17 +32,17 @@ all: ${OBJS}
 
 ${OBJS}: ${OUT_DIR}/%: urn/%.lisp
 	@mkdir -p $(shell dirname $@)
-	${LUA} run.lua --no-shebang $^ -o $@ ${LUA_FLAGS}
+	${LUA} ${URN} $^ -o $@ ${LUA_FLAGS}
 
 ${TESTS}:
 	$(eval TMP := $(shell mktemp -d))
-	${LUA} run.lua $(basename $@) --run -o ${TMP} -- ${TEST_FLAGS}
+	${LUA} ${URN} $(basename $@) --run -o ${TMP} -- ${TEST_FLAGS}
 	@rm -rf ${TMP}.lisp ${TMP}.lua ${TMP}
 
 docs:
 	rm -rf ${DOCS_DIR}
 	@mkdir -p ${DOCS_DIR}
-	${LUA} run.lua ${LIBS} --docs ${DOCS_DIR}
+	${LUA} ${URN} ${LIBS} --docs ${DOCS_DIR}
 
 publish_docs: docs
 	git checkout gh-pages

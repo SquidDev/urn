@@ -60,7 +60,8 @@
     - `:help`:    The description text to display when using this.
     - `:var`:     The variable name to show in help files. Defaults to `:name`.
     - `:action`:  The action to execute when this option is used. Must be a function which takes three arguments: current arg, data and value.
-    - `:many`:    Whether you can specify this argument multiple times."
+    - `:many`:    Whether you can specify this argument multiple times.
+    - `:all`:     Whether this will consume all values, including those starting with `-`."
   (assert-type! names list)
   (when (nil? names) (error! "Names list is empty"))
   (unless (= (% (# options) 2) 0) (error! "Options list should be a multiple of two"))
@@ -201,6 +202,7 @@
          (pos (.> spec :pos))
          (idx 1)
          (len (# args))
+         (usage! (lambda (msg) (usage-error! spec (nth args 0) msg)))
          (read-args (lambda (key arg)
                       (case (.> arg :narg)
                         ["+"
@@ -209,7 +211,7 @@
                          (with (elem (nth args idx))
                            (cond
                              [(= elem nil) (print! (.. "Expected " (.> arg :var) " after --" key ", got nothing"))]
-                             [(string/find elem "^%-") (print! (.. "Expected " (.> arg :var) " after --" key ", got " (nth args idx)))]
+                             [(and (! (.> arg :all)) (string/find elem "^%-")) (print! (.. "Expected " (.> arg :var) " after --" key ", got " (nth args idx)))]
                              [true ((.> arg :action) arg result elem)]))
                          ;; Try to consume as many additonal tokens as possible
                          (with (running true)
@@ -218,7 +220,7 @@
                              (with (elem (nth args idx))
                                (cond
                                  [(= elem nil) (set! running false)]
-                                 [(string/find elem "^%-") (set! running false)]
+                                 [(and (! (.> arg :all)) (string/find elem "^%-")) (set! running false)]
                                  [true ((.> arg :action) arg result elem)]))))]
                         ["*"
                          ;; Try to consume as many as possible
@@ -228,14 +230,14 @@
                              (with (elem (nth args idx))
                                (cond
                                  [(= elem nil) (set! running false)]
-                                 [(string/find elem "^%-") (set! running false)]
+                                 [(and (! (.> arg :all)) (string/find elem "^%-")) (set! running false)]
                                  [true ((.> arg :action) arg result elem)]))))]
                         ["?"
                          (inc! idx)
                          (with (elem (nth args idx))
                            (cond
                              [(= elem nil)]
-                             [(string/find elem "^%-")]
+                             [(and (! (.> arg :all)) (string/find elem "^%-"))]
                              [true
                                (inc! idx)
                                ((.> arg :action) arg result elem)]))]
@@ -248,7 +250,7 @@
                            (with (elem (nth args idx))
                              (cond
                                [(= elem nil) (print! (.. "Expected " cnt " args for " key ", got " (pred i)))]
-                               [(string/find elem "^%-") (print! (.. "Expected " cnt " for " key ", got " (pred i)))]
+                               [(and (! (.> arg :all)) (string/find elem "^%-")) (print! (.. "Expected " cnt " for " key ", got " (pred i)))]
                                [true ((.> arg :action) arg result elem)])))
                          (inc! idx)])))]
     (while (<= idx len)
@@ -257,14 +259,14 @@
          (with (arg (.> spec :opt-map key))
            (cond
              [(= arg nil)
-              (usage-error! spec (nth arg 0) (.. "Unknown argument " key  " in " (nth args idx)))]
+              (usage! (.. "Unknown argument " key  " in " (nth args idx)))]
              [(and (! (.> arg :many)) (/= nil (.> result (.> arg :name))))
               ;; If we've already got a value and this doesn't accept many then fail.
-              (usage-error! spec (nth arg 0) (.. "Too may values for " key " in " (nth args idx)))]
+              (usage! (.. "Too may values for " key " in " (nth args idx)))]
              [true
               (with (narg (.> arg :narg))
                 (when (and (number? narg) (/= narg 1))
-                  (usage-error! spec (nth arg 0) (.. "Expected " (number->string narg) " values, got 1 in " (nth args idx)))))
+                  (usage! (.. "Expected " (number->string narg) " values, got 1 in " (nth args idx)))))
 
               ;; Call the setter for this argument.
               ((.> arg :action) arg result val)]))
@@ -274,10 +276,10 @@
          (with (arg (.> spec :opt-map key))
            (cond
              [(= arg nil)
-              (usage-error! spec (nth arg 0) (.. "Unknown argument " key  " in " (nth args idx)))]
+              (usage! (.. "Unknown argument " key  " in " (nth args idx)))]
              [(and (! (.> arg :many)) (/= nil (.> result (.> arg :name))))
               ;; If we've already got a value and this doesn't accept many then fail.
-              (usage-error! spec (nth arg 0) (.. "Too may values for " key " in " (nth args idx)))]
+              (usage! (.. "Too may values for " key " in " (nth args idx)))]
 
              ;; Attempt to consume the correct number of arguments after this one.
              [true (read-args key arg)]))]
@@ -287,22 +289,22 @@
                   (arg (.> spec :flag-map key))]
              (cond
                [(= arg nil)
-                (usage-error! spec (nth arg 0) (.. "Unknown flag " key " in " (nth args idx)))]
+                (usage! (.. "Unknown flag " key " in " (nth args idx)))]
                [(and (! (.> arg :many)) (/= nil (.> result (.> arg :name))))
                 ;; If we've already got a value and this doesn't accept many then fail.
-                (usage-error! spec (nth arg 0) (.. "Too many occurances of " key " in " (nth args idx)))]
+                (usage! (.. "Too many occurances of " key " in " (nth args idx)))]
                [true
                  (with (narg (.> arg :narg))
                    (cond
                      [(= i (#s flags)) (read-args key arg)]
                      [(= narg 0) ((.> arg :action) arg result (.> arg :value))]
                      [true
-                      (usage-error! spec (nth arg 0) (.. "Expected arguments for " key " in " (nth args idx)))]))])))]
+                      (usage! (.. "Expected arguments for " key " in " (nth args idx)))]))])))]
         [?any
          (with (arg (car (.> spec :pos)))
            (if arg
              ((.> arg :action) arg result any)
-             (usage-error! spec (nth arg 0) (.. "Unknown argument " arg))))
+             (usage! (.. "Unknown argument " arg))))
          (inc! idx)]))
 
     ;; Copy across the defaults

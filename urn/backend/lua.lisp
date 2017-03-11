@@ -510,6 +510,59 @@
   ;; And cache some useful globals
   (w/line! out "local _select, _unpack, _pack, _error = select, table.unpack, table.pack, error"))
 
+(defun file (compiler shebang)
+  "Generate a complete file using the current COMPILER state.
+
+   Returns the resulting writer, from which you can extract line mappings
+   and the resulting contents.
+
+   If SHEBANG is specified then it will be prepended."
+  (let* [(state (create-state (.> compiler :libMeta)))
+         (out (w/create))]
+    (when shebang
+      (w/line! out (.. "#!/usr/bin/env " shebang)))
+
+    (prelude out)
+
+    (w/line! out "local _libs = {}")
+
+    ;; Emit all native libraries
+    (for-each lib (.> compiler :libs)
+      (let* [(prefix (string/quoted (.> lib :prefix)))
+             (native (.> lib :native))]
+        (when native
+          (w/line! out "local _temp = (function()")
+          (for-each line (string/split native "\n")
+            (when (/= line "")
+              (w/append! out "\t")
+              (w/line! out line)))
+          (w/line! out "end)()")
+          (w/line! out (.. "for k, v in pairs(_temp) do _libs[" prefix ".. k] = v end")))))
+
+    ;; Count the number of active variables
+    (with (count 0)
+      (for-each node (.> compiler :out)
+        (when-with (var (.> node :defVar))
+          (inc! count)))
+
+      ;; Predeclare all variables. We only do this if we're pretty sure we won't hit the
+      ;; "too many local variable" errors. The upper bound is actually 200, but lambda inlining
+      ;; will probably bring it up slightly.
+      ;; In the future we probably ought to handle this smartly when it is over 150 too.
+      (when (between? count 1 150)
+        (w/append! out "local ")
+        (with (first true)
+          (for-each node (.> compiler :out)
+            (when-with (var (.> node :defVar))
+              (if first
+                (set! first false)
+                (w/append! out ", "))
+              (w/append! out (escape-var var state)))))
+        (w/line! out)))
+
+    (compile-block (.> compiler :out) out state 1 "return ")
+    out))
+
 (define backend (struct
                   :createState create-state
                   :escape      escape
