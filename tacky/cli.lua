@@ -14,6 +14,16 @@ local _temp = (function()
 	}
 end)()
 for k, v in pairs(_temp) do _libs["lua/basic-0/".. k] = v end
+local _temp = (function()
+	-- A horrible hacky script to ensure that package.path is correct
+	local directory = arg[0]:gsub("urn/cli%.lisp", ""):gsub("urn/cli$", ""):gsub("tacky/cli%.lua$", "")
+	if directory ~= "" and directory:sub(-1, -1) ~= "/" then
+		directory = directory .. "/"
+	end
+	package.path = package.path .. package.config:sub(3, 3) .. directory .. "?.lua"
+	return {}
+end)()
+for k, v in pairs(_temp) do _libs["urn/cli-14/".. k] = v end
 _3d_1 = function(v1, v2) return (v1 == v2) end
 _2f3d_1 = function(v1, v2) return (v1 ~= v2) end
 _3c_1 = function(v1, v2) return (v1 < v2) end
