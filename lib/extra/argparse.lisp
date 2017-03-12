@@ -235,12 +235,11 @@
                         ["?"
                          (inc! idx)
                          (with (elem (nth args idx))
-                           (cond
-                             [(= elem nil)]
-                             [(and (! (.> arg :all)) (string/find elem "^%-"))]
-                             [true
+                           (if (or (= elem nil) (and (! (.> arg :all)) (string/find elem "^%-")))
+                             ((.> arg :action) arg result (.> arg :value))
+                             (progn
                                (inc! idx)
-                               ((.> arg :action) arg result elem)]))]
+                               ((.> arg :action) arg result elem))))]
                         [0
                           (inc! idx)
                           ((.> arg :action) arg result (.> arg :value))]

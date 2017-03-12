@@ -7,7 +7,6 @@ PAGES_DIR  ?= docs
 URN        ?= tacky/cli.lua
 OBJS       :=                   \
 	${OUT_DIR}/backend/init       \
-	${OUT_DIR}/cli                \
 	${OUT_DIR}/logger/init        \
 	${OUT_DIR}/range              \
 	${OUT_DIR}/traceback          \
@@ -27,11 +26,15 @@ endif
 
 compiler_test: all test
 test: ${TESTS}
-all: ${OBJS}
+all: ${OBJS} tacky/cli
 
 ${OBJS}: ${OUT_DIR}/%: urn/%.lisp
 	@mkdir -p $(shell dirname $@)
 	${LUA} ${URN} $^ -o $@ ${LUA_FLAGS}
+
+${OUT_DIR}/cli: urn/cli.lisp
+	@mkdir -p $(shell dirname $@)
+	${LUA} ${URN} $^ -o $@ ${LUA_FLAGS} --shebang --chmod
 
 ${TESTS}:
 	$(eval TMP := $(shell mktemp -d))

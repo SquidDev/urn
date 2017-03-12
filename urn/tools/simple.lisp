@@ -1,5 +1,6 @@
 (import extra/argparse arg)
 (import lua/io io)
+(import lua/os os)
 (import string)
 
 (import urn/analysis/optimise optimise)
@@ -16,9 +17,11 @@
              (arg/add-argument! spec '("--emit-lua")
                :help   "Emit a Lua file.")
              (arg/add-argument! spec '("--shebang")
-               :value   (or (nth arg 0) (nth arg -1) "lua")
+               :value   (or (nth arg -1) (nth arg 0) "lua")
                :help    "Set the executable to use for the shebang."
-               :narg    "?"))
+               :narg    "?")
+             (arg/add-argument! spec '("--chmod")
+               :help    "Run chmod +x on the resulting file"))
     :pred  (lambda (args) (.> args :emit-lua))
     :run   (lambda (compiler args)
              (when (nil? (.> args :input))
@@ -28,7 +31,11 @@
              (let* [(out (lua/file compiler (.> args :shebang)))
                     (handle (io/open (.. (.> args :output) ".lua") "w"))]
                (self handle :write (writer/->string out))
-               (self handle :close)))))
+               (self handle :close)
+
+               (when (.> args :chmod)
+                 ;; string/quoted is not "correct" for escaping names but it is "good enough".
+                 (os/execute (.. "chmod +x " (string/quoted (.. (.> args :output) ".lua")))))))))
 
 (define emit-lisp
   (struct
