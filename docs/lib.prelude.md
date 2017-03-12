@@ -180,7 +180,7 @@ Example:
 ```
 
 ## `(case val &pts)`
-*Macro defined at lib/match.lisp:172:1*
+*Macro defined at lib/match.lisp:180:1*
 
 Match a single value against a series of patterns, evaluating the first
 body that matches, much like `cond`.
@@ -276,7 +276,7 @@ Define `NAME` to be the function given by (lambda `ARGS` @`BODY`), with
 optional metadata at the start of `BODY`.
 
 ## `(destructuring-bind pt &body)`
-*Macro defined at lib/match.lisp:156:1*
+*Macro defined at lib/match.lisp:164:1*
 
 Match a single pattern against a single value, then evaluate the `BODY`.
 The pattern is given as `(car PT)` and the value as `(cadr PT)`.

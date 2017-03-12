@@ -11,6 +11,7 @@ The grammar of patterns is described below:
 pattern ::= literal
           | metavar
           | _
+          | symbol '?' ;; type predicate
           | ( -> expr pattern ) ;; view
           | ( as pattern metavar ) ;; as
           | ( pattern * ) ;; list
@@ -37,18 +38,23 @@ match every element in a list, while a cons pattern will only match a certain
 number of cars and the cdr.
 Both bind everything bound by their "inner" patterns.
 
+`A` type predicate pattern works much like a wildcard, except it only matches if
+the scrutinee is of a specified type.
+
 ## `(case val &pts)`
-*Macro defined at lib/match.lisp:172:1*
+*Macro defined at lib/match.lisp:180:1*
 
 Match a single value against a series of patterns, evaluating the first
 body that matches, much like `cond`.
 
 ## `(destructuring-bind pt &body)`
-*Macro defined at lib/match.lisp:156:1*
+*Macro defined at lib/match.lisp:164:1*
 
 Match a single pattern against a single value, then evaluate the `BODY`.
 The pattern is given as `(car PT)` and the value as `(cadr PT)`.
 If the pattern does not match, an error is thrown.
 
 ## Undocumented symbols
- - `(pattern-length pattern correction)` *Defined at lib/match.lisp:64:1*
+ - `(pattern-length pattern correction)` *Defined at lib/match.lisp:66:1*
+ - `(type-predicate? x)` *Defined at lib/match.lisp:78:1*
+ - `type-predicates` *Defined at lib/match.lisp:75:1*
