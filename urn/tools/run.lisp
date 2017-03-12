@@ -24,7 +24,8 @@
        (print! (w/->string out))
        (exit! 1)]
       [(?fun)
-       (.<! _G (.> args :script-args) args)
+       (.<! _G :arg (.> args :script-args))
+       (.<! _G :arg 0 (car (.> args :input)))
        (case (list (xpcall fun debug/traceback))
          [(true . ?res)]
          [(false ?msg)

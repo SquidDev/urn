@@ -207,11 +207,12 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 			executeStates(compileState, head.states, global, loggerI)
 			resume(head)
 		elseif head.tag == "import" then
-			local success, module = loader(head.module)
+			local result = loader(head.module)
+			local module = result[1]
 
-			if not success then
+			if not module then
 				logger.doNodeError(loggerI,
-					module,
+					result[2],
 					head._node, nil,
 					range.getSource(head._node), ""
 				)
@@ -219,7 +220,7 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 
 			local export = head.export
 			local scope = head.scope
-			for name, var in pairs(module) do
+			for name, var in pairs(module.scope.exported) do
 				if head.as then
 					name = head.as .. '/' .. name
 					Scope.importVerbose(scope, name, var, head._node, export, loggerI)
@@ -235,7 +236,7 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 			if head.symbols then
 				local failure = false
 				for name, nameNode in pairs(head.symbols) do
-					if not module[name] then
+					if not module.scope.exported[name] then
 						logger.putNodeError(loggerI,
 							"Cannot find " .. name,
 							nameNode, nil,

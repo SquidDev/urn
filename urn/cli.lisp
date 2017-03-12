@@ -4,6 +4,7 @@
 (import urn/tools/run       run)
 
 (import urn/logger logger)
+(import urn/loader loader)
 (import urn/logger/term term)
 (import urn/backend/lua lua)
 
@@ -12,10 +13,9 @@
 (import lua/os os)
 (import string)
 
-(define-native lib-loader)
-(define-native root-scope)
-(define-native scope/child)
-(define-native scope/import!)
+(define root-scope (.> (require "tacky.analysis.resolve") :rootScope))
+(define scope/child (.> (require "tacky.analysis.scope") :child))
+(define scope/import! (.> (require "tacky.analysis.scope") :import))
 
 (let* [(spec (arg/create))
        (directory (with (dir (nth arg 0))
@@ -157,6 +157,9 @@
       (.<! compiler :compileState :count 0)
       (.<! compiler :compileState :mappings (empty-struct))
 
+      ;; Set the loader
+      (.<! compiler :loader (lambda (name) (loader/loader compiler name true)))
+
       ;; Add globals
       (.<! compiler :global (setmetatable
                               (struct :_libs (.> compiler :libEnv))
@@ -167,21 +170,21 @@
         (.<! compiler :variables (tostring var) var))
 
       (with (start (os/clock))
-        (case (list (lib-loader compiler (.> args :prelude) false))
-          [(false ?error-message)
+        (case (loader/loader compiler (.> args :prelude) false)
+          [(nil ?error-message)
            (logger/put-error! logger error-message)
            (exit! 1)]
-          [(true ?prelude-vars)
+          [(?lib)
            (.<! compiler :rootScope (scope/child (.> compiler :rootScope)))
-           (for-pairs (name var) prelude-vars
+           (for-pairs (name var) (.> lib :scope :exported)
              (scope/import! (.> compiler :rootScope) name var))
 
            (for-each input (.> args :input)
-             (case (list (lib-loader compiler input false))
-               [(false ?error-message)
+             (case (loader/loader compiler input false)
+               [(nil ?error-message)
                 (logger/put-error! logger error-message)
                 (exit! 1)]
-               [_]))])
+               [(_)]))])
         (when (.> args :time)
           (print! (.. "parsing took " (- (os/clock) start)))))
 
