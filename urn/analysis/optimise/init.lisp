@@ -1,3 +1,5 @@
+(import lua/os os)
+
 (import urn/analysis/nodes ())
 (import urn/analysis/pass ())
 (import urn/analysis/traverse traverse)
@@ -26,9 +28,12 @@
 
 (defun optimise (nodes state)
   ;; Run the main optimiser until a "fixed point" is reached
-  (let [(iteration 0)
-        (changed true)]
-    (while (and changed (< iteration 10))
+  (let* [(max-n (.> state :max-n))
+         (max-t (.> state :max-time))
+         (iteration 0)
+         (finish (+ (os/clock) max-t))
+         (changed true)]
+    (while (and changed (or (< max-n 0) (< iteration max-n)) (or (< max-t 0) (< (os/clock) finish)))
       (set! changed (optimise-once nodes state))
       (inc! iteration)))
   nodes)

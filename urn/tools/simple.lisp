@@ -55,37 +55,43 @@
                  (self handle :write (writer/->string writer))
                  (self handle :close))))))
 
-(defun pass-arg (spec)
+(defun pass-arg (arg data value usage!)
   "Handle the argument of a pass runner"
-  (lambda (arg data value)
-    (let* [(val (string->number value))
-           (name (.. (.> arg :name) "-override"))
-           (override (.> data name))]
-      (unless override
-        (set! override (empty-struct))
-        (.<! data name override))
-      (cond
-        [val
-         ;; If we've got a number then we'll try to use that
-         (.<! data (.> arg :name) val)]
-        [(= (string/char-at value 1) "-")
-         ;; Disable this pass
-         (.<! override (string/sub value 2) false)]
-        [(= (string/char-at value 1) "+")
-          ;; Enable this pass
-         (.<! override (string/sub value 2) true)]
-        [true
-         (arg/usage-error! spec (nth arg 0) (.. "Expected number or enable/disable flag for --" (.> arg :name) " , got " value))]))))
+  (let* [(val (string->number value))
+         (name (.. (.> arg :name) "-override"))
+         (override (.> data name))]
+    (unless override
+      (set! override (empty-struct))
+      (.<! data name override))
+    (cond
+      [val
+       ;; If we've got a number then we'll try to use that
+       (.<! data (.> arg :name) val)]
+      [(= (string/char-at value 1) "-")
+       ;; Disable this pass
+       (.<! override (string/sub value 2) false)]
+      [(= (string/char-at value 1) "+")
+        ;; Enable this pass
+       (.<! override (string/sub value 2) true)]
+      [true
+       (usage! (.. "Expected number or enable/disable flag for --" (.> arg :name) " , got " value))])))
 
 (defun pass-run (fun name)
   "Create a task which runs FUN using the options from argument NAME."
   :hidden
   (lambda (compiler args)
     (fun (.> compiler :out) (struct
+                              ;; General pass options
                               :track     true
                               :level     (.> args name)
                               :override  (or (.> args (.. name "-override")) (empty-struct))
                               :time      (.> args :time)
+
+                              ;; Optimisation specific options
+                              :max-n     (.> args (.. name "-n"))
+                              :max-time  (.> args (.. name "-time"))
+
+                              ;; General shared options
                               :meta      (.> compiler :libMeta)
                               :logger    (.> compiler :log)))))
 
@@ -98,7 +104,7 @@
                :default 1
                :narg    1
                :var     "LEVEL"
-               :action  (pass-arg spec)))
+               :action  pass-arg))
     :pred  (lambda (args) (> (.> args :warning) 0))
     :run   (pass-run warning/analyse "warning")))
 
@@ -111,6 +117,16 @@
                :default 1
                :narg    1
                :var     "LEVEL"
-               :action  (pass-arg spec)))
+               :action  pass-arg)
+             (arg/add-argument! spec '("--optimise-n" "--optn")
+               :help    "The maximum number of iterations the optimiser should run for."
+               :default 10
+               :narg    1
+               :action  arg/set-num-action)
+             (arg/add-argument! spec '("--optimise-time" "--optt")
+               :help    "The maximum time the optimiser should run for."
+               :default -1
+               :narg    1
+               :action  arg/set-num-action))
     :pred  (lambda (args) (> (.> args :optimise) 0))
     :run   (pass-run optimise/optimise "optimise")))
