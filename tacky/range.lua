@@ -1,7 +1,7 @@
 #!/usr/bin/env tacky/cli.lua
 if not table.pack then table.pack = function(...) return { n = select("#", ...), ... } end end
 if not table.unpack then table.unpack = unpack end
-local load = load if _VERSION:find("5.1") then load = function(x, n, _, env) local f, e = loadstring(x, n) if not f then error(e, 2) end return setfenv(f, env) end end
+local load = load if _VERSION:find("5.1") then load = function(x, n, _, env) local f, e = loadstring(x, n) if not f then error(e, 2) end if env then setfenv(f, env) end return f end end
 local _select, _unpack, _pack, _error = select, table.unpack, table.pack, error
 local _libs = {}
 local _temp = (function()
@@ -66,12 +66,12 @@ struct1 = (function(...)
 		return key1["contents"]
 	end)
 	local out1 = ({})
-	local r_761 = _23_1(keys1)
-	local r_741 = nil
-	r_741 = (function(r_751)
-		if (r_751 <= r_761) then
-			local key2 = keys1[r_751]
-			local val2 = keys1[(1 + r_751)]
+	local r_781 = _23_1(keys1)
+	local r_761 = nil
+	r_761 = (function(r_771)
+		if (r_771 <= r_781) then
+			local key2 = keys1[r_771]
+			local val2 = keys1[(1 + r_771)]
 			out1[(function()
 				if key_3f_1(key2) then
 					return contents1(key2)
@@ -80,11 +80,11 @@ struct1 = (function(...)
 				end
 			end)()
 			] = val2
-			return r_741((r_751 + 2))
+			return r_761((r_771 + 2))
 		else
 		end
 	end)
-	r_741(1)
+	r_761(1)
 	return out1
 end)
 formatPosition1 = (function(pos1)
@@ -99,11 +99,11 @@ formatRange1 = (function(range1)
 end)
 formatNode1 = (function(node1)
 	local temp1
-	local r_1571 = node1["range"]
-	if r_1571 then
+	local r_1591 = node1["range"]
+	if r_1591 then
 		temp1 = node1["contents"]
 	else
-		temp1 = r_1571
+		temp1 = r_1591
 	end
 	if temp1 then
 		return format1("%s (%q)", formatRange1(node1["range"]), node1["contents"])
@@ -118,11 +118,11 @@ formatNode1 = (function(node1)
 		end
 	else
 		local temp2
-		local r_1601 = node1["start"]
-		if r_1601 then
+		local r_1621 = node1["start"]
+		if r_1621 then
 			temp2 = node1["finish"]
 		else
-			temp2 = r_1601
+			temp2 = r_1621
 		end
 		if temp2 then
 			return formatRange1(node1)
@@ -133,23 +133,23 @@ formatNode1 = (function(node1)
 end)
 getSource1 = (function(node2)
 	local result1 = nil
-	local r_1581 = nil
-	r_1581 = (function()
+	local r_1601 = nil
+	r_1601 = (function()
 		local temp3
-		local r_1591 = node2
-		if r_1591 then
+		local r_1611 = node2
+		if r_1611 then
 			temp3 = _21_1(result1)
 		else
-			temp3 = r_1591
+			temp3 = r_1611
 		end
 		if temp3 then
 			result1 = node2["range"]
 			node2 = node2["parent"]
-			return r_1581()
+			return r_1601()
 		else
 		end
 	end)
-	r_1581()
+	r_1601()
 	return result1
 end)
 return struct1("formatPosition", formatPosition1, "formatRange", formatRange1, "formatNode", formatNode1, "getSource", getSource1)

@@ -1,7 +1,7 @@
 #!/usr/bin/env tacky/cli.lua
 if not table.pack then table.pack = function(...) return { n = select("#", ...), ... } end end
 if not table.unpack then table.unpack = unpack end
-local load = load if _VERSION:find("5.1") then load = function(x, n, _, env) local f, e = loadstring(x, n) if not f then error(e, 2) end return setfenv(f, env) end end
+local load = load if _VERSION:find("5.1") then load = function(x, n, _, env) local f, e = loadstring(x, n) if not f then error(e, 2) end if env then setfenv(f, env) end return f end end
 local _select, _unpack, _pack, _error = select, table.unpack, table.pack, error
 local _libs = {}
 local _temp = (function()
@@ -55,12 +55,12 @@ struct1 = (function(...)
 		return key1["contents"]
 	end)
 	local out1 = ({})
-	local r_761 = _23_1(keys1)
-	local r_741 = nil
-	r_741 = (function(r_751)
-		if (r_751 <= r_761) then
-			local key2 = keys1[r_751]
-			local val2 = keys1[(1 + r_751)]
+	local r_781 = _23_1(keys1)
+	local r_761 = nil
+	r_761 = (function(r_771)
+		if (r_771 <= r_781) then
+			local key2 = keys1[r_771]
+			local val2 = keys1[(1 + r_771)]
 			out1[(function()
 				if key_3f_1(key2) then
 					return contents1(key2)
@@ -69,11 +69,11 @@ struct1 = (function(...)
 				end
 			end)()
 			] = val2
-			return r_741((r_751 + 2))
+			return r_761((r_771 + 2))
 		else
 		end
 	end)
-	r_741(1)
+	r_761(1)
 	return out1
 end)
 fail_21_1 = (function(x3)
@@ -106,9 +106,9 @@ end)
 doNodeError_21_1 = (function(logger7, msg7, node3, explain3, ...)
 	local lines3 = _pack(...) lines3.tag = "list"
 	self1(logger7, "put-node-error!", msg7, node3, explain3, lines3)
-	return fail_21_1((function(r_1571)
-		if r_1571 then
-			return r_1571
+	return fail_21_1((function(r_1591)
+		if r_1591 then
+			return r_1591
 		else
 			return msg7
 		end

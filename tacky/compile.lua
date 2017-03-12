@@ -8,6 +8,16 @@ local traceback = require "tacky.traceback"
 
 local writer = backend.writer
 
+local load = load
+if _VERSION:find("5.1") then
+	load = function(x, n, _, env)
+		local f, e = loadstring(x, n)
+		if not f then error(e, 2) end
+		if env then setfenv(f, env) end
+		return f
+	end
+end
+
 --- Attempt to execute a series of states, in the environment.
 --
 -- All nodes are required to be in the built or executed stages, though those in the latter will be skipped
