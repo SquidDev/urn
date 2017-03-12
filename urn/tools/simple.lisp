@@ -55,7 +55,11 @@
              (arg/add-argument! spec '("--warning" "-W")
                :help    "The warning level to use."
                :default 1
-               :narg    1))
+               :action  (lambda (arg data value)
+                          (with (val (string->number value))
+                            (if val
+                              (.<! data (.> arg :name) val)
+                              (arg/usage-error! spec (nth arg 0) (.. "Expected number for --warning, got " value)))))))
     :pred  (lambda (args) (> (.> args :warning) 0))
     :run   (lambda (compiler args)
              (warning/analyse (.> compiler :out) (struct
@@ -69,7 +73,12 @@
              (arg/add-argument! spec '("--optimise" "-O")
                :help    "The optimiation level to use."
                :default 1
-               :narg    1))
+               :narg    1
+               :action  (lambda (arg data value)
+                          (with (val (string->number value))
+                            (if val
+                              (.<! data (.> arg :name) val)
+                              (arg/usage-error! spec (nth arg 0) (.. "Expected number for --optimise, got " value)))))))
     :pred  (lambda (args) (> (.> args :optimise) 0))
     :run   (lambda (compiler args)
              (optimise/optimise (.> compiler :out) (struct

@@ -78,6 +78,36 @@
     :narg    1
     :default "out")
 
+  (arg/add-argument! spec '("--wrapper" "-w")
+    :help    "A wrapper script to launch Urn with"
+    :narg    1
+    :action  (lambda (a b value)
+               (let* [(args (map id arg))
+                      (i 1)
+                      (len (# args))]
+                 (while (<= i len)
+                   (with (item (nth args i))
+                     (cond
+                       [(or (= item "--wrapper") (= item "-w"))
+                        (remove-nth! args i)
+                        (remove-nth! args i)
+                        (set! i (succ len))]
+                       [(string/find item "^%-%-wrapper=.*$")
+                        (remove-nth! args i)
+                        (set! i (succ len))]
+                       [(string/find item "^%-[^-]+w$")
+                        (.<! args i (string/sub item 1 -2))
+                        (remove-nth! args (succ i))
+                        (set! i (succ len))]
+                       [true])))
+
+                 (with (command (list value))
+                   (when-with (interp (nth arg -1)) (push-cdr! command interp))
+                   (push-cdr! command (nth arg 0))
+
+                   (case (list (os/execute (concat (append command args) " ")))
+                     [(_ _ ?code) (os/exit code)])))))
+
   (arg/add-argument! spec '("input")
     :help    "The file(s) to load."
     :var     "FILE"
