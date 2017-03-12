@@ -1,7 +1,7 @@
 ---
-title: extra/check
+title: lib/extra/check
 ---
-# extra/check
+# lib/extra/check
 `A` checker for algebraic properties.
 
 ## `(check bindings &props)`

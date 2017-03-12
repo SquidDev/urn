@@ -1,7 +1,7 @@
 ---
-title: string
+title: lib/string
 ---
-# string
+# lib/string
 ## `#s`
 *Defined at lib/string.lisp:17:1*
 
@@ -18,7 +18,7 @@ Concatenate the several values given in `ARGS`. They must all be strings.
 Index the string `XS`, returning the character at position `X`.
 
 ## `quoted`
-*Defined at lib/string.lisp:64:1*
+*Defined at lib/string.lisp:71:1*
 
 Quote the string `STR` so it is suitable for printing.
 
@@ -38,6 +38,11 @@ into individual characters.
 > (split "foo-bar-baz" "-" 1)
 ("foo" "bar-baz")
 ```
+
+## `(trim str)`
+*Defined at lib/string.lisp:63:1*
+
+Remove whitespace from both sides of `STR`.
 
 ## Undocumented symbols
  - `byte` *Native defined at lib/lua/string.lisp:1:1*

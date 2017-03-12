@@ -1,7 +1,7 @@
 ---
-title: extra/ffi
+title: lib/extra/ffi
 ---
-# extra/ffi
+# lib/extra/ffi
 ## `(defun-ffi name typedecl)`
 *Macro defined at lib/extra/ffi.lisp:4:1*
 

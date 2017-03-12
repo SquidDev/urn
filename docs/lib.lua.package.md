@@ -1,7 +1,7 @@
 ---
-title: lua/package
+title: lib/lua/package
 ---
-# lua/package
+# lib/lua/package
 ## Undocumented symbols
  - `config` *Native defined at lib/lua/package.lisp:1:1*
  - `cpath` *Native defined at lib/lua/package.lisp:2:1*

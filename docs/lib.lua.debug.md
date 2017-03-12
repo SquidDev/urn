@@ -1,7 +1,7 @@
 ---
-title: lua/debug
+title: lib/lua/debug
 ---
-# lua/debug
+# lib/lua/debug
 ## Undocumented symbols
  - `debug` *Native defined at lib/lua/debug.lisp:1:1*
  - `gethook` *Native defined at lib/lua/debug.lisp:2:1*

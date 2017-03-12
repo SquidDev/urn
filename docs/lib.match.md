@@ -1,7 +1,7 @@
 ---
-title: match
+title: lib/match
 ---
-# match
+# lib/match
 `A` pattern matching library.
 Utilities for manipulating deeply-nested data and lists in general,
 as well as binding multiple values.

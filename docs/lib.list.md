@@ -1,7 +1,7 @@
 ---
-title: list
+title: lib/list
 ---
-# list
+# lib/list
 List manipulation functions.
 These include several often-used functions for manipulation of lists,
 including functional programming classics such as [`map`](lib.list.md#map-f-xs-acc) and [`foldr`](lib.list.md#foldr-f-z-xs)

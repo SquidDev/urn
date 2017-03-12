@@ -1,7 +1,7 @@
 ---
-title: extra/term
+title: lib/extra/term
 ---
-# extra/term
+# lib/extra/term
 ## `colored`
 *Defined at lib/extra/term.lisp:25:1*
 

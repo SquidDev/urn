@@ -1,7 +1,7 @@
 ---
-title: prelude
+title: lib/prelude
 ---
-# prelude
+# lib/prelude
 ## `(! expr)`
 *Defined at lib/base.lisp:78:1*
 

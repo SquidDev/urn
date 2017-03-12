@@ -1,7 +1,7 @@
 ---
-title: lua/utf8
+title: lib/lua/utf8
 ---
-# lua/utf8
+# lib/lua/utf8
 ## Undocumented symbols
  - `char` *Native defined at lib/lua/utf8.lisp:1:1*
  - `charpattern` *Native defined at lib/lua/utf8.lisp:2:1*
