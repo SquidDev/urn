@@ -55,11 +55,12 @@
              (arg/add-argument! spec '("--warning" "-W")
                :help    "The warning level to use."
                :default 1
+               :narg    1
                :var     "LEVEL"
-               :action  (lambda (arg data value)
+               :action  (lambda (aspec data value)
                           (with (val (string->number value))
                             (if val
-                              (.<! data (.> arg :name) val)
+                              (.<! data (.> aspec :name) val)
                               (arg/usage-error! spec (nth arg 0) (.. "Expected number for --warning, got " value)))))))
     :pred  (lambda (args) (> (.> args :warning) 0))
     :run   (lambda (compiler args)
@@ -76,10 +77,10 @@
                :default 1
                :narg    1
                :var     "LEVEL"
-               :action  (lambda (arg data value)
+               :action  (lambda (aspec data value)
                           (with (val (string->number value))
                             (if val
-                              (.<! data (.> arg :name) val)
+                              (.<! data (.> aspec :name) val)
                               (arg/usage-error! spec (nth arg 0) (.. "Expected number for --optimise, got " value)))))))
     :pred  (lambda (args) (> (.> args :optimise) 0))
     :run   (lambda (compiler args)

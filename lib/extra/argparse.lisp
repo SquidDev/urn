@@ -284,22 +284,28 @@
              ;; Attempt to consume the correct number of arguments after this one.
              [true (read-args key arg)]))]
         [(-> (matcher "^%-(.+)$") (?flags))
-         (for i 1 (#s flags) 1
-           (let* [(key (string/char-at flags i))
-                  (arg (.> spec :flag-map key))]
-             (cond
-               [(= arg nil)
-                (usage! (.. "Unknown flag " key " in " (nth args idx)))]
-               [(and (! (.> arg :many)) (/= nil (.> result (.> arg :name))))
-                ;; If we've already got a value and this doesn't accept many then fail.
-                (usage! (.. "Too many occurances of " key " in " (nth args idx)))]
-               [true
-                 (with (narg (.> arg :narg))
-                   (cond
-                     [(= i (#s flags)) (read-args key arg)]
-                     [(= narg 0) ((.> arg :action) arg result (.> arg :value))]
-                     [true
-                      (usage! (.. "Expected arguments for " key " in " (nth args idx)))]))])))]
+         (let* [(i 1)
+                (s (#s flags))]
+           (while (<= i s)
+             (let* [(key (string/char-at flags i))
+                    (arg (.> spec :flag-map key))]
+               (cond
+                 [(= arg nil)
+                  (usage! (.. "Unknown flag " key " in " (nth args idx)))]
+                 [(and (! (.> arg :many)) (/= nil (.> result (.> arg :name))))
+                  ;; If we've already got a value and this doesn't accept many then fail.
+                  (usage! (.. "Too many occurances of " key " in " (nth args idx)))]
+                 [true
+                   (with (narg (.> arg :narg))
+                     (cond
+                       [(= i s) (read-args key arg)]
+                       [(= narg 0) ((.> arg :action) arg result (.> arg :value))]
+                       [true
+                        ;; Read the rest of this flag as an argument (for instance -W0).
+                        ((.> arg :action) arg result (string/sub flags (succ i)))
+                        (set! i (succ s))
+                        (inc! idx)]))]))
+             (inc! i)))]
         [?any
          (with (arg (car (.> spec :pos)))
            (if arg
