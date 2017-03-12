@@ -72,6 +72,3 @@
 
     (warn-arity lookup nodes state))
   nodes)
-
-(struct
-  :analyse analyse)

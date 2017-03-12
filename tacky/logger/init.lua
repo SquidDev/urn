@@ -1,6 +1,7 @@
+#!/usr/bin/env tacky/cli.lua
 if not table.pack then table.pack = function(...) return { n = select("#", ...), ... } end end
 if not table.unpack then table.unpack = unpack end
-local load = load if _VERSION:find("5.1") then load = function(x, _, _, env) local f, e = loadstring(x); if not f then error(e, 1) end; return setfenv(f, env) end end
+local load = load if _VERSION:find("5.1") then load = function(x, n, _, env) local f, e = loadstring(x, n) if not f then error(e, 2) end return setfenv(f, env) end end
 local _select, _unpack, _pack, _error = select, table.unpack, table.pack, error
 local _libs = {}
 local _temp = (function()
@@ -105,9 +106,9 @@ end)
 doNodeError_21_1 = (function(logger7, msg7, node3, explain3, ...)
 	local lines3 = _pack(...) lines3.tag = "list"
 	self1(logger7, "put-node-error!", msg7, node3, explain3, lines3)
-	return fail_21_1((function(r_1511)
-		if r_1511 then
-			return r_1511
+	return fail_21_1((function(r_1571)
+		if r_1571 then
+			return r_1571
 		else
 			return msg7
 		end

@@ -108,7 +108,3 @@
 
         (set! previous formatted)
         (set! node (.> node :parent))))))
-
-(struct
-  :create  create
-  :colored colored)

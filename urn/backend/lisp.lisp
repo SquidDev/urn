@@ -55,5 +55,3 @@
   (for-each node list
     (expression node writer)
     (writer/line! writer)))
-
-(define backend (struct :expression expression :block block))

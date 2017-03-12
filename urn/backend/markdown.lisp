@@ -107,6 +107,3 @@
        (let* [(name (car entry))
              (var  (nth entry 2))]
          (writer/line! out (.. " - `" (format-signature name var) "` *" (format-definition var) "*"))))))
-
-(define backend (struct
-                  :exported exported))
