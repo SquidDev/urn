@@ -16,7 +16,7 @@
              (arg/add-argument! spec '("--emit-lua")
                :help   "Emit a Lua file.")
              (arg/add-argument! spec '("--shebang")
-               :default (or (nth arg 0) (nth arg -1) or "lua")
+               :default (or (nth arg 0) (nth arg -1) "lua")
                :help    "Set the executable to use for the shebang."
                :narg    "?"))
     :pred  (lambda (args) (.> args :emit-lua))
