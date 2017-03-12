@@ -16,13 +16,13 @@
              (arg/add-argument! spec '("--emit-lua")
                :help   "Emit a Lua file.")
              (arg/add-argument! spec '("--shebang")
-               :default (or (nth arg 0) (nth arg -1) "lua")
+               :value   (or (nth arg 0) (nth arg -1) "lua")
                :help    "Set the executable to use for the shebang."
                :narg    "?"))
     :pred  (lambda (args) (.> args :emit-lua))
     :run   (lambda (compiler args)
              (when (nil? (.> args :input))
-               (logger/put-error! "No inputs to compille.")
+               (logger/put-error! (.> compiler :log) "No inputs to compile.")
                (exit! 1))
 
              (let* [(out (lua/file compiler (.> args :shebang)))
@@ -39,7 +39,7 @@
     :pred  (lambda (args) (.> args :emit-lisp))
     :run   (lambda (compiler args)
              (when (nil? (.> args :input))
-               (logger/put-error! "No inputs to compille.")
+               (logger/put-error! (.> compiler :log) "No inputs to compile.")
                (exit! 1))
 
              (with (writer (writer/create))
@@ -55,6 +55,7 @@
              (arg/add-argument! spec '("--warning" "-W")
                :help    "The warning level to use."
                :default 1
+               :var     "LEVEL"
                :action  (lambda (arg data value)
                           (with (val (string->number value))
                             (if val
@@ -74,6 +75,7 @@
                :help    "The optimiation level to use."
                :default 1
                :narg    1
+               :var     "LEVEL"
                :action  (lambda (arg data value)
                           (with (val (string->number value))
                             (if val

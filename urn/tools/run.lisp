@@ -10,7 +10,7 @@
 
 (defun run-lua (compiler args)
   (when (nil? (.> args :input))
-    (logger/put-error! "No inputs to run")
+    (logger/put-error! (.> compiler :log) "No inputs to run.")
     (exit! 1))
 
   (let* [(out (lua/file compiler false))
@@ -19,7 +19,7 @@
          (name (.. (or (.> args :output) "out") ".lua"))]
     (case (list (load (w/->string out) (.. "=" name)))
       [(nil ?msg)
-       (logger/put-error! logger "Cannot load compiled source")
+       (logger/put-error! logger "Cannot load compiled source.")
        (print! msg)
        (print! (w/->string out))
        (exit! 1)]
@@ -29,7 +29,7 @@
        (case (list (xpcall fun debug/traceback))
          [(true . ?res)]
          [(false ?msg)
-          (logger/put-error! logger "Execution failed")
+          (logger/put-error! logger "Execution failed.")
           (print! (traceback/remap-traceback (struct name lines) msg))
           (exit! 1)])])))
 

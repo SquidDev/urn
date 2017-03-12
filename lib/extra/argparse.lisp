@@ -110,7 +110,7 @@
 
     ;; Set the action for variable argument things.
     (unless (.> result :action)
-      (.<! result :action (if (if (number? (.> result :narg)) (<= (.> result :narg) 1) (= (.> arg :narg) "?"))
+      (.<! result :action (if (if (number? (.> result :narg)) (<= (.> result :narg) 1) (= (.> result :narg) "?"))
                             set-action
                             add-action)))
 
@@ -210,8 +210,8 @@
                          (inc! idx)
                          (with (elem (nth args idx))
                            (cond
-                             [(= elem nil) (print! (.. "Expected " (.> arg :var) " after --" key ", got nothing"))]
-                             [(and (! (.> arg :all)) (string/find elem "^%-")) (print! (.. "Expected " (.> arg :var) " after --" key ", got " (nth args idx)))]
+                             [(= elem nil) (usage! (.. "Expected " (.> arg :var) " after --" key ", got nothing"))]
+                             [(and (! (.> arg :all)) (string/find elem "^%-")) (usage! (.. "Expected " (.> arg :var) " after --" key ", got " (nth args idx)))]
                              [true ((.> arg :action) arg result elem)]))
                          ;; Try to consume as many additonal tokens as possible
                          (with (running true)
@@ -249,8 +249,8 @@
                            (inc! idx)
                            (with (elem (nth args idx))
                              (cond
-                               [(= elem nil) (print! (.. "Expected " cnt " args for " key ", got " (pred i)))]
-                               [(and (! (.> arg :all)) (string/find elem "^%-")) (print! (.. "Expected " cnt " for " key ", got " (pred i)))]
+                               [(= elem nil) (usage! (.. "Expected " cnt " args for " key ", got " (pred i)))]
+                               [(and (! (.> arg :all)) (string/find elem "^%-")) (usage! (.. "Expected " cnt " for " key ", got " (pred i)))]
                                [true ((.> arg :action) arg result elem)])))
                          (inc! idx)])))]
     (while (<= idx len)

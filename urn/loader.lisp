@@ -111,6 +111,7 @@
           (remove-nth! compiled 1))
 
         ;; Append on to the complete output
+        (.<! lib :out compiled)
         (for-each node compiled (push-cdr! (.> state :out) node))))
 
     (logger/put-verbose! (.> state :log) (.. "Loaded " path " into " name))

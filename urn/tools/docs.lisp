@@ -2,10 +2,15 @@
 (import lua/io io)
 (import string)
 
-(import urn/backend/writer writer)
 (import urn/backend/markdown markdown)
+(import urn/backend/writer writer)
+(import urn/logger logger)
 
 (defun docs (compiler args)
+  (when (nil? (.> args :input))
+    (logger/put-error! (.> compiler :log) "No inputs to generate documentation for.")
+    (exit! 1))
+
   (for-each path (.> args :input)
     (when (= (string/sub path -5) ".lisp") (set! path (string/sub path 1 -6)))
 
