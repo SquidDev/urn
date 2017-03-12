@@ -60,6 +60,13 @@
             (set! start (+ nend 1))])))
     out))
 
+(defun trim (str)
+  "Remove whitespace from both sides of STR."
+  (if (or (= (sub str 1 1) " ") (= (sub str 1 1) "\t"))
+    (trim (sub str 2 (#s str)))
+    (if (or (= (sub str -1 -1) " ") (= (sub str -1 -1) "\t"))
+      (trim (sub str 1 (- (#s str) 1)))
+      str)))
 
 (define quoted
   "Quote the string STR so it is suitable for printing."
