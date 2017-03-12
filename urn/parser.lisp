@@ -31,6 +31,10 @@
 
 (defun lex (logger str name)
   "Lex STR from a file called NAME, returning a series of tokens"
+
+  ;; Attempt to "normalise" strings
+  (set! str (string/gsub str "\r\n?" "\n"))
+
   (let* ((lines (string/split str "\n"))
          (line 1)
          (column 1)
@@ -208,6 +212,7 @@
                      [(= char "b") (push-cdr! buffer "\b")]
                      [(= char "f") (push-cdr! buffer "\f")]
                      [(= char "n") (push-cdr! buffer "\n")]
+                     [(= char "r") (push-cdr! buffer "\r")]
                      [(= char "t") (push-cdr! buffer "\t")]
                      [(= char "v") (push-cdr! buffer "\v")]
                      ;; Escaped characters
