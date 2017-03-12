@@ -1,7 +1,7 @@
 ---
-title: lib/extra/io
+title: extra/io
 ---
-# lib/extra/io
+# extra/io
 ## `(append-all! path data)`
 *Defined at lib/extra/io.lisp:101:1*
 

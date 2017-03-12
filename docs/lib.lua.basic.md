@@ -1,7 +1,7 @@
 ---
-title: lib/lua/basic
+title: lua/basic
 ---
-# lib/lua/basic
+# lua/basic
 ## `(# x)`
 *Defined at lib/lua/basic.lisp:50:1*
 

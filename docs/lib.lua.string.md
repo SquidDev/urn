@@ -1,7 +1,7 @@
 ---
-title: lib/lua/string
+title: lua/string
 ---
-# lib/lua/string
+# lua/string
 ## Undocumented symbols
  - `byte` *Native defined at lib/lua/string.lisp:1:1*
  - `char` *Native defined at lib/lua/string.lisp:2:1*

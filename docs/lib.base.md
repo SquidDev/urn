@@ -1,7 +1,7 @@
 ---
-title: lib/base
+title: base
 ---
-# lib/base
+# base
 ## `(! expr)`
 *Defined at lib/base.lisp:78:1*
 

@@ -1,7 +1,7 @@
 ---
-title: lib/extra/benchmark
+title: extra/benchmark
 ---
-# lib/extra/benchmark
+# extra/benchmark
 ## `(benchmark! times body)`
 *Macro defined at lib/extra/benchmark.lisp:22:1*
 

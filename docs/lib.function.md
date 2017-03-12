@@ -1,7 +1,7 @@
 ---
-title: lib/function
+title: function
 ---
-# lib/function
+# function
 ## `(-> x &funcs)`
 *Macro defined at lib/function.lisp:59:1*
 

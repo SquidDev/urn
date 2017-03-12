@@ -1,7 +1,7 @@
 ---
-title: lib/lua/table
+title: lua/table
 ---
-# lib/lua/table
+# lua/table
 ## `empty-struct`
 *Native defined at lib/lua/table.lisp:8:1*
 

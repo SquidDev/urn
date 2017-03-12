@@ -1,7 +1,7 @@
 ---
-title: lib/lua/coroutine
+title: lua/coroutine
 ---
-# lib/lua/coroutine
+# lua/coroutine
 ## Undocumented symbols
  - `create` *Native defined at lib/lua/coroutine.lisp:1:1*
  - `isyieldable` *Native defined at lib/lua/coroutine.lisp:2:1*

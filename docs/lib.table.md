@@ -1,7 +1,7 @@
 ---
-title: lib/table
+title: table
 ---
-# lib/table
+# table
 ## `(#keys st)`
 *Defined at lib/table.lisp:104:1*
 

@@ -1,7 +1,7 @@
 ---
-title: lib/extra/argparse
+title: extra/argparse
 ---
-# lib/extra/argparse
+# extra/argparse
 An argument parsing library.
 
 You specify the arguments for this parser, and the arg parser will handle parsing

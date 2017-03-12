@@ -1,7 +1,7 @@
 ---
-title: lib/extra/test
+title: extra/test
 ---
-# lib/extra/test
+# extra/test
 ## `(assert! cnd msg)`
 *Macro defined at lib/extra/assert.lisp:11:1*
 

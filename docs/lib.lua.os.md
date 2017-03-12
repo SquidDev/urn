@@ -1,7 +1,7 @@
 ---
-title: lib/lua/os
+title: lua/os
 ---
-# lib/lua/os
+# lua/os
 ## Undocumented symbols
  - `clock` *Native defined at lib/lua/os.lisp:1:1*
  - `date` *Native defined at lib/lua/os.lisp:2:1*

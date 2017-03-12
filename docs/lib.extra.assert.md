@@ -1,7 +1,7 @@
 ---
-title: lib/extra/assert
+title: extra/assert
 ---
-# lib/extra/assert
+# extra/assert
 ## `(affirm &asserts)`
 *Macro defined at lib/extra/assert.lisp:78:1*
 

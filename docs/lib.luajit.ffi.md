@@ -1,7 +1,7 @@
 ---
-title: lib/luajit/ffi
+title: luajit/ffi
 ---
-# lib/luajit/ffi
+# luajit/ffi
 ## Undocumented symbols
  - `C` *Native defined at lib/luajit/ffi.lisp:19:1*
  - `abi` *Native defined at lib/luajit/ffi.lisp:9:1*
