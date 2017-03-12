@@ -55,42 +55,78 @@
                  (self handle :write (writer/->string writer))
                  (self handle :close))))))
 
+(defun pass-arg (arg data value usage!)
+  "Handle the argument of a pass runner"
+  (let* [(val (string->number value))
+         (name (.. (.> arg :name) "-override"))
+         (override (.> data name))]
+    (unless override
+      (set! override (empty-struct))
+      (.<! data name override))
+    (cond
+      [val
+       ;; If we've got a number then we'll try to use that
+       (.<! data (.> arg :name) val)]
+      [(= (string/char-at value 1) "-")
+       ;; Disable this pass
+       (.<! override (string/sub value 2) false)]
+      [(= (string/char-at value 1) "+")
+        ;; Enable this pass
+       (.<! override (string/sub value 2) true)]
+      [true
+       (usage! (.. "Expected number or enable/disable flag for --" (.> arg :name) " , got " value))])))
+
+(defun pass-run (fun name)
+  "Create a task which runs FUN using the options from argument NAME."
+  :hidden
+  (lambda (compiler args)
+    (fun (.> compiler :out) (struct
+                              ;; General pass options
+                              :track     true
+                              :level     (.> args name)
+                              :override  (or (.> args (.. name "-override")) (empty-struct))
+                              :time      (.> args :time)
+
+                              ;; Optimisation specific options
+                              :max-n     (.> args (.. name "-n"))
+                              :max-time  (.> args (.. name "-time"))
+
+                              ;; General shared options
+                              :meta      (.> compiler :libMeta)
+                              :logger    (.> compiler :log)))))
+
 (define warning
   (struct
     :name  "warning"
     :setup (lambda (spec)
              (arg/add-argument! spec '("--warning" "-W")
-               :help    "The warning level to use."
+               :help    "Either the warning level to use or an enable/disable flag for a pass."
                :default 1
                :narg    1
                :var     "LEVEL"
-               :action  (lambda (aspec data value)
-                          (with (val (string->number value))
-                            (if val
-                              (.<! data (.> aspec :name) val)
-                              (arg/usage-error! spec (nth arg 0) (.. "Expected number for --warning, got " value)))))))
+               :action  pass-arg))
     :pred  (lambda (args) (> (.> args :warning) 0))
-    :run   (lambda (compiler args)
-             (warning/analyse (.> compiler :out) (struct
-                                                   :meta   (.> compiler :libMeta)
-                                                   :logger (.> compiler :log))))))
+    :run   (pass-run warning/analyse "warning")))
 
 (define optimise
   (struct
     :name  "optimise"
     :setup (lambda (spec)
              (arg/add-argument! spec '("--optimise" "-O")
-               :help    "The optimiation level to use."
+               :help    "Either the optimiation level to use or an enable/disable flag for a pass."
                :default 1
                :narg    1
                :var     "LEVEL"
-               :action  (lambda (aspec data value)
-                          (with (val (string->number value))
-                            (if val
-                              (.<! data (.> aspec :name) val)
-                              (arg/usage-error! spec (nth arg 0) (.. "Expected number for --optimise, got " value)))))))
+               :action  pass-arg)
+             (arg/add-argument! spec '("--optimise-n" "--optn")
+               :help    "The maximum number of iterations the optimiser should run for."
+               :default 10
+               :narg    1
+               :action  arg/set-num-action)
+             (arg/add-argument! spec '("--optimise-time" "--optt")
+               :help    "The maximum time the optimiser should run for."
+               :default -1
+               :narg    1
+               :action  arg/set-num-action))
     :pred  (lambda (args) (> (.> args :optimise) 0))
-    :run   (lambda (compiler args)
-             (optimise/optimise (.> compiler :out) (struct
-                                                     :meta   (.> compiler :libMeta)
-                                                     :logger (.> compiler :log))))))
+    :run   (pass-run optimise/optimise "optimise")))

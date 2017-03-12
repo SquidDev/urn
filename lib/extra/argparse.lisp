@@ -35,7 +35,7 @@
     :pos       '()))
 
 (defun set-action (arg data value)
-  "Set VALUE to the appropriate key in DATA for ARG."
+  "Set the appropriate key in DATA for ARG to VALUE."
   (.<! data (.> arg :name) value))
 
 (defun add-action (arg data value)
@@ -46,6 +46,13 @@
       (.<! data (.> arg :name) lst))
 
     (push-cdr! lst value)))
+
+(defun set-num-action (aspec data value usage!)
+  "Set the appropriate key in DATA for ARG to VALUE, ensuring it is a number."
+  (with (val (string->number value))
+    (if val
+      (.<! data (.> aspec :name) val)
+      (usage! (.. "Expected number for " (car (.> arg :names)) ", got " value)))))
 
 (defun add-argument! (spec names &options)
   "Add a new argument to SPEC, using the specified NAMES.
@@ -203,6 +210,7 @@
          (idx 1)
          (len (# args))
          (usage! (lambda (msg) (usage-error! spec (nth args 0) msg)))
+         (action (lambda (arg value) ((.> arg :action) arg result value usage!)))
          (read-args (lambda (key arg)
                       (case (.> arg :narg)
                         ["+"
@@ -212,7 +220,7 @@
                            (cond
                              [(= elem nil) (usage! (.. "Expected " (.> arg :var) " after --" key ", got nothing"))]
                              [(and (! (.> arg :all)) (string/find elem "^%-")) (usage! (.. "Expected " (.> arg :var) " after --" key ", got " (nth args idx)))]
-                             [true ((.> arg :action) arg result elem)]))
+                             [true (action arg elem)]))
                          ;; Try to consume as many additonal tokens as possible
                          (with (running true)
                            (while running
@@ -221,7 +229,7 @@
                                (cond
                                  [(= elem nil) (set! running false)]
                                  [(and (! (.> arg :all)) (string/find elem "^%-")) (set! running false)]
-                                 [true ((.> arg :action) arg result elem)]))))]
+                                 [true (action arg elem)]))))]
                         ["*"
                          ;; Try to consume as many as possible
                          (with (running true)
@@ -231,7 +239,7 @@
                                (cond
                                  [(= elem nil) (set! running false)]
                                  [(and (! (.> arg :all)) (string/find elem "^%-")) (set! running false)]
-                                 [true ((.> arg :action) arg result elem)]))))]
+                                 [true (action arg elem)]))))]
                         ["?"
                          (inc! idx)
                          (with (elem (nth args idx))
@@ -239,10 +247,10 @@
                              ((.> arg :action) arg result (.> arg :value))
                              (progn
                                (inc! idx)
-                               ((.> arg :action) arg result elem))))]
+                               (action arg elem))))]
                         [0
                           (inc! idx)
-                          ((.> arg :action) arg result (.> arg :value))]
+                          (action arg (.> arg :value))]
                         [?cnt
                          (for i 1 cnt 1
                            (inc! idx)
@@ -250,7 +258,7 @@
                              (cond
                                [(= elem nil) (usage! (.. "Expected " cnt " args for " key ", got " (pred i)))]
                                [(and (! (.> arg :all)) (string/find elem "^%-")) (usage! (.. "Expected " cnt " for " key ", got " (pred i)))]
-                               [true ((.> arg :action) arg result elem)])))
+                               [true (action arg elem)])))
                          (inc! idx)])))]
     (while (<= idx len)
       (case (nth args idx)
@@ -268,7 +276,7 @@
                   (usage! (.. "Expected " (number->string narg) " values, got 1 in " (nth args idx)))))
 
               ;; Call the setter for this argument.
-              ((.> arg :action) arg result val)]))
+              (action arg val)]))
          ;; And move onto the next token.
          (inc! idx)]
         [(-> (matcher "^%-%-(.*)$") (?key))
@@ -298,17 +306,17 @@
                    (with (narg (.> arg :narg))
                      (cond
                        [(= i s) (read-args key arg)]
-                       [(= narg 0) ((.> arg :action) arg result (.> arg :value))]
+                       [(= narg 0) (action arg (.> arg :value))]
                        [true
                         ;; Read the rest of this flag as an argument (for instance -W0).
-                        ((.> arg :action) arg result (string/sub flags (succ i)))
+                        (action arg (string/sub flags (succ i)))
                         (set! i (succ s))
                         (inc! idx)]))]))
              (inc! i)))]
         [?any
          (with (arg (car (.> spec :pos)))
            (if arg
-             ((.> arg :action) arg result any)
+             (action arg any)
              (usage! (.. "Unknown argument " arg))))
          (inc! idx)]))
 
