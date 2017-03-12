@@ -5,7 +5,7 @@ OUT_DIR    ?= tacky
 DOCS_DIR   ?= docs_tmp
 PAGES_DIR  ?= docs
 URN        ?= tacky/cli.lua
-OBJS       :=                     \
+OBJS       :=                   \
 	${OUT_DIR}/cli                \
 	${OUT_DIR}/backend/init       \
 	${OUT_DIR}/logger/init        \
