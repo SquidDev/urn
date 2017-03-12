@@ -7,6 +7,7 @@
  pattern ::= literal
            | metavar
            | _
+           | symbol '?' ;; type predicate
            | ( -> expr pattern ) ;; view
            | ( as pattern metavar ) ;; as
            | ( pattern * ) ;; list
@@ -31,19 +32,20 @@
  List patterns and _list with rest_ patterns match lists. A list pattern will
  match every element in a list, while a cons pattern will only match a certain
  number of cars and the cdr.
- Both bind everything bound by their \"inner\" patterns."
+ Both bind everything bound by their \"inner\" patterns.
+
+ A type predicate pattern works much like a wildcard, except it only matches if
+ the scrutinee is of a specified type."
 
 (import base ( defun defmacro if get-idx
                let* and gensym error for
                quasiquote list or pretty
                slice concat debug
                /= # = ! - + / * >= ))
-(import type ( eq? list? symbol? string?
-               boolean? number? ))
-
+(import type ())
 (import list ( car caddr cadr cdr append for-each
                map filter push-cdr!
-               nth last ))
+               nth last elem? ))
 
 (import table (struct))
 (import string (.. char-at sub))
@@ -70,6 +72,11 @@
         (set! length (+ length 1))))
     (+ length correction)))
 
+(define type-predicates
+  '(table? list? nil? string? number? boolean? key? atom? exists? falsey?))
+
+(defun type-predicate? (x)
+  (elem? x type-predicates))
 
 (defun compile-pattern-test (pattern symb) :hidden
   (cond
@@ -110,6 +117,7 @@
        [(eq? pattern 'true) `(eq? ,symb true)]
        [(eq? pattern 'false) `(eq? ,symb false)]
        [(eq? pattern 'nil) `(eq? ,symb nil)]
+       [(type-predicate? pattern) `(,pattern ,symb)]
        [true ~(eq? ,symb ',pattern)])]
     [(or (number? pattern) (boolean? pattern) (string? pattern))
      `(eq? ,symb ,pattern)]
