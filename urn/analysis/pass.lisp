@@ -57,12 +57,23 @@
   "Determine whether the TRACKER created by [[create-tracker]] was changed."
   (.> tracker :changed))
 
+(import base (type#))
+(defun pass-enabled? (pass options)
+  "Determine whether a PASS is enabled."
+  (with (override (.> options :override))
+    (and
+      (>= (.> options :level) (or (.> pass :level) 1))
+      (if (= (.> pass :on) false)
+        (= (.> override (.> pass :name)) true)
+        (/= (.> override (.> pass :name)) false))
+      (all (lambda (cat) (/= false (.> override cat))) (.> pass :cat)))))
+
 (defun run-pass (pass options tracker &args)
   "Run a PASS with the given ARGS, using OPTIONS to determine how the task should be run.
 
    This will return whether the PASS did something, though you can also specify TRACKER for
    more convenient tracking of multiple passes."
-  (when (>= (.> options :level) (or (.> pass :level) 1))
+  (when (pass-enabled? pass options)
     (let [(start (os/clock))
           (ptracker (create-tracker))
           (name (.. "[" (concat (.> pass :cat) " ") "] " (.> pass :name)))]

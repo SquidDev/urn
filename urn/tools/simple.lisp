@@ -55,48 +55,62 @@
                  (self handle :write (writer/->string writer))
                  (self handle :close))))))
 
+(defun pass-arg (spec)
+  "Handle the argument of a pass runner"
+  (lambda (arg data value)
+    (let* [(val (string->number value))
+           (name (.. (.> arg :name) "-override"))
+           (override (.> data name))]
+      (unless override
+        (set! override (empty-struct))
+        (.<! data name override))
+      (cond
+        [val
+         ;; If we've got a number then we'll try to use that
+         (.<! data (.> arg :name) value)]
+        [(= (string/char-at value 1) "-")
+         ;; Disable this pass
+         (.<! override (string/sub value 2) false)]
+        [(= (string/char-at value 1) "+")
+          ;; Enable this pass
+         (.<! override (string/sub value 2) true)]
+        [true
+         (arg/usage-error! spec (nth arg 0) (.. "Expected number or enable/disable flag for --" (.> arg :name) " , got " value))]))))
+
+(defun pass-run (fun name)
+  "Create a task which runs FUN using the options from argument NAME."
+  :hidden
+  (lambda (compiler args)
+    (fun (.> compiler :out) (struct
+                              :track     true
+                              :level     (.> args name)
+                              :override  (or (.> args (.. name "-override")) (empty-struct))
+                              :time      (.> args :time)
+                              :meta      (.> compiler :libMeta)
+                              :logger    (.> compiler :log)))))
+
 (define warning
   (struct
     :name  "warning"
     :setup (lambda (spec)
              (arg/add-argument! spec '("--warning" "-W")
-               :help    "The warning level to use."
+               :help    "Either the warning level to use or an enable/disable flag for a pass."
                :default 1
                :narg    1
                :var     "LEVEL"
-               :action  (lambda (aspec data value)
-                          (with (val (string->number value))
-                            (if val
-                              (.<! data (.> aspec :name) val)
-                              (arg/usage-error! spec (nth arg 0) (.. "Expected number for --warning, got " value)))))))
+               :action  (pass-arg spec)))
     :pred  (lambda (args) (> (.> args :warning) 0))
-    :run   (lambda (compiler args)
-             (warning/analyse (.> compiler :out) (struct
-                                                   :track  true
-                                                   :level  (.> args :warning)
-                                                   :time   (.> args :time)
-                                                   :meta   (.> compiler :libMeta)
-                                                   :logger (.> compiler :log))))))
+    :run   (pass-run warning/analyse "warning")))
 
 (define optimise
   (struct
     :name  "optimise"
     :setup (lambda (spec)
              (arg/add-argument! spec '("--optimise" "-O")
-               :help    "The optimiation level to use."
+               :help    "Either the optimiation level to use or an enable/disable flag for a pass."
                :default 1
                :narg    1
                :var     "LEVEL"
-               :action  (lambda (aspec data value)
-                          (with (val (string->number value))
-                            (if val
-                              (.<! data (.> aspec :name) val)
-                              (arg/usage-error! spec (nth arg 0) (.. "Expected number for --optimise, got " value)))))))
+               :action  (pass-arg spec)))
     :pred  (lambda (args) (> (.> args :optimise) 0))
-    :run   (lambda (compiler args)
-             (optimise/optimise (.> compiler :out) (struct
-                                                     :track  true
-                                                     :level  (.> args :optimise)
-                                                     :time   (.> args :time)
-                                                     :meta   (.> compiler :libMeta)
-                                                     :logger (.> compiler :log))))))
+    :run   (pass-run optimise/optimise "optimise")))
