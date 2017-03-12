@@ -67,7 +67,7 @@
       (cond
         [val
          ;; If we've got a number then we'll try to use that
-         (.<! data (.> arg :name) value)]
+         (.<! data (.> arg :name) val)]
         [(= (string/char-at value 1) "-")
          ;; Disable this pass
          (.<! override (string/sub value 2) false)]

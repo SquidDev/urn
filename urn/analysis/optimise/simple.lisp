@@ -31,6 +31,17 @@
         (remove-nth! nodes i)
         (changed!)))))
 
+(defun fast-all (fn li i)
+  "A fast implementation of all which starts from an offset.
+
+   Normally I'd be against this, but this function is called
+   for every function invokation so needs to be fast."
+  :hidden
+  (cond
+    ((> i (# li)) true)
+    ((fn (nth li i)) (fast-all fn li (+ i 1)))
+    (true false)))
+
 (defpass constant-fold (state nodes)
   "A primitive constant folder
 
@@ -44,7 +55,7 @@
   :cat '("opt")
   (traverse/traverse-list nodes 1
     (lambda (node)
-      (if (and (list? node) (all constant? (cdr node)))
+      (if (and (list? node) (fast-all constant? node 2))
         ;; If we're invoking a function with entirely constant arguments then
         (let* [(head (car node))
                (meta (and (symbol? head) (! (.> head :folded)) (= (.> head :var :tag) "native") (.> state :meta (.> head :var :fullName))))]
