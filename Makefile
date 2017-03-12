@@ -26,7 +26,7 @@ endif
 
 compiler_test: all test
 test: ${TESTS}
-all: ${OBJS} tacky/cli
+all: ${OBJS} ${OUT_DIR}/cli
 
 ${OBJS}: ${OUT_DIR}/%: urn/%.lisp
 	@mkdir -p $(shell dirname $@)
