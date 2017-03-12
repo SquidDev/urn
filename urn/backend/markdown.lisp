@@ -49,6 +49,9 @@
     (with (ty (type tok))
       (cond
         ((= ty "text") (writer/append! out (.> tok :contents)))
+        ((= ty "boldic") (writer/append! out (.> tok :contents)))
+        ((= ty "bold") (writer/append! out (.> tok :contents)))
+        ((= ty "italic") (writer/append! out (.> tok :contents)))
         ((= ty "arg")  (writer/append! out (.. "`" (.> tok :contents) "`")))
         ((= ty "mono") (writer/append! out (.> tok :whole)))
         ((= ty "link")
