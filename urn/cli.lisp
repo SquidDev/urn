@@ -2,6 +2,7 @@
 (import urn/tools/docs      docs)
 (import urn/tools/repl      repl)
 (import urn/tools/run       run)
+(import urn/tools/gen-native gen-native)
 
 (import urn/logger logger)
 (import urn/loader loader)
@@ -45,6 +46,7 @@
                 simple/emit-lisp
                 simple/emit-lua
                 docs/task
+                gen-native/task
                 run/task
                 repl/task))]
   (arg/add-help! spec)
