@@ -6,8 +6,8 @@ DOCS_DIR   ?= docs_tmp
 PAGES_DIR  ?= docs
 URN        ?= tacky/cli.lua
 OBJS       :=                   \
-	${OUT_DIR}/cli                \
 	${OUT_DIR}/backend/init       \
+	${OUT_DIR}/cli                \
 	${OUT_DIR}/logger/init        \
 	${OUT_DIR}/range              \
 	${OUT_DIR}/traceback          \
