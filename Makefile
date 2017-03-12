@@ -4,7 +4,7 @@ TEST_FLAGS ?=
 OUT_DIR    ?= tacky
 DOCS_DIR   ?= docs_tmp
 PAGES_DIR  ?= docs
-URN        ?= run.lua
+URN        ?= tacky/cli.lua
 OBJS       :=                     \
 	${OUT_DIR}/cli                \
 	${OUT_DIR}/backend/init       \
