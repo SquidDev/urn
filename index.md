@@ -31,5 +31,5 @@ Urn is currently hosted on [GitLab](https://gitlab.com/SquidDev/urn) and mirrore
 on [GitHub](https://github.com/SquidDev/urn). You can clone the repo from either location, or download
 a [zipped version](https://gitlab.com/SquidDev/urn/repository/archive.zip?ref=master).
 
-You should just be able to execute `run.lua` to launch the REPL, or specify a series of `.lisp` files in order to
+You should just be able to execute `tacky/cli.lua` to launch the REPL, or specify a series of `.lisp` files in order to
 compile a set of files.
