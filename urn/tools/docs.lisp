@@ -11,7 +11,7 @@
 
     (let* [(lib (.> compiler :libCache path))
            (writer (writer/create))]
-      (markdown/exported writer path (.> lib :docs) (.> lib :scope :exported) (.> lib :scope))
+      (markdown/exported writer (.> lib :name) (.> lib :docs) (.> lib :scope :exported) (.> lib :scope))
 
       (with (handle (io/open (.. (.> args :docs) "/" (string/gsub path "/" ".") ".md") "w"))
         (self handle :write (writer/->string writer))

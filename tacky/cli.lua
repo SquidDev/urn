@@ -4184,7 +4184,7 @@ docs1 = (function(compiler6, args17)
 			end
 			local lib2 = compiler6["libCache"][path1]
 			local writer14 = create2()
-			exported1(writer14, path1, lib2["docs"], lib2["scope"]["exported"], lib2["scope"])
+			exported1(writer14, lib2["name"], lib2["docs"], lib2["scope"]["exported"], lib2["scope"])
 			local handle3 = open1(_2e2e_2(args17["docs"], "/", gsub1(path1, "/", "."), ".md"), "w")
 			self1(handle3, "write", _2d3e_string1(writer14))
 			self1(handle3, "close")
