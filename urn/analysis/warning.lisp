@@ -1,32 +1,15 @@
+(import urn/analysis/nodes ())
+(import urn/analysis/pass ())
 (import urn/analysis/usage usage)
 (import urn/analysis/visitor visitor)
 (import urn/logger/init logger)
 (import urn/range (get-source))
 
-(define builtins (.> (require "tacky.analysis.resolve") :builtins))
-(define builtin-vars (.> (require "tacky.analysis.resolve") :declaredVars))
-
-(defun side-effect? (node)
-  "Checks if NODE has a side effect"
-  :hidden
-  (with (tag (type node))
-    (cond
-      ;; Constant terms are obviously side effect free
-      [(or (= tag "number") (= tag "string") (= tag "key") (= tag "symbol")) false]
-      [(= tag "list")
-       (with (fst (car node))
-             ;; We simply check if we're defining a lambda/quoting something
-             ;; Everything else *may* have a side effect.
-             (if (= (type fst) "symbol")
-               (with (var (.> fst :var))
-                     (and (/= var (.> builtins :lambda)) (/= var (.> builtins :quote))))
-               true))])))
-
-(defun warn-arity (lookup nodes state)
+(defpass check-arity (state nodes lookup)
   "Produce a warning if any NODE in NODES calls a function with too many arguments.
 
-   LOOKUP is the variable usage lookup table"
-  :hidden
+   LOOKUP is the variable usage lookup table."
+  :cat '("warn" "usage")
   (letrec [(arity (empty-struct))
            (get-arity (lambda (symbol)
                         (let* [(var (usage/get-var lookup (.> symbol :var)))
@@ -67,8 +50,6 @@
 
 (defun analyse (nodes state)
   (with (lookup (usage/create-state))
-    (usage/definitions-visit lookup nodes)
-    (usage/usages-visit lookup nodes side-effect?)
-
-    (warn-arity lookup nodes state))
+    (run-pass usage/tag-usage state nil nodes lookup)
+    (run-pass check-arity state nil nodes lookup))
   nodes)

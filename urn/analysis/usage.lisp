@@ -4,9 +4,8 @@
 (import table)
 
 (import urn/analysis/visitor visitor)
-
-(define builtins (.> (require "tacky.analysis.resolve") :builtins))
-(define builtin-vars (.> (require "tacky.analysis.resolve") :declaredVars))
+(import urn/analysis/nodes (side-effect? builtins builtin-vars))
+(import urn/analysis/pass (defpass))
 
 (defun create-state ()
   "Create a new, empty usage state."
@@ -144,3 +143,9 @@
       (push-cdr! queue node))
     (while (> (# queue) 0)
       (visitor/visit-node (remove-nth! queue 1) visit))))
+
+(defpass tag-usage (state nodes lookup)
+  "Gathers usage and definition data for all expressions in NODES, storing it in LOOKUP."
+  :cat '("tag" "usage")
+  (definitions-visit lookup nodes)
+  (usages-visit lookup nodes side-effect?))

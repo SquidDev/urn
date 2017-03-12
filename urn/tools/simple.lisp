@@ -72,6 +72,9 @@
     :pred  (lambda (args) (> (.> args :warning) 0))
     :run   (lambda (compiler args)
              (warning/analyse (.> compiler :out) (struct
+                                                   :track  true
+                                                   :level  (.> args :warning)
+                                                   :time   (.> args :time)
                                                    :meta   (.> compiler :libMeta)
                                                    :logger (.> compiler :log))))))
 
@@ -92,5 +95,8 @@
     :pred  (lambda (args) (> (.> args :optimise) 0))
     :run   (lambda (compiler args)
              (optimise/optimise (.> compiler :out) (struct
+                                                     :track  true
+                                                     :level  (.> args :optimise)
+                                                     :time   (.> args :time)
                                                      :meta   (.> compiler :libMeta)
                                                      :logger (.> compiler :log))))))
