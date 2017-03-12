@@ -23,7 +23,7 @@
               unpack debug if # + - >= = ! with))
 (import base)
 (import lua/table)
-(import type (list? nil? assert-type! exists? falsey?))
+(import type (list? nil? assert-type! exists? falsey? eq?))
 
 (defun car (x)
   "Return the first element present in the list X. This function operates
@@ -158,7 +158,7 @@
    false
    ```"
   (assert-type! xs list)
-  (any (lambda (y) (= x y)) xs))
+  (any (lambda (y) (eq? x y)) xs))
 
 (defun prune (xs)
   "Remove values matching the predicate [[nil?]] from the list XS.
