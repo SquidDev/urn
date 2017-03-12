@@ -13,58 +13,56 @@
 (defun gen-native (logger path prefix)
   (set! path (string/gsub path "%.lisp$" ""))
 
-  (with (qualifier (if prefix (.. prefix ".") ""))
+  (let* [(qualifier (if prefix (.. prefix ".") ""))
+         (handle (io/open (.. path ".lisp") "r"))]
+    (unless handle
+      (logger/put-error! logger (.. "Cannot find " path ".lisp"))
+      (exit! 1))
 
-    (with (handle (io/open (.. path ".lisp") "r"))
-      (unless handle
-        (logger/put-error! logger (.. "Cannot find " path ".lisp"))
-        (exit! 1))
+    (with (contents (self handle :read "*a"))
+      (self handle :close)
 
-      (with (contents (self handle :read "*a"))
-        (self handle :close)
+      (let* [(lexed (parser/lex logger contents (.. path ".lisp")))
+             (parsed (parser/parse logger lexed))
+             (max-name 0)
+             (max-quot 0)
+             (max-pref 0)
+             (natives '())]
+        (for-each node parsed
+          (when (and (list? node) (symbol? (car node)) (= (.> (car node) :contents) "define-native"))
+            (with (name (.> (nth node 2) :contents))
+              (push-cdr! natives name)
 
-        (let* [(lexed (parser/lex logger contents (.. path ".lisp")))
-               (parsed (parser/parse logger lexed))
-               (max-name 0)
-               (max-quot 0)
-               (max-pref 0)
-               (natives '())]
-          (for-each node parsed
-            (when (and (list? node) (symbol? (car node)) (= (.> (car node) :contents) "define-native"))
-              (with (name (.> (nth node 2) :contents))
-                (push-cdr! natives name)
+              (set! max-name (math/max max-name (#s (quoted name))))
+              (set! max-quot (math/max max-quot (#s (quoted (.. qualifier name)))))
+              (set! max-pref (math/max max-pref (#s (.. qualifier name)))))))
 
-                (set! max-name (math/max max-name (#s (quoted name))))
-                (set! max-quot (math/max max-quot (#s (quoted (.. qualifier name)))))
-                (set! max-pref (math/max max-pref (#s (.. qualifier name)))))))
+        (table/sort natives)
 
-          (table/sort natives)
+        (let* [(handle (io/open (.. path ".meta.lua") "w"))
+               (format (..
+                         "\t[%-"
+                         (number->string (+ max-name 3))
+                         "s { tag = \"var\", contents = %-"
+                         (number->string (+ max-quot 1))
+                         "s value = %-"
+                         (number->string (+ max-pref 1))
+                         "s },\n"))]
+          (unless handle
+            (logger/put-error! logger (.. "Cannot write to " path ".lua"))
+            (exit! 1))
 
-          (let* [(handle (io/open (.. path ".meta.lua") "w"))
-                 (format (..
-                           "\t[%-"
-                           (number->string (+ max-name 3))
-                           "s { tag = \"var\", contents = %-"
-                           (number->string (+ max-quot 1))
-                           "s value = %-"
-                           (number->string (+ max-pref 1))
-                           "s },\n"))]
-            (unless handle
-              (logger/put-error! logger (.. "Cannot write to " path ".lua"))
-              (exit! 1))
+          (when prefix
+            (self handle :write (string/format "local %s = %s or {}\n" prefix prefix)))
 
-            (when prefix
-              (self handle :write (string/format "local %s = %s or {}\n" prefix prefix)))
-
-            (self handle :write "return {\n")
-            (for-each native natives
-              (self handle :write (string/format format
-                                    (.. (quoted native) "] =")
-                                    (.. (quoted (.. qualifier native)) ",")
-                                    (.. qualifier native ","))))
-            (self handle :write "}\n")
-
-            (self handle :close)))))))
+          (self handle :write "return {\n")
+          (for-each native natives
+            (self handle :write (string/format format
+                                               (.. (quoted native) "] =")
+                                               (.. (quoted (.. qualifier native)) ",")
+                                               (.. qualifier native ","))))
+          (self handle :write "}\n")
+          (self handle :close))))))
 
 (let* [(logger (term/create))
        (file (car arg))
