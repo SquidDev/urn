@@ -16,7 +16,7 @@ return {
 
 	['len#'] = { tag = "expr", contents = "#(${1})", count = 1, pure = true, value = function(x) return #x end },
 
-	['get-idx']  = { tag = "expr", contents = "(${1})[${2}]",      count = 2, value = function(x, k) return x[k] end },
+	['get-idx']  = { tag = "expr", contents = "${1}[${2}]",      count = 2, value = function(x, k) return x[k] end },
 	['set-idx!'] = { tag = "stmt", contents = "${1}[${2}] = ${3}", count = 3, value = function(x, k, v) x[k] = v end },
 
 	["_ENV"] =           { tag = "var", contents = "_ENV",           value = _ENV,                         },
