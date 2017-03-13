@@ -54,7 +54,7 @@
                                         x) b)))
 
   (it "can create a list from variadic arguments"
-    (check [(number a) (number b) (number c)] (eq? (list 'a 'b 'c) '(a b c))))
+    (check [(number a) (number b) (number c)] (eq? (list a b c) `(,a ,b ,c))))
 
   (it "can convert a value to a lisp expression"
     (affirm (eq? (pretty 3) "3")
