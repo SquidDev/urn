@@ -21,7 +21,7 @@
                               ;; We should never hit recursive definitions but you never know
                               (.<! arity var false)
 
-                              ;; Look up the definition, detecting lambdas and re-assignments of other functions.
+                              ;; Look up the definition, detecting lambdas and reassignments of other functions.
                               (let* [(def-data (cadr (list (next (.> var :defs)))))
                                      (def (.> def-data :value))]
                                 (set! ari

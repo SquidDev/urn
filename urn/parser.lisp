@@ -75,9 +75,9 @@
                            (consume!)
                            (set! char (string/char-at str (succ offset))))
 
-                         ;; And conver the digit to a string
+                         ;; And convert the digit to a string
                          (string->number (string/sub str start offset) base)))))
-    ;; Scan the input stream, consume one character, then reading til the end of that token.
+    ;; Scan the input stream, consume one character, then read til the end of that token.
     (while (<= offset length)
       (with (char (string/char-at str offset))
         (cond
@@ -235,7 +235,7 @@
                                        (when (hex-digit? (string/char-at str (succ offset)))
                                          (consume!))
                                        (string->number (string/sub str start offset) 16)))
-                                   ;; Gobbal normal character codes
+                                   ;; Gobble normal character codes
                                    (let [(start (position))
                                          (ctr 0)]
 
@@ -320,16 +320,16 @@
       (let* ((tag (.> tok :tag))
              (auto-close false))
 
-        ;; Attempt to find mis-matched indents. This both highlights formatting errors and helps find the source of
-        ;; parse errors due to mis-matched parenthesis.
+        ;; Attempt to find mismatched indents. This both highlights formatting errors and helps find the source of
+        ;; parse errors due to mismatched parentheses.
         ;; To do this we store a reference to the first node on the previous line and check if the indent is different.
         (let ((previous (.> head :last-node))
               (tok-pos (.> tok :range)))
           ;; This catches a couple of trivial cases:
-          ;;  - Closing parenthesis. As lisp doesn't use C style indentation for brackets, the closing one will be on a
+          ;;  - Closing parentheses. As lisp doesn't use C style indentation for brackets, the closing one will be on a
           ;;    different line.
           ;;  - Missing range on head due to top level. In this case we just allow whatever.
-          ;;  - Nested parenthesis on the same line (such as (foo (+ 2 3))). Obviously we want to ignore these as the
+          ;;  - Nested parentheses on the same line (such as (foo (+ 2 3))). Obviously we want to ignore these as the
           ;;    indent will be different.
           (when (and (/= tag "eof") (/= tag "close") (if (.> head :range) (/= (.> tok-pos :start :line) (.> head :range :start :line)) true))
             (if previous

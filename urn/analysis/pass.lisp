@@ -84,7 +84,7 @@
       (when (.> options :time)
         (logger/put-verbose! (.> options :logger) (.. name " took " (- (os/clock) start) ".")))
 
-      ;; Print out logging modification informations
+      ;; Print out logging modification information
       (when (changed? ptracker)
         (when (.> options :track) (logger/put-verbose! (.> options :logger) (.. name " did something.")))
         (when tracker (.<! tracker :changed true)))
