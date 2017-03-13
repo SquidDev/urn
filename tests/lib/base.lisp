@@ -50,7 +50,7 @@
               (if (! b)
                 (set! x 2)
                 (set! x 8))
-              x) 8))
+              x) 8)))
 
   (it "can create a list from variadic arguments"
     (affirm (eq? (list 1 2 3 4) '(1 2 3 4))))
