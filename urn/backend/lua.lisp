@@ -116,12 +116,12 @@
         [(= ty "string") (w/append! out (string/quoted (.> node :value)))]
         [(= ty "number") (w/append! out (number->string (.> node :value)))]
         [(= ty "symbol")
-         (w/append! out (.. "{ tag=\"symbol\", contents=" (string/quoted (.> node :contents))))
+         (w/append! out (.. "({ tag=\"symbol\", contents=" (string/quoted (.> node :contents))))
          (when (.> node :var)
            (w/append! out (.. ", var=" (string/quoted(number->string (.> node :var))))))
-         (w/append! out "}")]
+         (w/append! out "})")]
         [(= ty "key")
-         (w/append! out (string/.. "{tag=\"key\", value=" (string/quoted (.> node :value)) "}"))]
+         (w/append! out (string/.. "({tag=\"key\", value=" (string/quoted (.> node :value)) "})"))]
         [(= ty "list")
          (with (first (car node))
            (cond
@@ -161,11 +161,11 @@
                      (w/line! out "return _result")
                      (w/end-block! out "end)()"))
                    (progn
-                     (w/append! out (.. "{tag = \"list\", n = " (number->string (# node))))
+                     (w/append! out (.. "({tag = \"list\", n = " (number->string (# node))))
                      (for-each sub node
                                (w/append! out ", ")
                                (compile-quote sub out state level))
-                     (w/append! out "}"))))
+                     (w/append! out "})"))))
                (w/pop-node! out node)]))]
         (true (error! (.. "Unknown type " ty)))))))
 
