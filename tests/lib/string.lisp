@@ -31,4 +31,6 @@
   (it "can be quoted"
     (affirm (eq? "\"foo\"" (quoted "foo"))
             (eq? "\"\\9\"" (quoted "\t"))
-            (eq? "\"\\n\"" (quoted "\n")))))
+            (eq? "\"\\n\"" (quoted "\n"))))
+  (it "can be trimmed"
+    (affirm (eq? "test" (trim "\t test \t")))))
