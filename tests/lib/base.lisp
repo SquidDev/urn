@@ -37,8 +37,8 @@
             (eq? (or false true) true)))
 
   (it "can add a value to the start of a list"
-    (check [(number a) (number b)] (eq? (cons 'b '(a)) '(b a)))
-    (check [(number n)] (eq? (cons 'n '()) '(n))))
+    (affirm (eq? (cons 0 '(1 2 3 4)) '(0 1 2 3 4)))
+    (affirm (eq? (cons 0 '()) '(0))))
 
   (it "can execute a for loop"
     (affirm (eq? (with (x 0)
