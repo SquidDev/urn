@@ -36,7 +36,8 @@
             (eq? (or false true) true)))
 
   (it "can add a value to the start of a list"
-    (eq? (cons 0 '(1 2 3)) '(0 1 2 3)))
+    (affirm (eq? (cons 0 '(1 2 3)) '(0 1 2 3))
+            (eq? (cons 4 '()) '(4))))
 
   (it "can execute a for loop"
     (eq? (with (x 0)
