@@ -59,7 +59,8 @@
   (it "can be flattened"
       (affirm (eq? '(1 2 3 4) (flatten '((1 2) (3 4))))))
   (it "can be indexed in constant time"
-      (affirm (eq? (nth '(1 2 3) 1) 1)))
+      (affirm (eq? (nth '(1 2 3) 1) 1)
+              (eq? (get-idx '(1 2 3) 1) 1)))
   (it "has a last element"
       (affirm (eq? (last '(1 2 3)) 3)
               (eq? (last '()) nil)
@@ -73,4 +74,6 @@
               (eq? true (exists? (cons 1 '())))))
   (it "can be accumulated with a monoid"
       (affirm (eq? 10 (accumulate-with tonumber + 0 '(1 2 3 4)))))
+  (it "can have an item mutated in-place"
+      (affirm (eq? `(1 3) (with (l `(1 2)) (set-idx! l 2 3) l))))
 )
