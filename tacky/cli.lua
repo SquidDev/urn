@@ -5419,7 +5419,6 @@ read2 = (function(x33, path2)
 end)
 struct1("lex", lex1, "parse", parse1, "read", read2)
 compile1 = require1("tacky.compile")["compile"]
-executeStates2 = require1("tacky.compile")["executeStates"]
 Scope2 = require1("tacky.analysis.scope")
 doParse1 = (function(compiler6, scope3, str6)
 	local logger12 = compiler6["log"]
@@ -5557,7 +5556,7 @@ execString1 = (function(compiler8, scope5, string1)
 					run1 = false
 				else
 					local states2 = cadr1(res7)["states"]
-					executeStates2(compileState1, states2, global2, logger14)
+					executeStates1(compileState1, states2, global2, logger14)
 				end
 				return r_7091()
 			else

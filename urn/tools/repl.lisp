@@ -15,7 +15,6 @@
 (import urn/parser parser)
 
 (define compile (.> (require "tacky.compile") :compile))
-(define execute-states (.> (require "tacky.compile") :executeStates))
 
 (define Scope (require "tacky.analysis.scope"))
 
@@ -118,7 +117,7 @@
                 (set! run false))
               (true
                 (with (states (.> (cadr res) :states))
-                  (execute-states compileState states global logger))))))))))
+                  (lua/execute-states compileState states global logger))))))))))
 
 (defun repl (compiler)
   (let* [(scope (.> compiler :rootScope))
