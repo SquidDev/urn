@@ -37,6 +37,10 @@
       ,(make-binding (cdar vars)))
     `((lambda () ,@body))))
 
+(defmacro with (var &body)
+  "Bind the single variable VAR, then evaluate BODY."
+  `(let* [,var] ,@body))
+
 ;; Binds a variable to an expression
 (defmacro let (vars &body)
   "Bind several variables (given in VARS), then evaluate BODY.
