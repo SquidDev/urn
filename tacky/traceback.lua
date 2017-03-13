@@ -13,15 +13,13 @@ local _temp = (function()
 	}
 end)()
 for k, v in pairs(_temp) do _libs["lua/basic-0/".. k] = v end
-local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e_1, _3e3d_1, _2b_1, _2d_1, _25_1, error1, getIdx1, setIdx_21_1, tonumber1, type_23_1, _23_1, char1, find1, format1, gsub1, len1, lower1, match1, sub1, concat1, emptyStruct1, iterPairs1, list1, list_3f_1, key_3f_1, between_3f_1, type1, nth1, pushCdr_21_1, charAt1, _2e2e_1, struct1, succ1, huge1, unmangleIdent1, remapError1, remapMessage1, remapTraceback1, generateMappings1
+local _3d_1, _2f3d_1, _3c_1, _3c3d_1, _3e3d_1, _2b_1, _25_1, error1, getIdx1, setIdx_21_1, tonumber1, type_23_1, _23_1, char1, find1, format1, gsub1, len1, lower1, match1, sub1, concat1, emptyStruct1, list1, list_3f_1, key_3f_1, between_3f_1, type1, nth1, pushCdr_21_1, charAt1, _2e2e_1, struct1, succ1, unmangleIdent1, remapError1, remapMessage1, remapTraceback1
 _3d_1 = function(v1, v2) return (v1 == v2) end
 _2f3d_1 = function(v1, v2) return (v1 ~= v2) end
 _3c_1 = function(v1, v2) return (v1 < v2) end
 _3c3d_1 = function(v1, v2) return (v1 <= v2) end
-_3e_1 = function(v1, v2) return (v1 > v2) end
 _3e3d_1 = function(v1, v2) return (v1 >= v2) end
 _2b_1 = function(v1, v2) return (v1 + v2) end
-_2d_1 = function(v1, v2) return (v1 - v2) end
 _25_1 = function(v1, v2) return (v1 % v2) end
 error1 = error
 getIdx1 = function(v1, v2) return v1[v2] end
@@ -41,7 +39,6 @@ match1 = string.match
 sub1 = string.sub
 concat1 = table.concat
 emptyStruct1 = function() return ({}) end
-iterPairs1 = function(x, f) for k, v in pairs(x) do f(k, v) end end
 list1 = (function(...)
 	local xs1 = _pack(...) xs1.tag = "list"
 	return xs1
@@ -128,7 +125,6 @@ end)
 succ1 = (function(x5)
 	return (x5 + 1)
 end)
-huge1 = math.huge
 unmangleIdent1 = (function(ident1)
 	local esc1 = match1(ident1, "^(.-)%d+$")
 	if (esc1 == nil) then
@@ -270,62 +266,4 @@ remapTraceback1 = (function(mappings2, msg3)
 		return _2e2e_1("in function '", unmangleIdent1(x13), "'\n")
 	end))
 end)
-generateMappings1 = (function(lines1)
-	local outLines1 = ({})
-	iterPairs1(lines1, (function(line2, ranges1)
-		local rangeLists1 = ({})
-		iterPairs1(ranges1, (function(pos2)
-			local file2 = pos2["name"]
-			local rangeList1 = rangeLists1["file"]
-			if rangeList1 then
-			else
-				rangeList1 = struct1("n", 0, "min", huge1, "max", (0 - huge1))
-				rangeLists1[file2] = rangeList1
-			end
-			local r_1781 = pos2["finish"]["line"]
-			local r_1761 = nil
-			r_1761 = (function(r_1771)
-				if (r_1771 <= r_1781) then
-					if rangeList1[r_1771] then
-					else
-						rangeList1["n"] = succ1(rangeList1["n"])
-						rangeList1[r_1771] = true
-						if (r_1771 < rangeList1["min"]) then
-							rangeList1["min"] = r_1771
-						else
-						end
-						if (r_1771 > rangeList1["max"]) then
-							rangeList1["max"] = r_1771
-						else
-						end
-					end
-					return r_1761((r_1771 + 1))
-				else
-				end
-			end)
-			return r_1761(pos2["start"]["line"])
-		end))
-		local bestName1 = nil
-		local bestLines1 = nil
-		local bestCount1 = 0
-		iterPairs1(rangeLists1, (function(name1, lines2)
-			if (lines2["n"] > bestCount1) then
-				bestName1 = name1
-				bestLines1 = lines2
-				bestCount1 = lines2["n"]
-				return nil
-			else
-			end
-		end))
-		outLines1[line2] = (function()
-			if (bestLines1["min"] == bestLines1["max"]) then
-				return format1("%s:%d", bestName1, bestLines1["min"])
-			else
-				return format1("%s:%d-%d", bestName1, bestLines1["min"], bestLines1["max"])
-			end
-		end)()
-		return nil
-	end))
-	return outLines1
-end)
-return struct1("remapMessage", remapMessage1, "remapTraceback", remapTraceback1, "generate", generateMappings1)
+return struct1("remapTraceback", remapTraceback1)
