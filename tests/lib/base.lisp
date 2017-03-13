@@ -36,6 +36,18 @@
             (eq? (or true false) true)
             (eq? (or false true) true)))
 
+  (it "can short-circuit a logical AND"
+    (affirm (eq? (with (x 0)
+                   (and (progn (inc! x) false)
+                        (progn (inc! x) true))
+                   x) 1)))
+
+  (it "can short-circuit a logical OR"
+    (affirm (eq? (with (x 0)
+                   (or (progn (inc! x) true)
+                       (progn (inc! x) false))
+                   x) 1)))
+
   (it "can add a value to the start of a list"
     (affirm (eq? (cons 0 '(1 2 3 4)) '(0 1 2 3 4)))
     (affirm (eq? (cons 0 '()) '(0))))
