@@ -156,8 +156,6 @@
 
       ;; Add compileState
       (.<! compiler :compileState (lua/create-state (.> compiler :libMeta)))
-      (.<! compiler :compileState :count 0)
-      (.<! compiler :compileState :mappings (empty-struct))
 
       ;; Set the loader
       (.<! compiler :loader (lambda (name) (loader/loader compiler name true)))

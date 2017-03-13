@@ -32,7 +32,8 @@
                   scope
                   (.> compiler :compileState)
                   (.> compiler :loader)
-                  logger)))))
+                  logger
+                  lua/execute-states)))))
 
 (defun exec-command (compiler scope args)
   "Execute command given by ARGS using the given compiler state (COMPILER) and SCOPE"

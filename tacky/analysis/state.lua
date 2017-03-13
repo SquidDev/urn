@@ -205,6 +205,8 @@ function State:get()
 
 	visit(self, {}, {})
 
+	requiredList.tag = "list" requiredList.n = #requiredList
+
 	coroutine.yield({
 		tag    = "execute",
 		states = requiredList,

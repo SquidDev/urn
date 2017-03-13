@@ -111,6 +111,4 @@
 
 
 (struct
-  :remapMessage   remap-message
-  :remapTraceback remap-traceback
-  :generate       generate-mappings)
+  :remapTraceback remap-traceback)

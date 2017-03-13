@@ -4,6 +4,7 @@
 
 (import urn/logger logger)
 (import urn/parser parser)
+(import urn/backend/lua lua)
 
 (define scope/child (.> (require "tacky.analysis.scope") :child))
 (define compile (.> (require "tacky.compile") :compile))
@@ -101,7 +102,8 @@
                         scope
                         (.> state :compileState)
                         (.> state :loader)
-                        (.> state :log)))
+                        (.> state :log)
+                        lua/execute-states))
 
         (push-cdr! (.> state :libs) lib)
 

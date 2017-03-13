@@ -1,12 +1,9 @@
 local Scope = require "tacky.analysis.scope"
 local State = require "tacky.analysis.state"
-local backend = require "tacky.backend.init"
 local logger = require "tacky.logger.init"
 local range = require "tacky.range"
 local resolve = require "tacky.analysis.resolve"
 local traceback = require "tacky.traceback"
-
-local writer = backend.writer
 
 local load = load
 if _VERSION:find("5.1") then
@@ -27,7 +24,10 @@ end
 -- @param states The list of states to compile
 -- @param global The environment to execute under. States with variables will be bound to these.
 -- @param loggerI The logger to print all compilation issues too.
-local function executeStates(compileState, states, global, loggerI)
+local function x_executeStates(compileState, states, global, loggerI)
+	local backend = require "tacky.backend.init"
+	local writer = backend.writer
+
 	local stateList, nameTable, nameList, escapeList = {}, {}, {}, {}
 
 	for j = #states, 1, -1 do
@@ -136,7 +136,9 @@ end
 -- @param loader       The function to invoke in order to load an external module.
 -- @param loggerI      The logger which should receive error messages.
 -- @return Returns the resolved nodes and the corresponding states.
-local function compile(parsed, global, env, inStates, scope, compileState, loader, loggerI)
+local function compile(parsed, global, env, inStates, scope, compileState, loader, loggerI, executeStates)
+	if not executeStates then executeStates = x_executeStates end
+
 	local queue = {}
 	local out = {}
 	local states = { scope = scope }
@@ -327,5 +329,4 @@ end
 
 return {
 	compile = compile,
-	executeStates = executeStates,
 }
