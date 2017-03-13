@@ -75,8 +75,8 @@
              `(set! ,name (random-of ,(symbol->string type)))))
          (make-printing (binding)
            (destructuring-bind [(?type ?name) binding]
-             `(print! (.. ,(.. "  the " (symbol->string type) ", "
-                               (symbol->string name) ", had the value ") (pretty ,name)))))
+             `(.. ,(.. "  the " (symbol->string type) " `"
+                       (symbol->string name) "', had the value ") (pretty ,name))))
          (generate-body (prop)
            (let* [(ctr (gensym))
                   (ok (gensym))]
@@ -87,10 +87,9 @@
                   (if (! ,prop)
                     (progn
                       (set! ,ok false)
-                      (print! (.. ,(pretty prop) " falsified after "
-                                  ,ctr " iteration(s)"))
-                      (print! "falsifying set of values:")
-                      ,@(map make-printing bindings))
+                      (error! (.. "Proposition " ,(pretty prop) " falsified after "
+                          ,ctr " iteration(s).\n Falsifying set of values:\n"
+                          ,@(map make-printing bindings))))
                     (inc! ,ctr)))
                 (when ,ok
                   (print! (.. ,(pretty prop) " passed 100 tests."))))))]
