@@ -429,7 +429,7 @@
                             (compile-expression (nth node i) out state))
                           (w/append! out ")"))))]))]
              [(and ret (list? head) (symbol? (car head)) (= (.> head 1 :var) (.> builtins :lambda)))
-              ;; If we have a direction invocation of a function then inline it
+              ;; If we have a direct invocation of a function then inline it
               (let* [(args (nth head 2))
                      (offset 1)]
                 (for i 1 (# args) 1
