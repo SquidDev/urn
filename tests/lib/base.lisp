@@ -1,5 +1,6 @@
 (import extra/assert ())
 (import extra/test ())
+(import extra/check ())
 
 (describe "The base library"
   (it "can unwrap values"
@@ -36,8 +37,8 @@
             (eq? (or false true) true)))
 
   (it "can add a value to the start of a list"
-    (affirm (eq? (cons 0 '(1 2 3)) '(0 1 2 3))
-            (eq? (cons 4 '()) '(4))))
+    (check [(number a) (number b) (number c) (number d)] (eq? (cons d '(a b c)) '(d a b c)))
+    (check [(number n)] (eq? (cons n '()) '(n))))
 
   (it "can execute a for loop"
     (affirm (eq? (with (x 0)
@@ -46,14 +47,14 @@
               x) 10)))
 
   (it "can branch based on a condition"
-    (affirm (eq? (let [(x 0) (b true)]
-              (if (! b)
-                (set! x 2)
-                (set! x 8))
-              x) 8)))
+    (check [(number a) (number b)] (= (let [(x 0) (c false)]
+                                        (if c
+                                          (set! x a)
+                                          (set! x b))
+                                        x) b)))
 
   (it "can create a list from variadic arguments"
-    (affirm (eq? (list 1 2 3 4) '(1 2 3 4))))
+    (check [(number a) (number b) (number c)] (eq? (list a b c) '(a b c))))
 
   (it "can convert a value to a lisp expression"
     (affirm (eq? (pretty 3) "3")
