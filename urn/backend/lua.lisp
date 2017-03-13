@@ -26,10 +26,10 @@
 (define builtin-vars (get-idx (require "tacky.analysis.resolve") :declaredVars))
 
 (defun escape (name)
-  "Escape an urn identifier NANE, converting it into a form that is valid Lua."
+  "Escape an urn identifier NAME, converting it into a form that is valid Lua."
   (cond
     [(.> keywords name) (.. "_e" name)] ;; Keywords are trivial to escape
-    [(string/find name "^%w[_%w%d]*$") name] ;; Explicitly forbit leading _ as used for compiler internals
+    [(string/find name "^%w[_%w%d]*$") name] ;; Explicitly forbid leading _ as used for compiler internals
     [true (let* [(out (if (-> name (string/char-at <> 1) (string/find <> "%d")) "_e" ""))
                  (upper false)
                  (esc false)]
@@ -39,7 +39,7 @@
                   [(and (= char "-")
                         (-> name (string/char-at <> (pred i)) (string/find <> "[%a%d']"))
                         (-> name (string/char-at <> (succ i)) (string/find <> "[%a%d']")))
-                   ;; If we're surrounded by ident characters then conver tthe next one to upper case
+                   ;; If we're surrounded by indent characters then convert the next one to upper case
                    (set! upper true)]
                   [(string/find char "[^%w%d]")
                    (set! char (-> char (string/byte <>) (string/format "%02x" <>)))
@@ -90,7 +90,7 @@
   "Determines whether NODE is a literal.
 
    Strings or numbers are obviously literals, as are any builtin variable (nil
-   or booleans).  If we're invoking quote or syntax-quote then we'll end up with
+   or booleans). If we're invoking quote or syntax-quote then we'll end up with
    a table literal so that counts."
   (cond
     [(list? node)
@@ -228,7 +228,7 @@
                                (w/line! out " = select(_n + 1, ...)")
 
                                (w/next-block! out "else")
-                               ;; Otherwise we'll just assign an empt list to the variadic and pass the ... to the
+                               ;; Otherwise we'll just assign an empty list to the variadic and pass the ... to the
                                ;; remaining args
                                (w/append! out args-var)
                                (w/line! out " = { tag=\"list\", n=0}")
@@ -363,7 +363,7 @@
                   [(= var (.> builtins :unquote)) (fail! "unquote outside of syntax-quote")]
                   [(= var (.> builtins :unquote-splice)) (fail! "unquote-splice outside of syntax-quote")]
                   [(= var (.> builtins :import))
-                   ;; Imports don't do anything at all (and should have be stripped by the optimiser)
+                   ;; Imports don't do anything at all (and should have been stripped by the optimiser)
                    ;; so we handle the return expression if required.
                    (cond
                      [(= ret nil) (w/append! out "nil")]
@@ -373,7 +373,7 @@
                      (true))]
                   [true
                     ;; As we're invoking a known symbol here, we can do some fancy stuff. In this case, we just
-                    ;; "inline" anything defined in library meta data (such as arithmetic operators).
+                    ;; "inline" anything defined in library metadata (such as arithmetic operators).
                     (let* [(meta (and (symbol? head) (= (.> head :var :tag) "native") (.> state :meta (.> head :var :fullName))))
                            (meta-ty (type meta))]
                       ;; Obviously metadata only exists for native expressions. We can only emit it if
@@ -429,7 +429,7 @@
                             (compile-expression (nth node i) out state))
                           (w/append! out ")"))))]))]
              [(and ret (list? head) (symbol? (car head)) (= (.> head 1 :var) (.> builtins :lambda)))
-              ;; If we have a direction invokation of a function then inline it
+              ;; If we have a direction invocation of a function then inline it
               (let* [(args (nth head 2))
                      (offset 1)]
                 (for i 1 (# args) 1
