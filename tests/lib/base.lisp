@@ -43,7 +43,7 @@
     (affirm (eq? (with (x 0)
               (for i 0 9 1
                 (set! x (+ x 1)))
-              x) 10))
+              x) 10)))
 
   (it "can branch based on a condition"
     (affirm (eq? (let [(x 0) (b true)]
