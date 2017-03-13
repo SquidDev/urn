@@ -37,8 +37,8 @@
             (eq? (or false true) true)))
 
   (it "can add a value to the start of a list"
-    (check [(number a) (number b) (number c) (number d)] (eq? (cons d '(a b c)) '(d a b c)))
-    (check [(number n)] (eq? (cons n '()) '(n))))
+    (check [(number a) (number b)] (eq? (cons 'b '(a)) '(b a)))
+    (check [(number n)] (eq? (cons 'n '()) '(n))))
 
   (it "can execute a for loop"
     (affirm (eq? (with (x 0)
@@ -54,7 +54,7 @@
                                         x) b)))
 
   (it "can create a list from variadic arguments"
-    (check [(number a) (number b) (number c)] (eq? (list a b c) '(a b c))))
+    (check [(number a) (number b) (number c)] (eq? (list 'a 'b 'c) '(a b c))))
 
   (it "can convert a value to a lisp expression"
     (affirm (eq? (pretty 3) "3")
