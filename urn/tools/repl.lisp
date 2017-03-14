@@ -6,7 +6,6 @@
 (import lua/io io)
 (import lua/table table)
 (import string)
-(import base (slice))
 
 (import urn/backend/lua lua)
 (import urn/backend/writer writer)
@@ -126,12 +125,12 @@
                   (when (! (nil? name-results))
                     (print! (colored 92 "Search by function name:"))
                     (if (> (# name-results) 20)
-                      (print! (.. (concat (slice name-results 1 20) "  ") "  ..."))
+                      (print! (.. (concat (take name-results 20) "  ") "  ..."))
                       (print! (concat name-results "  "))))
                   (when (! (nil? docs-results))
                     (print! (colored 92 "Search by function docs:"))
                     (if (> (# docs-results) 20)
-                      (print! (.. (concat (slice docs-results 1 20) "  ") "  ..."))
+                      (print! (.. (concat (take docs-results 20) "  ") "  ..."))
                       (print! (concat docs-results "  ")))))))
             (logger/put-error! logger ":search <keywords>")))
       (true
