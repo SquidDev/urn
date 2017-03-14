@@ -3,8 +3,6 @@
 (import urn/analysis/usage usage)
 (import urn/analysis/visitor visitor)
 
-(import lua/math math)
-
 (define scope/child :hidden (.> (require "tacky.analysis.scope") :child))
 (define scope/add! :hidden (.> (require "tacky.analysis.scope") :add))
 
@@ -119,7 +117,9 @@
     sum
     (with (score (score-node (nth nodes start)))
       (if score
-        (score-nodes nodes (succ start) (+ sum score))
+        (if (> score threshold)
+          score
+          (score-nodes nodes (succ start) (+ sum score)))
         false))))
 
 (define threshold
@@ -130,6 +130,7 @@
 (defpass inline (state nodes usage)
   "Inline simple functions."
   :cat '("opt" "usage")
+  :on false
   (with (score-lookup (empty-struct))
     (visitor/visit-block nodes 1
       (lambda (node)
