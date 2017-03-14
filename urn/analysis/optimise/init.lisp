@@ -16,6 +16,7 @@
     (run-pass opt/strip-pure state tracker nodes)
     (run-pass opt/constant-fold state tracker nodes)
     (run-pass opt/cond-fold state tracker nodes)
+    (run-pass opt/lambda-fold state tracker nodes)
 
     (with (lookup (usage/create-state))
       (run-pass usage/tag-usage state tracker nodes lookup)

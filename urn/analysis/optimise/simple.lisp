@@ -121,3 +121,18 @@
                   (make-progn (cdr (nth node 2))))))
             node))
         node))))
+
+(defpass lambda-fold (state nodes)
+  "Simplify all directly called lambdas, inlining them were appropriate."
+  :cat '("opt")
+  (traverse/traverse-list nodes 1
+    (lambda (node)
+      (if (and
+            ;; If we're a list with one element (the function to call)
+            (list? node) (= (# node) 1)
+            ;; And this list is a lambda
+            (list? (car node)) (builtin? (caar node) :lambda)
+            ;; With no arguments and one expression
+            (= (# (car node)) 3) (nil? (nth (car node) 2)))
+        (nth (car node) 3)
+        node))))

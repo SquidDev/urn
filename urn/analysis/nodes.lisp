@@ -3,6 +3,14 @@
 
 (import base (type#))
 
+(defun builtin? (node name)
+  "Determine whether NODE is builtin NAME."
+  (and (symbol? node) (= (.> node :var) (.> builtins name))))
+
+(defun builtin-var? (node name)
+  "Determine whether NODE is builtin NAME."
+  (and (symbol? node) (= (.> node :var) (.> builtin-vars name))))
+
 (defun side-effect? (node)
   "Checks if NODE has a side effect"
   (with (tag (type node))
