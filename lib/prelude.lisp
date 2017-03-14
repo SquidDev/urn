@@ -6,6 +6,7 @@
 
 (import base)
 (import string (#s format .. concat) :export)
+(import string string :export)
 (import lua/os)
 (import binders () :export)
 (import list () :export)
@@ -13,6 +14,7 @@
 (import function () :export)
 (import table () :export)
 (import lua/io (write) :export)
+(import lua/math math :export)
 (import match (destructuring-bind case) :export)
 
 (defun succ (x)
