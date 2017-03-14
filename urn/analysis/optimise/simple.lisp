@@ -51,7 +51,8 @@
 
     - If the function call errors then we will flag a warning and continue.
     - If this returns a decimal (or infinity or NaN) then we'll continue: we cannot correctly
-      accurately handle this."
+      accurately handle this.
+    - If this doesn't return exactly one value then we will stop. This might be a future enhancement."
   :cat '("opt")
   (traverse/traverse-list nodes 1
     (lambda (node)
@@ -64,7 +65,7 @@
             (with (res (list (pcall (.> meta :value) (unpack (map urn->val (cdr node))))))
               (if (car res)
                 (with (val (nth res 2))
-                  (if (and (number? val) (or (/= (cadr (list (math/modf val))) 0) (= (math/abs val) math/huge)))
+                  (if (or (/= (# res) 2) (and (number? val) (or (/= (cadr (list (math/modf val))) 0) (= (math/abs val) math/huge))))
                     (progn
                       ;; Don't fold non-integer values as we cannot accurately represent them
                       ;; To consider: could we fold this if a parent expression could be folded (so simplify
