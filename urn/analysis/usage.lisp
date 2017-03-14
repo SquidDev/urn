@@ -142,7 +142,7 @@
     (for-each node nodes
       (push-cdr! queue node))
     (while (> (# queue) 0)
-      (visitor/visit-node (remove-nth! queue 1) visit))))
+      (visitor/visit-node (pop-last! queue) visit))))
 
 (defpass tag-usage (state nodes lookup)
   "Gathers usage and definition data for all expressions in NODES, storing it in LOOKUP."
