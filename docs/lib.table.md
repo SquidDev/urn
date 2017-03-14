@@ -60,6 +60,11 @@ Extend the association list `LIST`_ by inserting `VAL`, bound to the key `KEY`.
 
 Iterate over `TABLE` with a function `FUNC` of the form (lambda (`KEY` `VAL`) ...)
 
+## `(keys st)`
+*Defined at lib/table.lisp:122:1*
+
+Return the keys in the structure `ST`.
+
 ## `(merge &structs)`
 *Defined at lib/table.lisp:114:1*
 
@@ -90,9 +95,14 @@ Convert the structure `TBL` into an association list. Note that
 because duplicate elements will be removed.
 
 ## `(update-struct st &keys)`
-*Defined at lib/table.lisp:122:1*
+*Defined at lib/table.lisp:134:1*
 
 Create a new structure based of `ST`, setting the values given by the pairs in `KEYS`.
+
+## `(values st)`
+*Defined at lib/table.lisp:128:1*
+
+Return the values in the structure `ST`.
 
 ## Undocumented symbols
  - `getmetatable` *Native defined at lib/lua/basic.lisp:28:1*
