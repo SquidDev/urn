@@ -8,6 +8,13 @@
     :category category
     (unpack args 1 (# args))))
 
+(defun part-all (xs i e f)
+  "An implementation of [[all]] which just goes between I and E."
+  (cond
+    [(> i e) true]
+    [(f (nth xs i)) (part-all xs (+ i 1) e f)]
+    [true false]))
+
 (defun visit-node (lookup node stmt)
   "Marks a specific NODE with a category.
 
@@ -45,12 +52,38 @@
                        [(and
                           ;; If we have two conditions
                           (= (# node) 3)
-                          ;; If the first condition is of the form [A false]
+                          ;; If the first condition is of the form `[A false]`
                           (with (sub (nth node 2))
                             (and (= (# sub) 2) (builtin-var? (nth sub 2) :false)))
                           (with (sub (nth node 3))
                             (and (= (# sub) 2) (builtin-var? (nth sub 1) :true) (builtin-var? (nth sub 2) :true))))
-                        (cat "not" :stmt true)]
+                        (cat "not" :stmt (.> lookup (car (nth node 2)) :stmt))]
+
+                       [(and
+                          ;; If we have two conditions
+                          (= (# node) 3)
+                          ;; If the first condition is of the form `[A <expr>]`
+                          ;; The second one is of the form `[true A]`
+                          (let* [(first (nth node 2))
+                                 (second (nth node 3))]
+                            (and
+                              (= (# first) 2) (= (# second) 2)
+                              (symbol? (car first)) (! (.> lookup (nth first 2) :stmt))
+                              (builtin-var? (car second) :true) (eq? (car first) (nth second 2)))))
+                        (cat "and")]
+
+                       [(and
+                          ;; If we have at least two conditions.
+                          (>= (# node) 3)
+                          ;; Each condition follows the form `[x x]`.
+                          (part-all node 2 (pred (# node))
+                            (lambda (branch)
+                              (and (= (# branch) 2) (symbol? (car branch)) (eq? (car branch) (nth branch 2)))))
+                          ;; Apart from the last one, which is `[true <expr>]`.
+                          (with (branch (last node))
+                            (and (= (# branch) 2) (builtin-var? (car branch) :true) (! (.> lookup (nth branch 2) :stmt)))))
+                        (cat "or")]
+
                        [true (cat "cond" :stmt true)])]
                     [(= func (.> builtins :set!))
                      (visit-node lookup (nth node 3) true)

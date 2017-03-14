@@ -240,6 +240,18 @@
 
        (compile-expression (car (nth node 2)) out state ret)]
 
+      ["or"
+       (when ret (w/append! out ret))
+       (for i 2 (# node) 1
+         (when (> i 2) (w/append! out " or "))
+         (compile-expression (nth (nth node i) 2) out state))]
+
+      ["and"
+       (when ret (w/append! out ret))
+       (compile-expression (nth (nth node 2) 1) out state)
+       (w/append! out " and ")
+       (compile-expression (nth (nth node 2) 2) out state)]
+
       ["set!"
        (compile-expression (nth node 3) out state (.. (escape-var (.> node 2 :var) state) " = "))
        (when (and ret (/= ret ""))
