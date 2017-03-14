@@ -71,8 +71,8 @@ function State:require(var, user)
 	if user == nil then error("user is nil", 2) end
 
 	if var.scope.isRoot then
-		local state = assert(self.states[var], "Variable's State is nil: it probably hasn't finished parsing: " .. var.name)
-		if not self.requiredSet[state] then
+		local state = self.states[var]
+		if state and not self.requiredSet[state] then
 			-- Ensures they are emitted in the same order
 			self.requiredSet[state] = user
 			self.required[#self.required + 1] = state
