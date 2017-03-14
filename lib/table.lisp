@@ -52,8 +52,8 @@
    `(eq? x (struct->assoc (assoc->struct x)))` is not guaranteed,
    because duplicate elements will be removed."
   (with (out '())
-    (iter-pairs tbl (lambda (k v)
-                      (push-cdr! out (list k v))))
+    (for-pairs (k v) tbl
+      (push-cdr! out (list k v)))
     out))
 
 ;; Chain a series of index accesses together
@@ -104,7 +104,7 @@
 (defun #keys (st)
   "Return the number of keys in the structure ST."
   (with (cnt 0)
-    (iter-pairs st (lambda () (set! cnt (+ cnt 1))))
+    (for-pairs () st (set! cnt (+ cnt 1)))
     cnt))
 
 (defmacro for-pairs (vars tbl &body)
@@ -117,6 +117,18 @@
     (for-each st structs
       (for-pairs (k v) st
         (.<! out k v)))
+    out))
+
+(defun keys (st)
+  "Return the keys in the structure ST."
+  (with (out '())
+    (for-pairs (k _) st (push-cdr! out k))
+    out))
+
+(defun values (st)
+  "Return the values in the structure ST."
+  (with (out '())
+    (for-pairs (_ v) st (push-cdr! out v))
     out))
 
 (defun update-struct (st &keys)

@@ -3,8 +3,6 @@
 (import urn/analysis/usage usage)
 (import urn/analysis/visitor visitor)
 
-(import lua/math math)
-
 (define scope/child :hidden (.> (require "tacky.analysis.scope") :child))
 (define scope/add! :hidden (.> (require "tacky.analysis.scope") :add))
 
@@ -95,6 +93,8 @@
              (score-nodes node 2 2)]
             [(= func (.> builtins :quasi-quote))
              (score-nodes node 2 3)]
+            [(= func (.> builtins :unquote-splice))
+             (score-nodes node 2 10)]
             [true
              (score-nodes node 1 (+ (# node) 1))]))]
        [_ (score-nodes node 1 (+ (# node) 1))])]))
@@ -104,8 +104,14 @@
   :hidden
   (with (score (.> lookup node))
     (when (= score nil)
-      ;; We'll have a lambda so just want to handle the body
-      (set! score (score-nodes node 3 0))
+      ;; We have a lambda. We avoid inlining if we have a varargs somewhere.
+      (set! score 0)
+      (for-each arg (nth node 2)
+        (when (.> arg :var :isVariadic) (set! score false)))
+
+      ;; If we have no varargs, then let's inline this function.
+      (when score (set! score (score-nodes node 3 score)))
+
       (.<! lookup node score))
 
     (if score score math/huge)))
@@ -119,7 +125,9 @@
     sum
     (with (score (score-node (nth nodes start)))
       (if score
-        (score-nodes nodes (succ start) (+ sum score))
+        (if (> score threshold)
+          score
+          (score-nodes nodes (succ start) (+ sum score)))
         false))))
 
 (define threshold
@@ -130,6 +138,7 @@
 (defpass inline (state nodes usage)
   "Inline simple functions."
   :cat '("opt" "usage")
+  :on false
   (with (score-lookup (empty-struct))
     (visitor/visit-block nodes 1
       (lambda (node)
