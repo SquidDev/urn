@@ -6,6 +6,7 @@
 (import lua/io io)
 (import lua/table table)
 (import string)
+(import base (slice))
 
 (import urn/backend/lua lua)
 (import urn/backend/writer writer)
@@ -80,16 +81,59 @@
                (vars-set (empty-struct))
                (current scope)]
           (while current
-            (iter-pairs (.> current :variables)
-              (lambda (name var)
-                (unless (.> vars-set name)
-                  (push-cdr! vars name)
-                  (.<! vars-set name true))))
+            (for-pairs (name var) (.> current :variables)
+              (unless (.> vars-set name)
+                (push-cdr! vars name)
+                (.<! vars-set name true)))
             (set! current (.> current :parent)))
 
           (table/sort vars)
 
-          (print! (concat vars " "))))
+          (print! (concat vars "  "))))
+      ((= command "search")
+          (if (> (# args) 1)
+            (let* [(keywords (map string/lower (cdr args)))
+                   (name-results '())
+                   (docs-results '())
+                   (vars '())
+                   (vars-set (empty-struct))
+                   (current scope)]
+              (while current
+                (for-pairs (name var) (.> current :variables)
+                  (unless (.> vars-set name)
+                    (push-cdr! vars name)
+                    (.<! vars-set name true)))
+                (set! current (.> current :parent)))
+              
+              (for-each var vars
+                ;; search by function name
+                (for-each keyword keywords
+                  (when (string/find var keyword)
+                    (push-cdr! name-results var)))
+                ;; search by function docs
+                (when-let* [(doc-var ((.> Scope :get) scope var))
+                            (temp-docs (.> doc-var :doc))
+                            (docs (string/lower temp-docs))
+                            (keywords-found 0)]
+                  (for-each keyword keywords
+                    (when (string/find docs keyword)
+                      (inc! keywords-found)))
+                  (when (eq? keywords-found (# keywords))
+                    (push-cdr! docs-results var))))
+              (if (and (nil? name-results) (nil? docs-results))
+                (logger/put-error! logger "No results")
+                (progn
+                  (when (! (nil? name-results))
+                    (print! (colored 92 "Search by function name:"))
+                    (if (> (# name-results) 20)
+                      (print! (.. (concat (slice name-results 1 20) "  ") "  ..."))
+                      (print! (concat name-results "  "))))
+                  (when (! (nil? docs-results))
+                    (print! (colored 92 "Search by function docs:"))
+                    (if (> (# docs-results) 20)
+                      (print! (.. (concat (slice docs-results 1 20) "  ") "  ..."))
+                      (print! (concat docs-results "  ")))))))
+            (logger/put-error! logger ":search <keywords>")))
       (true
         (logger/put-error! logger (.. "Unknown command '" command "'"))))))
 
