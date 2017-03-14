@@ -433,23 +433,36 @@
               (let* [(args (nth head 2))
                      (offset 1)]
                 (for i 1 (# args) 1
-                  (with (var (.> args i :var))
-                    (w/append! out (.. "local " (escape-var var state)))
+                  (let* [(var (.> args i :var))
+                         (esc (escape-var var state))]
+                    (w/append! out (.. "local " esc))
                     (if (.> var :isVariadic)
                       ;; If we're variadic then create a list of each sub expression
-                      (with (count (- (# node) (# args)))
+                      (let* [(count (- (# node) (# args)))
+                             (simple (or (<= count 0) (atom? (nth node (+ i count)))))]
                         (when (< count 0) (set! count 0))
-                        (w/append! out " = { tag=\"list\", n=")
-                        (w/append! out (number->string count))
 
-                        ;; Emit each expression into the list.
-                        ;; A future enhancement might be to check if these are statements and if so, push it
-                        (for j 1 count 1
-                          (w/append! out ", ")
-                          (compile-expression (nth node (+ i j)) out state))
+                        (if simple
+                          (progn
+                            ;; Emit each expression into the list.
+                            ;; A future enhancement might be to check if these are statements and if so, push it
+                            (w/append! out " = { tag=\"list\", n=")
+                            (w/append! out (number->string count))
 
-                        (set! offset count)
-                        (w/line! out "}"))
+                            (for j 1 count 1
+                              (w/append! out ", ")
+                              (compile-expression (nth node (+ i j)) out state))
+                            (w/line! out "}"))
+                          (progn
+                            ;; Emit each element into a call of table.pack
+                            (w/append! out " = _pack(")
+                            (for j 1 count 1
+                              (when (> j 1) (w/append! out ", "))
+                              (compile-expression (nth node (+ i j)) out state))
+                            (w/line! out ") ")
+                            (w/line! out (.. esc ".tag=\"list\""))))
+
+                        (set! offset count))
                       (let* [(expr (nth node (+ i offset)))
                              (name (escape-var var state))
                              (ret nil)]
