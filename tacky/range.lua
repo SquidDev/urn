@@ -13,7 +13,7 @@ local _temp = (function()
 	}
 end)()
 for k, v in pairs(_temp) do _libs["lua/basic-0/".. k] = v end
-local _3d_1, _3c3d_1, _2b_1, _25_1, error1, getIdx1, setIdx_21_1, type_23_1, _23_1, format1, concat1, emptyStruct1, _21_1, key_3f_1, type1, _2e2e_1, struct1, formatPosition1, formatRange1, formatNode1, getSource1
+local _3d_1, _3c3d_1, _2b_1, _25_1, error1, getIdx1, setIdx_21_1, type_23_1, format1, concat1, emptyStruct1, type1, _2e2e_1, struct1, formatPosition1, formatRange1, formatNode1, getSource1
 _3d_1 = function(v1, v2) return (v1 == v2) end
 _3c3d_1 = function(v1, v2) return (v1 <= v2) end
 _2b_1 = function(v1, v2) return (v1 + v2) end
@@ -22,18 +22,9 @@ error1 = error
 getIdx1 = function(v1, v2) return v1[v2] end
 setIdx_21_1 = function(v1, v2, v3) v1[v2] = v3 end
 type_23_1 = type
-_23_1 = (function(x1)
-	return x1["n"]
-end)
 format1 = string.format
 concat1 = table.concat
 emptyStruct1 = function() return ({}) end
-_21_1 = (function(expr1)
-	return not expr1
-end)
-key_3f_1 = (function(x2)
-	return (type1(x2) == "key")
-end)
 type1 = (function(val1)
 	local ty1 = type_23_1(val1)
 	if (ty1 == "table") then
@@ -53,25 +44,22 @@ _2e2e_1 = (function(...)
 end)
 struct1 = (function(...)
 	local keys1 = _pack(...) keys1.tag = "list"
-	if ((_23_1(keys1) % 1) == 1) then
+	if ((keys1["n"] % 1) == 1) then
 		error1("Expected an even number of arguments to struct", 2)
 	else
 	end
-	local contents1 = (function(key1)
-		return key1["contents"]
-	end)
 	local out1 = ({})
-	local r_781 = _23_1(keys1)
+	local r_781 = keys1["n"]
 	local r_761 = nil
 	r_761 = (function(r_771)
 		if (r_771 <= r_781) then
-			local key2 = keys1[r_771]
+			local key1 = keys1[r_771]
 			local val2 = keys1[(1 + r_771)]
 			out1[(function()
-				if key_3f_1(key2) then
-					return contents1(key2)
+				if (type1(key1) == "key") then
+					return key1["contents"]
 				else
-					return key2
+					return key1
 				end
 			end)()
 			] = val2
@@ -87,9 +75,15 @@ formatPosition1 = (function(pos1)
 end)
 formatRange1 = (function(range1)
 	if range1["finish"] then
-		return format1("%s:[%s .. %s]", range1["name"], formatPosition1(range1["start"]), formatPosition1(range1["finish"]))
+		return format1("%s:[%s .. %s]", range1["name"], (function(pos2)
+			return _2e2e_1(pos2["line"], ":", pos2["column"])
+		end)(range1["start"]), (function(pos3)
+			return _2e2e_1(pos3["line"], ":", pos3["column"])
+		end)(range1["finish"]))
 	else
-		return format1("%s:[%s]", range1["name"], formatPosition1(range1["start"]))
+		return format1("%s:[%s]", range1["name"], (function(pos4)
+			return _2e2e_1(pos4["line"], ":", pos4["column"])
+		end)(range1["start"]))
 	end
 end)
 formatNode1 = (function(node1)
@@ -133,7 +127,8 @@ getSource1 = (function(node2)
 		local temp3
 		local r_1621 = node2
 		if r_1621 then
-			temp3 = _21_1(result1)
+			local expr1 = result1
+			temp3 = not expr1
 		else
 			temp3 = r_1621
 		end
