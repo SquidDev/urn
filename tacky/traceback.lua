@@ -140,33 +140,33 @@ unmangleIdent1 = (function(ident1)
 			if (pos1 <= len3) then
 				local char2 = charAt1(esc1, pos1)
 				if (char2 == "_") then
-					local r_1811 = list1(find1(esc1, "^_[%da-z]+_", pos1))
+					local r_1641 = list1(find1(esc1, "^_[%da-z]+_", pos1))
 					local temp1
-					local r_1831 = list_3f_1(r_1811)
-					if r_1831 then
-						local r_1841 = (_23_1(r_1811) == 2)
-						if r_1841 then
+					local r_1661 = list_3f_1(r_1641)
+					if r_1661 then
+						local r_1671 = (_23_1(r_1641) == 2)
+						if r_1671 then
 							temp1 = true
 						else
-							temp1 = r_1841
+							temp1 = r_1671
 						end
 					else
-						temp1 = r_1831
+						temp1 = r_1661
 					end
 					if temp1 then
-						local start1 = nth1(r_1811, 1)
-						local _eend1 = nth1(r_1811, 2)
+						local start1 = nth1(r_1641, 1)
+						local _eend1 = nth1(r_1641, 2)
 						pos1 = (pos1 + 1)
-						local r_1871 = nil
-						r_1871 = (function()
+						local r_1861 = nil
+						r_1861 = (function()
 							if (pos1 < _eend1) then
 								pushCdr_21_1(buffer1, char1(tonumber1(sub1(esc1, pos1, succ1(pos1)), 16)))
 								pos1 = (pos1 + 2)
-								return r_1871()
+								return r_1861()
 							else
 							end
 						end)
-						r_1871()
+						r_1861()
 					else
 						pushCdr_21_1(buffer1, "_")
 					end
@@ -187,41 +187,41 @@ unmangleIdent1 = (function(ident1)
 end)
 remapError1 = (function(msg1)
 	local res1
-	local r_1631
-	local r_1621
-	local r_1611
-	r_1611 = gsub1(msg1, "local '([^']+)'", (function(x6)
+	local r_1721
+	local r_1711
+	local r_1701
+	r_1701 = gsub1(msg1, "local '([^']+)'", (function(x6)
 		return _2e2e_1("local '", unmangleIdent1(x6), "'")
 	end))
-	r_1621 = gsub1(r_1611, "global '([^']+)'", (function(x7)
+	r_1711 = gsub1(r_1701, "global '([^']+)'", (function(x7)
 		return _2e2e_1("global '", unmangleIdent1(x7), "'")
 	end))
-	r_1631 = gsub1(r_1621, "upvalue '([^']+)'", (function(x8)
+	r_1721 = gsub1(r_1711, "upvalue '([^']+)'", (function(x8)
 		return _2e2e_1("upvalue '", unmangleIdent1(x8), "'")
 	end))
-	res1 = gsub1(r_1631, "function '([^']+)'", (function(x9)
+	res1 = gsub1(r_1721, "function '([^']+)'", (function(x9)
 		return _2e2e_1("function '", unmangleIdent1(x9), "'")
 	end))
 	return res1
 end)
 remapMessage1 = (function(mappings1, msg2)
-	local r_1641 = list1(match1(msg2, "^(.-):(%d+)(.*)$"))
+	local r_1731 = list1(match1(msg2, "^(.-):(%d+)(.*)$"))
 	local temp2
-	local r_1661 = list_3f_1(r_1641)
-	if r_1661 then
-		local r_1671 = (_23_1(r_1641) == 3)
-		if r_1671 then
+	local r_1751 = list_3f_1(r_1731)
+	if r_1751 then
+		local r_1761 = (_23_1(r_1731) == 3)
+		if r_1761 then
 			temp2 = true
 		else
-			temp2 = r_1671
+			temp2 = r_1761
 		end
 	else
-		temp2 = r_1661
+		temp2 = r_1751
 	end
 	if temp2 then
-		local file1 = nth1(r_1641, 1)
-		local line1 = nth1(r_1641, 2)
-		local extra1 = nth1(r_1641, 3)
+		local file1 = nth1(r_1731, 1)
+		local line1 = nth1(r_1731, 2)
+		local extra1 = nth1(r_1731, 3)
 		local mapping1 = mappings1[file1]
 		if mapping1 then
 			local range1 = mapping1[tonumber1(line1)]
@@ -238,31 +238,31 @@ remapMessage1 = (function(mappings1, msg2)
 	end
 end)
 remapTraceback1 = (function(mappings2, msg3)
-	local r_1761
-	local r_1751
-	local r_1741
-	local r_1731
-	local r_1721
-	local r_1711
-	r_1711 = gsub1(msg3, "^([^\n:]-:%d+:[^\n]*)", (function(r_1861)
-		return remapMessage1(mappings2, r_1861)
+	local r_1851
+	local r_1841
+	local r_1831
+	local r_1821
+	local r_1811
+	local r_1801
+	r_1801 = gsub1(msg3, "^([^\n:]-:%d+:[^\n]*)", (function(r_1871)
+		return remapMessage1(mappings2, r_1871)
 	end))
-	r_1721 = gsub1(r_1711, "\9([^\n:]-:%d+:)", (function(msg4)
+	r_1811 = gsub1(r_1801, "\9([^\n:]-:%d+:)", (function(msg4)
 		return _2e2e_1("\9", remapMessage1(mappings2, msg4))
 	end))
-	r_1731 = gsub1(r_1721, "<([^\n:]-:%d+)>\n", (function(msg5)
+	r_1821 = gsub1(r_1811, "<([^\n:]-:%d+)>\n", (function(msg5)
 		return _2e2e_1("<", remapMessage1(mappings2, msg5), ">\n")
 	end))
-	r_1741 = gsub1(r_1731, "in local '([^']+)'\n", (function(x10)
+	r_1831 = gsub1(r_1821, "in local '([^']+)'\n", (function(x10)
 		return _2e2e_1("in local '", unmangleIdent1(x10), "'\n")
 	end))
-	r_1751 = gsub1(r_1741, "in global '([^']+)'\n", (function(x11)
+	r_1841 = gsub1(r_1831, "in global '([^']+)'\n", (function(x11)
 		return _2e2e_1("in global '", unmangleIdent1(x11), "'\n")
 	end))
-	r_1761 = gsub1(r_1751, "in upvalue '([^']+)'\n", (function(x12)
+	r_1851 = gsub1(r_1841, "in upvalue '([^']+)'\n", (function(x12)
 		return _2e2e_1("in upvalue '", unmangleIdent1(x12), "'\n")
 	end))
-	return gsub1(r_1761, "in function '([^']+)'\n", (function(x13)
+	return gsub1(r_1851, "in function '([^']+)'\n", (function(x13)
 		return _2e2e_1("in function '", unmangleIdent1(x13), "'\n")
 	end))
 end)
