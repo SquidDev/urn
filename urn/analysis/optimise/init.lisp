@@ -8,6 +8,7 @@
 
 (import urn/analysis/optimise/simple opt)
 (import urn/analysis/optimise/usage opt)
+(import urn/analysis/optimise/inline opt)
 
 (defun optimise-once (nodes state)
   "Run all optimisations on NODES once"
@@ -23,7 +24,9 @@
 
       (run-pass opt/strip-defs state tracker nodes lookup)
       (run-pass opt/strip-args state tracker nodes lookup)
-      (run-pass opt/variable-fold state tracker nodes lookup))
+      (run-pass opt/variable-fold state tracker nodes lookup)
+
+      (run-pass opt/inline state tracker nodes lookup))
 
     (changed? tracker)))
 
