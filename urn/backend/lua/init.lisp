@@ -1,5 +1,5 @@
 (import urn/backend/lua/emit ())
-(import urn/backend/lua/escape (escape-var))
+(import urn/backend/lua/escape (escape-var) :export)
 (import urn/backend/writer w)
 (import urn/traceback traceback)
 
