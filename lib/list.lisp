@@ -18,7 +18,7 @@
    proportion to the size of the input list. This is generally a bad thing."
 
 (import base (defun defmacro when let* set-idx!
-              get-idx cons for gensym -or
+              get-idx cons for gensym -or slice
               pretty print error tostring  -and
               unpack debug if # + - >= = ! with))
 (import base)
@@ -28,7 +28,7 @@
 (defun car (x)
   "Return the first element present in the list X. This function operates
    in constant time.
-   
+
    Example:
    ```
    > (car '(1 2 3))
@@ -41,7 +41,7 @@
   "Return the list X without the first element present. In the case that
    X is nil, the empty list is returned. Due to the way lists are represented
    internally, this function runs in linear time.
-   
+
    Example:
    ```
    > (cdr '(1 2 3))
@@ -51,6 +51,26 @@
   (if (nil? x)
     '()
     (base/cdr x)))
+
+(defun take (xs n)
+  "Take the first N elements of the list XS.
+
+   Example:
+   ```
+   > (take '(1 2 3 4 5) 2)
+   '(1 2)
+   ```"
+  (slice xs 1 n))
+
+(defun drop (xs n)
+  "Remove the first N elements of the list XS.
+
+   Example:
+   ```
+   > (take '(1 2 3 4 5) 2)
+   '(3 4 5)
+   ```"
+  (slice xs n nil))
 
 (defun snoc (xss &xs)
   "Return a copy of the list XS with the element XS added to its end.
