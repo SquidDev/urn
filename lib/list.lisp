@@ -28,7 +28,7 @@
 (defun car (x)
   "Return the first element present in the list X. This function operates
    in constant time.
-   
+
    Example:
    ```
    > (car '(1 2 3))
@@ -41,7 +41,7 @@
   "Return the list X without the first element present. In the case that
    X is nil, the empty list is returned. Due to the way lists are represented
    internally, this function runs in linear time.
-   
+
    Example:
    ```
    > (cdr '(1 2 3))
@@ -73,7 +73,7 @@
    Consider:
    - `'(1 2 3)` is equivalent to `(cons 1 (cons 2 (cons 3 '())))`
    - `(foldr + 0 '(1 2 3))` is equivalent to `(+ 1 (+ 2 (+ 3 0)))`.
-   
+
    Example:
    ```
    > (foldr append '() '((1 2) (3 4)))
@@ -90,7 +90,7 @@
 (defun map (f xs acc)
   "Apply the function F to every element of the list XS, collecting the
    results in a new list.
-   
+
    Example:
    ```
    > (map succ '(0 1 2))
@@ -123,7 +123,7 @@
 (defun any (p xs)
   "Check for the existence of an element in XS that matches the
    predicate P.
-   
+
    Example:
    ```
    > (any exists? '(nil 1 \"foo\"))
@@ -135,7 +135,7 @@
 
 (defun all (p xs)
   "Test if all elements of XS match the predicate P.
-  
+
    Example:
    ```
    > (all symbol? '(foo bar baz))
@@ -149,7 +149,7 @@
 
 (defun elem? (x xs)
   "Test if X is present in the list XS.
-  
+
    Example:
    ```
    > (elem? 1 '(1 2 3))
@@ -233,9 +233,10 @@
    '(1 2)
    ``` "
   (assert-type! xs list)
-  (set-idx! xs (# xs) nil)
-  (set-idx! xs "n" (- (# xs) 1))
-  xs)
+  (with (x (get-idx xs (# xs)))
+    (set-idx! xs (# xs) nil)
+    (set-idx! xs "n" (- (# xs) 1))
+    x))
 
 (defun remove-nth! (li idx)
   "Mutate the list LI, removing the value at IDX and returning it.
@@ -246,7 +247,7 @@
    > (remove-nth! list 2)
    2
    > list
-   > '(1 3) 
+   > '(1 3)
    ``` "
   (assert-type! li list)
   (set-idx! li "n" (- (get-idx li "n") 1))
@@ -254,7 +255,7 @@
 
 (defmacro for-each (var lst &body)
   "Perform the set of actions BODY for all values in LST, binding the current value to VAR.
-  
+
    Example:
    ```
    > (for-each var '(1 2 3)\
@@ -272,7 +273,7 @@
 
 (defun append (xs ys)
   "Concatenate XS and YS.
-  
+
    Example:
    ```
    > (append '(1 2) '(3 4))
@@ -296,7 +297,7 @@
 (defun range (start end acc)
   "Build a list from START to END. This function is tail recursive, and
    uses the parameter ACC as an accumulator.
-   
+
    Example:
    ```
    > (range 1 10)
@@ -309,7 +310,7 @@
 
 (defun reverse (xs acc)
   "Reverse the list XS, using the accumulator ACC.
-   
+
    Example:
    ```
    > (reverse (range 1 10))
@@ -324,7 +325,7 @@
   "A composition of [[foldr]] and [[map]]
    Transform the values of XS using the function F, then accumulate them
    starting form Z using the function AC.
-   
+
    This function behaves as if it were folding over the list XS with the
    monoid described by (F, AC, Z), that is, F constructs the monoid, AC
    is the binary operation, and Z is the zero element.
