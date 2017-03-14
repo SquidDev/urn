@@ -189,8 +189,7 @@ remapError1 = (function(msg1)
 	local res1
 	local r_1721
 	local r_1711
-	local r_1701
-	r_1701 = gsub1(msg1, "local '([^']+)'", (function(x6)
+	local r_1701 = gsub1(msg1, "local '([^']+)'", (function(x6)
 		return _2e2e_1("local '", unmangleIdent1(x6), "'")
 	end))
 	r_1711 = gsub1(r_1701, "global '([^']+)'", (function(x7)
@@ -243,8 +242,7 @@ remapTraceback1 = (function(mappings2, msg3)
 	local r_1831
 	local r_1821
 	local r_1811
-	local r_1801
-	r_1801 = gsub1(msg3, "^([^\n:]-:%d+:[^\n]*)", (function(r_1871)
+	local r_1801 = gsub1(msg3, "^([^\n:]-:%d+:[^\n]*)", (function(r_1871)
 		return remapMessage1(mappings2, r_1871)
 	end))
 	r_1811 = gsub1(r_1801, "\9([^\n:]-:%d+:)", (function(msg4)

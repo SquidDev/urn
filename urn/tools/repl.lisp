@@ -42,6 +42,11 @@
     (cond
       [(= command nil)
        (logger/put-error! logger "Expected command after ':'")]
+      [(= command "help")
+       (print! "REPL commands:
+                :doc NAME        Get documentation about a symbol
+                :scope           Print out all variables in the scope
+                :search QUERY    Search the current scope for symbols and documentation containing a string.")]
       [(= command "doc")
        (with (name (nth args 2))
          (if name

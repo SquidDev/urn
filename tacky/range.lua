@@ -29,11 +29,7 @@ format1 = string.format
 concat1 = table.concat
 emptyStruct1 = function() return ({}) end
 _21_1 = (function(expr1)
-	if expr1 then
-		return false
-	else
-		return true
-	end
+	return not expr1
 end)
 key_3f_1 = (function(x2)
 	return (type1(x2) == "key")

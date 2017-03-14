@@ -94,11 +94,7 @@ cons1 = (function(x2, xs4)
 	end)()
 end)
 _21_1 = (function(expr1)
-	if expr1 then
-		return false
-	else
-		return true
-	end
+	return not expr1
 end)
 _2d_or1 = (function(a1, b1)
 	if a1 then
@@ -2109,7 +2105,8 @@ definitionsVisitor1 = (function(state5, node20, visitor8)
 							else
 								return struct1("tag", "symbol", "contents", "nil", "var", builtinVars1["nil"])
 							end
-						end)())
+						end)()
+						)
 					end
 					return r_3621((r_3631 + 1))
 				else
@@ -3548,8 +3545,7 @@ escape1 = (function(name8)
 	else
 		local out6
 		local temp78
-		local r_5401
-		r_5401 = charAt1(name8, 1)
+		local r_5401 = charAt1(name8, 1)
 		temp78 = find1(r_5401, "%d")
 		if temp78 then
 			out6 = "_e"
@@ -3567,12 +3563,10 @@ escape1 = (function(name8)
 				local r_5311 = (char2 == "-")
 				if r_5311 then
 					local r_5321
-					local r_5361
-					r_5361 = charAt1(name8, pred1(r_5281))
+					local r_5361 = charAt1(name8, pred1(r_5281))
 					r_5321 = find1(r_5361, "[%a%d']")
 					if r_5321 then
-						local r_5341
-						r_5341 = charAt1(name8, succ1(r_5281))
+						local r_5341 = charAt1(name8, succ1(r_5281))
 						temp79 = find1(r_5341, "[%a%d']")
 					else
 						temp79 = r_5321
@@ -3687,7 +3681,8 @@ compileQuote1 = (function(node47, out7, state25, level4)
 					else
 						return level4
 					end
-				end)())
+				end)()
+				)
 			else
 				local temp81
 				local r_5451 = symbol_3f_1(first6)
@@ -3703,7 +3698,8 @@ compileQuote1 = (function(node47, out7, state25, level4)
 						else
 							return level4
 						end
-					end)())
+					end)()
+					)
 				else
 					pushNode_21_1(out7, node47)
 					local containsUnsplice1 = false
@@ -4477,8 +4473,7 @@ remapError1 = (function(msg9)
 	local res5
 	local r_6481
 	local r_6471
-	local r_6461
-	r_6461 = gsub1(msg9, "local '([^']+)'", (function(x30)
+	local r_6461 = gsub1(msg9, "local '([^']+)'", (function(x30)
 		return _2e2e_2("local '", unmangleIdent1(x30), "'")
 	end))
 	r_6471 = gsub1(r_6461, "global '([^']+)'", (function(x31)
@@ -4531,8 +4526,7 @@ remapTraceback1 = (function(mappings2, msg11)
 	local r_6591
 	local r_6581
 	local r_6571
-	local r_6561
-	r_6561 = gsub1(msg11, "^([^\n:]-:%d+:[^\n]*)", (function(r_6621)
+	local r_6561 = gsub1(msg11, "^([^\n:]-:%d+:[^\n]*)", (function(r_6621)
 		return remapMessage1(mappings2, r_6621)
 	end))
 	r_6571 = gsub1(r_6561, "\9([^\n:]-:%d+:)", (function(msg12)
@@ -4620,7 +4614,8 @@ createState2 = (function(meta4)
 		else
 			return ({})
 		end
-	end)())
+	end)()
+	)
 end)
 file3 = (function(compiler1, shebang1)
 	local state30 = createState2(compiler1["libMeta"])
@@ -5421,7 +5416,8 @@ lex1 = (function(logger10, str5, name22)
 			else
 				return start11
 			end
-		end)(), "lines", lines6, "name", name22)
+		end)()
+		, "lines", lines6, "name", name22)
 	end)
 	local appendWith_21_1 = (function(data5, start12, finish3)
 		local start13
@@ -5985,7 +5981,8 @@ read2 = (function(x38, path2)
 		else
 			return ""
 		end
-	end)()))
+	end)()
+	))
 end)
 struct1("lex", lex1, "parse", parse1, "read", read2)
 compile1 = require1("tacky.compile")["compile"]
@@ -6001,6 +5998,8 @@ execCommand1 = (function(compiler7, scope5, args22)
 	local command1 = car2(args22)
 	if (command1 == nil) then
 		return putError_21_1(logger13, "Expected command after ':'")
+	elseif (command1 == "help") then
+		return print1("REPL commands:\n:doc NAME        Get documentation about a symbol\n:scope           Print out all variables in the scope\n:search QUERY    Search the current scope for symbols and documentation containing a string.")
 	elseif (command1 == "doc") then
 		local name24 = nth1(args22, 2)
 		if name24 then
@@ -6226,6 +6225,7 @@ execString1 = (function(compiler8, scope6, string1)
 			return r_8681(1)
 		end))
 		local compileState1 = compiler8["compileState"]
+		local rootScope1 = compiler8["rootScope"]
 		local global2 = compiler8["global"]
 		local logger14 = compiler8["log"]
 		local run1 = true
@@ -6237,7 +6237,9 @@ execString1 = (function(compiler8, scope6, string1)
 					putError_21_1(logger14, cadr1(res9))
 					run1 = false
 				elseif (status1(exec1) == "dead") then
-					print1(colored1(96, pretty1(self1(last1(state34), "get"))))
+					local lvl1 = self1(last1(state34), "get")
+					print1(_2e2e_2("out = ", colored1(96, pretty1(lvl1))))
+					global2[escapeVar1(Scope2["add"](scope6, "out", "defined", lvl1), compileState1)] = lvl1
 					run1 = false
 				else
 					local states2 = cadr1(res9)["states"]
@@ -6308,7 +6310,8 @@ repl1 = (function(compiler9)
 							else
 								return ""
 							end
-						end)())
+						end)()
+						)
 						buffer5 = ({tag = "list", n = 0})
 						if (charAt1(data6, 1) == ":") then
 							execCommand1(compiler9, scope7, split1(sub1(data6, 2), " "))
@@ -6968,7 +6971,8 @@ create4 = (function(verbosity3, explain5)
 		else
 			return 0
 		end
-	end)(), "explain", (explain5 == true), "put-error!", putError_21_2, "put-warning!", putWarning_21_2, "put-verbose!", putVerbose_21_2, "put-debug!", putDebug_21_2, "put-node-error!", putNodeError_21_2, "put-node-warning!", putNodeWarning_21_2)
+	end)()
+	, "explain", (explain5 == true), "put-error!", putError_21_2, "put-warning!", putWarning_21_2, "put-verbose!", putVerbose_21_2, "put-debug!", putDebug_21_2, "put-node-error!", putNodeError_21_2, "put-node-warning!", putNodeWarning_21_2)
 end)
 putError_21_2 = (function(messenger1, msg26)
 	return printError_21_1(msg26)
@@ -7087,7 +7091,7 @@ putTrace_21_1 = (function(node60)
 	end)
 	return r_9671()
 end)
-rootScope1 = require1("tacky.analysis.resolve")["rootScope"]
+rootScope2 = require1("tacky.analysis.resolve")["rootScope"]
 scope_2f_child3 = require1("tacky.analysis.scope")["child"]
 scope_2f_import_21_1 = require1("tacky.analysis.scope")["import"]
 local spec15 = create1()
@@ -7240,7 +7244,7 @@ if nil_3f_1(args29["input"]) then
 else
 	args29["emit-lua"] = true
 end
-local compiler12 = struct1("log", logger19, "paths", paths3, "libEnv", ({}), "libMeta", ({}), "libs", ({tag = "list", n = 0}), "libCache", ({}), "rootScope", rootScope1, "variables", ({}), "states", ({}), "out", ({tag = "list", n = 0}))
+local compiler12 = struct1("log", logger19, "paths", paths3, "libEnv", ({}), "libMeta", ({}), "libs", ({tag = "list", n = 0}), "libCache", ({}), "rootScope", rootScope2, "variables", ({}), "states", ({}), "out", ({tag = "list", n = 0}))
 compiler12["compileState"] = createState2(compiler12["libMeta"])
 compiler12["loader"] = (function(name34)
 	return loader1(compiler12, name34, true)
