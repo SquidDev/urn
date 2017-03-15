@@ -15,6 +15,7 @@
 (import table () :export)
 (import lua/io (write) :export)
 (import lua/math math :export)
+(import lua/math maths :export)
 (import match (destructuring-bind case) :export)
 
 (defun succ (x)
