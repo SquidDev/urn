@@ -120,7 +120,7 @@
        [(type-predicate? pattern) `(,pattern ,symb)]
        [true ~(eq? ,symb ',pattern)])]
     [(or (number? pattern) (boolean? pattern) (string? pattern))
-     `(eq? ,symb ,pattern)]
+     `(= ,symb ,pattern)]
     [true (error (.. "unsupported pattern " (pretty pattern)))]))
 
 (defun compile-pattern-bindings (pattern symb) :hidden
