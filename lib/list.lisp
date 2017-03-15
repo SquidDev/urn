@@ -71,7 +71,7 @@
    > (take '(1 2 3 4 5) 2)
    '(3 4 5)
    ```"
-  (slice xs n nil))
+  (slice xs (+ n 1) nil))
 
 (defun snoc (xss &xs)
   "Return a copy of the list XS with the element XS added to its end.
