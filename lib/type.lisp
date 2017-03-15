@@ -119,7 +119,8 @@
         (= (get-idx y "value") x)]
        [(and (list? x) (list? y))
         (and (eq? (car x) (car y))
-             (eq? (cdr x) (cdr y)))])]
+             (eq? (cdr x) (cdr y)))]
+       [true (= x y)])]
     [(and (exists? x) (! (exists? y))) false]
     [(and (exists? y) (! (exists? x))) false]
     [true (and (! x) (! y))]))
