@@ -24,6 +24,7 @@
 (import base)
 (import lua/table)
 (import type (list? nil? assert-type! exists? falsey? eq?))
+(import lua/math (min max))
 
 (defun car (x)
   "Return the first element present in the list X. This function operates
@@ -107,7 +108,7 @@
       (set! accum (f accum (nth xs i))))
     accum))
 
-(defun map (f xs acc)
+(defun map (f xs)
   "Apply the function F to every element of the list XS, collecting the
    results in a new list.
 
@@ -118,12 +119,12 @@
    ```"
   (assert-type! f function)
   (assert-type! xs list)
-  (cond
-    [(! (exists? acc)) (map f xs '())]
-    [(nil? xs) (reverse acc)]
-    [true (map f (cdr xs) (cons (f (car xs)) acc))]))
+  (let* [(out '())]
+    (for i 1 (# xs) 1
+      (push-cdr! out (f (nth xs i))))
+    out))
 
-(defun filter (p xs acc)
+(defun filter (p xs)
   "Return the list of elements of XS which match the predicate P.
 
    Example:
@@ -133,12 +134,11 @@
    ```"
   (assert-type! p function)
   (assert-type! xs list)
-  (cond
-    [(falsey? acc) (filter p xs '())]
-    [(nil? xs) (reverse acc)]
-    [true (if (p (car xs))
-            (filter p (cdr xs) (cons (car xs) acc))
-            (filter p (cdr xs) acc))]))
+  (let* [(out '())]
+    (for i 1 (# xs) 1
+      (with (x (nth xs i))
+        (when (p x) (push-cdr! out x))))
+    out))
 
 (defun any (p xs)
   "Check for the existence of an element in XS that matches the
@@ -224,6 +224,20 @@
    ```"
   (get-idx xs idx))
 
+(defun nths (xss idx)
+  "Get the IDX-th element in all the lists given at XSS. The first
+   element is1.
+
+   Example:
+   ```
+   > (nths '((1 2 3) (4 5 6) (7 8 9)) 2)
+   '(2 5 8)
+   ```"
+  (let* [(out '())]
+    (for i 1 (# xss) 1
+      (push-cdr! out (nth (nth xss i) idx)))
+    out))
+
 (defun push-cdr! (xs val)
   "Mutate the list XS, adding VAL to its end.
 
@@ -299,9 +313,7 @@
    > (append '(1 2) '(3 4))
    '(1 2 3 4)
    ``` "
-  (cond
-    [(nil? xs) ys]
-    [true (cons (car xs) (append (cdr xs) ys))]))
+  `(,@xs ,@ys))
 
 (defun flatten (xss)
   "Concatenate all the lists in XSS. XSS must not contain elements which
@@ -314,21 +326,20 @@
    ```"
   (foldr append '() xss))
 
-(defun range (start end acc)
-  "Build a list from START to END. This function is tail recursive, and
-   uses the parameter ACC as an accumulator.
+(defun range (start end)
+  "Build a list from START to END.
 
    Example:
    ```
    > (range 1 10)
    '(1 2 3 4 5 6 7 8 9 10)
    ```"
-  (cond
-    [(! (exists? acc)) (range start end '())]
-    [(>= start end) (reverse (cons start acc))]
-    [true (range (+ 1 start) end (cons start acc))]))
+  (let* [(out '())]
+    (for i start end 1
+      (push-cdr! out i))
+    out))
 
-(defun reverse (xs acc)
+(defun reverse (xs)
   "Reverse the list XS, using the accumulator ACC.
 
    Example:
@@ -336,10 +347,10 @@
    > (reverse (range 1 10))
    '(10 9 8 7 6 5 4 3 2 1)
    ```"
-  (cond
-    [(! (exists? acc)) (reverse xs '())]
-    [(nil? xs) acc]
-    [true (reverse (cdr xs) (cons (car xs) acc))]))
+  (let* [(out '())]
+    (for i (# xs) 1 -1
+      (push-cdr! out (nth xs i)))
+    out))
 
 (defun accumulate-with (f ac z xs)
   "A composition of [[foldr]] and [[map]]
@@ -368,13 +379,11 @@
    > (zip list '(1 2 3) '(4 5 6) '(7 8 9))
    '((1 4 7) (2 5 8) (3 6 9))
    ```"
-  (cond
-    [(any nil? xss)
-     '()]
-    [true
-      (cons (fn (unpack (cars xss)))
-            (zip fn (unpack (cdrs xss))))]))
-
+  (let* [(lenghts (map # xss))
+         (out '())]
+    (for i 1 (min (unpack lenghts)) 1
+      (push-cdr! out (fn (unpack (nths xss i)))))
+    out))
 
 ;; AUTOMATICALLY GENERATED
 ;; DO NOT EDIT please.
