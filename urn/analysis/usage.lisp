@@ -9,7 +9,7 @@
 
 (defun create-state ()
   "Create a new, empty usage state."
-  (struct
+  (const-struct
     :vars (empty-struct)
     :nodes (empty-struct)))
 
@@ -17,10 +17,10 @@
   "Find a VAR entry in the current STATE."
   (with (entry (.> state :vars var))
     (unless entry
-      (set! entry (struct
+      (set! entry (const-struct
         :var var
-        :usages (struct)
-        :defs  (struct)
+        :usages (empty-struct)
+        :defs  (empty-struct)
         :active false))
       (.<! state :vars var entry))
     entry))
@@ -29,7 +29,7 @@
   "Find a NODE entry in the current STATE."
   (with (entry (.> state :nodes node))
     (unless entry
-      (set! entry (struct
+      (set! entry (const-struct
                    :uses '()))
       (.<! state :nodes node entry))
     entry))
@@ -53,7 +53,7 @@
 (defun add-definition! (state var node kind value)
   "Add a definition for a specific VAR."
   (with (var-meta (get-var state var))
-    (.<! var-meta :defs node (struct :tag kind :value value))))
+    (.<! var-meta :defs node (const-struct :tag kind :value value))))
 
 (defun remove-definition! (state var node)
   "Add a definition for a specific VAR."

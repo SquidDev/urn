@@ -31,7 +31,7 @@
                      (entry (.> stats hash))]
 
                 (unless entry
-                  (set! entry (struct
+                  (set! entry (const-struct
                                 :source    (.> current :source)
                                 :short-src (.> current :short_src)
                                 :line      (.> current :linedefined)
