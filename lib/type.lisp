@@ -64,7 +64,7 @@
 (defun exists? (x)
   "Check if X exists, i.e. it is not the special value `nil`.
    Note that, in Urn, `nil` is not the empty list."
-  (! (= (type x) "nil")))
+  (! (= (type# x) "nil")))
 
 (defun between? (val min max)
   "Check if the numerical value X is between
@@ -102,6 +102,9 @@
   (cond
     [(and (exists? x) (exists? y))
      (cond
+       [(or (or (string? x) (number? x) (boolean? x) (string? x) (nil? x))
+            (or (string? y) (number? y) (boolean? y) (string? y) (nil? y)))
+        (= x y)]
        [(and (symbol? x) (symbol? y))
         (= (get-idx x "contents") (get-idx y "contents"))]
        [(and (symbol? x) (string? y))
@@ -114,11 +117,9 @@
         (= (get-idx x "value") y)]
        [(and (string? x) (key? y))
         (= (get-idx y "value") x)]
-       [(and (nil? x) (nil? y)) true]
        [(and (list? x) (list? y))
         (and (eq? (car x) (car y))
-             (eq? (cdr x) (cdr y)))]
-       [true (= x y)])]
+             (eq? (cdr x) (cdr y)))])]
     [(and (exists? x) (! (exists? y))) false]
     [(and (exists? y) (! (exists? x))) false]
     [true (and (! x) (! y))]))
