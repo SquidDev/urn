@@ -21,8 +21,7 @@
   (struct :tag "symbol" :contents (random-string)))
 
 (defun random-type () :hidden
-  (let* [(types '("symbol" "boolean" "number" "string" "key"
-                  "list"))]
+  (let* [(types '("symbol" "boolean" "number" "string" "key" "list"))]
     (nth types (random 1 (# types)))))
 
 (defun -random-type () :hidden
@@ -36,7 +35,8 @@
     ["number" (random-number)]
     ["symbol" (random-symbol)]
     ["key" (random-string)]
-    ["list" (random-list)]))
+    ["list" (random-list)]
+    ["any" (random-of (random-type))]))
 
 (defun random-list () :hidden
   (let* [(length (random 1 2))]
@@ -91,7 +91,6 @@
                           ,ctr " iteration(s).\n Falsifying set of values:\n"
                           ,@(map make-printing bindings))))
                     (inc! ,ctr)))
-                (when ,ok
-                  (print! (.. ,(pretty prop) " passed 100 tests."))))))]
+                )))]
     `(let* ,(map generate-binding bindings)
        ,@(map generate-body props))))
