@@ -19,7 +19,8 @@
   "Marks a specific NODE with a category.
 
    STMT marks whether this node is in a \"statement\" context. This is any node
-   for which we are capable of generating a statement: namely any block (assignments, returns, simple calls) or the condition inside a `cond`."
+   for which we are capable of generating a statement: namely any
+   block (assignments, returns, simple calls) or the condition inside a `cond`."
   :hidden
   (with (cat (case (type node)
           ["string" (cat "const")]
@@ -120,6 +121,28 @@
                      (cat "call-symbol")]))]
                ["list"
                 (cond
+                  ;; We detect structures of the form ((lambda (x) (set-idx! x A B)) (empty-struct)) and
+                  ;; compile them to tables.
+                  ;; Ideally, this would be implemented in a "compiler" plugin as it assumes empty-struct
+                  ;; and set-idx! do what they do in the standard library.
+                  [(and
+                     (= (# node) 2) (builtin? (car head) :lambda) (= (# (nth head 2)) 1)
+                     (with (val (nth node 2))
+                       (and (list? arg) (= (# val) 1) (eq? (car val) 'empty-struct)))
+                     (with (arg (car (nth head 2)))
+                       (and
+                         (! (.> arg :isVariadic)) (eq? arg (last head))
+                         ;; We check that all body nodes are of the form (set-idx! x A B)
+                         ;; A future enhancement would be to ensure B is an expression: otherwise we're just
+                         ;; postponing the inevitable lambda creation.
+                         (part-all head 3 (pred (# head)) (lambda (node)
+                                                            (and
+                                                              (list? node) (= (# node) 4)
+                                                              (eq? (car node) 'set-idx!)
+                                                              (eq? (nth node 2) arg)))))))
+                   (visit-nodes lookup (car node) 3 false)
+                   (cat "make-struct")]
+
                   [(and stmt (builtin? (car head) :lambda))
                    ;; Visit the lambda body
                    (visit-nodes lookup (car node) 3 true)
@@ -135,7 +158,6 @@
                            (with (count (- (# node) (# args)))
                              (when (< count 0) (set! count 0))
                              (for j 1 count 1
-                               (when (= nil (nth node (+ i j))) (print! "Var" (pretty node) i j))
                                (visit-node lookup (nth node (+ i j)) false))
                              (set! offset count))
                            (when-with (val (nth node (+ i offset)))
