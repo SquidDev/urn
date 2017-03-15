@@ -11,7 +11,7 @@
 
 (defun list? (x)
   "Check whether X is a list."
-  (= (type x) "list"))
+  (or (get-idx x "n") false))
 
 (defun nil? (x)
   "Check whether X is the empty list."
@@ -19,23 +19,23 @@
 
 (defun string? (x)
   "Check whether X is a string."
-  (= (type x) "string"))
+  (= (type# x) "string"))
 
 (defun number? (x)
   "Check whether X is a number."
-  (= (type x) "number"))
+  (= (type# x) "number"))
 
 (defun symbol? (x)
   "Check whether X is a symbol."
-  (= (type x) "symbol"))
+  (= (get-idx x :tag) "symbol"))
 
 (defun boolean? (x)
   "Check whether X is a boolean."
-  (= (type x) "boolean"))
+  (= (type# x) "boolean"))
 
 (defun function? (x)
   "Check whether X is a function."
-  (= (type x) "function"))
+  (= (type# x) "function"))
 
 (defun key? (x)
   "Check whether X is a key."
