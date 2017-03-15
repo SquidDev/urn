@@ -29,28 +29,24 @@ type1 = (function(val1)
 	local ty1 = type_23_1(val1)
 	if (ty1 == "table") then
 		local tag1 = val1["tag"]
-		if tag1 then
-			return tag1
-		else
-			return "table"
-		end
+		return tag1 or "table"
 	else
 		return ty1
 	end
 end)
 struct1 = (function(...)
-	local keys1 = _pack(...) keys1.tag = "list"
-	if ((keys1["n"] % 1) == 1) then
+	local entries1 = _pack(...) entries1.tag = "list"
+	if ((entries1["n"] % 1) == 1) then
 		error1("Expected an even number of arguments to struct", 2)
 	else
 	end
 	local out1 = ({})
-	local r_781 = keys1["n"]
-	local r_761 = nil
-	r_761 = (function(r_771)
-		if (r_771 <= r_781) then
-			local key1 = keys1[r_771]
-			local val2 = keys1[(1 + r_771)]
+	local r_1051 = entries1["n"]
+	local r_1031 = nil
+	r_1031 = (function(r_1041)
+		if (r_1041 <= r_1051) then
+			local key1 = entries1[r_1041]
+			local val2 = entries1[(1 + r_1041)]
 			out1[(function()
 				if (type1(key1) == "key") then
 					return key1["contents"]
@@ -59,11 +55,11 @@ struct1 = (function(...)
 				end
 			end)()
 			] = val2
-			return r_761((r_771 + 2))
+			return r_1031((r_1041 + 2))
 		else
 		end
 	end)
-	r_761(1)
+	r_1031(1)
 	return out1
 end)
 self1 = (function(x1, key2, ...)
@@ -94,12 +90,8 @@ doNodeError_21_1 = (function(logger7, msg7, node3, explain3, ...)
 	local lines3 = _pack(...) lines3.tag = "list"
 	self1(logger7, "put-node-error!", msg7, node3, explain3, lines3)
 	local x2
-	local r_1591 = match1(msg7, "^([^\n]+)\n")
-	if r_1591 then
-		x2 = r_1591
-	else
-		x2 = msg7
-	end
+	local r_1951 = match1(msg7, "^([^\n]+)\n")
+	x2 = r_1951 or msg7
 	return error1(x2, 0)
 end)
 return struct1("putError", putError_21_1, "putWarning", putWarning_21_1, "putVerbose", putVerbose_21_1, "putDebug", putDebug_21_1, "putNodeError", putNodeError_21_1, "putNodeWarning", putNodeWarning_21_1, "doNodeError", doNodeError_21_1)

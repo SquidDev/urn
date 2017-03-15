@@ -29,11 +29,7 @@ type1 = (function(val1)
 	local ty1 = type_23_1(val1)
 	if (ty1 == "table") then
 		local tag1 = val1["tag"]
-		if tag1 then
-			return tag1
-		else
-			return "table"
-		end
+		return tag1 or "table"
 	else
 		return ty1
 	end
@@ -43,18 +39,18 @@ _2e2e_1 = (function(...)
 	return concat1(args1)
 end)
 struct1 = (function(...)
-	local keys1 = _pack(...) keys1.tag = "list"
-	if ((keys1["n"] % 1) == 1) then
+	local entries1 = _pack(...) entries1.tag = "list"
+	if ((entries1["n"] % 1) == 1) then
 		error1("Expected an even number of arguments to struct", 2)
 	else
 	end
 	local out1 = ({})
-	local r_781 = keys1["n"]
-	local r_761 = nil
-	r_761 = (function(r_771)
-		if (r_771 <= r_781) then
-			local key1 = keys1[r_771]
-			local val2 = keys1[(1 + r_771)]
+	local r_1051 = entries1["n"]
+	local r_1031 = nil
+	r_1031 = (function(r_1041)
+		if (r_1041 <= r_1051) then
+			local key1 = entries1[r_1041]
+			local val2 = entries1[(1 + r_1041)]
 			out1[(function()
 				if (type1(key1) == "key") then
 					return key1["contents"]
@@ -63,11 +59,11 @@ struct1 = (function(...)
 				end
 			end)()
 			] = val2
-			return r_761((r_771 + 2))
+			return r_1031((r_1041 + 2))
 		else
 		end
 	end)
-	r_761(1)
+	r_1031(1)
 	return out1
 end)
 formatPosition1 = (function(pos1)
@@ -88,12 +84,8 @@ formatRange1 = (function(range1)
 end)
 formatNode1 = (function(node1)
 	local temp1
-	local r_1591 = node1["range"]
-	if r_1591 then
-		temp1 = node1["contents"]
-	else
-		temp1 = r_1591
-	end
+	local r_1951 = node1["range"]
+	temp1 = r_1951 and node1["contents"]
 	if temp1 then
 		return format1("%s (%q)", formatRange1(node1["range"]), node1["contents"])
 	elseif node1["range"] then
@@ -107,12 +99,8 @@ formatNode1 = (function(node1)
 		end
 	else
 		local temp2
-		local r_1601 = node1["start"]
-		if r_1601 then
-			temp2 = node1["finish"]
-		else
-			temp2 = r_1601
-		end
+		local r_1961 = node1["start"]
+		temp2 = r_1961 and node1["finish"]
 		if temp2 then
 			return formatRange1(node1)
 		else
@@ -122,24 +110,24 @@ formatNode1 = (function(node1)
 end)
 getSource1 = (function(node2)
 	local result1 = nil
-	local r_1611 = nil
-	r_1611 = (function()
+	local r_1971 = nil
+	r_1971 = (function()
 		local temp3
-		local r_1621 = node2
-		if r_1621 then
+		local r_1981 = node2
+		if r_1981 then
 			local expr1 = result1
 			temp3 = not expr1
 		else
-			temp3 = r_1621
+			temp3 = r_1981
 		end
 		if temp3 then
 			result1 = node2["range"]
 			node2 = node2["parent"]
-			return r_1611()
+			return r_1971()
 		else
 		end
 	end)
-	r_1611()
+	r_1971()
 	return result1
 end)
 return struct1("formatPosition", formatPosition1, "formatRange", formatRange1, "formatNode", formatNode1, "getSource", getSource1)
