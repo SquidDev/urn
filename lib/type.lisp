@@ -1,6 +1,6 @@
 (import base (defun let* type# if car cdr when
-              and or >= = <= /= # get-idx defmacro
-              error gensym ! debug))
+              and or >= = <= /= # get-idx defmacro for
+              error gensym !))
 
 (import lua/string (format sub))
 
@@ -49,12 +49,7 @@
    - A symbol
    - A key
    - A function"
-  (or (boolean? x)
-      (string? x)
-      (number? x)
-      (symbol? x)
-      (function? x)
-      (key? x)))
+  (/= (type# x) "table"))
 
 (defun falsey? (x)
   "Check whether X is falsey, that is, it is either `false` or does
@@ -99,31 +94,23 @@
    - If X or Y do not exist
      - They are not equal if one exists and the other does not.
      - They are equal if neither exists.  "
-  (cond
-    [(and (exists? x) (exists? y))
-     (cond
-       [(or (or (string? x) (number? x) (boolean? x) (string? x) (nil? x))
-            (or (string? y) (number? y) (boolean? y) (string? y) (nil? y)))
-        (= x y)]
-       [(and (symbol? x) (symbol? y))
-        (= (get-idx x "contents") (get-idx y "contents"))]
-       [(and (symbol? x) (string? y))
-        (= (get-idx x "contents") y)]
-       [(and (string? x) (symbol? y))
-        (= (get-idx y "contents") x)]
-       [(and (key? x) (key? y))
-        (= (get-idx x "value") (get-idx y "value"))]
-       [(and (key? x) (string? y))
-        (= (get-idx x "value") y)]
-       [(and (string? x) (key? y))
-        (= (get-idx y "value") x)]
-       [(and (list? x) (list? y))
-        (and (eq? (car x) (car y))
-             (eq? (cdr x) (cdr y)))]
-       [true (= x y)])]
-    [(and (exists? x) (! (exists? y))) false]
-    [(and (exists? y) (! (exists? x))) false]
-    [true (and (! x) (! y))]))
+  (if (= x y)
+    true
+    (let* [(type-x (type x))
+           (type-y (type y))]
+      (cond
+        [(and (= type-x :list) (= type-y :list) (= (# x) (# y)))
+         (let* [(equal true)] ; be optimistic
+           (for i 1 (# x) 1
+             (when (neq? (get-idx x i) (get-idx y i)) (set! equal false)))
+           equal)]
+        [(and (= :symbol type-x) (= :symbol type-y)) (= (get-idx x :contents) (get-idx y :contents))]
+        [(and (= :key type-x)    (= :key type-y))    (= (get-idx x :value) (get-idx y :value))]
+        [(and (= :symbol type-x) (= :string type-y)) (= (get-idx x :contents) y)]
+        [(and (= :string type-x) (= :symbol type-y)) (= x (get-idx y :contents))] 
+        [(and (= :key type-x)    (= :string type-y)) (= (get-idx x :value) y)]
+        [(and (= :string type-x) (= :key type-y))    (= x (get-idx y :value))] 
+        [true false]))))
 
 (defun neq? (x y)
   "Compare X and Y for inequality deeply. X and Y are `neq?`
