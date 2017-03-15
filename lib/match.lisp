@@ -12,7 +12,7 @@
            | ( as pattern metavar ) ;; as
            | ( pattern * ) ;; list
            | ( pattern + . pattern ) ;; list+rest
- literal ::= int | string | boolean | symbol
+ literal ::= number | string | boolean | symbol | key
  metavar ::= '?' symbol
  ```
 
@@ -119,6 +119,8 @@
        [(eq? pattern 'nil) `(eq? ,symb nil)]
        [(type-predicate? pattern) `(,pattern ,symb)]
        [true ~(eq? ,symb ',pattern)])]
+    [(key? pattern)
+     `(eq? ,symb ,pattern)]
     [(or (number? pattern) (boolean? pattern) (string? pattern))
      `(= ,symb ,pattern)]
     [true (error (.. "unsupported pattern " (pretty pattern)))]))
@@ -150,7 +152,7 @@
             out)])]
       [(meta? pattern)
        `((,(struct :tag "symbol" :contents (sub (get-idx pattern "contents") 2)) ,symb))]
-      [(or (number? pattern) (boolean? pattern) (string? pattern) (eq? pattern '_) (and (! (meta? pattern)) (symbol? pattern)))
+      [(or (number? pattern) (boolean? pattern) (string? pattern) (key? pattern) (eq? pattern '_) (and (! (meta? pattern)) (symbol? pattern)))
        '()]
       [true (error (.. "unsupported pattern " (pretty pattern)))])))
 
