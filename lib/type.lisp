@@ -19,11 +19,15 @@
 
 (defun string? (x)
   "Check whether X is a string."
-  (= (type x) "string"))
+  (or (= (type# x) "string")
+      (and (= (type# x) "table")
+           (= (get-idx x :tag) "string"))))
 
 (defun number? (x)
   "Check whether X is a number."
-  (= (type x) "number"))
+  (or (= (type# x) "number")
+      (and (= (type# x) "table")
+           (= (get-idx x :tag) "number"))))
 
 (defun symbol? (x)
   "Check whether X is a symbol."
@@ -31,7 +35,9 @@
 
 (defun boolean? (x)
   "Check whether X is a boolean."
-  (= (type x) "boolean"))
+  (or (= (type# x) "boolean")
+      (and (= (type# x) "table")
+           (= (get-idx x :tag) "boolean"))))
 
 (defun function? (x)
   "Check whether X is a function."
@@ -49,7 +55,10 @@
    - A symbol
    - A key
    - A function"
-  (/= (type# x) "table"))
+  (or (/= (type# x) "table")
+      (and (= (type# x) "table")
+           (or (= (get-idx x :tag) "symbol")
+               (= (get-idx x :tag) "key")))))
 
 (defun falsey? (x)
   "Check whether X is falsey, that is, it is either `false` or does
