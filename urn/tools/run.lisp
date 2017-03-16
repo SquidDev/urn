@@ -10,7 +10,8 @@
 (import urn/logger logger)
 (import urn/traceback traceback)
 
-(defun run-with-profiler (fn mappings)
+(defun profile-calls (fn mappings)
+  :hidden
   (let* [(stats (empty-struct))
          (call-stack '())]
 
@@ -64,7 +65,7 @@
 
     (fn)
 
-    (debug/sethook nil)
+    (debug/sethook)
 
     (with (out (values stats))
       (table/sort out (lambda (a b) (> (.> a :innerTime) (.> b :innerTime))))
@@ -93,7 +94,162 @@
 
     stats))
 
+(defun build-stack (parent stack i history fold)
+  "Fold a STACK trace into PARENT, looking at the element I.
+
+   This folds from the bottom of the stack, merging upwards, resulting in a normal
+   flame graph.
+
+   HISTORY and FOLD are used to fold recursive functions into themselves, hopefully simplifying
+   the stack."
+  :hidden
+  ;; Increment the number of times hit
+  (.<! parent :n (+ (.> parent :n) 1))
+
+  (when (>= i 1)
+    (let* [(elem (nth stack i))
+           (hash (.. (.> elem :source) "|" (.> elem :linedefined)))
+           (previous (and fold (.> history hash)))
+           (child (.> parent hash))]
+
+      (when previous
+        ;; If we've this function in our history already, we'll push to that.
+        ;; We decrement it by one to make the graph easier to understand:
+        ;; otherwise we're counting the same function multiple times.
+        (.<! parent :n (- (.> parent :n) 1))
+        (set! child previous))
+
+      (unless child
+        (set! child elem)
+        (.<! elem :n 0)
+        (.<! parent hash child))
+
+      ;; If we've no previous, we push this one to the lookup and pop it again afterwards
+      (unless previous (.<! history hash child))
+      (build-stack child stack (- i 1) history fold)
+      (unless previous (.<! history hash nil)))))
+
+(defun build-rev-stack (parent stack i history fold)
+  "Fold a STACK trace into PARENT, looking at the element I.
+
+   This folds from the top of the stack merging downwards, resulting
+   in a reverse flame graph, with the root functions.
+
+   HISTORY and FOLD are used to fold recursive functions into themselves, hopefully simplifying
+   the stack.
+
+   Word of warning: this generates massive messages: I would not recommend
+   running this unless you really want to."
+  :hidden
+  ;; Increment the number of times hit
+  (.<! parent :n (+ (.> parent :n) 1))
+
+  (when (<= i (# stack))
+    (let* [(elem (nth stack i))
+           (hash (.. (.> elem :source) "|" (.> elem :linedefined)))
+           (previous (and fold (.> history hash)))
+           (child (.> parent hash))]
+
+      ;; If we've this function in our history already, we'll push to that.
+      (when previous
+        (.<! parent :n (- (.> parent :n) 1))
+        (set! child previous))
+
+      (unless child
+        (set! child elem)
+        (.<! elem :n 0)
+        (.<! parent hash child))
+
+      ;; If we've no previous, we push this one to the lookup and pop it again afterwards
+      (unless previous (.<! history hash child))
+      (build-rev-stack child stack (+ i 1) history fold)
+      (unless previous (.<! history hash nil)))))
+
+
+(defun finish-stack (element)
+  "This converts the lookup of ELEMENT into a sorted list with
+   the most called method at the beginning."
+  :hidden
+  (with (children '())
+    (for-pairs (k child) element
+      (when (table? child)
+        (push-cdr! children child)))
+
+    (table/sort children (lambda (a b) (> (.> a :n) (.> b :n))))
+
+    (.<! element :children children)
+    (for-each child children (finish-stack child))))
+
+(defun show-stack! (out mappings total stack remaining)
+  "This prints STACK to OUT, using MAPPINGS to map source locations and TOTAL to
+   determine the percentage. REMAINING marks the remaining number of entries to emit."
+  :hidden
+  (w/line! out (string/format "\xE2\x94\x94 %s %s %d (%2.5f%%)"
+                 (if (.> stack :name) (traceback/unmangle-ident (.> stack :name)) "<unknown>")
+                 (traceback/remap-message mappings (.. (.> stack :short_src) ":" (.> stack :linedefined)))
+                 (.> stack :n) (* (/ (.> stack :n) total) 100)))
+  (when (if remaining (>= remaining 1) true)
+    (w/indent! out)
+    (for-each child (.> stack :children)
+      (show-stack! out mappings total child (and remaining (pred remaining))))
+    (w/unindent! out)))
+
+(defun show-flame! (mappings stack before remaining)
+  "This prints STACK to OUT in a format readable by flamegraph.pl
+
+   MAPPINGS to map source locations. REMAINING is used to limit the number of traces to
+   emit."
+  :hidden
+  (with (renamed (..
+                   (if (.> stack :name) (traceback/unmangle-ident (.> stack :name)) "?")
+                   "`"
+                   (traceback/remap-message mappings (.. (.> stack :short_src) ":" (.> stack :linedefined)))))
+    (print! (string/format "%s%s %d" before renamed (.> stack :n)))
+    (when (if remaining (>= remaining 1) true)
+      (with (whole (.. before renamed ";"))
+        (for-each child (.> stack :children) (show-flame! mappings child whole (and remaining (pred remaining))))))))
+
+(defun profile-stack (fn mappings args)
+  :hidden
+  (let* [(stacks '())
+         (top (debug/getinfo 2 "S"))]
+
+    (debug/sethook
+      (lambda (action)
+        (let* [(pos 3)
+               (stack '())
+               (info (debug/getinfo 2 "Sn"))]
+          (while info
+            (if (and (= (.> info :source) (.> top :source)) (= (.> info :linedefined) (.> top :linedefined)))
+              (set! info nil)
+              (progn
+                (push-cdr! stack info)
+                (inc! pos)
+                (set! info (debug/getinfo pos "Sn")))))
+          (push-cdr! stacks stack)))
+
+      "", 1e5)
+
+    (fn)
+
+    (debug/sethook)
+
+    (with (folded (const-struct :n 0 :name "<root>"))
+      (for-each stack stacks
+        (if (= (.> args :stack-kind) "reverse")
+          (build-rev-stack folded stack 1 (empty-struct) (.> args :stack-fold))
+          (build-stack folded stack (# stack) (empty-struct) (.> args :stack-fold))))
+
+      (finish-stack folded)
+
+      (if (= (.> args :stack-show) "flame")
+        (show-flame! mappings folded "" (or (.> args :stack-limit) 30))
+        (with (writer (w/create))
+          (show-stack! writer mappings (# stacks) folded (or (.> args :stack-limit) 10))
+          (print! (w/->string writer)))))))
+
 (defun run-lua (compiler args)
+  :hidden
   (when (nil? (.> args :input))
     (logger/put-error! (.> compiler :log) "No inputs to run.")
     (exit! 1))
@@ -118,9 +274,14 @@
                         (logger/put-error! logger "Execution failed.")
                         (print! (traceback/remap-traceback (struct name lines) msg))
                         (exit! 1)])))
-         (if (.> args :profile)
-           (run-with-profiler exec (struct name lines))
-           (exec)))])))
+         (case (.> args :profile)
+           ["none"  (exec)]
+           [nil  (exec)]
+           ["call"  (profile-calls exec (struct name lines))]
+           ["stack" (profile-stack exec (struct name lines) args)]
+           [?x
+            (logger/put-error! logger (.. "Unknown profiler '" x "'"))
+            (exit! 1)]))])))
 
 (define task
   (struct
@@ -129,7 +290,31 @@
              (arg/add-argument! spec '("--run" "-r")
                :help "Run the compiled code.")
              (arg/add-argument! spec '("--profile" "-p")
-               :help "Run the compiled code with the profiler.")
+               :help    "Run the compiled code with the profiler."
+               :var     "none|call|stack"
+               :default nil
+               :value   "stack"
+               :narg    "?")
+             (arg/add-argument! spec '("--stack-kind")
+               :help    "The kind of stack to emit when using the stack profiler. A reverse stack shows callers of that method instead."
+               :var     "forward|reverse"
+               :default "forward"
+               :narg    1)
+             (arg/add-argument! spec '("--stack-show")
+               :help    "The method to use to display the profiling results."
+               :var     "flame|term"
+               :default "term"
+               :narg    1)
+             (arg/add-argument! spec '("--stack-limit")
+               :help    "The maximum number of call frames to emit."
+               :var     "LIMIT"
+               :default nil
+               :action  arg/set-num-action
+               :narg    1)
+             (arg/add-argument! spec '("--stack-fold")
+               :help    "Whether to fold recursive functions into themselves. This hopefully makes deep graphs easier to understand, but may result in less accurate graphs."
+               :value   true
+               :default false)
              (arg/add-argument! spec '("--")
                :name    "script-args"
                :help    "Arguments to pass to the compiled script."

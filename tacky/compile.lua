@@ -60,17 +60,20 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 	local states = { scope = scope }
 
 	if name then name = "[resolve] " .. name end
+	local hook, hookMask, hookCount = debug.gethook()
 
 	for i = 1, #parsed do
 		local state = State.create(env, inStates, scope, loggerI, compileState.mappings)
 		states[i] = state
+		local co = coroutine.create(resolve.resolveNode)
+		debug.sethook(co, hook, hookMask, hookCount)
 		queue[i] = {
 			tag  = "init",
 			node =  parsed[i],
 
 			-- Global state for every action
 			_idx   = i,
-			_co    = coroutine.create(resolve.resolveNode),
+			_co    = co,
 			_state = state,
 			_node  = parsed[i],
 		}
