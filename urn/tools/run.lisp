@@ -240,7 +240,7 @@
                         (logger/put-error! logger "Execution failed.")
                         (print! (traceback/remap-traceback (struct name lines) msg))
                         (exit! 1)])))
-         (case (string/lower (.> args :profile))
+         (case (.> args :profile)
            ["none"  (exec)]
            [nil  (exec)]
            ["call"  (profile-calls exec (struct name lines))]
