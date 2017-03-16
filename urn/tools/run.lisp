@@ -159,7 +159,7 @@
                  (if (.> stack :name) (traceback/unmangle-ident (.> stack :name)) "<unknown>")
                  (traceback/remap-message mappings (.. (.> stack :short_src) ":" (.> stack :linedefined)))
                  (.> stack :n) (* (/ (.> stack :n) total) 100)))
-  (when (if remaining (>= remaining 0) true)
+  (when (if remaining (>= remaining 1) true)
     (w/indent! out)
     (for-each child (.> stack :children)
       (show-stack! out mappings total child (and remaining (pred remaining))))
@@ -176,13 +176,14 @@
                    "`"
                    (traceback/remap-message mappings (.. (.> stack :short_src) ":" (.> stack :linedefined)))))
     (print! (string/format "%s%s %d" before renamed (.> stack :n)))
-    (when (if remaining (>= remaining 0) true)
+    (when (if remaining (>= remaining 1) true)
       (with (whole (.. before renamed ";"))
         (for-each child (.> stack :children) (show-flame! mappings child whole (and remaining (pred remaining))))))))
 
-(defun profile-stack (fn mappings)
+(defun profile-stack (fn mappings args)
   :hidden
-  (with (stacks '())
+  (let* [(stacks '())
+         (top (debug/getinfo 2 "S"))]
 
     (debug/sethook
       (lambda (action)
@@ -190,9 +191,12 @@
                (stack '())
                (info (debug/getinfo 2 "Sn"))]
           (while info
-            (push-cdr! stack info)
-            (inc! pos)
-            (set! info (debug/getinfo pos "Sn")))
+            (if (and (= (.> info :source) (.> top :source)) (= (.> info :linedefined) (.> top :linedefined)))
+              (set! info nil)
+              (progn
+                (push-cdr! stack info)
+                (inc! pos)
+                (set! info (debug/getinfo pos "Sn")))))
           (push-cdr! stacks stack)))
 
       "", 1e5)
@@ -201,18 +205,19 @@
 
     (debug/sethook)
 
-    (with (folded (const-struct :n 0))
+    (with (folded (const-struct :n 0 :name "<root>"))
       (for-each stack stacks
-        (build-stack folded stack (# stack)))
-        ;; (build-rev-stack folded stack 1))
+        (if (= (.> args :stack-kind) "reverse")
+          (build-rev-stack folded stack 1)
+          (build-stack folded stack (# stack))))
 
       (finish-stack folded)
 
-      ;; (with (writer (w/create))
-      ;;   (show-stack! writer mappings (# stacks) folded 13)
-      ;;   (print! (w/->string writer))))))
-
-      (show-flame! mappings folded "" 15))))
+      (if (= (.> args :stack-show) "flame")
+        (show-flame! mappings folded "" (or (.> args :stack-limit) 20))
+        (with (writer (w/create))
+          (show-stack! writer mappings (# stacks) folded (or (.> args :stack-limit) 10))
+          (print! (w/->string writer)))))))
 
 (defun run-lua (compiler args)
   :hidden
@@ -244,7 +249,7 @@
            ["none"  (exec)]
            [nil  (exec)]
            ["call"  (profile-calls exec (struct name lines))]
-           ["stack" (profile-stack exec (struct name lines))]
+           ["stack" (profile-stack exec (struct name lines) args)]
            [?x
             (logger/put-error! logger (.. "Unknown profiler '" x "'"))
             (exit! 1)]))])))
@@ -257,10 +262,26 @@
                :help "Run the compiled code.")
              (arg/add-argument! spec '("--profile" "-p")
                :help    "Run the compiled code with the profiler."
-               :var     "TYPE"
+               :var     "none|call|stack"
                :default nil
-               :value   "call"
+               :value   "stack"
                :narg    "?")
+             (arg/add-argument! spec '("--stack-kind")
+               :help    "The kind of stack to emit when using the stack profiler. A reverse stack shows callers of that method instead."
+               :var     "forward|reverse"
+               :default "forward"
+               :narg    1)
+             (arg/add-argument! spec '("--stack-show")
+               :help    "The method to use to display the profiling results."
+               :var     "flame|term"
+               :default "term"
+               :narg    1)
+             (arg/add-argument! spec '("--stack-limit")
+               :help    "The maximum number of call frames to emit."
+               :var     "LIMIT"
+               :default nil
+               :action  arg/set-num-action
+               :narg    1)
              (arg/add-argument! spec '("--")
                :name    "script-args"
                :help    "Arguments to pass to the compiled script."
