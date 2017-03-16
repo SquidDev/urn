@@ -94,11 +94,14 @@
 
     stats))
 
-(defun build-stack (parent stack i)
+(defun build-stack (parent stack i history fold)
   "Fold a STACK trace into PARENT, looking at the element I.
 
    This folds from the bottom of the stack, merging upwards, resulting in a normal
-   flame graph."
+   flame graph.
+
+   HISTORY and FOLD are used to fold recursive functions into themselves, hopefully simplifying
+   the stack."
   :hidden
   ;; Increment the number of times hit
   (.<! parent :n (+ (.> parent :n) 1))
@@ -106,19 +109,34 @@
   (when (>= i 1)
     (let* [(elem (nth stack i))
            (hash (.. (.> elem :source) "|" (.> elem :linedefined)))
+           (previous (and fold (.> history hash)))
            (child (.> parent hash))]
+
+      (when previous
+        ;; If we've this function in our history already, we'll push to that.
+        ;; We decrement it by one to make the graph easier to understand:
+        ;; otherwise we're counting the same function multiple times.
+        (.<! parent :n (- (.> parent :n) 1))
+        (set! child previous))
+
       (unless child
         (set! child elem)
         (.<! elem :n 0)
         (.<! parent hash child))
 
-      (build-stack child stack (- i 1)))))
+      ;; If we've no previous, we push this one to the lookup and pop it again afterwards
+      (unless previous (.<! history hash child))
+      (build-stack child stack (- i 1) history fold)
+      (unless previous (.<! history hash nil)))))
 
-(defun build-rev-stack (parent stack i)
+(defun build-rev-stack (parent stack i history fold)
   "Fold a STACK trace into PARENT, looking at the element I.
 
    This folds from the top of the stack merging downwards, resulting
    in a reverse flame graph, with the root functions.
+
+   HISTORY and FOLD are used to fold recursive functions into themselves, hopefully simplifying
+   the stack.
 
    Word of warning: this generates massive messages: I would not recommend
    running this unless you really want to."
@@ -129,13 +147,24 @@
   (when (<= i (# stack))
     (let* [(elem (nth stack i))
            (hash (.. (.> elem :source) "|" (.> elem :linedefined)))
+           (previous (and fold (.> history hash)))
            (child (.> parent hash))]
+
+      ;; If we've this function in our history already, we'll push to that.
+      (when previous
+        (.<! parent :n (- (.> parent :n) 1))
+        (set! child previous))
+
       (unless child
         (set! child elem)
         (.<! elem :n 0)
         (.<! parent hash child))
 
-      (build-rev-stack child stack (+ i 1)))))
+      ;; If we've no previous, we push this one to the lookup and pop it again afterwards
+      (unless previous (.<! history hash child))
+      (build-rev-stack child stack (+ i 1) history fold)
+      (unless previous (.<! history hash nil)))))
+
 
 (defun finish-stack (element)
   "This converts the lookup of ELEMENT into a sorted list with
@@ -208,13 +237,13 @@
     (with (folded (const-struct :n 0 :name "<root>"))
       (for-each stack stacks
         (if (= (.> args :stack-kind) "reverse")
-          (build-rev-stack folded stack 1)
-          (build-stack folded stack (# stack))))
+          (build-rev-stack folded stack 1 (empty-struct) (.> args :stack-fold))
+          (build-stack folded stack (# stack) (empty-struct) (.> args :stack-fold))))
 
       (finish-stack folded)
 
       (if (= (.> args :stack-show) "flame")
-        (show-flame! mappings folded "" (or (.> args :stack-limit) 20))
+        (show-flame! mappings folded "" (or (.> args :stack-limit) 30))
         (with (writer (w/create))
           (show-stack! writer mappings (# stacks) folded (or (.> args :stack-limit) 10))
           (print! (w/->string writer)))))))
@@ -282,6 +311,10 @@
                :default nil
                :action  arg/set-num-action
                :narg    1)
+             (arg/add-argument! spec '("--stack-fold")
+               :help    "Whether to fold recursive functions into themselves. This hopefully makes deep graphs easier to understand, but may result in less accurate graphs."
+               :value   true
+               :default false)
              (arg/add-argument! spec '("--")
                :name    "script-args"
                :help    "Arguments to pass to the compiled script."
