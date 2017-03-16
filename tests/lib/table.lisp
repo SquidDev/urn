@@ -34,7 +34,7 @@
            (affirm (= "x" (assoc li' :foo))
                    (= "y" (assoc li' :bar)))
            (set! li' (insert li' :foo "z"))
-           (affirm (= "z" (assoc li' :foo))
+           (affirm (= "x" (assoc li' :foo))
                    (= "y" (assoc li' :bar)))))
     (can "be converted to a structure"
       (let* [(li '((:foo "x") (:bar "y") (:foo "z")))
