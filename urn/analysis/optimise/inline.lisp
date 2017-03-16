@@ -147,8 +147,8 @@
           (let* [(func (.> (car node) :var))
                  (def (usage/get-var usage func))]
             ;; If we've only got one definition then we'll look at that
-            (when (= (#keys (.> def :defs)) 1)
-              (let* [(ent (nth (list (next (.> def :defs))) 2))
+            (when (= (# (.> def :defs)) 1)
+              (let* [(ent (car (.> def :defs)))
                      (val (.> ent :value))]
                 ;; For all lambda definitions, determine whether we can actually inline it.
                 (when (and
