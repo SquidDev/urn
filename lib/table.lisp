@@ -30,7 +30,12 @@
 
 (defun insert (list_ key val)
   "Extend the association list LIST_ by inserting VAL, bound to the key KEY."
-  (cons (list key val) list_))
+  (snoc list_ (list key val)))
+
+(defun insert! (list_ key val)
+  "Extend the association list LIST_ in place by inserting VAL, bound to
+   the key KEY."
+  (push-cdr! list_ (list key val))
 
 (defun assoc->struct (list)
   "Convert the association list LIST into a structure. Much like [[assoc]],
