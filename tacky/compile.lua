@@ -15,90 +15,6 @@ if _VERSION:find("5.1") then
 	end
 end
 
---- Attempt to execute a series of states, in the environment.
---
--- All nodes are required to be in the built or executed stages, though those in the latter will be skipped
--- for obvious reasons.
---
--- @param compileState The state of the current compiler, including escape mappings and library metadata
--- @param states The list of states to compile
--- @param global The environment to execute under. States with variables will be bound to these.
--- @param loggerI The logger to print all compilation issues too.
-local function x_executeStates(compileState, states, global, loggerI)
-	local backend = require "tacky.backend.init"
-	local writer = backend.writer
-
-	local stateList, nameTable, nameList, escapeList = {}, {}, {}, {}
-
-	for j = #states, 1, -1 do
-		local state = states[j]
-		if state.stage ~= "executed" then
-			local node = assert(state.node, "State is in " .. state.stage .. " instead")
-			local var = state.var or { name = "temp" }
-
-			local i = #stateList + 1
-
-			local escaped, name = backend.lua.backend.escapeVar(var, compileState), var.name
-
-			stateList[i] = state
-			nameTable[i] = escaped .. " = " .. escaped
-			nameList[i] = name
-			escapeList[i] = escaped
-		end
-	end
-
-	if #stateList > 0 then
-		local builder = writer.create()
-		backend.lua.backend.prelude(builder)
-		writer.line(builder, "local " .. table.concat(escapeList, ", "))
-
-		for i = 1, #stateList do
-			local state = stateList[i]
-
-			-- If we don't have a variable then we'll assign it to this temporary variable we created earlier.
-			local suffix
-			if state.var then
-				suffix = ""
-			else
-				suffix = escapeList[i] .. " = "
-			end
-
-			backend.lua.backend.expression(state.node, builder, compileState, suffix)
-			writer.line(builder)
-		end
-
-		writer.line(builder, "return {" .. table.concat(nameTable, ", ") .. "}")
-
-		local id = compileState.count
-		compileState.count = id + 1
-
-		local names = table.concat(nameList, ",")
-		if #names > 20 then names = names:sub(1, 17) .. "..." end
-		local name = "compile#" .. id .. "{" .. names .. "}"
-
-		local str = writer.tostring(builder)
-		compileState.mappings[name] = traceback.generate(builder.lines)
-
-		local fun, msg = load(str, "=" .. name, "t", global)
-		if not fun then error(msg .. ":\n" .. str, 0) end
-
-		local success, result = xpcall(fun, debug.traceback)
-		if not success then
-			logger.putDebug(loggerI, str)
-			error(traceback.remapTraceback(compileState.mappings, result), 0)
-		end
-
-		for i = 1, #stateList do
-			local state = stateList[i]
-			local escaped = escapeList[i]
-			local res = result[escaped]
-			state:executed(res)
-
-			if state.var then global[escaped] = res end
-		end
-	end
-end
-
 --- Attempt to resolve all variables in a list of expressions, expanding all macros and what not.
 --
 -- This firstly creates a State for each expression in the list. This tracks all variables this state
@@ -135,24 +51,29 @@ end
 -- @param compileState The current compiler state, holding library metadata and variable escape mappings.
 -- @param loader       The function to invoke in order to load an external module.
 -- @param loggerI      The logger which should receive error messages.
+-- @param executeStates The function to invoke to compile a series of states
+-- @param timer        An optional timer used to time how long this'll take.
 -- @return Returns the resolved nodes and the corresponding states.
-local function compile(parsed, global, env, inStates, scope, compileState, loader, loggerI, executeStates)
-	if not executeStates then executeStates = x_executeStates end
-
+local function compile(parsed, global, env, inStates, scope, compileState, loader, loggerI, executeStates, timer, name)
 	local queue = {}
 	local out = {}
 	local states = { scope = scope }
 
+	if name then name = "[resolve] " .. name end
+	local hook, hookMask, hookCount = debug.gethook()
+
 	for i = 1, #parsed do
 		local state = State.create(env, inStates, scope, loggerI, compileState.mappings)
 		states[i] = state
+		local co = coroutine.create(resolve.resolveNode)
+		debug.sethook(co, hook, hookMask, hookCount)
 		queue[i] = {
 			tag  = "init",
 			node =  parsed[i],
 
 			-- Global state for every action
 			_idx   = i,
-			_co    = coroutine.create(resolve.resolveNode),
+			_co    = co,
 			_state = state,
 			_node  = parsed[i],
 		}
@@ -182,6 +103,8 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 			queue[#queue + 1] = result
 		end
 	end
+
+	if name and timer then logger.startTimer(timer, name, 2) end
 
 	while #queue > 0 and iterations <= #queue do
 		local head = table.remove(queue, 1)
@@ -219,8 +142,12 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 			executeStates(compileState, head.states, global, loggerI)
 			resume(head)
 		elseif head.tag == "import" then
+			if name and timer then logger.pauseTimer(timer, name) end
+
 			local result = loader(head.module)
 			local module = result[1]
+
+			if name and timer then logger.startTimer(timer, name) end
 
 			if not module then
 				logger.doNodeError(loggerI,
@@ -320,6 +247,8 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 
 		error("Compilation could not continue")
 	end
+
+	if name and timer then logger.stopTimer(timer, name) end
 
 	out.tag = "list" out.n = #out
 	states.tag = "list" states.n = #states

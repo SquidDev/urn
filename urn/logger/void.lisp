@@ -6,6 +6,7 @@
       :put-warning! discard
       :put-verbose! discard
       :put-debug!   discard
+      :put-time!   discard
 
       :put-node-error!    discard
       :put-node-warning!  discard)))

@@ -1,29 +1,31 @@
 (import urn/range ())
 (import urn/logger/printer ())
 
-(import string)
 (import extra/term (colored))
-(import lua/math math)
 
-(defun create (verbosity explain)
+(defun create (verbosity explain time)
   "Create a console logger with VERBOSITY, displaying additional info if EXPLAIN
-   is true."
+   is true. TIME specifies the maximum timing verbosity."
   (struct
     :verbosity (or verbosity 0)
     :explain   (= explain true)
+    :time      (or time 0)
 
     :put-error!   put-error!
     :put-warning! put-warning!
     :put-verbose! put-verbose!
     :put-debug!   put-debug!
+    :put-time!    put-time!
 
     :put-node-error!    put-node-error!
     :put-node-warning!  put-node-warning!))
 
-(defun put-error!    (messenger msg) :hidden (print-error!   msg))
-(defun put-warning!  (messenger msg) :hidden (print-warning! msg))
-(defun put-verbose!  (messenger msg) :hidden (print-verbose! (.> messenger :verbosity) msg))
-(defun put-debug!    (messenger msg) :hidden (print-debug!   (.> messenger :verbosity)  msg))
+(defun put-error!    (logger msg) :hidden (print-error!   msg))
+(defun put-warning!  (logger msg) :hidden (print-warning! msg))
+(defun put-verbose!  (logger msg) :hidden (print-verbose! (.> logger :verbosity) msg))
+(defun put-debug!    (logger msg) :hidden (print-debug! (.> logger :verbosity)  msg))
+
+(defun put-time! (logger name time level) :hidden (print-time! (.> logger :time) name time level))
 
 (defun put-node-error! (logger msg node explain lines)
   (print-error! msg)

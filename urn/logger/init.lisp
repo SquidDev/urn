@@ -1,4 +1,4 @@
-(import string)
+(import urn/timer timer)
 
 (defun put-error! (logger msg)
   "Push an error message MSG to this LOGGER"
@@ -15,6 +15,12 @@
 (defun put-debug! (logger msg)
   "Push an verbose message MSG to this LOGGER"
   (self logger :put-debug! msg))
+
+(defun put-time! (logger name time level)
+  "Push the TIME it took NAME to execute to this LOGGER.
+
+   Each additonal LEVEL to the timings will delay require an additional -t flag."
+  (self logger :put-time! name time level))
 
 (defun put-node-error! (logger msg node explain &lines)
   "Push a defailed  error message to this LOGGER.
@@ -45,6 +51,10 @@
   (fail! (or (string/match msg "^([^\n]+)\n") msg)))
 
 (struct
+  :startTimer timer/start-timer!
+  :pauseTimer timer/pause-timer!
+  :stopTimer  timer/stop-timer!
+
   :putError   put-error!
   :putWarning put-warning!
   :putVerbose put-verbose!

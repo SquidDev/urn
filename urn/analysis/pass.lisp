@@ -1,7 +1,7 @@
 (import lua/basic (slice))
-(import lua/os os)
 
 (import urn/logger logger)
+(import urn/timer timer)
 
 (define pass-arg :hidden (gensym))
 
@@ -74,15 +74,12 @@
    This will return whether the PASS did something, though you can also specify TRACKER for
    more convenient tracking of multiple passes."
   (when (pass-enabled? pass options)
-    (let [(start (os/clock))
-          (ptracker (create-tracker))
+    (let [(ptracker (create-tracker))
           (name (.. "[" (concat (.> pass :cat) " ") "] " (.> pass :name)))]
 
+      (timer/start-timer! (.> options :timer) name 2)
       ((.> pass :run) ptracker options (unpack args 1 (# args)))
-
-      ;; Print out the timings if required
-      (when (.> options :time)
-        (logger/put-verbose! (.> options :logger) (.. name " took " (- (os/clock) start) ".")))
+      (timer/stop-timer! (.> options :timer) name)
 
       ;; Print out logging modification information
       (when (changed? ptracker)

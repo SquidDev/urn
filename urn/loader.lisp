@@ -2,9 +2,10 @@
 (import lua/io io)
 (import lua/basic (load))
 
+(import urn/backend/lua lua)
 (import urn/logger logger)
 (import urn/parser parser)
-(import urn/backend/lua lua)
+(import urn/timer  timer)
 
 (define scope/child (.> (require "tacky.analysis.scope") :child))
 (define compile (.> (require "tacky.compile") :compile))
@@ -88,6 +89,8 @@
                (for-pairs (k v) res (read-meta state (.. prefix k) v))
                (fail! (.. path ".meta.lua returned a non-table value"))))])))
 
+    (timer/start-timer! (.> state :timer) (.. "[parse] " path) 2)
+
     ;; And parse all the things!
     (let* [(lexed (parser/lex (.> state :log) contents (.. path ".lisp")))
            (parsed (parser/parse (.> state :log) lexed))
@@ -96,6 +99,8 @@
       (.<! scope :prefix prefix)
       (.<! lib :scope scope)
 
+      (timer/stop-timer! (.> state :timer) (.. "[parse] " path))
+
       (with (compiled (compile
                         parsed
                         (.> state :global) (.> state :variables) (.> state :states)
@@ -103,7 +108,9 @@
                         (.> state :compileState)
                         (.> state :loader)
                         (.> state :log)
-                        lua/execute-states))
+                        lua/execute-states
+                        (.> state :timer)
+                        path))
 
         (push-cdr! (.> state :libs) lib)
 
