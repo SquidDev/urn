@@ -95,19 +95,90 @@
     stats))
 
 (defun build-stack (parent stack i)
+  "Fold a STACK trace into PARENT, looking at the element I.
+
+   This folds from the bottom of the stack, merging upwards, resulting in a normal
+   flame graph."
+  :hidden
+  ;; Increment the number of times hit
+  (.<! parent :n (+ (.> parent :n) 1))
+
+  (when (>= i 1)
+    (let* [(elem (nth stack i))
+           (hash (.. (.> elem :source) "|" (.> elem :linedefined)))
+           (child (.> parent hash))]
+      (unless child
+        (set! child elem)
+        (.<! elem :n 0)
+        (.<! parent hash child))
+
+      (build-stack child stack (- i 1)))))
+
+(defun build-rev-stack (parent stack i)
+  "Fold a STACK trace into PARENT, looking at the element I.
+
+   This folds from the top of the stack merging downwards, resulting
+   in a reverse flame graph, with the root functions.
+
+   Word of warning: this generates massive messages: I would not recommend
+   running this unless you really want to."
+  :hidden
   ;; Increment the number of times hit
   (.<! parent :n (+ (.> parent :n) 1))
 
   (when (<= i (# stack))
     (let* [(elem (nth stack i))
-           (hash (.. (.> first :source) "|" (.> first :linedefined)))
+           (hash (.. (.> elem :source) "|" (.> elem :linedefined)))
            (child (.> parent hash))]
       (unless child
         (set! child elem)
-        (.<! first :n 0)
+        (.<! elem :n 0)
         (.<! parent hash child))
 
-      (build-stack child stack (+ i 1)))))
+      (build-rev-stack child stack (+ i 1)))))
+
+(defun finish-stack (element)
+  "This converts the lookup of ELEMENT into a sorted list with
+   the most called method at the beginning."
+  :hidden
+  (with (children '())
+    (for-pairs (k child) element
+      (when (table? child)
+        (push-cdr! children child)))
+
+    (table/sort children (lambda (a b) (> (.> a :n) (.> b :n))))
+
+    (.<! element :children children)
+    (for-each child children (finish-stack child))))
+
+(defun show-stack! (out mappings total stack remaining)
+  "This prints STACK to OUT, using MAPPINGS to map source locations and TOTAL to
+   determine the percentage. REMAINING marks the remaining number of entries to emit."
+  :hidden
+  (w/line! out (string/format "\xE2\x94\x94 %s %s %d (%2.5f%%)"
+                 (if (.> stack :name) (traceback/unmangle-ident (.> stack :name)) "<unknown>")
+                 (traceback/remap-message mappings (.. (.> stack :short_src) ":" (.> stack :linedefined)))
+                 (.> stack :n) (* (/ (.> stack :n) total) 100)))
+  (when (if remaining (>= remaining 0) true)
+    (w/indent! out)
+    (for-each child (.> stack :children)
+      (show-stack! out mappings total child (and remaining (pred remaining))))
+    (w/unindent! out)))
+
+(defun show-flame! (mappings stack before remaining)
+  "This prints STACK to OUT in a format readable by flamegraph.pl
+
+   MAPPINGS to map source locations. REMAINING is used to limit the number of traces to
+   emit."
+  :hidden
+  (with (renamed (..
+                   (if (.> stack :name) (traceback/unmangle-ident (.> stack :name)) "?")
+                   "`"
+                   (traceback/remap-message mappings (.. (.> stack :short_src) ":" (.> stack :linedefined)))))
+    (print! (string/format "%s%s %d" before renamed (.> stack :n)))
+    (when (if remaining (>= remaining 0) true)
+      (with (whole (.. before renamed ";"))
+        (for-each child (.> stack :children) (show-flame! mappings child whole (and remaining (pred remaining))))))))
 
 (defun profile-stack (fn mappings)
   :hidden
@@ -115,9 +186,9 @@
 
     (debug/sethook
       (lambda (action)
-        (let* [(pos 2)
+        (let* [(pos 3)
                (stack '())
-               (info (debug/getinfo pos "Sn"))
+               (info (debug/getinfo 2 "Sn"))]
           (while info
             (push-cdr! stack info)
             (inc! pos)
@@ -130,11 +201,18 @@
 
     (debug/sethook)
 
-
     (with (folded (const-struct :n 0))
       (for-each stack stacks
-        (built-stack folded stack 1)))))
+        (build-stack folded stack (# stack)))
+        ;; (build-rev-stack folded stack 1))
 
+      (finish-stack folded)
+
+      ;; (with (writer (w/create))
+      ;;   (show-stack! writer mappings (# stacks) folded 13)
+      ;;   (print! (w/->string writer))))))
+
+      (show-flame! mappings folded "" 15))))
 
 (defun run-lua (compiler args)
   :hidden
@@ -164,7 +242,8 @@
                         (exit! 1)])))
          (case (string/lower (.> args :profile))
            ["none"  (exec)]
-           ["call"  (profile-call exec (struct name lines))]
+           [nil  (exec)]
+           ["call"  (profile-calls exec (struct name lines))]
            ["stack" (profile-stack exec (struct name lines))]
            [?x
             (logger/put-error! logger (.. "Unknown profiler '" x "'"))
@@ -179,7 +258,7 @@
              (arg/add-argument! spec '("--profile" "-p")
                :help    "Run the compiled code with the profiler."
                :var     "TYPE"
-               :default "none"
+               :default nil
                :value   "call"
                :narg    "?")
              (arg/add-argument! spec '("--")
