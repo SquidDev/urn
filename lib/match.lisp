@@ -41,7 +41,7 @@
                let* and gensym error for
                quasiquote list or pretty
                slice concat debug
-               /= # = ! - + / * >= ))
+               /= # = ! - + / * >= <= ))
 (import type ())
 (import list ( car caddr cadr cdr append for-each
                map filter push-cdr!
@@ -107,8 +107,9 @@
             (push-cdr! out (compile-pattern-test (nth pattern i)
                                                 ~(nth ,sym ,i))))
           `(let* [(,sym ,symb)]
-             (and (list? ,sym) (or (= (# ,sym) ,(pattern-length pattern 0))
-                                   (= (# ,sym) ,(# pattern)))
+             (and (list? ,sym)
+                  (>= (# ,sym) ,(pattern-length pattern 0))
+                  (<= (# ,sym) ,(# pattern))
                   ,@out)))])]
     [(or (eq? '_ pattern) (meta? pattern))
      `true]
