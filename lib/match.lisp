@@ -7,7 +7,7 @@
  pattern ::= literal
            | metavar
            | _
-           | symbol '?' ;; type predicate
+           | symbol '?' ;; predicate
            | ( -> expr pattern ) ;; view
            | ( as pattern metavar ) ;; as
            | ( pattern * ) ;; list
@@ -35,7 +35,7 @@
  Both bind everything bound by their \"inner\" patterns.
 
  A type predicate pattern works much like a wildcard, except it only matches if
- the scrutinee is of a specified type."
+ the scrutinee matches the given predicate."
 
 (import base ( defun defmacro if get-idx
                let* and gensym error for
@@ -48,7 +48,7 @@
                nth last elem? ))
 
 (import table (struct))
-(import string (.. char-at sub))
+(import string (.. char-at sub #s))
 
 (defun cons-pattern? (pattern) :hidden
   (eq? (nth pattern (- (# pattern) 1)) '.))
@@ -72,11 +72,9 @@
         (set! length (+ length 1))))
     (+ length correction)))
 
-(define type-predicates
-  '(table? list? nil? string? number? boolean? key? atom? exists? falsey?))
-
-(defun type-predicate? (x)
-  (elem? x type-predicates))
+(defun predicate? (x)
+  (let* [(x (get-idx x :contents))]
+    (= (char-at x (#s x)) "?")))
 
 (defun compile-pattern-test (pattern symb) :hidden
   (cond
@@ -117,7 +115,7 @@
        [(eq? pattern 'true) `(eq? ,symb true)]
        [(eq? pattern 'false) `(eq? ,symb false)]
        [(eq? pattern 'nil) `(eq? ,symb nil)]
-       [(type-predicate? pattern) `(,pattern ,symb)]
+       [(predicate? pattern) ~(,pattern ,symb)] ; need the dynamic scoping here.
        [true ~(eq? ,symb ',pattern)])]
     [(key? pattern)
      `(eq? ,symb ,pattern)]
@@ -191,3 +189,9 @@
     `(let* [(,val-sym ,val)]
        (cond ,@(map compile-arm pts)
              [true ,(generate-case-error pts val-sym)]))))
+
+(defmacro matches? (pt x)
+  "Test if the value X matches the pattern PT.
+   Note that, since this does not bind anything, all metavariables
+   may be replaced by `_` with no loss of meaning."
+  (compile-pattern-test pt x))
