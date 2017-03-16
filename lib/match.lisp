@@ -85,7 +85,7 @@
        [(eq? (car pattern) '->)
         (compile-pattern-test (caddr pattern) `(,(cadr pattern) ,symb))]
        [(eq? (car pattern) 'optional)
-        `(if ,symb ,(compile-pattern-test (cadr pattern)) true)]
+        `(if ,symb ,(compile-pattern-test (cadr pattern) symb) true)]
        [(cons-pattern? pattern)
         (let* [(pattern-sym (gensym))
                (lhs (cons-pat-left-side pattern))
@@ -175,8 +175,7 @@
        ,(compile-pattern pattern val-sym body))))
 
 (defun generate-case-error (arms val) :hidden
-  (let* [(patterns (map (lambda (x) (pretty (car x))) arms))
-         ]
+  (let* [(patterns (map (lambda (x) (pretty (car x))) arms))]
     `(error (.. "Pattern matching failure!\nTried to match the following patterns against " (pretty ,val) ", but none matched.\n"
                 ,(concat (map (lambda (x) (.. "  Tried: `" x "`")) patterns) "\n")))))
 
