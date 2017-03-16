@@ -4,10 +4,11 @@
 (import urn/tools/run       run)
 (import urn/tools/gen-native gen-native)
 
-(import urn/logger logger)
-(import urn/loader loader)
-(import urn/logger/term term)
 (import urn/backend/lua lua)
+(import urn/loader loader)
+(import urn/logger logger)
+(import urn/logger/term term)
+(import urn/timer timer)
 
 (import extra/argparse arg)
 (import lua/basic (_G))
@@ -55,7 +56,10 @@
     :help    "Explain error messages in more detail.")
 
   (arg/add-argument! spec '("--time" "-t")
-    :help    "Time how long each task takes to execute.")
+    :help    "Time how long each task takes to execute. Multiple usages will show more detailed timings."
+    :many    true
+    :default 0
+    :action  (lambda (arg data) (.<! data (.> arg :name) (succ (or (.> data (.> arg :name)) 0)))))
 
   (arg/add-argument! spec '("--verbose" "-v")
     :help    "Make the output more verbose. Can be used multiple times"
@@ -120,8 +124,9 @@
 
   (let* [(args (arg/parse! spec))
          (logger (term/create
-              (.> args :verbose)
-              (.> args :explain)))]
+                   (.> args :verbose)
+                   (.> args :explain)
+                   (.> args :time)))]
 
     ;; Process include paths
     (for-each path (.> args :include)
@@ -141,6 +146,7 @@
 
     (with (compiler (struct
                      :log       logger
+                     :timer     (timer/create (cut logger/put-time! logger <> <> <>))
                      :paths     paths
 
                      :libEnv    (empty-struct)
@@ -169,28 +175,27 @@
       (for-pairs (_ var) (.> compiler :rootScope :variables)
         (.<! compiler :variables (tostring var) var))
 
-      (with (start (os/clock))
-        (case (loader/loader compiler (.> args :prelude) false)
-          [(nil ?error-message)
-           (logger/put-error! logger error-message)
-           (exit! 1)]
-          [(?lib)
-           (.<! compiler :rootScope (scope/child (.> compiler :rootScope)))
-           (for-pairs (name var) (.> lib :scope :exported)
-             (scope/import! (.> compiler :rootScope) name var))
+      (timer/start-timer! (.> compiler :timer) "loading")
+      (case (loader/loader compiler (.> args :prelude) false)
+        [(nil ?error-message)
+         (logger/put-error! logger error-message)
+         (exit! 1)]
+        [(?lib)
+         (.<! compiler :rootScope (scope/child (.> compiler :rootScope)))
+         (for-pairs (name var) (.> lib :scope :exported)
+           (scope/import! (.> compiler :rootScope) name var))
 
-           (for-each input (.> args :input)
-             (case (loader/loader compiler input false)
-               [(nil ?error-message)
-                (logger/put-error! logger error-message)
-                (exit! 1)]
-               [(_)]))])
-        (when (.> args :time)
-          (print! (.. "parsing took " (- (os/clock) start)))))
+         (for-each input (.> args :input)
+           (case (loader/loader compiler input false)
+             [(nil ?error-message)
+              (logger/put-error! logger error-message)
+              (exit! 1)]
+             [(_)]))])
+
+      (timer/stop-timer! (.> compiler :timer) "loading")
 
       (for-each task tasks
         (when ((.> task :pred) args)
-          (with (start (os/clock))
-            ((.> task :run) compiler args)
-            (when (.> args :time)
-              (print! (.. (.> task :name) " took " (- (os/clock) start))))))))))
+          (timer/start-timer! (.> compiler :timer) (.> task :name) 1)
+          ((.> task :run) compiler args)
+          (timer/stop-timer! (.> compiler :timer) (.> task :name)))))))

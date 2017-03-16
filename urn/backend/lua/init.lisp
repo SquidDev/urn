@@ -1,6 +1,7 @@
 (import urn/backend/lua/emit ())
 (import urn/backend/lua/escape (escape-var) :export)
 (import urn/backend/writer w)
+(import urn/timer timer)
 (import urn/traceback traceback)
 
 (import extra/assert (assert!))
@@ -12,6 +13,7 @@
                              ;; [[run-pass]] options
                              :level      1
                              :override   (empty-struct)
+                             :timer      timer/void
 
                              ;; execute-states options
                              :count      0

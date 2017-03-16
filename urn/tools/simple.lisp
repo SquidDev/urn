@@ -85,7 +85,6 @@
                               :track     true
                               :level     (.> args name)
                               :override  (or (.> args (.. name "-override")) (empty-struct))
-                              :time      (.> args :time)
 
                               ;; Optimisation specific options
                               :max-n     (.> args (.. name "-n"))
@@ -93,7 +92,8 @@
 
                               ;; General shared options
                               :meta      (.> compiler :libMeta)
-                              :logger    (.> compiler :log)))))
+                              :logger    (.> compiler :log)
+                              :timer     (.> compiler :timer)))))
 
 (define warning
   (struct

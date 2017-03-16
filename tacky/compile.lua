@@ -51,11 +51,15 @@ end
 -- @param compileState The current compiler state, holding library metadata and variable escape mappings.
 -- @param loader       The function to invoke in order to load an external module.
 -- @param loggerI      The logger which should receive error messages.
+-- @param executeStates The function to invoke to compile a series of states
+-- @param timer        An optional timer used to time how long this'll take.
 -- @return Returns the resolved nodes and the corresponding states.
-local function compile(parsed, global, env, inStates, scope, compileState, loader, loggerI, executeStates)
+local function compile(parsed, global, env, inStates, scope, compileState, loader, loggerI, executeStates, timer, name)
 	local queue = {}
 	local out = {}
 	local states = { scope = scope }
+
+	if name then name = "[resolve] " .. name end
 
 	for i = 1, #parsed do
 		local state = State.create(env, inStates, scope, loggerI, compileState.mappings)
@@ -97,6 +101,8 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 		end
 	end
 
+	if name and timer then logger.startTimer(timer, name, 2) end
+
 	while #queue > 0 and iterations <= #queue do
 		local head = table.remove(queue, 1)
 
@@ -133,8 +139,12 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 			executeStates(compileState, head.states, global, loggerI)
 			resume(head)
 		elseif head.tag == "import" then
+			if name and timer then logger.pauseTimer(timer, name) end
+
 			local result = loader(head.module)
 			local module = result[1]
+
+			if name and timer then logger.startTimer(timer, name) end
 
 			if not module then
 				logger.doNodeError(loggerI,
@@ -234,6 +244,8 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 
 		error("Compilation could not continue")
 	end
+
+	if name and timer then logger.stopTimer(timer, name) end
 
 	out.tag = "list" out.n = #out
 	states.tag = "list" states.n = #states

@@ -1,4 +1,3 @@
-(import string)
 (import extra/term (colored))
 
 (defun print-error! (msg)
@@ -23,6 +22,11 @@
   "Print a debug message, MSG if VERBOSITY is greater than 1."
   (when (> verbosity 1)
     (print! (.. "[DEBUG] " msg))))
+
+(defun print-time! (maximum name time level)
+  "Print the TIME NAME took to execute, if LEVEL is <= MAXIMIM."
+  (when (<= level maximum)
+    (print! (.. "[TIME] " name " took " time))))
 
 (defun print-explain! (explain lines)
   "Put all LINES when explaining is enabled"
