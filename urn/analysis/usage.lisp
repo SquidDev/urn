@@ -19,8 +19,8 @@
     (unless entry
       (set! entry (const-struct
         :var var
-        :usages (empty-struct)
-        :defs  (empty-struct)
+        :usages '()
+        :defs   '()
         :active false))
       (.<! state :vars var entry))
     entry))
@@ -36,30 +36,17 @@
 
 (defun add-usage! (state var node)
   "Mark a NODE as using a specific VAR."
-  (let* [(var-meta (get-var state var))
-         (node-meta (get-node state node))]
-    (.<! var-meta :usages node true)
-    (.<! var-meta :active true)
-    (.<! node-meta :uses var true)))
-
-(defun remove-usage! (state var node)
-  "Remove a NODE's usage of a specified VAR"
-  (let* [(var-meta (get-var state var))
-         (node-meta (get-node state node))]
-    (.<! var-meta :usages node nil)
-    (.<! var-meta :active (! (empty-struct? (.> var-meta :usages))))
-    (.<! node-meta :uses var nil)))
+  (with (var-meta (get-var state var))
+    (push-cdr! (.> var-meta :usages) node)
+    (.<! var-meta :active true)))
 
 (defun add-definition! (state var node kind value)
   "Add a definition for a specific VAR."
   (with (var-meta (get-var state var))
-    (.<! var-meta :defs node (const-struct :tag kind :value value))))
-
-(defun remove-definition! (state var node)
-  "Add a definition for a specific VAR."
-  (let* [(var-meta (get-var state var))
-         (node-meta (get-node state node))]
-    (.<! var-meta :defs node nil)))
+    (push-cdr! (.> var-meta :defs) (const-struct
+                                     :tag   kind
+                                     :node  node
+                                     :value value))))
 
 (defun definitions-visitor (state node visitor)
   "Visit one NODE and gather its definitions."
@@ -114,14 +101,13 @@
   (let* [(queue '())
          (visited (empty-struct))
          (add-usage (lambda (var user)
-                      (add-usage! state var user)
                       (with (var-meta (get-var state var))
-                          (when (.> var-meta :active)
-                            (table/iter-pairs (.> var-meta :defs)
-                              (lambda (_ def)
-                                (with (val (.> def :value))
-                                  (when (and val (! (.> visited val)))
-                                    (push-cdr! queue val)))))))))
+                        (unless (.> var-meta :active)
+                          (for-each def (.> var-meta :defs)
+                            (with (val (.> def :value))
+                              (when (and val (! (.> visited val)))
+                                (push-cdr! queue val))))))
+                      (add-usage! state var user)))
          (visit (lambda (node)
                   (if (.> visited node)
                     ;; Don't visit nodes we've already visited

@@ -13,8 +13,8 @@
       [(= var (.> builtin-vars :true)) sym]
       [(= var (.> builtin-vars :false)) sym]
       [(= var (.> builtin-vars :nil)) sym]
-      [(= (#keys (.> def :defs)) 1)
-       (let* [(ent (nth (list (next (.> def :defs))) 2))
+      [(= (# (.> def :defs)) 1)
+       (let* [(ent (car (.> def :defs)))
               (val (.> ent :value))
               (ty  (.> ent :tag))]
          (cond
@@ -63,7 +63,7 @@
                 ;; Obviously don't remove values which have an effect
                 [(side-effect? val)]
                 ;; And keep values which are actually used
-                [(> (#keys (.> (usage/get-var lookup (.> arg :var)) :usages)) 0)]
+                [(> (# (.> (usage/get-var lookup (.> arg :var)) :usages)) 0)]
                 ;; So remove things which aren't used and have no side effects.
                 [true
                   (changed!)

@@ -16,13 +16,13 @@
                           (ari (get-idx arity var))]
                           (cond
                             [(/= ari nil) ari]
-                            [(/= (#keys (.> var :defs)) 1) false]
+                            [(/= (# (.> var :defs)) 1) false]
                             [true
                               ;; We should never hit recursive definitions but you never know
                               (.<! arity var false)
 
                               ;; Look up the definition, detecting lambdas and reassignments of other functions.
-                              (let* [(def-data (cadr (list (next (.> var :defs)))))
+                              (let* [(def-data (car (.> var :defs)))
                                      (def (.> def-data :value))]
                                 (set! ari
                                   (if (= (.> def-data :tag) "arg")
