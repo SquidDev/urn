@@ -153,6 +153,7 @@
                      :libMeta   (empty-struct)
                      :libs      '()
                      :libCache  (empty-struct)
+                     :libNames  (empty-struct)
 
                      :rootScope root-scope
 

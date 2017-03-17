@@ -22,6 +22,7 @@
 
 (defun read-meta (state name entry)
   "Parse a single ENTRY in the library metadata, loading the appropriate data into STATE."
+  :hidden
   (when (and (or (= (.> entry :tag) "expr") (= (.> entry :tag) "stmt")) (string? (.> entry :contents)))
     (let* [(buffer '())
            (str     (.> entry :contents))
@@ -52,7 +53,6 @@
 (defun read-library (state name path lisp-handle)
   "Read a library from PATH, using an already existing LISP-HANDLE."
   :hidden
-
   (logger/put-verbose! (.> state :log) (.. "Loading " path " into " name))
 
   (let* [(prefix (.. name "-" (# (.> state :libs)) "/"))
@@ -130,7 +130,7 @@
   "Searches through the the paths in the compiler STATE, trying to locate a package with NAME.
 
    If found then it will return the library data, otherwise `nil` and the list of paths searched."
-
+  :hidden
   (letrec [(searched '())
            (paths (.> state :paths))
            (searcher (lambda (i)
@@ -148,9 +148,11 @@
                                   (progn
                                     ;; We set this to true to ensure we don't get loops
                                     (.<! state :libCache path true)
+                                    (.<! state :libNames name true)
                                     ;; And then we actually load everything
                                     (with (lib (read-library state (simplify-path path paths) path handle))
                                       (.<! state :libCache path lib)
+                                      (.<! state :libNames name lib)
                                       (list lib)))
                                   (searcher (+ i 1))))]
                              [(= cached true) (list nil (.. "Already loading " name))]
@@ -163,7 +165,11 @@
 
    If SHOULD-RESOLVE is true then we will search the compile path."
   (if should-resolve
-    (path-locator state name)
+    (with (cached (.> state :libNames name))
+      (cond
+        [(= cached nil) (path-locator state name)]
+        [(= cached true) (list nil (.. "Already loading " name))]
+        [true (list cached)]))
     (progn
       (set! name (string/gsub name "%.lisp$" ""))
       (case (.> state :libCache name)

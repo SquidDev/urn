@@ -34,20 +34,37 @@
                   logger
                   lua/execute-states)))))
 
+(defun print-docs! (str)
+  :hidden
+  (with (docs (docs/parse-docstring str))
+    (for-each tok docs
+      (with (tag (.> tok :tag))
+        (cond
+          [(= tag "text") (io/write (.> tok :contents))]
+          [(= tag "arg") (io/write (colored 36 (.> tok :contents)))]
+          [(= tag "mono") (io/write (colored 97 (.> tok :contents)))]
+          [(= tag "arg") (io/write (colored 97 (.> tok :contents)))]
+          [(= tag "bolic") (io/write (colored 3 (colored 1 (.> tok :contents))))]
+          [(= tag "bold") (io/write (colored 1 (.> tok :contents)))]
+          [(= tag "italic") (io/write (colored 3 (.> tok :contents)))]
+          [(= tag "link") (io/write (colored 94 (.> tok :contents)))])))
+    (print!)))
+
 (defun exec-command (compiler scope args)
   "Execute command given by ARGS using the given compiler state (COMPILER) and SCOPE"
   :hidden
   (let* [(logger (.> compiler :log))
          (command (car args))]
     (cond
-      [(= command nil)
+      [nil
        (logger/put-error! logger "Expected command after ':'")]
-      [(= command "help")
+      [(or (= command "help") (= command "h"))
        (print! "REPL commands:
-                :doc NAME        Get documentation about a symbol
-                :scope           Print out all variables in the scope
-                :search QUERY    Search the current scope for symbols and documentation containing a string.")]
-      [(= command "doc")
+                [:d]oc NAME        Get documentation about a symbol
+                :scope             Print out all variables in the scope
+                [:s]earch QUERY    Search the current scope for symbols and documentation containing a string.
+                :module NAME       Display a loaded module's docs and definitions.")]
+      [(or (= command "doc") (= command "d"))
        (with (name (nth args 2))
          (if name
            (with (var ((.> Scope :get) scope name))
@@ -58,28 +75,37 @@
                 (logger/put-error! logger (.. "No documentation for '" name "'"))]
                [true
                  (let* [(sig (docs/extract-signature var))
-                        (name (.> var :fullName))
-                        (docs (docs/parse-docstring (.> var :doc)))]
+                        (name (.> var :fullName))]
                    (when sig
                      (with (buffer (list name))
                        (for-each arg sig (push-cdr! buffer (.> arg :contents)))
                        (set! name (.. "(" (concat buffer " ") ")"))))
 
                    (print! (colored 96 name))
+                   (print-docs! (.> var :doc)))]))
+           (logger/put-error! logger ":doc <variable>")))]
 
-                   (for-each tok docs
-                     (with (tag (.> tok :tag))
-                       (cond
-                         [(= tag "text") (io/write (.> tok :contents))]
-                         [(= tag "arg") (io/write (colored 36 (.> tok :contents)))]
-                         [(= tag "mono") (io/write (colored 97 (.> tok :contents)))]
-                         [(= tag "arg") (io/write (colored 97 (.> tok :contents)))]
-                         [(= tag "bolic") (io/write (colored 3 (colored 1 (.> tok :contents))))]
-                         [(= tag "bold") (io/write (colored 1 (.> tok :contents)))]
-                         [(= tag "italic") (io/write (colored 3 (.> tok :contents)))]
-                         [(= tag "link") (io/write (colored 94 (.> tok :contents)))])))
-                   (print!))]))
-           (logger/put-error! logger ":command <variable>")))]
+      [(= command "module")
+       (with (name (nth args 2))
+         (if name
+           (with (mod (.> compiler :libNames name))
+             (cond
+               [(= mod nil)
+                (logger/put-error! logger (.. "Cannot find '" name "'"))]
+               [true
+                (print! (colored 96 (.> mod :name)))
+
+                (when (.> mod :docs)
+                  (print-docs! (.> mod :docs))
+                  (print!))
+
+                (print! (colored 92 "Exported symbols"))
+                (with (vars '())
+                  (for-pairs (name) (.> mod :scope :exported) (push-cdr! vars name))
+                  (table/sort vars)
+                  (print! (concat vars "  ")))]))
+           (logger/put-error! logger ":module <variable>")))]
+
       [(= command "scope")
        (let* [(vars '())
               (vars-set (empty-struct))
@@ -94,7 +120,8 @@
          (table/sort vars)
 
          (print! (concat vars "  ")))]
-      [(= command "search")
+
+      [(or (= command "search") (= command "s"))
        (if (> (# args) 1)
          (let* [(keywords (map string/lower (cdr args)))
                 (name-results '())
@@ -138,6 +165,7 @@
                    (print! (.. (concat (take docs-results 20) "  ") "  ..."))
                    (print! (concat docs-results "  ")))))))
          (logger/put-error! logger ":search <keywords>"))]
+
       [true
         (logger/put-error! logger (.. "Unknown command '" command "'"))])))
 
