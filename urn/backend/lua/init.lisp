@@ -112,7 +112,7 @@
         (.<! back-state :count (succ id))
 
         ;; Setup the function name
-        (when (> 20 (#s name)) (set! name (.. (string/sub name 1 17) "...")))
+        (when (> (#s name) 20) (set! name (.. (string/sub name 1 17) "...")))
         (set! name (.. "compile#" id "{" name "}"))
 
         (prelude out)
