@@ -4,6 +4,7 @@
 (import lua/coroutine co)
 (import lua/debug debug)
 (import lua/io io)
+(import lua/os os)
 (import lua/table table)
 (import string)
 
@@ -34,20 +35,33 @@
                   logger
                   lua/execute-states)))))
 
+(define repl-colour-scheme
+  :hidden
+  (when-let* [(clrs (os/getenv "URN_COLOURS"))
+              (scheme-alist (parser/read clrs))]
+    scheme-alist))
+
+(defun colour-for (elem) :hidden
+  (if (assoc? repl-colour-scheme (string->symbol elem))
+    (const-val (assoc repl-colour-scheme (string->symbol elem)))
+    (case elem
+      ["text" 0]
+      ["arg" 36]
+      ["mono" 97]
+      ["bold" 1]
+      ["italic" 3]
+      ["link" 94])))
+
 (defun print-docs! (str)
   :hidden
   (with (docs (docs/parse-docstring str))
     (for-each tok docs
       (with (tag (.> tok :tag))
         (cond
-          [(= tag "text") (io/write (.> tok :contents))]
-          [(= tag "arg") (io/write (colored 36 (.> tok :contents)))]
-          [(= tag "mono") (io/write (colored 97 (.> tok :contents)))]
-          [(= tag "arg") (io/write (colored 97 (.> tok :contents)))]
-          [(= tag "bolic") (io/write (colored 3 (colored 1 (.> tok :contents))))]
-          [(= tag "bold") (io/write (colored 1 (.> tok :contents)))]
-          [(= tag "italic") (io/write (colored 3 (.> tok :contents)))]
-          [(= tag "link") (io/write (colored 94 (.> tok :contents)))])))
+          [(= tag "bolic")
+           (io/write (colored (colour-for :bold) (colored (colour-for :italic) (.> tok :contents))))]
+          [true
+           (io/write (colored (colour-for tag) (.> tok :contents)))])))
     (print!)))
 
 (defun exec-command (compiler scope args)
