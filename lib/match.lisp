@@ -63,7 +63,7 @@
   (and (symbol? symbol)
        (eq? (char-at (get-idx symbol "contents") 1) "?")))
 
-(defun pattern-length (pattern correction)
+(defun pattern-length (pattern correction) :hidden
   (let* [(length 0)]
     (for i 1 (# pattern) 1
       (if (and (list? (nth pattern i))
@@ -72,7 +72,7 @@
         (set! length (+ length 1))))
     (+ length correction)))
 
-(defun predicate? (x)
+(defun predicate? (x) :hidden
   (let* [(x (get-idx x :contents))]
     (= (char-at x (#s x)) "?")))
 
