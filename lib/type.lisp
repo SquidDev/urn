@@ -1,6 +1,6 @@
 (import base (defun let* type# if car cdr when
               and or >= = <= /= # get-idx defmacro for
-              error gensym !))
+              error gensym ! len# debug))
 
 (import lua/string (format sub))
 
@@ -14,8 +14,12 @@
   (= (type x) "list"))
 
 (defun nil? (x)
-  "Check whether X is the empty list."
-  (and x (list? x) (= (# x) 0)))
+  "Check whether X is the empty list or the empty string."
+  (and x
+       (or (and (list? x)
+                (= (# x) 0))
+           (and (string? x)
+                (= (len# x) 0)))))
 
 (defun string? (x)
   "Check whether X is a string."
