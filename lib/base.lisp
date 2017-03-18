@@ -4,6 +4,7 @@
 (import lua/basic ())
 (import lua/string string)
 (import lua/table (unpack concat) :export)
+(import lua/table tbl)
 (import lua/table table)
 
 (define copy-meta
@@ -179,6 +180,12 @@
            [(= tag "key") (.. ":" (get-idx value :value))]
            [(= tag "string") (string/format "%q" (get-idx value :value))]
            [(= tag "number") (tostring (get-idx value :value))]
+           [true
+             (let* [(out '())]
+               (tbl/iter-pairs value
+                 (lambda (k v)
+                   (set! out (cons (.. (pretty k) (.. " " (pretty v))) out))))
+               (.. "(struct " (.. (concat out " ") ")")))]
            [true (tostring value)]))]
       [(= ty "string") (string/format "%q" value)]
       [true (tostring value)])))
