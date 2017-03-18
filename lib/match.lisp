@@ -209,6 +209,9 @@
    BODY against the value of the error, executing the first
    that succeeeds.
 
+   In the case that X does not throw an error, the value
+   of that expression is returned by [[handler-case]].
+
    Example:
    ```
    > (handler-case \
@@ -218,9 +221,12 @@
   (let* [(gen-arm (cs exc)
            (destructuring-bind [(?pattern (?arg) . ?body) cs]
              ~((as ,pattern ,(->meta arg)) ,@body)))
-         (exc-sym (gensym))]
-    `(xpcall
-       (lambda () ,x)
-       (lambda (,exc-sym)
-         (case ,exc-sym
-           ,@(map gen-arm body))))))
+         (exc-sym (gensym))
+         (tmp-sym (gensym))
+         (error-handler `(lambda (,exc-sym)
+                           (case ,exc-sym
+                             ,@(map gen-arm body))))]
+    `(let* [(,tmp-sym (list (xpcall (lambda () ,x) ,error-handler)))]
+       (if (car ,tmp-sym)
+         (cadr ,tmp-sym)
+         nil))))
