@@ -11,12 +11,12 @@ The grammar of patterns is described below:
 pattern ::= literal
           | metavar
           | _
-          | symbol '?' ;; type predicate
+          | symbol '?' ;; predicate
           | ( -> expr pattern ) ;; view
           | ( as pattern metavar ) ;; as
           | ( pattern * ) ;; list
           | ( pattern + . pattern ) ;; list+rest
-literal ::= int | string | boolean | symbol
+literal ::= number | string | boolean | symbol | key
 metavar ::= '?' symbol
 ```
 
@@ -39,22 +39,43 @@ number of cars and the cdr.
 Both bind everything bound by their "inner" patterns.
 
 `A` type predicate pattern works much like a wildcard, except it only matches if
-the scrutinee is of a specified type.
+the scrutinee matches the given predicate.
 
 ## `(case val &pts)`
-*Macro defined at lib/match.lisp:180:1*
+*Macro defined at lib/match.lisp:184:1*
 
 Match a single value against a series of patterns, evaluating the first
 body that matches, much like `cond`.
 
 ## `(destructuring-bind pt &body)`
-*Macro defined at lib/match.lisp:164:1*
+*Macro defined at lib/match.lisp:169:1*
 
 Match a single pattern against a single value, then evaluate the `BODY`.
 The pattern is given as `(car PT)` and the value as `(cadr PT)`.
 If the pattern does not match, an error is thrown.
 
-## Undocumented symbols
- - `(pattern-length pattern correction)` *Defined at lib/match.lisp:66:1*
- - `(type-predicate? x)` *Defined at lib/match.lisp:78:1*
- - `type-predicates` *Defined at lib/match.lisp:75:1*
+## `(handler-case x &body)`
+*Macro defined at lib/match.lisp:206:1*
+
+Evaluate the form `X`, and if an error happened, match
+the series of `(?pattern (?arg) . ?body)` arms given in
+`BODY` against the value of the error, executing the first
+that succeeeds.
+
+In the case that `X` does not throw an error, the value
+of that expression is returned by [`handler-case`](lib.match.md#handler-case-x-body).
+
+Example:
+```
+> (handler-case \
+.   (error! "oh no!")
+.   [(as string? ?x)
+.    (print! x)]) 
+
+## `(matches? pt x)`
+*Macro defined at lib/match.lisp:197:1*
+
+Test if the value `X` matches the pattern `PT`.
+Note that, since this does not bind anything, all metavariables
+may be replaced by `_` with no loss of meaning.
+

@@ -3,7 +3,7 @@ title: binders
 ---
 # binders
 ## `(let vars &body)`
-*Macro defined at lib/binders.lisp:45:1*
+*Macro defined at lib/binders.lisp:47:1*
 
 Bind several variables (given in `VARS`), then evaluate `BODY`.
 In contrast to [`let*`](lib.binders.md#let-vars-body), variables bound with [`let`](lib.binders.md#let-vars-body) can not refer to
@@ -17,7 +17,7 @@ eachother.
 ```
 
 ## `(let* vars &body)`
-*Macro defined at lib/binders.lisp:23:1*
+*Macro defined at lib/binders.lisp:25:1*
 
 Bind several variables (given in `VARS`), then evaluate `BODY`.
 Variables bound with [`let*`](lib.binders.md#let-vars-body) can refer to variables bound previously,
@@ -31,7 +31,7 @@ as they are evaluated in order.
 ```
 
 ## `(letrec vars &body)`
-*Macro defined at lib/binders.lisp:122:1*
+*Macro defined at lib/binders.lisp:124:1*
 
 Bind several variables (given in `VARS`), which may be recursive.
 
@@ -47,8 +47,28 @@ Bind several variables (given in `VARS`), which may be recursive.
 true
 ```
 
+## `(use var &body)`
+*Macro defined at lib/binders.lisp:148:1*
+
+Bind each variable in `VAR`, checking for truthyness between bindings,
+execute `BODY`, then run a finaliser for all the variables bound by `VAR`.
+
+Potential finalisers might be:
+- `(get-idx (getmetatable FOO) :--finalise)`, where `FOO` is the
+  variable.
+- `(get-idx FOO :close)` where `FOO` is the variable.
+
+If there is no finaliser for `VAR`, then nothing is done for it.
+
+Example:
+```
+> (use [(file (io/open "temp"))] \
+.   (print! (self file :read "*a")))
+*contents of temp*
+```
+
 ## `(when-let vars &body)`
-*Macro defined at lib/binders.lisp:60:1*
+*Macro defined at lib/binders.lisp:62:1*
 
 Bind `VARS`, as with [`let`](lib.binders.md#let-vars-body), and check they are all truthy before evaluating
 `BODY`.
@@ -66,7 +86,7 @@ Does not evaluate `foo`, while
 does.
 
 ## `(when-let* vars &body)`
-*Macro defined at lib/binders.lisp:79:1*
+*Macro defined at lib/binders.lisp:81:1*
 
 Bind each pair of `(name value)` of `VARS`, checking if the value is truthy
 before binding the next, and finally evaluating `BODY`. As with [`let*`](lib.binders.md#let-vars-body),
@@ -83,7 +103,7 @@ Since `1` is truthy, it is evaluated and bound to `foo`, however, since
 `nil` is falsey, evaluation does not continue.
 
 ## `(when-with var &body)`
-*Macro defined at lib/binders.lisp:101:1*
+*Macro defined at lib/binders.lisp:103:1*
 
 Bind the `PAIR` var of the form `(name value)`, only evaluating `BODY` if the
 value is truthy
@@ -97,9 +117,9 @@ When `bar` has an index `baz`, it will be bound to `foo` and printed. If not,
 the print statement will not be executed.
 
 ## `(with var &body)`
-*Macro defined at lib/binders.lisp:40:1*
+*Macro defined at lib/binders.lisp:42:1*
 
 Bind the single variable `VAR`, then evaluate `BODY`.
 
 ## Undocumented symbols
- - `(make-setting var)` *Defined at lib/binders.lisp:114:1*
+ - `(make-setting var)` *Defined at lib/binders.lisp:116:1*
