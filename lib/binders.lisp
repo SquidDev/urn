@@ -1,9 +1,11 @@
-(import base (defmacro if ! when car
+(import base (defmacro if ! when car and or
               cdr and pretty print debug
-              defun = # >= error))
+              get-idx defun = # >= error))
 (import type (list? nil?))
 (import list (cars cadrs caar cadar map cadr
               cdar cddr caddar))
+
+(import lua/basic (getmetatable))
 
 (defun make-binding (xs) :hidden
   (if (= (# xs) 1)
@@ -136,3 +138,31 @@
   `((lambda ,(cars vars)
       ,@(map make-setting vars)
       ,@body)))
+
+(defun finaliser-for (x) :hidden
+  `((or (and (getmetatable ,x)
+            (get-idx (getmetatable ,x) :--finalise))
+       (get-idx ,x :close)
+       (lambda ()))))
+
+(defmacro use (var &body)
+  "Bind each variable in VAR, checking for truthyness between bindings,
+   execute BODY, then run a finaliser for all the variables bound by VAR.
+
+   Potential finalisers might be:
+   - `(get-idx (getmetatable FOO) :--finalise)`, where FOO is the
+     variable.
+   - `(get-idx FOO :close)` where FOO is the variable.
+
+   If there is no finaliser for VAR, then nothing is done for it.
+
+   Example:
+   ```
+   > (use [(file (io/open \"temp\"))] \\
+   .   (print! (self file :read \"*a\")))
+   *contents of temp*
+   ```"
+  `(when-let* ,var
+     ,@body
+     ,@(map finaliser-for
+            (cars var))))
