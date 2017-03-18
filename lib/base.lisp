@@ -148,9 +148,12 @@
    This is a function, not a macro."
   (and a b))
 
-(defun debug (x)
+(defmacro debug (x)
   "Print the value X, then return it unmodified."
-  (print (pretty x)) x)
+  (let* [(x-sym (gensym))]
+    `(let* [(,x-sym ,x)]
+       (print (.. ,(.. (pretty x) " = ") (pretty ,x-sym)))
+       ,x-sym)))
 
 (defun pretty (value)
   "Format VALUE as a valid Lisp expression which can be parsed."
