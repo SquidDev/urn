@@ -292,8 +292,8 @@
 
    Example:
    ```
-   > (for-each var '(1 2 3)\
-       (print! var))
+   > (for-each var '(1 2 3) \\
+   .   (print! var))
    1
    2
    3

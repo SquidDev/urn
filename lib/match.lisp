@@ -214,7 +214,7 @@
 
    Example:
    ```
-   > (handler-case \
+   > (handler-case \\
    .   (error! \"oh no!\")
    .   [(as string? ?x)
    .    (print! x)]) "

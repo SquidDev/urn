@@ -50,12 +50,12 @@
 
    Example:
    ```
-   > (check [(number a)] \
+   > (check [(number a)] \\
    .   (= a a))
    .
    (= a a) passed 100 tests.
    nil
-   > (check [(number a)] \
+   > (check [(number a)] \\
    .   (= a (+ 1 a)))
    .
    (= a (+ 1 a)) falsified after 1 iteration(s)
