@@ -1,6 +1,6 @@
 (import lua/basic (get-idx set-idx! getmetatable type# print slice
                    pcall xpcall tostring tonumber require error
-                   = /= < <= > >= + - * / % ^ #) :export)
+                   = /= < <= > >= + - * / % ^ # len# ..) :export)
 (import lua/basic ())
 (import lua/string string)
 (import lua/table (unpack concat) :export)
@@ -150,9 +150,13 @@
 
 (defmacro debug (x)
   "Print the value X, then return it unmodified."
-  (let* [(x-sym (gensym))]
+  (let* [(x-sym (gensym))
+         (px (pretty x))
+         (nm (if (>= 20 (len# px))
+               (.. px " = ")
+               ""))]
     `(let* [(,x-sym ,x)]
-       (print (.. ,(.. (pretty x) " = ") (pretty ,x-sym)))
+       (print (.. ,nm (pretty ,x-sym)))
        ,x-sym)))
 
 (defun pretty (value)
