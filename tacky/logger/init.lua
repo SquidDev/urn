@@ -48,12 +48,12 @@ struct1 = (function(...)
 	else
 	end
 	local out1 = ({})
-	local r_1051 = entries1["n"]
-	local r_1031 = nil
-	r_1031 = (function(r_1041)
-		if (r_1041 <= r_1051) then
-			local key1 = entries1[r_1041]
-			local val2 = entries1[(1 + r_1041)]
+	local r_1071 = entries1["n"]
+	local r_1051 = nil
+	r_1051 = (function(r_1061)
+		if (r_1061 <= r_1071) then
+			local key1 = entries1[r_1061]
+			local val2 = entries1[(1 + r_1061)]
 			out1[(function()
 				if (type1(key1) == "key") then
 					return key1["contents"]
@@ -62,11 +62,11 @@ struct1 = (function(...)
 				end
 			end)()
 			] = val2
-			return r_1031((r_1041 + 2))
+			return r_1051((r_1061 + 2))
 		else
 		end
 	end)
-	r_1031(1)
+	r_1051(1)
 	return out1
 end)
 self1 = (function(x1, key2, ...)
@@ -140,8 +140,8 @@ doNodeError_21_1 = (function(logger7, msg7, node3, explain3, ...)
 	local lines3 = _pack(...) lines3.tag = "list"
 	self1(logger7, "put-node-error!", msg7, node3, explain3, lines3)
 	local x2
-	local r_1951 = match1(msg7, "^([^\n]+)\n")
-	x2 = r_1951 or msg7
+	local r_2091 = match1(msg7, "^([^\n]+)\n")
+	x2 = r_2091 or msg7
 	return error1(x2, 0)
 end)
 return struct1("startTimer", startTimer_21_1, "pauseTimer", pauseTimer_21_1, "stopTimer", stopTimer_21_1, "putError", putError_21_1, "putWarning", putWarning_21_1, "putVerbose", putVerbose_21_1, "putDebug", putDebug_21_1, "putNodeError", putNodeError_21_1, "putNodeWarning", putNodeWarning_21_1, "doNodeError", doNodeError_21_1)

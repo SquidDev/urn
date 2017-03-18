@@ -45,12 +45,12 @@ struct1 = (function(...)
 	else
 	end
 	local out1 = ({})
-	local r_1051 = entries1["n"]
-	local r_1031 = nil
-	r_1031 = (function(r_1041)
-		if (r_1041 <= r_1051) then
-			local key1 = entries1[r_1041]
-			local val2 = entries1[(1 + r_1041)]
+	local r_1071 = entries1["n"]
+	local r_1051 = nil
+	r_1051 = (function(r_1061)
+		if (r_1061 <= r_1071) then
+			local key1 = entries1[r_1061]
+			local val2 = entries1[(1 + r_1061)]
 			out1[(function()
 				if (type1(key1) == "key") then
 					return key1["contents"]
@@ -59,11 +59,11 @@ struct1 = (function(...)
 				end
 			end)()
 			] = val2
-			return r_1031((r_1041 + 2))
+			return r_1051((r_1061 + 2))
 		else
 		end
 	end)
-	r_1031(1)
+	r_1051(1)
 	return out1
 end)
 formatPosition1 = (function(pos1)
@@ -84,8 +84,8 @@ formatRange1 = (function(range1)
 end)
 formatNode1 = (function(node1)
 	local temp1
-	local r_1951 = node1["range"]
-	temp1 = r_1951 and node1["contents"]
+	local r_2091 = node1["range"]
+	temp1 = r_2091 and node1["contents"]
 	if temp1 then
 		return format1("%s (%q)", formatRange1(node1["range"]), node1["contents"])
 	elseif node1["range"] then
@@ -99,8 +99,8 @@ formatNode1 = (function(node1)
 		end
 	else
 		local temp2
-		local r_1961 = node1["start"]
-		temp2 = r_1961 and node1["finish"]
+		local r_2101 = node1["start"]
+		temp2 = r_2101 and node1["finish"]
 		if temp2 then
 			return formatRange1(node1)
 		else
@@ -110,24 +110,24 @@ formatNode1 = (function(node1)
 end)
 getSource1 = (function(node2)
 	local result1 = nil
-	local r_1971 = nil
-	r_1971 = (function()
+	local r_2111 = nil
+	r_2111 = (function()
 		local temp3
-		local r_1981 = node2
-		if r_1981 then
+		local r_2121 = node2
+		if r_2121 then
 			local expr1 = result1
 			temp3 = not expr1
 		else
-			temp3 = r_1981
+			temp3 = r_2121
 		end
 		if temp3 then
 			result1 = node2["range"]
 			node2 = node2["parent"]
-			return r_1971()
+			return r_2111()
 		else
 		end
 	end)
-	r_1971()
+	r_2111()
 	return result1
 end)
 return struct1("formatPosition", formatPosition1, "formatRange", formatRange1, "formatNode", formatNode1, "getSource", getSource1)
