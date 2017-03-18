@@ -13,6 +13,7 @@
 (import type () :export)
 (import function () :export)
 (import table () :export)
+(import setf () :export)
 (import lua/io (write) :export)
 (import lua/math math :export)
 (import lua/math maths :export)
@@ -25,14 +26,6 @@
 (defun pred (x)
   "Return the predecessor of the number X."
   (- x 1))
-
-(defmacro inc! (x)
-  "Increment the variable X in place."
-  `(set! ,x (+ ,x 1)))
-
-(defmacro dec! (x)
-  "Decrement the variable X in place."
-  `(set! ,x (- ,x 1)))
 
 (define string->number
   "Convert the string X into a number. Returns `nil` if it could not be parsed.
