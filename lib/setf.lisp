@@ -66,7 +66,7 @@
 
 (defmacro over! (obj fun)
   "Apply function FUN over the location selector OBJ, storing the
-  result in the same place.
+   result in the same place.
 
    If OBJ is a symbol, then the symbol will just apply FUN, and set the
    symbol again.
