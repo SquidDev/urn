@@ -16,7 +16,7 @@
 (import lua/io (write) :export)
 (import lua/math math :export)
 (import lua/math maths :export)
-(import match (destructuring-bind case matches?) :export)
+(import match (destructuring-bind case handler-case matches?) :export)
 
 (defun succ (x)
   "Return the successor of the number X."

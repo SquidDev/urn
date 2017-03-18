@@ -37,8 +37,9 @@
  A type predicate pattern works much like a wildcard, except it only matches if
  the scrutinee matches the given predicate."
 
+(import lua/basic (xpcall))
 (import base ( defun defmacro if get-idx
-               let* and gensym error for
+               and gensym error for
                quasiquote list or pretty
                slice concat debug
                /= # = ! - + / * >= <= ))
@@ -49,6 +50,7 @@
 
 (import table (struct))
 (import string (.. char-at sub #s))
+(import binders (let*))
 
 (defun cons-pattern? (pattern) :hidden
   (eq? (nth pattern (- (# pattern) 1)) '.))
@@ -197,3 +199,28 @@
    Note that, since this does not bind anything, all metavariables
    may be replaced by `_` with no loss of meaning."
   (compile-pattern-test pt x))
+
+(defun ->meta (x) :hidden
+  (struct :tag "symbol" :contents (.. "?" (get-idx x :contents))))
+
+(defmacro handler-case (x &body)
+  "Evaluate the form X, and if an error happened, match
+   the series of `(?pattern (?arg) . ?body)` arms given in
+   BODY against the value of the error, executing the first
+   that succeeeds.
+
+   Example:
+   ```
+   > (handler-case \
+   .   (error! \"oh no!\")
+   .   [(as string? ?x)
+   .    (print! x)]) "
+  (let* [(gen-arm (cs exc)
+           (destructuring-bind [(?pattern (?arg) . ?body) cs]
+             ~((as ,pattern ,(->meta arg)) ,@body)))
+         (exc-sym (gensym))]
+    `(xpcall
+       (lambda () ,x)
+       (lambda (,exc-sym)
+         (case ,exc-sym
+           ,@(map gen-arm body))))))
