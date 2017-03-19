@@ -162,3 +162,10 @@
 (defun update-struct (st &keys)
   "Create a new structure based of ST, setting the values given by the pairs in KEYS."
   (merge st (struct (unpack keys 1 (# keys)))))
+
+(defun create-lookup (values)
+  "Convert VALUES into a lookup table, with each value being converted to a key
+   whose corresponding value is the value's index."
+  (with (res (empty-struct))
+    (for i 1 (# values) 1 (.<! res (nth values i) i))
+    res))

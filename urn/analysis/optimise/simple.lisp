@@ -31,17 +31,6 @@
         (remove-nth! nodes i)
         (changed!)))))
 
-(defun fast-all (fn li i)
-  "A fast implementation of all which starts from an offset.
-
-   Normally I'd be against this, but this function is called
-   for every function invokation so needs to be fast."
-  :hidden
-  (cond
-    ((> i (# li)) true)
-    ((fn (nth li i)) (fast-all fn li (+ i 1)))
-    (true false)))
-
 (defpass constant-fold (state nodes)
   "A primitive constant folder
 

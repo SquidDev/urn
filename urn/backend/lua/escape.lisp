@@ -1,18 +1,8 @@
 (import urn/analysis/nodes (builtins builtin-vars))
 
-(import string)
-
-(defun create-lookup (&lst)
-  "Convert LST to a [[struct]]."
-  :hidden
-  (with (out (empty-struct))
-    (for-each entry lst (.<! out entry true))
-    out))
-
-(define keywords (create-lookup "and" "break" "do" "else" "elseif" "end" "false" "for" "function"
+(define keywords (create-lookup '("and" "break" "do" "else" "elseif" "end" "false" "for" "function"
                    "if" "in" "local" "nil" "not" "or" "repeat" "return" "then" "true"
-                   "until" "while"))
-
+                   "until" "while")))
 
 (defun escape (name)
   "Escape an urn identifier NANE, converting it into a form that is valid Lua."

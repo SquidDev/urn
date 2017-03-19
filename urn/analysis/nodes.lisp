@@ -67,3 +67,13 @@
                    :contents "lambda"
                    :var (.> builtins :lambda)))
     `((,lambda () ,@body))))
+
+(defun fast-all (fn li i)
+  "A fast implementation of all which starts from an offset.
+
+   Normally I'd be against this, but this function is called
+   very often, so needs to be fast."
+  (cond
+    ((> i (# li)) true)
+    ((fn (nth li i)) (fast-all fn li (+ i 1)))
+    (true false)))
