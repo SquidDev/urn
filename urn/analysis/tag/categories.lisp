@@ -143,6 +143,25 @@
                    (visit-nodes lookup (car node) 3 false)
                    (cat "make-struct")]
 
+                  [(and
+                     ;; Attempt to determine expressions of the form ((lambda (x) x) Y)
+                     ;; where Y is an expression.
+                     (= (# node) 2) (builtin? (car head) :lambda)
+                     (= (# head) 3) (= (# (nth head 2)) 1)
+                     (symbol? (nth head 3)) (= (.> (nth head 3) :var) (.> (car (nth head 2)) :var)))
+
+                   ;; We now need to visit the child node.
+                   (with (child-cat (visit-node lookup (nth node 2) stmt))
+                     (if (.> child-cat :stmt)
+                       (progn
+                         (visit-node lookup head true)
+                         ;; If we got a statement out of it, then we either need to emit
+                         ;; our fancy let bindings or just a normal call.
+                         (if stmt
+                           (cat "call-lambda" :stmt true)
+                           (cat "call")))
+                       (cat "wrap-value")))]
+
                   [(and stmt (builtin? (car head) :lambda))
                    ;; Visit the lambda body
                    (visit-nodes lookup (car node) 3 true)
@@ -166,13 +185,7 @@
                      (for i (+ (# args) (+ offset 1)) (# node) 1
                        (visit-node lookup (nth node i) true))
 
-                     (if (and
-                           ;; Attempt to determine expressions of the form ((lambda (x) x) Y)
-                           ;; where Y is an expression.
-                           (= (# node) 2) (= (# args) 1) (= (# lam) 3) (! (.> lookup (nth node 2) :stmt))
-                           (symbol? (nth lam 3)) (= (.> (nth lam 3) :var) (.> (car args) :var)))
-                       (cat "wrap-value")
-                       (cat "call-lambda" :stmt true)))]
+                     (cat "call-lambda" :stmt true))]
                   [(or (builtin? (car head) :quote) (builtin? (car head) :syntax-quote))
                    (visit-nodes lookup node 1 false)
                    (cat "call-literal")]

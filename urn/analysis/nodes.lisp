@@ -41,10 +41,10 @@
   "Gets the AST representation of VAL"
   (with (ty (type# val))
     (cond
-      [(= ty "string")  (struct :tag "string" :value val)]
-      [(= ty "number")  (struct :tag "number" :value val)]
-      [(= ty "nil")     (struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil))]
-      [(= ty "boolean") (struct :tag "symbol" :contents (bool->string val) :var (.> builtin-vars (bool->string val)))])))
+      [(= ty "string")  (const-struct :tag "string" :value val)]
+      [(= ty "number")  (const-struct :tag "number" :value val)]
+      [(= ty "nil")     (const-struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil))]
+      [(= ty "boolean") (const-struct :tag "symbol" :contents (bool->string val) :var (.> builtin-vars (bool->string val)))])))
 
 (defun urn->bool (node)
   "Attempt to get the boolean value of NODE.
@@ -62,18 +62,18 @@
 
 (defun make-progn (body)
   "Allow using BODY as an expression."
-  (with (lambda (struct
-                   :tag "symbol"
-                   :contents "lambda"
-                   :var (.> builtins :lambda)))
-    `((,lambda () ,@body))))
+  `((,(make-symbol (.> builtins :lambda)) () ,@body)))
 
-(defun make-nil ()
-  "Make a NIL constant."
+(defun make-symbol (var)
+  "Make a symbol referencing VAR."
   (const-struct
     :tag "symbol"
-    :contents "nil"
-    :var (.> builtin-vars :nil)))
+    :contents (.> var :name)
+    :var var))
+
+(define make-nil
+  "Make a NIL constant."
+  (cute make-symbol (.> builtin-vars :nil)))
 
 (defun fast-all (fn li i)
   "A fast implementation of all which starts from an offset.

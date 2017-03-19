@@ -26,6 +26,8 @@
       (run-pass opt/strip-args state tracker nodes lookup)
       (run-pass opt/variable-fold state tracker nodes lookup)
 
+      (run-pass opt/expression-fold state tracker nodes lookup)
+
       (run-pass opt/inline state tracker nodes lookup))
 
     (changed? tracker)))
