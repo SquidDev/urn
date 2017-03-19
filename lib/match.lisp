@@ -213,11 +213,13 @@
    of that expression is returned by [[handler-case]].
 
    Example:
+
    ```
    > (handler-case \\
    .   (error! \"oh no!\")
    .   [(as string? ?x)
-   .    (print! x)]) "
+   .    (print! x)])
+   ```"
   (let* [(gen-arm (cs exc)
            (destructuring-bind [(?pattern (?arg) . ?body) cs]
              ~((as ,pattern ,(->meta arg)) ,@body)))
