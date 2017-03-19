@@ -15,7 +15,7 @@ or loops) being implemented by macros.
  - `set!` assigns an already existing variable (such as a function argument) a new value.
  - `import` will load code from another file.
 
-See [the roadmap](https://gitlab.com/SquidDev/urn/issues/1) for some idea of where we're heading.
+See [the roadmap](https://gitlab.com/urn/urn/issues/1) for some idea of where we're heading.
 
 ## Features
 Powerful assertion and testing framework, ensuring your code is (generally) correct.
@@ -27,9 +27,9 @@ Detailed parser messages, helping you find that problem as soon as possible.
 ![](http://i.imgur.com/RJ2fE2C.png)
 
 ## Getting started
-Urn is currently hosted on [GitLab](https://gitlab.com/SquidDev/urn) and mirrored
+Urn is currently hosted on [GitLab](https://gitlab.com/urn/urn) and mirrored
 on [GitHub](https://github.com/SquidDev/urn). You can clone the repo from either location, or download
-a [zipped version](https://gitlab.com/SquidDev/urn/repository/archive.zip?ref=master).
+a [zipped version](https://gitlab.com/urn/urn/repository/archive.zip?ref=master).
 
 You should just be able to execute `tacky/cli.lua` to launch the REPL, or specify a series of `.lisp` files in order to
 compile a set of files.

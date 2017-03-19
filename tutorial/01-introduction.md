@@ -16,7 +16,7 @@ program, incredibly easy.
 First off, you'll want to install Urn. The easiest way to do this is clone the repository using Git:
 
 ```sh
-> git clone https://gitlab.com/SquidDev/urn.git && cd urn
+> git clone https://gitlab.com/urn/urn.git && cd urn
 ```
 
 You can now launch the Urn REPL: this allows you to enter code and execute it, allowing for immediate feedback.
