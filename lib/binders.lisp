@@ -113,7 +113,7 @@
    the print statement will not be executed."
   `((lambda (,(car var)) (when ,(car var) ,@body)) ,(cadr var)))
 
-(defun make-setting (var)
+(defun make-setting (var) :hidden
   (if (= (# var) 2)
     `(set! ,(car var) ,(cadr var))
     (if (>= (# var) 3)
