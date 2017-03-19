@@ -139,7 +139,13 @@
           (.<! back-state :mappings name (traceback/generate-mappings (.> out :lines)))
 
           (case (list (load str (.. "=" name) "t" global))
-            [(nil ?msg) (fail! (.. msg ":\n" str))]
+            [(nil ?msg)
+             (let* [(buffer '())
+                    (lines (string/split str "\n"))
+                    (format (.. "%" (#s (number->string (# lines))) "d | %s"))]
+               (for i 1 (# lines) 1
+                 (push-cdr! buffer (string/format format i (nth lines i))))
+               (fail! (.. msg ":\n" (concat buffer "\n"))))]
             [(?fun)
              (case (list (xpcall fun debug/traceback))
                [(false ?msg)
