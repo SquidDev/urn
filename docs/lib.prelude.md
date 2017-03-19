@@ -524,10 +524,10 @@ of that expression is returned by [`handler-case`](lib.match.md#handler-case-x-b
 
 Example:
 
-```
+```cl
 > (handler-case \
 .   (error! "oh no!")
-.   [(as string? ?x)
+.   [string? (x)
 .    (print! x)])
 ```
 
@@ -1247,7 +1247,6 @@ Example:
  - `format` *Native defined at lib/lua/string.lisp:5:1*
  - `get-idx` *Native defined at lib/lua/basic.lisp:37:1*
  - `getmetatable` *Native defined at lib/lua/basic.lisp:28:1*
- - `(make-setting var)` *Defined at lib/binders.lisp:116:1*
  - `math/abs` *Native defined at lib/lua/math.lisp:1:1*
  - `math/acos` *Native defined at lib/lua/math.lisp:2:1*
  - `math/asin` *Native defined at lib/lua/math.lisp:3:1*

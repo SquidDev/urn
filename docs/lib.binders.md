@@ -121,5 +121,3 @@ the print statement will not be executed.
 
 Bind the single variable `VAR`, then evaluate `BODY`.
 
-## Undocumented symbols
- - `(make-setting var)` *Defined at lib/binders.lisp:116:1*

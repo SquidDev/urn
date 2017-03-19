@@ -67,10 +67,10 @@ of that expression is returned by [`handler-case`](lib.match.md#handler-case-x-b
 
 Example:
 
-```
+```cl
 > (handler-case \
 .   (error! "oh no!")
-.   [(as string? ?x)
+.   [string? (x)
 .    (print! x)])
 ```
 
