@@ -31,9 +31,9 @@
    in constant time.
 
    Example:
-   ```
+   ```cl
    > (car '(1 2 3))
-   1
+   out = 1
    ```"
   (assert-type! x list)
   (base/car x))
@@ -44,9 +44,9 @@
    internally, this function runs in linear time.
 
    Example:
-   ```
+   ```cl
    > (cdr '(1 2 3))
-   '(2 3)
+   out = (2 3)
    ```"
   (assert-type! x list)
   (if (nil? x)
@@ -57,9 +57,9 @@
   "Take the first N elements of the list XS.
 
    Example:
-   ```
+   ```cl
    > (take '(1 2 3 4 5) 2)
-   '(1 2)
+   out = (1 2)
    ```"
   (slice xs 1 n))
 
@@ -67,9 +67,9 @@
   "Remove the first N elements of the list XS.
 
    Example:
-   ```
+   ```cl
    > (take '(1 2 3 4 5) 2)
-   '(3 4 5)
+   out = (3 4 5)
    ```"
   (slice xs (+ n 1) nil))
 
@@ -79,9 +79,9 @@
    it runs in O(n+k) time proportional both to `(# XSS)` and `(# XS)`.
 
    Example:
-   ```
+   ```cl
    > (snoc '(1 2 3) 4 5 6)
-   '(1 2 3 4 5 6)
+   out = (1 2 3 4 5 6)
    ``` "
   `(,@xss ,@xs))
 
@@ -96,10 +96,10 @@
    - `(foldr + 0 '(1 2 3))` is equivalent to `(+ 1 (+ 2 (+ 3 0)))`.
 
    Example:
-   ```
+   ```cl
    > (foldr append '() '((1 2) (3 4)))
+   out = (1 2 3 4)
    ; equivalent to (append '(1 2) (append '(3 4) '()))
-   '(1 2 3 4)
    ```"
   (assert-type! f function)
   (assert-type! xs list)
@@ -113,9 +113,9 @@
    results in a new list.
 
    Example:
-   ```
+   ```cl
    > (map succ '(0 1 2))
-   '(1 2 3)
+   out = (1 2 3)
    ```"
   (assert-type! f function)
   (assert-type! xs list)
@@ -128,7 +128,7 @@
   "Return the list of elements of XS which match the predicate P.
 
    Example:
-   ```
+   ```cl
    > (filter even? '(1 2 3 4 5 6))
    '(2 4 6)
    ```"
@@ -145,7 +145,7 @@
    predicate P.
 
    Example:
-   ```
+   ```cl
    > (any exists? '(nil 1 \"foo\"))
    true
    ```"
@@ -157,7 +157,7 @@
   "Test if all elements of XS match the predicate P.
 
    Example:
-   ```
+   ```cl
    > (all symbol? '(foo bar baz))
    true
    > (all number? '(1 2 foo))
@@ -171,7 +171,7 @@
   "Test if X is present in the list XS.
 
    Example:
-   ```
+   ```cl
    > (elem? 1 '(1 2 3))
    true
    > (elem? 'foo '(1 2 3))
@@ -184,9 +184,9 @@
   "Remove values matching the predicate [[nil?]] from the list XS.
 
    Example:
-   ```
+   ```cl
    > (prune '(() 1 () 2))
-   '(1 2)
+   out = (1 2)
    ```"
   (assert-type! xs list)
   (filter (lambda (x) (! (nil? x))) xs))
@@ -195,9 +195,9 @@
   "An alias for [[map]] with the arguments XS and F flipped.
 
    Example:
-   ```
+   ```cl
    > (traverse '(1 2 3) succ)
-   '(2 3 4)
+   out = (2 3 4)
    ```"
   (map f xs))
 
@@ -206,9 +206,9 @@
    Counterintutively, this function runs in constant time.
 
    Example:
-   ```
+   ```cl
    > (last (range 1 100))
-   100
+   out = 100
    ```"
   (assert-type! xs list)
   (get-idx xs (# xs)))
@@ -218,9 +218,9 @@
    This function runs in constant time.
 
    Example:
-   ```
+   ```cl
    > (nth (range 1 100) 10)
-   10
+   out = 10
    ```"
   (get-idx xs idx))
 
@@ -229,9 +229,9 @@
    element is1.
 
    Example:
-   ```
+   ```cl
    > (nths '((1 2 3) (4 5 6) (7 8 9)) 2)
-   '(2 5 8)
+   out = (2 5 8)
    ```"
   (let* [(out '())]
     (for i 1 (# xss) 1
@@ -242,12 +242,12 @@
   "Mutate the list XS, adding VAL to its end.
 
    Example:
-   ```
+   ```cl
    > (define list '(1 2 3))
    > (push-cdr! list 4)
    '(1 2 3 4)
    > list
-   '(1 2 3 4)
+   out = (1 2 3 4)
    ```"
   (assert-type! xs list)
   (let* [(len (+ (# xs) 1))]
@@ -259,12 +259,12 @@
   "Mutate the list XS, removing and returning its last element.
 
    Example:
-   ```
+   ```cl
    > (define list '(1 2 3))
    > (pop-last! list)
    3
    > list
-   '(1 2)
+   out = (1 2)
    ``` "
   (assert-type! xs list)
   (with (x (get-idx xs (# xs)))
@@ -276,12 +276,12 @@
   "Mutate the list LI, removing the value at IDX and returning it.
 
    Example:
-   ```
+   ```cl
    > (define list '(1 2 3))
    > (remove-nth! list 2)
    2
    > list
-   > '(1 3)
+   out = (1 3)
    ``` "
   (assert-type! li list)
   (set-idx! li "n" (- (get-idx li "n") 1))
@@ -291,7 +291,7 @@
   "Perform the set of actions BODY for all values in LST, binding the current value to VAR.
 
    Example:
-   ```
+   ```cl
    > (for-each var '(1 2 3) \\
    .   (print! var))
    1
@@ -309,9 +309,9 @@
   "Concatenate XS and YS.
 
    Example:
-   ```
+   ```cl
    > (append '(1 2) '(3 4))
-   '(1 2 3 4)
+   out = (1 2 3 4)
    ``` "
   `(,@xs ,@ys))
 
@@ -320,9 +320,9 @@
    are not lists.
 
    Example:
-   ```
+   ```cl
    > (flatten '((1 2) (3 4)))
-   '(1 2 3 4)
+   out = (1 2 3 4)
    ```"
   (foldr append '() xss))
 
@@ -330,9 +330,9 @@
   "Build a list from START to END.
 
    Example:
-   ```
+   ```cl
    > (range 1 10)
-   '(1 2 3 4 5 6 7 8 9 10)
+   out = (1 2 3 4 5 6 7 8 9 10)
    ```"
   (let* [(out '())]
     (for i start end 1
@@ -343,9 +343,9 @@
   "Reverse the list XS, using the accumulator ACC.
 
    Example:
-   ```
+   ```cl
    > (reverse (range 1 10))
-   '(10 9 8 7 6 5 4 3 2 1)
+   out = (10 9 8 7 6 5 4 3 2 1)
    ```"
   (let* [(out '())]
     (for i (# xs) 1 -1
@@ -362,9 +362,9 @@
    is the binary operation, and Z is the zero element.
 
    Example:
-   ```
+   ```cl
    > (accumulate-with tonumber + 0 '(1 2 3 4 5))
-   15
+   out = 15
    ```"
   (assert-type! f function)
   (assert-type! ac function)
@@ -375,9 +375,9 @@
    by applying FN to all of them. For example:
 
    Example:
-   ```
+   ```cl
    > (zip list '(1 2 3) '(4 5 6) '(7 8 9))
-   '((1 4 7) (2 5 8) (3 6 9))
+   out = ((1 4 7) (2 5 8) (3 6 9))
    ```"
   (let* [(lenghts (map # xss))
          (out '())]
