@@ -34,7 +34,7 @@
     (with (node (nth nodes i))
       (when (and (.> node :defVar) (! (.> (usage/get-var lookup (.> node :defVar)) :active)))
         (if (= i (# nodes))
-          (.<! nodes i (struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil)))
+          (.<! nodes i (make-nil))
           (remove-nth! nodes i))
         (changed!)))))
 
@@ -48,7 +48,8 @@
         (let* [(lam (car node))
                (args (nth lam 2))
                (offset 1)
-               (rem-offset '0)]
+               (rem-offset '0)
+               (removed (empty-struct))]
           (for i 1 (# args) 1
             (let [(arg (nth args (- i rem-offset)))
                   (val (nth node (- (+ i offset) rem-offset)))]
@@ -67,9 +68,22 @@
                 ;; So remove things which aren't used and have no side effects.
                 [true
                   (changed!)
+                  (.<! removed (.> (nth args (- i rem-offset)) :var) true)
                   (remove-nth! args (- i rem-offset))
                   (remove-nth! node (- (+ i offset) rem-offset))
-                  (inc! rem-offset)]))))))))
+                  (inc! rem-offset)])))
+
+          ;; We convert every set! into a progn with the value and `nil`.
+          (when (> rem-offset 0)
+            (traverse/traverse-list lam 3
+              (lambda (node)
+                (if (and (list? node) (builtin? (car node) :set!) (.> removed (.> (nth node 2) :var)))
+                  (with (val (nth node 3))
+                    (if (side-effect? val)
+                      ;; We have to avoid returning this value.
+                      (make-progn (list val (make-nil)))
+                      (make-nil)))
+                  node)))))))))
 
 (defpass variable-fold (state nodes lookup)
   "Folds variables"

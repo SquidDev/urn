@@ -61,12 +61,19 @@
     [true nil]))
 
 (defun make-progn (body)
-  "Allow using BODY as an expression"
+  "Allow using BODY as an expression."
   (with (lambda (struct
                    :tag "symbol"
                    :contents "lambda"
                    :var (.> builtins :lambda)))
     `((,lambda () ,@body))))
+
+(defun make-nil ()
+  "Make a NIL constant."
+  (const-struct
+    :tag "symbol"
+    :contents "nil"
+    :var (.> builtin-vars :nil)))
 
 (defun fast-all (fn li i)
   "A fast implementation of all which starts from an offset.

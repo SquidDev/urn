@@ -17,7 +17,7 @@
         ;; We replace the last node in the block with a nil: otherwise we might change
         ;; what is returned
         (if (= i (# nodes))
-          (.<! nodes i (struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil)))
+          (.<! nodes i (make-nil))
           (remove-nth! nodes i))
         (changed!)))))
 
