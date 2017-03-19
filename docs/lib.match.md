@@ -66,11 +66,13 @@ In the case that `X` does not throw an error, the value
 of that expression is returned by [`handler-case`](lib.match.md#handler-case-x-body).
 
 Example:
+
 ```
 > (handler-case \
 .   (error! "oh no!")
 .   [(as string? ?x)
-.    (print! x)]) 
+.    (print! x)])
+```
 
 ## `(matches? pt x)`
 *Macro defined at lib/match.lisp:197:1*
