@@ -33,9 +33,9 @@ monoid described by (`F`, `AC`, `Z`), that is, `F` constructs the monoid, `AC`
 is the binary operation, and `Z` is the zero element.
 
 Example:
-```
+```cl
 > (accumulate-with tonumber + 0 '(1 2 3 4 5))
-15
+out = 15
 ```
 
 ## `(all p xs)`
@@ -44,7 +44,7 @@ Example:
 Test if all elements of `XS` match the predicate `P`.
 
 Example:
-```
+```cl
 > (all symbol? '(foo bar baz))
 true
 > (all number? '(1 2 foo))
@@ -58,7 +58,7 @@ Check for the existence of an element in `XS` that matches the
 predicate `P`.
 
 Example:
-```
+```cl
 > (any exists? '(nil 1 "foo"))
 true
 ```
@@ -69,9 +69,9 @@ true
 Concatenate `XS` and `YS`.
 
 Example:
-```
+```cl
 > (append '(1 2) '(3 4))
-'(1 2 3 4)
+out = (1 2 3 4)
 ``` 
 
 ## `(car x)`
@@ -81,9 +81,9 @@ Return the first element present in the list `X`. This function operates
 in constant time.
 
 Example:
-```
+```cl
 > (car '(1 2 3))
-1
+out = 1
 ```
 
 ## `(cdr x)`
@@ -94,9 +94,9 @@ Return the list `X` without the first element present. In the case that
 internally, this function runs in linear time.
 
 Example:
-```
+```cl
 > (cdr '(1 2 3))
-'(2 3)
+out = (2 3)
 ```
 
 ## `(drop xs n)`
@@ -105,9 +105,9 @@ Example:
 Remove the first `N` elements of the list `XS`.
 
 Example:
-```
+```cl
 > (take '(1 2 3 4 5) 2)
-'(3 4 5)
+out = (3 4 5)
 ```
 
 ## `(elem? x xs)`
@@ -116,7 +116,7 @@ Example:
 Test if `X` is present in the list `XS`.
 
 Example:
-```
+```cl
 > (elem? 1 '(1 2 3))
 true
 > (elem? 'foo '(1 2 3))
@@ -129,7 +129,7 @@ false
 Return the list of elements of `XS` which match the predicate `P`.
 
 Example:
-```
+```cl
 > (filter even? '(1 2 3 4 5 6))
 '(2 4 6)
 ```
@@ -141,9 +141,9 @@ Concatenate all the lists in `XSS`. `XSS` must not contain elements which
 are not lists.
 
 Example:
-```
+```cl
 > (flatten '((1 2) (3 4)))
-'(1 2 3 4)
+out = (1 2 3 4)
 ```
 
 ## `(foldr f z xs)`
@@ -159,10 +159,10 @@ Consider:
 - `(foldr + 0 '(1 2 3))` is equivalent to `(+ 1 (+ 2 (+ 3 0)))`.
 
 Example:
-```
+```cl
 > (foldr append '() '((1 2) (3 4)))
+out = (1 2 3 4)
 ; equivalent to (append '(1 2) (append '(3 4) '()))
-'(1 2 3 4)
 ```
 
 ## `(for-each var lst &body)`
@@ -171,7 +171,7 @@ Example:
 Perform the set of actions `BODY` for all values in `LST`, binding the current value to `VAR`.
 
 Example:
-```
+```cl
 > (for-each var '(1 2 3) \
 .   (print! var))
 1
@@ -187,9 +187,9 @@ Return the last element of the list `XS`.
 Counterintutively, this function runs in constant time.
 
 Example:
-```
+```cl
 > (last (range 1 100))
-100
+out = 100
 ```
 
 ## `(map f xs)`
@@ -199,9 +199,9 @@ Apply the function `F` to every element of the list `XS`, collecting the
 results in a new list.
 
 Example:
-```
+```cl
 > (map succ '(0 1 2))
-'(1 2 3)
+out = (1 2 3)
 ```
 
 ## `(nth xs idx)`
@@ -211,9 +211,9 @@ Get the `IDX` th element in the list `XS`. The first element is 1.
 This function runs in constant time.
 
 Example:
-```
+```cl
 > (nth (range 1 100) 10)
-10
+out = 10
 ```
 
 ## `(nths xss idx)`
@@ -223,9 +223,9 @@ Get the `IDX`-th element in all the lists given at `XSS`. The first
 element is1.
 
 Example:
-```
+```cl
 > (nths '((1 2 3) (4 5 6) (7 8 9)) 2)
-'(2 5 8)
+out = (2 5 8)
 ```
 
 ## `(pop-last! xs)`
@@ -234,12 +234,12 @@ Example:
 Mutate the list `XS`, removing and returning its last element.
 
 Example:
-```
+```cl
 > (define list '(1 2 3))
 > (pop-last! list)
 3
 > list
-'(1 2)
+out = (1 2)
 ``` 
 
 ## `(prune xs)`
@@ -248,9 +248,9 @@ Example:
 Remove values matching the predicate [`nil?`](lib.type.md#nil-x) from the list `XS`.
 
 Example:
-```
+```cl
 > (prune '(() 1 () 2))
-'(1 2)
+out = (1 2)
 ```
 
 ## `(push-cdr! xs val)`
@@ -259,12 +259,12 @@ Example:
 Mutate the list `XS`, adding `VAL` to its end.
 
 Example:
-```
+```cl
 > (define list '(1 2 3))
 > (push-cdr! list 4)
 '(1 2 3 4)
 > list
-'(1 2 3 4)
+out = (1 2 3 4)
 ```
 
 ## `(range start end)`
@@ -273,9 +273,9 @@ Example:
 Build a list from `START` to `END`.
 
 Example:
-```
+```cl
 > (range 1 10)
-'(1 2 3 4 5 6 7 8 9 10)
+out = (1 2 3 4 5 6 7 8 9 10)
 ```
 
 ## `(remove-nth! li idx)`
@@ -284,12 +284,12 @@ Example:
 Mutate the list `LI`, removing the value at `IDX` and returning it.
 
 Example:
-```
+```cl
 > (define list '(1 2 3))
 > (remove-nth! list 2)
 2
 > list
-> '(1 3)
+out = (1 3)
 ``` 
 
 ## `(reverse xs)`
@@ -298,9 +298,9 @@ Example:
 Reverse the list `XS`, using the accumulator `ACC`.
 
 Example:
-```
+```cl
 > (reverse (range 1 10))
-'(10 9 8 7 6 5 4 3 2 1)
+out = (10 9 8 7 6 5 4 3 2 1)
 ```
 
 ## `(snoc xss &xs)`
@@ -311,9 +311,9 @@ This function runs in linear time over the two input lists: That is,
 it runs in `O`(n+k) time proportional both to `(# XSS)` and `(# XS)`.
 
 Example:
-```
+```cl
 > (snoc '(1 2 3) 4 5 6)
-'(1 2 3 4 5 6)
+out = (1 2 3 4 5 6)
 ``` 
 
 ## `(take xs n)`
@@ -322,9 +322,9 @@ Example:
 Take the first `N` elements of the list `XS`.
 
 Example:
-```
+```cl
 > (take '(1 2 3 4 5) 2)
-'(1 2)
+out = (1 2)
 ```
 
 ## `(traverse xs f)`
@@ -333,9 +333,9 @@ Example:
 An alias for [`map`](lib.list.md#map-f-xs) with the arguments `XS` and `F` flipped.
 
 Example:
-```
+```cl
 > (traverse '(1 2 3) succ)
-'(2 3 4)
+out = (2 3 4)
 ```
 
 ## `(zip fn &xss)`
@@ -345,9 +345,9 @@ Iterate over all the successive cars of `XSS`, producing a single list
 by applying `FN` to all of them. For example:
 
 Example:
-```
+```cl
 > (zip list '(1 2 3) '(4 5 6) '(7 8 9))
-'((1 4 7) (2 5 8) (3 6 9))
+out = ((1 4 7) (2 5 8) (3 6 9))
 ```
 
 ## Undocumented symbols
