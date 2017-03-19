@@ -214,10 +214,10 @@
 
    Example:
 
-   ```
+   ```cl
    > (handler-case \\
    .   (error! \"oh no!\")
-   .   [(as string? ?x)
+   .   [string? (x)
    .    (print! x)])
    ```"
   (let* [(gen-arm (cs exc)
