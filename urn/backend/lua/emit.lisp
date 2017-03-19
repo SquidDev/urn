@@ -387,6 +387,12 @@
                  (compile-expression (nth node i) out state))
                (w/append! out ")")))))]
 
+      ["wrap-value"
+       (when ret (w/append! out ret))
+       (w/append! out "(")
+       (compile-expression (nth node 2) out state)
+       (w/append! out ")")]
+
       ["call-lambda"
        ;; If we have a direction invokation of a function then inline it
        (when (= ret nil)

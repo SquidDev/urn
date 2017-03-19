@@ -150,7 +150,8 @@
                    ;; And visit the argument values
                    ;; Yay: My favourite bit of code, zipping over arguments
                    ;; No seriously: I need to write an abstraction layer at some point for this.
-                   (let* [(args (nth (car node) 2))
+                   (let* [(lam (car node))
+                          (args (nth lam 2))
                           (offset 1)]
                      (for i 1 (# args) 1
                        (with (arg (nth args i))
@@ -163,9 +164,15 @@
                            (when-with (val (nth node (+ i offset)))
                              (visit-node lookup val true)))))
                      (for i (+ (# args) (+ offset 1)) (# node) 1
-                       (visit-node lookup (nth node i) true)))
+                       (visit-node lookup (nth node i) true))
 
-                   (cat "call-lambda" :stmt true)]
+                     (if (and
+                           ;; Attempt to determine expressions of the form ((lambda (x) x) Y)
+                           ;; where Y is an expression.
+                           (= (# node) 2) (= (# args) 1) (= (# lam) 3) (! (.> lookup (nth node 2) :stmt))
+                           (symbol? (nth lam 3)) (= (.> (nth lam 3) :var) (.> (car args) :var)))
+                       (cat "wrap-value")
+                       (cat "call-lambda" :stmt true)))]
                   [(or (builtin? (car head) :quote) (builtin? (car head) :syntax-quote))
                    (visit-nodes lookup node 1 false)
                    (cat "call-literal")]
