@@ -243,7 +243,16 @@
                   (with (res (list (pcall exec-string compiler scope data)))
                     (unless (car res) (logger/put-error! logger (cadr res)))))))])))))
 
-(define task
+(defun exec (compiler)
+  (let* [(data (io/read "*a"))
+         (scope (.> compiler :rootScope))
+         (logger (.> compiler :log))
+         (res (list (pcall exec-string compiler scope data)))]
+    (unless (car res)
+      (logger/put-error! logger (cadr res)))
+    (os/exit 0)))
+
+(define repl-task
   (struct
     :name  "repl"
     :setup (lambda (spec)
@@ -251,3 +260,12 @@
                :help "Start an interactive session."))
     :pred  (lambda (args) (.> args :repl))
     :run  repl))
+
+(define exec-task
+  (struct
+    :name  "exec"
+    :setup (lambda (spec)
+             (arg/add-argument! spec '("--exec")
+               :help "Execute a program without compiling it."))
+    :pred  (lambda (args) (.> args :exec))
+    :run   exec))

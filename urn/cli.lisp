@@ -49,7 +49,8 @@
                 docs/task
                 gen-native/task
                 run/task
-                repl/task))]
+                repl/exec-task
+                repl/repl-task))]
   (arg/add-help! spec)
 
   (arg/add-argument! spec '("--explain" "-e")
