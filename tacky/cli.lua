@@ -6237,7 +6237,6 @@ repl1 = (function(compiler9)
 	return r_9331()
 end)
 exec2 = (function(compiler10)
-	print1("execing")
 	local data7 = read1("*a")
 	local scope8 = compiler10["rootScope"]
 	local logger17 = compiler10["log"]
