@@ -92,6 +92,7 @@
 
                               ;; General shared options
                               :meta      (.> compiler :libMeta)
+                              :libs      (.> compiler :libs)
                               :logger    (.> compiler :log)
                               :timer     (.> compiler :timer)))))
 
