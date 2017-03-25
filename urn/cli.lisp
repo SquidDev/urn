@@ -4,6 +4,8 @@
 (import urn/tools/run       run)
 (import urn/tools/gen-native gen-native)
 
+(import urn/analysis/optimise optimise)
+(import urn/analysis/warning warning)
 (import urn/backend/lua lua)
 (import urn/loader loader)
 (import urn/logger logger)
@@ -146,21 +148,24 @@
       (.<! args :emit-lua true))
 
     (with (compiler (struct
-                     :log       logger
-                     :timer     (timer/create (cut logger/put-time! logger <> <> <>))
-                     :paths     paths
+                      :log       logger
+                      :timer     (timer/create (cut logger/put-time! logger <> <> <>))
+                      :paths     paths
 
-                     :libEnv    (empty-struct)
-                     :libMeta   (empty-struct)
-                     :libs      '()
-                     :libCache  (empty-struct)
-                     :libNames  (empty-struct)
+                      :libEnv    (empty-struct)
+                      :libMeta   (empty-struct)
+                      :libs      '()
+                      :libCache  (empty-struct)
+                      :libNames  (empty-struct)
 
-                     :rootScope root-scope
+                      :warning   (warning/default)
+                      :optimise  (optimise/default)
 
-                     :variables (empty-struct)
-                     :states    (empty-struct)
-                     :out       '()))
+                      :rootScope root-scope
+
+                      :variables (empty-struct)
+                      :states    (empty-struct)
+                      :out       '()))
 
       ;; Add compileState
       (.<! compiler :compileState (lua/create-state (.> compiler :libMeta)))
