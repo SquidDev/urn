@@ -66,16 +66,18 @@
       ;; "too many local variable" errors. The upper bound is actually 200, but lambda inlining
       ;; will probably bring it up slightly.
       ;; In the future we probably ought to handle this smartly when it is over 150 too.
-      (when (between? count 1 150)
-        (w/append! out "local ")
-        (with (first true)
-          (for-each node (.> compiler :out)
-            (when-with (var (.> node :defVar))
-              (if first
-                (set! first false)
-                (w/append! out ", "))
-              (w/append! out (escape-var var state)))))
-        (w/line! out)))
+      (if (between? count 1 150)
+        (progn
+          (w/append! out "local ")
+          (with (first true)
+            (for-each node (.> compiler :out)
+              (when-with (var (.> node :defVar))
+                (if first
+                  (set! first false)
+                  (w/append! out ", "))
+                (w/append! out (escape-var var state)))))
+          (w/line! out))
+        (w/line! out "local _ENV = setmetatable({}, {__index=ENV or (getfenv and getfenv()) or _G}) if setfenv then setfenv(0, _ENV) end")))
 
     (block (.> compiler :out) out state 1 "return ")
     out))
