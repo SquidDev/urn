@@ -1,4 +1,4 @@
-(import urn/analysis/nodes (builtins builtin-vars))
+(import urn/analysis/nodes (builtins))
 (import urn/analysis/pass (run-pass))
 (import urn/analysis/tag/categories cat)
 (import urn/backend/lua/escape ())
@@ -9,7 +9,7 @@
 (defun truthy? (node)
   "Determine whether NODE is true. A more comprehensive implementation exists in the optimiser"
   :hidden
-  (and (symbol? node) (= (.> builtin-vars :true) (.> node :var))))
+  (and (symbol? node) (= (.> builtins :true) (.> node :var))))
 
 (define boring-categories
   "A lookup of all 'boring' which we will not emit node information for."

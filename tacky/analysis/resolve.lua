@@ -91,6 +91,7 @@ for i = 1, #declaredVariables do
 	Scope.import(rootScope, "builtin/" .. defined, var, true)
 	declaredVars[var] = true
 	declaredVars[defined] = var
+	builtins[defined] = var
 end
 
 local function getExecuteName(owner)

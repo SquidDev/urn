@@ -7,10 +7,6 @@
   "Determine whether NODE is builtin NAME."
   (and (symbol? node) (= (.> node :var) (.> builtins name))))
 
-(defun builtin-var? (node name)
-  "Determine whether NODE is builtin NAME."
-  (and (symbol? node) (= (.> node :var) (.> builtin-vars name))))
-
 (defun side-effect? (node)
   "Checks if NODE has a side effect"
   (with (tag (type node))
@@ -43,8 +39,8 @@
     (cond
       [(= ty "string")  (const-struct :tag "string" :value val)]
       [(= ty "number")  (const-struct :tag "number" :value val)]
-      [(= ty "nil")     (const-struct :tag "symbol" :contents "nil" :var (.> builtin-vars :nil))]
-      [(= ty "boolean") (const-struct :tag "symbol" :contents (bool->string val) :var (.> builtin-vars (bool->string val)))])))
+      [(= ty "nil")     (const-struct :tag "symbol" :contents "nil" :var (.> builtins :nil))]
+      [(= ty "boolean") (const-struct :tag "symbol" :contents (bool->string val) :var (.> builtins (bool->string val)))])))
 
 (defun urn->bool (node)
   "Attempt to get the boolean value of NODE.
@@ -54,9 +50,9 @@
     [(or (string? node) (key? node) (number? node)) true]
     [(symbol? node)
      (cond
-       [(= (.> builtin-vars :true)  (.> node :var)) true]
-       [(= (.> builtin-vars :false) (.> node :var)) false]
-       [(= (.> builtin-vars :nil)   (.> node :var)) false]
+       [(= (.> builtins :true)  (.> node :var)) true]
+       [(= (.> builtins :false) (.> node :var)) false]
+       [(= (.> builtins :nil)   (.> node :var)) false]
        [true nil])]
     [true nil]))
 
@@ -73,7 +69,7 @@
 
 (define make-nil
   "Make a NIL constant."
-  (cute make-symbol (.> builtin-vars :nil)))
+  (cute make-symbol (.> builtins :nil)))
 
 (defun fast-all (fn li i)
   "A fast implementation of all which starts from an offset.
