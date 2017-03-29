@@ -3,7 +3,6 @@
 
 (defun cat (category &args)
   "Create a CATEGORY data set, using ARGS as additional parameters to [[struct]]."
-  :hidden
   (struct
     :category category
     (unpack args 1 (# args))))
@@ -21,7 +20,6 @@
    STMT marks whether this node is in a \"statement\" context. This is any node
    for which we are capable of generating a statement: namely any
    block (assignments, returns, simple calls) or the condition inside a `cond`."
-  :hidden
   (with (cat (case (type node)
           ["string" (cat "const")]
           ["number" (cat "const")]
@@ -202,7 +200,6 @@
 
 (defun visit-nodes (lookup nodes start stmt)
   "Marks all NODES with a category."
-  :hidden
   (for i start (# nodes) 1
     (visit-node lookup (nth nodes i) stmt)))
 
