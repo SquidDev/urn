@@ -326,6 +326,10 @@ function resolveNode(node, scope, state, root)
 					errorPositions(log, node, replacement)
 				end
 
+				if replacement == nil then
+					replacement = { tag = "symbol", var = declaredVars["nil"] }
+				end
+
 				replacement = resolveExecuteResult(childState, replacement, node, scope, state)
 
 				return resolveNode(replacement, scope, state, root)
