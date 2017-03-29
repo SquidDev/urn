@@ -54,7 +54,7 @@
 
   (with (lookup (usage/create-state))
     (run-pass usage/tag-usage state nil nodes lookup)
-    (for-each pass (.> state :pass :normal)
+    (for-each pass (.> state :pass :usage)
       (run-pass pass state nil nodes lookup))))
 
 (defun default ()
