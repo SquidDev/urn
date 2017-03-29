@@ -20,7 +20,7 @@
    visitor. It should return the replacement node, or the current node if no
    changes should be made.")
 
-(define-native travsere-nodes
+(define-native traverse-nodes
   "Traverse a list of NODES, starting at IDX, using the specified VISITOR.
 
    See [[traverse-node]] for more information about the VISITOR.")

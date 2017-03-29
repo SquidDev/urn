@@ -23,37 +23,56 @@
  you'll need to include `\"usage\"` in the category list in [[defpass]]. You can
  then access information about the variable by using [[var-usage]]."
 
-(define-native defpass# :hidden)
-(define-native changed!# :hidden)
+(import lua/basic (slice))
 
-(define-macro defpass
-  "Define and register a pass with the given NAME, taking the specified ARGS
-   which executes the given BODY.
+(define pass-arg :hidden (gensym))
 
-   ARGS will be given a state object, a list of nodes and any context specific
-   arguments.
+(defmacro defpass (name args &body)
+  "Define a pass with the given NAME and BODY taking the specified ARGS.
 
    BODY can contain key-value pairs (like [[struct]]) which will be set as
-   options for this pass. You should specify the following values:
-
-    - `:cat`: A quoted list of categories for this pass. For optimisations, you
-      should include `\"opt\"`, for warnings you should include `\"warn\"`. If
-      your pass depends on the usage analyser, you should also include
-      `\"usage\"`.
-
-   - `:level`: The optimisation level this requires. By default passes exist on
-      level 0.
-
-    - `:on`: Whether this optimisation is enabled by default, or requires a
-      flag. By default passes are enabled.
+   options for this pass.
 
    Inside the BODY you can call [[changed!] to mark this pass as modifying
    something. Passes should only be executed with [[run-pass]]."
-  defpass#)
+  (let* [(main `(define ,name))
+         (options '())
+         (running true)
+         (idx 1)
+         (len (# body))]
 
-(define-macro changed!
+    ;; If we start with a docstring then push it to both the definition
+    ;; and struct
+    (with (entry (car body))
+      (when (string? entry)
+        (push-cdr! main entry)
+        (push-cdr! options `:help)
+        (push-cdr! options entry)
+        (inc! idx)))
+
+    ;; Scan for all remaining entries
+    (while (and running (<= idx len))
+      (with (entry (nth body idx))
+        (if (key? entry)
+          (progn
+            (push-cdr! options entry)
+            (push-cdr! options (nth body (+ idx 1)))
+            (set! idx (+ idx 2)))
+          (set! running false))))
+
+    (push-cdr! main `(const-struct
+                       :name ,(symbol->string name)
+                       ,@options
+                       ,:run (lambda (,pass-arg ,@args) ,@(slice body idx))))
+
+    main))
+
+(define-native add-pass!
+  "Register a PASS created with [[defpass]].")
+
+(defmacro changed! ()
   "Mark this pass as having a side effect."
-  changed!#)
+  `(.<! ,pass-arg :changed true))
 
 (define-native var-usage
   "Get usage information about the specified VAR. This returns a struct containing:

@@ -8,7 +8,10 @@
 (define-native categorise-node
   "Categorise the given NODE, specifying whether it is a STATEMENT or not.")
 
-(define-native add-categoriser
+(define-native categorise-nodes
+  "Categorise the given NODES, starting from START, specifying whether it is a STATEMENT or not.")
+
+(define-native add-categoriser!
   "Register a custom CATEGORISER. Optionally specify a single backend to register for.
 
    The CATEGORISER should accept a node and a flag marking whether the current
@@ -50,7 +53,7 @@
 (define-native writer/end-block!
   "End an indented statement with the given TEXT in WRITER")
 
-(define-native add-emitter
+(define-native add-emitter!
   "Register an EMITTER for the specified CATEGORY.
 
    This accepts a function with the current compiler state, the target node, the
