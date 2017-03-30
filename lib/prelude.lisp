@@ -80,6 +80,10 @@
    combinator in SK combinator calculus."
   (lambda (y) x))
 
+(defun call (x key &args)
+  "Index X with KEY and invoke the resulting function with ARGS."
+  ((get-idx x key) (unpack args 1 (# args))))
+
 (defun self (x key &args)
   "Index X with KEY and invoke the resulting function with X and ARGS"
   ((get-idx x key) x (unpack args 1 (# args))))
