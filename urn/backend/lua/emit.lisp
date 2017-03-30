@@ -13,11 +13,11 @@
 
 (define boring-categories
   "A lookup of all 'boring' which we will not emit node information for."
-  (struct
+  (const-struct
     ;; Constant nodes
     :const true :quote true
     ;; Branch nodes
-    :not true :condtrue))
+    :not true :cond true))
 
 (defun compile-quote (node out state level)
   "Compile a quoted NODE to the ouput buffer OUT.
@@ -185,6 +185,11 @@
                     (case (nth item 1))
                     (is-final (truthy? case))]
 
+               ;; If we're the last block and there isn't anything here, then don't emit an
+               ;; else
+               (when (and (> i 2) (or (! is-final) (/= ret "") (/= (# item) 1)))
+                 (w/append! out "else"))
+
                ;; We stop iterating after a branch marked "true" and just invoke the code.
                (cond
                  [is-final (when (= i 2) (w/append! out "do"))] ;; TODO: Could we dec! the ends variable instead?
@@ -212,13 +217,13 @@
                (compile-block item out state 2 ret)
                (w/unindent! out)
 
-               (if is-final
-                 (set! had-final true)
-                 (w/append! out "else"))
+               (when is-final
+                 (set! had-final true))
                (inc! i))))
 
          ;; If we didn't hit a true branch then we should error at runtime
          (unless had-final
+           (w/append! out "else")
            (w/indent! out) (w/line! out)
            (w/append! out "_error(\"unmatched item\")")
            (w/unindent! out) (w/line! out))
