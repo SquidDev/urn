@@ -2,7 +2,7 @@
               progn get-idx set-idx! error = % - + # or for with ! unpack))
 (import lua/string (sub))
 (import lua/table (empty-struct iter-pairs) :export)
-(import lua/basic (getmetatable setmetatable next) :export)
+(import lua/basic (getmetatable setmetatable next len#) :export)
 (import type (nil? list? eq? key?))
 (import list ())
 (import binders (let))
@@ -60,6 +60,19 @@
     (for-pairs (k v) tbl
       (push-cdr! out (list k v)))
     out))
+
+(defun struct->list (tbl)
+  "Converts a structure TBL that is a list by having its keys be
+   indices to a regular list."
+  (update-struct tbl :tag "list"
+                     :n   (len# tbl)))
+
+(defun struct->list! (tbl)
+  "Converts a structure TBL that is a list by having its keys be
+   indices to a regular list. This differs from `struct->list`
+   in that it mutates its argument."
+  (.<! tbl :tag "list")
+  (.<! tbl :n (len# tbl)))
 
 ;; Chain a series of index accesses together
 (defmacro .> (x &keys)
