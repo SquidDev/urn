@@ -9,6 +9,7 @@
 
 (defun create-plugin-state (compiler)
   (let* [(logger (.> compiler :log))
+         (variables (.> compiler :variables))
          (warnings (.> compiler :warnings))
          (optimise (.> compiler :optimise))
 
@@ -16,7 +17,7 @@
          (emit       '())]
     (const-struct
       ;; backend.lisp
-      :add-categoriser!    nil ;; TODO: Add add-categoriser!
+      :add-categoriser!    (lambda () (fail! "add-categoriser! is not yet implemented")) ;; TODO: Add add-categoriser!
       :categorise-node     categories/visit-node
       :categorise-nodes    categories/visit-nodes
       :cat                 categories/cat
@@ -27,7 +28,7 @@
       :writer/begin-block! writer/begin-block!
       :writer/next-block!  writer/next-block!
       :writer/end-block!   writer/end-block!
-      :add-emitter!        nil ;; TODO: Add add-emitter!
+      :add-emitter!        (lambda () (fail! "add-emitter! is not yet implemented")) ;; TODO: Add add-emitter!
       :emit-node           lua/expression
       :emit-block          lua/block
 
@@ -48,7 +49,9 @@
       :visit-nodes    visitor/visit-list
       :traverse-nodes traverse/traverse-node
       :traverse-nodes traverse/traverse-list
-      :symbol->var    (lambda (x) (.> x :var))
+      :symbol->var    (lambda (x)
+                        (with (var (.> x :var))
+                          (if (string? var) (.> variables var) var)))
       :var->symbol    nodes/make-symbol
       :builtin?       nodes/builtin?
       :constant?      nodes/constant?
