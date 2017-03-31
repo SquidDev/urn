@@ -74,20 +74,26 @@
                                  (last (nth second 2))]
                             (and
                               (= (# first) 2) (= (# second) 2)
-                              (symbol? branch) (! (.> lookup (nth first 2) :stmt))
-                              (builtin? (car second) :true)
-                              (symbol? last) (= (.> branch :var) (.> last :var)))))
+                              (! (.> lookup (nth first 2) :stmt)) (builtin? (car second) :true)
+                              (symbol? last)
+                              (or
+                                (and (symbol? branch) (= (.> branch :var) (.> last :var)))
+                                (and test (= (.> last :var) (.> builtins :false)))))))
                         (cat "and")]
 
                        [(and
                           ;; If we have at least two conditions.
                           (>= (# node) 3)
-                          ;; Each condition follows the form `[x x]`.
+                          ;; Each condition follows the form `[x x]` (or [x true] if when
+                          ;; in a condition test).
                           (part-all node 2 (pred (# node))
                             (lambda (branch)
                               (let* [(head (car branch))
                                      (tail (nth branch 2))]
-                              (and (= (# branch) 2) (symbol? head) (symbol? tail) (= (.> head :var) (.> tail :var))))))
+                                (and (= (# branch) 2) (symbol? tail)
+                                  (or
+                                    (and (symbol? head) (= (.> head :var) (.> tail :var)))
+                                    (and test (= (.> tail :var) (.> builtins :true))))))))
                           ;; Apart from the last one, which is `[true <expr>]`.
                           (with (branch (last node))
                             (and (= (# branch) 2) (builtin? (car branch) :true) (! (.> lookup (nth branch 2) :stmt)))))

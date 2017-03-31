@@ -42,6 +42,7 @@
               opt/strip-pure
               opt/constant-fold
               opt/cond-fold
+              opt/cond-eliminate
               opt/lambda-fold)
     :usage (list
              opt/strip-defs
