@@ -9,17 +9,21 @@
 
 (defun part-all (xs i e f)
   "An implementation of [[all]] which just goes between I and E."
+  :hidden
   (cond
     [(> i e) true]
     [(f (nth xs i)) (part-all xs (+ i 1) e f)]
     [true false]))
 
-(defun visit-node (lookup node stmt)
+(defun visit-node (lookup node stmt test)
   "Marks a specific NODE with a category.
 
    STMT marks whether this node is in a \"statement\" context. This is any node
    for which we are capable of generating a statement: namely any
-   block (assignments, returns, simple calls) or the condition inside a `cond`."
+   block (assignments, returns, simple calls) or the condition inside a `cond`.
+
+   TEST marks whether this node is in a \"test\" context. This is any node which
+   is used directly or indirectly inside a condition test."
   (with (cat (case (type node)
           ["string" (cat "const")]
           ["number" (cat "const")]
@@ -43,8 +47,8 @@
                      ;; be.
                      (for i 2 (# node) 1
                        (with (case (nth node i))
-                         (visit-node lookup (car case) true)
-                         (visit-nodes lookup case 2 true)))
+                         (visit-node lookup (car case) true true)
+                         (visit-nodes lookup case 2 true test)))
 
                      ;; And attempt to find the best condition
                      (cond
@@ -62,13 +66,17 @@
                           ;; If we have two conditions
                           (= (# node) 3)
                           ;; If the first condition is of the form `[A <expr>]`
-                          ;; The second one is of the form `[true A]`
+                          ;; The second one is of the form `[true A]` (or `[true false]`
+                          ;; when in a condition test).
                           (let* [(first (nth node 2))
-                                 (second (nth node 3))]
+                                 (second (nth node 3))
+                                 (branch (car first))
+                                 (last (nth second 2))]
                             (and
                               (= (# first) 2) (= (# second) 2)
-                              (symbol? (car first)) (! (.> lookup (nth first 2) :stmt))
-                              (builtin? (car second) :true) (eq? (car first) (nth second 2)))))
+                              (symbol? branch) (! (.> lookup (nth first 2) :stmt))
+                              (builtin? (car second) :true)
+                              (symbol? last) (= (.> branch :var) (.> last :var)))))
                         (cat "and")]
 
                        [(and
@@ -77,7 +85,9 @@
                           ;; Each condition follows the form `[x x]`.
                           (part-all node 2 (pred (# node))
                             (lambda (branch)
-                              (and (= (# branch) 2) (symbol? (car branch)) (eq? (car branch) (nth branch 2)))))
+                              (let* [(head (car branch))
+                                     (tail (nth branch 2))]
+                              (and (= (# branch) 2) (symbol? head) (symbol? tail) (= (.> head :var) (.> tail :var))))))
                           ;; Apart from the last one, which is `[true <expr>]`.
                           (with (branch (last node))
                             (and (= (# branch) 2) (builtin? (car branch) :true) (! (.> lookup (nth branch 2) :stmt)))))
@@ -127,9 +137,10 @@
                      (= (# node) 2) (builtin? (car head) :lambda) (= (# (nth head 2)) 1)
                      (with (val (nth node 2))
                        (and (list? arg) (= (# val) 1) (eq? (car val) 'empty-struct)))
-                     (with (arg (car (nth head 2)))
+                     (let* [(arg (car (nth head 2)))
+                            (last (last head))]
                        (and
-                         (! (.> arg :isVariadic)) (eq? arg (last head))
+                         (! (.> arg :isVariadic)) (symbol? last) (= (.> arg :var) (.> last :var))
                          ;; We check that all body nodes are of the form (set-idx! x A B)
                          ;; A future enhancement would be to ensure B is an expression: otherwise we're just
                          ;; postponing the inevitable lambda creation.
@@ -137,7 +148,7 @@
                                                             (and
                                                               (list? node) (= (# node) 4)
                                                               (eq? (car node) 'set-idx!)
-                                                              (eq? (nth node 2) arg)))))))
+                                                              (symbol? (nth node 2)) (= (.> (nth node 2) :var) (.> arg :var))))))))
                    (visit-nodes lookup (car node) 3 false)
                    (cat "make-struct")]
 
@@ -149,7 +160,7 @@
                      (symbol? (nth head 3)) (= (.> (nth head 3) :var) (.> (car (nth head 2)) :var)))
 
                    ;; We now need to visit the child node.
-                   (with (child-cat (visit-node lookup (nth node 2) stmt))
+                   (with (child-cat (visit-node lookup (nth node 2) stmt test))
                      (if (.> child-cat :stmt)
                        (progn
                          (visit-node lookup head true)
@@ -162,7 +173,7 @@
 
                   [(and stmt (builtin? (car head) :lambda))
                    ;; Visit the lambda body
-                   (visit-nodes lookup (car node) 3 true)
+                   (visit-nodes lookup (car node) 3 true test)
 
                    ;; And visit the argument values
                    ;; Yay: My favourite bit of code, zipping over arguments
@@ -198,10 +209,11 @@
     (.<! lookup node cat)
     cat))
 
-(defun visit-nodes (lookup nodes start stmt)
+(defun visit-nodes (lookup nodes start stmt test)
   "Marks all NODES with a category."
-  (for i start (# nodes) 1
-    (visit-node lookup (nth nodes i) stmt)))
+  (with (len (# nodes))
+    (for i start len 1
+      (visit-node lookup (nth nodes i) stmt (and test (= i len))))))
 
 (defun visit-quote (lookup node level)
   "Marks all unquoted NODES with a category."
