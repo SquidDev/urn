@@ -4,7 +4,7 @@
 (import table)
 
 (import urn/analysis/visitor visitor)
-(import urn/analysis/nodes (side-effect? builtins builtin-vars))
+(import urn/analysis/nodes (side-effect? builtins))
 (import urn/analysis/pass (defpass))
 
 (defun create-state ()
@@ -82,7 +82,7 @@
                 (add-definition! state (.> arg :var) arg "let" (or val (struct
                                                                          :tag "symbol"
                                                                          :contents "nil"
-                                                                         :var (.> builtin-vars :nil)))))))
+                                                                         :var (.> builtins :nil)))))))
        (visitor/visit-list node 2 visitor)
        (visitor/visit-block lam 3 visitor))
      false]

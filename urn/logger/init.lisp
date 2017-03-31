@@ -23,7 +23,7 @@
   (self logger :put-time! name time level))
 
 (defun put-node-error! (logger msg node explain &lines)
-  "Push a defailed  error message to this LOGGER.
+  "Push a defailed error message to this LOGGER.
 
    You must provide a message MSG and a node NODE, additional explainations
    EXPLAIN can be provided, along with a series of LINES. These LINES are split

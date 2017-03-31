@@ -4,10 +4,13 @@
 (import urn/tools/run       run)
 (import urn/tools/gen-native gen-native)
 
+(import urn/analysis/optimise optimise)
+(import urn/analysis/warning warning)
 (import urn/backend/lua lua)
 (import urn/loader loader)
 (import urn/logger logger)
 (import urn/logger/term term)
+(import urn/plugins plugins)
 (import urn/timer timer)
 
 (import extra/argparse arg)
@@ -115,6 +118,14 @@
                    (case (list (os/execute (concat (append command args) " ")))
                      [(_ _ ?code) (os/exit code)])))))
 
+  (arg/add-argument! spec '("--plugin")
+    :help    "Specify a compiler plugin to load."
+    :var     "FILE"
+    :default '()
+    :narg    1
+    :many    true
+    :action  arg/add-action)
+
   (arg/add-argument! spec '("input")
     :help    "The file(s) to load."
     :var     "FILE"
@@ -146,21 +157,24 @@
       (.<! args :emit-lua true))
 
     (with (compiler (struct
-                     :log       logger
-                     :timer     (timer/create (cut logger/put-time! logger <> <> <>))
-                     :paths     paths
+                      :log       logger
+                      :timer     (timer/create (cut logger/put-time! logger <> <> <>))
+                      :paths     paths
 
-                     :libEnv    (empty-struct)
-                     :libMeta   (empty-struct)
-                     :libs      '()
-                     :libCache  (empty-struct)
-                     :libNames  (empty-struct)
+                      :libEnv    (empty-struct)
+                      :libMeta   (empty-struct)
+                      :libs      '()
+                      :libCache  (empty-struct)
+                      :libNames  (empty-struct)
 
-                     :rootScope root-scope
+                      :warning   (warning/default)
+                      :optimise  (optimise/default)
 
-                     :variables (empty-struct)
-                     :states    (empty-struct)
-                     :out       '()))
+                      :rootScope root-scope
+
+                      :variables (empty-struct)
+                      :states    (empty-struct)
+                      :out       '()))
 
       ;; Add compileState
       (.<! compiler :compileState (lua/create-state (.> compiler :libMeta)))
@@ -170,7 +184,9 @@
 
       ;; Add globals
       (.<! compiler :global (setmetatable
-                              (struct :_libs (.> compiler :libEnv))
+                              (struct
+                                :_libs (.> compiler :libEnv)
+                                :_compiler (plugins/create-plugin-state compiler))
                               (struct :__index _G)))
 
       ;; Store all builtin vars in the lookup
@@ -187,7 +203,7 @@
          (for-pairs (name var) (.> lib :scope :exported)
            (scope/import! (.> compiler :rootScope) name var))
 
-         (for-each input (.> args :input)
+         (for-each input (append (.> args :plugin) (.> args :input))
            (case (loader/loader compiler input false)
              [(nil ?error-message)
               (logger/put-error! logger error-message)

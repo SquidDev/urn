@@ -3,7 +3,6 @@
 
 (defun cat (category &args)
   "Create a CATEGORY data set, using ARGS as additional parameters to [[struct]]."
-  :hidden
   (struct
     :category category
     (unpack args 1 (# args))))
@@ -21,7 +20,6 @@
    STMT marks whether this node is in a \"statement\" context. This is any node
    for which we are capable of generating a statement: namely any
    block (assignments, returns, simple calls) or the condition inside a `cond`."
-  :hidden
   (with (cat (case (type node)
           ["string" (cat "const")]
           ["number" (cat "const")]
@@ -55,9 +53,9 @@
                           (= (# node) 3)
                           ;; If the first condition is of the form `[A false]`
                           (with (sub (nth node 2))
-                            (and (= (# sub) 2) (builtin-var? (nth sub 2) :false)))
+                            (and (= (# sub) 2) (builtin? (nth sub 2) :false)))
                           (with (sub (nth node 3))
-                            (and (= (# sub) 2) (builtin-var? (nth sub 1) :true) (builtin-var? (nth sub 2) :true))))
+                            (and (= (# sub) 2) (builtin? (nth sub 1) :true) (builtin? (nth sub 2) :true))))
                         (cat "not" :stmt (.> lookup (car (nth node 2)) :stmt))]
 
                        [(and
@@ -70,7 +68,7 @@
                             (and
                               (= (# first) 2) (= (# second) 2)
                               (symbol? (car first)) (! (.> lookup (nth first 2) :stmt))
-                              (builtin-var? (car second) :true) (eq? (car first) (nth second 2)))))
+                              (builtin? (car second) :true) (eq? (car first) (nth second 2)))))
                         (cat "and")]
 
                        [(and
@@ -82,7 +80,7 @@
                               (and (= (# branch) 2) (symbol? (car branch)) (eq? (car branch) (nth branch 2)))))
                           ;; Apart from the last one, which is `[true <expr>]`.
                           (with (branch (last node))
-                            (and (= (# branch) 2) (builtin-var? (car branch) :true) (! (.> lookup (nth branch 2) :stmt)))))
+                            (and (= (# branch) 2) (builtin? (car branch) :true) (! (.> lookup (nth branch 2) :stmt)))))
                         (cat "or")]
 
                        [true (cat "cond" :stmt true)])]
@@ -105,13 +103,13 @@
                     [(= func (.> builtins :import)) (cat "import")]
 
                     ;; Handle things like `("foo")`
-                    [(= func (.> builtin-vars :true))
+                    [(= func (.> builtins :true))
                      (visit-nodes lookup node 1 false)
                      (cat "call-literal")]
-                    [(= func (.> builtin-vars :false))
+                    [(= func (.> builtins :false))
                      (visit-nodes lookup node 1 false)
                      (cat "call-literal")]
-                    [(= func (.> builtin-vars :nil))
+                    [(= func (.> builtins :nil))
                      (visit-nodes lookup node 1 false)
                      (cat "call-literal")]
 
@@ -202,7 +200,6 @@
 
 (defun visit-nodes (lookup nodes start stmt)
   "Marks all NODES with a category."
-  :hidden
   (for i start (# nodes) 1
     (visit-node lookup (nth nodes i) stmt)))
 

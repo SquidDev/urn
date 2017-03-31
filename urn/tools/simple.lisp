@@ -76,7 +76,7 @@
       [true
        (usage! (.. "Expected number or enable/disable flag for --" (.> arg :name) " , got " value))])))
 
-(defun pass-run (fun name)
+(defun pass-run (fun name passes)
   "Create a task which runs FUN using the options from argument NAME."
   :hidden
   (lambda (compiler args)
@@ -85,6 +85,7 @@
                               :track     true
                               :level     (.> args name)
                               :override  (or (.> args (.. name "-override")) (empty-struct))
+                              :pass      (.> compiler name)
 
                               ;; Optimisation specific options
                               :max-n     (.> args (.. name "-n"))
@@ -92,6 +93,7 @@
 
                               ;; General shared options
                               :meta      (.> compiler :libMeta)
+                              :libs      (.> compiler :libs)
                               :logger    (.> compiler :log)
                               :timer     (.> compiler :timer)))))
 

@@ -10,9 +10,9 @@
   (let* [(var (.> sym :var))
          (def (usage/get-var lookup (.> sym :var)))]
     (cond
-      [(= var (.> builtin-vars :true)) sym]
-      [(= var (.> builtin-vars :false)) sym]
-      [(= var (.> builtin-vars :nil)) sym]
+      [(= var (.> builtins :true)) sym]
+      [(= var (.> builtins :false)) sym]
+      [(= var (.> builtins :nil)) sym]
       [(= (# (.> def :defs)) 1)
        (let* [(ent (car (.> def :defs)))
               (val (.> ent :value))

@@ -91,6 +91,7 @@ for i = 1, #declaredVariables do
 	Scope.import(rootScope, "builtin/" .. defined, var, true)
 	declaredVars[var] = true
 	declaredVars[defined] = var
+	builtins[defined] = var
 end
 
 local function getExecuteName(owner)
@@ -323,6 +324,10 @@ function resolveNode(node, scope, state, root)
 				if not success then
 					replacement = traceback.remapTraceback(state.mappings, replacement)
 					errorPositions(log, node, replacement)
+				end
+
+				if replacement == nil then
+					replacement = { tag = "symbol", var = declaredVars["nil"] }
 				end
 
 				replacement = resolveExecuteResult(childState, replacement, node, scope, state)
