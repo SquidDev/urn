@@ -20,11 +20,11 @@ See [the roadmap](https://gitlab.com/urn/urn/issues/1) for some idea of where we
 ## Features
 Powerful assertion and testing framework, ensuring your code is (generally) correct.
 
-![](http://i.imgur.com/F3e338r.png)
+![](https://i.imgur.com/F3e338r.png)
 
 Detailed parser messages, helping you find that problem as soon as possible.
 
-![](http://i.imgur.com/RJ2fE2C.png)
+![](https://i.imgur.com/RJ2fE2C.png)
 
 ## Getting started
 Urn is currently hosted on [GitLab](https://gitlab.com/urn/urn) and mirrored
