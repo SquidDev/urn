@@ -13,7 +13,7 @@ Negate the expresison `EXPR`.
 Get the length of list X
 
 ## `(#keys st)`
-*Defined at lib/table.lisp:132:1*
+*Defined at lib/table.lisp:145:1*
 
 Return the number of keys in the structure `ST`.
 
@@ -43,12 +43,12 @@ the previous entry as an argument.
 Concatenate the several values given in `ARGS`. They must all be strings.
 
 ## `(.<! x &keys value)`
-*Macro defined at lib/table.lisp:71:1*
+*Macro defined at lib/table.lisp:84:1*
 
 Set the value at `KEYS` in the structure `X` to `VALUE`.
 
 ## `(.> x &keys)`
-*Macro defined at lib/table.lisp:65:1*
+*Macro defined at lib/table.lisp:78:1*
 
 Index the structure `X` with the sequence of accesses given by `KEYS`.
 
@@ -192,6 +192,11 @@ Convert the boolean `X` into a string.
 
 Check whether `X` is a boolean.
 
+## `(call x key &args)`
+*Defined at lib/prelude.lisp:83:1*
+
+Index `X` with `KEY` and invoke the resulting function with `ARGS`.
+
 ## `(car x)`
 *Defined at lib/list.lisp:29:1*
 
@@ -266,7 +271,7 @@ Return a function which always returns `X`. This is equivalent to the `K`
 combinator in `SK` combinator calculus.
 
 ## `(const-struct &entries)`
-*Macro defined at lib/table.lisp:102:1*
+*Macro defined at lib/table.lisp:115:1*
 
 `A` variation of [`struct`](lib.table.md#struct-entries), assuming the keys in `ENTRIES` are constant.
 
@@ -281,6 +286,12 @@ Get the actual value of `VAL`, an argument to a macro.
 Due to how macros are implemented, all values are wrapped as tables
 in order to preserve positional data about nodes. You will need to
 unwrap them in order to use them.
+
+## `(create-lookup values)`
+*Defined at lib/table.lisp:179:1*
+
+Convert `VALUES` into a lookup table, with each value being converted to a key
+whose corresponding value is the value's index.
 
 ## `(cut &func)`
 *Macro defined at lib/function.lisp:16:1*
@@ -369,7 +380,7 @@ false
 Create an empty structure with no fields
 
 ## `(empty-struct? xs)`
-*Defined at lib/table.lisp:128:1*
+*Defined at lib/table.lisp:141:1*
 
 Check that `XS` is the empty struct.
 
@@ -426,7 +437,7 @@ Check whether `X` is falsey, that is, it is either `false` or does
 not exist.
 
 ## `(fast-struct &entries)`
-*Defined at lib/table.lisp:117:1*
+*Defined at lib/table.lisp:130:1*
 
 `A` variation of [`struct`](lib.table.md#struct-entries), which will not perform any ocercing of the `KEYS` in entries.
 
@@ -497,7 +508,7 @@ nil
 ```
 
 ## `(for-pairs vars tbl &body)`
-*Macro defined at lib/table.lisp:138:1*
+*Macro defined at lib/table.lisp:151:1*
 
 Iterate over `TBL`, binding `VARS` for each key value pair in `BODY`
 
@@ -584,7 +595,7 @@ Iterate over `TABLE` with a function `FUNC` of the form (lambda (`KEY` `VAL`) ..
 Check whether `X` is a key.
 
 ## `(keys st)`
-*Defined at lib/table.lisp:150:1*
+*Defined at lib/table.lisp:163:1*
 
 Return the keys in the structure `ST`.
 
@@ -675,7 +686,7 @@ Note that, since this does not bind anything, all metavariables
 may be replaced by `_` with no loss of meaning.
 
 ## `(merge &structs)`
-*Defined at lib/table.lisp:142:1*
+*Defined at lib/table.lisp:155:1*
 
 Merge all tables in `STRUCTS` together into a new table.
 
@@ -884,7 +895,7 @@ out = (10 9 8 7 6 5 4 3 2 1)
 ```
 
 ## `(self x key &args)`
-*Defined at lib/prelude.lisp:83:1*
+*Defined at lib/prelude.lisp:87:1*
 
 Index `X` with `KEY` and invoke the resulting function with `X` and `ARGS`
 
@@ -990,7 +1001,7 @@ Remove whitespace from both sides of `STR`.
 Check whether `X` is a string.
 
 ## `(struct &entries)`
-*Defined at lib/table.lisp:79:1*
+*Defined at lib/table.lisp:92:1*
 
 Return the structure given by the list of pairs `ENTRIES`. Note that, in contrast
 to variations of `LET`, the pairs are given "unpacked": Instead of invoking
@@ -1012,6 +1023,19 @@ you must instead invoke it like
 Convert the structure `TBL` into an association list. Note that
 `(eq? x (struct->assoc (assoc->struct x)))` is not guaranteed,
 because duplicate elements will be removed.
+
+## `(struct->list tbl)`
+*Defined at lib/table.lisp:64:1*
+
+Converts a structure `TBL` that is a list by having its keys be
+indices to a regular list.
+
+## `(struct->list! tbl)`
+*Defined at lib/table.lisp:70:1*
+
+Converts a structure `TBL` that is a list by having its keys be
+indices to a regular list. This differs from `struct->list`
+in that it mutates its argument.
 
 ## `(succ x)`
 *Defined at lib/prelude.lisp:22:1*
@@ -1067,7 +1091,7 @@ Return the type of `VAL`.
 Evaluate `BODY` if `C` is false, otherwise, evaluate `nil`.
 
 ## `(update-struct st &keys)`
-*Defined at lib/table.lisp:162:1*
+*Defined at lib/table.lisp:175:1*
 
 Create a new structure based of `ST`, setting the values given by the pairs in `KEYS`.
 
@@ -1092,7 +1116,7 @@ Example:
 ```
 
 ## `(values st)`
-*Defined at lib/table.lisp:156:1*
+*Defined at lib/table.lisp:169:1*
 
 Return the values in the structure `ST`.
 
@@ -1247,6 +1271,7 @@ out = ((1 4 7) (2 5 8) (3 6 9))
  - `format` *Native defined at lib/lua/string.lisp:5:1*
  - `get-idx` *Native defined at lib/lua/basic.lisp:37:1*
  - `getmetatable` *Native defined at lib/lua/basic.lisp:28:1*
+ - `len#` *Native defined at lib/lua/basic.lisp:19:1*
  - `math/abs` *Native defined at lib/lua/math.lisp:1:1*
  - `math/acos` *Native defined at lib/lua/math.lisp:2:1*
  - `math/asin` *Native defined at lib/lua/math.lisp:3:1*
