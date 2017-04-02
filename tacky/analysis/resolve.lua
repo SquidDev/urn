@@ -312,6 +312,61 @@ function resolveNode(node, scope, state, root, many)
 				node[2] = resolveQuote(node[2], scope, state, 1)
 				return node
 			elseif func == builtins["unquote"] then
+				expect(log, node[2], node, "value")
+
+				local res = { tag = "many", n = node.n - 1 }
+				for i = 2, node.n do
+					local childState = State.create(state.variables, state.states, scope, state.logger, state.mappings)
+
+					local built = resolveNode(node[i], scope, childState)
+
+					-- We wrap the child state in a lambda in order to correctly handle errors inside the system
+					childState:built({
+							tag = "list", n = 3,
+							range = built.range, owner = built.owner, parent = node,
+							{ tag = "symbol", contents = "lambda", var = builtins["lambda"] },
+							{ tag = "list", n = 0 },
+							built
+					})
+
+					local func = childState:get()
+
+					local success, replacement = packPcall(xpcall(func, debug.traceback))
+					if not success then
+						replacement = traceback.remapTraceback(state.mappings, replacement)
+						errorPositions(log, node, replacement)
+					end
+
+					if i == node.n then
+						for j = 1, replacement.n do
+							res[i + j - 2] = replacement[j]
+						end
+						res.n = res.n + replacement.n - 1
+					elseif replacement.n ~= 1 then
+						errorPositions(log, node[i], "Expected one value, got " .. replacement.n)
+					else
+						res[i - 1] = replacement[1]
+					end
+				end
+
+				if res.n == 0 then
+					res.n = 1
+					res[1] = { tag = "symbol", var = declaredVars["nil"] }
+				end
+
+				res.n = #res
+				for i = 1, res.n do
+					res[i] = resolveExecuteResult(childState, res[i], node, scope, state)
+				end
+
+				if many then
+					return res
+				elseif res.n > 1 then
+					errorPositions(log, node, "Multiple values returned in a non-block context")
+				else
+					return resolveNode(res[1], scope, state, root)
+				end
+			elseif func == builtins["unquote-splice"] then
 				maxLength(log, node, 2, "unquote")
 				local childState = State.create(state.variables, state.states, scope, state.logger, state.mappings)
 
@@ -328,10 +383,17 @@ function resolveNode(node, scope, state, root, many)
 
 				local func = childState:get()
 
-				local success, replacement = packPcall(xpcall(func, debug.traceback))
+				local success, replacement = xpcall(func, debug.traceback)
 				if not success then
 					replacement = traceback.remapTraceback(state.mappings, replacement)
 					errorPositions(log, node, replacement)
+				end
+
+				-- Ensure we got a list from this unquote
+				if type(replacement) ~= "table" or replacement.tag ~= "list" then
+					local ty = type(replacement)
+					if ty == "table" and type(ty.tag) == "string" then ty = ty.tag end
+					errorPositions(log, node, "Expected list from unquote-splice, got '" .. ty .. "'")
 				end
 
 				if replacement.n == 0 then
@@ -351,8 +413,6 @@ function resolveNode(node, scope, state, root, many)
 				else
 					return resolveNode(replacement[1], scope, state, root)
 				end
-			elseif func == builtins["unquote-splice"] then
-				errorPositions(log, node[1] or node, "Unquote outside of syntax-quote")
 			elseif func == builtins["define"] then
 				if not root then errorPositions(log, first, "define can only be used on the top level") end
 				expectType(log, node[2], node, "symbol", "name")
