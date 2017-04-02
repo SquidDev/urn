@@ -28,8 +28,7 @@ emptyStruct1 = function() return ({}) end
 type1 = (function(val1)
 	local ty1 = type_23_1(val1)
 	if (ty1 == "table") then
-		local tag1 = val1["tag"]
-		return (tag1 or "table")
+		return (val1["tag"] or "table")
 	else
 		return ty1
 	end
@@ -40,7 +39,7 @@ _2e2e_1 = (function(...)
 end)
 struct1 = (function(...)
 	local entries1 = _pack(...) entries1.tag = "list"
-	if ((entries1["n"] % 1) == 1) then
+	if ((entries1["n"] % 2) == 1) then
 		error1("Expected an even number of arguments to struct", 2)
 	end
 	local out1 = ({})
@@ -103,10 +102,7 @@ getSource1 = (function(node2)
 	local result1 = nil
 	local r_2151 = nil
 	r_2151 = (function()
-		local temp1
-		local r_2161 = node2
-		temp1 = (r_2161 and not result1)
-		if temp1 then
+		if (node2 and not result1) then
 			result1 = node2["range"]
 			node2 = node2["parent"]
 			return r_2151()

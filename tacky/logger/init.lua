@@ -30,8 +30,7 @@ emptyStruct1 = function() return ({}) end
 type1 = (function(val1)
 	local ty1 = type_23_1(val1)
 	if (ty1 == "table") then
-		local tag1 = val1["tag"]
-		return (tag1 or "table")
+		return (val1["tag"] or "table")
 	else
 		return ty1
 	end
@@ -43,7 +42,7 @@ end)
 clock1 = os.clock
 struct1 = (function(...)
 	local entries1 = _pack(...) entries1.tag = "list"
-	if ((entries1["n"] % 1) == 1) then
+	if ((entries1["n"] % 2) == 1) then
 		error1("Expected an even number of arguments to struct", 2)
 	end
 	local out1 = ({})
@@ -137,8 +136,6 @@ end)
 doNodeError_21_1 = (function(logger7, msg7, node3, explain3, ...)
 	local lines3 = _pack(...) lines3.tag = "list"
 	self1(logger7, "put-node-error!", msg7, node3, explain3, lines3)
-	return error1((function(r_2131)
-		return (r_2131 or msg7)
-	end)(match1(msg7, "^([^\n]+)\n")), 0)
+	return error1((match1(msg7, "^([^\n]+)\n") or msg7), 0)
 end)
 return struct1("startTimer", startTimer_21_1, "pauseTimer", pauseTimer_21_1, "stopTimer", stopTimer_21_1, "putError", putError_21_1, "putWarning", putWarning_21_1, "putVerbose", putVerbose_21_1, "putDebug", putDebug_21_1, "putNodeError", putNodeError_21_1, "putNodeWarning", putNodeWarning_21_1, "doNodeError", doNodeError_21_1)

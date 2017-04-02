@@ -41,14 +41,12 @@ list1 = (function(...)
 	return xs1
 end)
 between_3f_1 = (function(val1, min1, max1)
-	local r_271 = (val1 >= min1)
-	return (r_271 and (val1 <= max1))
+	return ((val1 >= min1) and (val1 <= max1))
 end)
 type1 = (function(val2)
 	local ty1 = type_23_1(val2)
 	if (ty1 == "table") then
-		local tag1 = val2["tag"]
-		return (tag1 or "table")
+		return (val2["tag"] or "table")
 	else
 		return ty1
 	end
@@ -69,7 +67,7 @@ _2e2e_1 = (function(...)
 end)
 struct1 = (function(...)
 	local entries1 = _pack(...) entries1.tag = "list"
-	if ((entries1["n"] % 1) == 1) then
+	if ((entries1["n"] % 2) == 1) then
 		error1("Expected an even number of arguments to struct", 2)
 	end
 	local out1 = ({})
@@ -112,15 +110,7 @@ unmangleIdent1 = (function(ident1)
 				char2 = sub1(esc1, x1, x1)
 				if (char2 == "_") then
 					local r_2181 = list1(find1(esc1, "^_[%da-z]+_", pos1))
-					local temp1
-					local r_2201 = (type1(r_2181) == "list")
-					if r_2201 then
-						local r_2211 = (r_2181["n"] >= 2)
-						temp1 = (r_2211 and ((r_2181["n"] <= 2) and true))
-					else
-						temp1 = false
-					end
-					if temp1 then
+					if ((type1(r_2181) == "list") and ((r_2181["n"] >= 2) and ((r_2181["n"] <= 2) and true))) then
 						local start1 = r_2181[1]
 						local _eend1 = r_2181[2]
 						pos1 = (pos1 + 1)
@@ -165,15 +155,7 @@ remapError1 = (function(msg1)
 end)
 remapMessage1 = (function(mappings1, msg2)
 	local r_2281 = list1(match1(msg2, "^(.-):(%d+)(.*)$"))
-	local temp2
-	local r_2301 = (type1(r_2281) == "list")
-	if r_2301 then
-		local r_2311 = (r_2281["n"] >= 3)
-		temp2 = (r_2311 and ((r_2281["n"] <= 3) and true))
-	else
-		temp2 = false
-	end
-	if temp2 then
+	if ((type1(r_2281) == "list") and ((r_2281["n"] >= 3) and ((r_2281["n"] <= 3) and true))) then
 		local file1 = r_2281[1]
 		local line1 = r_2281[2]
 		local extra1 = r_2281[3]
