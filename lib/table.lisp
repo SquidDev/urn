@@ -103,7 +103,7 @@
    ```cl
    (struct :foo bar)
    ```"
-  (when (= (% (# entries) 1) 1)
+  (when (= (% (# entries) 2) 1)
     (error "Expected an even number of arguments to struct" 2))
   (with (out (empty-struct))
     (for i 1 (# entries) 2
@@ -118,7 +118,7 @@
    This is designed for performance critical code where you will create a lot of
    structures with the same format."
 
-  (when (= (% (# entries) 1) 1)
+  (when (= (% (# entries) 2) 1)
     (error "Expected an even number of arguments to const-struct" 2))
   (let* [(name (gensym))
          (body `(lambda (,name)))]
@@ -131,7 +131,7 @@
   "A variation of [[struct]], which will not perform any ocercing of the KEYS in entries.
 
    Note, if you know your values at compile time, it is more performant to use [[const-struct]]."
-  (when (= (% (# entries) 1) 1)
+  (when (= (% (# entries) 2) 1)
     (error "Expected an even number of arguments to struct" 2))
   (with (out (empty-struct))
     (for i 1 (# entries) 2
