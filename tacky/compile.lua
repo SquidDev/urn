@@ -56,7 +56,6 @@ end
 -- @return Returns the resolved nodes and the corresponding states.
 local function compile(parsed, global, env, inStates, scope, compileState, loader, loggerI, executeStates, timer, name)
 	local queue = {}
-	local out = {}
 	local states = { scope = scope }
 
 	if name then name = "[resolve] " .. name end
@@ -65,17 +64,17 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 	for i = 1, #parsed do
 		local state = State.create(env, inStates, scope, loggerI, compileState.mappings)
 		states[i] = state
-		local co = coroutine.create(resolve.resolveNode)
+		local co = coroutine.create(resolve.resolve)
 		debug.sethook(co, hook, hookMask, hookCount)
 		queue[i] = {
 			tag  = "init",
 			node =  parsed[i],
 
 			-- Global state for every action
-			_idx   = i,
 			_co    = co,
 			_state = state,
 			_node  = parsed[i],
+			_idx   = i,
 		}
 	end
 
@@ -89,15 +88,48 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 			error(result .. "\n" .. debug.traceback(action._co), 0)
 		elseif coroutine.status(action._co) == "dead" then
 			logger.putDebug(loggerI, "  Finished: " .. #queue .. " remaining")
-			-- We have successfully built the node.
-			action._state:built(result)
-			out[action._idx] = result
+
+			-- We've successfully built the node, so we handle unpacking it.
+			if result.tag ~= "many" then
+				action._state:built(result)
+			else
+				logger.putDebug(loggerI, "  Got multiple nodes as a result. Adding to queue")
+				--- Adjust the node offset so everything is correctly set.
+				local baseIdx = action._idx
+				for i = 1, #queue do
+					local elem = queue[i]
+					if elem._idx > baseIdx then
+						elem._idx = elem._idx + result.n - 1
+					end
+				end
+
+				for i = 1, result.n do
+					local state = State.create(env, inStates, scope, loggerI, compileState.mappings)
+					if i == 1 then
+						states[baseIdx] = state
+					else
+						table.insert(states, baseIdx + i - 1, state)
+					end
+
+					local co = coroutine.create(resolve.resolve)
+					debug.sethook(co, hook, hookMask, hookCount)
+					queue[#queue + 1] = {
+						tag  = "init",
+						node = result[i],
+						-- Global state for every action
+						_co    = co,
+						_state = state,
+						_node  = parsed[i],
+						_idx   = baseIdx + i - 1,
+					}
+				end
+			end
 		else
 			-- Store the state and coroutine data and requeue for later
-			result._idx   = action._idx
 			result._co    = action._co
 			result._state = action._state
 			result._node  = action._node
+			result._idx   = action._idx
 
 			-- And requeue node
 			queue[#queue + 1] = result
@@ -113,7 +145,7 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 
 		if head.tag == "init" then
 			-- Start the parser with the initial data
-			resume(head, head.node, scope, head._state, true)
+			resume(head, head.node, scope, head._state)
 		elseif head.tag == "define" then
 			-- We're waiting for a variable to be defined.
 			-- If it exists then resume, otherwise requeue.
@@ -250,8 +282,10 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 
 	if name and timer then logger.stopTimer(timer, name) end
 
-	out.tag = "list" out.n = #out
 	states.tag = "list" states.n = #states
+
+	local out = { tag = "list", n = states.n }
+	for i = 1, states.n do out[i] = states[i].node end
 
 	return out, states
 end

@@ -16,7 +16,7 @@ M.nodeConfig = {
 		parent = true, var = true, lines = true,
 		macro = true, start = true, finish = true, range = true,
 		variables = true, scope = true, required = true, states = true,
-		requiredSet = true,
+		requiredSet = true, owner = true,
 	},
 	dups = true,
 }

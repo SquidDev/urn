@@ -34,6 +34,14 @@ local function internalError(log, node, message)
 	errorPositions(log, node, "[Internal]" .. message .. "\n" .. debug.traceback())
 end
 
+local function packPcall(success, ...)
+	if success then
+		return true, table.pack(...)
+	else
+		return false, ...
+	end
+end
+
 --- Reads metadata from the specified node, annotating the variable
 -- @param log    The logger to print error messages to
 -- @param node   The node we're reading from.
@@ -210,7 +218,7 @@ function resolveQuote(node, scope, state, level)
 	end
 end
 
-function resolveNode(node, scope, state, root)
+function resolveNode(node, scope, state, root, many)
 	local kind = node.tag
 	local log = state.logger
 	if kind == "number" or kind == "boolean" or kind == "string" or node.tag == "key" then
@@ -320,19 +328,29 @@ function resolveNode(node, scope, state, root)
 
 				local func = childState:get()
 
-				local success, replacement = xpcall(func, debug.traceback)
+				local success, replacement = packPcall(xpcall(func, debug.traceback))
 				if not success then
 					replacement = traceback.remapTraceback(state.mappings, replacement)
 					errorPositions(log, node, replacement)
 				end
 
-				if replacement == nil then
-					replacement = { tag = "symbol", var = declaredVars["nil"] }
+				if replacement.n == 0 then
+					replacement.n = 1
+					replacement[1] = { tag = "symbol", var = declaredVars["nil"] }
 				end
 
-				replacement = resolveExecuteResult(childState, replacement, node, scope, state)
+				for i = 1, replacement.n do
+					replacement[i] = resolveExecuteResult(childState, replacement[i], node, scope, state)
+				end
 
-				return resolveNode(replacement, scope, state, root)
+				if many then
+					replacement.tag = "many"
+					return replacement
+				elseif replacement.n > 1 then
+					errorPositions(log, node, "Multiple values returned in a non-block context")
+				else
+					return resolveNode(replacement[1], scope, state, root)
+				end
 			elseif func == builtins["unquote-splice"] then
 				errorPositions(log, node[1] or node, "Unquote outside of syntax-quote")
 			elseif func == builtins["define"] then
@@ -430,15 +448,26 @@ function resolveNode(node, scope, state, root)
 					errorPositions(first, "Macro is of type " .. type(builder))
 				end
 
-				local success, replacement = xpcall(function() return builder(table.unpack(node, 2, #node)) end, debug.traceback)
+				local success, replacement = packPcall(xpcall(function() return builder(table.unpack(node, 2, #node)) end, debug.traceback))
 				if not success then
 					replacement = traceback.remapTraceback(state.mappings, replacement)
 					errorPositions(log, first, replacement)
 				end
 
-				replacement = resolveExecuteResult(funcState, replacement, node, scope, state)
+				for i = 1, replacement.n do
+					replacement[i] = resolveExecuteResult(funcState, replacement[i], node, scope, state)
+				end
 
-				return resolveNode(replacement, scope, state, root)
+				if replacement.n == 0 then
+					errorPositions(log, node, "Expected some value from " .. getExecuteName(funcState) .. ", got nothing")
+				elseif many then
+					replacement.tag = "many"
+					return replacement
+				elseif replacement.n > 1 then
+					errorPositions(log, node, "Multiple values returned in a non-block context")
+				else
+					return resolveNode(replacement[1], scope, state, root)
+				end
 			elseif func.tag == "defined" or func.tag == "arg" or func.tag == "native" or func.tag == "builtin" then
 				return resolveList(node, 1, scope, state)
 			else
@@ -463,11 +492,35 @@ function resolveList(list, start, scope, state)
 end
 
 function resolveBlock(list, start, scope, state)
-	for i = start, #list do
-		list[i] = resolveNode(list[i], scope, state)
+	local len = #list
+	local i = start
+	local m = false
+	while i <= len do
+		local node = resolveNode(list[i], scope, state, false, true)
+		if node.tag == "many" then
+			list[i] = node[1]
+			for j = 2, node.n do
+				table.insert(list, i + j - 1, node[j])
+				m = true
+			end
+			len = len - 1 + node.n
+			list.n = len
+		else
+			i = i + 1
+		end
 	end
 
 	return list
+end
+
+--- Attempt to unpack single-item manys.
+-- These are expensive to handle.
+local function resolveInit(node, scope, state)
+	node = resolveNode(node, scope, state, true, true)
+	while node.tag == "many" and node.n == 1 do
+		node = resolveNode(node[1], scope, state, true, true)
+	end
+	return node
 end
 
 return {
@@ -475,6 +528,5 @@ return {
 	rootScope = rootScope,
 	builtins = builtins,
 	declaredVars = declaredVars,
-	resolveNode = resolveNode,
-	resolveBlock = resolveBlock,
+	resolve = resolveInit,
 }
