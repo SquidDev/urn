@@ -259,3 +259,85 @@
                       child)))
                 (for i (# root) 2 -1 (remove-nth! root i))
                 (for i (# args) 1 -1 (remove-nth! args i))))))))))
+
+(defpass cond-eliminate (state nodes var-lookup)
+  "Replace variables with known truthy/falsey values with `true` or `false` when used in branches."
+  :cat '("opt" "usage")
+  (with (lookup (empty-struct))
+    (visitor/visit-list nodes 1
+      (lambda (node visitor is-cond)
+        (case (type node)
+          ["symbol"
+           (when is-cond
+             (case (.> lookup (.> node :var))
+               [false (make-symbol (.> builtins :false))]
+               [true (make-symbol (.> builtins :true))]
+               [_ nil]))]
+
+          ["list"
+           (with (head (car node))
+             (case (type head)
+               ["symbol"
+                (when (builtin? head :cond)
+                  (with (vars '())
+                    (for i 2 (# node) 1
+                      (let* [(entry (nth node i))
+                             (test (car entry))
+                             (len (# entry))
+                             (var (and (symbol? test) (.> test :var)))]
+
+                        (when var
+                          (cond
+                            ;; If we've already got a definition of var then we'll skip it.
+                            [(/= (.> lookup var) nil) (set! var nil)]
+                            ;; If this variable is redefined then we'll skip it.
+                            [(> (# (.> (usage/get-var var-lookup var) :defs)) 1) (set! var nil)]
+                            [true]))
+
+                        ;; Visit the condition, setting is-cond to true.
+                        (case (visitor test visitor true)
+                          [nil (visitor/visit-node test visitor)]
+                          [false]
+                          [?x (.<! entry 1 x)])
+
+                        ;; Set the variable to true and visit all child nodes.
+                        (when var
+                          (push-cdr! vars var)
+                          (.<! lookup var true))
+                        (for i 2 (pred len) 1 (visitor/visit-node (nth entry i) visitor))
+
+                        ;; Visit the last entry, replacing it if required
+                        (when (> len 1)
+                          (with (last (nth entry len))
+                            (case (visitor last visitor is-cond)
+                              [nil (visitor/visit-node last visitor)]
+                              [false]
+                              [?x (.<! entry len x)])))
+
+                        ;; And mark the variable as false for the remaining branches
+                        (when var (.<! lookup var false))))
+
+                    (for-each var vars (.<! lookup var nil)))
+                  false)]
+               ["list"
+                (when (and is-cond (builtin? (car head) :lambda))
+                  ;; If we have a directly called lambda then we visit pretty much as normal, but make
+                  ;; sure to mark the last expression as a cond.
+
+                  ;; Visit arguments to lambda
+                  (for i 2 (# node) 1 (visitor/visit-node (nth node i) visitor))
+
+                  (with (len (# head))
+                    ;; Visit main lambda body
+                    (for i 3 (pred len) 1 (visitor/visit-node (nth head i) visitor))
+
+                    ;; Visit the last entry, replacing it if required
+                    (when (> len 2)
+                      (with (last (nth head len))
+                        (case (visitor last visitor is-cond)
+                          [nil (visitor/visit-node last visitor)]
+                          [false]
+                          [?x (.<! node head x)]))))
+                  false)]
+               [_]))]
+          [_])))))
