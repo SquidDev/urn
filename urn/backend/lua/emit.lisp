@@ -254,12 +254,31 @@
            (compile-expression (nth (nth node i) (if (= i len) 2 1)) out state)))
        (w/append! out ")")]
 
+      ["or-lambda"
+       (when ret (w/append! out ret))
+       (w/append! out "(")
+       (compile-expression (nth node 2) out state)
+       (let* [(branch (.> (nth (car node) 3)))
+              (len (# branch))]
+         (for i 3 len 1
+           (w/append! out " or ")
+           (compile-expression (nth (nth branch i) (if (= i len) 2 1)) out state)))
+       (w/append! out ")")]
+
       ["and"
        (when ret (w/append! out ret))
        (w/append! out "(")
        (compile-expression (nth (nth node 2) 1) out state)
        (w/append! out " and ")
        (compile-expression (nth (nth node 2) 2) out state)
+       (w/append! out ")")]
+
+      ["and-lambda"
+       (when ret (w/append! out ret))
+       (w/append! out "(")
+       (compile-expression (nth node 2) out state)
+       (w/append! out " and ")
+       (compile-expression (nth (nth (nth (car node) 3) 2) 2) out state)
        (w/append! out ")")]
 
       ["set!"

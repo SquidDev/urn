@@ -177,6 +177,40 @@
                            (cat "call")))
                        (cat "wrap-value")))]
 
+                  [(and
+                     ;; Attempt to determine expressions of the form ((lambda (x) (cond ...)) Y)
+                     ;; where Y is an expression.
+                     ;; If the condition is an "and" or "or" on X, then we'll specialise into an and/or expression.
+                     (= (# node) 2) (builtin? (car head) :lambda)
+                     (= (# head) 3) (= (# (nth head 2)) 1)
+                     (with (elem (nth head 3))
+                       (and
+                         ;; If we're a condition
+                         (list? elem) (builtin? (car elem) :cond)
+                         ;; And we branch on the given symbol
+                         (symbol? (car (nth elem 2))) (= (.> (car (nth elem 2)) :var) (.> (car (nth head 2)) :var)))))
+
+                  (with (child-cat (visit-node lookup (nth node 2) stmt test))
+                    (if (.> child-cat :stmt)
+                      (progn
+                        ;; We got a statement out of it, which means we cannot emit an "and" or "or".
+                        ;; Instead we'll just emit a normal call-lambda/call.
+                        (.<! lookup head (cat :lambda))
+                        (for i 3 (# head) 1
+                          (visit-node lookup (nth head i) true test))
+                        (if stmt
+                          (cat "call-lambda" :stmt true)
+                          (cat "call")))
+                      (let* [(res (.> (visit-node lookup (nth head 3) true test)))
+                             (ty (.> res :category))]
+                        ;; Otherwise we got an expression, so we'll see what we can do.
+                        (.<! lookup head (cat :lambda))
+                        (cond
+                          [(= ty "and") (cat "and-lambda")]
+                          [(= ty "or") (cat "or-lambda")]
+                          [stmt (cat "call-lambda" :stmt true)]
+                          [true (cat "call")]))))]
+
                   [(and stmt (builtin? (car head) :lambda))
                    ;; Visit the lambda body
                    (visit-nodes lookup (car node) 3 true test)
@@ -212,6 +246,7 @@
                [true
                 (visit-nodes lookup node 1 false)
                 (cat "call-literal")]))]))
+    (when (= cat nil) (fail! (.. "Node returned nil "(pretty node))))
     (.<! lookup node cat)
     cat))
 
