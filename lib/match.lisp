@@ -38,14 +38,15 @@
  the scrutinee matches the given predicate."
 
 (import lua/basic (xpcall))
+(import lua/math (max))
 (import base ( defun defmacro if get-idx
                and gensym error for
                quasiquote list or pretty
-               slice concat debug
+               slice concat debug unpack
                /= # = ! - + / * >= <= ))
 (import type ())
 (import list ( car caddr cadr cdr append for-each
-               map filter push-cdr!
+               map filter push-cdr! range snoc
                nth last elem? ))
 
 (import table (struct))
@@ -74,6 +75,11 @@
         (set! length (+ length 1))))
     (+ length correction)))
 
+(defun pattern-# (pat) :hidden
+  (cond
+    [(cons-pattern? pat) (pattern-length pat -2)]
+    [true (pattern-length pat 0)]))
+
 (defun predicate? (x) :hidden
   (let* [(x (get-idx x :contents))]
     (= (char-at x (#s x)) "?")))
@@ -94,8 +100,9 @@
                (rhs (cons-pat-right-side pattern))
                (lhs-test '())]
           (for i 1 (# lhs) 1
-            (push-cdr! lhs-test (compile-pattern-test (nth lhs i)
-                                                      `(nth ,pattern-sym ,i))))
+            (push-cdr! lhs-test
+                       (compile-pattern-test (nth lhs i)
+                                             `(nth ,pattern-sym ,i))))
           `(let* [(,pattern-sym ,symb)]
              (and (list? ,pattern-sym)
                   (>= (# ,pattern-sym) ,(pattern-length pattern -2))
@@ -232,3 +239,18 @@
        (if (car ,tmp-sym)
          (cadr ,tmp-sym)
          nil))))
+
+(defmacro function (&arms)
+  (let* [(rest-sym (gensym "remaining-arguments"))
+         (rest (struct :tag :symbol
+                       :contents (.. "&"
+                                     (get-idx
+                                       rest-sym
+                                       :contents))))
+         (param-n (max (unpack (map (lambda (x)
+                                      (pattern-# (car x)))
+                                    arms))))
+         (param-nams (map gensym (range 1 param-n)))]
+    `(lambda ,(snoc param-nams rest)
+       (case (append (list ,@param-nams) ,rest-sym)
+         ,@arms))))
