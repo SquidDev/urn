@@ -49,7 +49,16 @@
                 (get-source node) "Called here"))))))))
 
 (defun analyse (nodes state)
+  (for-each pass (.> state :pass :normal)
+    (run-pass pass state nil nodes))
+
   (with (lookup (usage/create-state))
     (run-pass usage/tag-usage state nil nodes lookup)
-    (run-pass check-arity state nil nodes lookup))
-  nodes)
+    (for-each pass (.> state :pass :usage)
+      (run-pass pass state nil nodes lookup))))
+
+(defun default ()
+  "Create a collection of default warnings."
+  (const-struct
+    :normal '()
+    :usage (list check-arity)))

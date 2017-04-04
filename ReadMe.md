@@ -1,4 +1,4 @@
-# ![](http://i.imgur.com/XqKyCMC.png) Urn [![Travis Build Status](https://travis-ci.org/SquidDev/urn.svg?branch=master)](https://travis-ci.org/SquidDev/urn) [![Build status](https://gitlab.com/urn/urn/badges/master/build.svg)](https://gitlab.com/urn/urn/commits/master)
+# ![](https://i.imgur.com/XqKyCMC.png) Urn [![Travis Build Status](https://travis-ci.org/SquidDev/urn.svg?branch=master)](https://travis-ci.org/SquidDev/urn) [![Build status](https://gitlab.com/urn/urn/badges/master/build.svg)](https://gitlab.com/urn/urn/commits/master)
 ## A Lisp implementation for Lua
 
 Urn is a new language developed by me, SquidDev, and demhydraz. Urn is a Lisp dialect with a focus on minimism which
@@ -21,11 +21,11 @@ See [the roadmap](https://gitlab.com/n/urn/issues/1) for some idea of where we'r
 ## Features
 Powerful assertion and testing framework, ensuring your code is (generally) correct.
 
-![](http://i.imgur.com/F3e338r.png)
+![](https://i.imgur.com/F3e338r.png)
 
 Detailed parser messages, helping you find that problem as soon as possible.
 
-![](http://i.imgur.com/RJ2fE2C.png)
+![](https://i.imgur.com/RJ2fE2C.png)
 
 ## Getting started
 Urn is currently hosted on [GitLab](https://gitlab.com/urn/urn) and mirrored

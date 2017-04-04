@@ -2,7 +2,7 @@
               progn get-idx set-idx! error = % - + # or for with ! unpack))
 (import lua/string (sub))
 (import lua/table (empty-struct iter-pairs) :export)
-(import lua/basic (getmetatable setmetatable next) :export)
+(import lua/basic (getmetatable setmetatable next len#) :export)
 (import type (nil? list? eq? key?))
 (import list ())
 (import binders (let))
@@ -61,6 +61,19 @@
       (push-cdr! out (list k v)))
     out))
 
+(defun struct->list (tbl)
+  "Converts a structure TBL that is a list by having its keys be
+   indices to a regular list."
+  (update-struct tbl :tag "list"
+                     :n   (len# tbl)))
+
+(defun struct->list! (tbl)
+  "Converts a structure TBL that is a list by having its keys be
+   indices to a regular list. This differs from `struct->list`
+   in that it mutates its argument."
+  (.<! tbl :tag "list")
+  (.<! tbl :n (len# tbl)))
+
 ;; Chain a series of index accesses together
 (defmacro .> (x &keys)
   "Index the structure X with the sequence of accesses given by KEYS."
@@ -90,7 +103,7 @@
    ```cl
    (struct :foo bar)
    ```"
-  (when (= (% (# entries) 1) 1)
+  (when (= (% (# entries) 2) 1)
     (error "Expected an even number of arguments to struct" 2))
   (with (out (empty-struct))
     (for i 1 (# entries) 2
@@ -105,7 +118,7 @@
    This is designed for performance critical code where you will create a lot of
    structures with the same format."
 
-  (when (= (% (# entries) 1) 1)
+  (when (= (% (# entries) 2) 1)
     (error "Expected an even number of arguments to const-struct" 2))
   (let* [(name (gensym))
          (body `(lambda (,name)))]
@@ -118,7 +131,7 @@
   "A variation of [[struct]], which will not perform any ocercing of the KEYS in entries.
 
    Note, if you know your values at compile time, it is more performant to use [[const-struct]]."
-  (when (= (% (# entries) 1) 1)
+  (when (= (% (# entries) 2) 1)
     (error "Expected an even number of arguments to struct" 2))
   (with (out (empty-struct))
     (for i 1 (# entries) 2

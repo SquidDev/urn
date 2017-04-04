@@ -73,6 +73,12 @@
              (li (struct->assoc st))]
         (affirm (= (get-idx st :foo) (assoc li :foo))
                 (/= (get-idx st :bar) (assoc li :foo)))))
+    (can "be converted to a list"
+      (let* [(st (struct 1 "x" 2 "y" 3 "z"))
+             (li (struct->list st))]
+        (affirm (= (nth li 1) "x")
+                (= (nth li 2) "y")
+                (= (nth li 3) "z"))))
     (will "be a constant size"
       (affirm (= 0 (#keys (empty-struct)))
               (= 0 (#keys (struct)))
