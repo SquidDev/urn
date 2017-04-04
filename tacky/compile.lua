@@ -119,7 +119,7 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 						-- Global state for every action
 						_co    = co,
 						_state = state,
-						_node  = parsed[i],
+						_node  = result[i],
 						_idx   = baseIdx + i - 1,
 					}
 				end
