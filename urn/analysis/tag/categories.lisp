@@ -78,7 +78,7 @@
                               (symbol? last)
                               (or
                                 (and (symbol? branch) (= (.> branch :var) (.> last :var)))
-                                (and test (= (.> last :var) (.> builtins :false)))))))
+                                (and test (! (.> lookup branch :stmt)) (= (.> last :var) (.> builtins :false)))))))
                         (cat "and")]
 
                        [(and
@@ -93,7 +93,7 @@
                                 (and (= (# branch) 2) (symbol? tail)
                                   (or
                                     (and (symbol? head) (= (.> head :var) (.> tail :var)))
-                                    (and test (= (.> tail :var) (.> builtins :true))))))))
+                                    (and test (! (.> lookup head :stmt)) (= (.> tail :var) (.> builtins :true))))))))
                           ;; Apart from the last one, which is `[true <expr>]`.
                           (with (branch (last node))
                             (and (= (# branch) 2) (builtin? (car branch) :true) (! (.> lookup (nth branch 2) :stmt)))))
