@@ -6,8 +6,8 @@
 (import extra/test ())
 
 ;; We declare these like this to ensure the optimiser won't inline them.
-(define foo "foo")
-(define bar "bar")
+(define foo (nth '(1 2) 1))
+(define bar (nth '(1 2) 2))
 
 (describe "The codegen"
   (may "allow variadic arguments"
