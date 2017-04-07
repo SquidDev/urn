@@ -198,11 +198,27 @@
                        (with (head (car node))
                          (if (symbol? head)
                            ;; If we're calling known symbol then we'll try to work out execution order
-                           (with (var (.> node :var))
+                           (with (var (.> head :var))
                              ;; In this case we'll visit the children first, then the actual node
                              ;; This means we only evaluate the side effects of the node *before*
                              ;; evaluating the side effects of this node.
-                             (visitor/visit-list node 1 visitor)
+                             (cond
+                               ;; Only visit the actual variable to be defined
+                               [(= var (.> builtins :set!)) (visitor/visit-node (nth node 3) visitor)]
+                               [(= var (.> builtins :define)) (visitor/visit-node (last node) visitor)]
+                               [(= var (.> builtins :define-macro)) (visitor/visit-node (last node) visitor)]
+                               ;; Nothing doing here
+                               [(= var (.> builtins :define-native))]
+                               ;; We don't do anything with it's body so skip
+                               [(= var (.> builtins :cond))
+                                (visitor/visit-node (car (nth node 2)) visitor)]
+                               [(= var (.> builtins :lambda))]
+                               [(= var (.> builtins :quote))]
+                               [(= var (.> builtins :import))]
+                               ;; Visit syntax quotes normally
+                               [(= var (.> builtins :syntax-quote)) (visitor/visit-quote (nth node 2) visitor 1)]
+                               ;; Visit normal calls, normally.
+                               [true (visitor/visit-list node 1 visitor)])
 
                              ;; If the last argument to this function is from the parent lambda
                              ;; then we'll check if it needs lambda wrapping and mark it for later.
