@@ -1,10 +1,11 @@
 "An argument parsing library.
 
- You specify the arguments for this parser, and the arg parser will handle parsing
- and documentation generation.
+ You specify the arguments for this parser, and the arg parser will
+ handle parsing and documentation generation.
 
- The parser is created with [[create]] and arguments can be added with [[add-argument!]]. Should you want
- the parser to handle `--help` and friends, you should call [[add-help!]]. Once the parser is 'built', you
+ The parser is created with [[create]] and arguments can be added with
+ [[add-argument!]]. Should you want the parser to handle `--help` and
+ friends, you should call [[add-help!]]. Once the parser is 'built', you
  can parse inputs with [[parse!]]
 
  ### Example
@@ -57,18 +58,27 @@
 (defun add-argument! (spec names &options)
   "Add a new argument to SPEC, using the specified NAMES.
 
-   OPTIONS is composed of a key followed by the corresponding value. The following options
-   are valid:
+   OPTIONS is composed of a key followed by the corresponding value. The
+   following options are valid:
 
-    - `:name`:    The name to store the result in. Defaults to the first item given in NAMES.
-    - `:narg`:    The number of arguments to consume. This can be any number, '+', '*' or '?'. Defaults to 0 if the first `:name` starts with `-`, otherwise `*`.
+    - `:name`: The name to store the result in. Defaults to the first
+      item given in NAMES.
+
+    - `:narg`: The number of arguments to consume. This can be any
+      number, '+', '*' or '?'. Defaults to 0 if the first `:name` starts
+      with `-`, otherwise `*`.
     - `:default`: The default value to use. Defaults to `false`.
-    - `:value`:   The value to use if this is used without an argument (such as a flag). Defaults to `true`.
-    - `:help`:    The description text to display when using this.
-    - `:var`:     The variable name to show in help files. Defaults to `:name`.
-    - `:action`:  The action to execute when this option is used. Must be a function which takes three arguments: current arg, data and value.
-    - `:many`:    Whether you can specify this argument multiple times.
-    - `:all`:     Whether this will consume all values, including those starting with `-`."
+    - `:value`: The value to use if this is used without an
+      argument (such as a flag). Defaults to `true`.
+    - `:help`: The description text to display when using this.
+    - `:var`: The variable name to show in help files. Defaults to
+      `:name`.
+    - `:action`: The action to execute when this option is used. Must be
+      a function which takes three arguments: current arg, data and
+      value.
+    - `:many`: Whether you can specify this argument multiple times.
+    - `:all`: Whether this will consume all values, including those
+      starting with `-`."
   (assert-type! names list)
   (when (nil? names) (error! "Names list is empty"))
   (unless (= (% (# options) 2) 0) (error! "Options list should be a multiple of two"))
@@ -126,7 +136,8 @@
 (defun add-help! (spec)
   "Add a help argument to SPEC.
 
-   This will show the help message whenever --help or -h is used and then quit the program."
+   This will show the help message whenever --help or -h is used and
+   then quit the program."
   (add-argument! spec '("--help" "-h")
     :help    "Show this help message"
     :default nil
@@ -195,14 +206,16 @@
           (print! (string/format fmt (concat (.> arg :names) ", ") (.> arg :help))))))))
 
 (defun matcher (pattern)
-  "A utility function which creates a lambda to check if PATTERN matches the given argument."
+  "A utility function which creates a lambda to check if PATTERN matches
+   the given argument."
   :hidden
   (lambda (x)
     (with (res (list (string/match x pattern)))
       (if (= (car res) nil) nil res))))
 
 (defun parse! (spec args)
-  "Parse ARGS using the argument parser defined in SPEC. Returns a lookup with each argument given its value."
+  "Parse ARGS using the argument parser defined in SPEC. Returns a
+   lookup with each argument given its value."
   (unless args (set! args arg))
 
   (let* [(result (empty-struct))

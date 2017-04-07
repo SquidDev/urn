@@ -1,6 +1,7 @@
 "A pattern matching library.
- Utilities for manipulating deeply-nested data and lists in general,
- as well as binding multiple values.
+
+ Utilities for manipulating deeply-nested data and lists in general, as
+ well as binding multiple values.
 
  The grammar of patterns is described below:
  ```
@@ -19,23 +20,25 @@
  A literal pattern matches only if the scrutinee (what's being matched)
  compares [[eq?]] to the literal.
 
- Both metavariable patterns and the wildcard, `_`, match anything. However,
- a metavariable will bind the result of matching to that symbol. For example,
+ Both metavariable patterns and the wildcard, `_`, match
+ anything. However, a metavariable will bind the result of matching to
+ that symbol. For example,
 
  ```
  (destructuring-bind [x 1]
    (print! x))
  ```
- Results in `1` being printed to standard output, seeing as it is bound to
- `x`.
 
- List patterns and _list with rest_ patterns match lists. A list pattern will
- match every element in a list, while a cons pattern will only match a certain
- number of cars and the cdr.
- Both bind everything bound by their \"inner\" patterns.
+ Results in `1` being printed to standard output, seeing as it is bound
+ to `x`.
 
- A type predicate pattern works much like a wildcard, except it only matches if
- the scrutinee matches the given predicate."
+ List patterns and _list with rest_ patterns match lists. A list pattern
+ will match every element in a list, while a cons pattern will only match
+ a certain number of cars and the cdr. Both bind everything bound by
+ their \"inner\" patterns.
+
+ A type predicate pattern works much like a wildcard, except it only
+ matches if the scrutinee matches the given predicate."
 
 (import lua/basic (xpcall))
 (import lua/math (max))
@@ -175,8 +178,9 @@
 
 (defmacro destructuring-bind (pt &body)
   "Match a single pattern against a single value, then evaluate the BODY.
-   The pattern is given as `(car PT)` and the value as `(cadr PT)`.
-   If the pattern does not match, an error is thrown."
+
+   The pattern is given as `(car PT)` and the value as `(cadr PT)`.  If
+   the pattern does not match, an error is thrown."
   (let* [(pattern (car pt))
          (value (cadr pt))
          (val-sym (gensym))]
@@ -189,8 +193,8 @@
                 ,(concat (map (lambda (x) (.. "  Tried: `" x "`")) patterns) "\n")))))
 
 (defmacro case (val &pts)
-  "Match a single value against a series of patterns, evaluating the first
-   body that matches, much like [[cond]]."
+  "Match a single value against a series of patterns, evaluating the
+   first body that matches, much like [[cond]]."
   (let* [(val-sym (gensym))
          (compile-arm
            (lambda (pt)
@@ -203,21 +207,21 @@
 
 (defmacro matches? (pt x)
   "Test if the value X matches the pattern PT.
-   Note that, since this does not bind anything, all metavariables
-   may be replaced by `_` with no loss of meaning."
+
+   Note that, since this does not bind anything, all metavariables may be
+   replaced by `_` with no loss of meaning."
   (compile-pattern-test pt x))
 
 (defun ->meta (x) :hidden
   (struct :tag "symbol" :contents (.. "?" (get-idx x :contents))))
 
 (defmacro handler-case (x &body)
-  "Evaluate the form X, and if an error happened, match
-   the series of `(?pattern (?arg) . ?body)` arms given in
-   BODY against the value of the error, executing the first
-   that succeeeds.
+  "Evaluate the form X, and if an error happened, match the series
+   of `(?pattern (?arg) . ?body)` arms given in BODY against the value of
+   the error, executing the first that succeeeds.
 
-   In the case that X does not throw an error, the value
-   of that expression is returned by [[handler-case]].
+   In the case that X does not throw an error, the value of that
+   expression is returned by [[handler-case]].
 
    Example:
 

@@ -8,8 +8,8 @@
 (import binders (let))
 
 (defun assoc (list key or-val)
-  "Return the value given by KEY in the association list LIST, or, in
-   the case that it does not exist, the value OR-VAL, which can be nil."
+  "Return the value given by KEY in the association list LIST, or, in the
+   case that it does not exist, the value OR-VAL, which can be nil."
   (cond
     [(or (! (list? list))
          (nil? list))
@@ -29,7 +29,8 @@
     [true (assoc? (cdr list) key)]))
 
 (defun insert (list_ key val)
-  "Extend the association list LIST_ by inserting VAL, bound to the key KEY."
+  "Extend the association list LIST_ by inserting VAL, bound to the key
+   KEY."
   (snoc list_ (list key val)))
 
 (defun insert! (list_ key val)
@@ -38,9 +39,9 @@
   (push-cdr! list_ (list key val)))
 
 (defun assoc->struct (list)
-  "Convert the association list LIST into a structure. Much like [[assoc]],
-   in the case there are several values bound to the same key, the first
-   value is chosen."
+  "Convert the association list LIST into a structure. Much like
+   [[assoc]], in the case there are several values bound to the same key,
+   the first value is chosen."
   (let [(ret '())]
     (traverse list
       (lambda (x)
@@ -62,15 +63,15 @@
     out))
 
 (defun struct->list (tbl)
-  "Converts a structure TBL that is a list by having its keys be
-   indices to a regular list."
+  "Converts a structure TBL that is a list by having its keys be indices
+   to a regular list."
   (update-struct tbl :tag "list"
                      :n   (len# tbl)))
 
 (defun struct->list! (tbl)
-  "Converts a structure TBL that is a list by having its keys be
-   indices to a regular list. This differs from `struct->list`
-   in that it mutates its argument."
+  "Converts a structure TBL that is a list by having its keys be indices
+   to a regular list. This differs from `struct->list` in that it mutates
+   its argument."
   (.<! tbl :tag "list")
   (.<! tbl :n (len# tbl)))
 
@@ -90,8 +91,10 @@
     `(set-idx! ,res ,(get-idx keys (# keys) 1) ,value)))
 
 (defun struct (&entries)
-  "Return the structure given by the list of pairs ENTRIES. Note that, in contrast
-   to variations of [[LET]], the pairs are given \"unpacked\": Instead of invoking
+  "Return the structure given by the list of pairs ENTRIES. Note that, in
+   contrast to variations of [[LET]], the pairs are given \"unpacked\":
+   Instead of invoking
+
    ```cl
    (struct [(:foo bar)])
    ```
@@ -115,8 +118,8 @@
 (defmacro const-struct (&entries)
   "A variation of [[struct]], assuming the keys in ENTRIES are constant.
 
-   This is designed for performance critical code where you will create a lot of
-   structures with the same format."
+   This is designed for performance critical code where you will create a
+   lot of structures with the same format."
 
   (when (= (% (# entries) 2) 1)
     (error "Expected an even number of arguments to const-struct" 2))
@@ -128,9 +131,11 @@
     `(,body (empty-struct))))
 
 (defun fast-struct (&entries)
-  "A variation of [[struct]], which will not perform any ocercing of the KEYS in entries.
+  "A variation of [[struct]], which will not perform any ocercing of the
+   KEYS in entries.
 
-   Note, if you know your values at compile time, it is more performant to use [[const-struct]]."
+   Note, if you know your values at compile time, it is more performant
+   to use [[const-struct]]."
   (when (= (% (# entries) 2) 1)
     (error "Expected an even number of arguments to struct" 2))
   (with (out (empty-struct))
@@ -173,12 +178,13 @@
     out))
 
 (defun update-struct (st &keys)
-  "Create a new structure based of ST, setting the values given by the pairs in KEYS."
+  "Create a new structure based of ST, setting the values given by the
+   pairs in KEYS."
   (merge st (struct (unpack keys 1 (# keys)))))
 
 (defun create-lookup (values)
-  "Convert VALUES into a lookup table, with each value being converted to a key
-   whose corresponding value is the value's index."
+  "Convert VALUES into a lookup table, with each value being converted to
+   a key whose corresponding value is the value's index."
   (with (res (empty-struct))
     (for i 1 (# values) 1 (.<! res (nth values i) i))
     res))

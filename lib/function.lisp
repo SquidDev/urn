@@ -9,8 +9,8 @@
 (import base (print pretty))
 
 (defun slot? (symb)
-  "Test whether SYMB is a slot. For this, it must be a symbol, whose contents
-   are `<>`."
+  "Test whether SYMB is a slot. For this, it must be a symbol, whose
+   contents are `<>`."
   (and (symbol? symb) (= (get-idx symb "contents") "<>")))
 
 (defmacro cut (&func)
@@ -58,8 +58,8 @@
 
 (defmacro -> (x &funcs)
   "Chain a series of method calls together. If the list contains `<>`
-   then the value is placed there, otherwise the expression is invoked with
-   the previous entry as an argument.
+   then the value is placed there, otherwise the expression is invoked
+   with the previous entry as an argument.
 
    ### Example
    ```
@@ -77,11 +77,9 @@
         (set! res `((lambda (,symb) ,body) ,res))))
     res))
 
-;; Predicate for determining whether something can safely be invoked, that is,
-;; be at `car` position on an unquoted list.
 (defun invokable? (x)
-  "Test if the expression X makes sense as something that can be applied to a set
-   of arguments.
+  "Test if the expression X makes sense as something that can be applied
+   to a set of arguments.
 
    ### Example
    ```
@@ -98,9 +96,9 @@
            (invokable? (.> (getmetatable x) :__call)))))
 
 (defun compose (f g)
-  "Return the pointwise composition of functions F and G. This corresponds to
-   the mathematical operator `∘`, i.e. `(compose f g)` corresponds to
-   `h(x) = f (g x)` (`(lambda (x) (f (g x)))`)."
+  "Return the pointwise composition of functions F and G. This
+   corresponds to the mathematical operator `∘`, i.e. `(compose f g)`
+   corresponds to `h(x) = f (g x)` (`(lambda (x) (f (g x)))`)."
   (if (and (invokable? f)
            (invokable? g))
     (lambda (x) (f (g x)))

@@ -2,7 +2,8 @@
 (import list (elem? traverse))
 
 (defun format-value (value)
-  "Format the result of VALUE: extracting `:contents` or `:value` if required"
+  "Format the result of VALUE: extracting `:contents` or `:value` if
+   required"
   :hidden
   (if (and (table? value) (get-idx value "contents"))
     (get-idx value "contents")
@@ -17,9 +18,12 @@
 
    Each assertion can take several forms:
 
-    - `(= a b)`:  Assert that A and B are equal, printing their values if not
-    - `(/= a b)`: Assert that A and B are not equal, printing their values if they are
-    - Type assertions of the form `(list? a)`: Assert that A is of the required type.
+    - `(= a b)`: Assert that A and B are equal, printing their values if
+      not
+    - `(/= a b)`: Assert that A and B are not equal, printing their
+      values if they are
+    - Type assertions of the form `(list? a)`: Assert that A is of the
+      required type.
 
    ### Example
    ```
@@ -78,9 +82,10 @@
 (defmacro affirm (&asserts)
   "Assert each expression in ASSERTS evaluates to true
 
-   Each expression is expected to be a function call. Each argument is evaluated and the
-   final function executed. If it returns a falsey value (nil or false) then each argument
-   will be have it's value printed out.
+   Each expression is expected to be a function call. Each argument is
+   evaluated and the final function executed. If it returns a falsey
+   value (nil or false) then each argument will be have it's value
+   printed out.
 
    ### Example
    ```

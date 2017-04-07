@@ -65,8 +65,8 @@
                (= (get-idx x :tag) "key")))))
 
 (defun falsey? (x)
-  "Check whether X is falsey, that is, it is either `false` or does
-   not exist."
+  "Check whether X is falsey, that is, it is either `false` or does not
+   exist."
   (! x))
 
 (defun exists? (x)

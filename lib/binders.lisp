@@ -24,8 +24,8 @@
 ;; Bind multiple variables in succession
 (defmacro let* (vars &body)
   "Bind several variables (given in VARS), then evaluate BODY.
-   Variables bound with [[let*]] can refer to variables bound previously,
-   as they are evaluated in order.
+   Variables bound with [[let*]] can refer to variables bound
+   previously, as they are evaluated in order.
 
    ### Example
    ```cl
@@ -46,8 +46,8 @@
 ;; Binds a variable to an expression
 (defmacro let (vars &body)
   "Bind several variables (given in VARS), then evaluate BODY.
-   In contrast to [[let*]], variables bound with [[let]] can not refer to
-   eachother.
+   In contrast to [[let*]], variables bound with [[let]] can not refer
+   to each other.
 
    ### Example
    ```cl
@@ -60,8 +60,9 @@
     ,@(map make-let-binding vars)))
 
 (defmacro when-let (vars &body)
-  "Bind VARS, as with [[let]], and check they are all truthy before evaluating
-   BODY.
+  "Bind VARS, as with [[let]], and check they are all truthy before
+   evaluating BODY.
+
    ```cl
    (when-let [(foo 1)
               (bar nil)]
@@ -79,9 +80,10 @@
     ,@(map make-let-binding vars)))
 
 (defmacro when-let* (vars &body)
-  "Bind each pair of `(name value)` of VARS, checking if the value is truthy
-   before binding the next, and finally evaluating BODY. As with [[let*]],
-   bindings inside [[when-let*]] can refer to previously bound names.
+  "Bind each pair of `(name value)` of VARS, checking if the value is
+   truthy before binding the next, and finally evaluating BODY. As with
+   [[let*]], bindings inside [[when-let*]] can refer to previously bound
+   names.
 
    ### Example
    ```cl
@@ -90,8 +92,9 @@
                (baz 2)
      (+ foo baz))
    ```
-   Since `1` is truthy, it is evaluated and bound to `foo`, however, since
-   `nil` is falsey, evaluation does not continue."
+
+   Since `1` is truthy, it is evaluated and bound to `foo`, however,
+   since `nil` is falsey, evaluation does not continue."
   (cond
     [(nil? vars) `((lambda () ,@body))]
     [true `((lambda (,(caar vars))
@@ -101,16 +104,17 @@
             ,(make-binding (cdar vars)))]))
 
 (defmacro when-with (var &body)
-  "Bind the PAIR var of the form `(name value)`, only evaluating BODY if the
-   value is truthy
+  "Bind the PAIR var of the form `(name value)`, only evaluating BODY if
+   the value is truthy
 
    ### Example
    ```cl
    (when-with (foo (get-idx bar :baz))
       (print! foo))
    ```
-   When `bar` has an index `baz`, it will be bound to `foo` and printed. If not,
-   the print statement will not be executed."
+
+   When `bar` has an index `baz`, it will be bound to `foo` and
+   printed. If not, the print statement will not be executed."
   `((lambda (,(car var)) (when ,(car var) ,@body)) ,(cadr var)))
 
 (defun make-setting (var) :hidden
@@ -147,7 +151,8 @@
 
 (defmacro use (var &body)
   "Bind each variable in VAR, checking for truthyness between bindings,
-   execute BODY, then run a finaliser for all the variables bound by VAR.
+   execute BODY, then run a finaliser for all the variables bound by
+   VAR.
 
    Potential finalisers might be:
    - `(get-idx (getmetatable FOO) :--finalise)`, where FOO is the

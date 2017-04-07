@@ -7,7 +7,7 @@
     (self handle :close)
     data))
 
-(defun read-all! (path) 
+(defun read-all! (path)
   "Reads the data from the file at PATH and returns it as a string.
    Returns nil if it failed.
 
@@ -18,7 +18,7 @@
    ```"
   (read-all-mode! path false))
 
-(defun read-lines! (path) 
+(defun read-lines! (path)
   "Reads the lines from the file at PATH and returns it as a list of strings.
    Returns nil if it failed.
 
@@ -31,8 +31,8 @@
     (split data "\n")))
 
 (defun read-bytes! (path)
-  "Reads the data from the file at PATH and returns it as a list of bytes (numbers).
-   Returns nil if it failed.
+  "Reads the data from the file at PATH and returns it as a list of bytes
+   (numbers). Returns nil if it failed.
 
    ### Example
    ```
@@ -59,8 +59,9 @@
 
 (defun write-all! (path data)
   "Writes the string DATA to the file at PATH.
-   Creates a new file if it doesn't exist and overwrite the file if it does.
-   Returns true if it succeeded or false if it failed.
+
+   Creates a new file if it doesn't exist and overwrite the file if it
+   does. Returns true if it succeeded or false if it failed.
 
    ### Example
    ```
@@ -71,8 +72,9 @@
 
 (defun write-lines! (path data)
   "Writes the lines (list of strings) DATA to the file at PATH.
-   Creates a new file if it doesn't exist and overwrite the file if it does.
-   Returns true if it succeeded or false if it failed.
+
+   Creates a new file if it doesn't exist and overwrite the file if it
+   does. Returns true if it succeeded or false if it failed.
 
    ### Example
    ```
@@ -83,8 +85,9 @@
 
 (defun write-bytes! (path data)
   "Writes the bytes (list of numbers) DATA to the file at PATH.
-   Creates a new file if it doesn't exist and overwrite the file if it does.
-   Returns true if it succeeded or false if it failed.
+
+   Creates a new file if it doesn't exist and overwrite the file if it
+   does. Returns true if it succeeded or false if it failed.
 
    ### Example
    ```
@@ -112,8 +115,9 @@
 
 (defun append-lines! (path data)
   "Appends the lines (list of strings) DATA to the file at PATH.
-   Creates a new file if it doesn't exist.
-   Returns true if it succeeded or false if it failed.
+
+   Creates a new file if it doesn't exist. Returns true if it succeeded
+   or false if it failed.
 
    ### Example
    ```
@@ -124,8 +128,9 @@
 
 (defun append-bytes! (path data)
   "Appends the bytes (list of numbers) DATA to the file at PATH.
-   Creates a new file if it doesn't exist.
-   Returns true if it succeeded or false if it failed.
+
+   Rreates a new file if it doesn't exist. Returns true if it succeeded
+   or false if it failed.
 
    ### Example
    ```

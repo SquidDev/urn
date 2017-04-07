@@ -28,9 +28,11 @@
   (- x 1))
 
 (define string->number
-  "Convert the string X into a number. Returns `nil` if it could not be parsed.
+  "Convert the string X into a number. Returns `nil` if it could not be
+   parsed.
 
-   Optionally takes a BASE which the number is in (such as 16 for hexadecimal)."
+   Optionally takes a BASE which the number is in (such as 16 for
+   hexadecimal)."
   tonumber)
 
 (define number->string
@@ -76,8 +78,8 @@
   x)
 
 (defun const (x)
-  "Return a function which always returns X. This is equivalent to the `K`
-   combinator in SK combinator calculus."
+  "Return a function which always returns X. This is equivalent to the
+   `K` combinator in SK combinator calculus."
   (lambda (y) x))
 
 (defun call (x key &args)

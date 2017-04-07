@@ -65,21 +65,21 @@
   `(set-idx! ,(nth selector 1) 1 ,val))
 
 (defmacro over! (obj fun)
-  "Apply function FUN over the location selector OBJ, storing the
-   result in the same place.
+  "Apply function FUN over the location selector OBJ, storing the result
+   in the same place.
 
    If OBJ is a symbol, then the symbol will just apply FUN, and set the
    symbol again.
 
    Otherwise, OBJ must be a list. This should be in the form of the
-   getter you'd normally use to access that value. For instance, to
-   set the first element of the list, you'd use `(over! (car xs) succ)`.
+   getter you'd normally use to access that value. For instance, to set
+   the first element of the list, you'd use `(over! (car xs) succ)`.
 
    This function given in the getter will have `/over!` appended to it,
-   and looked up in the current scope. This definition will then be
-   used to generate the accessor and setter. Implementations should
-   cache accesses, meaning that lists and structures are not
-   indexed multiple times.
+   and looked up in the current scope. This definition will then be used
+   to generate the accessor and setter. Implementations should cache
+   accesses, meaning that lists and structures are not indexed multiple
+   times.
 
    ### Example
    ```cl

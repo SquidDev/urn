@@ -17,7 +17,8 @@
      (write (colored ,color "\226\128\162"))))
 
 (defmacro it (name &body)
-  "Create a test NAME which executes all expressions and assertions in BODY"
+  "Create a test NAME which executes all expressions and assertions in
+   BODY"
   `(progn
     (inc! ,tests-total)
     (xpcall
@@ -32,14 +33,15 @@
 (defmacro pending (name &body)
   "Create a test NAME whose BODY will not be run.
 
-   This is primarily designed for assertions you know will fail and need to be fixed,
-   or features which have not been implemented yet"
+   This is primarily designed for assertions you know will fail and need
+   to be fixed, or features which have not been implemented yet"
   `(progn
      (marker 33)
      (push-cdr! ,tests-pending (.. ,prefix " " ,name))))
 
 (defmacro may (name &body)
-  "Create a group of tests defined in BODY whose names take the form `<prefix> may NAME, and <test_name>`"
+  "Create a group of tests defined in BODY whose names take the form
+   `<prefix> may NAME, and <test_name>`"
   `(with (,prefix (.. ,prefix " may " ,name ", and")) ,@body))
 
 (defmacro will (name &body)

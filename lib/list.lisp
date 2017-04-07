@@ -1,21 +1,24 @@
 "List manipulation functions.
+
  These include several often-used functions for manipulation of lists,
  including functional programming classics such as [[map]] and [[foldr]]
  and useful patterns such as [[accumulate-with]].
 
- Most of these functions are tail-recursive unless noted, which means they
- will not blow up the stack. Along with the property of tail-recursiveness,
- these functions also have favourable performance characteristics.
+ Most of these functions are tail-recursive unless noted, which means
+ they will not blow up the stack. Along with the property of
+ tail-recursiveness, these functions also have favourable performance
+ characteristics.
 
- Glossary:
+ ## Glossary:
  - **Constant time** The function runs in the same time regardless of the
    size of the input list.
- - **Linear time** The runtime of the function is a linear function of the
-   size of the input list.
+ - **Linear time** The runtime of the function is a linear function of
+   the size of the input list.
  - **Logarithmic time** The runtime of the function grows logarithmically
    in proportion to the size of the input list.
- - **Exponential time** The runtime of the function grows exponentially in
-   proportion to the size of the input list. This is generally a bad thing."
+ - **Exponential time** The runtime of the function grows exponentially
+   in proportion to the size of the input list. This is generally a bad
+   thing."
 
 (import base (defun defmacro when let* set-idx!
               get-idx cons for gensym -or slice
@@ -30,7 +33,7 @@
   "Return the first element present in the list X. This function operates
    in constant time.
 
-   Example:
+   ### Example:
    ```cl
    > (car '(1 2 3))
    out = 1
@@ -40,10 +43,10 @@
 
 (defun cdr (x)
   "Return the list X without the first element present. In the case that
-   X is nil, the empty list is returned. Due to the way lists are represented
-   internally, this function runs in linear time.
+   X is nil, the empty list is returned. Due to the way lists are
+   represented internally, this function runs in linear time.
 
-   Example:
+   ### Example:
    ```cl
    > (cdr '(1 2 3))
    out = (2 3)
@@ -56,7 +59,7 @@
 (defun take (xs n)
   "Take the first N elements of the list XS.
 
-   Example:
+   ### Example:
    ```cl
    > (take '(1 2 3 4 5) 2)
    out = (1 2)
@@ -66,7 +69,7 @@
 (defun drop (xs n)
   "Remove the first N elements of the list XS.
 
-   Example:
+   ### Example:
    ```cl
    > (take '(1 2 3 4 5) 2)
    out = (3 4 5)
@@ -78,7 +81,7 @@
    This function runs in linear time over the two input lists: That is,
    it runs in O(n+k) time proportional both to `(# XSS)` and `(# XS)`.
 
-   Example:
+   ### Example:
    ```cl
    > (snoc '(1 2 3) 4 5 6)
    out = (1 2 3 4 5 6)
@@ -86,16 +89,16 @@
   `(,@xss ,@xs))
 
 (defun foldr (f z xs)
-  "Accumulate the list XS using the binary function F and the zero element Z.
-   This function is also called `reduce` by some authors. One can visualise
-   (foldr f z xs) as replacing the [[cons]] operator in building lists with F,
-   and the empty list with Z.
+  "Accumulate the list XS using the binary function F and the zero
+   element Z.  This function is also called `reduce` by some authors. One
+   can visualise `(foldr f z xs)` as replacing the [[cons]] operator in
+   building lists with F, and the empty list with Z.
 
    Consider:
    - `'(1 2 3)` is equivalent to `(cons 1 (cons 2 (cons 3 '())))`
    - `(foldr + 0 '(1 2 3))` is equivalent to `(+ 1 (+ 2 (+ 3 0)))`.
 
-   Example:
+   ### Example:
    ```cl
    > (foldr append '() '((1 2) (3 4)))
    out = (1 2 3 4)
@@ -112,7 +115,7 @@
   "Apply the function F to every element of the list XS, collecting the
    results in a new list.
 
-   Example:
+   ### Example:
    ```cl
    > (map succ '(0 1 2))
    out = (1 2 3)
@@ -127,7 +130,7 @@
 (defun filter (p xs)
   "Return the list of elements of XS which match the predicate P.
 
-   Example:
+   ### Example:
    ```cl
    > (filter even? '(1 2 3 4 5 6))
    '(2 4 6)
@@ -141,10 +144,10 @@
     out))
 
 (defun any (p xs)
-  "Check for the existence of an element in XS that matches the
-   predicate P.
+  "Check for the existence of an element in XS that matches the predicate
+   P.
 
-   Example:
+   ### Example:
    ```cl
    > (any exists? '(nil 1 \"foo\"))
    true
@@ -156,7 +159,7 @@
 (defun all (p xs)
   "Test if all elements of XS match the predicate P.
 
-   Example:
+   ### Example:
    ```cl
    > (all symbol? '(foo bar baz))
    true
@@ -170,7 +173,7 @@
 (defun elem? (x xs)
   "Test if X is present in the list XS.
 
-   Example:
+   ### Example:
    ```cl
    > (elem? 1 '(1 2 3))
    true
@@ -183,7 +186,7 @@
 (defun prune (xs)
   "Remove values matching the predicate [[nil?]] from the list XS.
 
-   Example:
+   ### Example:
    ```cl
    > (prune '(() 1 () 2))
    out = (1 2)
@@ -194,7 +197,7 @@
 (defun traverse (xs f)
   "An alias for [[map]] with the arguments XS and F flipped.
 
-   Example:
+   ### Example:
    ```cl
    > (traverse '(1 2 3) succ)
    out = (2 3 4)
@@ -205,7 +208,7 @@
   "Return the last element of the list XS.
    Counterintutively, this function runs in constant time.
 
-   Example:
+   ### Example:
    ```cl
    > (last (range 1 100))
    out = 100
@@ -217,7 +220,7 @@
   "Get the IDX th element in the list XS. The first element is 1.
    This function runs in constant time.
 
-   Example:
+   ### Example:
    ```cl
    > (nth (range 1 100) 10)
    out = 10
@@ -228,7 +231,7 @@
   "Get the IDX-th element in all the lists given at XSS. The first
    element is1.
 
-   Example:
+   ### Example:
    ```cl
    > (nths '((1 2 3) (4 5 6) (7 8 9)) 2)
    out = (2 5 8)
@@ -241,7 +244,7 @@
 (defun push-cdr! (xs val)
   "Mutate the list XS, adding VAL to its end.
 
-   Example:
+   ### Example:
    ```cl
    > (define list '(1 2 3))
    > (push-cdr! list 4)
@@ -258,7 +261,7 @@
 (defun pop-last! (xs)
   "Mutate the list XS, removing and returning its last element.
 
-   Example:
+   ### Example:
    ```cl
    > (define list '(1 2 3))
    > (pop-last! list)
@@ -275,7 +278,7 @@
 (defun remove-nth! (li idx)
   "Mutate the list LI, removing the value at IDX and returning it.
 
-   Example:
+   ### Example:
    ```cl
    > (define list '(1 2 3))
    > (remove-nth! list 2)
@@ -290,7 +293,7 @@
 (defmacro for-each (var lst &body)
   "Perform the set of actions BODY for all values in LST, binding the current value to VAR.
 
-   Example:
+   ### Example:
    ```cl
    > (for-each var '(1 2 3) \\
    .   (print! var))
@@ -308,7 +311,7 @@
 (defun append (xs ys)
   "Concatenate XS and YS.
 
-   Example:
+   ### Example:
    ```cl
    > (append '(1 2) '(3 4))
    out = (1 2 3 4)
@@ -319,7 +322,7 @@
   "Concatenate all the lists in XSS. XSS must not contain elements which
    are not lists.
 
-   Example:
+   ### Example:
    ```cl
    > (flatten '((1 2) (3 4)))
    out = (1 2 3 4)
@@ -329,7 +332,7 @@
 (defun range (start end)
   "Build a list from START to END.
 
-   Example:
+   ### Example:
    ```cl
    > (range 1 10)
    out = (1 2 3 4 5 6 7 8 9 10)
@@ -342,7 +345,7 @@
 (defun reverse (xs)
   "Reverse the list XS, using the accumulator ACC.
 
-   Example:
+   ### Example:
    ```cl
    > (reverse (range 1 10))
    out = (10 9 8 7 6 5 4 3 2 1)
@@ -353,7 +356,8 @@
     out))
 
 (defun accumulate-with (f ac z xs)
-  "A composition of [[foldr]] and [[map]]
+  "A composition of [[foldr]] and [[map]].
+
    Transform the values of XS using the function F, then accumulate them
    starting form Z using the function AC.
 
@@ -361,7 +365,7 @@
    monoid described by (F, AC, Z), that is, F constructs the monoid, AC
    is the binary operation, and Z is the zero element.
 
-   Example:
+   ### Example:
    ```cl
    > (accumulate-with tonumber + 0 '(1 2 3 4 5))
    out = 15
@@ -374,7 +378,7 @@
   "Iterate over all the successive cars of XSS, producing a single list
    by applying FN to all of them. For example:
 
-   Example:
+   ### Example:
    ```cl
    > (zip list '(1 2 3) '(4 5 6) '(7 8 9))
    out = ((1 4 7) (2 5 8) (3 6 9))
