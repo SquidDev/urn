@@ -8,11 +8,11 @@
 
 (define-native categorise-node
   "Categorise the given NODE, specifying whether it is a STATEMENT or
-  not.")
+   not.")
 
 (define-native categorise-nodes
   "Categorise the given NODES, starting from START, specifying whether
-  it is a STATEMENT or not.")
+   it is a STATEMENT or not.")
 
 (define-native add-categoriser!
   "Register a custom CATEGORISER. Optionally specify a single backend to
@@ -54,7 +54,7 @@
 
 (define-native writer/next-block!
   "End one indented statement and begin another with the given TEXT in
-  WRITER.")
+   WRITER.")
 
 (define-native writer/end-block!
   "End an indented statement with the given TEXT in WRITER")
@@ -84,4 +84,4 @@
 
 (define-native emit-node
   "Using the specified compiler STATE, emit the given NODE, storing its
-  value in RET.")
+   value in RET.")

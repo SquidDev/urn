@@ -93,9 +93,11 @@
       :active-node    active-node
       :var-lookup     (lambda (symb scope)
                         (assert-type! symb symbol)
+                        (when (= (active-node) nil) (error! "Not currently resolving"))
                         (unless scope (set! scope (active-scope)))
                         ((.> Scope :getAlways) scope (symbol->string symb) (active-node)))
       :var-definition (lambda (var)
+                        (when (= (active-node) nil) (error! "Not currently resolving"))
                         (when-with (state (.> states var))
                           (when (= (.> state :stage) "parsed")
                             (co/yield (const-struct
@@ -103,6 +105,7 @@
                                         :state state)))
                           (.> state :node)))
       :var-value      (lambda (var)
+                        (when (= (active-node) nil) (error! "Not currently resolving"))
                         (when-with (state (.> states var))
                           (self state :get)))
       :var-docstring (lambda (var) (.> var :doc)))))

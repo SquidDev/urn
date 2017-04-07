@@ -146,6 +146,11 @@ local function compile(compiler, executeStates, parsed, scope, name)
 			-- And requeue node
 			queue[#queue + 1] = result
 		end
+
+		-- We clear this so things executeStates cannot access it. The plugin ensures this is
+		-- not nil when yielding.
+		compiler['active-scope'] = nil
+		compiler['active-node'] = nil
 	end
 
 	if name and timer then logger.startTimer(timer, name, 2) end

@@ -79,7 +79,7 @@
 
 (define-native var-usage
   "Get usage information about the specified VAR. This returns a struct
-  containing:
+   containing:
 
     - `:defs`: A list of all definitions. Each definition is a struct
       containing its type (`:tag`), the defining node `(:node`) and
