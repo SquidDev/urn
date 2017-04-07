@@ -315,6 +315,7 @@ function resolveNode(node, scope, state, root, many)
 				expect(log, node[2], node, "value")
 
 				local res = { tag = "many", n = node.n - 1 }
+				local states = {}
 				for i = 2, node.n do
 					local childState = State.create(scope, state.compiler)
 
@@ -331,6 +332,10 @@ function resolveNode(node, scope, state, root, many)
 
 					local func = childState:get()
 
+					-- setup the active scope and node
+					state.compiler['active-scope'] = scope
+					state.compiler['active-node'] = built
+
 					local success, replacement = packPcall(xpcall(func, debug.traceback))
 					if not success then
 						replacement = traceback.remapTraceback(state.mappings, replacement)
@@ -340,12 +345,14 @@ function resolveNode(node, scope, state, root, many)
 					if i == node.n then
 						for j = 1, replacement.n do
 							res[i + j - 2] = replacement[j]
+							states[i + j - 2] = childState
 						end
 						res.n = res.n + replacement.n - 1
 					elseif replacement.n ~= 1 then
 						errorPositions(log, node[i], "Expected one value, got " .. replacement.n)
 					else
 						res[i - 1] = replacement[1]
+						states[i - 1] = childState
 					end
 				end
 
@@ -354,9 +361,8 @@ function resolveNode(node, scope, state, root, many)
 					res[1] = { tag = "symbol", var = declaredVars["nil"] }
 				end
 
-				res.n = #res
 				for i = 1, res.n do
-					res[i] = resolveExecuteResult(childState, res[i], node, scope, state)
+					res[i] = resolveExecuteResult(states[i], res[i], node, scope, state)
 				end
 
 				if many then
@@ -382,6 +388,10 @@ function resolveNode(node, scope, state, root, many)
 				})
 
 				local func = childState:get()
+
+				-- Setup the active scope and node
+				state.compiler['active-scope'] = scope
+				state.compiler['active-node'] = built
 
 				local success, replacement = xpcall(func, debug.traceback)
 				if not success then
@@ -507,6 +517,10 @@ function resolveNode(node, scope, state, root, many)
 				if type(builder) ~= "function" then
 					errorPositions(first, "Macro is of type " .. type(builder))
 				end
+
+				-- Setup the active scope and node
+				state.compiler['active-scope'] = scope
+				state.compiler['active-node'] = node
 
 				local success, replacement = packPcall(xpcall(function() return builder(table.unpack(node, 2, #node)) end, debug.traceback))
 				if not success then

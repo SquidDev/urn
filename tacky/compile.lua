@@ -85,6 +85,11 @@ local function compile(compiler, executeStates, parsed, scope, name)
 	local function resume(action, ...)
 		-- Reset the iteration count as something successful happened
 		iterations = 0
+
+		-- Restore the compiler scope/node
+		compiler['active-scope'] = action._activeScope
+		compiler['active-node'] = action._activeNode
+
 		local status, result = coroutine.resume(action._co, ...)
 
 		if not status then
@@ -133,6 +138,10 @@ local function compile(compiler, executeStates, parsed, scope, name)
 			result._state = action._state
 			result._node  = action._node
 			result._idx   = action._idx
+
+			-- Store the compiler scope/node, so we can restore it later
+			result._activeScope = compiler['active-scope']
+			result._activeNode = compiler['active-node']
 
 			-- And requeue node
 			queue[#queue + 1] = result

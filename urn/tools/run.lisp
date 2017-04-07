@@ -228,7 +228,7 @@
                 (set! info (debug/getinfo pos "Sn")))))
           (push-cdr! stacks stack)))
 
-      "", 1e5)
+      "" 1e5)
 
     (fn)
 

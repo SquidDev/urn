@@ -7,11 +7,19 @@
 (import urn/analysis/traverse traverse)
 (import urn/analysis/usage usage)
 
+(import lua/coroutine co)
+
+(define Scope (require "tacky.analysis.scope"))
+
 (defun create-plugin-state (compiler)
-  (let* [(logger (.> compiler :log))
+  (let* [(logger    (.> compiler :log))
          (variables (.> compiler :variables))
-         (warnings (.> compiler :warnings))
-         (optimise (.> compiler :optimise))
+         (states    (.> compiler :states))
+         (warnings  (.> compiler :warnings))
+         (optimise  (.> compiler :optimise))
+
+         (active-scope (lambda () (.> compiler :active-scope)))
+         (active-node  (lambda () (.> compiler :active-node)))
 
          (categorise '())
          (emit       '())]
@@ -77,4 +85,24 @@
                              (push-cdr! (.> warnings group) pass)]
                             [true (error! (.. "Cannot register " (pretty (.> pass :name)) " (do not know how to process " (pretty cats) ")"))]))
                         nil)
-      :var-usage      usage/get-var)))
+      :var-usage      usage/get-var
+
+
+      ;; resolve.lisp
+      :active-scope   active-scope
+      :active-node    active-node
+      :var-lookup     (lambda (symb scope)
+                        (assert-type! symb symbol)
+                        (unless scope (set! scope (active-scope)))
+                        ((.> Scope :getAlways) scope (symbol->string symb) (active-node)))
+      :var-definition (lambda (var)
+                        (when-with (state (.> states var))
+                          (when (= (.> state :stage) "parsed")
+                            (co/yield (const-struct
+                                        :tag   "build"
+                                        :state state)))
+                          (.> state :node)))
+      :var-value      (lambda (var)
+                        (when-with (state (.> states var))
+                          (self state :get)))
+      :var-docstring (lambda (var) (.> var :doc)))))
