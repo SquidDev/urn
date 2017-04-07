@@ -53,6 +53,10 @@
   "Convert the string X to a symbol."
   (struct :tag "symbol" :contents x))
 
+(defun sym.. (&xs)
+  "Concatenate all the symbols in XS."
+  (string->symbol (concat (map symbol->string xs))))
+
 (define error!
   "Throw an error."
   base/error)
