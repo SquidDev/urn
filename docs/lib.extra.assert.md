@@ -3,13 +3,14 @@ title: extra/assert
 ---
 # extra/assert
 ## `(affirm &asserts)`
-*Macro defined at lib/extra/assert.lisp:78:1*
+*Macro defined at lib/extra/assert.lisp:82:1*
 
 Assert each expression in `ASSERTS` evaluates to true
 
-Each expression is expected to be a function call. Each argument is evaluated and the
-final function executed. If it returns a falsey value (nil or false) then each argument
-will be have it's value printed out.
+Each expression is expected to be a function call. Each argument is
+evaluated and the final function executed. If it returns a falsey
+value (nil or false) then each argument will be have it's value
+printed out.
 
 ### Example
 ```
@@ -22,15 +23,18 @@ will be have it's value printed out.
 ```
 
 ## `(assert &assertions)`
-*Macro defined at lib/extra/assert.lisp:15:1*
+*Macro defined at lib/extra/assert.lisp:16:1*
 
 Assert each assertion in `ASSERTIONS` is true
 
 Each assertion can take several forms:
 
- - `(= a b)`:  Assert that `A` and `B` are equal, printing their values if not
- - `(/= a b)`: Assert that `A` and `B` are not equal, printing their values if they are
- - Type assertions of the form `(list? a)`: Assert that `A` is of the required type.
+ - `(= a b)`: Assert that `A` and `B` are equal, printing their values if
+   not
+ - `(/= a b)`: Assert that `A` and `B` are not equal, printing their
+   values if they are
+ - Type assertions of the form `(list? a)`: Assert that `A` is of the
+   required type.
 
 ### Example
 ```
@@ -43,7 +47,7 @@ Each assertion can take several forms:
 ```
 
 ## `(assert! cnd msg)`
-*Macro defined at lib/extra/assert.lisp:11:1*
+*Macro defined at lib/extra/assert.lisp:12:1*
 
 Assert `CND` is true, otherwise failing with `MSG`
 

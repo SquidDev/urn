@@ -28,8 +28,8 @@ Quote the string `STR` so it is suitable for printing.
 Split the string given by `TEXT` in at most `LIMIT` components, which are
 delineated by the Lua pattern `PATTERN`.
 
-It is worth noting that an empty pattern (`""`) will split the string
-into individual characters.
+It is worth noting that an empty pattern (`""`) will split the
+string into individual characters.
 
 ### Example
 ```

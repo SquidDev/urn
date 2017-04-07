@@ -62,8 +62,8 @@ Note that, in Urn, `nil` is not the empty list.
 ## `(falsey? x)`
 *Defined at lib/type.lisp:67:1*
 
-Check whether `X` is falsey, that is, it is either `false` or does
-not exist.
+Check whether `X` is falsey, that is, it is either `false` or does not
+exist.
 
 ## `(function? x)`
 *Defined at lib/type.lisp:46:1*

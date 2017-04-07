@@ -3,7 +3,7 @@ title: extra/io
 ---
 # extra/io
 ## `(append-all! path data)`
-*Defined at lib/extra/io.lisp:101:1*
+*Defined at lib/extra/io.lisp:104:1*
 
 Appends the string `DATA` to the file at `PATH`.
 Creates a new file if it doesn't exist.
@@ -16,11 +16,12 @@ true
 ```
 
 ## `(append-bytes! path data)`
-*Defined at lib/extra/io.lisp:125:1*
+*Defined at lib/extra/io.lisp:129:1*
 
 Appends the bytes (list of numbers) `DATA` to the file at `PATH`.
-Creates a new file if it doesn't exist.
-Returns true if it succeeded or false if it failed.
+
+Rreates a new file if it doesn't exist. Returns true if it succeeded
+or false if it failed.
 
 ### Example
 ```
@@ -29,11 +30,12 @@ true
 ```
 
 ## `(append-lines! path data)`
-*Defined at lib/extra/io.lisp:113:1*
+*Defined at lib/extra/io.lisp:116:1*
 
 Appends the lines (list of strings) `DATA` to the file at `PATH`.
-Creates a new file if it doesn't exist.
-Returns true if it succeeded or false if it failed.
+
+Creates a new file if it doesn't exist. Returns true if it succeeded
+or false if it failed.
 
 ### Example
 ```
@@ -56,8 +58,8 @@ Returns nil if it failed.
 ## `(read-bytes! path)`
 *Defined at lib/extra/io.lisp:33:1*
 
-Reads the data from the file at `PATH` and returns it as a list of bytes (numbers).
-Returns nil if it failed.
+Reads the data from the file at `PATH` and returns it as a list of bytes
+(numbers). Returns nil if it failed.
 
 ### Example
 ```
@@ -81,8 +83,9 @@ Returns nil if it failed.
 *Defined at lib/extra/io.lisp:60:1*
 
 Writes the string `DATA` to the file at `PATH`.
-Creates a new file if it doesn't exist and overwrite the file if it does.
-Returns true if it succeeded or false if it failed.
+
+Creates a new file if it doesn't exist and overwrite the file if it
+does. Returns true if it succeeded or false if it failed.
 
 ### Example
 ```
@@ -91,11 +94,12 @@ true
 ```
 
 ## `(write-bytes! path data)`
-*Defined at lib/extra/io.lisp:84:1*
+*Defined at lib/extra/io.lisp:86:1*
 
 Writes the bytes (list of numbers) `DATA` to the file at `PATH`.
-Creates a new file if it doesn't exist and overwrite the file if it does.
-Returns true if it succeeded or false if it failed.
+
+Creates a new file if it doesn't exist and overwrite the file if it
+does. Returns true if it succeeded or false if it failed.
 
 ### Example
 ```
@@ -104,11 +108,12 @@ true
 ```
 
 ## `(write-lines! path data)`
-*Defined at lib/extra/io.lisp:72:1*
+*Defined at lib/extra/io.lisp:73:1*
 
 Writes the lines (list of strings) `DATA` to the file at `PATH`.
-Creates a new file if it doesn't exist and overwrite the file if it does.
-Returns true if it succeeded or false if it failed.
+
+Creates a new file if it doesn't exist and overwrite the file if it
+does. Returns true if it succeeded or false if it failed.
 
 ### Example
 ```

@@ -29,6 +29,6 @@ nil
 ```
 
 The property is checked against a different set of random values every
-iteration. This library has the ability to generate random numbers, strings,
-symbols, booleans, keys and lists.
+iteration. This library has the ability to generate random numbers,
+strings, symbols, booleans, keys and lists.
 
