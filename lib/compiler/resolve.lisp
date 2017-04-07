@@ -31,3 +31,8 @@
 (define-native var-docstring
   "Get the docstring for the given VARIABLE, returning `nil` if it is
   not a top level definition.")
+
+(defun reify (x)
+  "Return the definition of the _symbol_ (not variable) X, returning
+   `nil` if it's not a top-level definition."
+  (var-definition (var-lookup x)))
