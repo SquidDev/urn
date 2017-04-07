@@ -120,9 +120,9 @@
         [(and (= :symbol type-x) (= :symbol type-y)) (= (get-idx x :contents) (get-idx y :contents))]
         [(and (= :key type-x)    (= :key type-y))    (= (get-idx x :value) (get-idx y :value))]
         [(and (= :symbol type-x) (= :string type-y)) (= (get-idx x :contents) y)]
-        [(and (= :string type-x) (= :symbol type-y)) (= x (get-idx y :contents))] 
+        [(and (= :string type-x) (= :symbol type-y)) (= x (get-idx y :contents))]
         [(and (= :key type-x)    (= :string type-y)) (= (get-idx x :value) y)]
-        [(and (= :string type-x) (= :key type-y))    (= x (get-idx y :value))] 
+        [(and (= :string type-x) (= :key type-y))    (= x (get-idx y :value))]
         [true false]))))
 
 (defun neq? (x y)
@@ -137,4 +137,4 @@
          (ty (get-idx ty "contents"))]
     `(let* [(,sym (type ,arg))]
       (when (/= ,sym ,ty)
-        (error (format "bad argment %s (expected %s, got %s)" ,(get-idx arg "contents") ,ty ,sym) 2)))))
+        (error (format "bad argument %s (expected %s, got %s)" ,(get-idx arg "contents") ,ty ,sym) 2)))))
