@@ -44,9 +44,6 @@ end
 --
 -- @param parsed       The parsed syntax tree to resolve
 -- @param global       The global environment all code is executed in.
--- @param env          A lookup of variable hashes to variables. This is used in order to link syntax-quoted
---                     variables back to their original definition.
--- @param inStates     A lookup of all currently loaded variables mapped to their corresponding State object.
 -- @param scope        The scope to load variables in.
 -- @param compileState The current compiler state, holding library metadata and variable escape mappings.
 -- @param loader       The function to invoke in order to load an external module.
@@ -54,15 +51,21 @@ end
 -- @param executeStates The function to invoke to compile a series of states
 -- @param timer        An optional timer used to time how long this'll take.
 -- @return Returns the resolved nodes and the corresponding states.
-local function compile(parsed, global, env, inStates, scope, compileState, loader, loggerI, executeStates, timer, name)
+local function compile(compiler, executeStates, parsed, scope, name)
 	local queue = {}
 	local states = { scope = scope }
+
+	local global = compiler.global
+	local compileState = compiler.compileState
+	local loader = compiler.loader
+	local loggerI = compiler.log
+	local timer = compiler.timer
 
 	if name then name = "[resolve] " .. name end
 	local hook, hookMask, hookCount = debug.gethook()
 
 	for i = 1, #parsed do
-		local state = State.create(env, inStates, scope, loggerI, compileState.mappings)
+		local state = State.create(scope, compiler)
 		states[i] = state
 		local co = coroutine.create(resolve.resolve)
 		debug.sethook(co, hook, hookMask, hookCount)
@@ -104,7 +107,7 @@ local function compile(parsed, global, env, inStates, scope, compileState, loade
 				end
 
 				for i = 1, result.n do
-					local state = State.create(env, inStates, scope, loggerI, compileState.mappings)
+					local state = State.create(scope, compiler)
 					if i == 1 then
 						states[baseIdx] = state
 					else

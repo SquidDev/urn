@@ -157,7 +157,7 @@ local function resolveExecuteResult(owner, node, parent, scope, state)
 			node[i] = resolveExecuteResult(owner, node[i], node, scope, state)
 		end
 	elseif node.tag == "symbol" and type(node.var) == "string" then
-		local var = state.variables[node.var]
+		local var = state.compiler.variables[node.var]
 		if not var then
 			errorPositions(state.logger, node, "Invalid variable key '" .. node.var .. "' for '" .. node.contents .. "'")
 		else
@@ -316,7 +316,7 @@ function resolveNode(node, scope, state, root, many)
 
 				local res = { tag = "many", n = node.n - 1 }
 				for i = 2, node.n do
-					local childState = State.create(state.variables, state.states, scope, state.logger, state.mappings)
+					local childState = State.create(scope, state.compiler)
 
 					local built = resolveNode(node[i], scope, childState)
 
@@ -368,7 +368,7 @@ function resolveNode(node, scope, state, root, many)
 				end
 			elseif func == builtins["unquote-splice"] then
 				maxLength(log, node, 2, "unquote")
-				local childState = State.create(state.variables, state.states, scope, state.logger, state.mappings)
+				local childState = State.create(scope, state.compiler)
 
 				local built = resolveNode(node[2], scope, childState)
 

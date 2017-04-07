@@ -102,14 +102,10 @@
       (timer/stop-timer! (.> state :timer) (.. "[parse] " path))
 
       (with (compiled (compile
-                        parsed
-                        (.> state :global) (.> state :variables) (.> state :states)
-                        scope
-                        (.> state :compileState)
-                        (.> state :loader)
-                        (.> state :log)
+                        state
                         lua/execute-states
-                        (.> state :timer)
+                        parsed
+                        scope
                         path))
 
         (push-cdr! (.> state :libs) lib)

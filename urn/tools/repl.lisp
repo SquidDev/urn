@@ -25,15 +25,10 @@
          (lexed (parser/lex logger str "<stdin>"))
          (parsed (parser/parse logger lexed))]
     (cadr (list (compile
+                  compiler
+                  lua/execute-states
                   parsed
-                  (.> compiler :global)
-                  (.> compiler :variables)
-                  (.> compiler :states)
-                  scope
-                  (.> compiler :compileState)
-                  (.> compiler :loader)
-                  logger
-                  lua/execute-states)))))
+                  scope)))))
 
 (define repl-colour-scheme
   :hidden

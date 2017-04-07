@@ -14,30 +14,24 @@ State.__index = State
 --
 -- Further more, this also handles gathering all nested dependencies for this node to be executed and built,
 -- detecting cycles in building (say two macros each require the other in order to be expanded).
-function State.create(variables, states, scope, logger, mappings)
-	if not variables then error("variables cannot be nil", 2) end
-	if not states then error("states cannot be nil", 2) end
+function State.create(scope, compiler)
 	if not scope then error("scope cannot be nil", 2) end
-	if not logger then error("logger cannot be nil", 2) end
-	if not mappings then error("mappings cannot be nil", 2) end
+	if not compiler then error("compiler cannot be nil", 2) end
 
 	local state = setmetatable({
 		--- The scope this top level definition lives under
 		scope = scope,
 
-		--- Variable to state mapping
-		states = states,
-
-		-- Variable ID to variable mapping
-		variables = variables,
+		--- The main compiler instance
+		compiler = compiler,
 
 		-- The logger instance
-		logger = logger,
+		logger = compiler.log,
 
 		-- The current line mappings. This really shouldn't be here
 		-- as ideally we'd just store a reference to the compiler state,
 		-- but this code is kinda legacy after two months.
-		mappings = mappings,
+		mappings = compiler.compileState.mappings,
 
 		--- List of all required variables
 		required = {},
@@ -71,7 +65,7 @@ function State:require(var, user)
 	if user == nil then error("user is nil", 2) end
 
 	if var.scope.isRoot then
-		local state = self.states[var]
+		local state = self.compiler.states[var]
 		if state and not self.requiredSet[state] then
 			-- Ensures they are emitted in the same order
 			self.requiredSet[state] = user
@@ -93,10 +87,10 @@ function State:define(var)
 	end
 
 	self.var = var
-	self.states[var] = self
+	self.compiler.states[var] = self
 
 	-- Also store this as the hash.
-	self.variables[tostring(var)] = var
+	self.compiler.variables[tostring(var)] = var
 end
 
 function State:built(node)

@@ -5067,7 +5067,7 @@ Scope2 = require1("tacky.analysis.scope")
 doParse1 = (function(compiler6, scope4, str6)
 	local logger12 = compiler6["log"]
 	local lexed1 = lex1(logger12, str6, "<stdin>")
-	return car1(cdr1((list1(compile1(parse1(logger12, lexed1), compiler6["global"], compiler6["variables"], compiler6["states"], scope4, compiler6["compileState"], compiler6["loader"], logger12, executeStates1)))))
+	return car1(cdr1((list1(compile1(compiler6, executeStates1, parse1(logger12, lexed1), scope4, logger12)))))
 end)
 local clrs1 = getenv1("URN_COLOURS")
 if clrs1 then
@@ -5944,7 +5944,7 @@ readLibrary1 = (function(state37, name35, path4, lispHandle1)
 	scope9["prefix"] = prefix4
 	lib4["scope"] = scope9
 	stopTimer_21_1(state37["timer"], _2e2e_2("[parse] ", path4))
-	local compiled1 = compile2(parsed1, state37["global"], state37["variables"], state37["states"], scope9, state37["compileState"], state37["loader"], state37["log"], executeStates1, state37["timer"], path4)
+	local compiled1 = compile2(state37, executeStates1, parsed1, scope9, path4)
 	pushCdr_21_1(state37["libs"], lib4)
 	if string_3f_1(car1(compiled1)) then
 		lib4["docs"] = constVal1(car1(compiled1))
