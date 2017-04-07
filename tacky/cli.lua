@@ -5067,7 +5067,7 @@ Scope2 = require1("tacky.analysis.scope")
 doParse1 = (function(compiler6, scope4, str6)
 	local logger12 = compiler6["log"]
 	local lexed1 = lex1(logger12, str6, "<stdin>")
-	return car1(cdr1((list1(compile1(compiler6, executeStates1, parse1(logger12, lexed1), scope4, logger12)))))
+	return car1(cdr1((list1(compile1(compiler6, executeStates1, parse1(logger12, lexed1), scope4)))))
 end)
 local clrs1 = getenv1("URN_COLOURS")
 if clrs1 then
