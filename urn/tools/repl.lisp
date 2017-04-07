@@ -206,8 +206,31 @@
                       lvl))
                (set! run false)]
               [true
-                (with (states (.> (cadr res) :states))
-                  (lua/execute-states compileState states global logger))])))))))
+                (let* [(states (.> (cadr res) :states))
+                       (latest (car states))
+                       (co (co/create lua/execute-states))
+                       (task nil)]
+
+                  (while (and run (/= (co/status co) "dead"))
+                    (.<! compiler :active-node (.> latest :node))
+                    (.<! compiler :active-scope (.> latest :scope))
+
+                    (with (res (if task
+                                 (list (co/resume co))
+                                 (list (co/resume co compileState states global logger))))
+
+                      (.<! compiler :active-node nil)
+                      (.<! compiler :active-scope nil)
+
+                      (case res
+                        [(false ?msg) (fail! msg)]
+                        [(true)]
+                        [(true ?arg)
+                         (when (/= (co/status co) "dead")
+                           (set! task arg)
+                           (case (.> task :tag)
+                             ["execute" (lua/execute-states compileState (.> task :states) global logger)]
+                             [?task fail! (.. "Cannot handle " task)]))]))))])))))))
 
 (defun repl (compiler)
   (let* [(scope (.> compiler :rootScope))
@@ -236,6 +259,9 @@
                   (.<! scope :isRoot true)
 
                   (with (res (list (pcall exec-string compiler scope data)))
+                    ;; Clear active node/scope
+                    (.<! compiler :active-node nil)
+                    (.<! compiler :active-scope nil)
                     (unless (car res) (logger/put-error! logger (cadr res)))))))])))))
 
 (defun exec (compiler)
