@@ -13,63 +13,37 @@ local _temp = (function()
 	}
 end)()
 for k, v in pairs(_temp) do _libs["lua/basic-0/".. k] = v end
-local _3d_1, _3c3d_1, _2b_1, _2d_1, _25_1, error1, getIdx1, setIdx_21_1, type_23_1, match1, concat1, unpack1, emptyStruct1, type1, _2e2e_1, clock1, struct1, self1, startTimer_21_1, pauseTimer_21_1, stopTimer_21_1, putError_21_1, putWarning_21_1, putVerbose_21_1, putDebug_21_1, putNodeError_21_1, putNodeWarning_21_1, doNodeError_21_1
-_3d_1 = function(v1, v2) return (v1 == v2) end
-_3c3d_1 = function(v1, v2) return (v1 <= v2) end
+local _2f3d_1, _2b_1, _2d_1, error1, getIdx1, setIdx_21_1, _23_1, find1, match1, sub1, concat1, unpack1, emptyStruct1, charAt1, _2e2e_1, clock1, getenv1, fail_21_1, self1, startTimer_21_1, pauseTimer_21_1, stopTimer_21_1, config1, coloredAnsi1, colored_3f_1, colored1, putError_21_1, putWarning_21_1, putVerbose_21_1, putDebug_21_1, putNodeError_21_1, putNodeWarning_21_1, doNodeError_21_1
+_2f3d_1 = function(v1, v2) return (v1 ~= v2) end
 _2b_1 = function(v1, v2) return (v1 + v2) end
 _2d_1 = function(v1, v2) return (v1 - v2) end
-_25_1 = function(v1, v2) return (v1 % v2) end
 error1 = error
 getIdx1 = function(v1, v2) return v1[v2] end
 setIdx_21_1 = function(v1, v2, v3) v1[v2] = v3 end
-type_23_1 = type
+_23_1 = (function(x1)
+	return x1["n"]
+end)
+find1 = string.find
 match1 = string.match
+sub1 = string.sub
 concat1 = table.concat
 unpack1 = table.unpack
 emptyStruct1 = function() return ({}) end
-type1 = (function(val1)
-	local ty1 = type_23_1(val1)
-	if (ty1 == "table") then
-		return (val1["tag"] or "table")
-	else
-		return ty1
-	end
+charAt1 = (function(xs1, x2)
+	return sub1(xs1, x2, x2)
 end)
 _2e2e_1 = (function(...)
 	local args1 = _pack(...) args1.tag = "list"
 	return concat1(args1)
 end)
 clock1 = os.clock
-struct1 = (function(...)
-	local entries1 = _pack(...) entries1.tag = "list"
-	if ((entries1["n"] % 2) == 1) then
-		error1("Expected an even number of arguments to struct", 2)
-	end
-	local out1 = ({})
-	local r_1071 = entries1["n"]
-	local r_1051 = nil
-	r_1051 = (function(r_1061)
-		if (r_1061 <= r_1071) then
-			local key1 = entries1[r_1061]
-			local val2 = entries1[(1 + r_1061)]
-			out1[(function()
-				if (type1(key1) == "key") then
-					return key1["contents"]
-				else
-					return key1
-				end
-			end)()
-			] = val2
-			return r_1051((r_1061 + 2))
-		else
-		end
-	end)
-	r_1051(1)
-	return out1
+getenv1 = os.getenv
+fail_21_1 = (function(x3)
+	return error1(x3, 0)
 end)
-self1 = (function(x1, key2, ...)
+self1 = (function(x4, key1, ...)
 	local args2 = _pack(...) args2.tag = "list"
-	return x1[key2](x1, unpack1(args2, 1, args2["n"]))
+	return x4[key1](x4, unpack1(args2, 1, _23_1(args2)))
 end)
 startTimer_21_1 = (function(timer1, name1, level1)
 	local instance1 = timer1["timers"][name1]
@@ -113,29 +87,62 @@ stopTimer_21_1 = (function(timer3, name3)
 	instance3["total"] = ((clock1() - instance3["start"]) + instance3["total"])
 	return timer3["callback"](instance3["name"], instance3["total"], instance3["level"])
 end)
-putError_21_1 = (function(logger1, msg1)
-	return self1(logger1, "put-error!", msg1)
+config1 = package.config
+coloredAnsi1 = (function(col1, msg1)
+	return _2e2e_1("\27[", col1, "m", msg1, "\27[0m")
 end)
-putWarning_21_1 = (function(logger2, msg2)
-	return self1(logger2, "put-warning!", msg2)
+if (config1 and (charAt1(config1, 1) ~= "\\")) then
+	colored_3f_1 = true
+elseif (getenv1 and (getenv1("ANSICON") ~= nil)) then
+	colored_3f_1 = true
+else
+	local temp1
+	if getenv1 then
+		local term1 = getenv1("TERM")
+		if term1 then
+			temp1 = find1(term1, "xterm")
+		else
+			temp1 = nil
+		end
+	else
+		temp1 = false
+	end
+	if temp1 then
+		colored_3f_1 = true
+	else
+		colored_3f_1 = false
+	end
+end
+if colored_3f_1 then
+	colored1 = coloredAnsi1
+else
+	colored1 = (function(col2, msg2)
+		return msg2
+	end)
+end
+putError_21_1 = (function(logger1, msg3)
+	return self1(logger1, "put-error!", msg3)
 end)
-putVerbose_21_1 = (function(logger3, msg3)
-	return self1(logger3, "put-verbose!", msg3)
+putWarning_21_1 = (function(logger2, msg4)
+	return self1(logger2, "put-warning!", msg4)
 end)
-putDebug_21_1 = (function(logger4, msg4)
-	return self1(logger4, "put-debug!", msg4)
+putVerbose_21_1 = (function(logger3, msg5)
+	return self1(logger3, "put-verbose!", msg5)
 end)
-putNodeError_21_1 = (function(logger5, msg5, node1, explain1, ...)
+putDebug_21_1 = (function(logger4, msg6)
+	return self1(logger4, "put-debug!", msg6)
+end)
+putNodeError_21_1 = (function(logger5, msg7, node1, explain1, ...)
 	local lines1 = _pack(...) lines1.tag = "list"
-	return self1(logger5, "put-node-error!", msg5, node1, explain1, lines1)
+	return self1(logger5, "put-node-error!", msg7, node1, explain1, lines1)
 end)
-putNodeWarning_21_1 = (function(logger6, msg6, node2, explain2, ...)
+putNodeWarning_21_1 = (function(logger6, msg8, node2, explain2, ...)
 	local lines2 = _pack(...) lines2.tag = "list"
-	return self1(logger6, "put-node-warning!", msg6, node2, explain2, lines2)
+	return self1(logger6, "put-node-warning!", msg8, node2, explain2, lines2)
 end)
-doNodeError_21_1 = (function(logger7, msg7, node3, explain3, ...)
+doNodeError_21_1 = (function(logger7, msg9, node3, explain3, ...)
 	local lines3 = _pack(...) lines3.tag = "list"
-	self1(logger7, "put-node-error!", msg7, node3, explain3, lines3)
-	return error1((match1(msg7, "^([^\n]+)\n") or msg7), 0)
+	self1(logger7, "put-node-error!", msg9, node3, explain3, lines3)
+	return fail_21_1((match1(msg9, "^([^\n]+)\n") or msg9))
 end)
-return struct1("startTimer", startTimer_21_1, "pauseTimer", pauseTimer_21_1, "stopTimer", stopTimer_21_1, "putError", putError_21_1, "putWarning", putWarning_21_1, "putVerbose", putVerbose_21_1, "putDebug", putDebug_21_1, "putNodeError", putNodeError_21_1, "putNodeWarning", putNodeWarning_21_1, "doNodeError", doNodeError_21_1)
+return {["startTimer"]=startTimer_21_1,["pauseTimer"]=pauseTimer_21_1,["stopTimer"]=stopTimer_21_1,["putError"]=putError_21_1,["putWarning"]=putWarning_21_1,["putVerbose"]=putVerbose_21_1,["putDebug"]=putDebug_21_1,["putNodeError"]=putNodeError_21_1,["putNodeWarning"]=putNodeWarning_21_1,["doNodeError"]=doNodeError_21_1,["colored"]=colored1}

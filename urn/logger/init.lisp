@@ -1,4 +1,5 @@
 (import urn/timer timer)
+(import extra/term (colored))
 
 (defun put-error! (logger msg)
   "Push an error message MSG to this LOGGER"
@@ -50,7 +51,8 @@
   (self logger :put-node-error! msg node explain lines)
   (fail! (or (string/match msg "^([^\n]+)\n") msg)))
 
-(struct
+;; Export various symbols the resolver needs.
+(const-struct
   :startTimer timer/start-timer!
   :pauseTimer timer/pause-timer!
   :stopTimer  timer/stop-timer!
@@ -62,4 +64,6 @@
 
   :putNodeError   put-node-error!
   :putNodeWarning put-node-warning!
-  :doNodeError    do-node-error!)
+  :doNodeError    do-node-error!
+
+  :colored colored)

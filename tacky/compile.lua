@@ -15,6 +15,62 @@ if _VERSION:find("5.1") then
 	end
 end
 
+--- Compute a varience on the levenshtein distance
+-- @param string a The target string
+-- @param string b The source string
+-- @return The computed distance
+local function distance(a, b)
+	-- Some initial checks
+	if a == b then return 0 end
+	if #a == 0 then return #b end
+	if #b == 0 then return #a end
+
+	local v0, v1 = {}, {}
+
+	-- Setup v0, where A[1][i] is the edit distance for an empty a.
+	for i = 1, #b + 1 do v0[i] = i - 1 end
+
+	for i = 1, #a do
+		-- Calculate current row distance from previous v0
+
+		-- Edit distance is to delete i characters from a to match t.
+		v1[1] = i
+
+		for j = 1, #b do
+			local subCost, delCost, addCost = 1, 1, 1
+			if a:sub(i, i) == b:sub(j, j) then subCost = 0 end
+
+			-- We make "-" and "/" half as expensive, as they are divider characters.
+			if a:sub(i, i) == '-' or a:sub(i, i) == "/" then delCost = 0.5 end
+			if b:sub(j, j) == '-' or b:sub(j, j) == "/" then addCost = 0.5 end
+
+			-- If either string is less than 5 characters long, then make deletions and substitions
+			-- more expensive. For such short strings, it is awfully easy for a string to be entirely
+			-- deleted and replaced again.
+			if #a <= 5 or #b <= 5 then
+				subCost = subCost * 2
+				delCost = delCost + 0.5
+			end
+
+			v1[j + 1] = math.min(
+				v1[j] + delCost,     -- Deletion
+				v0[j + 1] + addCost, -- Insertion
+				v0[j] + subCost      -- Substitution
+			)
+		end
+
+		for j = 1, #v0 do v0[j] = v1[j] end
+	end
+
+	return v1[#b + 1]
+end
+
+-- print(("#"):rep(10))
+-- print(distance(".>", "."))
+
+-- print(("#"):rep(10))
+-- print(distance("..", "."))
+
 --- Attempt to resolve all variables in a list of expressions, expanding all macros and what not.
 --
 -- This firstly creates a State for each expression in the list. This tracks all variables this state
@@ -249,9 +305,10 @@ local function compile(compiler, executeStates, parsed, scope, name)
 
 			if entry.tag == "define" then
 
-				local info
+				local info, suggestions = nil, ""
 				if entry.scope then
-					local vars, varSet = {tag="list"}, {}
+					local vars, varDis, varSet = {tag="list"}, {}, {}
+					local distances = {}
 
 					local scope = entry.scope
 					while scope do
@@ -259,6 +316,21 @@ local function compile(compiler, executeStates, parsed, scope, name)
 							if not varSet[k] then
 								varSet[k] = true
 								vars[#vars + 1] = k
+
+								local parlen = #entry.name
+								local lenDiff = math.abs(#k - parlen)
+
+								-- If there is a significant length difference, and the string isn't really short
+								-- then let's not use the variable guesser.
+								if parlen <= 5 or lenDiff <= parlen * 0.3 then
+									local dis = distance(k, entry.name) / parlen
+
+									-- For short strings, let's be slightly more flexible with normalising.
+									if parlen <= 5 then dis = dis / 2 end
+
+									varDis[#varDis + 1] = k
+									distances[k] = dis
+								end
 							end
 						end
 
@@ -268,13 +340,31 @@ local function compile(compiler, executeStates, parsed, scope, name)
 					vars.n = #vars
 					table.sort(vars)
 
+					table.sort(varDis, function(a, b) return distances[a] < distances[b] end)
+					local lastIdx = 0
+					for i = 1, 5 do
+						if distances[varDis[i]] > 0.5 then
+							break
+						end
+						lastIdx = i
+
+						varDis[i] = logger.colored("1;32", varDis[i])
+					end
+
+					if lastIdx == 1 then
+						suggestions = "\nDid you mean '" .. varDis[i] .. "'?"
+					elseif lastIdx > 0 then
+						local indent = "\n  \xE2\x80\xA2 "
+						suggestions = "\nDid you mean any of these?" .. indent .. table.concat(varDis, indent, 1, lastIdx)
+					end
+
 					info = "Variables in scope are " .. table.concat(vars, ", ")
 				end
 
 				local node = entry.node or entry._node
 
 				logger.doNodeError(loggerI,
-					"Cannot find variable " .. entry.name,
+					"Cannot find variable '" .. entry.name .. "'" .. suggestions,
 					node, info,
 					range.getSource(node), ""
 				)
