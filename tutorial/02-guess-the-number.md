@@ -208,7 +208,7 @@ Let's add `randomseed` to our `lua/math` import list, as well as importing `time
 
 ```cl
 (import lua/math (random randomseed))
-(import lua/os time)
+(import lua/os (time))
 
 (randomseed (time))
 ```
