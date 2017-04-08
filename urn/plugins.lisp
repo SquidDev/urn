@@ -91,6 +91,16 @@
       ;; resolve.lisp
       :active-scope   active-scope
       :active-node    active-node
+      :active-module  (lambda ()
+                        (letrec [(get (scp)
+                                   (if (.> scp :isRoot)
+                                     scp
+                                     (get (.> scp :parent))))]
+                          (get (active-scope))))
+      :scope-vars     (lambda (scp)
+                        (if (! scp)
+                          (.> (active-scope) :variables)
+                          (.> scp :variables)))
       :var-lookup     (lambda (symb scope)
                         (assert-type! symb symbol)
                         (when (= (active-node) nil) (error! "Not currently resolving"))

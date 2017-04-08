@@ -4,6 +4,13 @@
 (define-native active-scope
   "Get the scope of the node currently being resolved.")
 
+(define-native active-module
+  "Get the module of the node currently being resolved.")
+
+(define-native scope-vars
+  "Return the variables present in the given SCOPE, using the
+   [[active-scope]] if none is given.")
+
 (define-native var-lookup
   "Look up SYMBOL in the given SCOPE, using the [[active-scope]] if none
    given.
