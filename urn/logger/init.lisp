@@ -52,7 +52,7 @@
   (fail! (or (string/match msg "^([^\n]+)\n") msg)))
 
 ;; Export various symbols the resolver needs.
-(const-struct
+(struct
   :startTimer timer/start-timer!
   :pauseTimer timer/pause-timer!
   :stopTimer  timer/stop-timer!
