@@ -241,3 +241,13 @@
    Be warned, by using this you loose all macro hygiene. Variables may not be bound to their
    expected values."
   (list `syntax-quote (quasiquote# val)))
+
+(defun apply (f xs)
+  "Apply the function F using XS as the argument list.
+
+   Example:
+   ```cl
+   > (apply + '(1 2))
+   3
+   ```"
+  (f (unpack xs)))
