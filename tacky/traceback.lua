@@ -54,7 +54,7 @@ end)
 pushCdr_21_1 = (function(xs2, val3)
 	local r_841 = type1(xs2)
 	if (r_841 ~= "list") then
-		error1(format1("bad argment %s (expected %s, got %s)", "xs", "list", r_841), 2)
+		error1(format1("bad argument %s (expected %s, got %s)", "xs", "list", r_841), 2)
 	end
 	local len2 = (xs2["n"] + 1)
 	xs2["n"] = len2
