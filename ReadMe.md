@@ -16,7 +16,7 @@ or loops) being implemented by macros.
  - `set!` assigns an already existing variable (such as a function argument) a new value.
  - `import` will load code from another file.
 
-See [the roadmap](https://gitlab.com/n/urn/issues/1) for some idea of where we're heading.
+See [the roadmap](https://gitlab.com/urn/urn/issues/1) for some idea of where we're heading.
 
 ## Features
 Powerful assertion and testing framework, ensuring your code is (generally) correct.
@@ -26,6 +26,8 @@ Powerful assertion and testing framework, ensuring your code is (generally) corr
 Detailed parser messages, helping you find that problem as soon as possible.
 
 ![](https://i.imgur.com/RJ2fE2C.png)
+
+Supports LuaJIT and PUC Lua version 5.1, 5.2, and 5.3.
 
 ## Getting started
 Urn is currently hosted on [GitLab](https://gitlab.com/urn/urn) and mirrored
