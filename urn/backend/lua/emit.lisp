@@ -291,7 +291,10 @@
       ;; This is a rather hacky "special form" of call-lambda which gets compiled to a
       ;; table constructor.
       ["make-struct"
-       (when ret (w/append! out ret))
+       (cond
+         [(= ret "") (w/append! out "local _ = ")]
+         [ret (w/append! out ret)]
+         [true])
        (w/append! out "{")
        (with (body (car node))
          (for i 3 (pred (# body)) 1
@@ -388,8 +391,11 @@
              (progn
                ;; If we're dealing with an expression then we emit the returner first. Statements just
                ;; return nil.
-               (when (and ret (= (.> meta :tag) "expr"))
-                 (w/append! out ret))
+               (when (= (.> meta :tag) "expr")
+                 (cond
+                   [(= ret "") (w/append! out "local _ = ")]
+                   [ret (w/append! out ret)]
+                   [true]))
 
                ;; Emit all entries. Numbers represent an argument, everything else is just
                ;; appended directly.
