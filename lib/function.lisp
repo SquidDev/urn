@@ -1,5 +1,5 @@
 (import base (defmacro defun with for when if and or let*
-              get-idx gensym unpack =))
+              get-idx gensym =))
 (import binders (let))
 (import list (for-each push-cdr! any map traverse))
 (import type (symbol? list? function? table?))

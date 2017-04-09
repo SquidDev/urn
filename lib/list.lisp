@@ -22,8 +22,8 @@
 
 (import base (defun defmacro when let* set-idx!
               get-idx cons for gensym -or slice
-              pretty print error tostring  -and
-              unpack debug if # + - >= = ! with))
+              pretty print error tostring -and
+              apply debug if # + - >= = ! with))
 (import base)
 (import lua/table)
 (import type (list? nil? assert-type! exists? falsey? eq?))
@@ -383,10 +383,10 @@
    > (zip list '(1 2 3) '(4 5 6) '(7 8 9))
    out = ((1 4 7) (2 5 8) (3 6 9))
    ```"
-  (let* [(lenghts (map # xss))
+  (let* [(lengths (map # xss))
          (out '())]
-    (for i 1 (min (unpack lenghts)) 1
-      (push-cdr! out (fn (unpack (nths xss i)))))
+    (for i 1 (apply min lengths) 1
+      (push-cdr! out (apply fn (nths xss i))))
     out))
 
 ;; AUTOMATICALLY GENERATED

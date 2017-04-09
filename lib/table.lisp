@@ -1,5 +1,5 @@
 (import base (defmacro defun let* when if cons list unless debug gensym
-              progn get-idx set-idx! error = % - + # or for with ! unpack))
+              progn get-idx set-idx! error = % - + # or for with ! apply))
 (import lua/string (sub))
 (import lua/table (empty-struct iter-pairs) :export)
 (import lua/basic (getmetatable setmetatable next len#) :export)
@@ -180,7 +180,7 @@
 (defun update-struct (st &keys)
   "Create a new structure based of ST, setting the values given by the
    pairs in KEYS."
-  (merge st (struct (unpack keys 1 (# keys)))))
+  (merge st (apply struct keys)))
 
 (defun create-lookup (values)
   "Convert VALUES into a lookup table, with each value being converted to

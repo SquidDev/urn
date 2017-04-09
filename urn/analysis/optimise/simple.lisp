@@ -51,7 +51,7 @@
                (meta (and (symbol? head) (! (.> head :folded)) (= (.> head :var :tag) "native") (.> state :meta (.> head :var :fullName))))]
           ;; Determine whether we have a native (and pure) function. If so, we'll invoke it.
           (if (and meta (.> meta :pure) (.> meta :value))
-            (with (res (list (pcall (.> meta :value) (unpack (map urn->val (cdr node))))))
+            (with (res (list (pcall (.> meta :value) (unpack (map urn->val (cdr node)) 1 (- (# node) 1)))))
               (if (car res)
                 (with (val (nth res 2))
                   (if (or (/= (# res) 2) (and (number? val) (or (/= (cadr (list (math/modf val))) 0) (= (math/abs val) math/huge))))

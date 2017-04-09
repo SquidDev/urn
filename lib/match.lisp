@@ -45,7 +45,7 @@
 (import base ( defun defmacro if get-idx
                and gensym error for
                quasiquote list or pretty
-               slice concat debug unpack
+               slice concat debug apply
                /= # = ! - + / * >= <= ))
 (import type ())
 (import list ( car caddr cadr cdr append for-each
@@ -251,9 +251,9 @@
                                      (get-idx
                                        rest-sym
                                        :contents))))
-         (param-n (max (unpack (map (lambda (x)
-                                      (pattern-# (car x)))
-                                    arms))))
+         (param-n (apply max (map (lambda (x)
+                                    (pattern-# (car x)))
+                               arms)))
          (param-nams (map gensym (range 1 param-n)))]
     `(lambda ,(snoc param-nams rest)
        (case (append (list ,@param-nams) ,rest-sym)

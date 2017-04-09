@@ -250,4 +250,4 @@
    > (apply + '(1 2))
    3
    ```"
-  (f (unpack xs)))
+  (f (unpack xs 1 (# xs))))
