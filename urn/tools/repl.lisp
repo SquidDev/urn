@@ -12,6 +12,7 @@
 (import urn/backend/writer writer)
 (import urn/documentation docs)
 (import urn/logger logger)
+(import urn/logger/void void)
 (import urn/logger)
 (import urn/parser parser)
 
@@ -19,7 +20,19 @@
 
 (define Scope (require "tacky.analysis.scope"))
 
-(defun do-parse (compiler scope str)
+(defun requires-input (str)
+  "Determine whether STR requires additional input (such as quotes or parens).
+   The returns false if no input is required, and nil if a syntax error occured."
+  (case (list (pcall (lambda()
+                       (parser/parse
+                         void/void
+                         (parser/lex void/void str "<stdin>" true)
+                         true))))
+    [(true _) false]
+    [(false (as table? ?x)) (if (.> x :cont) true false)]
+    [(false _) nil]))
+
+(defun do-resolve (compiler scope str)
   :hidden
   (let* [(logger (.> compiler :log))
          (lexed (parser/lex logger str "<stdin>"))
@@ -180,7 +193,7 @@
 
 (defun exec-string (compiler scope string)
   :hidden
-  (with (state (do-parse compiler scope string))
+  (with (state (do-resolve compiler scope string))
     (when (> (# state) 0)
       (let* [(current 0)
              (exec (co/create (lambda ()
@@ -235,7 +248,7 @@
 (defun repl (compiler)
   (let* [(scope (.> compiler :rootScope))
          (logger (.> compiler :log))
-         (buffer '())
+         (buffer "")
          (running true)]
     (while running
       (io/write (colored 92 (if (empty? buffer) "> " ". ")))
@@ -243,26 +256,27 @@
 
       (with (line (io/read "*l"))
         (cond
+          ;; If we got no input, then exit the REPL
           [(and (! line) (empty? buffer)) (set! running false)]
-          [(and line (= (string/char-at line (#s line)) "\\"))
-           (push-cdr! buffer (.. (string/sub line 1 (pred (#s line))) "\n"))]
-          [(and line (> (# buffer) 0) (> (#s line) 0))
-           (push-cdr! buffer (.. line "\n"))]
+
           [true
-            (with (data (.. (concat buffer) (or line "")))
-              (set! buffer '())
+            (with (data (if line (.. buffer line "\n") buffer))
+              (cond
+                [(= (string/char-at data 1) ":")
+                 (set! buffer "")
+                 (exec-command compiler scope (map string/trim (string/split (string/sub data 2) " ")))]
+                [(and line (> (#s line) 0) (requires-input data))
+                 (set! buffer data)]
+                [true
+                 (set! buffer "")
+                 (set! scope ((.> Scope :child) scope))
+                 (.<! scope :isRoot true)
 
-              (if (= (string/char-at data 1) ":")
-                (exec-command compiler scope (string/split (string/sub data 2) " "))
-                (progn
-                  (set! scope ((.> Scope :child) scope))
-                  (.<! scope :isRoot true)
-
-                  (with (res (list (pcall exec-string compiler scope data)))
-                    ;; Clear active node/scope
-                    (.<! compiler :active-node nil)
-                    (.<! compiler :active-scope nil)
-                    (unless (car res) (logger/put-error! logger (cadr res)))))))])))))
+                 (with (res (list (pcall exec-string compiler scope data)))
+                   ;; Clear active node/scope
+                   (.<! compiler :active-node nil)
+                   (.<! compiler :active-scope nil)
+                   (unless (car res) (logger/put-error! logger (cadr res))))]))])))))
 
 (defun exec (compiler)
   (let* [(data (io/read "*a"))

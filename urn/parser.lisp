@@ -29,8 +29,19 @@
     pos nil
     pos "Invalid digit here"))
 
-(defun lex (logger str name)
-  "Lex STR from a file called NAME, returning a series of tokens"
+(defun eof-error! (cont logger msg node explain &lines)
+  "A variation of [[logger/do-node-error!]], used when we've reached the
+   end of the file. If CONT is true, then a \"resumable\" error will be
+   thrown instead."
+  :hidden
+  (if cont
+    (fail! { :msg msg :cont true })
+    (logger/do-node-error! logger msg node explain (unpack lines 1 (# lines)))))
+
+(defun lex (logger str name cont)
+  "Lex STR from a file called NAME, returning a series of tokens. If CONT
+   is true, then \"resumable\" errors will be thrown if the end of the
+   stream is reached."
 
   ;; Attempt to "normalise" strings
   (set! str (string/gsub str "\r\n?" "\n"))
@@ -196,7 +207,7 @@
                   [(= char "")
                    (let ((start (range start))
                          (finish (range (position))))
-                     (logger/do-node-error! logger
+                     (eof-error! cont logger
                        "Expected '\"', got eof"
                        finish nil
                        start "string started here"
@@ -255,7 +266,7 @@
 
                         (push-cdr! buffer (string/char val)))]
                      [(= char "")
-                      (logger/do-node-error! logger
+                      (eof-error! cont logger
                         "Expected escape code, got eof"
                         (range (position)) nil
                         (range (position)) "end of file here")]
@@ -288,8 +299,10 @@
     (append! "eof")
     out))
 
-(defun parse (logger toks)
-  "Parse tokens TOKS, the result of [[lex]]"
+(defun parse (logger toks cont)
+  "Parse tokens TOKS, the result of [[lex]]. If CONT is true, then
+   \"resumable\" errors will be thrown if the end of the stream is
+   reached."
   (let* ((index 1)
          (head '())
          (stack '())
@@ -409,7 +422,7 @@
            (.<! head :auto-close true)]
           [(= tag "eof")
            (when (/= 0 (# stack))
-             (logger/do-node-error! logger
+             (eof-error! cont logger
                (string/format "Expected '%s', got 'eof'" (.> head :close))
                tok nil
                (.> head :range) "block opened here"
