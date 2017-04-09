@@ -23,12 +23,11 @@
         (self handle :close)))))
 
 (define task
-  (struct
-    :name "docs"
+  { :name "docs"
     :setup (lambda (spec)
              (arg/add-argument! spec '("--docs")
                :help    "Specify the folder to emit documentation to."
                :default nil
                :narg    1))
     :pred  (lambda (args) (/= nil (.> args :docs)))
-    :run   docs))
+    :run   docs })

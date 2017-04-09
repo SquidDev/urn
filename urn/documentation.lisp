@@ -54,21 +54,18 @@
           (progn
             ;; Find any text between tokens
             (when (< pos spos)
-              (push-cdr! out (struct
-                               :tag "text"
-                               :contents (string/sub str pos (pred spos)))))
+              (push-cdr! out { :tag "text"
+                               :contents (string/sub str pos (pred spos)) }))
 
             ;; And push this token
-            (push-cdr! out (struct
-                             :tag name
+            (push-cdr! out { :tag name
                              :whole    (string/sub str spos epos)
-                             :contents (string/match (string/sub str spos epos) ptrn)))
+                             :contents (string/match (string/sub str spos epos) ptrn) })
             (set! pos (succ epos)))
 
           (progn
             ;; Nothing matched to push the remaining text and exit
-            (push-cdr! out (struct
-                             :tag "text"
-                             :contents (string/sub str pos len)))
+            (push-cdr! out { :tag "text"
+                             :contents (string/sub str pos len) })
             (set! pos (succ len))))))
     out))

@@ -81,10 +81,9 @@
           (let* [(file (.> pos :name))
                  (range-list (.> range-lists :file))]
             (unless range-list
-              (set! range-list (struct
-                                 :n 0
+              (set! range-list { :n 0
                                  :min math/huge
-                                 :max (- 0 math/huge)))
+                                 :max (- 0 math/huge) })
               (.<! range-lists file range-list))
 
             (for i (.> pos :start :line) (.> pos :finish :line) 1
@@ -110,5 +109,4 @@
     out-lines))
 
 
-(struct
-  :remapTraceback remap-traceback)
+{ :remapTraceback remap-traceback }

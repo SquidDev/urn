@@ -56,10 +56,9 @@
   (logger/put-verbose! (.> state :log) (.. "Loading " path " into " name))
 
   (let* [(prefix (.. name "-" (# (.> state :libs)) "/"))
-         (lib (struct
-                :name   name
+         (lib { :name   name
                 :prefix prefix
-                :path   path))
+                :path   path })
          (contents (self lisp-handle :read "*a"))]
     (self lisp-handle :close)
 

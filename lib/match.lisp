@@ -52,7 +52,6 @@
                map filter push-cdr! range snoc
                nth last elem? ))
 
-(import table (struct))
 (import string (.. char-at sub #s))
 (import binders (let*))
 
@@ -164,7 +163,7 @@
                 (push-cdr! out elem)))
             out)])]
       [(meta? pattern)
-       `((,(struct :tag "symbol" :contents (sub (get-idx pattern "contents") 2)) ,symb))]
+       `((,{ :tag "symbol" :contents (sub (get-idx pattern "contents") 2) } ,symb))]
       [(or (number? pattern) (boolean? pattern) (string? pattern) (key? pattern) (eq? pattern '_) (and (! (meta? pattern)) (symbol? pattern)))
        '()]
       [true (error (.. "unsupported pattern " (pretty pattern)))])))
@@ -213,7 +212,7 @@
   (compile-pattern-test pt x))
 
 (defun ->meta (x) :hidden
-  (struct :tag "symbol" :contents (.. "?" (get-idx x :contents))))
+  { :tag "symbol" :contents (.. "?" (get-idx x :contents)) })
 
 (defmacro handler-case (x &body)
   "Evaluate the form X, and if an error happened, match the series
@@ -246,11 +245,8 @@
 
 (defmacro function (&arms)
   (let* [(rest-sym (gensym "remaining-arguments"))
-         (rest (struct :tag :symbol
-                       :contents (.. "&"
-                                     (get-idx
-                                       rest-sym
-                                       :contents))))
+         (rest { :tag :symbol
+                 :contents (.. "&" (get-idx rest-sym :contents)) })
          (param-n (apply max (map (lambda (x)
                                     (pattern-# (car x)))
                                arms)))

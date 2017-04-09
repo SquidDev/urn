@@ -50,7 +50,7 @@
 
 (defun create-tracker ()
   "Create a modification tracker."
-  (struct :changed false))
+  { :changed false })
 
 (defun changed? (tracker)
   "Determine whether the TRACKER created by [[create-tracker]] was changed."

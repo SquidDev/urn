@@ -18,7 +18,7 @@
   (= 0 (% (random-number) 2)))
 
 (defun random-symbol () :hidden
-  (struct :tag "symbol" :contents (random-string)))
+  { :tag "symbol" :contents (random-string) })
 
 (defun random-type () :hidden
   (let* [(types '("symbol" "boolean" "number" "string" "key" "list"))]

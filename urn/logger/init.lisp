@@ -52,8 +52,7 @@
   (fail! (or (string/match msg "^([^\n]+)\n") msg)))
 
 ;; Export various symbols the resolver needs.
-(struct
-  :startTimer timer/start-timer!
+{ :startTimer timer/start-timer!
   :pauseTimer timer/pause-timer!
   :stopTimer  timer/stop-timer!
 
@@ -66,4 +65,4 @@
   :putNodeWarning put-node-warning!
   :doNodeError    do-node-error!
 
-  :colored colored)
+  :colored colored }

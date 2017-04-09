@@ -9,7 +9,7 @@
 (import lua/debug debug)
 (import string)
 
-(defun create-state (meta) (struct
+(defun create-state (meta) {
                              ;; [[run-pass]] options
                              :level      1
                              :override   {}
@@ -23,7 +23,7 @@
                              :cat-lookup {}
                              :ctr-lookup {}
                              :var-lookup {}
-                             :meta       (or meta {})))
+                             :meta       (or meta {}) })
 
 (defun file (compiler shebang)
   "Generate a complete file using the current COMPILER state.
@@ -97,7 +97,7 @@
       (with (state (nth states i))
         (unless (= (.> state :stage) "executed")
           (let* [(node (assert! (.> state :node) (.. "State is in " (.> state :stage) " instead")))
-                 (var (or (.> state :var) (struct :name "temp")))
+                 (var (or (.> state :var) { :name "temp" }))
                  (escaped (escape-var var back-state))
                  (name (.> var :name))]
             (push-cdr! state-list state)

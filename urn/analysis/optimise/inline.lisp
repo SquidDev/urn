@@ -155,9 +155,8 @@
                       (list? val) (builtin? (car val) :lambda)
                       (<= (get-score score-lookup val) threshold))
                   ;; We can! Inline the node, and updat the function call with the new node.
-                  (with (copy (copy-node val (struct
-                                               :scopes {}
+                  (with (copy (copy-node val { :scopes {}
                                                :vars   {}
-                                               :root   (.> func :scope))))
+                                               :root   (.> func :scope) }))
                     (.<! node 1 copy)
                     (changed!)))))))))))

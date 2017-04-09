@@ -51,7 +51,7 @@
 
 (defun string->symbol (x)
   "Convert the string X to a symbol."
-  (struct :tag "symbol" :contents x))
+  { :tag "symbol" :contents x })
 
 (defun sym.. (&xs)
   "Concatenate all the symbols in XS."

@@ -28,12 +28,11 @@
 
 (defun create (description)
   "Create a new argument parser"
-  (struct
-    :desc      description
+  { :desc      description
     :flag-map  {}
     :opt-map   {}
     :opt       '()
-    :pos       '()))
+    :pos       '() })
 
 (defun set-action (arg data value)
   "Set the appropriate key in DATA for ARG to VALUE."
@@ -83,13 +82,12 @@
   (when (nil? names) (error! "Names list is empty"))
   (unless (= (% (# options) 2) 0) (error! "Options list should be a multiple of two"))
 
-  (with (result (struct
-                  :names   names
+  (with (result { :names   names
                   :action  nil
                   :narg    0
                   :default false
                   :help    ""
-                  :value   true))
+                  :value   true })
 
     ;; Gather the name, var and narg from the first arg.
     (with (first (car names))

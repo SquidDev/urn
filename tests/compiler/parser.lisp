@@ -21,7 +21,7 @@
     [(list? x) (and (= (# x) (# y)) (all id (zip teq? x y)))]
     [true (eq? (const-val x) (const-val y))]))
 
-(defun string->key (key) (struct :tag "key" :value key))
+(defun string->key (key) { :tag "key" :value key })
 
 (describe "The parser"
   (it "lexes numbers"

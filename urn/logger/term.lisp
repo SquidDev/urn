@@ -6,8 +6,7 @@
 (defun create (verbosity explain time)
   "Create a console logger with VERBOSITY, displaying additional info if EXPLAIN
    is true. TIME specifies the maximum timing verbosity."
-  (struct
-    :verbosity (or verbosity 0)
+  { :verbosity (or verbosity 0)
     :explain   (= explain true)
     :time      (or time 0)
 
@@ -18,7 +17,7 @@
     :put-time!    put-time!
 
     :put-node-error!    put-node-error!
-    :put-node-warning!  put-node-warning!))
+    :put-node-warning!  put-node-warning! })
 
 (defun put-error!    (logger msg) :hidden (print-error!   msg))
 (defun put-warning!  (logger msg) :hidden (print-warning! msg))

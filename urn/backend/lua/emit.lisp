@@ -202,7 +202,7 @@
                     (w/indent! out)
                     (w/line! out)
                     (inc! ends))
-                  (with (tmp (escape-var (struct :name "temp") state))
+                  (with (tmp (escape-var { :name "temp" } state))
                     (w/line! out (.. "local " tmp))
                     (compile-expression case out state (.. tmp " = "))
                     (w/line! out)

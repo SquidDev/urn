@@ -271,20 +271,19 @@
                        [(true . ?res)]
                        [(false ?msg)
                         (logger/put-error! logger "Execution failed.")
-                        (print! (traceback/remap-traceback (struct name lines) msg))
+                        (print! (traceback/remap-traceback { name lines } msg))
                         (exit! 1)])))
          (case (.> args :profile)
            ["none"  (exec)]
            [nil  (exec)]
-           ["call"  (profile-calls exec (struct name lines))]
-           ["stack" (profile-stack exec (struct name lines) args)]
+           ["call"  (profile-calls exec { name lines })]
+           ["stack" (profile-stack exec { name lines } args)]
            [?x
             (logger/put-error! logger (.. "Unknown profiler '" x "'"))
             (exit! 1)]))])))
 
 (define task
-  (struct
-    :name  "run"
+  { :name  "run"
     :setup (lambda (spec)
              (arg/add-argument! spec '("--run" "-r")
                :help "Run the compiled code.")
@@ -323,4 +322,4 @@
                :action  arg/add-action
                :narg    "*"))
     :pred  (lambda (args) (or (.> args :run) (.> args :profile)))
-    :run   run-lua))
+    :run   run-lua })
