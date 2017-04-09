@@ -23,7 +23,8 @@
 (import base (defun defmacro when let* set-idx!
               get-idx cons for gensym -or slice
               pretty print error tostring  -and
-              unpack debug if # + - >= = ! with))
+              unpack debug if # + - >= = ! with
+              apply))
 (import base)
 (import lua/table)
 (import type (list? nil? assert-type! exists? falsey? eq?))
@@ -111,20 +112,24 @@
       (set! accum (f accum (nth xs i))))
     accum))
 
-(defun map (f xs)
-  "Apply the function F to every element of the list XS, collecting the
-   results in a new list.
+(defun map (fn &xss)
+  "Iterate over all the successive cars of XSS, producing a single list
+   by applying FN to all of them. For example:
 
    ### Example:
    ```cl
-   > (map succ '(0 1 2))
-   out = (1 2 3)
+   > (map list '(1 2 3) '(4 5 6) '(7 8 9))
+   out = ((1 4 7) (2 5 8) (3 6 9))
+   > (map succ '(1 2 3))
+   out = (2 3 4)
    ```"
-  (assert-type! f function)
-  (assert-type! xs list)
-  (let* [(out '())]
-    (for i 1 (# xs) 1
-      (push-cdr! out (f (nth xs i))))
+  (let* [(lenghts (let* [(out '())]
+                    (for i 1 (# xss) 1
+                      (push-cdr! out (# (nth xss i))))
+                    out))
+         (out '())]
+    (for i 1 (apply min lenghts) 1
+      (push-cdr! out (apply fn (nths xss i))))
     out))
 
 (defun filter (p xs)
@@ -374,20 +379,6 @@
   (assert-type! ac function)
   (foldr ac z (map f xs)))
 
-(defun zip (fn &xss)
-  "Iterate over all the successive cars of XSS, producing a single list
-   by applying FN to all of them. For example:
-
-   ### Example:
-   ```cl
-   > (zip list '(1 2 3) '(4 5 6) '(7 8 9))
-   out = ((1 4 7) (2 5 8) (3 6 9))
-   ```"
-  (let* [(lenghts (map # xss))
-         (out '())]
-    (for i 1 (min (unpack lenghts)) 1
-      (push-cdr! out (fn (unpack (nths xss i)))))
-    out))
 
 ;; AUTOMATICALLY GENERATED
 ;; DO NOT EDIT please.

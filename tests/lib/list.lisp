@@ -65,8 +65,8 @@
               (eq? (last '()) nil)
               (eq? (last (list 1 2 nil)) nil)))
   (it "can be zipped over"
-      (affirm (eq? (zip list '(1 foo "baz") '(2 bar "qux")) '((1 2) (foo bar) ("baz" "qux")))
-              (eq? (zip + '(1 2 3) '(3 7 9)) '(4 9 12))))
+      (affirm (eq? (map list '(1 foo "baz") '(2 bar "qux")) '((1 2) (foo bar) ("baz" "qux")))
+              (eq? (map + '(1 2 3) '(3 7 9)) '(4 9 12))))
   (it "exists"
       (check [(list a)] (exists? a)))
   (it "can be accumulated with a monoid"
