@@ -61,7 +61,7 @@
          (name (.. (.> arg :name) "-override"))
          (override (.> data name))]
     (unless override
-      (set! override (empty-struct))
+      (set! override {})
       (.<! data name override))
     (cond
       [val
@@ -84,7 +84,7 @@
                               ;; General pass options
                               :track     true
                               :level     (.> args name)
-                              :override  (or (.> args (.. name "-override")) (empty-struct))
+                              :override  (or (.> args (.. name "-override")) {})
                               :pass      (.> compiler name)
 
                               ;; Optimisation specific options

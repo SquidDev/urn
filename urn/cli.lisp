@@ -161,19 +161,19 @@
                       :timer     (timer/create (cut logger/put-time! logger <> <> <>))
                       :paths     paths
 
-                      :libEnv    (empty-struct)
-                      :libMeta   (empty-struct)
+                      :libEnv    {}
+                      :libMeta   {}
                       :libs      '()
-                      :libCache  (empty-struct)
-                      :libNames  (empty-struct)
+                      :libCache  {}
+                      :libNames  {}
 
                       :warning   (warning/default)
                       :optimise  (optimise/default)
 
                       :rootScope root-scope
 
-                      :variables (empty-struct)
-                      :states    (empty-struct)
+                      :variables {}
+                      :states    {}
                       :out       '()))
 
       ;; Add compileState

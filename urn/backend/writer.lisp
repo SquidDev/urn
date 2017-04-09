@@ -9,7 +9,7 @@
   :line         1
 
   ;; Line mapping stuff
-  :lines        (empty-struct)
+  :lines        {}
   :node-stack   '()
   :active-pos   nil))
 
@@ -22,7 +22,7 @@
   (when-with (pos (.> writer :active-pos))
     (with (line (.> writer :lines (.> writer :line)))
       (unless line
-        (set! line (empty-struct))
+        (set! line {})
         (.<! writer :lines (.> writer :line) line))
 
       (.<! line pos true)))

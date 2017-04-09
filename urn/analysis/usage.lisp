@@ -9,19 +9,18 @@
 
 (defun create-state ()
   "Create a new, empty usage state."
-  (const-struct
-    :vars (empty-struct)
-    :nodes (empty-struct)))
+  { :vars {}
+    :nodes {}})
 
 (defun get-var (state var)
   "Find a VAR entry in the current STATE."
   (with (entry (.> state :vars var))
     (unless entry
-      (set! entry (const-struct
-        :var var
-        :usages '()
-        :defs   '()
-        :active false))
+      (set! entry 
+        { :var var
+          :usages '()
+          :defs   '()
+          :active false })
       (.<! state :vars var entry))
     entry))
 
@@ -29,8 +28,7 @@
   "Find a NODE entry in the current STATE."
   (with (entry (.> state :nodes node))
     (unless entry
-      (set! entry (const-struct
-                   :uses '()))
+      (set! entry { :uses '() })
       (.<! state :nodes node entry))
     entry))
 
@@ -43,10 +41,9 @@
 (defun add-definition! (state var node kind value)
   "Add a definition for a specific VAR."
   (with (var-meta (get-var state var))
-    (push-cdr! (.> var-meta :defs) (const-struct
-                                     :tag   kind
+    (push-cdr! (.> var-meta :defs) { :tag   kind
                                      :node  node
-                                     :value value))))
+                                     :value value })))
 
 (defun definitions-visitor (state node visitor)
   "Visit one NODE and gather its definitions."
@@ -79,10 +76,9 @@
                       (set! offset count)
                       ;; And define as a normal argument
                       (add-definition! state (.> arg :var) arg "arg" arg))
-                (add-definition! state (.> arg :var) arg "let" (or val (struct
-                                                                         :tag "symbol"
+                (add-definition! state (.> arg :var) arg "let" (or val { :tag "symbol"
                                                                          :contents "nil"
-                                                                         :var (.> builtins :nil)))))))
+                                                                         :var (.> builtins :nil) })))))
        (visitor/visit-list node 2 visitor)
        (visitor/visit-block lam 3 visitor))
      false]
@@ -99,7 +95,7 @@
    or are used somewhere else."
   (unless pred (set! pred (lambda() true)))
   (let* [(queue '())
-         (visited (empty-struct))
+         (visited {})
          (add-usage (lambda (var user)
                       (with (var-meta (get-var state var))
                         (unless (.> var-meta :active)

@@ -36,17 +36,14 @@
 
 (defun default ()
   "Create a collection of default optimisations."
-  (const-struct
-    :normal (list
-              opt/strip-import
-              opt/strip-pure
-              opt/constant-fold
-              opt/cond-fold
-              opt/lambda-fold)
-    :usage (list
-             opt/strip-defs
-             opt/strip-args
-             opt/variable-fold
-             opt/cond-eliminate
-             opt/expression-fold
-             opt/inline)))
+  { :normal (list opt/strip-import
+                  opt/strip-pure
+                  opt/constant-fold
+                  opt/cond-fold
+                  opt/lambda-fold)
+    :usage (list opt/strip-defs
+                 opt/strip-args
+                 opt/variable-fold
+                 opt/cond-eliminate
+                 opt/expression-fold
+                 opt/inline) })

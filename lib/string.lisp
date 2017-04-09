@@ -4,7 +4,6 @@
 (import base (concat) :export)
 (import list)
 (import lua/string () :export)
-(import lua/table (empty-struct))
 
 (defun char-at (xs x)
   "Index the string XS, returning the character at position X."
@@ -70,7 +69,7 @@
 
 (define quoted
   "Quote the string STR so it is suitable for printing."
-  (with (escapes (empty-struct))
+  (with (escapes {})
     ;; Define some mappings for escape characters
     (for i 0 31 1 (set-idx! escapes (char i) (.. "\\" (tostring i))))
     (set-idx! escapes "\n" "n")

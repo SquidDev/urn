@@ -63,10 +63,9 @@
             (set! idx (+ idx 2)))
           (set! running false))))
 
-    (push-cdr! main `(const-struct
-                       :name ,(symbol->string name)
+    (push-cdr! main `{ :name ,(symbol->string name)
                        ,@options
-                       ,:run (lambda (,pass-arg ,@args) ,@(slice body idx))))
+                       ,:run (lambda (,pass-arg ,@args) ,@(slice body idx))})
 
     main))
 

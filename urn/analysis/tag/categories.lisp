@@ -138,7 +138,7 @@
                      (cat "call-symbol")]))]
                ["list"
                 (cond
-                  ;; We detect structures of the form ((lambda (x) (set-idx! x A B)) (empty-struct)) and
+                  ;; We detect structures of the form ((lambda (x) (set-idx! x A B)) {}) and
                   ;; compile them to tables.
                   ;; Ideally, this would be implemented in a "compiler" plugin as it assumes empty-struct
                   ;; and set-idx! do what they do in the standard library.

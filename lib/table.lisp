@@ -108,7 +108,7 @@
    ```"
   (when (= (% (# entries) 2) 1)
     (error "Expected an even number of arguments to struct" 2))
-  (with (out (empty-struct))
+  (with (out {})
     (for i 1 (# entries) 2
       (let ((key (get-idx entries i))
             (val (get-idx entries (+ 1 i))))
@@ -128,7 +128,7 @@
     (for i 1 (# entries) 2
       (push-cdr! body `(set-idx! ,name ,(get-idx entries i) ,(get-idx entries (+ i 1)))))
     (push-cdr! body name)
-    `(,body (empty-struct))))
+    `(,body {})))
 
 (defun fast-struct (&entries)
   "A variation of [[struct]], which will not perform any ocercing of the
@@ -138,7 +138,7 @@
    to use [[const-struct]]."
   (when (= (% (# entries) 2) 1)
     (error "Expected an even number of arguments to struct" 2))
-  (with (out (empty-struct))
+  (with (out {})
     (for i 1 (# entries) 2
       (set-idx! out (get-idx entries i) (get-idx entries (+ i 1))))
     out))
@@ -159,7 +159,7 @@
 
 (defun merge (&structs)
   "Merge all tables in STRUCTS together into a new table."
-  (with (out (empty-struct))
+  (with (out {})
     (for-each st structs
       (for-pairs (k v) st
         (.<! out k v)))
@@ -185,6 +185,6 @@
 (defun create-lookup (values)
   "Convert VALUES into a lookup table, with each value being converted to
    a key whose corresponding value is the value's index."
-  (with (res (empty-struct))
+  (with (res {})
     (for i 1 (# values) 1 (.<! res (nth values i) i))
     res))

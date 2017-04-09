@@ -30,8 +30,8 @@
   "Create a new argument parser"
   (struct
     :desc      description
-    :flag-map  (empty-struct)
-    :opt-map   (empty-struct)
+    :flag-map  {}
+    :opt-map   {}
     :opt       '()
     :pos       '()))
 
@@ -218,7 +218,7 @@
    lookup with each argument given its value."
   (unless args (set! args arg))
 
-  (let* [(result (empty-struct))
+  (let* [(result {})
          (pos (.> spec :pos))
          (idx 1)
          (len (# args))

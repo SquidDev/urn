@@ -10,7 +10,7 @@
 
    LOOKUP is the variable usage lookup table."
   :cat '("warn" "usage")
-  (letrec [(arity (empty-struct))
+  (letrec [(arity {})
            (get-arity (lambda (symbol)
                         (let* [(var (usage/get-var lookup (.> symbol :var)))
                           (ari (get-idx arity var))]
@@ -59,6 +59,5 @@
 
 (defun default ()
   "Create a collection of default warnings."
-  (const-struct
-    :normal '()
-    :usage (list check-arity)))
+  { :normal '()
+    :usage (list check-arity)})

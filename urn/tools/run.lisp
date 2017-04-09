@@ -12,7 +12,7 @@
 
 (defun profile-calls (fn mappings)
   :hidden
-  (let* [(stats (empty-struct))
+  (let* [(stats {})
          (call-stack '())]
 
     (debug/sethook
@@ -237,8 +237,8 @@
     (with (folded (const-struct :n 0 :name "<root>"))
       (for-each stack stacks
         (if (= (.> args :stack-kind) "reverse")
-          (build-rev-stack folded stack 1 (empty-struct) (.> args :stack-fold))
-          (build-stack folded stack (# stack) (empty-struct) (.> args :stack-fold))))
+          (build-rev-stack folded stack 1 {} (.> args :stack-fold))
+          (build-stack folded stack (# stack) {} (.> args :stack-fold))))
 
       (finish-stack folded)
 

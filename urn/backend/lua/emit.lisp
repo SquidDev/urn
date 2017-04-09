@@ -13,11 +13,10 @@
 
 (define boring-categories
   "A lookup of all 'boring' which we will not emit node information for."
-  (const-struct
-    ;; Constant nodes
+  { ;; Constant nodes
     :const true :quote true
     ;; Branch nodes
-    :not true :cond true))
+    :not true :cond true })
 
 (defun compile-quote (node out state level)
   "Compile a quoted NODE to the ouput buffer OUT.

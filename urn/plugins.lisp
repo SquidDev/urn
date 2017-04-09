@@ -23,8 +23,7 @@
 
          (categorise '())
          (emit       '())]
-    (const-struct
-      ;; backend.lisp
+    {    ;; backend.lisp
       :add-categoriser!    (lambda () (fail! "add-categoriser! is not yet implemented")) ;; TODO: Add add-categoriser!
       :categorise-node     categories/visit-node
       :categorise-nodes    categories/visit-nodes
@@ -59,7 +58,7 @@
       :traverse-nodes traverse/traverse-list
       :symbol->var    (lambda (x)
                         (with (var (.> x :var))
-                          (if (string? var) (.> variables var) var)))
+                              (if (string? var) (.> variables var) var)))
       :var->symbol    nodes/make-symbol
       :builtin?       nodes/builtin?
       :constant?      nodes/constant?
@@ -93,9 +92,9 @@
       :active-node    active-node
       :active-module  (lambda ()
                         (letrec [(get (scp)
-                                   (if (.> scp :isRoot)
-                                     scp
-                                     (get (.> scp :parent))))]
+                                      (if (.> scp :isRoot)
+                                        scp
+                                        (get (.> scp :parent))))]
                           (get (active-scope))))
       :scope-vars     (lambda (scp)
                         (if (! scp)
@@ -110,12 +109,11 @@
                         (when (= (active-node) nil) (error! "Not currently resolving"))
                         (when-with (state (.> states var))
                           (when (= (.> state :stage) "parsed")
-                            (co/yield (const-struct
-                                        :tag   "build"
-                                        :state state)))
+                            (co/yield { :tag   "build"
+                                        :state state }))
                           (.> state :node)))
       :var-value      (lambda (var)
                         (when (= (active-node) nil) (error! "Not currently resolving"))
                         (when-with (state (.> states var))
                           (self state :get)))
-      :var-docstring (lambda (var) (.> var :doc)))))
+      :var-docstring (lambda (var) (.> var :doc)) }))

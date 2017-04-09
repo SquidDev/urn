@@ -28,7 +28,7 @@
    ```"
   (if (symbol? obj)
     `(set! ,obj ,val)
-    `(,(const-struct :tag "symbol" :contents (.. (.> (car obj) :contents) "/setf!")) ,(cdr obj) ,val)))
+    `(,{:tag "symbol" :contents (.. (.> (car obj) :contents) "/setf!")} ,(cdr obj) ,val)))
 
 (defmacro .>/setf! (selector val)
   "An implementation of [[setf!]] for table acccess.
@@ -89,7 +89,7 @@
    ```"
   (if (symbol? obj)
     `(set! ,obj (,fun ,obj))
-    `(,(const-struct :tag "symbol" :contents (.. (.> (car obj) :contents) "/over!")) ,(cdr obj) ,fun)))
+    `(,{:tag "symbol" :contents (.. (.> (car obj) :contents) "/over!")} ,(cdr obj) ,fun)))
 
 (defmacro .>/over! (selector fun)
   "An implementation of [[over!!]] for table access.

@@ -12,18 +12,18 @@
 (defun create-state (meta) (struct
                              ;; [[run-pass]] options
                              :level      1
-                             :override   (empty-struct)
+                             :override   {}
                              :timer      timer/void
 
                              ;; execute-states options
                              :count      0
-                             :mappings   (empty-struct)
+                             :mappings   {}
 
                              ;; Various lookup tables
-                             :cat-lookup (empty-struct)
-                             :ctr-lookup (empty-struct)
-                             :var-lookup (empty-struct)
-                             :meta       (or meta (empty-struct))))
+                             :cat-lookup {}
+                             :ctr-lookup {}
+                             :var-lookup {}
+                             :meta       (or meta {})))
 
 (defun file (compiler shebang)
   "Generate a complete file using the current COMPILER state.

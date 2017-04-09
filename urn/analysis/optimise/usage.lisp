@@ -49,7 +49,7 @@
                (args (nth lam 2))
                (offset 1)
                (rem-offset '0)
-               (removed (empty-struct))]
+               (removed {})]
           (for i 1 (# args) 1
             (let [(arg (nth args (- i rem-offset)))
                   (val (nth node (- (+ i offset) rem-offset)))]
@@ -158,8 +158,8 @@
                   ;; And no arguments are variadic or mutable
                   (validate 1))
             (let [(current-idx 1)
-                  (arg-map (empty-struct))
-                  (wrap-map (empty-struct))
+                  (arg-map {})
+                  (wrap-map {})
                   (ok true)
                   (finished false)]
 
@@ -280,7 +280,7 @@
 (defpass cond-eliminate (state nodes var-lookup)
   "Replace variables with known truthy/falsey values with `true` or `false` when used in branches."
   :cat '("opt" "usage")
-  (with (lookup (empty-struct))
+  (with (lookup {})
     (visitor/visit-list nodes 1
       (lambda (node visitor is-cond)
         (case (type node)

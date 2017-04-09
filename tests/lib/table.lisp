@@ -63,7 +63,7 @@
     (can "mutate children"
          (with (st (struct :foo "x"))
            (.<! st :bar "y")
-           (.<! st :foo (empty-struct))
+           (.<! st :foo {})
            (.<! st :foo :bar (empty-struct :baz "x"))
            (set-idx! st :foo "z")
            (affirm (= "z" (get-idx st :foo :bar :baz))
@@ -80,15 +80,15 @@
                 (= (nth li 2) "y")
                 (= (nth li 3) "z"))))
     (will "be a constant size"
-      (affirm (= 0 (#keys (empty-struct)))
+      (affirm (= 0 (#keys {}))
               (= 0 (#keys (struct)))
               (= 1 (#keys (struct :foo "x")))
               (= 2 (#keys (struct :foo "x" :bar "y")))))
     (will "be empty"
-          (affirm (empty-struct? (empty-struct))
+          (affirm (empty-struct? {})
                   (empty-struct? (struct))
                   (empty-struct? (struct :foo nil))))
     (will "not be empty"
           (affirm (! (empty-struct? (struct :foo "x")))
                   (! (empty-struct? (struct :foo false)))
-                  (! (empty-struct? (struct :foo (empty-struct))))))])
+                  (! (empty-struct? (struct :foo {})))))])

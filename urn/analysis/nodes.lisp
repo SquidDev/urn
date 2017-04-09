@@ -37,10 +37,10 @@
   "Gets the AST representation of VAL"
   (with (ty (type# val))
     (cond
-      [(= ty "string")  (const-struct :tag "string" :value val)]
-      [(= ty "number")  (const-struct :tag "number" :value val)]
-      [(= ty "nil")     (const-struct :tag "symbol" :contents "nil" :var (.> builtins :nil))]
-      [(= ty "boolean") (const-struct :tag "symbol" :contents (bool->string val) :var (.> builtins (bool->string val)))])))
+      [(= ty "string")  {:tag "string" :value val}]
+      [(= ty "number")  {:tag "number" :value val}]
+      [(= ty "nil")     {:tag "symbol" :contents "nil" :var (.> builtins :nil)}]
+      [(= ty "boolean") {:tag "symbol" :contents (bool->string val) :var (.> builtins (bool->string val))}])))
 
 (defun urn->bool (node)
   "Attempt to get the boolean value of NODE.
@@ -62,10 +62,9 @@
 
 (defun make-symbol (var)
   "Make a symbol referencing VAR."
-  (const-struct
-    :tag "symbol"
+  { :tag "symbol"
     :contents (.> var :name)
-    :var var))
+    :var var })
 
 (define make-nil
   "Make a NIL constant."

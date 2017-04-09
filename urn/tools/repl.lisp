@@ -117,7 +117,7 @@
 
       [(= command "scope")
        (let* [(vars '())
-              (vars-set (empty-struct))
+              (vars-set {})
               (current scope)]
          (while current
            (for-pairs (name var) (.> current :variables)
@@ -136,7 +136,7 @@
                 (name-results '())
                 (docs-results '())
                 (vars '())
-                (vars-set (empty-struct))
+                (vars-set {})
                 (current scope)]
            (while current
              (for-pairs (name var) (.> current :variables)
