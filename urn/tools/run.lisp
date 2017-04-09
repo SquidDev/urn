@@ -26,7 +26,7 @@
 
           ;; Unless this is a call, pop the current function
           (when (/= action "call")
-            (unless (nil? call-stack)
+            (unless (empty? call-stack)
               (let* [(current (pop-last! call-stack))
                      (hash (b/.. (.> current :source) (.> current :linedefined)))
                      (entry (.> stats hash))]
@@ -250,7 +250,7 @@
 
 (defun run-lua (compiler args)
   :hidden
-  (when (nil? (.> args :input))
+  (when (empty? (.> args :input))
     (logger/put-error! (.> compiler :log) "No inputs to run.")
     (exit! 1))
 

@@ -7,7 +7,7 @@
 (import urn/logger logger)
 
 (defun docs (compiler args)
-  (when (nil? (.> args :input))
+  (when (empty? (.> args :input))
     (logger/put-error! (.> compiler :log) "No inputs to generate documentation for.")
     (exit! 1))
 

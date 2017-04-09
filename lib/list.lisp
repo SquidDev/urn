@@ -27,7 +27,7 @@
               apply))
 (import base)
 (import lua/table)
-(import type (list? nil? assert-type! exists? falsey? eq?))
+(import type (list? empty? assert-type! exists? falsey? eq?))
 (import lua/math (min max))
 
 (defun car (x)
@@ -53,7 +53,7 @@
    out = (2 3)
    ```"
   (assert-type! x list)
-  (if (nil? x)
+  (if (empty? x)
     '()
     (base/cdr x)))
 
@@ -189,7 +189,7 @@
   (any (lambda (y) (eq? x y)) xs))
 
 (defun prune (xs)
-  "Remove values matching the predicate [[nil?]] from the list XS.
+  "Remove values matching the predicate [[empty?]] from the list XS.
 
    ### Example:
    ```cl
@@ -197,7 +197,7 @@
    out = (1 2)
    ```"
   (assert-type! xs list)
-  (filter (lambda (x) (! (nil? x))) xs))
+  (filter (lambda (x) (! (empty? x))) xs))
 
 (defun traverse (xs f)
   "An alias for [[map]] with the arguments XS and F flipped.

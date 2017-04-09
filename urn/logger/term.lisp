@@ -54,7 +54,7 @@
       | ^^^^^^^ this text
    ```"
   :hidden
-  (when (nil? entries) (error! "Positions cannot be empty"))
+  (when (empty? entries) (error! "Positions cannot be empty"))
   (when (/= (% (# entries) 2) 0) (error! (string/.. "Positions must be a multiple of 2, is " (# entries))))
 
   (let* ((previous -1)

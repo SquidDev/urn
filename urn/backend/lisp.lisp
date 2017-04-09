@@ -26,7 +26,7 @@
         [(= tag "list")
          (writer/append! writer "(")
 
-         (if (nil? node)
+         (if (empty? node)
            (writer/append! writer ")")
            (let ((newline false)
                  (max (- 60 (estimate-length (car node) 60))))
