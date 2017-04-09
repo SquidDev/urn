@@ -80,7 +80,7 @@
     - `:all`: Whether this will consume all values, including those
       starting with `-`."
   (assert-type! names list)
-  (when (nil? names) (error! "Names list is empty"))
+  (when (empty? names) (error! "Names list is empty"))
   (unless (= (% (# options) 2) 0) (error! "Options list should be a multiple of two"))
 
   (with (result (struct
@@ -193,13 +193,13 @@
         (when (> len max) (set! max len))))
 
     (with (fmt (.. " %-" (number->string (+ max 1)) "s %s"))
-      (unless (nil? (.> spec :pos))
+      (unless (empty? (.> spec :pos))
         (print!)
         (print! "Positional arguments")
         (for-each arg (.> spec :pos)
           (print! (string/format fmt (.> arg :var) (.> arg :help)))))
 
-      (unless (nil? (.> spec :opt))
+      (unless (empty? (.> spec :opt))
         (print!)
         (print! "Optional arguments")
         (for-each arg (.> spec :opt)

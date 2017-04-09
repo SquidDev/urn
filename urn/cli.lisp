@@ -152,7 +152,7 @@
 
     (logger/put-verbose! logger (.. "Using path: " (pretty paths)))
 
-    (if (nil? (.> args :input))
+    (if (empty? (.> args :input))
       (.<! args :repl true)
       (.<! args :emit-lua true))
 

@@ -13,13 +13,13 @@
   "Check whether X is a list."
   (= (type x) "list"))
 
-(defun nil? (x)
+(defun empty? (x)
   "Check whether X is the empty list or the empty string."
-  (and x
-       (or (and (list? x)
-                (= (# x) 0))
-           (and (string? x)
-                (= (len# x) 0)))))
+  (let* [(xt (type x))]
+    (cond
+      [(= xt "list") (= (# x) 0)]
+      [(= xt "string") (= (len# x) 0)]
+      [true false])))
 
 (defun string? (x)
   "Check whether X is a string."
@@ -73,6 +73,11 @@
   "Check if X exists, i.e. it is not the special value `nil`.
    Note that, in Urn, `nil` is not the empty list."
   (! (= (type# x) "nil")))
+
+(defun nil? (x)
+  "Check if X does not exist, i.e. it is the special value `nil`.
+   Note that, in Urn, `nil` is not the empty list."
+  (= (type# x) "nil"))
 
 (defun between? (val min max)
   "Check if the numerical value X is between

@@ -3,7 +3,7 @@
 (import lua/string (sub))
 (import lua/table (empty-struct iter-pairs) :export)
 (import lua/basic (getmetatable setmetatable next len#) :export)
-(import type (nil? list? eq? key?))
+(import type (empty? list? eq? key?))
 (import list ())
 (import binders (let))
 
@@ -12,7 +12,7 @@
    case that it does not exist, the value OR-VAL, which can be nil."
   (cond
     [(or (! (list? list))
-         (nil? list))
+         (empty? list))
      or-val]
     [(eq? (caar list) key)
      (cadar list)]
@@ -22,7 +22,7 @@
   "Check that KEY is bound in the association list LIST."
   (cond
     [(or (! (list? list))
-         (nil? list))
+         (empty? list))
      false]
     [(eq? (caar list) key)
      true]

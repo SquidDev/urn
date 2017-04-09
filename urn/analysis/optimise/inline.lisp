@@ -53,7 +53,7 @@
      ;; We'll adjust the node definitions later.
      (when (builtin? (car node) :lambda)
        (with (args (cadr node))
-         (unless (nil? args)
+         (unless (empty? args)
            (with (new-scope (scope/child (get-scope (.> (car args) :var :scope) lookup node)))
              (for-each arg args
                (let* [(var (.> arg :var))

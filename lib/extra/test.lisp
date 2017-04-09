@@ -85,12 +85,12 @@
        (for-each ,'passed ,tests-passed
          (print! (.. (colored 32 "+ ") ,'passed))))
 
-     (unless (nil? ,tests-pending)
+     (unless (empty? ,tests-pending)
        (print! (string/format "%s (%d)" (colored 33 "- Pending tests:") (# ,tests-pending)))
        (for-each ,'pending ,tests-pending
          (print! (.. (colored 33 "* ") ,'pending))))
 
-     (unless (nil? ,tests-failed)
+     (unless (empty? ,tests-failed)
        (print! (string/format "%s (%d)" (colored 31 "- Failed tests:") (# ,tests-failed)))
        (for-each ,'failed ,tests-failed
          (print! (.. (colored 31 "* ") (car ,'failed)))

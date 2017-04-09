@@ -18,7 +18,7 @@
   "Check the two values X and Y are equal, unwrapping them using [[const-val]]."
   (cond
     [(/= (type x) (type y)) false]
-    [(list? x) (and (= (# x) (# y)) (all id (zip teq? x y)))]
+    [(list? x) (and (= (# x) (# y)) (all id (map teq? x y)))]
     [true (eq? (const-val x) (const-val y))]))
 
 (defun string->key (key) (struct :tag "key" :value key))

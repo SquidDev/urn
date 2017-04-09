@@ -39,7 +39,7 @@
   (with (sig (doc/extract-signature var))
     (cond
       ((= sig nil) name)
-      ((nil? sig)
+      ((empty? sig)
         (.. "(" name ")"))
       (true
         (.. "(" name " " (concat (traverse sig (cut get-idx <> "contents")) " ") ")")))))
@@ -66,7 +66,7 @@
                      (sig (doc/extract-signature ovar))
                      (hash (cond
                              ((= sig nil) (.> ovar :name))
-                             ((nil? sig) (.> ovar :name))
+                             ((empty? sig) (.> ovar :name))
                              (true (.. name " " (concat (traverse sig (cut get-idx <> "contents")) " ")))))]
                 (writer/append! out (string/format "[`%s`](%s.md#%s)" name loc (string/gsub hash "%A+" "-"))))
               (writer/append! out (string/format "`%s`" name))))))))
@@ -104,7 +104,7 @@
         (write-docstring out (.> var :doc) (.> var :scope))
         (writer/line! out "" true)))
 
-    (unless (nil? undocumented)
+    (unless (empty? undocumented)
       (writer/line! out "## Undocumented symbols"))
     (for-each entry undocumented
        (let* [(name (car entry))

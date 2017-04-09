@@ -24,7 +24,7 @@
                :help    "Run chmod +x on the resulting file"))
     :pred  (lambda (args) (.> args :emit-lua))
     :run   (lambda (compiler args)
-             (when (nil? (.> args :input))
+             (when (empty? (.> args :input))
                (logger/put-error! (.> compiler :log) "No inputs to compile.")
                (exit! 1))
 
@@ -45,7 +45,7 @@
                :help "Emit a Lisp file."))
     :pred  (lambda (args) (.> args :emit-lisp))
     :run   (lambda (compiler args)
-             (when (nil? (.> args :input))
+             (when (empty? (.> args :input))
                (logger/put-error! (.> compiler :log) "No inputs to compile.")
                (exit! 1))
 

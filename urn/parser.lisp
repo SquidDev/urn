@@ -363,7 +363,7 @@
                               :lines (.> tok :range :lines)))]
           [(= tag "close")
            (cond
-             [(nil? stack)
+             [(empty? stack)
               ;; Unmatched closing bracket.
               (logger/do-node-error! logger
                 (string/format "'%s' without matching '%s'" (.> tok :contents) (.> tok :open))
@@ -410,7 +410,7 @@
           [true (error! (string/.. "Unsupported type" tag))])
         (unless auto-close
           (while (.> head :auto-close)
-            (when (nil? stack)
+            (when (empty? stack)
               (logger/do-node-error! logger
                 (string/format "'%s' without matching '%s'" (.> tok :contents) (.> tok :open))
                 tok nil

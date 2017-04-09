@@ -1,7 +1,7 @@
 (import base (defmacro if ! when car and or
               cdr and pretty print debug
               get-idx defun = # >= error))
-(import type (list? nil?))
+(import type (list? empty?))
 (import list (cars cadrs caar cadar map cadr
               cdar cddr caddar))
 
@@ -33,7 +33,7 @@
           (bar (+ foo 1))]
      foo
    ```"
-  (if (! (nil? vars))
+  (if (! (empty? vars))
     `((lambda (,(caar vars))
         (let* ,(cdr vars) ,@body))
       ,(make-binding (cdar vars)))
@@ -96,7 +96,7 @@
    Since `1` is truthy, it is evaluated and bound to `foo`, however,
    since `nil` is falsey, evaluation does not continue."
   (cond
-    [(nil? vars) `((lambda () ,@body))]
+    [(empty? vars) `((lambda () ,@body))]
     [true `((lambda (,(caar vars))
               (cond
                 [,(caar vars) (when-let* ,(cdr vars) ,@body)]

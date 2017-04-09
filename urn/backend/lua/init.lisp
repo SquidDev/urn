@@ -105,7 +105,7 @@
             (push-cdr! name-list name)
             (push-cdr! escape-list escaped)))))
 
-    (unless (nil? state-list)
+    (unless (empty? state-list)
       (let* [(out (w/create))
              (id (.> back-state :count))
              (name (concat name-list ","))]

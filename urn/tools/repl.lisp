@@ -160,15 +160,15 @@
                    (inc! keywords-found)))
                (when (eq? keywords-found (# keywords))
                  (push-cdr! docs-results var))))
-           (if (and (nil? name-results) (nil? docs-results))
+           (if (and (empty? name-results) (empty? docs-results))
              (logger/put-error! logger "No results")
              (progn
-               (when (! (nil? name-results))
+               (when (! (empty? name-results))
                  (print! (colored 92 "Search by function name:"))
                  (if (> (# name-results) 20)
                    (print! (.. (concat (take name-results 20) "  ") "  ..."))
                    (print! (concat name-results "  "))))
-               (when (! (nil? docs-results))
+               (when (! (empty? docs-results))
                  (print! (colored 92 "Search by function docs:"))
                  (if (> (# docs-results) 20)
                    (print! (.. (concat (take docs-results 20) "  ") "  ..."))
@@ -238,12 +238,12 @@
          (buffer '())
          (running true)]
     (while running
-      (io/write (colored 92 (if (nil? buffer) "> " ". ")))
+      (io/write (colored 92 (if (empty? buffer) "> " ". ")))
       (io/flush)
 
       (with (line (io/read "*l"))
         (cond
-          [(and (! line) (nil? buffer)) (set! running false)]
+          [(and (! line) (empty? buffer)) (set! running false)]
           [(and line (= (string/char-at line (#s line)) "\\"))
            (push-cdr! buffer (.. (string/sub line 1 (pred (#s line))) "\n"))]
           [(and line (> (# buffer) 0) (> (#s line) 0))
