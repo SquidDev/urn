@@ -2,19 +2,17 @@
 
 (defun create (fn)
   "Create a new timer, which will output to LOGGER."
-  (const-struct
-    :callback fn
-    :timers   (empty-struct)))
+  { :callback fn
+    :timers   {} })
 
 (defun start-timer! (timer name level)
   "Start a new timer (or resume an existing one) with the given NAME, pushing onto TIMER's stack."
   (with (instance (.> timer :timers name))
     (unless instance
-      (set! instance (const-struct
-                       :name    name
+      (set! instance { :name    name
                        :level   (or level 1)
                        :running false
-                       :total   0))
+                       :total   0 })
       (.<! timer :timers name instance))
 
     (when (.> instance :running) (error! (.. "Timer " name " is already running")))

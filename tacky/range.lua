@@ -13,7 +13,7 @@ local _temp = (function()
 	}
 end)()
 for k, v in pairs(_temp) do _libs["lua/basic-0/".. k] = v end
-local _3d_1, _3c3d_1, _2b_1, _25_1, error1, getIdx1, setIdx_21_1, type_23_1, format1, concat1, emptyStruct1, type1, _2e2e_1, struct1, formatPosition1, formatRange1, formatNode1, getSource1
+local _3d_1, _3c3d_1, _2b_1, _25_1, error1, getIdx1, setIdx_21_1, type_23_1, format1, concat1, type1, _2e2e_1, struct1, formatPosition1, formatRange1, formatNode1, getSource1
 _3d_1 = function(v1, v2) return (v1 == v2) end
 _3c3d_1 = function(v1, v2) return (v1 <= v2) end
 _2b_1 = function(v1, v2) return (v1 + v2) end
@@ -24,7 +24,6 @@ setIdx_21_1 = function(v1, v2, v3) v1[v2] = v3 end
 type_23_1 = type
 format1 = string.format
 concat1 = table.concat
-emptyStruct1 = function() return ({}) end
 type1 = (function(val1)
 	local ty1 = type_23_1(val1)
 	if (ty1 == "table") then
@@ -42,7 +41,7 @@ struct1 = (function(...)
 	if ((entries1["n"] % 2) == 1) then
 		error1("Expected an even number of arguments to struct", 2)
 	end
-	local out1 = ({})
+	local out1 = {}
 	local r_1071 = entries1["n"]
 	local r_1051 = nil
 	r_1051 = (function(r_1061)
@@ -100,16 +99,16 @@ formatNode1 = (function(node1)
 end)
 getSource1 = (function(node2)
 	local result1 = nil
-	local r_2151 = nil
-	r_2151 = (function()
+	local r_2131 = nil
+	r_2131 = (function()
 		if (node2 and not result1) then
 			result1 = node2["range"]
 			node2 = node2["parent"]
-			return r_2151()
+			return r_2131()
 		else
 		end
 	end)
-	r_2151()
+	r_2131()
 	return result1
 end)
 return struct1("formatPosition", formatPosition1, "formatRange", formatRange1, "formatNode", formatNode1, "getSource", getSource1)

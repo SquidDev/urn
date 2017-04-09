@@ -9,7 +9,7 @@
 (defun copy-of (x)
   "Create a shallow copy of X."
   :hidden
-  (with (res (empty-struct))
+  (with (res {})
     (for-pairs (k v) x (set-idx! res k v))
     res))
 
@@ -139,7 +139,7 @@
   "Inline simple functions."
   :cat '("opt" "usage")
   :on false
-  (with (score-lookup (empty-struct))
+  (with (score-lookup {})
     (visitor/visit-block nodes 1
       (lambda (node)
         ;; Only work on function calls on symbols
@@ -155,9 +155,8 @@
                       (list? val) (builtin? (car val) :lambda)
                       (<= (get-score score-lookup val) threshold))
                   ;; We can! Inline the node, and updat the function call with the new node.
-                  (with (copy (copy-node val (struct
-                                               :scopes (empty-struct)
-                                               :vars   (empty-struct)
-                                               :root   (.> func :scope))))
+                  (with (copy (copy-node val { :scopes {}
+                                               :vars   {}
+                                               :root   (.> func :scope) }))
                     (.<! node 1 copy)
                     (changed!)))))))))))

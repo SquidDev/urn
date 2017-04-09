@@ -68,6 +68,9 @@
                 (visitor node visitor)]
                [(= func (.> builtins :import))
                 (visitor node visitor)]
+               [(= func (.> builtins :struct-literal))
+                (traverse-list node 2 visitor)
+                (visitor node visitor)]
                [(or (= funct "defined") (= funct "arg") (= funct "native") (= funct "macro"))
                 (traverse-list node 1 visitor)
                 (visitor node visitor)]

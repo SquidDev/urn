@@ -13,11 +13,10 @@
 
 (define boring-categories
   "A lookup of all 'boring' which we will not emit node information for."
-  (const-struct
-    ;; Constant nodes
+  { ;; Constant nodes
     :const true :quote true
     ;; Branch nodes
-    :not true :cond true))
+    :not true :cond true })
 
 (defun compile-quote (node out state level)
   "Compile a quoted NODE to the ouput buffer OUT.
@@ -203,7 +202,7 @@
                     (w/indent! out)
                     (w/line! out)
                     (inc! ends))
-                  (with (tmp (escape-var (struct :name "temp") state))
+                  (with (tmp (escape-var { :name "temp" } state))
                     (w/line! out (.. "local " tmp))
                     (compile-expression case out state (.. tmp " = "))
                     (w/line! out)
@@ -288,23 +287,19 @@
          (w/append! out ret)
          (w/append! out "nil"))]
 
-      ;; This is a rather hacky "special form" of call-lambda which gets compiled to a
-      ;; table constructor.
-      ["make-struct"
+      ["struct-literal"
        (cond
          [(= ret "") (w/append! out "local _ = ")]
          [ret (w/append! out ret)]
          [true])
-       (w/append! out "{")
-       (with (body (car node))
-         (for i 3 (pred (# body)) 1
-           (when (> i 3) (w/append! out ","))
-           (with (entry (nth body i))
-             (w/append! out "[")
-             (compile-expression (nth entry 3) out state)
-             (w/append! out "]=")
-             (compile-expression (nth entry 4) out state))))
-       (w/append! out "}")]
+       (w/append! out "({")
+       (for i 2 (# node) 2
+         (when (> i 2) (w/append! out ","))
+         (w/append! out "[")
+         (compile-expression (nth node i) out state)
+         (w/append! out "]=")
+         (compile-expression (nth node (succ i)) out state))
+       (w/append! out "})")]
 
       ["define"
        (compile-expression (nth node (# node)) out state (.. (escape-var (.> node :defVar) state) " = "))]

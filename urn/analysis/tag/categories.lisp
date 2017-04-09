@@ -117,6 +117,9 @@
                      (cat "define")]
                     [(= func (.> builtins :define-native)) (cat "define-native")]
                     [(= func (.> builtins :import)) (cat "import")]
+                    [(= func (.> builtins :struct-literal))
+                     (visit-nodes lookup node 2 false)
+                     (cat "struct-literal")]
 
                     ;; Handle things like `("foo")`
                     [(= func (.> builtins :true))
@@ -135,29 +138,6 @@
                      (cat "call-symbol")]))]
                ["list"
                 (cond
-                  ;; We detect structures of the form ((lambda (x) (set-idx! x A B)) (empty-struct)) and
-                  ;; compile them to tables.
-                  ;; Ideally, this would be implemented in a "compiler" plugin as it assumes empty-struct
-                  ;; and set-idx! do what they do in the standard library.
-                  [(and
-                     (= (# node) 2) (builtin? (car head) :lambda) (= (# (nth head 2)) 1)
-                     (with (val (nth node 2))
-                       (and (list? arg) (= (# val) 1) (eq? (car val) 'empty-struct)))
-                     (let* [(arg (car (nth head 2)))
-                            (last (last head))]
-                       (and
-                         (! (.> arg :isVariadic)) (symbol? last) (= (.> arg :var) (.> last :var))
-                         ;; We check that all body nodes are of the form (set-idx! x A B)
-                         ;; A future enhancement would be to ensure B is an expression: otherwise we're just
-                         ;; postponing the inevitable lambda creation.
-                         (part-all head 3 (pred (# head)) (lambda (node)
-                                                            (and
-                                                              (list? node) (= (# node) 4)
-                                                              (eq? (car node) 'set-idx!)
-                                                              (symbol? (nth node 2)) (= (.> (nth node 2) :var) (.> arg :var))))))))
-                   (visit-nodes lookup (car node) 3 false)
-                   (cat "make-struct")]
-
                   [(and
                      ;; Attempt to determine expressions of the form ((lambda (x) x) Y)
                      ;; where Y is an expression.

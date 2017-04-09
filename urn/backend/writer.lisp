@@ -2,16 +2,16 @@
 
 (import string)
 
-(defun create () (struct
-  :out          '()
-  :indent       0
-  :tabs-pending false
-  :line         1
+(defun create ()
+  { :out          '()
+    :indent       0
+    :tabs-pending false
+    :line         1
 
-  ;; Line mapping stuff
-  :lines        (empty-struct)
-  :node-stack   '()
-  :active-pos   nil))
+    ;; Line mapping stuff
+    :lines        {}
+    :node-stack   '()
+    :active-pos   nil })
 
 
 (defun append! (writer text)
@@ -22,7 +22,7 @@
   (when-with (pos (.> writer :active-pos))
     (with (line (.> writer :lines (.> writer :line)))
       (unless line
-        (set! line (empty-struct))
+        (set! line {})
         (.<! writer :lines (.> writer :line) line))
 
       (.<! line pos true)))

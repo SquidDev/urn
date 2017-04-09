@@ -40,8 +40,7 @@
       (set! node (.> node :parent)))
     result))
 
-(struct
-  :formatPosition format-position
+{ :formatPosition format-position
   :formatRange    format-range
   :formatNode     format-node
-  :getSource      get-source)
+  :getSource      get-source }

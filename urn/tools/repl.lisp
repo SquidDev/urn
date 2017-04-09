@@ -117,7 +117,7 @@
 
       [(= command "scope")
        (let* [(vars '())
-              (vars-set (empty-struct))
+              (vars-set {})
               (current scope)]
          (while current
            (for-pairs (name var) (.> current :variables)
@@ -136,7 +136,7 @@
                 (name-results '())
                 (docs-results '())
                 (vars '())
-                (vars-set (empty-struct))
+                (vars-set {})
                 (current scope)]
            (while current
              (for-pairs (name var) (.> current :variables)
@@ -274,19 +274,17 @@
     (os/exit 0)))
 
 (define repl-task
-  (struct
-    :name  "repl"
+  { :name  "repl"
     :setup (lambda (spec)
              (arg/add-argument! spec '("--repl")
                :help "Start an interactive session."))
     :pred  (lambda (args) (.> args :repl))
-    :run  repl))
+    :run  repl })
 
 (define exec-task
-  (struct
-    :name  "exec"
+  { :name  "exec"
     :setup (lambda (spec)
              (arg/add-argument! spec '("--exec")
                :help "Execute a program without compiling it."))
     :pred  (lambda (args) (.> args :exec))
-    :run   exec))
+    :run   exec })

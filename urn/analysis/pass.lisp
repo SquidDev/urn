@@ -38,10 +38,9 @@
             (set! idx (+ idx 2)))
           (set! running false))))
 
-    (push-cdr! main `(const-struct
-                       :name ,(symbol->string name)
+    (push-cdr! main `{ :name ,(symbol->string name)
                        ,@options
-                       ,:run (lambda (,pass-arg ,@args) ,@(slice body idx))))
+                       ,:run (lambda (,pass-arg ,@args) ,@(slice body idx))})
 
     main))
 
@@ -51,7 +50,7 @@
 
 (defun create-tracker ()
   "Create a modification tracker."
-  (struct :changed false))
+  { :changed false })
 
 (defun changed? (tracker)
   "Determine whether the TRACKER created by [[create-tracker]] was changed."

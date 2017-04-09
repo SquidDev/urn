@@ -61,12 +61,11 @@
       (self handle :close))))
 
 (define task
-  (struct
-    :name  "gen-native"
+  { :name  "gen-native"
     :setup (lambda (spec)
              (arg/add-argument! spec '("--gen-native")
                :help "Generate native bindings for a file"
                :var  "PREFIX"
                :narg "?"))
     :pred  (lambda (args) (.> args :gen-native))
-    :run   gen-native))
+    :run   gen-native })

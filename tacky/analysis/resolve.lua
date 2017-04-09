@@ -77,6 +77,7 @@ local declaredSymbols = {
 	"lambda", "define", "define-macro", "define-native",
 	"set!", "cond",
 	"quote", "syntax-quote", "unquote", "unquote-splice",
+	"struct-literal",
 	"import",
 }
 
@@ -519,6 +520,13 @@ function resolveNode(node, scope, state, root, many)
 					export = export,
 					scope = scope,
 				})
+				return node
+			elseif func == builtins["struct-literal"] then
+				if node.n % 2 ~= 1 then
+					errorPositions(log, node, "Expected an even number of arguments, got " .. (node.n - 1))
+				end
+
+				resolveList(node, 2, scope, state)
 				return node
 			elseif func.tag == "macro" then
 				if not funcState then errorPositions(log, first, "Macro is not defined correctly") end

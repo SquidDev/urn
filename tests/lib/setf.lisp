@@ -8,10 +8,9 @@
       (affirm (= x 1))))
 
   (it "can set table indexes"
-    (with (x (const-struct
-               :a 0
-               :b (empty-struct)
-               :c (const-struct :d (empty-struct))))
+    (with (x { :a 0
+               :b {}
+               :c {:d {}}})
       (setf! (.> x :a) 1)
       (setf! (.> x :b :foo) 1)
       (setf! (.> x :c :d :foo) 1)
@@ -44,10 +43,9 @@
       (affirm (= x 1))))
 
   (it "can map over table indexes"
-    (with (x (const-struct
-               :a 0
-               :b (const-struct :foo 0)
-               :c (const-struct :d (const-struct :foo 0))))
+    (with (x { :a 0
+               :b {:foo 0}
+               :c {:d {:foo 0}}})
       (over! (.> x :a) succ)
       (over! (.> x :b :foo) succ)
       (over! (.> x :c :d :foo) succ)

@@ -50,9 +50,9 @@
                        (inc! column))
                      (inc! offset)))
           ;; Generates a table with the current position
-         (position (lambda () (const-struct :line line :column column :offset offset)))
+         (position (lambda () {:line line :column column :offset offset}))
          ;; Generates a table with a particular range
-         (range (lambda (start finish) (const-struct :start start :finish (or finish start) :lines lines :name name)))
+         (range (lambda (start finish) {:start start :finish (or finish start) :lines lines :name name}))
          ;; Appends a struct to the list
          (append-with! (lambda (data start finish)
                          (let ((start (or start (position)))
@@ -62,7 +62,7 @@
                            (push-cdr! out data))))
          ;; Appends a token to the list
          (append! (lambda (tag start finish)
-                    (append-with! (const-struct :tag tag) start finish)))
+                    (append-with! {:tag tag} start finish)))
          (parse-base (lambda (name p base)
                        (let* [(start offset)
                               (char (string/char-at str offset))]
@@ -82,12 +82,12 @@
       (with (char (string/char-at str offset))
         (cond
           ((or (= char "\n") (= char "\t") (= char " ")))
-          ((= char "(") (append-with! (const-struct :tag "open" :close ")")))
-          ((= char ")") (append-with! (const-struct :tag "close" :open "(")))
-          ((= char "[") (append-with! (const-struct :tag "open" :close "]")))
-          ((= char "]") (append-with! (const-struct :tag "close" :open "[")))
-          ((= char "{") (append-with! (const-struct :tag "open" :close "}")))
-          ((= char "}") (append-with! (const-struct :tag "close" :open "{")))
+          ((= char "(") (append-with! {:tag "open" :close ")"}))
+          ((= char ")") (append-with! {:tag "close" :open "("}))
+          ((= char "[") (append-with! {:tag "open" :close "]"}))
+          ((= char "]") (append-with! {:tag "close" :open "["}))
+          ((= char "{") (append-with! {:tag "open-struct" :close "}"}))
+          ((= char "}") (append-with! {:tag "close" :open "{"}))
           ((= char "'") (append! "quote"))
           ((= char "`") (append! "syntax-quote"))
           ((= char "~") (append! "quasiquote"))
@@ -144,7 +144,7 @@
                                  (consume!)))
 
                              (string->number (string/sub str (.> start :offset) offset)))))
-                (append-with! (const-struct :tag "number" :value val) start)
+                (append-with! {:tag "number" :value val} start)
 
                 ;; Ensure the next character is a terminator of some sort, otherwise we'd allow things like 0x2-2
                 (set! char (string/char-at str (succ offset)))
@@ -269,7 +269,7 @@
                    (push-cdr! buffer char)])
                 (consume!)
                 (set! char (string/char-at str offset)))
-              (append-with! (const-struct :tag "string" :value (concat buffer)) start)))
+              (append-with! {:tag "string" :value (concat buffer)} start)))
           [(= char ";")
            (while (and (<= offset length) (/= (string/char-at str (succ offset)) "\n"))
              (consume!))]
@@ -282,7 +282,7 @@
                 (set! char (string/char-at str (succ offset))))
 
               (if key
-                (append-with! (const-struct :tag "key" :value (string/sub str (succ (.> start :offset)) offset)) start)
+                (append-with! {:tag "key" :value (string/sub str (succ (.> start :offset)) offset)} start)
                 (append! "symbol" start)))])
         (consume!)))
     (append! "eof")
@@ -357,10 +357,19 @@
            (push!)
            (.<! head :open (.> tok :contents))
            (.<! head :close (.> tok :close))
-           (.<! head :range (const-struct
-                              :start (.> tok :range :start)
+           (.<! head :range { :start (.> tok :range :start)
                               :name  (.> tok :range :name)
-                              :lines (.> tok :range :lines)))]
+                              :lines (.> tok :range :lines) })]
+          [(= tag "open-struct")
+           (push!)
+           (.<! head :open (.> tok :contents))
+           (.<! head :close (.> tok :close))
+           (.<! head :range { :start (.> tok :range :start)
+                              :name  (.> tok :range :name)
+                              :lines (.> tok :range :lines) })
+           (append! { :tag      "symbol"
+                      :contents "struct-literal"
+                      :range    (.> head :range) })]
           [(= tag "close")
            (cond
              [(empty? stack)
@@ -389,21 +398,19 @@
                (pop!)])]
           [(or (= tag "quote") (= tag "unquote") (= tag "syntax-quote") (= tag "unquote-splice") (= tag "quasiquote"))
            (push!)
-           (.<! head :range (const-struct
-                              :start (.> tok :range :start)
+           (.<! head :range { :start (.> tok :range :start)
                               :name  (.> tok :range :name)
-                              :lines (.> tok :range :lines)))
-           (append! (const-struct
-                      :tag      "symbol"
+                              :lines (.> tok :range :lines) })
+           (append! { :tag      "symbol"
                       :contents tag
-                      :range    (.> tok :range)))
+                      :range    (.> tok :range) })
 
            (set! auto-close true)
            (.<! head :auto-close true)]
           [(= tag "eof")
            (when (/= 0 (# stack))
              (logger/do-node-error! logger
-               "Expected ')', got eof"
+               (string/format "Expected '%s', got 'eof'" (.> head :close))
                tok nil
                (.> head :range) "block opened here"
                (.> tok :range)  "end of file here"))]

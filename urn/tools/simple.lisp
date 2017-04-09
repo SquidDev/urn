@@ -11,8 +11,7 @@
 (import urn/logger logger)
 
 (define emit-lua
-  (struct
-    :name  "emit-lua"
+  { :name  "emit-lua"
     :setup (lambda (spec)
              (arg/add-argument! spec '("--emit-lua")
                :help   "Emit a Lua file.")
@@ -35,11 +34,10 @@
 
                (when (.> args :chmod)
                  ;; string/quoted is not "correct" for escaping names but it is "good enough".
-                 (os/execute (.. "chmod +x " (string/quoted (.. (.> args :output) ".lua")))))))))
+                 (os/execute (.. "chmod +x " (string/quoted (.. (.> args :output) ".lua"))))))) })
 
 (define emit-lisp
-  (struct
-    :name  "emit-lisp"
+  { :name  "emit-lisp"
     :setup (lambda (spec)
              (arg/add-argument! spec '("--emit-lisp")
                :help "Emit a Lisp file."))
@@ -53,7 +51,7 @@
                (lisp/block (.> compiler :out) writer)
                (with (handle (io/open (.. (.> args :output) ".lisp") "w"))
                  (self handle :write (writer/->string writer))
-                 (self handle :close))))))
+                 (self handle :close)))) })
 
 (defun pass-arg (arg data value usage!)
   "Handle the argument of a pass runner"
@@ -61,7 +59,7 @@
          (name (.. (.> arg :name) "-override"))
          (override (.> data name))]
     (unless override
-      (set! override (empty-struct))
+      (set! override {})
       (.<! data name override))
     (cond
       [val
@@ -80,11 +78,11 @@
   "Create a task which runs FUN using the options from argument NAME."
   :hidden
   (lambda (compiler args)
-    (fun (.> compiler :out) (struct
+    (fun (.> compiler :out) {
                               ;; General pass options
                               :track     true
                               :level     (.> args name)
-                              :override  (or (.> args (.. name "-override")) (empty-struct))
+                              :override  (or (.> args (.. name "-override")) {})
                               :pass      (.> compiler name)
 
                               ;; Optimisation specific options
@@ -95,11 +93,10 @@
                               :meta      (.> compiler :libMeta)
                               :libs      (.> compiler :libs)
                               :logger    (.> compiler :log)
-                              :timer     (.> compiler :timer)))))
+                              :timer     (.> compiler :timer) })))
 
 (define warning
-  (struct
-    :name  "warning"
+  { :name  "warning"
     :setup (lambda (spec)
              (arg/add-argument! spec '("--warning" "-W")
                :help    "Either the warning level to use or an enable/disable flag for a pass."
@@ -108,11 +105,10 @@
                :var     "LEVEL"
                :action  pass-arg))
     :pred  (lambda (args) (> (.> args :warning) 0))
-    :run   (pass-run warning/analyse "warning")))
+    :run   (pass-run warning/analyse "warning") })
 
 (define optimise
-  (struct
-    :name  "optimise"
+  { :name  "optimise"
     :setup (lambda (spec)
              (arg/add-argument! spec '("--optimise" "-O")
                :help    "Either the optimiation level to use or an enable/disable flag for a pass."
@@ -131,4 +127,4 @@
                :narg    1
                :action  arg/set-num-action))
     :pred  (lambda (args) (> (.> args :optimise) 0))
-    :run   (pass-run optimise/optimise "optimise")))
+    :run   (pass-run optimise/optimise "optimise") })

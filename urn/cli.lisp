@@ -156,25 +156,24 @@
       (.<! args :repl true)
       (.<! args :emit-lua true))
 
-    (with (compiler (struct
-                      :log       logger
+    (with (compiler { :log       logger
                       :timer     (timer/create (cut logger/put-time! logger <> <> <>))
                       :paths     paths
 
-                      :libEnv    (empty-struct)
-                      :libMeta   (empty-struct)
+                      :libEnv    {}
+                      :libMeta   {}
                       :libs      '()
-                      :libCache  (empty-struct)
-                      :libNames  (empty-struct)
+                      :libCache  {}
+                      :libNames  {}
 
                       :warning   (warning/default)
                       :optimise  (optimise/default)
 
                       :rootScope root-scope
 
-                      :variables (empty-struct)
-                      :states    (empty-struct)
-                      :out       '()))
+                      :variables {}
+                      :states    {}
+                      :out       '() })
 
       ;; Add compileState
       (.<! compiler :compileState (lua/create-state (.> compiler :libMeta)))
@@ -184,10 +183,9 @@
 
       ;; Add globals
       (.<! compiler :global (setmetatable
-                              (struct
-                                :_libs (.> compiler :libEnv)
-                                :_compiler (plugins/create-plugin-state compiler))
-                              (struct :__index _G)))
+                              {  :_libs (.> compiler :libEnv)
+                                :_compiler (plugins/create-plugin-state compiler)}
+                              { :__index _G }))
 
       ;; Store all builtin vars in the lookup
       (for-pairs (_ var) (.> compiler :rootScope :variables)
