@@ -7,6 +7,7 @@
 (defun escape (name)
   "Escape an urn identifier NANE, converting it into a form that is valid Lua."
   (cond
+    [(= name "") "_e"]
     [(.> keywords name) (.. "_e" name)] ;; Keywords are trivial to escape
     [(string/find name "^%w[_%w%d]*$") name] ;; Explicitly forbit leading _ as used for compiler internals
     [true (let* [(out (if (-> name (string/char-at <> 1) (string/find <> "%d")) "_e" ""))

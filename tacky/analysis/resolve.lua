@@ -262,6 +262,15 @@ function resolveNode(node, scope, state, root, many)
 					if isVar then
 						if hasVariadic then
 							errorPositions(log, args[i], "Cannot have multiple variadic arguments")
+						elseif #name == 1 then
+							local possible = ""
+							if i < #args then
+								local nextArg = args[i + 1]
+								if type(nextArg) == "table" and nextArg.tag == "symbol" and nextArg.contents:sub(1, 1) ~= "&" then
+									possible = "\nDid you mean '&" .. nextArg.contents .. "'?"
+								end
+							end
+							errorPositions(log, args[i], "Expected a symbol for variadic argument." .. possible)
 						else
 							name = name:sub(2)
 							hasVariadic = true
