@@ -379,7 +379,6 @@
   (assert-type! ac function)
   (foldr ac z (map f xs)))
 
-
 ;; AUTOMATICALLY GENERATED
 ;; DO NOT EDIT please.
 (defun caar (x) (car (car x)))

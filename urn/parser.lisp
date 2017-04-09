@@ -17,7 +17,7 @@
 (defun terminator? (char)
   "Determines whether CHAR is a terminator of a block"
   :hidden
-  (or (= char "\n") (= char " ") (= char "\t") (= char "(") (= char ")") (= char "[") (= char "]") (= char "{") (= char "}") (= char "")))
+  (or (= char "\n") (= char " ") (= char "\t") (= char ";") (= char "(") (= char ")") (= char "[") (= char "]") (= char "{") (= char "}") (= char "")))
 
 (defun digit-error! (logger pos name char)
   "Generate an error at POS where a NAME digit was expected and CHAR received instead"
@@ -106,14 +106,14 @@
 
               (with (val (cond
                            ;; Parse hexadecimal digits
-                           ((and (= char "0") (= (string/char-at str (succ offset)) "x"))
+                           ((and (= char "0") (= (string/lower (string/char-at str (succ offset))) "x"))
                              (consume!)
                              (consume!)
                              (with (res (parse-base "hexadecimal" hex-digit? 16))
                                (when negative (set! res (- 0 res)))
                                res))
                            ;; Parse binary digits
-                           ((and (= char "0") (= (string/char-at str (succ offset)) "b"))
+                           ((and (= char "0") (= (string/lower (string/char-at str (succ offset))) "b"))
                              (consume!)
                              (consume!)
                              (with (res (parse-base "binary" bin-digit? 2))
@@ -250,8 +250,8 @@
                         (when (>= val 256)
                           (logger/do-node-error! logger
                             "Invalid escape code"
-                            (range (start)) nil
-                            (range (start) position) (.. "Must be between 0 and 255, is " val)))
+                            (range start) nil
+                            (range start (position)) (.. "Must be between 0 and 255, is " val)))
 
                         (push-cdr! buffer (string/char val)))]
                      [(= char "")
