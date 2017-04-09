@@ -54,18 +54,17 @@ These macros may have slightly confusing names, but there is a rational behind t
 index operator, with `>` representing getting values out and `<` representing putting items back in. `.<!` ends with `!`
 as it has side effects.
 
-Of course, you probably want to create your own structs (or tables) now. In order to do this, you can use the
-`empty-struct` function to create an empty structure, or `struct` to create one with a set of values.
+Of course, you probably want to create your own structs (or tables) now. In order to do this, you can use the `{}`
+construct: either specifying a set of values, or setting them later.
 
 ```cl
-(with (x (empty-struct))
+(with (x {})
   (.<! x :name "Hello")
   (.<! x :age 2)
   x)
 
-(struct
-  :name "Hello"
-  :age  2)
+{ :name "Hello"
+  :age  2 }
 ```
 
 ## Method calls
