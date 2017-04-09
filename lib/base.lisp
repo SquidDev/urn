@@ -88,10 +88,8 @@
         (set! name (.. "_" name))
         (set! name ""))
       (set! counter (+ counter 1))
-      (with (res (table/empty-struct))
-        (set-idx! res :tag "symbol")
-        (set-idx! res :contents (string/format "r_%d%s" counter name))
-        res))))
+      { :tag "symbol"
+        :contents (string/format "r_%d%s" counter name) })))
 
 (defmacro for (ctr start end step &body)
   "Iterate BODY, with the counter CTR bound to START, being incremented

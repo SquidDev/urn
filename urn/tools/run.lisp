@@ -32,15 +32,14 @@
                      (entry (.> stats hash))]
 
                 (unless entry
-                  (set! entry (const-struct
-                                :source    (.> current :source)
+                  (set! entry { :source    (.> current :source)
                                 :short-src (.> current :short_src)
                                 :line      (.> current :linedefined)
                                 :name      (.> current :name)
 
                                 :calls     0
                                 :totalTime 0
-                                :innerTime 0))
+                                :innerTime 0 })
 
                   (.<! stats hash entry))
 
@@ -234,7 +233,7 @@
 
     (debug/sethook)
 
-    (with (folded (const-struct :n 0 :name "<root>"))
+    (with (folded {:n 0 :name "<root>"})
       (for-each stack stacks
         (if (= (.> args :stack-kind) "reverse")
           (build-rev-stack folded stack 1 {} (.> args :stack-fold))

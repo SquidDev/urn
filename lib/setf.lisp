@@ -4,7 +4,7 @@
 (import binders (let))
 (import type (symbol?))
 (import list (car cdr nth))
-(import table (.> .<! const-struct))
+(import table (.> .<!))
 
 (defmacro setf! (obj val)
   "Set the location selector OBJ to VAL.

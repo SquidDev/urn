@@ -1,7 +1,7 @@
 (import base (defmacro defun let* when if cons list unless debug gensym
               progn get-idx set-idx! error = % - + # or for with ! apply))
 (import lua/string (sub))
-(import lua/table (empty-struct iter-pairs) :export)
+(import lua/table (iter-pairs) :export)
 (import lua/basic (getmetatable setmetatable next len#) :export)
 (import type (nil? list? eq? key?))
 (import list ())
@@ -114,21 +114,6 @@
             (val (get-idx entries (+ 1 i))))
         (set-idx! out (if (key? key) (get-idx key "contents") key) val)))
     out))
-
-(defmacro const-struct (&entries)
-  "A variation of [[struct]], assuming the keys in ENTRIES are constant.
-
-   This is designed for performance critical code where you will create a
-   lot of structures with the same format."
-
-  (when (= (% (# entries) 2) 1)
-    (error "Expected an even number of arguments to const-struct" 2))
-  (let* [(name (gensym))
-         (body `(lambda (,name)))]
-    (for i 1 (# entries) 2
-      (push-cdr! body `(set-idx! ,name ,(get-idx entries i) ,(get-idx entries (+ i 1)))))
-    (push-cdr! body name)
-    `(,body {})))
 
 (defun fast-struct (&entries)
   "A variation of [[struct]], which will not perform any ocercing of the
