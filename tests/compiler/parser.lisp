@@ -62,7 +62,7 @@
             (eq? '("quasiquote") (map type (lex "~")))))
 
   (it "lexes lists"
-    (affirm (eq? '("open" "open" "open") (map type (lex "( [ {")))
+    (affirm (eq? '("open" "open" "open-struct") (map type (lex "( [ {")))
             (eq? '("close" "close" "close") (map type (lex ") ] }")))))
 
 
@@ -86,7 +86,13 @@
   (it "parses lists"
     (affirm (teq? '((((23)))) (parse "(((23)))"))
             (teq? '((foo bar) foo (((foo)))) (parse "(foo bar) foo (((foo)))"))
-            (teq? '((foo (bar)) (((foo)))) (parse "[foo {bar}] [{(foo)}]"))))
+            (teq? '((foo (bar)) (((foo)))) (parse "[foo (bar)] [[(foo)]]"))))
+
+  (it "parses struct"
+    (affirm (teq? '((struct-literal)) (parse "{}"))
+            (teq? '((struct-literal :x 2)) (parse "{ :x 2 }"))
+            (teq? '(((struct-literal :x 2))) (parse "[{ :x 2 }]"))
+            (teq? '((struct-literal :x 2 (y) (z))) (parse "{ :x 2 (y) [z] }"))))
 
   (it "parses unquotes"
     (affirm (teq? '((quote foo)) (parse "'foo"))

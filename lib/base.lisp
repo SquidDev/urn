@@ -185,7 +185,7 @@
                (tbl/iter-pairs value
                  (lambda (k v)
                    (set! out (cons (.. (pretty k) (.. " " (pretty v))) out))))
-               (.. "(struct " (.. (concat out " ") ")")))]
+               (.. "{" (.. (concat out " ") "}")))]
            [true (tostring value)]))]
       [(= ty "string") (string/format "%q" value)]
       [true (tostring value)])))

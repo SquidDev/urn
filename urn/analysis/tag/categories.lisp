@@ -117,6 +117,9 @@
                      (cat "define")]
                     [(= func (.> builtins :define-native)) (cat "define-native")]
                     [(= func (.> builtins :import)) (cat "import")]
+                    [(= func (.> builtins :struct-literal))
+                     (visit-nodes lookup node 2 false)
+                     (cat "struct-literal")]
 
                     ;; Handle things like `("foo")`
                     [(= func (.> builtins :true))

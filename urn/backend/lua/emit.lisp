@@ -306,6 +306,20 @@
              (compile-expression (nth entry 4) out state))))
        (w/append! out "}")]
 
+      ["struct-literal"
+       (cond
+         [(= ret "") (w/append! out "local _ = ")]
+         [ret (w/append! out ret)]
+         [true])
+       (w/append! out "{")
+       (for i 2 (# node) 2
+         (when (> i 2) (w/append! out ","))
+         (w/append! out "[")
+         (compile-expression (nth node i) out state)
+         (w/append! out "]=")
+         (compile-expression (nth node (succ i)) out state))
+       (w/append! out "}")]
+
       ["define"
        (compile-expression (nth node (# node)) out state (.. (escape-var (.> node :defVar) state) " = "))]
 

@@ -86,7 +86,7 @@
           ((= char ")") (append-with! (const-struct :tag "close" :open "(")))
           ((= char "[") (append-with! (const-struct :tag "open" :close "]")))
           ((= char "]") (append-with! (const-struct :tag "close" :open "[")))
-          ((= char "{") (append-with! (const-struct :tag "open" :close "}")))
+          ((= char "{") (append-with! (const-struct :tag "open-struct" :close "}")))
           ((= char "}") (append-with! (const-struct :tag "close" :open "{")))
           ((= char "'") (append! "quote"))
           ((= char "`") (append! "syntax-quote"))
@@ -361,6 +361,18 @@
                               :start (.> tok :range :start)
                               :name  (.> tok :range :name)
                               :lines (.> tok :range :lines)))]
+          [(= tag "open-struct")
+           (push!)
+           (.<! head :open (.> tok :contents))
+           (.<! head :close (.> tok :close))
+           (.<! head :range (const-struct
+                              :start (.> tok :range :start)
+                              :name  (.> tok :range :name)
+                              :lines (.> tok :range :lines)))
+           (append! (const-struct
+                      :tag      "symbol"
+                      :contents "struct-literal"
+                      :range    (.> head :range)))]
           [(= tag "close")
            (cond
              [(nil? stack)
@@ -403,7 +415,7 @@
           [(= tag "eof")
            (when (/= 0 (# stack))
              (logger/do-node-error! logger
-               "Expected ')', got eof"
+               (string/format "Expected '%s', got 'eof'" (.> head :close))
                tok nil
                (.> head :range) "block opened here"
                (.> tok :range)  "end of file here"))]

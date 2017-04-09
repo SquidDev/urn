@@ -215,8 +215,9 @@
                                [(= var (.> builtins :lambda))]
                                [(= var (.> builtins :quote))]
                                [(= var (.> builtins :import))]
-                               ;; Visit syntax quotes normally
+                               ;; Visit basic builtins normally
                                [(= var (.> builtins :syntax-quote)) (visitor/visit-quote (nth node 2) visitor 1)]
+                               [(= var (.> builtins :struct-literal)) (visitor/visit-list node 2 visitor)]
                                ;; Visit normal calls, normally.
                                [true (visitor/visit-list node 1 visitor)])
 

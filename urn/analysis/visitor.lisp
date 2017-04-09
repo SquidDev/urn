@@ -45,11 +45,12 @@
                  [(= func (.> builtins :syntax-quote))
                   (visit-quote (nth node 2) visitor 1)]
                  [(or (= func (.> builtins :unquote)) (= func (.> builtins :unquote-splice)))
-                  (fail! "unquote/unquote-splice should never appear head")]
+                  (fail! "unquote/unquote-splice should never appear here")]
                  [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
                   (visit-node (nth node (# node)) visitor)]
                  [(= func (.> builtins :define-native))] ;; Nothing needs doing here
                  [(= func (.> builtins :import))] ;; Nothing needs doing here
+                 [(= func (.> builtins :struct-literal)) (visit-list node 2 visitor)]
                  [(or (= funct "defined") (= funct "arg") (= funct "native") (= funct "macro"))
                   (visit-block node 1 visitor)]
                  [true
