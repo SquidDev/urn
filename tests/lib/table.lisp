@@ -64,10 +64,10 @@
          (with (st (struct :foo "x"))
            (.<! st :bar "y")
            (.<! st :foo {})
-           (.<! st :foo :bar (empty-struct :baz "x"))
+           (.<! st :foo :bar { :baz "x" })
            (set-idx! st :foo "z")
-           (affirm (= "z" (get-idx st :foo :bar :baz))
-                   (= "y" (get-idx st :bar)))))
+           (affirm (= "z" (.> st :foo))
+                   (= "y" (.> st :bar)))))
     (can "be converted to an alist"
       (let* [(st (struct :foo "x" :bar "y" :foo "z"))
              (li (struct->assoc st))]

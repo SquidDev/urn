@@ -116,11 +116,11 @@
     out))
 
 (defun fast-struct (&entries)
-  "A variation of [[struct]], which will not perform any ocercing of the
+  "A variation of [[struct]], which will not perform any coercing of the
    KEYS in entries.
 
    Note, if you know your values at compile time, it is more performant
-   to use [[const-struct]]."
+   to use a struct literal."
   (when (= (% (# entries) 2) 1)
     (error "Expected an even number of arguments to struct" 2))
   (with (out {})
