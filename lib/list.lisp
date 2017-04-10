@@ -132,6 +132,17 @@
       (push-cdr! out (apply fn (nths xss i))))
     out))
 
+(defun flat-map (fn &xss)
+  "Map the function FN over the lists XSS, then flatten the result
+   lists.
+
+   ### Example:
+   ```cl
+   > (flat-map list '(1 2 3) '(4 5 6))
+   out = 1 4 2 5 3 6
+   ```"
+  (flatten (map fn (unpack xss))))
+
 (defun filter (p xs)
   "Return the list of elements of XS which match the predicate P.
 
