@@ -43,7 +43,7 @@
 (import lua/basic (xpcall))
 (import lua/math (max))
 (import base ( defun defmacro if get-idx
-               and gensym error for
+               and gensym error for set-idx!
                quasiquote list or pretty
                slice concat debug apply
                /= # = ! - + / * >= <= ))
@@ -85,6 +85,38 @@
 (defun predicate? (x) :hidden
   (let* [(x (get-idx x :contents))]
     (= (char-at x (#s x)) "?")))
+
+(defun assert-linearity! (pat seen) :hidden
+  (cond
+    [(! seen) (assert-linearity! pat {})]
+    [(list? pat)
+     (cond
+       [(eq? (car pat) 'as)
+        (assert-linearity! (cadr pat) seen)]
+       [(eq? (car pat) '->')
+        (assert-linearity! (caddr pat) seen)]
+       [(eq? (car pat) 'optional)
+        (assert-linearity! (cadr pat) seen)]
+       [(cons-pattern? pat)
+        (let* [(seen '())]
+          (for i 1 (pattern-# pat) 1
+            (assert-linearity! (nth pat i) seen))
+          (assert-linearity! (get-idx pat (# pat)) seen))]
+       [true
+        (let* [(seen '())]
+          (for i 1 (# pat) 1
+            (assert-linearity! (nth pat i) seen)))])]
+    [(or (and (! (meta? pat)) (symbol? pat))
+         (eq? pat '_)
+         (number? pat)
+         (string? pat)
+         (boolean? pat)
+         (eq? pat 'nil))
+     true]
+    [(meta? pat)
+     (if (get-idx seen (get-idx pat :contents))
+       (error (.. "pattern is not linear: seen " (pretty pat) " more than once"))
+       (set-idx! seen (get-idx pat :contents) true))]))
 
 (defun compile-pattern-test (pattern symb) :hidden
   (cond
@@ -183,6 +215,7 @@
   (let* [(pattern (car pt))
          (value (cadr pt))
          (val-sym (gensym))]
+    (assert-linearity! pattern)
     `(let* [(,val-sym ,value)]
        ,(compile-pattern pattern val-sym body))))
 
@@ -197,6 +230,7 @@
   (let* [(val-sym (gensym))
          (compile-arm
            (lambda (pt)
+             (assert-linearity! (car pt))
              `(,(compile-pattern-test (car pt) val-sym)
                (let* ,(compile-pattern-bindings (car pt) val-sym)
                  ,@(cdr pt)))))]
