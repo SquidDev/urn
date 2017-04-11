@@ -178,7 +178,9 @@
   "A general iteration helper.
 
    ```cl
-   (loop [var0 val0 var1 val1 ...]
+   (loop [(var0 val0)
+          (var1 val1)
+          ...]
      [test test-body ...]
      body ...)
    ```
@@ -195,29 +197,25 @@
    ### Examples:
 
    ```cl
-   > (loop [o nil l '(1 2 3)]
+   > (loop [(o nil)
+            (l '(1 2 3))]
    .   [(empty? l) o]
    .   (recur (cons (car l) o) (cdr l)))
    out = (3 2 1)
    ```"
   (when (! vs)
     (error "expected variables, got nil"))
-  (when (/= (% (# vs) 2) 0)
-    (error (.. "expected even number of arguments, got " (# vs))))
+  (when (empty? test)
+    (set! test '(false)))
   (let* [(helper (gensym))
-         (vs- (let* [(out '())]
-                (for i 1 (# vs) 2
-                  (push-cdr! out (list (nth vs i)
-                                       (nth vs (+ 1 i)))))
-                out))
          (helper-acc (gensym))
-         (helper-def `(lambda ,(snoc (map car vs-) helper-acc)
+         (helper-def `(lambda ,(snoc (map car vs) helper-acc)
                         (progn ,@body)))
-         (recur-args (map car vs-))
+         (recur-args (map car vs))
          (recur `(lambda ,recur-args
                    (if ,(car test)
                      (progn ,@(cdr test))
                      (,helper ,@recur-args))))]
     `(letrec [(,'recur ,recur)
               (,helper ,helper-def)]
-       (,'recur ,@(map cadr vs-)))))
+       (,'recur ,@(map cadr vs)))))
