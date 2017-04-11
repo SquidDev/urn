@@ -43,14 +43,15 @@
    [[assoc]], in the case there are several values bound to the same key,
    the first value is chosen."
   (let [(ret '())]
-    (traverse list
+    (map
       (lambda (x)
         (let [(hd (cond
                     [(key? (car x)) (get-idx (car x) "value")]
                     [true (car x)]))]
           (if (! (get-idx ret hd))
             (set-idx! ret hd (cadr x))
-            nil))))
+            nil)))
+      list)
     ret))
 
 (defun struct->assoc (tbl)

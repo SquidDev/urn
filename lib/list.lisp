@@ -211,6 +211,7 @@
   (filter (lambda (x) (! (empty? x))) xs))
 
 (defun traverse (xs f)
+  :deprecated "Use map instead."
   "An alias for [[map]] with the arguments XS and F flipped.
 
    ### Example:
