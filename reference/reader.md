@@ -90,8 +90,22 @@ is equivalent to Lua's `foo.bar`. Generally, you can consider keys to be equival
 keys are compiled to an object with the type `key`.
 
 ## Lists
-Lists are delimited by matching pairs of `()`, `[]` or `{}`. They can contain any number of elements, as long as the
+Lists are delimited by matching pairs of `()` or `[]`. They can contain any number of elements, as long as the
 list is terminated.
+
+```cl
+() ;; The empty list
+(foo bar 23 "foo" [:baz]) ;; Another list, including a series of constants and nested lists.
+```
+
+## Structs
+Structs are Urn's equivalent of tables, holding key value pairs. They are by specifying key value pairs inside `{}`. For
+more information, see the [`const-struct`](special-forms.md#const-struct-pairs) documentation.
+
+```cl
+{ :foo 2
+  :bar 3 }
+```
 
 ## "Shortcut" characters
 Urn offers several shortcut characters, which expand into a list which calls a given variable with the next form. These

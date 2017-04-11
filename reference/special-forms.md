@@ -19,6 +19,9 @@ variable).
 > **Note:** Top-level definitions can only be created in the top-level. Attempting to use any one of these inside a
 > child expression will result in an error.
 
+Any unused definition will be discarded, even if it has a side effect. Therefore, it is recommended that you do not rely
+on definitions ever being executed.
+
 ### Metadata
 Every definition special form accepts various "metadata" arguments. Each argument is processed as follows:
 
@@ -26,10 +29,12 @@ Every definition special form accepts various "metadata" arguments. Each argumen
    documentation string, then an error is thrown.
  - If the argument is equal to `:hidden`, then the variable will be removed from the export list, making it inaccessible
    from other modules. It will also not show up on generated documentation.
+ - If the argument is equal to `:deprecated` then the variable will be marked as deprecated. If the next argument is a
+   string, then that will be used as the deprecation message.
  - Otherwise, an compiler error is thrown.
 
 ### `(define name &meta val)`
-`define` defines a normal variable with the given name, value and metadata. At compile-time `val` will only be executed
+`define` defines a normal variable with the given name, value and metadata. At compile-time `VAL` will only be executed
 if this definition is required by a macro.
 
 ```cl
@@ -57,7 +62,7 @@ be consumed in Urn using `define-native`. For more information, see [the native 
 ## `(lambda args &body)`
 `lambda` defines a function with a given set of arguments and a body to execute.
 
-`args` defines a list of 0-many symbols. This list may contain a symbol prefixed with `&`, which will accept any
+`ARGS` defines a list of 0-many symbols. This list may contain a symbol prefixed with `&`, which will accept any
 additional arguments passed to the function. Note that this argument does not need to go at the end of the argument
 list.
 
@@ -70,7 +75,13 @@ list.
 ```
 
 The function body can be composed of any number of terms, with the last one being returned when the lambda is
-executed. Note that lambdas can return multiple values through the use of Lua's `unpack` function, or the like.
+executed. Note that lambdas can return multiple values through the use of Lua's `unpack` function, or the like. Urn also
+follows Lua's calling mechanics, meaning all the values a function returns are used as arguments:
+
+```cl
+(with (res (list (pcall foo))) ;; Capture all return values of pcall (the success value and return values of foo).
+  (print! (pretty res)))
+```
 
 ## `(cond &cases)`
 `cond` is Urn's branching construct, from which other conditionals are derived (like `if`, `and`, `not`). Each case is a
@@ -96,7 +107,7 @@ the last expression of the body that it executed.
 ```
 
 ## `(set! var val)`
-`set!` is used to change the value of the given variable, setting it to given value. `var` must be a symbol, and `val`
+`set!` is used to change the value of the given variable, setting it to given value. `VAR` must be a symbol, and `VAL`
 can be any term. Note that you cannot change the value of top level definitions: this can only be used to mutate
 function arguments.
 
@@ -107,7 +118,7 @@ function arguments.
 ```
 
 ## `(import module info? export?)`
-`import` allows you to include code from other Urn files. `module` should be a symbol, specifying a file on the include
+`import` allows you to include code from other Urn files. `MODULE` should be a symbol, specifying a file on the include
 path (excluding a the `.lisp` file extension). Import takes 3 forms:
 
  - `(import foo)`: Import the module `foo`, with all exported symbols being prefixed with `foo/`.
@@ -125,6 +136,18 @@ will result in a compiler error.
 (import lua/os os)
 ```
 
+## `(const-struct &pairs)`
+`const-struct` is used to create a Lua table. It can either be called directly, or using the special `{}`
+syntax. `PAIRS` defines a collection of keys and values: the odd numbered elements defining the keys, and the even ones
+the values. If there are not an even number of arguments, then compilation will fail.
+
+```cl
+{ :foo 2
+  bar  (+ 2 3) }
+
+;; Equivalent to Lua's { foo = 23, [bar] = 2 + 3 }
+```
+
 ## Quoting
 
 ### `(quote form)`
@@ -137,6 +160,7 @@ will result in a compiler error.
 
 ### `(syntax-quote form)`
 `syntax-quote` takes a similar form to `quote`, with some important extensions:
+
  - Symbols must be a resolvable, top-level definition. When using `syntax-quote` to quote a symbol, a reference is
    stored to the variable it references. When a macro returns such a symbol, it can correctly resolve it back to the
    original variable.
@@ -153,7 +177,7 @@ will result in a compiler error.
 
 ### `(unquote &forms)`
 `unquote`'s primary usage is in the `syntax-quote` form. However, it can be used to allow a more specific form of
-compile-time execution, when a macro is overkill. Each form in `forms` is evaluated, and the resulting elements spliced
+compile-time execution, when a macro is overkill. Each form in `FORMS` is evaluated, and the resulting elements spliced
 in place of the original `unquote`. Note that only one element can be spliced in non-block contexts (such as function
 arguments).
 
