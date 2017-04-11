@@ -1,11 +1,13 @@
 (import base (defmacro if ! when car and or
-              cdr and pretty print debug
-              get-idx defun = # >= error))
+              cdr and pretty print debug /=
+              % get-idx defun = # >= error
+              progn gensym for list +))
 (import type (list? empty?))
 (import list (cars cadrs caar cadar map cadr
-              cdar cddr caddar))
+              cdar cddr caddar snoc push-cdr!
+              nth))
 
-(import lua/basic (getmetatable))
+(import lua/basic (getmetatable ..))
 
 (defun make-binding (xs) :hidden
   (if (= (# xs) 1)
@@ -171,3 +173,51 @@
      ,@body
      ,@(map finaliser-for
             (cars var))))
+
+(defmacro loop (vs test &body)
+  "A general iteration helper.
+
+   ```cl
+   (loop [var0 val0 var1 val1 ...]
+     [test test-body ...]
+     body ...)
+   ```
+
+   Bind all the variables given in VS. Each iteration begins by
+   evaluating TEST. If it evaluates to a truthy value, TEST-BODY
+   is evaluated and the final expression in TEST-BODY is returned.
+   In the case that TEST is falsey, the set of expressions BODY is
+   evaluated. BODY may contain the \"magic\" form
+   `(recur val0 val1 ...)`, which rebinds the respective variables
+   in VS and reiterates.
+
+
+   ### Examples:
+
+   ```cl
+   > (loop [o nil l '(1 2 3)]
+   .   [(empty? l) o]
+   .   (recur (cons (car l) o) (cdr l)))
+   out = (3 2 1)
+   ```"
+  (when (! vs)
+    (error "expected variables, got nil"))
+  (when (/= (% (# vs) 2) 0)
+    (error (.. "expected even number of arguments, got " (# vs))))
+  (let* [(helper (gensym))
+         (vs- (let* [(out '())]
+                (for i 1 (# vs) 2
+                  (push-cdr! out (list (nth vs i)
+                                       (nth vs (+ 1 i)))))
+                out))
+         (helper-acc (gensym))
+         (helper-def `(lambda ,(snoc (map car vs-) helper-acc)
+                        (progn ,@body)))
+         (recur-args (map car vs-))
+         (recur `(lambda ,recur-args
+                   (if ,(car test)
+                     (progn ,@(cdr test))
+                     (,helper ,@recur-args))))]
+    `(letrec [(,'recur ,recur)
+              (,helper ,helper-def)]
+       (,'recur ,@(map cadr vs-)))))
