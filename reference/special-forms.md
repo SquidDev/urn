@@ -62,7 +62,7 @@ be consumed in Urn using `define-native`. For more information, see [the native 
 ## `(lambda args &body)`
 `lambda` defines a function with a given set of arguments and a body to execute.
 
-`ARGS` defines a list of 0-many symbols. This list may contain a symbol prefixed with `&`, which will accept any
+`ARGS` defines a list of 0-to-many symbols. This list may contain a symbol prefixed with `&`, which will accept any
 additional arguments passed to the function. Note that this argument does not need to go at the end of the argument
 list.
 
@@ -91,7 +91,7 @@ then an error will be thrown. For this reason, it is common to have the last cas
 the last expression of the body that it executed.
 
 > **Note:** Generally, each test is defined using square brackets (`[]`). This makes your code slightly easier to read,
-> as you have more of a visual hint as to what parens belong where.
+> as you have more of a visual hint as to what parens belong to what.
 
 ```cl
 (cond

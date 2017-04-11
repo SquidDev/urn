@@ -15,7 +15,7 @@ For ease-of-use and efficiency, the REPL differs slightly from normal compilatio
 
 ## Commands
 The REPL also comes with several "commands", which can be used to query various aspects of the running state. These can
-be seen using the `:help` (or `:h)` command:
+be seen using the `:help` (or `:h`) command:
 
 ### `:[d]oc NAME`
 This command allows you to fetch the doc-string of a symbol in the current scope.

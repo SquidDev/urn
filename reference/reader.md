@@ -18,7 +18,8 @@ Numbers follow a similar format as Lua, with additional support for binary liter
  - Binary digits start with `0b`, then one or more `0` or `1`s. Using an invalid digit (such as 2, will result in a syntax error).
  - Hexadecimal digits start with `0x`, then one or more hexadecimal digits, (`[0-9a-zA-Z]`). Unlike Lua, you cannot have
    fractions or exponents in hexadecimal digits.
- - Decimal digits: these follow the same format as Lua: an optional fractional part, followed by an optional exponent (marked `e` or `E`).
+ - Decimal digits: these follow the same format as Lua: an optional integer part, an optional fractional part, all
+   followed by an optional exponent (marked `e` or `E`).
 
 For example, `2`, `0x2`, `0b10`, `2.e0`, `.2e1` and `20e-1` are all the same value.
 
@@ -112,12 +113,15 @@ Urn offers several shortcut characters, which expand into a list which calls a g
 are as follows:
 
  - `'`: Expands to `quote`.
- - ``` ``: Expands to `syntax-quote`.
+ - `` ` ``: Expands to `syntax-quote`.
  - `~`: Expands to `quasiquote`.
  - `,`: Expands to `unquote`.
  - `,@`: Expands to `unquote-splice`.
 
 ```cl
-'foo ;; A quoted symbol
-`(foo bar) ;; A syntax-quoted list.
+'foo ;; A quoted symbol, which expands to (quote foo)
+
+`(foo bar) ;; A syntax-quoted list (expands to (syntax-quote (foo bar)) ).
+
+,23 ;; An unquoted number, which expands to (unquote 23).
 ```
