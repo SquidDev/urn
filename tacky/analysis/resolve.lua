@@ -49,7 +49,8 @@ end
 -- @param start  The start offset of the node.
 -- @param finish The finish offset of the node.
 local function handleMetadata(log, node, var, start, finish)
-	for i = start, finish do
+	local i = start
+	while i <= finish do
 		local child = node[i]
 		if not child then
 			expect(log, child, node, "variable metadata")
@@ -63,12 +64,21 @@ local function handleMetadata(log, node, var, start, finish)
 			if child.value == "hidden" then
 				-- Prevent exporting this symbol
 				var.scope.exported[var.name] = nil
+			elseif child.value == "deprecated" then
+				local message = true
+				if i < finish and node[i + 1] and node[i + 1].tag == "string" then
+					message = node[i + 1].value
+					i = i + 1
+				end
+				var.deprecated = message
 			else
 				errorPositions(log, child, "Unexpected modifier '" .. child.value .. "'")
 			end
 		else
 			errorPositions(log, child, "Unexpected node of type " .. child.tag .. ", have you got too many values?")
 		end
+
+		i = i + 1
 	end
 end
 

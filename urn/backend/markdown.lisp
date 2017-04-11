@@ -101,6 +101,14 @@
         (writer/line! out (.. "*" (format-definition var) "*"))
         (writer/line! out "" true)
 
+        (when (.> var :deprecated)
+          (writer/line! out
+            (if (string? (.> var :deprecated))
+              (string/format "> **Warning:** %s is deprecated: %s" name (.> var :deprecated))
+              (string/format "> **Warning:** %s is deprecated." name)))
+          (writer/line! out "" true))
+
+
         (write-docstring out (.> var :doc) (.> var :scope))
         (writer/line! out "" true)))
 

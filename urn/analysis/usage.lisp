@@ -16,7 +16,7 @@
   "Find a VAR entry in the current STATE."
   (with (entry (.> state :vars var))
     (unless entry
-      (set! entry 
+      (set! entry
         { :var var
           :usages '()
           :defs   '()

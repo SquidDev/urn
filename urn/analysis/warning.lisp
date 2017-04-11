@@ -48,6 +48,25 @@
                 node nil
                 (get-source node) "Called here"))))))))
 
+(defpass deprecated (state nodes lookup)
+  "Produce a warning whenever a deprecated variable is used."
+  :cat '("warn" "usage")
+  (for-each node nodes
+    ;; We traverse each top-level definition and ensure it doesn't use any
+    ;; deprecated variables (apart from itself). Whilst we could use usage
+    ;; infomation, that doesn't include dead nodes, so isn't much help.
+    (with (def-var (.> node :defVar))
+      (visitor/visit-node node (lambda (node)
+                                 (when (symbol? node)
+                                   (with (var (.> node :var))
+                                     (when (and (/= var def-var) (.> var :deprecated))
+                                       (logger/put-node-warning! (.> state :logger)
+                                         (if (string? (.> var :deprecated))
+                                           (string/format "%s is deprecated: %s" (.> node :contents) (.> var :deprecated))
+                                           (string/format "%s is deprecated." (.> node :contents)))
+                                         node nil
+                                         (get-source node) "")))))))))
+
 (defun analyse (nodes state)
   (for-each pass (.> state :pass :normal)
     (run-pass pass state nil nodes))
@@ -60,4 +79,4 @@
 (defun default ()
   "Create a collection of default warnings."
   { :normal '()
-    :usage (list check-arity)})
+    :usage (list check-arity deprecated)})
