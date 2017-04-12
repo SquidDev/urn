@@ -24,10 +24,10 @@
               get-idx cons for gensym -or slice
               pretty print error tostring  -and
               unpack debug if # + - >= = ! with
-              apply))
+              apply and))
 (import base)
 (import lua/table)
-(import type (list? empty? assert-type! exists? falsey? eq?))
+(import type (nil? list? empty? assert-type! exists? falsey? eq?))
 (import lua/math (min max))
 
 (defun car (x)
@@ -200,15 +200,16 @@
   (any (lambda (y) (eq? x y)) xs))
 
 (defun prune (xs)
-  "Remove values matching the predicate [[empty?]] from the list XS.
+  "Remove values matching the predicates [[empty?]] or [[nil?]] from
+   the list XS.
 
    ### Example:
    ```cl
-   > (prune '(() 1 () 2))
+   > (prune '(() nil 1 nil () 2))
    out = (1 2)
    ```"
   (assert-type! xs list)
-  (filter (lambda (x) (! (empty? x))) xs))
+  (filter (lambda (x) (and (! (nil? x)) (! (empty? x)))) xs))
 
 (defun traverse (xs f)
   :deprecated "Use map instead."
