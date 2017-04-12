@@ -56,7 +56,8 @@
 (import binders (let*))
 
 (defun cons-pattern? (pattern) :hidden
-  (eq? (nth pattern (- (# pattern) 1)) '.))
+  (and (list? pattern)
+       (eq? (nth pattern (- (# pattern) 1)) '.)))
 
 (defun cons-pat-left-side (pattern) :hidden
   (slice pattern 1 (- (# pattern) 2)))
@@ -70,11 +71,15 @@
 
 (defun pattern-length (pattern correction) :hidden
   (let* [(length 0)]
-    (for i 1 (# pattern) 1
-      (if (and (list? (nth pattern i))
-               (eq? (car (nth pattern i)) 'optional))
-        0
-        (set! length (+ length 1))))
+    (cond
+      [(list? pattern)
+       (for i 1 (# pattern) 1
+         (if (and (list? (nth pattern i))
+                  (eq? (car (nth pattern i)) 'optional))
+           0
+           (set! length (+ length 1))))]
+      [(meta? pattern) 1]
+      [true 0])
     (+ length correction)))
 
 (defun pattern-# (pat) :hidden
