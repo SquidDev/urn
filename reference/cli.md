@@ -3,12 +3,17 @@ title: CLI
 ---
 
 # The Urn command line interface
-The Urn command line interface, or CLI is used to compile and run Urn programs, as well as providing useful utilites
+{:.no_toc}
+
+The Urn command line interface, or CLI is used to compile and run Urn programs, as well as providing useful utilities
 such as native library generation and the REPL.
 
 The CLI can be started by executing `tacky/cli.lua` on the command line, (or `lua tacky/cli.lua` if you do not wish to
 use Lua 5.3). By default this will start the REPL. In order to get more options about the CLI, you can run it using the
 `--help` flag. This will detail the various options that the CLI provides.
+
+* TOC
+{:toc}
 
 ## General purpose arguments
 Urn has a series of general arguments which can be useful in debugging situations.
@@ -80,3 +85,42 @@ Urn also allows emitting files in other formats, such as a fully expanded Lisp, 
  - `--docs`: Specify a folder in which to place the generated documentation. Each file provided to `tacky/cli.lua` will
    produce one markdown file in the specified directory. Note that this will not create the directory: you have to do
    that yourself.
+
+## Running files
+Whilst you can run the generated file using the Lua interpreter, it is often nicer to run it directly from the Urn
+CLI. Along with being slightly easier, you get additional features such as a built in profiler and error message
+line-mapping.
+
+ - `--run`, `-r`: Run the compiled source.
+ - `--profile`, `-p`: Run the compiled source with the specified profiler, defaulting to the stack profiler if none is
+   given.
+ - You can also use `--` to provide arguments for compiled program: anything after this will be passed to the compiled
+   program. For instance, `tacky/cli.lua foo.lisp --run -- 2 3` will run `foo.lisp` with `2` and `3` as arguments.
+
+There are two profiling modes you can use with the `--profile` flag:
+
+ - `call`: This monitors how long each function takes to execute, along with counting how many times every function is
+   called. This has a large overhead, but is useful for getting detailed information on the whole program.
+ - `stack`: This will randomly sample the call stack every 10,000 instructions. This allows you to get a rough measure
+   of what proportion of time is spent within a given function, as well as what functions call what.
+
+### The stack profiler
+Whilst the call profiler is very simple to use, the stack profiler provides several other configuration options.
+
+ - `--stack-show`: This determines the output format to use.
+   - `term` will display a tree on the console, with each nested function being indented an additional level.
+   - `flame` will produce an output suitable for consumption
+     with [FlameGraph](https://github.com/brendangregg/FlameGraph). This can then be piped directly to the
+     `flamegraph.pl` command: `tacky/cli --profile=stack --stack-show=flame | flamegraph.pl > out.svg`.
+ - `--stack-kind`: By default the stack profiler will use a forward stack: showing what functions call what. If you use
+   `--stack-kind=reverse`, you can compute a reverse stack: showing what functions are called by what. This allows you
+   to see what calls a frequently called function, and so eliminate it.
+ - `--stack-limit`: You may wish to limit the maximum depth of a call stack, you can specify that here. When using the
+   reverse stack kind, I recommend setting this on a relatively low number (such as 5).
+ - `--stack-fold`: When working with tree traversal (or other recursive functions), your call stack gets increasingly
+   hard to understand. This flag will fold recursive function "loops" into themselves. For instance, `foo -> bar -> foo
+   -> baz` will get folded into: `foo -> bar` and `foo -> baz`.
+
+## The REPL
+ - `--repl`: Launch an interactive session, as detailed in [the main REPL documentation](repl.md).
+ - `--exec`: Read a program from stdin and execute it, displaying the result.
