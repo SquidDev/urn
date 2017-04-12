@@ -207,15 +207,10 @@
     (error "expected variables, got nil"))
   (when (empty? test)
     (set! test '(false)))
-  (let* [(helper (gensym))
-         (helper-acc (gensym))
-         (helper-def `(lambda ,(snoc (map car vs) helper-acc)
-                        (progn ,@body)))
-         (recur-args (map car vs))
+  (let* [(recur-args (map car vs))
          (recur `(lambda ,recur-args
                    (if ,(car test)
                      (progn ,@(cdr test))
-                     (,helper ,@recur-args))))]
-    `(letrec [(,'recur ,recur)
-              (,helper ,helper-def)]
+                     (progn ,@body))))]
+    `(letrec [(,'recur ,recur)]
        (,'recur ,@(map cadr vs)))))
