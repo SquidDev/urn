@@ -27,6 +27,7 @@
     (let* [(buffer '())
            (str     (.> entry :contents))
            (idx     0)
+           (max     0)
            (len     (#s str))]
 
       (while (<= idx len)
@@ -34,12 +35,15 @@
           [(?start ?finish . _)
            (when (> start idx)
              (push-cdr! buffer (string/sub str idx (pred start))))
-           (push-cdr! buffer (string->number (string/sub str (+ start 2) (- finish 1))))
+           (with (val (string->number (string/sub str (+ start 2) (- finish 1))))
+             (push-cdr! buffer val)
+             (when (> val max) (set! max val)))
            (set! idx (succ finish))]
           [?x
            (push-cdr! buffer (string/sub str idx len))
            (set! idx  (succ len))]))
 
+      (unless (.> entry :count) (.<! entry :count max))
       (.<! entry :contents buffer)))
 
   (cond
