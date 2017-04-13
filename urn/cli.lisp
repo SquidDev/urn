@@ -25,6 +25,7 @@
 (let* [(spec (arg/create))
        (directory (with (dir (nth arg 0))
                     ;; Strip the two possible file names
+                    (set! dir (string/gsub dir "\\" "/"))
                     (set! dir (string/gsub dir "urn/cli%.lisp$" ""))
                     (set! dir (string/gsub dir "urn/cli$" ""))
                     (set! dir (string/gsub dir "tacky/cli%.lua$" ""))
