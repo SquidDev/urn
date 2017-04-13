@@ -5,12 +5,13 @@
 (import string (quoted))
 
 (import urn/logger logger)
+(import urn/backend/lua/escape (escape))
 
 (defun dot-quote (prefix name)
   :hidden
   (if (string/find name "^[%w_][%d%w_]*$")
-    (if prefix (.. prefix "." name) name)
-    (if prefix (.. prefix "[" (quoted name) "]") (.. "_ENV[" (quoted name) "]"))))
+    (if (string? prefix) (.. prefix "." name) name)
+    (if (string? prefix) (.. prefix "[" (quoted name) "]") (.. "_ENV[" (quoted name) "]"))))
 
 (defun gen-native (compiler args)
   :hidden
@@ -20,6 +21,7 @@
 
   (let* [(prefix (.> args :gen-native))
          (lib (.> compiler :libCache (string/gsub (last (.> args :input)) "%.lisp$" "")))
+         (escaped (if (string? prefix) (escape (last (string/split (.> lib :name) "/"))) nil))
          (max-name 0)
          (max-quot 0)
          (max-pref 0)
@@ -31,7 +33,7 @@
 
           (set! max-name (math/max max-name (#s (quoted name))))
           (set! max-quot (math/max max-quot (#s (quoted (dot-quote prefix name)))))
-          (set! max-pref (math/max max-pref (#s (dot-quote prefix name)))))))
+          (set! max-pref (math/max max-pref (#s (dot-quote escaped name)))))))
 
     (table/sort natives)
 
@@ -49,14 +51,14 @@
         (exit! 1))
 
       (when (string? prefix)
-        (self handle :write (string/format "local %s = %s or {}\n" prefix prefix)))
+        (self handle :write (string/format "local %s = %s or {}\n" escaped prefix)))
 
       (self handle :write "return {\n")
       (for-each native natives
         (self handle :write (string/format format
                               (.. (quoted native) "] =")
                               (.. (quoted (dot-quote prefix native)) ",")
-                              (.. (dot-quote prefix native) ","))))
+                              (.. (dot-quote escaped native) ","))))
       (self handle :write "}\n")
       (self handle :close))))
 
