@@ -4,12 +4,17 @@ layout: text
 ---
 
 # Macros and more
+{:.no_toc}
+
 Metaprogramming is a technique where programs can be treated as data, allow you to write code which can read, manipulate
 and generate code. This is an incredibly powerful feature as it allows you to avoid writing out similar code multiple
 times, instead generating it at compile time.
 
 Metaprogramming in Urn is achieved through macros. These are function-like objects which are executed at compile time,
 allowing them to create and modify code. Before we learn about macros though, we need to talk about quoting.
+
+* TOC
+{:toc}
 
 ## Quoting
 Quoting allows you to "escape" code: converting it from executable code into a series of lists which can be modified. To
@@ -161,7 +166,7 @@ First off, let's talk about why this restriction exists in the first place. The 
 we didn't have such a requirement and I wrote some code like this:
 
 ```cl
-(with (pretty "this text is so pretty :)"
+(with (pretty "this text is so pretty :)")
   (debug-true "foo"))
 ```
 
@@ -272,3 +277,22 @@ is your best solution.
 With generated tools, there is one tool which is slightly more useful. If you run the compiler with the `--emit-lisp`
 flag, it will generate a `.lisp` file with the same name as your `.lua` output file. This will contain the expanded
 version of all macros, including the one you just defined!
+
+## Top-level unquotes
+As shown earlier, `syntax-quote` allows you to escape your code as data, and `unquote` allows you to step back to
+executing code again. However, what happens if you use `unquote` outside a `syntax-quote`? Logically it makes sense for
+it to step up from the data (your program) and execute code. This allows for arbitrary compile-time execution without
+the use of macros.
+
+Like macros, or `unquote` inside a `syntax-quote`, the resulting value will be spliced back in. Using this, we can
+compute the first 10 square numbers at compile time:
+
+```cl
+(define squares ,(cons `list (map (cut ^ <> 2) (range 1 10))))
+```
+
+Note that we have to add a call to `list`, otherwise this would emit the following invalid code:
+
+```cl
+(define squares (1 4 9 16 25 36 49 64 81 100)
+```
