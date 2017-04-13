@@ -70,7 +70,7 @@ You'll need to change `bit32[\"&\"]` and `bit32["&"]` to `bit32.band` for obviou
 something using `bit32`, you'll only get declarations for symbols you need.
 
 One other thing we can change, is to mark these symbols as "pure". This means the constant folder may evaluate usages of
-this function at compile time, replacing `(& 2 3` with `2`:
+this function at compile time, replacing `(& 2 3)` with `2`:
 
 ```lua
 local bit32 = bit32 or {}

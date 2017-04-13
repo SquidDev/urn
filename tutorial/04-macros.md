@@ -213,7 +213,7 @@ fact, there are only a handful of "builtin" constructs, from which everything el
  - `define`, `define-macro` and `define-native`: Our terms which allow you to create new top level definitions.
  - `quote`, `syntax-quote`, `unquote` and `unquote-splice`: These allow you to switch between code and data.
  - `lambda`: For all function definitions.
- - `cond`: For all conditions.
+ - `cond`: For all conditionals.
  - `set!`: For assigning variables.
  - `import`: For interfacing with external modules.
 
@@ -230,8 +230,8 @@ then declaring a variable. `defmacro` is not dissimilar.
 > **A word on `defun`:** In reality, `defun` is a tad more complicated as it moves documentation strings from inside the
 > function body to outside.
 
-Next off, let's consider another pretty common construct: `if`. We've only got one way of doing conditions, `cond`, so
-we'll have to use that. This ends up being pretty simple.
+Next off, let's consider another pretty common construct: `if`. We've only got one way of doing conditionals, `cond`,
+so we'll have to use that. This ends up being pretty simple.
 
 ```cl
 (defmacro if (c t f)
@@ -241,7 +241,7 @@ we'll have to use that. This ends up being pretty simple.
 ```
 
 This should be fairly self-explanatory: if `c` evaluates to true then we'll execute `t`, otherwise we'll execute
-`f`. Note that now that we've defined `defmacro`, we're free to use it wherever. By defining more complex terms from
+`f`. Note that now that we've defined `deffun`, we're free to use it wherever. By defining more complex terms from
 simpler ones, the entire language is "bootstrapped".
 
 Now let's cover variables. Looking at the above, we've only two ways to introduce new variables into scope: with
@@ -294,5 +294,5 @@ compute the first 10 square numbers at compile time:
 Note that we have to add a call to `list`, otherwise this would emit the following invalid code:
 
 ```cl
-(define squares (1 4 9 16 25 36 49 64 81 100)
+(define squares (1 4 9 16 25 36 49 64 81 100))
 ```
