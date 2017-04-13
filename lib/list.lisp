@@ -72,7 +72,7 @@
 
    ### Example:
    ```cl
-   > (take '(1 2 3 4 5) 2)
+   > (drop '(1 2 3 4 5) 2)
    out = (3 4 5)
    ```"
   (slice xs (+ n 1) nil))
