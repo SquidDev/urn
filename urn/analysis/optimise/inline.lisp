@@ -138,7 +138,7 @@
 (defpass inline (state nodes usage)
   "Inline simple functions."
   :cat '("opt" "usage")
-  :on false
+  :level 2
   (with (score-lookup {})
     (visitor/visit-block nodes 1
       (lambda (node)
