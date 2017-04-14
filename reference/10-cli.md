@@ -122,5 +122,5 @@ Whilst the call profiler is very simple to use, the stack profiler provides seve
    -> baz` will get folded into: `foo -> bar` and `foo -> baz`.
 
 ## The REPL
- - `--repl`: Launch an interactive session, as detailed in [the main REPL documentation](repl.md).
+ - `--repl`: Launch an interactive session, as detailed in [the main REPL documentation](11-repl.md).
  - `--exec`: Read a program from stdin and execute it, displaying the result.

@@ -57,7 +57,7 @@ as normal functions.
 
 ### `(define-native name &meta)`
 Every Urn file can be accompanied by a `.meta.lua` or `.lua` file. These define a series of "native" variables which can
-be consumed in Urn using `define-native`. For more information, see [the native documentation](natives.md).
+be consumed in Urn using `define-native`. For more information, see [the native documentation](../tutorial/06-lua-interop.md).
 
 ## `(lambda args &body)`
 `lambda` defines a function with a given set of arguments and a body to execute.

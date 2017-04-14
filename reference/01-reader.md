@@ -101,7 +101,7 @@ list is terminated.
 
 ## Structs
 Structs are Urn's equivalent of tables, holding key value pairs. They are by specifying key value pairs inside `{}`. For
-more information, see the [`const-struct`](special-forms.md#const-struct-pairs) documentation.
+more information, see the [`const-struct`](02-special-forms.md#const-struct-pairs) documentation.
 
 ```cl
 { :foo 2
