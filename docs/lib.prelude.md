@@ -13,12 +13,12 @@ Negate the expresison `EXPR`.
 Get the length of list X
 
 ## `(#keys st)`
-*Defined at lib/table.lisp:150:1*
+*Defined at lib/table.lisp:136:1*
 
 Return the number of keys in the structure `ST`.
 
 ## `#s`
-*Defined at lib/string.lisp:17:1*
+*Defined at lib/string.lisp:16:1*
 
 Return the length of the string `X`.
 
@@ -38,24 +38,24 @@ with the previous entry as an argument.
 ```
 
 ## `(.. &args)`
-*Defined at lib/string.lisp:13:1*
+*Defined at lib/string.lisp:12:1*
 
 Concatenate the several values given in `ARGS`. They must all be strings.
 
 ## `(.<! x &keys value)`
-*Macro defined at lib/table.lisp:85:1*
+*Macro defined at lib/table.lisp:86:1*
 
 Set the value at `KEYS` in the structure `X` to `VALUE`.
 
 ## `(.> x &keys)`
-*Macro defined at lib/table.lisp:79:1*
+*Macro defined at lib/table.lisp:80:1*
 
 Index the structure `X` with the sequence of accesses given by `KEYS`.
 
 ## `(.>/over! selector fun)`
 *Macro defined at lib/setf.lisp:94:1*
 
-An implementation of `over!!` for table access.
+An implementation of [`over!`](lib.setf.md#over-obj-fun) for table access.
 
 This should not be used directly, but via [`over!`](lib.setf.md#over-obj-fun).
 
@@ -78,9 +78,9 @@ instead.
 ```
 
 ## `(accumulate-with f ac z xs)`
-*Defined at lib/list.lisp:358:1*
+*Defined at lib/list.lisp:376:1*
 
-`A` composition of [`foldr`](lib.list.md#foldr-f-z-xs) and [`map`](lib.list.md#map-f-xs).
+`A` composition of [`foldr`](lib.list.md#foldr-f-z-xs) and [`map`](lib.list.md#map-fn-xss).
 
 Transform the values of `XS` using the function `F`, then accumulate them
 starting form `Z` using the function `AC`.
@@ -96,7 +96,7 @@ out = 15
 ```
 
 ## `(all p xs)`
-*Defined at lib/list.lisp:159:1*
+*Defined at lib/list.lisp:175:1*
 
 Test if all elements of `XS` match the predicate `P`.
 
@@ -109,13 +109,13 @@ false
 ```
 
 ## `(and a b &rest)`
-*Macro defined at lib/base.lisp:130:1*
+*Macro defined at lib/base.lisp:128:1*
 
 Return the logical and of values `A` and `B`, and, if present, the
 logical and of all the values in `REST`.
 
 ## `(any p xs)`
-*Defined at lib/list.lisp:146:1*
+*Defined at lib/list.lisp:162:1*
 
 Check for the existence of an element in `XS` that matches the predicate
 `P`.
@@ -127,7 +127,7 @@ true
 ```
 
 ## `(append xs ys)`
-*Defined at lib/list.lisp:311:1*
+*Defined at lib/list.lisp:329:1*
 
 Concatenate `XS` and `YS`.
 
@@ -137,13 +137,24 @@ Concatenate `XS` and `YS`.
 out = (1 2 3 4)
 ``` 
 
+## `(apply f xs)`
+*Defined at lib/base.lisp:243:1*
+
+Apply the function `F` using `XS` as the argument list.
+
+Example:
+```cl
+> (apply + '(1 2))
+3
+```
+
 ## `arg`
-*Defined at lib/base.lisp:193:1*
+*Defined at lib/base.lisp:191:1*
 
 The arguments passed to the currently executing program
 
 ## `(assert-type! arg ty)`
-*Macro defined at lib/type.lisp:133:1*
+*Macro defined at lib/type.lisp:138:1*
 
 Assert that the argument `ARG` has type `TY`, as reported by the function
 [`type`](lib.type.md#type-val).
@@ -178,7 +189,7 @@ Check whether `X` is an atomic object, that is, one of
 - `A` function
 
 ## `(between? val min max)`
-*Defined at lib/type.lisp:77:1*
+*Defined at lib/type.lisp:82:1*
 
 Check if the numerical value `X` is between
 `MIN` and `MAX`.
@@ -199,7 +210,7 @@ Check whether `X` is a boolean.
 Index `X` with `KEY` and invoke the resulting function with `ARGS`.
 
 ## `(car x)`
-*Defined at lib/list.lisp:32:1*
+*Defined at lib/list.lisp:33:1*
 
 Return the first element present in the list `X`. This function operates
 in constant time.
@@ -235,13 +246,13 @@ This should not be used directly, but via [`setf!`](lib.setf.md#setf-obj-val) in
 ```
 
 ## `(case val &pts)`
-*Macro defined at lib/match.lisp:195:1*
+*Macro defined at lib/match.lisp:232:1*
 
 Match a single value against a series of patterns, evaluating the
 first body that matches, much like `cond`.
 
 ## `(cdr x)`
-*Defined at lib/list.lisp:44:1*
+*Defined at lib/list.lisp:45:1*
 
 Return the list `X` without the first element present. In the case that
 `X` is nil, the empty list is returned. Due to the way lists are
@@ -271,16 +282,8 @@ Add `X` to the start of the list `XS`. Note: this is linear in time.
 Return a function which always returns `X`. This is equivalent to the
 `K` combinator in `SK` combinator calculus.
 
-## `(const-struct &entries)`
-*Macro defined at lib/table.lisp:118:1*
-
-`A` variation of [`struct`](lib.table.md#struct-entries), assuming the keys in `ENTRIES` are constant.
-
-This is designed for performance critical code where you will create a
-lot of structures with the same format.
-
 ## `(const-val val)`
-*Defined at lib/base.lisp:205:1*
+*Defined at lib/base.lisp:203:1*
 
 Get the actual value of `VAL`, an argument to a macro.
 
@@ -289,7 +292,7 @@ in order to preserve positional data about nodes. You will need to
 unwrap them in order to use them.
 
 ## `(create-lookup values)`
-*Defined at lib/table.lisp:185:1*
+*Defined at lib/table.lisp:171:1*
 
 Convert `VALUES` into a lookup table, with each value being converted to
 a key whose corresponding value is the value's index.
@@ -323,7 +326,7 @@ defined.
 ```
 
 ## `(debug x)`
-*Macro defined at lib/base.lisp:152:1*
+*Macro defined at lib/base.lisp:150:1*
 
 Print the value `X`, then return it unmodified.
 
@@ -345,7 +348,7 @@ Define `NAME` to be the function given by (lambda `ARGS` @`BODY`), with
 optional metadata at the start of `BODY`.
 
 ## `(destructuring-bind pt &body)`
-*Macro defined at lib/match.lisp:179:1*
+*Macro defined at lib/match.lisp:215:1*
 
 Match a single pattern against a single value, then evaluate the `BODY`.
 
@@ -353,18 +356,18 @@ The pattern is given as `(car PT)` and the value as `(cadr PT)`.  If
 the pattern does not match, an error is thrown.
 
 ## `(drop xs n)`
-*Defined at lib/list.lisp:69:1*
+*Defined at lib/list.lisp:70:1*
 
 Remove the first `N` elements of the list `XS`.
 
 ### Example:
 ```cl
-> (take '(1 2 3 4 5) 2)
+> (drop '(1 2 3 4 5) 2)
 out = (3 4 5)
 ```
 
 ## `(elem? x xs)`
-*Defined at lib/list.lisp:173:1*
+*Defined at lib/list.lisp:189:1*
 
 Test if `X` is present in the list `XS`.
 
@@ -376,18 +379,18 @@ true
 false
 ```
 
-## `empty-struct`
-*Native defined at lib/lua/table.lisp:8:1*
-
-Create an empty structure with no fields
-
 ## `(empty-struct? xs)`
-*Defined at lib/table.lisp:146:1*
+*Defined at lib/table.lisp:132:1*
 
 Check that `XS` is the empty struct.
 
+## `(empty? x)`
+*Defined at lib/type.lisp:16:1*
+
+Check whether `X` is the empty list or the empty string.
+
 ## `(eq? x y)`
-*Defined at lib/type.lisp:90:1*
+*Defined at lib/type.lisp:95:1*
 
 Compare `X` and `Y` for equality deeply.
 Rules:
@@ -439,16 +442,16 @@ Check whether `X` is falsey, that is, it is either `false` or does not
 exist.
 
 ## `(fast-struct &entries)`
-*Defined at lib/table.lisp:133:1*
+*Defined at lib/table.lisp:119:1*
 
-`A` variation of [`struct`](lib.table.md#struct-entries), which will not perform any ocercing of the
+`A` variation of [`struct`](lib.table.md#struct-entries), which will not perform any coercing of the
 `KEYS` in entries.
 
 Note, if you know your values at compile time, it is more performant
-to use [`const-struct`](lib.table.md#const-struct-entries).
+to use a struct literal.
 
 ## `(filter p xs)`
-*Defined at lib/list.lisp:130:1*
+*Defined at lib/list.lisp:146:1*
 
 Return the list of elements of `XS` which match the predicate `P`.
 
@@ -458,8 +461,20 @@ Return the list of elements of `XS` which match the predicate `P`.
 '(2 4 6)
 ```
 
+## `(flat-map fn &xss)`
+*Defined at lib/list.lisp:135:1*
+
+Map the function `FN` over the lists `XSS`, then flatten the result
+lists.
+
+### Example:
+```cl
+> (flat-map list '(1 2 3) '(4 5 6))
+out = 1 4 2 5 3 6
+```
+
 ## `(flatten xss)`
-*Defined at lib/list.lisp:321:1*
+*Defined at lib/list.lisp:339:1*
 
 Concatenate all the lists in `XSS`. `XSS` must not contain elements which
 are not lists.
@@ -471,7 +486,7 @@ out = (1 2 3 4)
 ```
 
 ## `(foldr f z xs)`
-*Defined at lib/list.lisp:91:1*
+*Defined at lib/list.lisp:92:1*
 
 Accumulate the list `XS` using the binary function `F` and the zero
 element `Z`.  This function is also called `reduce` by some authors. One
@@ -490,14 +505,14 @@ out = (1 2 3 4)
 ```
 
 ## `(for ctr start end step &body)`
-*Macro defined at lib/base.lisp:96:1*
+*Macro defined at lib/base.lisp:94:1*
 
 Iterate `BODY`, with the counter `CTR` bound to `START`, being incremented
 by `STEP` every iteration until `CTR` is outside of the range given by
 [`START` .. `END`]
 
 ## `(for-each var lst &body)`
-*Macro defined at lib/list.lisp:293:1*
+*Macro defined at lib/list.lisp:311:1*
 
 Perform the set of actions `BODY` for all values in `LST`, binding the current value to `VAR`.
 
@@ -512,7 +527,7 @@ nil
 ```
 
 ## `(for-pairs vars tbl &body)`
-*Macro defined at lib/table.lisp:156:1*
+*Macro defined at lib/table.lisp:142:1*
 
 Iterate over `TBL`, binding `VARS` for each key value pair in `BODY`
 
@@ -527,7 +542,7 @@ Check whether `X` is a function.
 Create a unique symbol, suitable for using in macros
 
 ## `(handler-case x &body)`
-*Macro defined at lib/match.lisp:218:1*
+*Macro defined at lib/match.lisp:256:1*
 
 Evaluate the form `X`, and if an error happened, match the series
 of `(?pattern (?arg) . ?body)` arms given in `BODY` against the value of
@@ -584,12 +599,12 @@ to a set of arguments.
 true
 > (invokable? nil)
 false
-> (invokable? (setmetatable (empty-struct) (struct :__call (lambda (x) (print! "hello")))))
+> (invokable? (setmetatable {} { :__call (lambda (x) (print! "hello")) }))
 true
 ```
 
 ## `iter-pairs`
-*Native defined at lib/lua/table.lisp:10:1*
+*Native defined at lib/lua/table.lisp:8:1*
 
 Iterate over `TABLE` with a function `FUNC` of the form (lambda (`KEY` `VAL`) ...)
 
@@ -599,12 +614,12 @@ Iterate over `TABLE` with a function `FUNC` of the form (lambda (`KEY` `VAL`) ..
 Check whether `X` is a key.
 
 ## `(keys st)`
-*Defined at lib/table.lisp:168:1*
+*Defined at lib/table.lisp:154:1*
 
 Return the keys in the structure `ST`.
 
 ## `(last xs)`
-*Defined at lib/list.lisp:207:1*
+*Defined at lib/list.lisp:225:1*
 
 Return the last element of the list `XS`.
 Counterintutively, this function runs in constant time.
@@ -616,7 +631,7 @@ out = 100
 ```
 
 ## `(let vars &body)`
-*Macro defined at lib/binders.lisp:47:1*
+*Macro defined at lib/binders.lisp:49:1*
 
 Bind several variables (given in `VARS`), then evaluate `BODY`.
 In contrast to [`let*`](lib.binders.md#let-vars-body), variables bound with [`let`](lib.binders.md#let-vars-body) can not refer
@@ -630,7 +645,7 @@ to each other.
 ```
 
 ## `(let* vars &body)`
-*Macro defined at lib/binders.lisp:25:1*
+*Macro defined at lib/binders.lisp:27:1*
 
 Bind several variables (given in `VARS`), then evaluate `BODY`.
 Variables bound with [`let*`](lib.binders.md#let-vars-body) can refer to variables bound
@@ -644,7 +659,7 @@ previously, as they are evaluated in order.
 ```
 
 ## `(letrec vars &body)`
-*Macro defined at lib/binders.lisp:128:1*
+*Macro defined at lib/binders.lisp:130:1*
 
 Bind several variables (given in `VARS`), which may be recursive.
 
@@ -670,20 +685,54 @@ Return the list of variadic arguments given.
 
 Check whether `X` is a list.
 
-## `(map f xs)`
-*Defined at lib/list.lisp:114:1*
+## `(loop vs test &body)`
+*Macro defined at lib/binders.lisp:177:1*
 
-Apply the function `F` to every element of the list `XS`, collecting the
-results in a new list.
+`A` general iteration helper.
+
+```cl
+(loop [(var0 val0)
+       (var1 val1)
+       ...]
+  [test test-body ...]
+  body ...)
+```
+
+Bind all the variables given in `VS`. Each iteration begins by
+evaluating `TEST`. If it evaluates to a truthy value, `TEST`-`BODY`
+is evaluated and the final expression in `TEST`-`BODY` is returned.
+In the case that `TEST` is falsey, the set of expressions `BODY` is
+evaluated. `BODY` may contain the "magic" form
+`(recur val0 val1 ...)`, which rebinds the respective variables
+in `VS` and reiterates.
+
+
+### Examples:
+
+```cl
+> (loop [(o '())
+         (l '(1 2 3))]
+.   [(empty? l) o]
+.   (recur (cons (car l) o) (cdr l)))
+out = (3 2 1)
+```
+
+## `(map fn &xss)`
+*Defined at lib/list.lisp:115:1*
+
+Iterate over all the successive cars of `XSS`, producing a single list
+by applying `FN` to all of them. For example:
 
 ### Example:
 ```cl
-> (map succ '(0 1 2))
-out = (1 2 3)
+> (map list '(1 2 3) '(4 5 6) '(7 8 9))
+out = ((1 4 7) (2 5 8) (3 6 9))
+> (map succ '(1 2 3))
+out = (2 3 4)
 ```
 
 ## `(matches? pt x)`
-*Macro defined at lib/match.lisp:208:1*
+*Macro defined at lib/match.lisp:246:1*
 
 Test if the value `X` matches the pattern `PT`.
 
@@ -691,23 +740,24 @@ Note that, since this does not bind anything, all metavariables may be
 replaced by `_` with no loss of meaning.
 
 ## `(merge &structs)`
-*Defined at lib/table.lisp:160:1*
+*Defined at lib/table.lisp:146:1*
 
 Merge all tables in `STRUCTS` together into a new table.
 
 ## `(neq? x y)`
-*Defined at lib/type.lisp:128:1*
+*Defined at lib/type.lisp:133:1*
 
 Compare `X` and `Y` for inequality deeply. `X` and `Y` are `neq?`
 if `([[eq?]] x y)` is falsey.
 
 ## `(nil? x)`
-*Defined at lib/type.lisp:16:1*
+*Defined at lib/type.lisp:77:1*
 
-Check whether `X` is the empty list or the empty string.
+Check if `X` does not exist, i.e. it is the special value `nil`.
+Note that, in Urn, `nil` is not the empty list.
 
 ## `(nth xs idx)`
-*Defined at lib/list.lisp:219:1*
+*Defined at lib/list.lisp:237:1*
 
 Get the `IDX` th element in the list `XS`. The first element is 1.
 This function runs in constant time.
@@ -721,7 +771,7 @@ out = 10
 ## `(nth/over! selector fun)`
 *Macro defined at lib/setf.lisp:109:1*
 
-An implementation of `over!!` for list access.
+An implementation of [`over!`](lib.setf.md#over-obj-fun) for list access.
 
 This should not be used directly, but via [`over!`](lib.setf.md#over-obj-fun) instead.
 
@@ -743,7 +793,7 @@ This should not be used directly, but via [`setf!`](lib.setf.md#setf-obj-val) in
 ```
 
 ## `(nths xss idx)`
-*Defined at lib/list.lisp:230:1*
+*Defined at lib/list.lisp:248:1*
 
 Get the `IDX`-th element in all the lists given at `XSS`. The first
 element is1.
@@ -765,7 +815,7 @@ Convert the number `X` into a string.
 Check whether `X` is a number.
 
 ## `(or a b &rest)`
-*Macro defined at lib/base.lisp:136:1*
+*Macro defined at lib/base.lisp:134:1*
 
 Return the logical or of values `A` and `B`, and, if present, the
 logical or of all the values in `REST`.
@@ -797,7 +847,7 @@ times.
 ```
 
 ## `(pop-last! xs)`
-*Defined at lib/list.lisp:261:1*
+*Defined at lib/list.lisp:279:1*
 
 Mutate the list `XS`, removing and returning its last element.
 
@@ -816,7 +866,7 @@ out = (1 2)
 Return the predecessor of the number `X`.
 
 ## `(pretty value)`
-*Defined at lib/base.lisp:163:1*
+*Defined at lib/base.lisp:161:1*
 
 Format `VALUE` as a valid Lisp expression which can be parsed.
 
@@ -831,18 +881,19 @@ Print to standard output.
 Group a series of expressions together.
 
 ## `(prune xs)`
-*Defined at lib/list.lisp:186:1*
+*Defined at lib/list.lisp:202:1*
 
-Remove values matching the predicate [`nil?`](lib.type.md#nil-x) from the list `XS`.
+Remove values matching the predicates [`empty?`](lib.type.md#empty-x) or [`nil?`](lib.type.md#nil-x) from
+the list `XS`.
 
 ### Example:
 ```cl
-> (prune '(() 1 () 2))
+> (prune '(() nil 1 nil () 2))
 out = (1 2)
 ```
 
 ## `(push-cdr! xs val)`
-*Defined at lib/list.lisp:244:1*
+*Defined at lib/list.lisp:262:1*
 
 Mutate the list `XS`, adding `VAL` to its end.
 
@@ -856,7 +907,7 @@ out = (1 2 3 4)
 ```
 
 ## `(quasiquote val)`
-*Macro defined at lib/base.lisp:238:1*
+*Macro defined at lib/base.lisp:236:1*
 
 Quote `VAL`, but replacing all `unquote` and `unquote-splice` with their actual value.
 
@@ -864,7 +915,7 @@ Be warned, by using this you loose all macro hygiene. Variables may not be bound
 expected values.
 
 ## `(range start end)`
-*Defined at lib/list.lisp:332:1*
+*Defined at lib/list.lisp:350:1*
 
 Build a list from `START` to `END`.
 
@@ -875,7 +926,7 @@ out = (1 2 3 4 5 6 7 8 9 10)
 ```
 
 ## `(remove-nth! li idx)`
-*Defined at lib/list.lisp:278:1*
+*Defined at lib/list.lisp:296:1*
 
 Mutate the list `LI`, removing the value at `IDX` and returning it.
 
@@ -889,7 +940,7 @@ out = (1 3)
 ``` 
 
 ## `(reverse xs)`
-*Defined at lib/list.lisp:345:1*
+*Defined at lib/list.lisp:363:1*
 
 Reverse the list `XS`, using the accumulator `ACC`.
 
@@ -934,7 +985,7 @@ Test whether `SYMB` is a slot. For this, it must be a symbol, whose
 contents are `<>`.
 
 ## `(snoc xss &xs)`
-*Defined at lib/list.lisp:79:1*
+*Defined at lib/list.lisp:80:1*
 
 Return a copy of the list `XS` with the element `XS` added to its end.
 This function runs in linear time over the two input lists: That is,
@@ -961,27 +1012,27 @@ hexadecimal).
 Convert the string `X` to a symbol.
 
 ## `string/#s`
-*Defined at lib/string.lisp:17:1*
+*Defined at lib/string.lisp:16:1*
 
 Return the length of the string `X`.
 
 ## `(string/.. &args)`
-*Defined at lib/string.lisp:13:1*
+*Defined at lib/string.lisp:12:1*
 
 Concatenate the several values given in `ARGS`. They must all be strings.
 
 ## `(string/char-at xs x)`
-*Defined at lib/string.lisp:9:1*
+*Defined at lib/string.lisp:8:1*
 
 Index the string `XS`, returning the character at position `X`.
 
 ## `string/quoted`
-*Defined at lib/string.lisp:71:1*
+*Defined at lib/string.lisp:67:1*
 
 Quote the string `STR` so it is suitable for printing.
 
 ## `(string/split text pattern limit)`
-*Defined at lib/string.lisp:19:1*
+*Defined at lib/string.lisp:18:1*
 
 Split the string given by `TEXT` in at most `LIMIT` components, which are
 delineated by the Lua pattern `PATTERN`.
@@ -998,7 +1049,7 @@ string into individual characters.
 ```
 
 ## `(string/trim str)`
-*Defined at lib/string.lisp:63:1*
+*Defined at lib/string.lisp:62:1*
 
 Remove whitespace from both sides of `STR`.
 
@@ -1008,10 +1059,10 @@ Remove whitespace from both sides of `STR`.
 Check whether `X` is a string.
 
 ## `(struct &entries)`
-*Defined at lib/table.lisp:93:1*
+*Defined at lib/table.lisp:94:1*
 
 Return the structure given by the list of pairs `ENTRIES`. Note that, in
-contrast to variations of `LET`, the pairs are given "unpacked":
+contrast to variations of [`let`](lib.binders.md#let-vars-body), the pairs are given "unpacked":
 Instead of invoking
 
 ```cl
@@ -1027,20 +1078,20 @@ you must instead invoke it like
 ```
 
 ## `(struct->assoc tbl)`
-*Defined at lib/table.lisp:56:1*
+*Defined at lib/table.lisp:57:1*
 
 Convert the structure `TBL` into an association list. Note that
 `(eq? x (struct->assoc (assoc->struct x)))` is not guaranteed,
 because duplicate elements will be removed.
 
 ## `(struct->list tbl)`
-*Defined at lib/table.lisp:65:1*
+*Defined at lib/table.lisp:66:1*
 
 Converts a structure `TBL` that is a list by having its keys be indices
 to a regular list.
 
 ## `(struct->list! tbl)`
-*Defined at lib/table.lisp:71:1*
+*Defined at lib/table.lisp:72:1*
 
 Converts a structure `TBL` that is a list by having its keys be indices
 to a regular list. This differs from `struct->list` in that it mutates
@@ -1073,7 +1124,7 @@ Check whether the value `X` is a table. This might be a structure,
 a list, an associative list, a quoted key, or a quoted symbol.
 
 ## `(take xs n)`
-*Defined at lib/list.lisp:59:1*
+*Defined at lib/list.lisp:60:1*
 
 Take the first `N` elements of the list `XS`.
 
@@ -1084,9 +1135,11 @@ out = (1 2)
 ```
 
 ## `(traverse xs f)`
-*Defined at lib/list.lisp:197:1*
+*Defined at lib/list.lisp:214:1*
 
-An alias for [`map`](lib.list.md#map-f-xs) with the arguments `XS` and `F` flipped.
+> **Warning:** traverse is deprecated: Use map instead.
+
+An alias for [`map`](lib.list.md#map-fn-xss) with the arguments `XS` and `F` flipped.
 
 ### Example:
 ```cl
@@ -1095,7 +1148,7 @@ out = (2 3 4)
 ```
 
 ## `(type val)`
-*Defined at lib/type.lisp:82:1*
+*Defined at lib/type.lisp:87:1*
 
 Return the type of `VAL`.
 
@@ -1105,13 +1158,13 @@ Return the type of `VAL`.
 Evaluate `BODY` if `C` is false, otherwise, evaluate `nil`.
 
 ## `(update-struct st &keys)`
-*Defined at lib/table.lisp:180:1*
+*Defined at lib/table.lisp:166:1*
 
 Create a new structure based of `ST`, setting the values given by the
 pairs in `KEYS`.
 
 ## `(use var &body)`
-*Macro defined at lib/binders.lisp:152:1*
+*Macro defined at lib/binders.lisp:154:1*
 
 Bind each variable in `VAR`, checking for truthyness between bindings,
 execute `BODY`, then run a finaliser for all the variables bound by
@@ -1132,7 +1185,7 @@ Example:
 ```
 
 ## `(values st)`
-*Defined at lib/table.lisp:174:1*
+*Defined at lib/table.lisp:160:1*
 
 Return the values in the structure `ST`.
 
@@ -1142,7 +1195,7 @@ Return the values in the structure `ST`.
 Evaluate `BODY` when `C` is true, otherwise, evaluate `nil`.
 
 ## `(when-let vars &body)`
-*Macro defined at lib/binders.lisp:62:1*
+*Macro defined at lib/binders.lisp:64:1*
 
 Bind `VARS`, as with [`let`](lib.binders.md#let-vars-body), and check they are all truthy before
 evaluating `BODY`.
@@ -1161,7 +1214,7 @@ Does not evaluate `foo`, while
 does.
 
 ## `(when-let* vars &body)`
-*Macro defined at lib/binders.lisp:82:1*
+*Macro defined at lib/binders.lisp:84:1*
 
 Bind each pair of `(name value)` of `VARS`, checking if the value is
 truthy before binding the next, and finally evaluating `BODY`. As with
@@ -1180,7 +1233,7 @@ Since `1` is truthy, it is evaluated and bound to `foo`, however,
 since `nil` is falsey, evaluation does not continue.
 
 ## `(when-with var &body)`
-*Macro defined at lib/binders.lisp:106:1*
+*Macro defined at lib/binders.lisp:108:1*
 
 Bind the `PAIR` var of the form `(name value)`, only evaluating `BODY` if
 the value is truthy
@@ -1195,26 +1248,14 @@ When `bar` has an index `baz`, it will be bound to `foo` and
 printed. If not, the print statement will not be executed.
 
 ## `(while check &body)`
-*Macro defined at lib/base.lisp:115:1*
+*Macro defined at lib/base.lisp:113:1*
 
 Iterate `BODY` while the expression `CHECK` evaluates to `true`.
 
 ## `(with var &body)`
-*Macro defined at lib/binders.lisp:42:1*
+*Macro defined at lib/binders.lisp:44:1*
 
 Bind the single variable `VAR`, then evaluate `BODY`.
-
-## `(zip fn &xss)`
-*Defined at lib/list.lisp:377:1*
-
-Iterate over all the successive cars of `XSS`, producing a single list
-by applying `FN` to all of them. For example:
-
-### Example:
-```cl
-> (zip list '(1 2 3) '(4 5 6) '(7 8 9))
-out = ((1 4 7) (2 5 8) (3 6 9))
-```
 
 ## Undocumented symbols
  - `%` *Native defined at lib/lua/basic.lisp:12:1*
@@ -1229,67 +1270,67 @@ out = ((1 4 7) (2 5 8) (3 6 9))
  - `>` *Native defined at lib/lua/basic.lisp:5:1*
  - `>=` *Native defined at lib/lua/basic.lisp:6:1*
  - `^` *Native defined at lib/lua/basic.lisp:13:1*
- - `(caaaar x)` *Defined at lib/list.lisp:407:1*
- - `(caaaars xs)` *Defined at lib/list.lisp:438:1*
- - `(caaadr x)` *Defined at lib/list.lisp:408:1*
- - `(caaadrs xs)` *Defined at lib/list.lisp:439:1*
- - `(caaar x)` *Defined at lib/list.lisp:399:1*
- - `(caaars xs)` *Defined at lib/list.lisp:430:1*
- - `(caadar x)` *Defined at lib/list.lisp:409:1*
- - `(caadars xs)` *Defined at lib/list.lisp:440:1*
- - `(caaddr x)` *Defined at lib/list.lisp:410:1*
- - `(caaddrs xs)` *Defined at lib/list.lisp:441:1*
- - `(caadr x)` *Defined at lib/list.lisp:400:1*
- - `(caadrs xs)` *Defined at lib/list.lisp:431:1*
- - `(caar x)` *Defined at lib/list.lisp:394:1*
- - `(caars xs)` *Defined at lib/list.lisp:426:1*
- - `(cadaar x)` *Defined at lib/list.lisp:411:1*
- - `(cadaars xs)` *Defined at lib/list.lisp:442:1*
- - `(cadadr x)` *Defined at lib/list.lisp:412:1*
- - `(cadadrs xs)` *Defined at lib/list.lisp:443:1*
- - `(cadar x)` *Defined at lib/list.lisp:401:1*
- - `(cadars xs)` *Defined at lib/list.lisp:432:1*
- - `(caddar x)` *Defined at lib/list.lisp:413:1*
- - `(caddars xs)` *Defined at lib/list.lisp:444:1*
- - `(cadddr x)` *Defined at lib/list.lisp:414:1*
- - `(cadddrs xs)` *Defined at lib/list.lisp:445:1*
- - `(caddr x)` *Defined at lib/list.lisp:402:1*
- - `(caddrs xs)` *Defined at lib/list.lisp:433:1*
- - `(cadr x)` *Defined at lib/list.lisp:395:1*
- - `(cadrs xs)` *Defined at lib/list.lisp:427:1*
- - `(cars xs)` *Defined at lib/list.lisp:424:1*
- - `(cdaaar x)` *Defined at lib/list.lisp:415:1*
- - `(cdaaars xs)` *Defined at lib/list.lisp:446:1*
- - `(cdaadr x)` *Defined at lib/list.lisp:416:1*
- - `(cdaadrs xs)` *Defined at lib/list.lisp:447:1*
- - `(cdaar x)` *Defined at lib/list.lisp:403:1*
- - `(cdaars xs)` *Defined at lib/list.lisp:434:1*
- - `(cdadar x)` *Defined at lib/list.lisp:417:1*
- - `(cdadars xs)` *Defined at lib/list.lisp:448:1*
- - `(cdaddr x)` *Defined at lib/list.lisp:418:1*
- - `(cdaddrs xs)` *Defined at lib/list.lisp:449:1*
- - `(cdadr x)` *Defined at lib/list.lisp:404:1*
- - `(cdadrs xs)` *Defined at lib/list.lisp:435:1*
- - `(cdar x)` *Defined at lib/list.lisp:396:1*
- - `(cdars xs)` *Defined at lib/list.lisp:428:1*
- - `(cddaar x)` *Defined at lib/list.lisp:419:1*
- - `(cddaars xs)` *Defined at lib/list.lisp:450:1*
- - `(cddadr x)` *Defined at lib/list.lisp:420:1*
- - `(cddadrs xs)` *Defined at lib/list.lisp:451:1*
- - `(cddar x)` *Defined at lib/list.lisp:405:1*
- - `(cddars xs)` *Defined at lib/list.lisp:436:1*
- - `(cdddar x)` *Defined at lib/list.lisp:421:1*
- - `(cdddars xs)` *Defined at lib/list.lisp:452:1*
- - `(cddddr x)` *Defined at lib/list.lisp:422:1*
- - `(cddddrs xs)` *Defined at lib/list.lisp:453:1*
- - `(cdddr x)` *Defined at lib/list.lisp:406:1*
- - `(cdddrs xs)` *Defined at lib/list.lisp:437:1*
- - `(cddr x)` *Defined at lib/list.lisp:397:1*
- - `(cddrs xs)` *Defined at lib/list.lisp:429:1*
- - `(cdrs xs)` *Defined at lib/list.lisp:425:1*
+ - `(caaaar x)` *Defined at lib/list.lisp:410:1*
+ - `(caaaars xs)` *Defined at lib/list.lisp:441:1*
+ - `(caaadr x)` *Defined at lib/list.lisp:411:1*
+ - `(caaadrs xs)` *Defined at lib/list.lisp:442:1*
+ - `(caaar x)` *Defined at lib/list.lisp:402:1*
+ - `(caaars xs)` *Defined at lib/list.lisp:433:1*
+ - `(caadar x)` *Defined at lib/list.lisp:412:1*
+ - `(caadars xs)` *Defined at lib/list.lisp:443:1*
+ - `(caaddr x)` *Defined at lib/list.lisp:413:1*
+ - `(caaddrs xs)` *Defined at lib/list.lisp:444:1*
+ - `(caadr x)` *Defined at lib/list.lisp:403:1*
+ - `(caadrs xs)` *Defined at lib/list.lisp:434:1*
+ - `(caar x)` *Defined at lib/list.lisp:397:1*
+ - `(caars xs)` *Defined at lib/list.lisp:429:1*
+ - `(cadaar x)` *Defined at lib/list.lisp:414:1*
+ - `(cadaars xs)` *Defined at lib/list.lisp:445:1*
+ - `(cadadr x)` *Defined at lib/list.lisp:415:1*
+ - `(cadadrs xs)` *Defined at lib/list.lisp:446:1*
+ - `(cadar x)` *Defined at lib/list.lisp:404:1*
+ - `(cadars xs)` *Defined at lib/list.lisp:435:1*
+ - `(caddar x)` *Defined at lib/list.lisp:416:1*
+ - `(caddars xs)` *Defined at lib/list.lisp:447:1*
+ - `(cadddr x)` *Defined at lib/list.lisp:417:1*
+ - `(cadddrs xs)` *Defined at lib/list.lisp:448:1*
+ - `(caddr x)` *Defined at lib/list.lisp:405:1*
+ - `(caddrs xs)` *Defined at lib/list.lisp:436:1*
+ - `(cadr x)` *Defined at lib/list.lisp:398:1*
+ - `(cadrs xs)` *Defined at lib/list.lisp:430:1*
+ - `(cars xs)` *Defined at lib/list.lisp:427:1*
+ - `(cdaaar x)` *Defined at lib/list.lisp:418:1*
+ - `(cdaaars xs)` *Defined at lib/list.lisp:449:1*
+ - `(cdaadr x)` *Defined at lib/list.lisp:419:1*
+ - `(cdaadrs xs)` *Defined at lib/list.lisp:450:1*
+ - `(cdaar x)` *Defined at lib/list.lisp:406:1*
+ - `(cdaars xs)` *Defined at lib/list.lisp:437:1*
+ - `(cdadar x)` *Defined at lib/list.lisp:420:1*
+ - `(cdadars xs)` *Defined at lib/list.lisp:451:1*
+ - `(cdaddr x)` *Defined at lib/list.lisp:421:1*
+ - `(cdaddrs xs)` *Defined at lib/list.lisp:452:1*
+ - `(cdadr x)` *Defined at lib/list.lisp:407:1*
+ - `(cdadrs xs)` *Defined at lib/list.lisp:438:1*
+ - `(cdar x)` *Defined at lib/list.lisp:399:1*
+ - `(cdars xs)` *Defined at lib/list.lisp:431:1*
+ - `(cddaar x)` *Defined at lib/list.lisp:422:1*
+ - `(cddaars xs)` *Defined at lib/list.lisp:453:1*
+ - `(cddadr x)` *Defined at lib/list.lisp:423:1*
+ - `(cddadrs xs)` *Defined at lib/list.lisp:454:1*
+ - `(cddar x)` *Defined at lib/list.lisp:408:1*
+ - `(cddars xs)` *Defined at lib/list.lisp:439:1*
+ - `(cdddar x)` *Defined at lib/list.lisp:424:1*
+ - `(cdddars xs)` *Defined at lib/list.lisp:455:1*
+ - `(cddddr x)` *Defined at lib/list.lisp:425:1*
+ - `(cddddrs xs)` *Defined at lib/list.lisp:456:1*
+ - `(cdddr x)` *Defined at lib/list.lisp:409:1*
+ - `(cdddrs xs)` *Defined at lib/list.lisp:440:1*
+ - `(cddr x)` *Defined at lib/list.lisp:400:1*
+ - `(cddrs xs)` *Defined at lib/list.lisp:432:1*
+ - `(cdrs xs)` *Defined at lib/list.lisp:428:1*
  - `concat` *Native defined at lib/lua/table.lisp:1:1*
  - `format` *Native defined at lib/lua/string.lisp:5:1*
- - `(function &arms)` *Macro defined at lib/match.lisp:247:1*
+ - `(function &arms)` *Macro defined at lib/match.lisp:285:1*
  - `get-idx` *Native defined at lib/lua/basic.lisp:37:1*
  - `getmetatable` *Native defined at lib/lua/basic.lisp:28:1*
  - `len#` *Native defined at lib/lua/basic.lisp:19:1*

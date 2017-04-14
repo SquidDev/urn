@@ -64,7 +64,7 @@ to a set of arguments.
 true
 > (invokable? nil)
 false
-> (invokable? (setmetatable (empty-struct) (struct :__call (lambda (x) (print! "hello")))))
+> (invokable? (setmetatable {} { :__call (lambda (x) (print! "hello")) }))
 true
 ```
 

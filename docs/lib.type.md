@@ -3,7 +3,7 @@ title: type
 ---
 # type
 ## `(assert-type! arg ty)`
-*Macro defined at lib/type.lisp:133:1*
+*Macro defined at lib/type.lisp:138:1*
 
 Assert that the argument `ARG` has type `TY`, as reported by the function
 [`type`](lib.type.md#type-val).
@@ -20,7 +20,7 @@ Check whether `X` is an atomic object, that is, one of
 - `A` function
 
 ## `(between? val min max)`
-*Defined at lib/type.lisp:77:1*
+*Defined at lib/type.lisp:82:1*
 
 Check if the numerical value `X` is between
 `MIN` and `MAX`.
@@ -30,8 +30,13 @@ Check if the numerical value `X` is between
 
 Check whether `X` is a boolean.
 
+## `(empty? x)`
+*Defined at lib/type.lisp:16:1*
+
+Check whether `X` is the empty list or the empty string.
+
 ## `(eq? x y)`
-*Defined at lib/type.lisp:90:1*
+*Defined at lib/type.lisp:95:1*
 
 Compare `X` and `Y` for equality deeply.
 Rules:
@@ -81,15 +86,16 @@ Check whether `X` is a key.
 Check whether `X` is a list.
 
 ## `(neq? x y)`
-*Defined at lib/type.lisp:128:1*
+*Defined at lib/type.lisp:133:1*
 
 Compare `X` and `Y` for inequality deeply. `X` and `Y` are `neq?`
 if `([[eq?]] x y)` is falsey.
 
 ## `(nil? x)`
-*Defined at lib/type.lisp:16:1*
+*Defined at lib/type.lisp:77:1*
 
-Check whether `X` is the empty list or the empty string.
+Check if `X` does not exist, i.e. it is the special value `nil`.
+Note that, in Urn, `nil` is not the empty list.
 
 ## `(number? x)`
 *Defined at lib/type.lisp:30:1*
@@ -113,7 +119,7 @@ Check whether the value `X` is a table. This might be a structure,
 a list, an associative list, a quoted key, or a quoted symbol.
 
 ## `(type val)`
-*Defined at lib/type.lisp:82:1*
+*Defined at lib/type.lisp:87:1*
 
 Return the type of `VAL`.
 

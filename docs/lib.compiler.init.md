@@ -58,3 +58,10 @@ Push an verbose message `MSG` to the logger
 
 Push an warning message `MSG` to the logger
 
+## `range/get-source`
+*Native defined at lib/compiler/init.lisp:43:1*
+
+Get the nearest source position of `NODE`
+
+This will walk up `NODE`'s tree until a non-macro node is found.
+

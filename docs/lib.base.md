@@ -13,25 +13,36 @@ Negate the expresison `EXPR`.
 Get the length of list X
 
 ## `(-and a b)`
-*Defined at lib/base.lisp:147:1*
+*Defined at lib/base.lisp:145:1*
 
 Return the logical conjunction of values `A` and `B`.
 This is a function, not a macro.
 
 ## `(-or a b)`
-*Defined at lib/base.lisp:142:1*
+*Defined at lib/base.lisp:140:1*
 
 Return the logical disjunction of values `A` and `B`.
 This is a function, not a macro.
 
 ## `(and a b &rest)`
-*Macro defined at lib/base.lisp:130:1*
+*Macro defined at lib/base.lisp:128:1*
 
 Return the logical and of values `A` and `B`, and, if present, the
 logical and of all the values in `REST`.
 
+## `(apply f xs)`
+*Defined at lib/base.lisp:243:1*
+
+Apply the function `F` using `XS` as the argument list.
+
+Example:
+```cl
+> (apply + '(1 2))
+3
+```
+
 ## `arg`
-*Defined at lib/base.lisp:193:1*
+*Defined at lib/base.lisp:191:1*
 
 The arguments passed to the currently executing program
 
@@ -41,7 +52,7 @@ The arguments passed to the currently executing program
 Add `X` to the start of the list `XS`. Note: this is linear in time.
 
 ## `(const-val val)`
-*Defined at lib/base.lisp:205:1*
+*Defined at lib/base.lisp:203:1*
 
 Get the actual value of `VAL`, an argument to a macro.
 
@@ -50,7 +61,7 @@ in order to preserve positional data about nodes. You will need to
 unwrap them in order to use them.
 
 ## `(debug x)`
-*Macro defined at lib/base.lisp:152:1*
+*Macro defined at lib/base.lisp:150:1*
 
 Print the value `X`, then return it unmodified.
 
@@ -67,7 +78,7 @@ Define `NAME` to be the function given by (lambda `ARGS` @`BODY`), with
 optional metadata at the start of `BODY`.
 
 ## `(for ctr start end step &body)`
-*Macro defined at lib/base.lisp:96:1*
+*Macro defined at lib/base.lisp:94:1*
 
 Iterate `BODY`, with the counter `CTR` bound to `START`, being incremented
 by `STEP` every iteration until `CTR` is outside of the range given by
@@ -89,13 +100,13 @@ Evaluate `T` if `C` is true, otherwise, evaluate `B`.
 Return the list of variadic arguments given.
 
 ## `(or a b &rest)`
-*Macro defined at lib/base.lisp:136:1*
+*Macro defined at lib/base.lisp:134:1*
 
 Return the logical or of values `A` and `B`, and, if present, the
 logical or of all the values in `REST`.
 
 ## `(pretty value)`
-*Defined at lib/base.lisp:163:1*
+*Defined at lib/base.lisp:161:1*
 
 Format `VALUE` as a valid Lisp expression which can be parsed.
 
@@ -105,7 +116,7 @@ Format `VALUE` as a valid Lisp expression which can be parsed.
 Group a series of expressions together.
 
 ## `(quasiquote val)`
-*Macro defined at lib/base.lisp:238:1*
+*Macro defined at lib/base.lisp:236:1*
 
 Quote `VAL`, but replacing all `unquote` and `unquote-splice` with their actual value.
 
@@ -129,12 +140,12 @@ Evaluate `BODY` if `C` is false, otherwise, evaluate `nil`.
 Evaluate `BODY` when `C` is true, otherwise, evaluate `nil`.
 
 ## `(while check &body)`
-*Macro defined at lib/base.lisp:115:1*
+*Macro defined at lib/base.lisp:113:1*
 
 Iterate `BODY` while the expression `CHECK` evaluates to `true`.
 
 ## `(with var &body)`
-*Macro defined at lib/base.lisp:126:1*
+*Macro defined at lib/base.lisp:124:1*
 
 Bind the single variable `VAR`, then evaluate `BODY`.
 

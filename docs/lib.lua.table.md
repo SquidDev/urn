@@ -2,13 +2,8 @@
 title: lua/table
 ---
 # lua/table
-## `empty-struct`
-*Native defined at lib/lua/table.lisp:8:1*
-
-Create an empty structure with no fields
-
 ## `iter-pairs`
-*Native defined at lib/lua/table.lisp:10:1*
+*Native defined at lib/lua/table.lisp:8:1*
 
 Iterate over `TABLE` with a function `FUNC` of the form (lambda (`KEY` `VAL`) ...)
 

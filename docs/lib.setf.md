@@ -5,7 +5,7 @@ title: setf
 ## `(.>/over! selector fun)`
 *Macro defined at lib/setf.lisp:94:1*
 
-An implementation of `over!!` for table access.
+An implementation of [`over!`](lib.setf.md#over-obj-fun) for table access.
 
 This should not be used directly, but via [`over!`](lib.setf.md#over-obj-fun).
 
@@ -64,7 +64,7 @@ Increment the value selector `X` in place.
 ## `(nth/over! selector fun)`
 *Macro defined at lib/setf.lisp:109:1*
 
-An implementation of `over!!` for list access.
+An implementation of [`over!`](lib.setf.md#over-obj-fun) for list access.
 
 This should not be used directly, but via [`over!`](lib.setf.md#over-obj-fun) instead.
 

@@ -28,12 +28,12 @@ can parse inputs with [`parse!`](lib.extra.argparse.md#parse-spec-args)
 ```
 
 ## `(add-action arg data value)`
-*Defined at lib/extra/argparse.lisp:42:1*
+*Defined at lib/extra/argparse.lisp:41:1*
 
 Append `VALUE` to the appropriate key in `DATA` for `ARG`.
 
 ## `(add-argument! spec names &options)`
-*Defined at lib/extra/argparse.lisp:58:1*
+*Defined at lib/extra/argparse.lisp:57:1*
 
 Add a new argument to `SPEC`, using the specified `NAMES`.
 
@@ -60,7 +60,7 @@ following options are valid:
    starting with `-`.
 
 ## `(add-help! spec)`
-*Defined at lib/extra/argparse.lisp:136:1*
+*Defined at lib/extra/argparse.lisp:134:1*
 
 Add a help argument to `SPEC`.
 
@@ -73,33 +73,33 @@ then quit the program.
 Create a new argument parser
 
 ## `(help! spec name)`
-*Defined at lib/extra/argparse.lisp:178:1*
+*Defined at lib/extra/argparse.lisp:176:1*
 
 Display the help for the argument parser as defined in `SPEC`.
 
 ## `(parse! spec args)`
-*Defined at lib/extra/argparse.lisp:216:1*
+*Defined at lib/extra/argparse.lisp:214:1*
 
 Parse `ARGS` using the argument parser defined in `SPEC`. Returns a
 lookup with each argument given its value.
 
 ## `(set-action arg data value)`
-*Defined at lib/extra/argparse.lisp:38:1*
+*Defined at lib/extra/argparse.lisp:37:1*
 
 Set the appropriate key in `DATA` for `ARG` to `VALUE`.
 
 ## `(set-num-action aspec data value usage!)`
-*Defined at lib/extra/argparse.lisp:51:1*
+*Defined at lib/extra/argparse.lisp:50:1*
 
 Set the appropriate key in `DATA` for `ARG` to `VALUE`, ensuring it is a number.
 
 ## `(usage! spec name)`
-*Defined at lib/extra/argparse.lisp:158:1*
+*Defined at lib/extra/argparse.lisp:156:1*
 
 Display a short usage for the argument parser as defined in `SPEC`.
 
 ## `(usage-error! spec name error)`
-*Defined at lib/extra/argparse.lisp:172:1*
+*Defined at lib/extra/argparse.lisp:170:1*
 
 Display the usage of `SPEC` and exit with an `ERROR` message.
 

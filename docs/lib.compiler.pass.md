@@ -30,12 +30,12 @@ list in [`defpass`](lib.compiler.pass.md#defpass-name-args-body). You can then a
 by using [`var-usage`](lib.compiler.pass.md#var-usage).
 
 ## `add-pass!`
-*Native defined at lib/compiler/pass.lisp:73:1*
+*Native defined at lib/compiler/pass.lisp:71:1*
 
 Register a `PASS` created with [`defpass`](lib.compiler.pass.md#defpass-name-args-body).
 
 ## `(changed!)`
-*Macro defined at lib/compiler/pass.lisp:76:1*
+*Macro defined at lib/compiler/pass.lisp:74:1*
 
 Mark this pass as having a side effect.
 
@@ -47,12 +47,11 @@ Define a pass with the given `NAME` and `BODY` taking the specified `ARGS`.
 `BODY` can contain key-value pairs (like [`struct`](lib.table.md#struct-entries)) which will be set
 as options for this pass.
 
-Inside the `BODY` you can call `changed!] to mark this pass as
-modifying something. Passes should only be executed with
-[[run-pass`.
+Inside the `BODY` you can call [`changed!`](lib.compiler.pass.md#changed-) to mark this pass as
+modifying something.
 
 ## `var-usage`
-*Native defined at lib/compiler/pass.lisp:80:1*
+*Native defined at lib/compiler/pass.lisp:78:1*
 
 Get usage information about the specified `VAR`. This returns a struct
 containing:
