@@ -39,3 +39,8 @@
    LINES. These LINES are split into pairs of elements with the first
    designating it's position and the second a descriptive piece of
    text.")
+
+(define-native range/get-source
+  "Get the nearest source position of NODE
+
+   This will walk up NODE's tree until a non-macro node is found.")
