@@ -2,8 +2,11 @@
 (import urn/analysis/pass ())
 (import urn/analysis/usage usage)
 (import urn/analysis/visitor visitor)
+(import urn/documentation doc)
 (import urn/logger/init logger)
 (import urn/range (get-source))
+
+(define Scope (require "tacky.analysis.scope"))
 
 (defpass check-arity (state nodes lookup)
   "Produce a warning if any NODE in NODES calls a function with too many arguments.
@@ -67,6 +70,22 @@
                                          node nil
                                          (get-source node) "")))))))))
 
+(defpass documentation (state nodes)
+  "Ensure doc comments are valid."
+  :cat '("warn")
+  (for-each node nodes
+    (when-let* [(var (.> node :defVar))
+                (doc (.> var :doc))]
+      (for-each tok (doc/parse-docstring doc)
+        (when (= (type tok) "link")
+          (with (var ((.> Scope :get) (.> var :scope) (.> tok :contents)))
+            (unless var
+              (logger/put-node-warning! (.> state :logger)
+                (string/format "%s is not defined." (string/quoted (.> tok :contents)))
+                node nil
+                (get-source node) "Referenced in docstring."))))))))
+
+
 (defun analyse (nodes state)
   (for-each pass (.> state :pass :normal)
     (run-pass pass state nil nodes))
@@ -78,5 +97,5 @@
 
 (defun default ()
   "Create a collection of default warnings."
-  { :normal '()
+  { :normal (list documentation)
     :usage (list check-arity deprecated)})
