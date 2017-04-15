@@ -45,7 +45,7 @@
 
 (define repl-colour-scheme
   :hidden
-  (when-let* [(ge (os/getenv)) ; actually check that os/getenv exists
+  (when-let* [(ge os/getenv) ; actually check that os/getenv exists
               (clrs (ge "URN_COLOURS"))
               (scheme-alist (parser/read clrs))]
     scheme-alist))
