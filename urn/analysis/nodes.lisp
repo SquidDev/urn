@@ -76,6 +76,16 @@
    Normally I'd be against this, but this function is called
    very often, so needs to be fast."
   (cond
-    ((> i (# li)) true)
-    ((fn (nth li i)) (fast-all fn li (+ i 1)))
-    (true false)))
+    [(> i (# li)) true]
+    [(fn (nth li i)) (fast-all fn li (+ i 1))]
+    [true false]))
+
+(defun fast-any (fn li i)
+  "A fast implementation of any which starts from an offset.
+
+   Normally I'd be against this, but this function is called
+   very often, so needs to be fast."
+  (cond
+    [(> i (# li)) false]
+    [(fn (nth li i)) true]
+    [true (fast-all fn li (+ i 1))]))

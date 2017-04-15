@@ -315,7 +315,9 @@
                         (case (visitor test visitor true)
                           [nil (visitor/visit-node test visitor)]
                           [false]
-                          [?x (.<! entry 1 x)])
+                          [?x
+                           (changed!)
+                           (.<! entry 1 x)])
 
                         ;; Set the variable to true and visit all child nodes.
                         (when var
@@ -329,7 +331,9 @@
                             (case (visitor last visitor is-cond)
                               [nil (visitor/visit-node last visitor)]
                               [false]
-                              [?x (.<! entry len x)])))
+                              [?x
+                               (changed!)
+                               (.<! entry len x)])))
 
                         ;; And mark the variable as false for the remaining branches
                         (when var (.<! lookup var false))))
@@ -354,7 +358,9 @@
                         (case (visitor last visitor is-cond)
                           [nil (visitor/visit-node last visitor)]
                           [false]
-                          [?x (.<! node head x)]))))
+                          [?x
+                           (changed!)
+                           (.<! node head x)]))))
                   false)]
                [_]))]
           [_])))))

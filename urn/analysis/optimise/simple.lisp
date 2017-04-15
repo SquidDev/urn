@@ -123,5 +123,7 @@
             (list? (car node)) (builtin? (caar node) :lambda)
             ;; With no arguments and one expression
             (= (# (car node)) 3) (empty? (nth (car node) 2)))
-        (nth (car node) 3)
+        (progn
+          (changed!)
+          (nth (car node) 3))
         node))))

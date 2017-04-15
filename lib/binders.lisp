@@ -197,7 +197,7 @@
    ### Examples:
 
    ```cl
-   > (loop [(o nil)
+   > (loop [(o '())
             (l '(1 2 3))]
    .   [(empty? l) o]
    .   (recur (cons (car l) o) (cdr l)))

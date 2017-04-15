@@ -18,72 +18,6 @@
     ;; Branch nodes
     :not true :cond true })
 
-(defun compile-quote (node out state level)
-  "Compile a quoted NODE to the ouput buffer OUT.
-
-   If the LEVEL is nil then we are compiling `quote`s, otherwise it determines how deep
-   we are down this rabbit hole of `syntax-quote`."
-  :hidden
-  (if (= level 0)
-    (compile-expression node out state)
-    (with (ty (type node))
-      (cond
-        [(= ty "string") (w/append! out (string/quoted (.> node :value)))]
-        [(= ty "number") (w/append! out (number->string (.> node :value)))]
-        [(= ty "symbol")
-         (w/append! out (.. "({ tag=\"symbol\", contents=" (string/quoted (.> node :contents))))
-         (when (.> node :var)
-           (w/append! out (.. ", var=" (string/quoted(number->string (.> node :var))))))
-         (w/append! out "})")]
-        [(= ty "key")
-         (w/append! out (string/.. "({tag=\"key\", value=" (string/quoted (.> node :value)) "})"))]
-        [(= ty "list")
-         (with (first (car node))
-           (cond
-             [(and (symbol? first) (or (= (.> first :var) (.> builtins :unquote)) (= (.> :var) (.> builtins :unquote-splice))))
-              (compile-quote (nth node 2) out state (and level (pred level)))]
-             [(and (symbol? first) (= (.> first :var) (.> builtins :syntax-quote)))
-              (compile-quote (nth node 2) out state (and level (succ level)))]
-             [true
-               (w/push-node! out node)
-               (with (contains-unsplice false)
-                 (for-each sub node
-                   (when (and (list? sub) (symbol? (car sub)) (= (.> sub 1 :var) (.> builtins :unquote-splice)))
-                     (set! contains-unsplice true)))
-                 (if contains-unsplice
-                   (with (offset 0)
-                     ;; If we have an unsplice then we have to compile it as a block
-                     (w/begin-block! out "(function()")
-                     (w/line! out "local _offset, _result, _temp = 0, {tag=\"list\",n=0}")
-                     (for i 1 (# node) 1
-                       (with (sub (nth node i))
-                         (if (and (list? sub) (symbol? (car sub)) (= (.> sub 1 :var) (.> builtins :unquote-splice)))
-                           (progn
-                             ;; Every unquote-splice subtracts one from the offset position
-                             (inc! offset)
-
-                             (w/append! out "_temp = ")
-                             (compile-quote (nth sub 2) out state (pred level))
-                             (w/line! out)
-
-                             (w/line! out (string/.. "for _c = 1, _temp.n do _result[" (number->string (- i offset)) " + _c + _offset] = _temp[_c] end"))
-                             (w/line! out "_offset = _offset + _temp.n"))
-                           (progn
-                             (w/append! out (string/.. "_result[" (number->string (- i offset)) " + _offset] = "))
-                             (compile-quote sub out state level)
-                             (w/line! out)))))
-                     (w/line! out (.. "_result.n = _offset + " (number->string (- (# node) offset))))
-                     (w/line! out "return _result")
-                     (w/end-block! out "end)()"))
-                   (progn
-                     (w/append! out (.. "({tag = \"list\", n = " (number->string (# node))))
-                     (for-each sub node
-                               (w/append! out ", ")
-                               (compile-quote sub out state level))
-                     (w/append! out "})"))))
-               (w/pop-node! out node)]))]
-        (true (error! (.. "Unknown type " ty)))))))
-
 (defun compile-expression (node out state ret)
   :hidden
   (let* [(cat-lookup (.> state :cat-lookup))
@@ -340,17 +274,65 @@
        ;; Quotations are "pure" so we don't have to emit anything
        (unless (= ret "")
          (when ret (w/append! out ret))
-         (compile-quote (nth node 2) out state))]
+         (compile-expression (nth node 2) out state))]
 
-      ["syntax-quote"
-       ;; Sadly syntax-quotes may have a side effect so we have to emit
-       ;; even if it will be discarded. A future enhancement would be to pass the
-       ;; return off to the quote emitter and it can decide there
+      ["quote-const" (unless (= ret "")
+                       (when ret (w/append! out ret))
+                       (case (type node)
+                         ["string" (w/append! out (string/quoted (.> node :value)))]
+                         ["number" (w/append! out (number->string (.> node :value)))]
+                         ["symbol"
+                          (w/append! out (.. "({ tag=\"symbol\", contents=" (string/quoted (.> node :contents))))
+                          (when (.> node :var)
+                            (w/append! out (.. ", var=" (string/quoted(number->string (.> node :var))))))
+                          (w/append! out "})")]
+                         ["key" (w/append! out (string/.. "({tag=\"key\", value=" (string/quoted (.> node :value)) "})"))]))]
+
+      ["quote-list"
+       (when ret (w/append! out ret))
+       (w/append! out (.. "({tag = \"list\", n = " (number->string (# node))))
+       (for-each sub node
+         (w/append! out ", ")
+         (compile-expression sub out state))
+       (w/append! out "})")]
+
+      ["quote-splice"
+       (unless ret (w/begin-block! out "(function()"))
+       (w/line! out "local _offset, _result, _temp = 0, {tag=\"list\",n=0}")
+       (with (offset 0)
+         (for i 1 (# node) 1
+           (let* [(sub (nth node i))
+                  (cat (.> state :cat-lookup sub))]
+             (unless cat
+               (import urn/range r)
+               (print! "Cannot find" (pretty sub) (r/format-node sub)))
+
+             (if (= (.> cat :category) "unquote-splice")
+               (progn
+                 ;; Every unquote-splice subtracts one from the offset position
+                 (inc! offset)
+
+                 (w/append! out "_temp = ")
+                 (compile-expression (nth sub 2) out state)
+                 (w/line! out)
+
+                 (w/line! out (string/.. "for _c = 1, _temp.n do _result[" (number->string (- i offset)) " + _c + _offset] = _temp[_c] end"))
+                 (w/line! out "_offset = _offset + _temp.n"))
+               (progn
+                 (w/append! out (string/.. "_result[" (number->string (- i offset)) " + _offset] = "))
+                 (compile-expression sub out state)
+                 (w/line! out)))))
+         (w/line! out (.. "_result.n = _offset + " (number->string (- (# node) offset)))))
        (cond
-         [(= ret "") (w/append! out "local _ =")]
-         [ret (w/append! out ret)]
-         [true])
-       (compile-quote (nth node 2) out state 1)]
+         [(= ret "")]
+         [ret (w/append! out (.. ret "_result"))]
+         [true
+          (w/line! out "return _result")
+          (w/end-block! out "end)()")])]
+
+      ["syntax-quote" (compile-expression (nth node 2) out state ret)]
+      ["unquote" (compile-expression (nth node 2) out state ret)]
+      ["unquote-splice" (fail! "Should neve have explicit unquote-splice")]
 
       ["import"
        ;; Imports don't do anything at all (and should have be stripped by the optimiser)

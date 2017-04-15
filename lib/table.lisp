@@ -93,7 +93,7 @@
 
 (defun struct (&entries)
   "Return the structure given by the list of pairs ENTRIES. Note that, in
-   contrast to variations of [[LET]], the pairs are given \"unpacked\":
+   contrast to variations of [[let]], the pairs are given \"unpacked\":
    Instead of invoking
 
    ```cl

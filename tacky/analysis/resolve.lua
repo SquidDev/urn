@@ -376,7 +376,7 @@ function resolveNode(node, scope, state, root, many)
 					end
 				end
 
-				if res.n == 0 then
+				if res.n == 0 or (res.n == 1 and res[1] == nil) then
 					res.n = 1
 					res[1] = { tag = "symbol", var = declaredVars["nil"] }
 				end

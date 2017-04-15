@@ -1,41 +1,35 @@
 # ![](https://i.imgur.com/XqKyCMC.png) Urn [![Travis Build Status](https://travis-ci.org/SquidDev/urn.svg?branch=master)](https://travis-ci.org/SquidDev/urn) [![Build status](https://gitlab.com/urn/urn/badges/master/build.svg)](https://gitlab.com/urn/urn/commits/master)
-## A Lisp implementation for Lua
 
-Urn is a new language developed by me, SquidDev, and demhydraz. Urn is a Lisp dialect with a focus on minimism which
+Urn is a new language developed by SquidDev, and demhydraz. Urn is a Lisp dialect with a focus on minimalism which
 compiles to Lua.
 
-## What is it?
-Urn aims to be a minimal implementation of Lua, with full support for compile time code execution and generation. The
-"core" language of Urn is composed of just a few builtins, with all other major constructs (such as variable assignment
-or loops) being implemented by macros.
-
- - `define`, `define-macro` and `define-native` allow you to create top level definitions.
- - `quote`, `syntax-quote`, `unquote` and `unquote-splice` allow you to easily switch between code and data.
- - `lambda` creates a new function with the specified arguments and body.
- - `cond` is an `if`-`elseif` chain, executing the first body whose corresponding expression is truthy.
- - `set!` assigns an already existing variable (such as a function argument) a new value.
- - `import` will load code from another file.
-
-See [the roadmap](https://gitlab.com/urn/urn/issues/1) for some idea of where we're heading.
+## What?
+ - A minimal Lisp implementation, with full support for compile time code execution and macros.
+ - Support for Lua 5.1, 5.2 and 5.3. Should also work with LuaJIT.
+ - Lisp-1 scoping rules (functions and data share the same namespace).
+ - Influenced by a whole range of Lisp implementations, including Common Lisp and Clojure.
+ - Produces standalone, optimised Lua files: no dependencies on a standard library.
 
 ## Features
-Powerful assertion and testing framework, ensuring your code is (generally) correct.
+### Pattern matching
+![](https://squiddev.github.io/urn/images/example-case.png)
 
-![](https://i.imgur.com/F3e338r.png)
+### Various looping constructs
+![](https://squiddev.github.io/urn/images/example-loop.png)
 
-Detailed parser messages, helping you find that problem as soon as possible.
+### Powerful assertion and testing framework
+![](https://squiddev.github.io/urn/images/example-assert.png)
 
-![](https://i.imgur.com/RJ2fE2C.png)
+### First-class support for Lua tables
+![](https://squiddev.github.io/urn/images/example-struct.png)
 
-Supports LuaJIT and PUC Lua version 5.1, 5.2, and 5.3.
+### Friendly error messages
+![](https://squiddev.github.io/urn/images/example-error.png)
 
 ## Getting started
-Urn is currently hosted on [GitLab](https://gitlab.com/urn/urn) and mirrored
-on [GitHub](https://github.com/SquidDev/urn). You can clone the repo from either location, or download
-a [zipped version](https://gitlab.com/urn/urn/repository/archive.zip?ref=master).
+We have a [getting started guide](https://squiddev.github.io/urn/tutorial/01-introduction.md) to help you get set up. Or
+you can [clone the repo](https://gitlab.com/urn/urn) and jump right in!
 
-You should just be able to execute `tacky/cli.lua` to launch the REPL, or specify a series of `.lisp` files in order to
-compile a set of files.
-
-You can find some auto-generated [documentation online](https://squiddev.github.io/urn/). Hopefully this will be
-expanded in the future to include tutorials and what not.
+The website also
+contains [documentation for all functions and macros](https://squiddev.github.io/urn/docs/lib.prelude.md), should you
+need to check how something works.

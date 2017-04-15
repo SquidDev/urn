@@ -103,9 +103,11 @@
                     [(= func (.> builtins :set!))
                      (visit-node lookup (nth node 3) true)
                      (cat "set!")]
-                    [(= func (.> builtins :quote)) (cat "quote")]
+                    [(= func (.> builtins :quote))
+                     (visit-quote lookup node)
+                     (cat "quote")]
                     [(= func (.> builtins :syntax-quote))
-                     (visit-quote lookup (nth node 2) 1)
+                     (visit-syntax-quote lookup (nth node 2) 1)
                      (cat "syntax-quote")]
                     [(= func (.> builtins :unquote)) (fail! "unquote should never appear")]
                     [(= func (.> builtins :unquote-splice)) (fail! "unquote should never appear")]
@@ -236,16 +238,48 @@
     (for i start len 1
       (visit-node lookup (nth nodes i) stmt (and test (= i len))))))
 
-(defun visit-quote (lookup node level)
-  "Marks all unquoted NODES with a category."
+(defun visit-syntax-quote (lookup node level)
+  "Marks all syntax-quoted NODES with a category."
+  :hidden
   (if (= level 0)
     (visit-node lookup node false)
-    (when (list? node)
-      (case (car node)
-        [unquote (visit-quote lookup (nth node 2) (pred level))]
-        [unquote-splice (visit-quote lookup (nth node 2) (pred level))]
-        [syntax-quote (visit-quote lookup (nth node 2) (succ level))]
-        [_ (for-each child node (visit-quote lookup child level))]))))
+    (with (cat (case (type node)
+                 ["string" (cat "quote-const")]
+                 ["number" (cat "quote-const")]
+                 ["key"    (cat "quote-const")]
+                 ["symbol" (cat "quote-const")]
+                 ["list"
+                  (case (car node)
+                    [unquote
+                     (visit-syntax-quote lookup (nth node 2) (pred level))
+                     (cat "unquote")]
+                    [unquote-splice
+                     (visit-syntax-quote lookup (nth node 2) (pred level))
+                     (cat "unquote-splice")]
+                    [syntax-quote
+                     (for-each child node (visit-syntax-quote lookup child (succ level)))
+                     (cat "quote-list")]
+                    [_
+                     (with (has-splice false)
+                       (for-each child node
+                         (with (res (visit-syntax-quote lookup child level))
+                           (when (= (.> res :category) "unquote-splice")
+                             (set! has-splice true))))
+                       (if has-splice
+                         (cat "quote-splice" :stmt true)
+                         (cat "quote-list")))])]))
+      (when (= cat nil) (fail! (.. "Node returned nil "(pretty node))))
+      (.<! lookup node cat)
+      cat)))
+
+(defun visit-quote (lookup node)
+  "Marks all quoted NODES with a category."
+  :hidden
+  (if (list? node)
+    (progn
+      (for-each child node (visit-quote lookup child))
+      (.<! lookup node (cat "quote-list")))
+    (.<! lookup node (cat "quote-const"))))
 
 (defpass categorise-nodes (state nodes lookup)
   "Categorise a group of NODES, annotating their appropriate node type."

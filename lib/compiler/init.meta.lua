@@ -7,4 +7,5 @@ return {
 	["logger/put-node-warning!"] = { tag = "var", contents = "_compiler[\"logger/put-node-warning!\"]", value = _compiler["logger/put-node-warning!"], },
 	["logger/put-verbose!"] =      { tag = "var", contents = "_compiler[\"logger/put-verbose!\"]",      value = _compiler["logger/put-verbose!"],      },
 	["logger/put-warning!"] =      { tag = "var", contents = "_compiler[\"logger/put-warning!\"]",      value = _compiler["logger/put-warning!"],      },
+	["range/get-source"] =         { tag = "var", contents = "_compiler[\"range/get-source\"]",         value = _compiler["range/get-source"],         },
 }

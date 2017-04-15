@@ -1,5 +1,5 @@
 LUA        ?= lua5.3
-LUA_FLAGS  ?=
+LUA_FLAGS  ?=-O2
 TEST_FLAGS ?=
 OUT_DIR    ?= tacky
 DOCS_DIR   ?= docs_tmp

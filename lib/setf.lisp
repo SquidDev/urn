@@ -92,7 +92,7 @@
     `(,{:tag "symbol" :contents (.. (.> (car obj) :contents) "/over!")} ,(cdr obj) ,fun)))
 
 (defmacro .>/over! (selector fun)
-  "An implementation of [[over!!]] for table access.
+  "An implementation of [[over!]] for table access.
 
    This should not be used directly, but via [[over!]].
 
@@ -107,7 +107,7 @@
        (set-idx! ,val-sym ,key-sym (,fun (get-idx ,val-sym ,key-sym))))))
 
 (defmacro nth/over! (selector fun)
-  "An implementation of [[over!!]] for list access.
+  "An implementation of [[over!]] for list access.
 
    This should not be used directly, but via [[over!]] instead.
 

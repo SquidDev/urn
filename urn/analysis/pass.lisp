@@ -11,8 +11,9 @@
    BODY can contain key-value pairs (like [[struct]]) which will be set as
    options for this pass.
 
-   Inside the BODY you can call [[changed!] to mark this pass as modifying
-   something. Passes should only be executed with [[run-pass]]."
+   Inside the BODY you can call [[changed!]] to mark this pass as
+   modifying something. Passes should only be executed with
+   [[run-pass]]."
   (let* [(main `(define ,name))
          (options '())
          (running true)
