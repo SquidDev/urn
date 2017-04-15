@@ -28,7 +28,7 @@
                               (let* [(def-data (car (.> var :defs)))
                                      (def (.> def-data :value))]
                                 (set! ari
-                                  (if (= (.> def-data :tag) "arg")
+                                  (if (= (.> def-data :tag) "var")
                                     false
                                     (cond
                                       [(symbol? def) (get-arity def)]

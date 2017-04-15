@@ -19,7 +19,7 @@
               (ty  (.> ent :tag))]
          (cond
            [(or (string? val) (number? val) (key? val)) val]
-           [(and (symbol? val) (or (= ty "define") (= ty "set") (= ty "let")))
+           [(and (symbol? val) (= ty "val"))
             ;; Attempt to get this value, or fallback to just the symbol
             ;; This allows us to simplify reference chains to their top immutable variable
             (or (get-constant-val lookup val) sym)]

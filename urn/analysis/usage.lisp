@@ -34,12 +34,14 @@
 
 (defun add-usage! (state var node)
   "Mark a NODE as using a specific VAR."
+  :hidden
   (with (var-meta (get-var state var))
     (push-cdr! (.> var-meta :usages) node)
     (.<! var-meta :active true)))
 
 (defun add-definition! (state var node kind value)
   "Add a definition for a specific VAR."
+  :hidden
   (with (var-meta (get-var state var))
     (push-cdr! (.> var-meta :defs) { :tag   kind
                                      :node  node
@@ -53,13 +55,13 @@
            (cond
              [(= func (.> builtins :lambda))
               (for-each arg (nth node 2) 1
-                        (add-definition! state (.> arg :var) arg "arg" arg))]
+                        (add-definition! state (.> arg :var) arg "var" (.> arg :var)))]
              [(= func (.> builtins :set!))
-              (add-definition! state (.> node 2 :var) node "set" (nth node 3))]
+              (add-definition! state (.> node 2 :var) node "val" (nth node 3))]
              [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
-              (add-definition! state (.> node :defVar) node "define" (nth node (# node)))]
+              (add-definition! state (.> node :defVar) node "val" (nth node (# node)))]
              [(= func (.> builtins :define-native))
-              (add-definition! state (.> node :defVar) node "native")]
+              (add-definition! state (.> node :defVar) node "var" (.> node :defVar))]
              [true]))]
     [(and (list? node) (list? (car node)) (symbol? (caar node)) (= (.> (caar node) :var) (.> builtins :lambda)))
      ;; Inline arguments to a directly called lambda
@@ -75,8 +77,8 @@
                       (when (< count 0) (set! count 0))
                       (set! offset count)
                       ;; And define as a normal argument
-                      (add-definition! state (.> arg :var) arg "arg" arg))
-                (add-definition! state (.> arg :var) arg "let" (or val { :tag "symbol"
+                      (add-definition! state (.> arg :var) arg "var" (.> arg :var)))
+                (add-definition! state (.> arg :var) arg "val" (or val { :tag "symbol"
                                                                          :contents "nil"
                                                                          :var (.> builtins :nil) })))))
        (visitor/visit-list node 2 visitor)
@@ -101,7 +103,7 @@
                         (unless (.> var-meta :active)
                           (for-each def (.> var-meta :defs)
                             (with (val (.> def :value))
-                              (when (and val (! (.> visited val)))
+                              (when (and (= (.> def :tag) "val") (! (.> visited val)))
                                 (push-cdr! queue val))))))
                       (add-usage! state var user)))
          (visit (lambda (node)
