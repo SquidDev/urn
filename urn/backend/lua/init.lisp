@@ -160,3 +160,14 @@
                     (self state :executed res)
                     (when (.> state :var)
                       (.<! global escaped res))))])]))))))
+
+(defun native (meta global)
+  "Convert a native META definition into a function."
+  (with (out (w/create))
+    (prelude out)
+    (w/append! out "return ")
+    (compile-native out meta)
+
+    (case (list (load (w/->string out) (.. "=" (.> meta :name)) "t" global))
+      [(nil ?msg) (fail! (.. "Cannot compile meta " (.> meta :name) ":\n" msg))]
+      [(?fun) (fun)])))

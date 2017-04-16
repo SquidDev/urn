@@ -46,8 +46,19 @@
       (unless (.> entry :count) (.<! entry :count max))
       (.<! entry :contents buffer)))
 
+  (when-with (fold (.> entry :fold))
+    (when (/= (.> entry :tag) "expr") (fail! (.. "Cannot have fold for non-expression " name)))
+    (when (and (/= fold "l") (/= fold "r")) (fail! (.. "Unknown fold " fold " for " name)))
+    (when (/= (.> entry :count) 2) (fail! (.. "Cannot have fold for length " (.> entry :count) " for " name))))
+
+  (.<! entry :name name)
   (cond
-    [(= (.> entry :value) nil) (.<! entry :value (.> state :libEnv name))]
+    [(= (.> entry :value) nil)
+     (with (value (.> state :libEnv name))
+       (when (= value nil)
+         (set! value (lua/native entry (.> state :global)))
+         (.<! state :libEnv name value))
+       (.<! entry :value value))]
     [(/= (.> state :libEnv name) nil) (fail! (.. "Duplicate value for " name ": in native and meta file"))]
     [true (.<! state :libEnv name (.> entry :value))])
 

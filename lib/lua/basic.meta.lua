@@ -6,13 +6,13 @@ return {
 	['>']  = { tag = "expr", contents = "(${1} > ${2})",  count = 2, pure = true, value = function(x, y) return x > y end  },
 	['>='] = { tag = "expr", contents = "(${1} >= ${2})", count = 2, pure = true, value = function(x, y) return x >= y end },
 
-	['+']  = { tag = "expr", contents = "(${1} + ${2})",  count = 2, pure = true, value = function(x, y) return x + y end  },
-	['-']  = { tag = "expr", contents = "(${1} - ${2})",  count = 2, pure = true, value = function(x, y) return x - y end  },
-	['*']  = { tag = "expr", contents = "(${1} * ${2})",  count = 2, pure = true, value = function(x, y) return x * y end  },
-	['/']  = { tag = "expr", contents = "(${1} / ${2})",  count = 2, pure = true, value = function(x, y) return x / y end  },
-	['%']  = { tag = "expr", contents = "(${1} % ${2})",  count = 2, pure = true, value = function(x, y) return x % y end  },
-	['^']  = { tag = "expr", contents = "(${1} ^ ${2})",  count = 2, pure = true, value = function(x, y) return x ^ y end  },
-	['..'] = { tag = "expr", contents = "(${1} .. ${2})", count = 2, pure = true, value = function(x, y) return x .. y end },
+	['+']  = { tag = "expr", contents = "(${1} + ${2})",  count = 2, pure = true, fold = "l", value = function(x, y) return x + y end  },
+	['-']  = { tag = "expr", contents = "(${1} - ${2})",  count = 2, pure = true, fold = "l", value = function(x, y) return x - y end  },
+	['*']  = { tag = "expr", contents = "(${1} * ${2})",  count = 2, pure = true, fold = "l", value = function(x, y) return x * y end  },
+	['/']  = { tag = "expr", contents = "(${1} / ${2})",  count = 2, pure = true, fold = "l", value = function(x, y) return x / y end  },
+	['%']  = { tag = "expr", contents = "(${1} % ${2})",  count = 2, pure = true, fold = "l", value = function(x, y) return x % y end  },
+	['^']  = { tag = "expr", contents = "(${1} ^ ${2})",  count = 2, pure = true, fold = "l", value = function(x, y) return x ^ y end  },
+	['..'] = { tag = "expr", contents = "(${1} .. ${2})", count = 2, pure = true, fold = "r", value = function(x, y) return x .. y end },
 
 	['len#'] = { tag = "expr", contents = "#(${1})", count = 1, pure = true, value = function(x) return #x end },
 

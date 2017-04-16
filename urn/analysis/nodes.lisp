@@ -36,11 +36,11 @@
 (defun val->urn (val)
   "Gets the AST representation of VAL"
   (with (ty (type# val))
-    (cond
-      [(= ty "string")  {:tag "string" :value val}]
-      [(= ty "number")  {:tag "number" :value val}]
-      [(= ty "nil")     {:tag "symbol" :contents "nil" :var (.> builtins :nil)}]
-      [(= ty "boolean") {:tag "symbol" :contents (bool->string val) :var (.> builtins (bool->string val))}])))
+    (case ty
+      ["string"  {:tag "string" :value val}]
+      ["number"  {:tag "number" :value val}]
+      ["nil"     {:tag "symbol" :contents "nil" :var (.> builtins :nil)}]
+      ["boolean" {:tag "symbol" :contents (bool->string val) :var (.> builtins (bool->string val))}])))
 
 (defun urn->bool (node)
   "Attempt to get the boolean value of NODE.

@@ -18,6 +18,56 @@
     ;; Branch nodes
     :not true :cond true })
 
+(defun compile-native (out meta)
+  (with (ty (type meta))
+    (cond
+      [(= ty "var")
+       ;; Create an alias to a variable
+       (w/append! out (.> meta :contents))]
+
+      [(or (= ty "expr") (= ty "stmt"))
+       ;; Generate a custom function wrapper
+       (w/append! out "function(")
+       (for i 1 (.> meta :count) 1
+         (unless (= i 1) (w/append! out ", "))
+         (w/append! out (.. "v" (string->number i))))
+
+       (when (.> meta :fold) (w/append! out ", ..."))
+       (w/append! out ") ")
+
+       ;; Return the value if required
+       (cond
+         [(= (.> meta :tag) "stmt")]
+         [(.> meta :fold) (w/append! out "local t = ")]
+         [true (w/append! out "return ")])
+
+       ;; And create the template
+       (for-each entry (.> meta :contents)
+         (if (number? entry)
+           (w/append! out (.. "v" (string->number entry)))
+           (w/append! out entry)))
+
+       (case (.> meta :fold)
+         [nil]
+         ["l"
+          (w/append! out " for i = 1, _select('#', ...) do t = ")
+          (for-each node (.> meta :contents)
+            (case node
+              [1 (w/append! out "t")]
+              [2 (w/append! out "_select(i, ...)")]
+              [string? (w/append! out node)]))
+          (w/append! out " end return t")]
+         ["r"
+          (w/append! out " for i = _select('#', ...), 1, -1 do t = ")
+          (for-each node (.> meta :contents)
+            (case node
+              [1 (w/append! out "_select(i, ...)")]
+              [2 (w/append! out "t")]
+              [string? (w/append! out node)]))
+          (w/append! out " end return t")])
+
+       (w/append! out " end")])))
+
 (defun compile-expression (node out state ret)
   :hidden
   (let* [(cat-lookup (.> state :cat-lookup))
@@ -239,36 +289,14 @@
        (compile-expression (nth node (# node)) out state (.. (escape-var (.> node :defVar) state) " = "))]
 
       ["define-native"
-       (let* [(meta (.> state :meta (.> node :defVar :fullName)))
-              (ty (type meta))]
-         (cond
-           [(= ty "nil")
-            ;; Otherwise just copy it from the normal value
-            (w/append! out (string/format "%s = _libs[%q]" (escape-var (.> node :defVar) state) (.> node :defVar :fullName)))]
-
-           [(= ty "var")
-            ;; Create an alias to a variable
-            (w/append! out (string/format "%s = %s" (escape-var (.> node :defVar) state) (.> meta :contents)))]
-
-           [(or (= ty "expr") (= ty "stmt"))
-            ;; Generate a custom function wrapper
-            (with (count (.> meta :count))
-              (w/append! out (string/format "%s = function(" (escape-var (.> node :defVar) state)))
-              (for i 1 count 1
-                (unless (= i 1) (w/append! out ", "))
-                (w/append! out (.. "v" (string->number i))))
-              (w/append! out ") ")
-
-              ;; Return the value if required
-              (when (= ty "expr") (w/append! out "return "))
-
-              ;; And create the template
-              (for-each entry (.> meta :contents)
-                (if (number? entry)
-                  (w/append! out (.. "v" (string->number entry)))
-                  (w/append! out entry)))
-
-              (w/append! out " end"))]))]
+       (with (meta (.> state :meta (.> node :defVar :fullName)))
+         (if (= meta nil)
+            ;; Just copy it from the library table value
+            (w/append! out (string/format "%s = _libs[%q]" (escape-var (.> node :defVar) state) (.> node :defVar :fullName)))
+            (progn
+              ;; Generate an accessor for it.
+              (w/append! out (string/format "%s = " (escape-var (.> node :defVar) state)))
+              (compile-native out meta))))]
 
       ["quote"
        ;; Quotations are "pure" so we don't have to emit anything
@@ -364,7 +392,9 @@
               ;; We'll have cached the global lookup above
               (set! meta nil)])
 
-           (if (and meta (= (pred (# node)) (.> meta :count)))
+           (if (and meta (if (.> meta :fold)
+                           (>= (pred (# node)) (.> meta :count))
+                           (= (pred (# node)) (.> meta :count))))
              (progn
                ;; If we're dealing with an expression then we emit the returner first. Statements just
                ;; return nil.
@@ -376,12 +406,18 @@
 
                ;; Emit all entries. Numbers represent an argument, everything else is just
                ;; appended directly.
-               (with (contents (.> meta :contents))
-                 (for i 1 (# contents) 1
-                   (with (entry (nth contents i))
-                     (if (number? entry)
-                       (compile-expression (nth node (succ entry)) out state)
-                       (w/append! out entry)))))
+               (let* [(contents (.> meta :contents))
+                      (fold (.> meta :fold))
+                      (count (.> meta :count))
+                      (stack nil)]
+                 (letrec [(build (lambda (start end)
+                                   (for-each entry contents
+                                     (cond
+                                       [(string? entry) (w/append! out entry)]
+                                       [(and (= fold "l") (= entry 1) (< start end)) (build start (pred end)) (set! start end)]
+                                       [(and (= fold "r") (= entry 2) (< start end)) (build (succ start) end)]
+                                       [true (compile-expression (nth node (+ entry start)) out state)]))))]
+                   (build 1 (- (# node) count))))
 
                ;; If we're dealing with a statement then return nil.
                (when (and (/= (.> meta :tag) "expr") (/= ret ""))
