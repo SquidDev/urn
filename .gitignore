@@ -1,4 +1,4 @@
-out.*
+out*
 /tacky/**/*.lisp
 /test.lisp
 /docs_tmp
