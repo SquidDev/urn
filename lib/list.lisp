@@ -234,6 +234,18 @@
   (assert-type! xs list)
   (get-idx xs (# xs)))
 
+(defun init (xs)
+  "Return the list XS with the last element removed.
+   This is the dual of LAST.
+
+   ### Example:
+   ```cl
+   > (init (range 1 10))
+   out = '(1 2 3 4 5 6 7 8 9)
+   ```"
+  (assert-type! xs list)
+  (slice xs 1 (- (# xs) 1)))
+
 (defun nth (xs idx)
   "Get the IDX th element in the list XS. The first element is 1.
    This function runs in constant time.
