@@ -27,9 +27,9 @@ compiles to Lua.
 ![](https://squiddev.github.io/urn/images/example-error.png)
 
 ## Getting started
-We have a [getting started guide](https://squiddev.github.io/urn/tutorial/01-introduction.md) to help you get set up. Or
+We have a [getting started guide](https://squiddev.github.io/urn/tutorial/01-introduction.html) to help you get set up. Or
 you can [clone the repo](https://gitlab.com/urn/urn) and jump right in!
 
 The website also
-contains [documentation for all functions and macros](https://squiddev.github.io/urn/docs/lib.prelude.md), should you
+contains [documentation for all functions and macros](https://squiddev.github.io/urn/docs/lib.prelude.html), should you
 need to check how something works.
