@@ -56,7 +56,9 @@
     [(= (.> entry :value) nil)
      (with (value (.> state :libEnv name))
        (when (= value nil)
-         (set! value (lua/native entry (.> state :global)))
+         (case (list (pcall lua/native entry (.> state :global)))
+           [(true . ?res) (set! value (car res))]
+           [(false _)])
          (.<! state :libEnv name value))
        (.<! entry :value value))]
     [(/= (.> state :libEnv name) nil) (fail! (.. "Duplicate value for " name ": in native and meta file"))]
