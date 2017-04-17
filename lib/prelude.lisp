@@ -93,3 +93,11 @@
 (defun self (x key &args)
   "Index X with KEY and invoke the resulting function with X and ARGS"
   ((get-idx x key) x (unpack args 1 (# args))))
+
+(defun even? (x)
+  "Is X an even number?"
+  (= (% x 2) 0))
+
+(defun odd? (x)
+  "Is X an odd number?"
+  (/= (% x 2) 0))
