@@ -156,11 +156,11 @@ local function resolveExecuteResult(owner, node, parent, scope, state)
 		errorPositions(state.logger, parent, "Invalid node of type '" .. ty .. "' from " .. getExecuteName(owner))
 	end
 
-	node.parent = parent
 
 	-- We've already tagged this so continue
 	if not node.range and not node.owner then
 		node.owner = owner
+		node.parent = parent
 	end
 
 	if node.tag == "list" then

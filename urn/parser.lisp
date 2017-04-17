@@ -309,26 +309,24 @@
 
          ;; Append a node onto the current head
          (append! (lambda (node)
-           (with (next '())
-             (push-cdr! head node)
-             (.<! node :parent head))))
+                    (push-cdr! head node)))
 
          ;; Push a node onto the stack, appending it to the previous head
          (push! (lambda ()
-             (with (next '())
-               (push-cdr! stack head)
-               (append! next)
-               (set! head next))))
+                  (with (next '())
+                    (push-cdr! stack head)
+                    (append! next)
+                    (set! head next))))
 
         ;; Pop a node from the stack
          (pop! (lambda ()
-           (.<! head :open nil)
-           (.<! head :close nil)
-           (.<! head :auto-close nil)
-           (.<! head :last-node nil)
+                 (.<! head :open nil)
+                 (.<! head :close nil)
+                 (.<! head :auto-close nil)
+                 (.<! head :last-node nil)
 
-           (set! head (last stack))
-           (pop-last! stack))))
+                 (set! head (last stack))
+                 (pop-last! stack))))
     (for-each tok toks
       (let* ((tag (.> tok :tag))
              (auto-close false))
