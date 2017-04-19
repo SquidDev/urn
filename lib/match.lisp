@@ -13,6 +13,8 @@
            | ( as pattern metavar ) ;; as
            | ( pattern * ) ;; list
            | ( pattern + . pattern ) ;; list+rest
+           | ( struct-literal :name pattern :name pattern ) ;; structure literal
+           | { :name pattern :name pattern } ;; structure literal
  literal ::= number | string | boolean | symbol | key
  metavar ::= '?' symbol
  ```
@@ -46,7 +48,7 @@
                and gensym error for set-idx!
                quasiquote list or pretty
                slice concat debug apply
-               /= # = ! - + / * >= <= ))
+               /= # = ! - + / * >= <= % ))
 (import type ())
 (import list ( car caddr cadr cdr append for-each
                map filter push-cdr! range snoc
@@ -91,6 +93,10 @@
   (let* [(x (get-idx x :contents))]
     (= (char-at x (#s x)) "?")))
 
+(defun struct-pat? (x) :hidden
+  (and (eq? (car x) 'struct-literal)
+       (= (% (# (cdr x)) 2) 0)))
+
 (defun assert-linearity! (pat seen) :hidden
   (cond
     [(! seen) (assert-linearity! pat {})]
@@ -102,6 +108,9 @@
         (assert-linearity! (caddr pat) seen)]
        [(eq? (car pat) 'optional)
         (assert-linearity! (cadr pat) seen)]
+       [(struct-pat? pat)
+        (for i 3 (# pat) 2
+          (assert-linearity! (nth pat i) seen))]
        [(cons-pattern? pat)
         (let* [(seen '())]
           (for i 1 (pattern-# pat) 1
@@ -121,9 +130,10 @@
     [(meta? pat)
      (if (get-idx seen (get-idx pat :contents))
        (error (.. "pattern is not linear: seen " (pretty pat) " more than once"))
-       (set-idx! seen (get-idx pat :contents) true))]))
+       (set-idx! seen (get-idx pat :contents) true))]
+    [true true]))
 
-(defun compile-pattern-test (pattern symb) :hidden
+(defun compile-pattern-test (pattern symb)
   (cond
     [(list? pattern)
      (cond
@@ -133,6 +143,16 @@
         (compile-pattern-test (caddr pattern) `(,(cadr pattern) ,symb))]
        [(eq? (car pattern) 'optional)
         `(if ,symb ,(compile-pattern-test (cadr pattern) symb) true)]
+       [(struct-pat? pattern)
+        `(and (table? ,symb)
+              ,@(let* [(out '(true))]
+                  (for i 2 (# pattern) 2
+                    (push-cdr! out (compile-pattern-test
+                                     (nth pattern (+ 1 i))
+                                     `(get-idx ,symb ,(nth pattern i))))
+                    (push-cdr! out `(get-idx ,symb ,(nth pattern i))))
+                  (debug out)
+                  out))]
        [(cons-pattern? pattern)
         (let* [(pattern-sym (gensym))
                (lhs (cons-pat-left-side pattern))
@@ -185,6 +205,13 @@
           (compile-pattern-bindings (caddr pattern) `(,(cadr pattern) ,symb))]
          [(eq? (car pattern) 'optional)
           (compile-pattern-bindings (cadr pattern) symb)]
+         [(struct-pat? pattern)
+          (let* [(out '())]
+            (for i 2 (# pattern) 2
+              (for-each elem (compile-pattern-bindings (nth pattern (+ i 1))
+                                                       `(get-idx ,symb ,(nth pattern i)))
+                (push-cdr! out elem)))
+            out)]
          [(cons-pattern? pattern)
           (let* [(lhs (cons-pat-left-side pattern))
                  (rhs (cons-pat-right-side pattern))
