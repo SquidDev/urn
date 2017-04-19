@@ -142,7 +142,7 @@
             (push-cdr! lhs-test
                        (compile-pattern-test (nth lhs i)
                                              `(nth ,pattern-sym ,i))))
-          `(let* [(,pattern-sym ,symb)]
+          `(let* [(,pattern-sym ,symb) (,'never 23)]
              (and (list? ,pattern-sym)
                   (>= (# ,pattern-sym) ,(pattern-length pattern -2))
                   ,@lhs-test
@@ -153,7 +153,7 @@
                (sym (gensym))]
           (for i 1 (# pattern) 1
             (push-cdr! out (compile-pattern-test (nth pattern i)
-                                                ~(nth ,sym ,i))))
+                                                `(nth ,sym ,i))))
           `(let* [(,sym ,symb)]
              (and (list? ,sym)
                   (>= (# ,sym) ,(pattern-length pattern 0))
@@ -166,8 +166,8 @@
        [(eq? pattern 'true) `(eq? ,symb true)]
        [(eq? pattern 'false) `(eq? ,symb false)]
        [(eq? pattern 'nil) `(eq? ,symb nil)]
-       [(predicate? pattern) ~(,pattern ,symb)] ; need the dynamic scoping here.
-       [true ~(eq? ,symb ',pattern)])]
+       [(predicate? pattern) `(,pattern ,symb)]
+       [true `(eq? ,symb ',pattern)])]
     [(key? pattern)
      `(eq? ,symb ,pattern)]
     [(or (number? pattern) (boolean? pattern) (string? pattern))

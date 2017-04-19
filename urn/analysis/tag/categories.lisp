@@ -15,7 +15,7 @@
     [(f (nth xs i)) (part-all xs (+ i 1) e f)]
     [true false]))
 
-(defun visit-node (lookup node stmt test)
+(defun visit-node (lookup node stmt test recur)
   "Marks a specific NODE with a category.
 
    STMT marks whether this node is in a \"statement\" context. This is any node
@@ -48,7 +48,7 @@
                      (for i 2 (# node) 1
                        (with (case (nth node i))
                          (visit-node lookup (car case) true true)
-                         (visit-nodes lookup case 2 true test)))
+                         (visit-nodes lookup case 2 true test recur)))
 
                      ;; And attempt to find the best condition
                      (cond
@@ -111,11 +111,15 @@
                      (cat "syntax-quote")]
                     [(= func (.> builtins :unquote)) (fail! "unquote should never appear")]
                     [(= func (.> builtins :unquote-splice)) (fail! "unquote should never appear")]
-                    [(= func (.> builtins :define))
-                     (visit-node lookup (nth node (# node)) true)
-                     (cat "define")]
-                    [(= func (.> builtins :define-macro))
-                     (visit-node lookup (nth node (# node)) true)
+                    [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
+                     (with (def (nth node (# node)))
+                       (if (and (list? def) (builtin? (car def) :lambda))
+                         (with (recur { :var (.> node :defVar) :def def})
+                           (visit-nodes lookup def 3 true nil recur)
+                           (.<! lookup def (if (.> recur :tail)
+                                             (cat "lambda" :recur recur)
+                                             (cat "lambda"))))
+                         (visit-node lookup def true)))
                      (cat "define")]
                     [(= func (.> builtins :define-native)) (cat "define-native")]
                     [(= func (.> builtins :import)) (cat "import")]
@@ -137,7 +141,11 @@
                     ;; Default invocation
                     [true
                      (visit-nodes lookup node 1 false)
-                     (cat "call-symbol")]))]
+                     (if (and recur (= func (.> recur :var)))
+                       (progn
+                         (.<! recur :tail true)
+                         (cat "call-symbol" :recur recur))
+                       (cat "call-symbol"))]))]
                ["list"
                 (cond
                   [(and
@@ -195,7 +203,7 @@
 
                   [(and stmt (builtin? (car head) :lambda))
                    ;; Visit the lambda body
-                   (visit-nodes lookup (car node) 3 true test)
+                   (visit-nodes lookup (car node) 3 true test recur)
 
                    ;; And visit the argument values
                    ;; Yay: My favourite bit of code, zipping over arguments
@@ -232,11 +240,13 @@
     (.<! lookup node cat)
     cat))
 
-(defun visit-nodes (lookup nodes start stmt test)
+(defun visit-nodes (lookup nodes start stmt test recur)
   "Marks all NODES with a category."
   (with (len (# nodes))
     (for i start len 1
-      (visit-node lookup (nth nodes i) stmt (and test (= i len))))))
+      (visit-node lookup (nth nodes i) stmt
+        (and test (= i len))
+        (and (= i len) recur)))))
 
 (defun visit-syntax-quote (lookup node level)
   "Marks all syntax-quoted NODES with a category."
