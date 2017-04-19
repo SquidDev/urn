@@ -1,4 +1,4 @@
-LUA        ?= lua5.3
+LUA        ?= lua
 LUA_FLAGS  ?=-O2
 TEST_FLAGS ?=
 OUT_DIR    ?= tacky
