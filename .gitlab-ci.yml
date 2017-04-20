@@ -8,26 +8,26 @@ test_diff:
   stage: test
   script:
     - echo -e "\033[36mBuilding initial compiler\033[0m"
-    - make all
+    - make LUA=lua5.3 all
     - echo -e "\033[36mBuilding compiler using new compiler\033[0m"
-    - make all
+    - make LUA=lua5.3 all
     - echo -e "\033[36mComparing output of compiler\033[0m"
     - export TEMP_DIR=$(mktemp -d)
-    - make OUT_DIR="$TEMP_DIR" all
+    - make LUA=lua5.3 OUT_DIR="$TEMP_DIR" all
     - "! (diff -rq \"$TEMP_DIR\" tacky | grep \"$TEMP_DIR\")"
 
 test_run:
   stage: test
   script:
     - echo -e "\033[36mBuilding initial compiler\033[0m"
-    - make all
+    - make LUA=lua5.3 all
     - echo -e "\033[36mRunning tests\033[0m"
-    - make test
+    - make LUA=lua5.3 test
 
 test_docs:
   stage: test
   script:
     - echo -e "\033[36mBuilding initial compiler\033[0m"
-    - make all
+    - make LUA=lua5.3 all
     - echo -e "\033[36mGenerating docs\033[0m"
-    - make docs
+    - make LUA=lua5.3 docs
