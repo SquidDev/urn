@@ -5,10 +5,9 @@
 (import urn/backend/lua lua)
 (import urn/logger logger)
 (import urn/parser parser)
+(import urn/resolve/loop (compile))
 (import urn/resolve/scope scope)
-(import urn/timer  timer)
-
-(define compile (.> (require "tacky.compile") :compile))
+(import urn/timer timer)
 
 (defun simplify-path (path paths)
   "Simplify PATH, attempting to reduce it to a named module inside PATHS."
@@ -119,7 +118,6 @@
 
       (with (compiled (compile
                         state
-                        lua/execute-states
                         parsed
                         scope
                         path))

@@ -247,9 +247,9 @@
    out = (1 2 3)
    ```"
   (let* ((hm {})
-         (out '[])) 
+         (out '[]))
     (for-each elm xs
-      (with (szd (pretty elm)) 
+      (with (szd (pretty elm))
         (cond
           [(nil? (get-idx hm szd))
             (push-cdr! out elm)
@@ -414,6 +414,21 @@
   (assert-type! li list)
   (set-idx! li "n" (- (get-idx li "n") 1))
   (lua/table/remove li idx))
+
+(defun insert-nth! (li idx val)
+  "Mutate the list LI, inserting VAL at IDX.
+
+   ### Example:
+   ```cl
+   > (define list '(1 2 3))
+   > (insert-nth! list 2 5)
+   2
+   > list
+   out = (1 5 2 3)
+   ``` "
+  (assert-type! li list)
+  (set-idx! li "n" (+ (get-idx li "n") 1))
+  (lua/table/insert li idx val))
 
 (defmacro for-each (var lst &body)
   "Perform the set of actions BODY for all values in LST, binding the current value to VAR.

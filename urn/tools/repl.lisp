@@ -15,10 +15,9 @@
 (import urn/logger/void void)
 (import urn/logger)
 (import urn/parser parser)
+(import urn/resolve/loop (compile))
 (import urn/resolve/scope scope)
 (import urn/resolve/state state)
-
-(define compile (.> (require "tacky.compile") :compile))
 
 (defun requires-input (str)
   "Determine whether STR requires additional input (such as quotes or parens).
@@ -39,7 +38,6 @@
          (parsed (parser/parse logger lexed))]
     (cadr (list (compile
                   compiler
-                  lua/execute-states
                   parsed
                   scope)))))
 

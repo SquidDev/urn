@@ -77,12 +77,6 @@ local function distance(a, b)
 	return v1[#b + 1]
 end
 
--- print(("#"):rep(10))
--- print(distance(".>", "."))
-
--- print(("#"):rep(10))
--- print(distance("..", "."))
-
 --- Attempt to resolve all variables in a list of expressions, expanding all macros and what not.
 --
 -- This firstly creates a State for each expression in the list. This tracks all variables this state
