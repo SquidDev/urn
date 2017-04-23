@@ -24,7 +24,7 @@
               get-idx cons for gensym -or slice
               pretty print error tostring  -and
               unpack debug if # + - >= = ! with
-              apply and))
+              apply and progn))
 (import base)
 (import lua/table)
 (import type (nil? list? empty? assert-type! exists? falsey? eq?))
@@ -171,6 +171,53 @@
   (assert-type! p function)
   (assert-type! xs list)
   (accumulate-with p -or false xs))
+
+(defun \\ (xs ys)
+  "The difference between XS and YS (non-associative.)
+
+   Example:
+   ```
+   > (\\ '(1 2 3) '(1 3 5 7))
+   out = (2)
+   ```"
+  (filter (lambda (x)
+            (! (elem? x ys)))
+          xs))
+
+(defun nub-from (xs ys) :hidden
+  (cond
+    [(empty? xs) '()]
+    [true
+      (let* [(out '())]
+        (for i 1 (# xs) 1
+          (if (elem? (nth xs i) ys)
+            nil ;; pass
+            (progn
+              (push-cdr! out (nth xs i))
+              (push-cdr! ys (nth xs i)))))
+        out)]))
+
+(defun nub (xs)
+  "Remove duplicate elements from XS.
+
+   Example:
+   ```
+   > (nub '(1 1 2 2 3 3))
+   out = (1 2 3)
+   ```"
+  ;; TODO: This implementation runs in O(shit) time.
+  ;; We don't want that :(
+  (nub-from xs '()))
+
+(defun union (xs ys)
+  "Set-like union of XS and YS.
+
+   Example:
+   ```
+   > (union '(1 2 3 4) '(1 2 3 4 5))
+   out = (1 2 3 4 5)
+   ```"
+  (nub (append xs ys)))
 
 (defun all (p xs)
   "Test if all elements of XS match the predicate P.
