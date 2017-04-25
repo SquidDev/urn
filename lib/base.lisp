@@ -84,9 +84,13 @@
   "Create a unique symbol, suitable for using in macros"
   (with (counter 0)
     (lambda (name)
-      (if name
-        (set! name (.. "_" name))
-        (set! name ""))
+      (cond
+        [(if (= (type# name) "table")
+            (= (get-idx name :tag) "symbol")
+            false) ; oh god
+         (set! name (.. "_" (get-idx name :contents)))]
+        [name (set! name (.. "_" name))]
+        [true (set! name "")])
       (set! counter (+ counter 1))
       { :tag "symbol"
         :contents (string/format "r_%d%s" counter name) })))
