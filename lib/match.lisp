@@ -320,3 +320,12 @@
     `(lambda ,(snoc param-nams rest)
        (case (append (list ,@param-nams) ,rest-sym)
          ,@arms))))
+
+(defmacro if-match (cs t e)
+  (let* [(x (gensym))]
+    `(let* [(,x ,(cadr cs))]
+       (if ,(compile-pattern-test (car cs) x)
+         (let* ,(compile-pattern-bindings (car cs) x)
+           ,t)
+         ,e))))
+
