@@ -1,4 +1,4 @@
-(import base (defmacro defun let* when if cons list unless debug gensym
+(import base (defmacro defun let* when if list unless debug gensym
               progn get-idx set-idx! error = % - + # or for with ! apply))
 (import lua/string (sub))
 (import lua/table (iter-pairs) :export)

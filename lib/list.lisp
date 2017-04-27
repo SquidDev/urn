@@ -21,7 +21,7 @@
    thing."
 
 (import base (defun defmacro when let* set-idx!
-              get-idx cons for gensym -or slice
+              get-idx for gensym -or slice
               pretty print error tostring  -and
               unpack debug if # + - >= = ! with
               apply and progn))
@@ -88,6 +88,16 @@
    out = (1 2 3 4 5 6)
    ``` "
   `(,@xss ,@xs))
+
+(defun cons (&xs xss)
+  "Return a copy of the list XSS with the elements XS added to its head.
+
+   ### Example:
+   ```cl
+   > (cons 1 2 3 '(4 5 6))
+   out = (1 2 3 4 5 6)
+   ```"
+  `(,@xs ,@xss))
 
 (defun foldr (f z xs)
   "Accumulate the list XS using the binary function F and the zero
