@@ -7,8 +7,10 @@
 (import urn/backend/writer writer)
 (import urn/logger logger)
 (import urn/range range)
+(import urn/traceback traceback)
 
 (import lua/coroutine co)
+(import lua/debug debug)
 
 (define Scope (require "tacky.analysis.scope"))
 
@@ -76,6 +78,13 @@
                           (error! (.. "Expected function for run, got " (type (.> pass :run)))))
                         (unless (list? (.> pass :cat))
                           (error! (.. "Expected list for cat, got " (type (.> pass :cat)))))
+
+                        (with (func (.> pass :run))
+                          (.<! pass :run
+                            (lambda (&args)
+                              (case (list (xpcall (lambda () (apply func args)) debug/traceback))
+                                [(false ?msg) (fail! (traceback/remap-traceback (.> compiler :compileState :mappings) msg))]
+                                [(true . ?rest) (unpack rest 1 (# rest))]))))
 
                         (let* [(cats (.> pass :cat))
                                (group (if (elem? "usage" cats) "usage" "normal"))]
