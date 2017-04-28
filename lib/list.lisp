@@ -21,7 +21,7 @@
    thing."
 
 (import base (defun defmacro when let* set-idx!
-              get-idx for gensym -or slice
+              get-idx for gensym -or slice /=
               pretty print error tostring  -and
               unpack debug if # + - >= = ! with
               apply and progn))
@@ -141,6 +141,32 @@
     (for i 1 (apply min lenghts) 1
       (push-cdr! out (apply fn (nths xss i))))
     out))
+
+(defun maybe-map (fn &xss)
+  "Iterate over all successive cars of XSS, producing a single list by
+   applying FN to all of them, while discarding any `nil`s.
+
+   ### Example:
+   ```cl
+   > (maybe-map (lambda (x)
+                  (if (even? x)
+                    nil
+                    (succ x)))
+                (range 1 10))
+   out = (2 4 6 8 10)
+   ```"
+  (let* [(lenghts (let* [(out '())]
+                    (for i 1 (# xss) 1
+                      (push-cdr! out (# (nth xss i))))
+                    out))
+         (out '())]
+    (for i 1 (apply min lenghts) 1
+      (let* [(vl (apply fn (nths xss i)))]
+        (if (/= vl nil)
+          (push-cdr! out vl)
+          nil)))
+    out))
+
 
 (defun flat-map (fn &xss)
   "Map the function FN over the lists XSS, then flatten the result
