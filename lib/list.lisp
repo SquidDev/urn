@@ -1,7 +1,7 @@
 "List manipulation functions.
 
  These include several often-used functions for manipulation of lists,
- including functional programming classics such as [[map]] and [[foldr]]
+ including functional programming classics such as [[map]] and [[foldl]]
  and useful patterns such as [[accumulate-with]].
 
  Most of these functions are tail-recursive unless noted, which means
@@ -99,19 +99,19 @@
    ```"
   `(,@xs ,@xss))
 
-(defun foldr (f z xs)
+(defun foldl (f z xs)
   "Accumulate the list XS using the binary function F and the zero
    element Z.  This function is also called `reduce` by some authors. One
-   can visualise `(foldr f z xs)` as replacing the [[cons]] operator in
+   can visualise `(foldl f z xs)` as replacing the [[cons]] operator in
    building lists with F, and the empty list with Z.
 
    Consider:
    - `'(1 2 3)` is equivalent to `(cons 1 (cons 2 (cons 3 '())))`
-   - `(foldr + 0 '(1 2 3))` is equivalent to `(+ 1 (+ 2 (+ 3 0)))`.
+   - `(foldl + 0 '(1 2 3))` is equivalent to `(+ 1 (+ 2 (+ 3 0)))`.
 
    ### Example:
    ```cl
-   > (foldr append '() '((1 2) (3 4)))
+   > (foldl append '() '((1 2) (3 4)))
    out = (1 2 3 4)
    ; equivalent to (append '(1 2) (append '(3 4) '()))
    ```"
@@ -414,7 +414,7 @@
    > (flatten '((1 2) (3 4)))
    out = (1 2 3 4)
    ```"
-  (foldr append '() xss))
+  (foldl append '() xss))
 
 (defun range (start end)
   "Build a list from START to END.
@@ -443,7 +443,7 @@
     out))
 
 (defun accumulate-with (f ac z xs)
-  "A composition of [[foldr]] and [[map]].
+  "A composition of [[foldl]] and [[map]].
 
    Transform the values of XS using the function F, then accumulate them
    starting form Z using the function AC.
@@ -459,7 +459,7 @@
    ```"
   (assert-type! f function)
   (assert-type! ac function)
-  (foldr ac z (map f xs)))
+  (foldl ac z (map f xs)))
 
 ;; AUTOMATICALLY GENERATED
 ;; DO NOT EDIT please.

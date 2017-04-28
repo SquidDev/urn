@@ -24,9 +24,9 @@
       (affirm (eq? (snoc '(1 2) 3) '(1 2 3))
               (eq? (snoc '(bar baz) "foo") '(bar baz "foo"))
               (eq? (snoc (list 1 nil 2) "foo") (list 1 nil 2 "foo"))))
-  (it "can be reduced to a single value with foldr"
-      (affirm (eq? (foldr + 0 '(1 2 3)) (+ (+ 1 2) (+ 3 0)))
-              (eq? (foldr append '() '((1 2) (3 4))) '(1 2 3 4))))
+  (it "can be reduced to a single value with foldl"
+      (affirm (eq? (foldl + 0 '(1 2 3)) (+ (+ 1 2) (+ 3 0)))
+              (eq? (foldl append '() '((1 2) (3 4))) '(1 2 3 4))))
   (it "can be appended to another quoted list"
       (check [(list a) (list b)]
         (eq? (# (append a b)) (+ (# a) (# b)))

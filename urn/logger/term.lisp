@@ -58,7 +58,7 @@
 
   (let* ((previous -1)
          (file (.> (nth entries 1) :name))
-         (max-line (foldr (lambda (max node)
+         (max-line (foldl (lambda (max node)
                             (if (string? node) max (math/max max (.> node :start :line))))
                      0 entries))
          (code (.. (colored 92 (.. " %" (string/#s (number->string max-line)) "s \xe2\x94\x82")) " %s")))
