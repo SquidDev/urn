@@ -1,6 +1,6 @@
 (import base (defun let* type# if car cdr when
               and or >= = <= /= # get-idx defmacro for
-              error gensym ! len# debug))
+              error gensym ! len# pretty))
 
 (import lua/string (format sub))
 
@@ -142,4 +142,4 @@
          (ty (get-idx ty "contents"))]
     `(let* [(,sym (type ,arg))]
       (when (/= ,sym ,ty)
-        (error (format "bad argument %s (expected %s, got %s)" ,(get-idx arg "contents") ,ty ,sym) 2)))))
+        (error (format "bad argument %s (expected %s, got %s)" ,(pretty arg) ,ty ,sym) 2)))))
