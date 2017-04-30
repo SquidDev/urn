@@ -1,4 +1,5 @@
 (import urn/analysis/nodes nodes)
+(import urn/analysis/optimise/fusion fusion)
 (import urn/analysis/tag/categories categories)
 (import urn/analysis/traverse traverse)
 (import urn/analysis/usage usage)
@@ -26,7 +27,7 @@
 
          (categorise '())
          (emit       '())]
-    {    ;; backend.lisp
+    { ;; backend.lisp
       :add-categoriser!    (lambda () (fail! "add-categoriser! is not yet implemented")) ;; TODO: Add add-categoriser!
       :categorise-node     categories/visit-node
       :categorise-nodes    categories/visit-nodes
@@ -68,6 +69,9 @@
       :constant?      nodes/constant?
       :node->val      nodes/urn->val
       :val->node      nodes/val->urn
+
+      ;; optimise.lisp
+      :fusion/add-rule! fusion/add-rule!
 
       ;; pass.lisp
       :add-pass!      (lambda (pass)

@@ -6,6 +6,7 @@
 (import urn/analysis/usage usage)
 (import urn/analysis/visitor visitor)
 
+(import urn/analysis/optimise/fusion opt)
 (import urn/analysis/optimise/simple opt)
 (import urn/analysis/optimise/usage opt)
 (import urn/analysis/optimise/inline opt)
@@ -40,7 +41,8 @@
                   opt/strip-pure
                   opt/constant-fold
                   opt/cond-fold
-                  opt/lambda-fold)
+                  opt/lambda-fold
+                  opt/fusion)
     :usage (list opt/strip-defs
                  opt/strip-args
                  opt/variable-fold

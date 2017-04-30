@@ -66,6 +66,12 @@
     :contents (.> var :name)
     :var var })
 
+(defun symbol->var (state symb)
+  "Convert SYMBOL to a variable in compiler STATE."
+  (with (var (.> symb :var))
+    (if (string? var) (.> state :variables var) var)))
+
+
 (define make-nil
   "Make a NIL constant."
   (cute make-symbol (.> builtins :nil)))
