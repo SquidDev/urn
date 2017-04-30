@@ -507,38 +507,66 @@
          (print! (pretty node) " marked as call-lambda for " ret))
        (let* [(head (car node))
               (args (nth head 2))
-              (offset 1)]
-         (for i 1 (# args) 1
-           (let* [(var (.> args i :var))
-                  (esc (escape-var var state))]
-             (w/append! out (.. "local " esc))
-             (if (.> var :isVariadic)
-               ;; If we're variadic then create a list of each sub expression
-               (with (count (- (# node) (# args)))
-                 (when (< count 0) (set! count 0))
-                 (w/append! out " = ")
-                 (when (compile-pack node out state i count)
-                   (w/append! out (.. " " esc ".tag = \"list\"")))
-                 (w/line! out)
-                 (set! offset count))
-               (let* [(expr (nth node (+ i offset)))
-                      (name (escape-var var state))
-                      (ret nil)]
-                 (if expr
-                   (progn
-                     (if (.> cat-lookup expr :stmt)
-                       (progn
-                         (set! ret (.. name " = "))
-                         (w/line! out))
-                       (w/append! out " = "))
-                     (compile-expression expr out state ret)
-                     (w/line! out))
-                   (w/line! out))))))
+              (arg-idx 1)
+              (val-idx 2)
+              (arg-len (# args))
+              (val-len (# node))]
+         (while (or (<= arg-idx arg-len) (<= val-idx val-len))
+           (with (arg (.> args arg-idx))
+             (cond
+               [(! arg)
+                ;; We have no variable
+                (compile-expression (nth node arg-idx) out state "")
+                (inc! arg-idx)]
+               [(.> (.> arg :var) :isVariadic)
+                ;; If we're variadic then create a list of each sub expression
+                (let* [(esc (escape-var (.> arg :var) state))
+                       (count (- val-len arg-len))]
+                  (w/append! out (.. "local " esc))
+                  (when (< count 0) (set! count 0))
+                  (w/append! out " = ")
+                  (when (compile-pack node out state arg-idx count)
+                    (w/append! out (.. " " esc ".tag = \"list\"")))
+                  (w/line! out)
+                  (inc! arg-idx)
+                  (set! val-idx (+ count val-idx)))]
+               [(= val-idx val-len)
+                (let* [(arg-list '())
+                       (val (nth node val-idx))
+                       (ret nil)]
+                  (while (<= arg-idx arg-len)
+                    (push-cdr! arg-list (escape-var (.> (nth args arg-idx) :var) state))
+                    (inc! arg-idx))
 
-         ;; Emit all arguments which haven't been used anywhere
-         (for i (+ (# args) (+ offset 1)) (# node) 1
-              (compile-expression (nth node i) out state "")
-              (w/line! out))
+                  (w/append! out "local ")
+                  (w/append! out (concat arg-list ", "))
+                  (if (.> cat-lookup val :stmt)
+                    (progn
+                      (set! ret (.. (concat arg-list ", ") " = "))
+                      (w/line! out))
+                    (w/append! out " = "))
+
+                  (compile-expression val out state ret)
+                  (inc! val-idx))]
+               [true
+                (let* [(expr (nth node val-idx))
+                       (var (.> arg :var))
+                       (esc (escape-var var state))
+                       (ret nil)]
+                  (w/append! out (.. "local " esc))
+                  (if expr
+                    (progn
+                      (if (.> cat-lookup expr :stmt)
+                        (progn
+                          (set! ret (.. esc " = "))
+                          (w/line! out))
+                        (w/append! out " = "))
+                      (compile-expression expr out state ret)
+                      (w/line! out))
+                    (w/line! out))
+                  (inc! arg-idx)
+                  (inc! val-idx))]))
+           (w/line! out))
 
          (compile-block head out state 3 ret))]
       ["call-literal"
