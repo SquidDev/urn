@@ -104,6 +104,7 @@
                :default 1
                :narg    1
                :var     "LEVEL"
+               :many    true
                :action  pass-arg))
     :pred  (lambda (args) (> (.> args :warning) 0))
     :run   (pass-run warning/analyse "warning") })
@@ -116,6 +117,7 @@
                :default 1
                :narg    1
                :var     "LEVEL"
+               :many    true
                :action  pass-arg)
              (arg/add-argument! spec '("--optimise-n" "--optn")
                :help    "The maximum number of iterations the optimiser should run for."
