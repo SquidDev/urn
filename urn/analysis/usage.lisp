@@ -67,20 +67,30 @@
      ;; Inline arguments to a directly called lambda
      (let* [(lam (car node))
             (args (nth lam 2))
-            (offset 1)]
-       (for i 1 (# args) 1
-            (let [(arg (nth args i))
-                  (val (nth node (+ i offset)))]
-              (if (.> arg :var :isVariadic)
-                (with (count (- (# node) (# args)))
-                      ;; If it's a variable number of args then just skip them
-                      (when (< count 0) (set! count 0))
-                      (set! offset count)
-                      ;; And define as a normal argument
-                      (add-definition! state (.> arg :var) arg "var" (.> arg :var)))
-                (add-definition! state (.> arg :var) arg "val" (or val { :tag "symbol"
-                                                                         :contents "nil"
-                                                                         :var (.> builtins :nil) })))))
+            (offset 1)
+            (i 1)
+            (arg-len (# args))]
+       (while (<= i arg-len)
+         (let [(arg (nth args i))
+               (val (nth node (+ i offset)))]
+           (cond
+             [(.> arg :var :isVariadic)
+              (with (count (- (# node) (# args)))
+                ;; If it's a variable number of args then just skip them
+                (when (< count 0) (set! count 0))
+                (set! offset count)
+                ;; And define as a normal argument
+                (add-definition! state (.> arg :var) arg "var" (.> arg :var)))]
+             [(and (= (+ i offset) (# node)) (< i arg-len) (list? val))
+              (for j i arg-len 1
+                (with (arg (nth args j))
+                  (add-definition! state (.> arg :var) arg "var" arg)))
+              (set! i arg-len)]
+             [true
+              (add-definition! state (.> arg :var) arg "val" (or val { :tag "symbol"
+                                                                       :contents "nil"
+                                                                       :var (.> builtins :nil) }))]))
+         (inc! i))
        (visitor/visit-list node 2 visitor)
        (visitor/visit-block lam 3 visitor))
      false]

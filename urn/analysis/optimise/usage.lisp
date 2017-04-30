@@ -140,6 +140,8 @@
                                    [(.> var :isVariadic) false]
                                    ;; We won't fold if the variable is redefined
                                    [(/= (# (.> entry :defs)) 1) false]
+                                   ;; If the definition is a varaiable then we can't fold.
+                                   [(= (.> (car (.> entry :defs)) :tag) "var") false]
                                    ;; Ensure there is only one usage of this argument
                                    [(/= (# (.> entry :usages)) 1) false]
                                    ;; Otherwise ensure that the next argument is valid
