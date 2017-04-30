@@ -90,6 +90,7 @@
                               :max-time  (.> args (.. name "-time"))
 
                               ;; General shared options
+                              :compiler  compiler
                               :meta      (.> compiler :libMeta)
                               :libs      (.> compiler :libs)
                               :logger    (.> compiler :log)
