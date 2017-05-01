@@ -35,9 +35,6 @@
       (check [(list a)]
         (eq? (map id a) a)
         (eq? (# (map id a)) (# a))))
-  (it "has two equivalent operations: map and traverse"
-      (affirm (eq? (map (cut + <> 1) '(1 2 3))
-                 (traverse '(1 2 3) (cut + <> 1)))))
   (it "can be checked for the presence of an element"
       (affirm (eq? true (elem? 1 '(1 2 3)))
               (eq? true (elem? 2 '(1 2 3)))

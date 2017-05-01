@@ -33,4 +33,4 @@
             (eq? "\"\\9\"" (quoted "\t"))
             (eq? "\"\\n\"" (quoted "\n"))))
   (it "can be trimmed"
-    (affirm (eq? "test" (trim "\t test \t")))))
+    (affirm (eq? "test" (trim "\n\t test \t\r\n")))))
