@@ -1,7 +1,7 @@
 (import base (defmacro defun with for when if and or let*
               get-idx gensym =))
 (import binders (let))
-(import list (for-each push-cdr! any map traverse))
+(import list (for-each push-cdr! any map traverse foldl))
 (import type (symbol? list? function? table?))
 (import table (.> getmetatable))
 (import lua/os (clock))
@@ -96,10 +96,26 @@
            (invokable? (.> (getmetatable x) :__call)))))
 
 (defun compose (f g)
-  "Return the pointwise composition of functions F and G. This
-   corresponds to the mathematical operator `∘`, i.e. `(compose f g)`
-   corresponds to `h(x) = f (g x)` (`(lambda (x) (f (g x)))`)."
+  "Return the pointwise composition of functions F and G.
+
+   Example:
+   ```cl
+   > ((compose (cut + <> 2) (cut * <> 2))
+   .  2)
+   out = 6
+   ```"
   (if (and (invokable? f)
            (invokable? g))
     (lambda (x) (f (g x)))
     nil))
+
+(defun comp (&fs)
+  "Return the pointwise composition of all functions in FS.
+
+   Example:
+   ```cl
+   > ((comp succ (cut + <> 2) (cut * <> 2))
+   .  2)
+   out = 7
+   ```"
+  (foldl compose (lambda (x) x) fs))
