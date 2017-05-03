@@ -1,6 +1,6 @@
 (import base (defun defmacro progn for while if quasiquote const-val
               and or xpcall get-idx set-idx! pretty pcall
-              gensym tostring tonumber require =>
+              gensym tostring tonumber require => <=>
               unpack list when unless arg apply
               = /= < <= > >= + - * / % ^ ! # debug) :export)
 
