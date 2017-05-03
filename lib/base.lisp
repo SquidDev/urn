@@ -145,6 +145,12 @@
   "Logical implication. `(=> a b)` is equivalent to `(or (! a) b)`."
   `(or (! ,p) ,q))
 
+(defmacro <=> (p q)
+  "Bidirectional implication. `(<=> a b)` means that `(=> a b)` and
+   `(=> b a)` both hold."
+  `(and (or (! ,p) ,q)
+        (or (! ,q) ,p)))
+
 (defun -or (a b)
   "Return the logical disjunction of values A and B.
    This is a function, not a macro."
