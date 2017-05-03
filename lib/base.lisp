@@ -141,6 +141,10 @@
   (with (symb (gensym))
     `(with (,symb ,a) (if ,symb ,symb ,(if (= (# rest) 0) b `(or ,b ,@rest))))))
 
+(defmacro => (p q)
+  "Logical implication. `(=> a b)` is equivalent to `(or (! a) b)`."
+  `(or (! ,p) ,q))
+
 (defun -or (a b)
   "Return the logical disjunction of values A and B.
    This is a function, not a macro."
