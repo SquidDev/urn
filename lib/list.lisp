@@ -208,6 +208,16 @@
   (assert-type! xs list)
   (accumulate-with p -or false xs))
 
+(defun none (p xs)
+  "Check that no elements in XS match the predicate P.
+
+   ### Example:
+   ```cl
+   > (none nil? '(\"foo\" \"bar\" \"baz\"))
+   true
+   ```"
+  (! (any p xs)))
+
 (defun \\ (xs ys)
   "The difference between XS and YS (non-associative.)
 
