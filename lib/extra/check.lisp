@@ -77,12 +77,18 @@
            (destructuring-bind [(?type ?name) binding]
              `(.. ,(.. "  the " (symbol->string type) " `"
                        (symbol->string name) "', had the value ") (pretty ,name))))
+         (n (if (number? (car props))
+              (car props)
+              1000))
+         (props (if (number? (car props))
+                  (cdr props)
+                  props))
          (generate-body (prop)
            (let* [(ctr (gensym))
                   (ok (gensym))]
              `(let* [(,ok true)
                      (,ctr 1)]
-                (while (and (>= 100 ,ctr) ,ok)
+                (while (and (>= ,n ,ctr) ,ok)
                   ,@(map generate-regenerator bindings)
                   (if (! ,prop)
                     (progn
@@ -91,6 +97,7 @@
                           ,ctr " iteration(s).\n Falsifying set of values:\n"
                           ,@(map make-printing bindings))))
                     (inc! ,ctr)))
+                (print! (.. "Ok. Proposition `" ,(pretty prop) "` passed " ,n " tests."))
                 )))]
     `(let* ,(map generate-binding bindings)
        ,@(map generate-body props))))
