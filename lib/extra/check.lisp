@@ -90,6 +90,12 @@
          (props (if (number? (car props))
                   (cdr props)
                   props))
+         (silent (if (eq? (car props) ':verbose)
+                   false
+                   true))
+         (props (if (eq? (car props) ':verbose)
+                  (cdr props)
+                  props))
          (generate-body (prop)
            (let* [(ctr (gensym))
                   (ok (gensym))]
@@ -104,7 +110,10 @@
                           ,ctr " iteration(s).\n Falsifying set of values:\n"
                           ,@(map make-printing bindings))))
                     (inc! ,ctr)))
-                (print! (.. "Ok. Proposition `" ,(pretty prop) "` passed " ,n " tests."))
+                ,(if (! silent)
+                   `(progn (print! (.. "Ok. Proposition `" ,(pretty prop) "` passed " ,n " tests."))
+                           true)
+                   `true)
                 )))]
     `(let* ,(map generate-binding bindings)
        ,@(map generate-body props))))
