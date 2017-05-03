@@ -70,4 +70,10 @@
       (affirm (eq? 10 (accumulate-with tonumber + 0 '(1 2 3 4)))))
   (it "can have an item mutated in-place"
       (affirm (eq? '(1 3) (with (l '(1 2)) (set-idx! l 2 3) l))))
+  (it "is equal if all elements are equal"
+      (check [(list a) (list b)]
+        (=> (eq? a b)
+            (foldl (lambda (x y) (and x y))
+                   true
+                   (map eq? a b)))))
 )
