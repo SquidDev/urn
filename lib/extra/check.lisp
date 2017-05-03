@@ -21,7 +21,7 @@
   { :tag "symbol" :contents (random-string) })
 
 (defun random-type () :hidden
-  (let* [(types '("symbol" "boolean" "number" "string" "key" "list"))]
+  (let* [(types '("symbol" "boolean" "number" "string" "key" "list" "struct"))]
     (nth types (random 1 (# types)))))
 
 (defun -random-type () :hidden
@@ -36,11 +36,18 @@
     ["symbol" (random-symbol)]
     ["key" (random-string)]
     ["list" (random-list)]
+    ["struct" (random-struct)]
     ["any" (random-of (random-type))]))
 
 (defun random-list () :hidden
-  (let* [(length (random 1 2))]
+  (let* [(length (random 1 5))]
     (map (lambda (x) (random-of (-random-type))) (range 1 length))))
+
+(defun random-struct () :hidden
+  (let* [(out {})]
+    (for i 1 (random 1 5) 1
+      (set-idx! out (random-of (-random-type)) (random-of (-random-type))))
+    out))
 
 (defmacro check (bindings &props)
   "Check a set of properties against a set of random variables 100 times.
