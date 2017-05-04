@@ -24,4 +24,17 @@
         (affirm (elem? `(pretty ,value-sym) failure)))
       (will "include the body in the compiled result"
         (affirm (elem? '(print! x) body)))
-      )))
+      ))
+  (may "compile literal patterns"
+    (destructuring-bind [(let* ((?value-sym ?value-val))
+                           (if ?test (let* ?bindings . ?body)
+                             (error (.. . ?failure))))
+                         ((id destructuring-bind) '(123 y) '(print! "oh ok"))]
+      (will "compile a literal test"
+        (affirm (eq? test `(= ,value-sym 123))))
+      (will "compile no bindings"
+        (affirm (eq? bindings '())))
+      (will "include the body in the compiled result"
+        (affirm (elem? '(print! "oh ok") body)))
+      (will "compile a failure referencing the literal"
+        (affirm (string/find (car failure) "123"))))))
