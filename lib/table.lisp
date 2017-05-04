@@ -118,7 +118,7 @@
     (for i 1 (# entries) 2
       (let ((key (get-idx entries i))
             (val (get-idx entries (+ 1 i))))
-        (set-idx! out (if (key? key) (get-idx key "contents") key) val)))
+        (set-idx! out (if (key? key) (get-idx key "value") key) val)))
     out))
 
 (defun fast-struct (&entries)
