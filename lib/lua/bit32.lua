@@ -114,16 +114,16 @@ if not bit32 then
 end
 
 return {
-	["arshift"] = bit32.arshift,
-	["band"] = bit32.band,
-	["bnot"] = bit32.bnot,
-	["bor"] = bit32.bor,
-	["btest"] = bit32.btest,
-	["bxor"] = bit32.bxor,
-	["extract"] = bit32.extract,
-	["lrotate"] = bit32.lrotate,
-	["lshift"] = bit32.lshift,
-	["replace"] = bit32.replace,
-	["rrotate"] = bit32.rrotate,
-	["rshift"] = bit32.rshift,
+	["ashr"] = bit32.arshift,
+	["bit-and"] = bit32.band,
+	["bit-not"] = bit32.bnot,
+	["bit-or"] = bit32.bor,
+	["bit-test"] = bit32.btest,
+	["bit-xor"] = bit32.bxor,
+	["bit-extract"] = bit32.extract,
+	["bit-replace"] = bit32.replace,
+	["bit-rotl"] = bit32.lrotate,
+	["shl"] = bit32.lshift,
+	["bit-rotr"] = bit32.rrotate,
+	["shr"] = bit32.rshift,
 }
