@@ -24,10 +24,10 @@
               get-idx for gensym -or slice /=
               pretty print error tostring  -and
               unpack debug if # + - >= = ! with
-              apply and progn))
+              apply and progn ..))
 (import base)
 (import lua/table)
-(import type (nil? list? empty? assert-type! exists? falsey? eq?))
+(import type (nil? list? empty? assert-type! exists? falsey? eq? type))
 (import lua/math (min max))
 
 (defun car (x)
@@ -133,12 +133,16 @@
    > (map succ '(1 2 3))
    out = (2 3 4)
    ```"
-  (let* [(lenghts (let* [(out '())]
+  (let* [(lengths (let* [(out '())]
                     (for i 1 (# xss) 1
+                      (if (! (list? (nth xss i)))
+                        (error (.. "not a list: " (pretty (nth xss i))
+                                   " (it's a " (type (nth xss i)) ")"))
+                        true)
                       (push-cdr! out (# (nth xss i))))
                     out))
          (out '())]
-    (for i 1 (apply min lenghts) 1
+    (for i 1 (apply min lengths) 1
       (push-cdr! out (apply fn (nths xss i))))
     out))
 
@@ -157,6 +161,10 @@
    ```"
   (let* [(lenghts (let* [(out '())]
                     (for i 1 (# xss) 1
+                      (if (! (list? (nth xss i)))
+                        (error (.. "not a list: " (pretty (nth xss i))
+                                   " (it's a " (type (nth xss i)) ")"))
+                        true)
                       (push-cdr! out (# (nth xss i))))
                     out))
          (out '())]
