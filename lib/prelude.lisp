@@ -4,6 +4,7 @@
               unpack list when unless arg apply
               = /= < <= > >= + - * / % ^ ! # debug) :export)
 
+(import lua/bit32 () :export)
 (import base)
 (import string (#s format .. concat) :export)
 (import string string :export)
