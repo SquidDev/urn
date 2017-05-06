@@ -98,7 +98,7 @@
 (defun compose (f g)
   "Return the pointwise composition of functions F and G.
 
-   Example:
+   ### Example:
    ```cl
    > ((compose (cut + <> 2) (cut * <> 2))
    .  2)
@@ -112,7 +112,7 @@
 (defun comp (&fs)
   "Return the pointwise composition of all functions in FS.
 
-   Example:
+   ### Example:
    ```cl
    > ((comp succ (cut + <> 2) (cut * <> 2))
    .  2)

@@ -288,7 +288,7 @@
    In the case that X does not throw an error, the value of that
    expression is returned by [[handler-case]].
 
-   Example:
+   ### Example:
 
    ```cl
    > (handler-case \\

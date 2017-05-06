@@ -257,7 +257,7 @@
 (defun apply (f xs)
   "Apply the function F using XS as the argument list.
 
-   Example:
+   ### Example:
    ```cl
    > (apply + '(1 2))
    3

@@ -163,7 +163,7 @@
 
    If there is no finaliser for VAR, then nothing is done for it.
 
-   Example:
+   ### Example:
    ```
    > (use [(file (io/open \"temp\"))] \\
    .   (print! (self file :read \"*a\")))
