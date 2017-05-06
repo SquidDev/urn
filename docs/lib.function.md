@@ -17,12 +17,29 @@ with the previous entry as an argument.
 (4 6 8)
 ```
 
+## `(comp &fs)`
+*Defined at lib/function.lisp:112:1*
+
+Return the pointwise composition of all functions in `FS`.
+
+### Example:
+```cl
+> ((comp succ (cut + <> 2) (cut * <> 2))
+.  2)
+out = 7
+```
+
 ## `(compose f g)`
 *Defined at lib/function.lisp:98:1*
 
-Return the pointwise composition of functions `F` and `G`. This
-corresponds to the mathematical operator `∘`, i.e. `(compose f g)`
-corresponds to `h(x) = f (g x)` (`(lambda (x) (f (g x)))`).
+Return the pointwise composition of functions `F` and `G`.
+
+### Example:
+```cl
+> ((compose (cut + <> 2) (cut * <> 2))
+.  2)
+out = 6
+```
 
 ## `(cut &func)`
 *Macro defined at lib/function.lisp:16:1*

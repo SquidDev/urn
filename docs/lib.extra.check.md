@@ -5,23 +5,21 @@ title: extra/check
 `A` checker for algebraic properties.
 
 ## `(check bindings &props)`
-*Macro defined at lib/extra/check.lisp:45:1*
+*Macro defined at lib/extra/check.lisp:52:1*
 
 Check a set of properties against a set of random variables 100 times.
 This can be used as a rudimentary algebraic property checker, where
 `BINDINGS` is the list of universally-quantified variables and `PROPS` is
 the list of properties you're checking.
 
-Example:
+### Example:
 ```
 > (check [(number a)] \
 .   (= a a))
-.
 (= a a) passed 100 tests.
 nil
 > (check [(number a)] \
 .   (= a (+ 1 a)))
-.
 (= a (+ 1 a)) falsified after 1 iteration(s)
 falsifying set of values:
   the number, a, had the value 3867638440

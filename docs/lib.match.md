@@ -17,6 +17,8 @@ pattern ::= literal
           | ( as pattern metavar ) ;; as
           | ( pattern * ) ;; list
           | ( pattern + . pattern ) ;; list+rest
+          | ( struct-literal :name pattern :name pattern ) ;; structure literal
+          | { :name pattern :name pattern } ;; structure literal
 literal ::= number | string | boolean | symbol | key
 metavar ::= '?' symbol
 ```
@@ -45,13 +47,13 @@ their "inner" patterns.
 matches if the scrutinee matches the given predicate.
 
 ## `(case val &pts)`
-*Macro defined at lib/match.lisp:232:1*
+*Macro defined at lib/match.lisp:259:1*
 
 Match a single value against a series of patterns, evaluating the
 first body that matches, much like `cond`.
 
 ## `(destructuring-bind pt &body)`
-*Macro defined at lib/match.lisp:215:1*
+*Macro defined at lib/match.lisp:242:1*
 
 Match a single pattern against a single value, then evaluate the `BODY`.
 
@@ -59,7 +61,7 @@ The pattern is given as `(car PT)` and the value as `(cadr PT)`.  If
 the pattern does not match, an error is thrown.
 
 ## `(handler-case x &body)`
-*Macro defined at lib/match.lisp:256:1*
+*Macro defined at lib/match.lisp:283:1*
 
 Evaluate the form `X`, and if an error happened, match the series
 of `(?pattern (?arg) . ?body)` arms given in `BODY` against the value of
@@ -68,7 +70,7 @@ the error, executing the first that succeeeds.
 In the case that `X` does not throw an error, the value of that
 expression is returned by [`handler-case`](lib.match.md#handler-case-x-body).
 
-Example:
+### Example:
 
 ```cl
 > (handler-case \
@@ -78,7 +80,7 @@ Example:
 ```
 
 ## `(matches? pt x)`
-*Macro defined at lib/match.lisp:246:1*
+*Macro defined at lib/match.lisp:273:1*
 
 Test if the value `X` matches the pattern `PT`.
 
@@ -86,4 +88,6 @@ Note that, since this does not bind anything, all metavariables may be
 replaced by `_` with no loss of meaning.
 
 ## Undocumented symbols
- - `(function &arms)` *Macro defined at lib/match.lisp:285:1*
+ - `(compile-pattern-test pattern symb)` *Defined at lib/match.lisp:136:1*
+ - `(function &arms)` *Macro defined at lib/match.lisp:312:1*
+ - `(if-match cs t e)` *Macro defined at lib/match.lisp:324:1*

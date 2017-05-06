@@ -3,13 +3,13 @@ title: type
 ---
 # type
 ## `(assert-type! arg ty)`
-*Macro defined at lib/type.lisp:138:1*
+*Macro defined at lib/type.lisp:142:1*
 
 Assert that the argument `ARG` has type `TY`, as reported by the function
 [`type`](lib.type.md#type-val).
 
 ## `(atom? x)`
-*Defined at lib/type.lisp:54:1*
+*Defined at lib/type.lisp:55:1*
 
 Check whether `X` is an atomic object, that is, one of
 - `A` boolean
@@ -20,23 +20,23 @@ Check whether `X` is an atomic object, that is, one of
 - `A` function
 
 ## `(between? val min max)`
-*Defined at lib/type.lisp:82:1*
+*Defined at lib/type.lisp:83:1*
 
 Check if the numerical value `X` is between
 `MIN` and `MAX`.
 
 ## `(boolean? x)`
-*Defined at lib/type.lisp:40:1*
+*Defined at lib/type.lisp:41:1*
 
 Check whether `X` is a boolean.
 
 ## `(empty? x)`
-*Defined at lib/type.lisp:16:1*
+*Defined at lib/type.lisp:17:1*
 
 Check whether `X` is the empty list or the empty string.
 
 ## `(eq? x y)`
-*Defined at lib/type.lisp:95:1*
+*Defined at lib/type.lisp:96:1*
 
 Compare `X` and `Y` for equality deeply.
 Rules:
@@ -59,67 +59,67 @@ Rules:
   - They are equal if neither exists.  
 
 ## `(exists? x)`
-*Defined at lib/type.lisp:72:1*
+*Defined at lib/type.lisp:73:1*
 
 Check if `X` exists, i.e. it is not the special value `nil`.
 Note that, in Urn, `nil` is not the empty list.
 
 ## `(falsey? x)`
-*Defined at lib/type.lisp:67:1*
+*Defined at lib/type.lisp:68:1*
 
 Check whether `X` is falsey, that is, it is either `false` or does not
 exist.
 
 ## `(function? x)`
-*Defined at lib/type.lisp:46:1*
+*Defined at lib/type.lisp:47:1*
 
 Check whether `X` is a function.
 
 ## `(key? x)`
-*Defined at lib/type.lisp:50:1*
+*Defined at lib/type.lisp:51:1*
 
 Check whether `X` is a key.
 
 ## `(list? x)`
-*Defined at lib/type.lisp:12:1*
+*Defined at lib/type.lisp:13:1*
 
 Check whether `X` is a list.
 
 ## `(neq? x y)`
-*Defined at lib/type.lisp:133:1*
+*Defined at lib/type.lisp:137:1*
 
 Compare `X` and `Y` for inequality deeply. `X` and `Y` are `neq?`
 if `([[eq?]] x y)` is falsey.
 
 ## `(nil? x)`
-*Defined at lib/type.lisp:77:1*
+*Defined at lib/type.lisp:78:1*
 
 Check if `X` does not exist, i.e. it is the special value `nil`.
 Note that, in Urn, `nil` is not the empty list.
 
 ## `(number? x)`
-*Defined at lib/type.lisp:30:1*
+*Defined at lib/type.lisp:31:1*
 
 Check whether `X` is a number.
 
 ## `(string? x)`
-*Defined at lib/type.lisp:24:1*
+*Defined at lib/type.lisp:25:1*
 
 Check whether `X` is a string.
 
 ## `(symbol? x)`
-*Defined at lib/type.lisp:36:1*
+*Defined at lib/type.lisp:37:1*
 
 Check whether `X` is a symbol.
 
 ## `(table? x)`
-*Defined at lib/type.lisp:7:1*
+*Defined at lib/type.lisp:8:1*
 
 Check whether the value `X` is a table. This might be a structure,
 a list, an associative list, a quoted key, or a quoted symbol.
 
 ## `(type val)`
-*Defined at lib/type.lisp:87:1*
+*Defined at lib/type.lisp:88:1*
 
 Return the type of `VAL`.
 
