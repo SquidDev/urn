@@ -24,7 +24,7 @@
               get-idx for gensym -or slice /=
               pretty print error tostring  -and
               unpack debug if # + - >= = ! with
-              apply and progn ..))
+              apply and progn .. *))
 (import base)
 (import lua/table)
 (import type (nil? list? empty? assert-type! exists? falsey? eq? type))
@@ -229,7 +229,7 @@
 (defun \\ (xs ys)
   "The difference between XS and YS (non-associative.)
 
-   Example:
+   ### Example:
    ```
    > (\\ '(1 2 3) '(1 3 5 7))
    out = (2)
@@ -254,7 +254,7 @@
 (defun nub (xs)
   "Remove duplicate elements from XS.
 
-   Example:
+   ### Example:
    ```
    > (nub '(1 1 2 2 3 3))
    out = (1 2 3)
@@ -266,7 +266,7 @@
 (defun union (xs ys)
   "Set-like union of XS and YS.
 
-   Example:
+   ### Example:
    ```
    > (union '(1 2 3 4) '(1 2 3 4 5))
    out = (1 2 3 4 5)
@@ -504,6 +504,26 @@
   (assert-type! f function)
   (assert-type! ac function)
   (foldl ac z (map f xs)))
+
+(defun sum (xs)
+  "Return the sum of all elements in XS.
+
+   ### Example:
+   ```cl
+   > (sum '(1 2 3 4))
+   out = 10
+   ```"
+  (foldl + 0 xs))
+
+(defun prod (xs)
+  "Return the product of all elements in XS.
+
+   ### Example:
+   ```cl
+   > (prod '(1 2 3 4))
+   out = 24
+   ```"
+  (foldl * 1 xs))
 
 ;; AUTOMATICALLY GENERATED
 ;; DO NOT EDIT please.
