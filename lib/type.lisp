@@ -3,6 +3,7 @@
               error gensym ! len# pretty))
 
 (import lua/string (format sub))
+(import lua/basic (getmetatable))
 
 (defun table? (x)
   "Check whether the value X is a table. This might be a structure,
@@ -122,6 +123,9 @@
            (for i 1 (# x) 1
              (when (neq? (get-idx x i) (get-idx y i)) (set! equal false)))
            equal)]
+        [(and (= :table (type# x))
+              (getmetatable x))
+         ((get-idx (getmetatable x) :compare) x y)]
         [(and (= :symbol type-x) (= :symbol type-y)) (= (get-idx x :contents) (get-idx y :contents))]
         [(and (= :key type-x)    (= :key type-y))    (= (get-idx x :value) (get-idx y :value))]
         [(and (= :symbol type-x) (= :string type-y)) (= (get-idx x :contents) y)]
