@@ -273,7 +273,7 @@
                          (inc! idx)])))]
     (while (<= idx len)
       (case (nth args idx)
-        [(-> (matcher "^%-%-([^=]+)=(.+)$") (?key ?val))
+        [((matcher "^%-%-([^=]+)=(.+)$") -> (?key ?val))
          (with (arg (.> spec :opt-map key))
            (cond
              [(= arg nil)
@@ -290,7 +290,7 @@
               (action arg val)]))
          ;; And move onto the next token.
          (inc! idx)]
-        [(-> (matcher "^%-%-(.*)$") (?key))
+        [((matcher "^%-%-(.*)$") -> (?key))
          (with (arg (.> spec :opt-map key))
            (cond
              [(= arg nil)
@@ -301,7 +301,7 @@
 
              ;; Attempt to consume the correct number of arguments after this one.
              [true (read-args key arg)]))]
-        [(-> (matcher "^%-(.+)$") (?flags))
+        [((matcher "^%-(.+)$") -> (?flags))
          (let* [(i 1)
                 (s (#s flags))]
            (while (<= i s)

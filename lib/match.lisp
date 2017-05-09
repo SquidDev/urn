@@ -9,8 +9,8 @@
            | metavar
            | _
            | symbol '?' ;; predicate
-           | ( -> expr pattern ) ;; view
-           | ( as pattern metavar ) ;; as
+           | ( expr -> pattern ) ;; view
+           | ( pattern :with metavar ) ;; as
            | ( pattern * ) ;; list
            | ( pattern + . pattern ) ;; list+rest
            | ( struct-literal :name pattern :name pattern ) ;; structure literal
@@ -102,9 +102,9 @@
     [(! seen) (assert-linearity! pat {})]
     [(list? pat)
      (cond
-       [(eq? (car pat) 'as)
-        (assert-linearity! (cadr pat) seen)]
-       [(eq? (car pat) '->')
+       [(eq? (cadr pat) ':with)
+        (assert-linearity! (caddr pat) seen)]
+       [(eq? (cadr pat) '->)
         (assert-linearity! (caddr pat) seen)]
        [(eq? (car pat) 'optional)
         (assert-linearity! (cadr pat) seen)]
@@ -137,10 +137,10 @@
   (cond
     [(list? pattern)
      (cond
-       [(eq? (car pattern) 'as)
-        (compile-pattern-test (cadr pattern) symb)]
-       [(eq? (car pattern) '->)
-        (compile-pattern-test (caddr pattern) `(,(cadr pattern) ,symb))]
+       [(eq? (cadr pattern) ':with)
+        (compile-pattern-test (car pattern) symb)]
+       [(eq? (cadr pattern) '->)
+        (compile-pattern-test (caddr pattern) `(,(car pattern) ,symb))]
        [(eq? (car pattern) 'optional)
         `(if ,symb ,(compile-pattern-test (cadr pattern) symb) true)]
        [(struct-pat? pattern)
@@ -151,7 +151,6 @@
                                      (nth pattern (+ 1 i))
                                      `(get-idx ,symb ,(nth pattern i))))
                     (push-cdr! out `(get-idx ,symb ,(nth pattern i))))
-                  (debug out)
                   out))]
        [(cons-pattern? pattern)
         (let* [(pattern-sym (gensym))
@@ -199,10 +198,10 @@
     (cond
       [(list? pattern)
        (cond
-         [(eq? (car pattern) 'as)
-          `(,@(compile-pattern-bindings (caddr pattern) symb) ,@(compile-pattern-bindings (cadr pattern) symb))]
-         [(eq? (car pattern) '->)
-          (compile-pattern-bindings (caddr pattern) `(,(cadr pattern) ,symb))]
+         [(eq? (cadr pattern) ':with)
+          `(,@(compile-pattern-bindings (caddr pattern) symb) ,@(compile-pattern-bindings (car pattern) symb))]
+         [(eq? (cadr pattern) '->)
+          (compile-pattern-bindings (caddr pattern) `(,(car pattern) ,symb))]
          [(eq? (car pattern) 'optional)
           (compile-pattern-bindings (cadr pattern) symb)]
          [(struct-pat? pattern)
@@ -298,7 +297,7 @@
    ```"
   (let* [(gen-arm (cs exc)
            (destructuring-bind [(?pattern (?arg) . ?body) cs]
-             ~((as ,pattern ,(->meta arg)) ,@body)))
+             ~((,pattern :with ,(->meta arg)) ,@body)))
          (exc-sym (gensym))
          (tmp-sym (gensym))
          (error-handler `(lambda (,exc-sym)

@@ -49,4 +49,8 @@
 
 (define #
   "Get the length of list X"
-  (lambda (x) (get-idx x "n")))
+  (lambda (x)
+    (cond
+      [(= (type# x) "table")
+       (get-idx x "n")]
+      [true (len# x)])))
