@@ -297,7 +297,7 @@
    ```"
   (let* [(gen-arm (cs exc)
            (destructuring-bind [(?pattern (?arg) . ?body) cs]
-             ~((as ,pattern ,(->meta arg)) ,@body)))
+             ~((,pattern :with ,(->meta arg)) ,@body)))
          (exc-sym (gensym))
          (tmp-sym (gensym))
          (error-handler `(lambda (,exc-sym)
