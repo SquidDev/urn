@@ -18,4 +18,3 @@
 (define-native errno)
 (define-native C)
 (define-native offsetof)
-(define foobar 1)
