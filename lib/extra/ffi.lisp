@@ -5,4 +5,6 @@
   "Define the external symbol NAME with the C type signature
    given by TYPEDECL."
   (cdef (get-idx typedecl :value))
-  `(define ,name (get-idx C ,(symbol->string name))))
+  (unpack
+    `((cdef ,(get-idx typedecl :value))
+      (define ,name (get-idx C ,(symbol->string name))))))
