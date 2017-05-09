@@ -139,6 +139,20 @@
    if `([[eq?]] x y)` is falsey."
   (! (eq? x y)))
 
+(defun eql? (x y)
+  "A version of [[eq?]] that compares the types of X and Y instead of
+   just the values.
+
+   ### Example:
+   ```cl
+   > (eq? 'foo \"foo\")
+   out = true
+   > (eql? 'foo \"foo\")
+   out = false
+   ```"
+  (and (eq? (type x) (type y))
+       (eq? x y)))
+
 (defmacro assert-type! (arg ty)
   "Assert that the argument ARG has type TY, as reported by the function
    [[type]]."
