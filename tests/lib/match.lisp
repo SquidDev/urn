@@ -8,7 +8,7 @@
             (eq? false (pcall (lambda () (destructuring-bind [[?x ?y] '(1 2 3)] y))))))
   (may "compile variable patterns"
     (destructuring-bind [(let* ((?value-sym ?value-val))
-                           (if ?test (let* (as list? ?binds) .
+                           (if ?test (let* (list? :with ?binds) .
                                        ?body)
                              (error (.. . ?failure))))
                          ((id destructuring-bind) '(?x y) '(print! x))]
