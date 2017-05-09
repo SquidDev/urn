@@ -49,6 +49,7 @@ publish_docs: docs
 	git checkout gh-pages
 	rm -rf ${PAGES_DIR}
 	mv ${DOCS_DIR} ${PAGES_DIR}
+	bundler exec jekyll build
 	git add ${PAGES_DIR}
 	git commit -m "Update docs"
 	git push origin gh-pages
