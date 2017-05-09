@@ -151,7 +151,6 @@
                                      (nth pattern (+ 1 i))
                                      `(get-idx ,symb ,(nth pattern i))))
                     (push-cdr! out `(get-idx ,symb ,(nth pattern i))))
-                  (debug out)
                   out))]
        [(cons-pattern? pattern)
         (let* [(pattern-sym (gensym))
@@ -249,7 +248,7 @@
          (val-sym (gensym))]
     (assert-linearity! pattern)
     `(let* [(,val-sym ,value)]
-       ,(debug (compile-pattern pattern val-sym body)))))
+       ,(compile-pattern pattern val-sym body))))
 
 (defun generate-case-error (arms val) :hidden
   (let* [(patterns (map (lambda (x) (pretty (car x))) arms))]
