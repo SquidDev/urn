@@ -46,7 +46,7 @@
          (inside (let* [(out '())]
                    (for i (# stmts) 1 -1
                      (case (nth stmts i)
-                       [((<- . _) :with ?gen-stmt)
+                       [((<- . _) @ ?gen-stmt)
                         (set! out (reify-generator gen-stmt out))]
                        [?x
                          (set! out `(,yield-sym ,x))]))
