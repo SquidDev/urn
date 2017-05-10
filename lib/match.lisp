@@ -96,8 +96,7 @@
     (= (char-at x (#s x)) "?")))
 
 (defun struct-pat? (x) :hidden
-  (and (eq? (car x) 'struct-literal)
-       (symbol? (car x))
+  (and (eql? (car x) 'struct-literal)
        (= (% (# (cdr x)) 2) 0)))
 
 (defun assert-linearity! (pat seen) :hidden
@@ -105,17 +104,13 @@
     [(! seen) (assert-linearity! pat {})]
     [(list? pat)
      (cond
-       [(and (symbol? (cadr pat))
-             (eq? (cadr pat) '@))
+       [(eql? (cadr pat) '@)
         (assert-linearity! (caddr pat) seen)]
-       [(and (key? (cadr pat))
-             (eq? (cadr pat) ':when))
+       [(eql? (cadr pat) ':when)
         (assert-linearity! (car pat) seen)]
-       [(and (symbol? (cadr pat))
-             (eq? (cadr pat) '->))
+       [(eql? (cadr pat) '->)
         (assert-linearity! (caddr pat) seen)]
-       [(and (symbol? (car pat))
-             (eq? (car pat) 'optional))
+       [(eql? (car pat) 'optional)
         (assert-linearity! (cadr pat) seen)]
        [(struct-pat? pat)
         (for i 3 (# pat) 2
@@ -146,19 +141,15 @@
   (cond
     [(list? pattern)
      (cond
-       [(and (symbol? (cadr pattern)) ; prevent against weird type punning
-             (eq? (cadr pattern) '@))
+       [(eql? (cadr pattern) '@)
         (compile-pattern-test (car pattern) symb)]
-       [(and (symbol? (cadr pattern)) ; prevent against weird type punning
-             (eq? (cadr pattern) '->))
+       [(eql? (cadr pattern) '->)
         (compile-pattern-test (caddr pattern) `(,(car pattern) ,symb))]
-       [(and (key? (cadr pattern)) ; prevent against weird type punning
-             (eq? (cadr pattern) ':when))
+       [(eql? (cadr pattern) ':when)
         `(and ,(compile-pattern-test (car pattern) symb)
               (let* ,(debug (compile-pattern-bindings (car pattern) symb))
                 ,(caddr pattern)))]
-       [(and (symbol? (car pattern))
-             (eq? (car pattern) 'optional))
+       [(eql? (car pattern) 'optional)
         `(if ,symb ,(compile-pattern-test (cadr pattern) symb) true)]
        [(struct-pat? pattern)
         `(and (table? ,symb)
@@ -215,16 +206,13 @@
     (cond
       [(list? pattern)
        (cond
-         [(and (symbol? (cadr pattern)) ; prevent against weird type punning
-               (eq? (cadr pattern) '@))
+         [(eql? (cadr pattern) '@)
           `(,@(compile-pattern-bindings (caddr pattern) symb) ,@(compile-pattern-bindings (car pattern) symb))]
-         [(and (key? (cadr pattern)) ; prevent against weird type punning
-               (eq? (cadr pattern) ':when))
+         [(eql? (cadr pattern) ':when)
           (compile-pattern-bindings (car pattern) symb)]
-         [(and (symbol? (cadr pattern)) ; prevent against weird type punning
-               (eq? (cadr pattern) '->))
+         [(eql? (cadr pattern) '->)
           (compile-pattern-bindings (caddr pattern) `(,(car pattern) ,symb))]
-         [(eq? (car pattern) 'optional)
+         [(eql? (car pattern) 'optional)
           (compile-pattern-bindings (cadr pattern) symb)]
          [(struct-pat? pattern)
           (let* [(out '())]
