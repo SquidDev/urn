@@ -4,6 +4,7 @@
 
 (import lua/string (format sub))
 (import lua/basic (getmetatable))
+(import lua/table (iter-pairs))
 
 (defun table? (x)
   "Check whether the value X is a table. This might be a structure,
@@ -126,6 +127,13 @@
         [(and (= :table (type# x))
               (getmetatable x))
          ((get-idx (getmetatable x) :compare) x y)]
+        [(and (= :table type-x) (= :table type-y))
+         (let* [(equal true)] ; optimism, ho
+           (iter-pairs x (lambda (k v)
+                           (if (neq? v (get-idx y k))
+                             (set! equal false)
+                             nil)))
+           equal)]
         [(and (= :symbol type-x) (= :symbol type-y)) (= (get-idx x :contents) (get-idx y :contents))]
         [(and (= :key type-x)    (= :key type-y))    (= (get-idx x :value) (get-idx y :value))]
         [(and (= :symbol type-x) (= :string type-y)) (= (get-idx x :contents) y)]
