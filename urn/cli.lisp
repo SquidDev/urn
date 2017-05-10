@@ -117,7 +117,7 @@
                    (push-cdr! command (nth arg 0))
 
                    (case (list (os/execute (concat (append command args) " ")))
-                     [(?code . _) (os/exit code)] ; luajit.
+                     [((number @ ?code) . _) (os/exit code)] ; luajit.
                      [(_ _ ?code) (os/exit code)])))))
 
   (arg/add-argument! spec '("--plugin")
