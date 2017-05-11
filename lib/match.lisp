@@ -147,7 +147,7 @@
         (compile-pattern-test (caddr pattern) `(,(car pattern) ,symb))]
        [(eql? (cadr pattern) ':when)
         `(and ,(compile-pattern-test (car pattern) symb)
-              (let* ,(debug (compile-pattern-bindings (car pattern) symb))
+              (let* ,(compile-pattern-bindings (car pattern) symb)
                 ,(caddr pattern)))]
        [(eql? (car pattern) 'optional)
         `(if ,symb ,(compile-pattern-test (cadr pattern) symb) true)]
