@@ -238,30 +238,24 @@
             (! (elem? x ys)))
           xs))
 
-(defun nub-from (xs ys) :hidden
-  (cond
-    [(empty? xs) '()]
-    [true
-      (let* [(out '())]
-        (for i 1 (# xs) 1
-          (if (elem? (nth xs i) ys)
-            nil ;; pass
-            (progn
-              (push-cdr! out (nth xs i))
-              (push-cdr! ys (nth xs i)))))
-        out)]))
-
 (defun nub (xs)
-  "Remove duplicate elements from XS.
+  "Remove duplicate elements from XS. This runs in linear time.
 
    ### Example:
    ```
    > (nub '(1 1 2 2 3 3))
    out = (1 2 3)
    ```"
-  ;; TODO: This implementation runs in O(shit) time.
-  ;; We don't want that :(
-  (nub-from xs '()))
+  (let* ((hm {})
+         (out '[])) 
+    (for-each elm xs
+      (with (szd (pretty elm)) 
+        (cond
+          [(nil? (get-idx hm szd))
+            (push-cdr! out elm)
+            (set-idx! hm szd elm)]
+          [true])))
+    out))
 
 (defun union (xs ys)
   "Set-like union of XS and YS.
