@@ -208,10 +208,10 @@
    'X' (uppercase hex),
    'o' (octal), or
    'b' (binary)."
-  (let* [(type (if (> (#s (or format "")) 0)
-                 (string/char-at format (#s format))
+  (let* [(type (if (> (# (or format "")) 0)
+                 (string/char-at format (# format))
                  "d"))
-         (digits (if (> (#s (or format "")) 1) (tonumber (string/sub format 1 -2)) 0))
+         (digits (if (> (# (or format "")) 1) (tonumber (string/sub format 1 -2)) 0))
          (num->string (lambda (base size symbol)
                         (with (str (concat (reverse (map
                                                       (lambda (n)
@@ -240,9 +240,9 @@
                        (string/concat (reverse parts)))]))]
     (while (= (string/char-at str 1) "0")
       (set! str (string/sub str 2)))
-    (when (= (#s str) 0)
+    (when (= (# str) 0)
       (set! str "0"))
-    (.. (if (.> a :sign) "-" "") (string/rep "0" (- digits (#s str))) str)))
+    (.. (if (.> a :sign) "-" "") (string/rep "0" (- digits (# str))) str)))
 
 
 (defun equals? (a b)
@@ -310,8 +310,8 @@
                        (with (first-char (if (= (string/char-at a 3) "-")
                                            (progn (.<! val :sign true) 4)
                                            3))
-                         (for i 0 (floor (/ (- (#s a) first-char) (/ part-bits size))) 1
-                           (let* [(end-pos (- (#s a) (* i (/ part-bits size))))
+                         (for i 0 (floor (/ (- (# a) first-char) (/ part-bits size))) 1
+                           (let* [(end-pos (- (# a) (* i (/ part-bits size))))
                                   (start-upos (- end-pos (- (/ part-bits size) 1)))
                                   (start-pos (if (< start-upos first-char) first-char start-upos))
                                   (p (tonumber (string/sub a start-pos end-pos) base))]
@@ -328,7 +328,7 @@
          [_ (let* [(first-char (if (= (string/char-at a 1) "-") 2 1))
                    (mult (new 1))
                    (ten (new 10))]
-              (for i (#s a) first-char -1
+              (for i (# a) first-char -1
                 (set! val (+ val (* (new (tonumber (string/char-at a i))) mult)))
                 (set! mult (* mult ten)))
               (.<! val :sign (= (string/char-at a 1) "-")))])]
