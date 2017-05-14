@@ -46,7 +46,7 @@
   ;; Attempt to "normalise" strings
   (set! str (string/gsub str "\r\n?" "\n"))
 
-  (let* ((lines (string/split str "\n"))
+  (let* [(lines (string/split str "\n"))
          (line 1)
          (column 1)
          (offset 1)
@@ -87,26 +87,27 @@
                            (set! char (string/char-at str (succ offset))))
 
                          ;; And convert the digit to a string
-                         (string->number (string/sub str start offset) base)))))
+                         (string->number (string/sub str start offset) base))))]
     ;; Scan the input stream, consume one character, then read til the end of that token.
     (while (<= offset length)
       (with (char (string/char-at str offset))
         (cond
-          ((or (= char "\n") (= char "\t") (= char " ")))
-          ((= char "(") (append-with! {:tag "open" :close ")"}))
-          ((= char ")") (append-with! {:tag "close" :open "("}))
-          ((= char "[") (append-with! {:tag "open" :close "]"}))
-          ((= char "]") (append-with! {:tag "close" :open "["}))
-          ((= char "{") (append-with! {:tag "open-struct" :close "}"}))
-          ((= char "}") (append-with! {:tag "close" :open "{"}))
-          ((= char "'") (append! "quote"))
-          ((= char "`") (append! "syntax-quote"))
-          ((= char "~") (append! "quasiquote"))
-          ((= char ",") (if (= (string/char-at str (succ offset)) "@")
-            (with (start (position))
-              (consume!)
-              (append! "unquote-splice" start))
-            (append! "unquote")))
+          [(or (= char "\n") (= char "\t") (= char " "))]
+          [(= char "(") (append-with! {:tag "open" :close ")"})]
+          [(= char ")") (append-with! {:tag "close" :open "("})]
+          [(= char "[") (append-with! {:tag "open" :close "]"})]
+          [(= char "]") (append-with! {:tag "close" :open "["})]
+          [(= char "{") (append-with! {:tag "open-struct" :close "}"})]
+          [(= char "}") (append-with! {:tag "close" :open "{"})]
+          [(= char "'") (append! "quote")]
+          [(= char "`") (append! "syntax-quote")]
+          [(= char "~") (append! "quasiquote")]
+          [(= char ",")
+           (if (= (string/char-at str (succ offset)) "@")
+             (with (start (position))
+               (consume!)
+               (append! "unquote-splice" start))
+             (append! "unquote"))]
           ((string/find str "^%-?%.?[#0-9]" offset)
             (let [(start (position))
                   (negative (= char "-"))]
@@ -117,44 +118,63 @@
 
               (with (val (cond
                            ;; Parse hexadecimal digits
-                           ((and (= char "#") (= (string/lower (string/char-at str (succ offset))) "x"))
-                             (consume!)
-                             (consume!)
-                             (with (res (parse-base "hexadecimal" hex-digit? 16))
-                               (when negative (set! res (- 0 res)))
-                               res))
+                           [(and (= char "#") (= (string/lower (string/char-at str (succ offset))) "x"))
+                            (consume!)
+                            (consume!)
+                            (with (res (parse-base "hexadecimal" hex-digit? 16))
+                              (when negative (set! res (- 0 res)))
+                              res)]
                            ;; Parse binary digits
-                           ((and (= char "#") (= (string/lower (string/char-at str (succ offset))) "b"))
-                             (consume!)
-                             (consume!)
-                             (with (res (parse-base "binary" bin-digit? 2))
-                               (when negative (set! res (- 0 res)))
-                               res))
-                           (true
-                             ;; Parse leading digits
-                             (while (between? (string/char-at str (succ offset))  "0" "9")
-                               (consume!))
+                           [(and (= char "#") (= (string/lower (string/char-at str (succ offset))) "b"))
+                            (consume!)
+                            (consume!)
+                            (with (res (parse-base "binary" bin-digit? 2))
+                              (when negative (set! res (- 0 res)))
+                              res)]
+                           ;; Other leading "#"s are illegal
+                           [(and (= char "#") (terminator? (string/lower (string/char-at str (succ offset)))))
+                            (logger/do-node-error! logger
+                              "Expected hexadecimal (#x) or binary (#b) digit."
+                              (range (position))
+                              "The '#' character is used for various number representations, such as binary
+                               and hexadecimal digits.
 
-                             ;; Consume decimal places
-                             (when (= (string/char-at str (succ offset)) ".")
-                               (consume!)
-                               (while (between? (string/char-at str (succ offset))  "0" "9")
-                                 (consume!)))
+                               If you're looking for the '#' function, this has been replaced with 'n'. We
+                               apologise for the inconvenience."
+                              (range (position)) "# must be followed by x or b")]
+                           [(= char "#")
+                            (consume!)
+                            (logger/do-node-error! logger
+                              "Expected hexadecimal (#x) or binary (#b) digit specifier."
+                              (range (position))
+                              "The '#' character is used for various number representations, namely binary
+                               and hexadecimal digits."
+                              (range (position)) "# must be followed by x or b")]
+                           [true
+                            ;; Parse leading digits
+                            (while (between? (string/char-at str (succ offset))  "0" "9")
+                              (consume!))
 
-                             ;; Consume exponent
-                             (set! char (string/char-at str (succ offset)))
-                             (when (or (= char "e") (= char "E"))
-                               (consume!)
-                               (set! char (string/char-at str (succ offset)))
+                            ;; Consume decimal places
+                            (when (= (string/char-at str (succ offset)) ".")
+                              (consume!)
+                              (while (between? (string/char-at str (succ offset))  "0" "9")
+                                (consume!)))
 
-                               ;; Gobble positive/negative bit
-                               (when (or (= char "-") (= char "+")) (consume!))
+                            ;; Consume exponent
+                            (set! char (string/char-at str (succ offset)))
+                            (when (or (= char "e") (= char "E"))
+                              (consume!)
+                              (set! char (string/char-at str (succ offset)))
 
-                               ;; And exponent digits
-                               (while (between? (string/char-at str (succ offset)) "0" "9")
-                                 (consume!)))
+                              ;; Gobble positive/negative bit
+                              (when (or (= char "-") (= char "+")) (consume!))
 
-                             (string->number (string/sub str (.> start :offset) offset)))))
+                              ;; And exponent digits
+                              (while (between? (string/char-at str (succ offset)) "0" "9")
+                                (consume!)))
+
+                            (string->number (string/sub str (.> start :offset) offset))]))
                 (append-with! {:tag "number" :value val} start)
 
                 ;; Ensure the next character is a terminator of some sort, otherwise we'd allow things like 0x2-2
@@ -168,7 +188,7 @@
                                                               char))
                     (range (position)) nil
                     (range (position)) "Illegal character here. Are you missing whitespace?")))))
-          ((= char "\"")
+          [(= char "\"")
             (let* [(start (position))
                    (start-col (succ column))
                    (buffer '())]
@@ -280,7 +300,7 @@
                    (push-cdr! buffer char)])
                 (consume!)
                 (set! char (string/char-at str offset)))
-              (append-with! {:tag "string" :value (concat buffer)} start)))
+              (append-with! {:tag "string" :value (concat buffer)} start))]
           [(= char ";")
            (while (and (<= offset length) (/= (string/char-at str (succ offset)) "\n"))
              (consume!))]
@@ -303,7 +323,7 @@
   "Parse tokens TOKS, the result of [[lex]]. If CONT is true, then
    \"resumable\" errors will be thrown if the end of the stream is
    reached."
-  (let* ((index 1)
+  (let* [(index 1)
          (head '())
          (stack '())
 
@@ -326,7 +346,7 @@
                  (.<! head :last-node nil)
 
                  (set! head (last stack))
-                 (pop-last! stack))))
+                 (pop-last! stack)))]
     (for-each tok toks
       (let* ((tag (.> tok :tag))
              (auto-close false))
@@ -334,8 +354,8 @@
         ;; Attempt to find mismatched indents. This both highlights formatting errors and helps find the source of
         ;; parse errors due to mismatched parentheses.
         ;; To do this we store a reference to the first node on the previous line and check if the indent is different.
-        (let ((previous (.> head :last-node))
-              (tok-pos (.> tok :range)))
+        (let [(previous (.> head :last-node))
+              (tok-pos (.> tok :range))]
           ;; This catches a couple of trivial cases:
           ;;  - Closing parentheses. As lisp doesn't use C style indentation for brackets, the closing one will be on a
           ;;    different line.
