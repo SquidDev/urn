@@ -41,7 +41,7 @@
    ```"
   (when-with (data (read-all-mode! path true))
     (letrec [(string->bytes (str idx)
-               (if (> idx (#s str))
+               (if (> idx (# str))
                  `()
                  (cons (byte str idx)
                        (string->bytes str (+ idx 1)))))]

@@ -114,7 +114,7 @@
         (.<! back-state :count (succ id))
 
         ;; Setup the function name
-        (when (> (#s name) 20) (set! name (.. (string/sub name 1 17) "...")))
+        (when (> (# name) 20) (set! name (.. (string/sub name 1 17) "...")))
         (set! name (.. "compile#" id "{" name "}"))
 
         (prelude out)
@@ -144,7 +144,7 @@
             [(nil ?msg)
              (let* [(buffer '())
                     (lines (string/split str "\n"))
-                    (format (.. "%" (#s (number->string (# lines))) "d | %s"))]
+                    (format (.. "%" (# (number->string (# lines))) "d | %s"))]
                (for i 1 (# lines) 1
                  (push-cdr! buffer (string/format format i (nth lines i))))
                (fail! (.. msg ":\n" (concat buffer "\n"))))]

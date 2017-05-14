@@ -45,7 +45,7 @@
                  (push-cdr! vars var)
                  (push-cdr! bindings (list var child))
                  (push-cdr! emit (and (> i 1) (or (symbol? child) (list? child))))
-                 (push-cdr! lens (#s str))))
+                 (push-cdr! lens (# str))))
 
              (push-cdr! out "Assertion failed\n")
              ;; Expression output

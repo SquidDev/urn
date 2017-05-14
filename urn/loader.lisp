@@ -16,7 +16,7 @@
   (with (current path)
     (for-each search paths
       (with (sub (string/match path (.. "^" (string/gsub search "%?" "(.*)") "$")))
-        (when (and sub (< (#s sub) (#s current)))
+        (when (and sub (< (# sub) (# current)))
           (set! current sub))))
     current))
 
@@ -28,7 +28,7 @@
            (str     (.> entry :contents))
            (idx     0)
            (max     0)
-           (len     (#s str))]
+           (len     (# str))]
 
       (while (<= idx len)
         (case (list (string/find str "%${(%d+)}" idx))

@@ -266,7 +266,7 @@
                 [(= (string/char-at data 1) ":")
                  (set! buffer "")
                  (exec-command compiler scope (map string/trim (string/split (string/sub data 2) " ")))]
-                [(and line (> (#s line) 0) (requires-input data))
+                [(and line (> (# line) 0) (requires-input data))
                  (set! buffer data)]
                 [true
                  (set! buffer "")

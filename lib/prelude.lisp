@@ -5,7 +5,7 @@
               = /= < <= > >= + - * / % ^ ! # debug) :export)
 
 (import base)
-(import string (#s format .. concat) :export)
+(import string (format .. concat) :export)
 (import string string :export)
 (import lua/os)
 (import binders () :export)

@@ -93,7 +93,7 @@
 
 (defun predicate? (x) :hidden
   (let* [(x (get-idx x :contents))]
-    (= (char-at x (#s x)) "?")))
+    (= (char-at x (# x)) "?")))
 
 (defun struct-pat? (x) :hidden
   (and (eql? (car x) 'struct-literal)

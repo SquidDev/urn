@@ -34,7 +34,7 @@
    the field"
   (let [(out '())
         (pos 1)
-        (len (#s str))]
+        (len (# str))]
     (while (<= pos len)
       (let* [(spos len)
              (epos nil)

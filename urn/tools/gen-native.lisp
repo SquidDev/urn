@@ -31,9 +31,9 @@
         (with (name (.> (nth node 2) :contents))
           (push-cdr! natives name)
 
-          (set! max-name (math/max max-name (#s (quoted name))))
-          (set! max-quot (math/max max-quot (#s (quoted (dot-quote prefix name)))))
-          (set! max-pref (math/max max-pref (#s (dot-quote escaped name)))))))
+          (set! max-name (math/max max-name (# (quoted name))))
+          (set! max-quot (math/max max-quot (# (quoted (dot-quote prefix name)))))
+          (set! max-pref (math/max max-pref (# (dot-quote escaped name)))))))
 
     (table/sort natives)
 

@@ -13,8 +13,6 @@
   "Concatenate the several values given in ARGS. They must all be strings."
   (concat args))
 
-(define #s "Return the length of the string X." len)
-
 (defun split (text pattern limit)
   "Split the string given by TEXT in at most LIMIT components, which are
    delineated by the Lua pattern PATTERN.
@@ -41,13 +39,13 @@
           ;; and exit.
           [(or (= nstart nil) (and limit (>= (# out) limit)))
            (set! loop false)
-           (list/push-cdr! out (sub text start (#s text)))
-           (set! start (+ (#s text) 1))]
+           (list/push-cdr! out (sub text start (# text)))
+           (set! start (+ (# text) 1))]
           ;; If the start is beyond the string length (somehow) then maybe append the remaining text
           ;; and exit.
-          [(> nstart (#s text))
-           (when (<= start (#s text))
-             (list/push-cdr! out (sub text start (#s text))))
+          [(> nstart (# text))
+           (when (<= start (# text))
+             (list/push-cdr! out (sub text start (# text))))
            (set! loop false)]
           ;; If the end point is before the start point (0 width match) then we'll gobble just one character
           [(< nend nstart)

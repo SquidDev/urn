@@ -184,10 +184,10 @@
 
   (with (max 0)
     (for-each arg (.> spec :pos)
-      (with (len (#s (.> arg :var)))
+      (with (len (# (.> arg :var)))
         (when (> len max) (set! max len))))
     (for-each arg (.> spec :opt)
-      (with (len (#s (concat (.> arg :names) ", ")))
+      (with (len (# (concat (.> arg :names) ", ")))
         (when (> len max) (set! max len))))
 
     (with (fmt (.. " %-" (number->string (+ max 1)) "s %s"))
@@ -303,7 +303,7 @@
              [true (read-args key arg)]))]
         [((matcher "^%-(.+)$") -> (?flags))
          (let* [(i 1)
-                (s (#s flags))]
+                (s (# flags))]
            (while (<= i s)
              (let* [(key (string/char-at flags i))
                     (arg (.> spec :flag-map key))]

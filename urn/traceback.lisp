@@ -15,7 +15,7 @@
        ;; Otherwise, we'll attempt to unmangle the string
        (let* [(buffer '())
               (pos 0)
-              (len (#s esc))]
+              (len (# esc))]
          (while (<= pos len)
            (with (char (string/char-at esc pos))
              (cond
