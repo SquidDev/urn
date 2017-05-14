@@ -29,8 +29,8 @@
                          (parser/lex void/void str "<stdin>" true)
                          true))))
     [(true _) false]
-    [(false (as table? ?x)) (if (.> x :cont) true false)]
-    [(false _) nil]))
+    [(false (table? @ ?x)) (if (.> x :cont) true false)]
+    [(false ?x) (debug x) nil]))
 
 (defun do-resolve (compiler scope str)
   :hidden
