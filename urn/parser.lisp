@@ -107,7 +107,7 @@
               (consume!)
               (append! "unquote-splice" start))
             (append! "unquote")))
-          ((string/find str "^%-?%.?[0-9]" offset)
+          ((string/find str "^%-?%.?[#0-9]" offset)
             (let [(start (position))
                   (negative (= char "-"))]
               ;; Check whether this number is negative
@@ -117,14 +117,14 @@
 
               (with (val (cond
                            ;; Parse hexadecimal digits
-                           ((and (= char "0") (= (string/lower (string/char-at str (succ offset))) "x"))
+                           ((and (= char "#") (= (string/lower (string/char-at str (succ offset))) "x"))
                              (consume!)
                              (consume!)
                              (with (res (parse-base "hexadecimal" hex-digit? 16))
                                (when negative (set! res (- 0 res)))
                                res))
                            ;; Parse binary digits
-                           ((and (= char "0") (= (string/lower (string/char-at str (succ offset))) "b"))
+                           ((and (= char "#") (= (string/lower (string/char-at str (succ offset))) "b"))
                              (consume!)
                              (consume!)
                              (with (res (parse-base "binary" bin-digit? 2))

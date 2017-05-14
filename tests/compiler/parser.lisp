@@ -25,10 +25,14 @@
 
 (describe "The parser"
   (it "lexes numbers"
-    (affirm (teq? '(23) (lex "23"))
-            (teq? '(23) (lex "0x17"))
-            (teq? '(23) (lex "0b10111"))
-            (teq? '(23) (lex "0.23e2"))))
+    (affirm (teq? '( 23) (lex "23"))
+            (teq? '(-23) (lex "-23"))
+            (teq? '( 23) (lex "#x17"))
+            (teq? '(-23) (lex "-#x17"))
+            (teq? '( 23) (lex "#b10111"))
+            (teq? '(-23) (lex "-#b10111"))
+            (teq? '( 23) (lex "0.23e2"))
+            (teq? '(-23) (lex "-0.23e2"))))
 
   (it "lexes strings"
     (affirm (teq? '("foo") (lex "\"foo\""))
