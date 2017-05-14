@@ -59,7 +59,7 @@
              [(= func (.> builtins :set!))
               (add-definition! state (.> node 2 :var) node "val" (nth node 3))]
              [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
-              (add-definition! state (.> node :defVar) node "val" (nth node (# node)))]
+              (add-definition! state (.> node :defVar) node "val" (nth node (n node)))]
              [(= func (.> builtins :define-native))
               (add-definition! state (.> node :defVar) node "var" (.> node :defVar))]
              [true]))]
@@ -69,19 +69,19 @@
             (args (nth lam 2))
             (offset 1)
             (i 1)
-            (arg-len (# args))]
+            (arg-len (n args))]
        (while (<= i arg-len)
          (let [(arg (nth args i))
                (val (nth node (+ i offset)))]
            (cond
              [(.> arg :var :isVariadic)
-              (with (count (- (# node) (# args)))
+              (with (count (- (n node) (n args)))
                 ;; If it's a variable number of args then just skip them
                 (when (< count 0) (set! count 0))
                 (set! offset count)
                 ;; And define as a normal argument
                 (add-definition! state (.> arg :var) arg "var" (.> arg :var)))]
-             [(and (= (+ i offset) (# node)) (< i arg-len) (list? val))
+             [(and (= (+ i offset) (n node)) (< i arg-len) (list? val))
               (for j i arg-len 1
                 (with (arg (nth args j))
                   (add-definition! state (.> arg :var) arg "var" arg)))
@@ -126,7 +126,7 @@
                         [(symbol? node)
                          (add-usage (.> node :var) node)
                          true]
-                        [(and (list? node) (> (# node) 0) (symbol? (car node)))
+                        [(and (list? node) (> (n node) 0) (symbol? (car node)))
                          (with (func (.> (car node) :var))
                                (if (or (= func (.> builtins :set!)) (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
                                  ;; If this is a definition and the predicate fails then skip
@@ -135,7 +135,7 @@
                         [true true])))))]
     (for-each node nodes
       (push-cdr! queue node))
-    (while (> (# queue) 0)
+    (while (> (n queue) 0)
       (visitor/visit-node (pop-last! queue) visit))))
 
 (defpass tag-usage (state nodes lookup)

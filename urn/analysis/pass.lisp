@@ -18,7 +18,7 @@
          (options '())
          (running true)
          (idx 1)
-         (len (# body))]
+         (len (n body))]
 
     ;; If we start with a docstring then push it to both the definition
     ;; and struct
@@ -80,7 +80,7 @@
           (name (.. "[" (concat (.> pass :cat) " ") "] " (.> pass :name)))]
 
       (timer/start-timer! (.> options :timer) name 2)
-      ((.> pass :run) ptracker options (unpack args 1 (# args)))
+      ((.> pass :run) ptracker options (unpack args 1 (n args)))
       (timer/stop-timer! (.> options :timer) name)
 
       ;; Print out logging modification information

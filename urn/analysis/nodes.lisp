@@ -82,7 +82,7 @@
    Normally I'd be against this, but this function is called
    very often, so needs to be fast."
   (cond
-    [(> i (# li)) true]
+    [(> i (n li)) true]
     [(fn (nth li i)) (fast-all fn li (+ i 1))]
     [true false]))
 
@@ -92,6 +92,6 @@
    Normally I'd be against this, but this function is called
    very often, so needs to be fast."
   (cond
-    [(> i (# li)) false]
+    [(> i (n li)) false]
     [(fn (nth li i)) true]
     [true (fast-all fn li (+ i 1))]))

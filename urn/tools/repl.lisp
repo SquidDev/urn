@@ -145,7 +145,7 @@
          (print! (concat vars "  ")))]
 
       [(or (= command "search") (= command "s"))
-       (if (> (# args) 1)
+       (if (> (n args) 1)
          (let* [(keywords (map string/lower (cdr args)))
                 (name-results '())
                 (docs-results '())
@@ -172,19 +172,19 @@
                (for-each keyword keywords
                  (when (string/find docs keyword)
                    (inc! keywords-found)))
-               (when (eq? keywords-found (# keywords))
+               (when (eq? keywords-found (n keywords))
                  (push-cdr! docs-results var))))
            (if (and (empty? name-results) (empty? docs-results))
              (logger/put-error! logger "No results")
              (progn
                (when (! (empty? name-results))
                  (print! (colored 92 "Search by function name:"))
-                 (if (> (# name-results) 20)
+                 (if (> (n name-results) 20)
                    (print! (.. (concat (take name-results 20) "  ") "  ..."))
                    (print! (concat name-results "  "))))
                (when (! (empty? docs-results))
                  (print! (colored 92 "Search by function docs:"))
-                 (if (> (# docs-results) 20)
+                 (if (> (n docs-results) 20)
                    (print! (.. (concat (take docs-results 20) "  ") "  ..."))
                    (print! (concat docs-results "  ")))))))
          (logger/put-error! logger ":search <keywords>"))]
@@ -195,7 +195,7 @@
 (defun exec-string (compiler scope string)
   :hidden
   (with (state (do-resolve compiler scope string))
-    (when (> (# state) 0)
+    (when (> (n state) 0)
       (let* [(current 0)
              (exec (co/create (lambda ()
                                 (for-each elem state
@@ -266,7 +266,7 @@
                 [(= (string/char-at data 1) ":")
                  (set! buffer "")
                  (exec-command compiler scope (map string/trim (string/split (string/sub data 2) " ")))]
-                [(and line (> (# line) 0) (requires-input data))
+                [(and line (> (n line) 0) (requires-input data))
                  (set! buffer data)]
                 [true
                  (set! buffer "")

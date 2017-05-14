@@ -21,7 +21,7 @@
                (start (os/clock))]
           ;; If we're calling, pause the parent function
           (when (= action "call")
-             (when-with (previous (nth call-stack (# call-stack)))
+             (when-with (previous (nth call-stack (n call-stack)))
                (.<! previous :sum (+ (.> previous :sum) (- start (.> previous :innerStart))))))
 
           ;; Unless this is a call, pop the current function
@@ -143,7 +143,7 @@
   ;; Increment the number of times hit
   (.<! parent :n (+ (.> parent :n) 1))
 
-  (when (<= i (# stack))
+  (when (<= i (n stack))
     (let* [(elem (nth stack i))
            (hash (.. (.> elem :source) "|" (.> elem :linedefined)))
            (previous (and fold (.> history hash)))
@@ -237,14 +237,14 @@
       (for-each stack stacks
         (if (= (.> args :stack-kind) "reverse")
           (build-rev-stack folded stack 1 {} (.> args :stack-fold))
-          (build-stack folded stack (# stack) {} (.> args :stack-fold))))
+          (build-stack folded stack (n stack) {} (.> args :stack-fold))))
 
       (finish-stack folded)
 
       (if (= (.> args :stack-show) "flame")
         (show-flame! mappings folded "" (or (.> args :stack-limit) 30))
         (with (writer (w/create))
-          (show-stack! writer mappings (# stacks) folded (or (.> args :stack-limit) 10))
+          (show-stack! writer mappings (n stacks) folded (or (.> args :stack-limit) 10))
           (print! (w/->string writer)))))))
 
 (defun run-lua (compiler args)

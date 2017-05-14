@@ -18,11 +18,11 @@
                 (.<! node 2 (traverse-quote (nth node 2) visitor (succ level)))
                 node]
                [true
-                 (for i 1 (# node) 1
+                 (for i 1 (n node) 1
                    (.<! node i (traverse-quote (nth node i) visitor level)))
                  node])
              (progn
-               (for i 1 (# node) 1
+               (for i 1 (n node) 1
                  (.<! node i (traverse-quote (nth node i) visitor level)))
                node)))]
         (error! (.. "Unknown tag " tag))))))
@@ -46,7 +46,7 @@
                 (traverse-block node 3 visitor)
                 (visitor node visitor)]
                [(= func (.> builtins :cond))
-                (for i 2 (# node) 1
+                (for i 2 (n node) 1
                      (with (case (nth node i))
                            (.<! case 1 (traverse-node (nth case 1) visitor))
                            (traverse-block case 2 visitor)))
@@ -62,7 +62,7 @@
                [(or (= func (.> builtins :unquote)) (= func (.> builtins :unquote-splice)))
                 (fail! "unquote/unquote-splice should never appear head")]
                [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
-                (.<! node (# node) (traverse-node (nth node (# node)) visitor))
+                (.<! node (n node) (traverse-node (nth node (n node)) visitor))
                 (visitor node visitor)]
                [(= func (.> builtins :define-native))
                 (visitor node visitor)]
@@ -85,7 +85,7 @@
 (defun traverse-block (node start visitor)
   "Traverse a block of nodes, starting from START."
   (with (offset 0)
-    (for i start (# node) 1
+    (for i start (n node) 1
       (with (result (traverse-node (nth node (+ i offset)) visitor))
         ;; TODO: Inline expressions of the form ((lambda () ...))
         (.<! node i result))))
@@ -93,6 +93,6 @@
 
 (defun traverse-list (node start visitor)
   "Traverse a list of nodes, starting from START."
-  (for i start (# node) 1
+  (for i start (n node) 1
     (.<! node i (traverse-node (nth node i) visitor)))
   node)

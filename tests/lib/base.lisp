@@ -21,8 +21,8 @@
             (eq? (! true) false)))
 
   (it "can get the length of lists"
-    (affirm (eq? (# '(1 2 3 4)) 4)
-            (eq? (# '()) 0)))
+    (affirm (eq? (n '(1 2 3 4)) 4)
+            (eq? (n '()) 0)))
 
   (it "can logical AND two boolean values"
     (affirm (eq? (and false false) false)

@@ -1,6 +1,6 @@
 (import lua/basic (get-idx set-idx! getmetatable type# print slice
                    pcall xpcall tostring tonumber require error
-                   = /= < <= > >= + - * / % ^ # len# ..) :export)
+                   = /= < <= > >= + - * / % ^ n len# ..) :export)
 (import lua/basic ())
 (import lua/string string)
 (import lua/table (unpack concat) :export)
@@ -70,7 +70,7 @@
   `(cond (,c) (true ,@body)))
 
 (defmacro let* (vars &body)
-  (if (= (# vars) 0)
+  (if (= (n vars) 0)
     `((lambda () ,@body))
     `((lambda (,(car (car vars)))
         (let* ,(cdr vars) ,@body))
@@ -133,13 +133,13 @@
   "Return the logical and of values A and B, and, if present, the
    logical and of all the values in REST."
   (with (symb (gensym))
-    `(with (,symb ,a) (if ,symb ,(if (= (# rest) 0) b `(and ,b ,@rest)) ,symb))))
+    `(with (,symb ,a) (if ,symb ,(if (= (n rest) 0) b `(and ,b ,@rest)) ,symb))))
 
 (defmacro or (a b &rest)
   "Return the logical or of values A and B, and, if present, the
    logical or of all the values in REST."
   (with (symb (gensym))
-    `(with (,symb ,a) (if ,symb ,symb ,(if (= (# rest) 0) b `(or ,b ,@rest))))))
+    `(with (,symb ,a) (if ,symb ,symb ,(if (= (n rest) 0) b `(or ,b ,@rest))))))
 
 (defmacro => (p q)
   "Logical implication. `(=> a b)` is equivalent to `(or (! a) b)`."
@@ -181,7 +181,7 @@
          (cond
            [(= tag "list")
             (with (out '())
-                  (for i 1 (# value) 1
+                  (for i 1 (n value) 1
                        (set-idx! out i (pretty (get-idx value i))))
                   (.. "(" (.. (concat out " ") ")")))]
            [(and (= (type# (getmetatable value)) "table")
@@ -237,7 +237,7 @@
           ;; Don't expand "unquote" and "unquote-splice" calls, otherwise recurse into the children
           (unless (and (= (type# first) "table") (= (get-idx first "tag") "symbol")
                 (or (= (get-idx first "contents") "unquote") (= (get-idx first "contents") "unquote-splice")))
-            (for i 1 (# val) 1
+            (for i 1 (n val) 1
               (set-idx! val i (quasiquote# (get-idx val i)))))
           val))
 
@@ -262,4 +262,4 @@
    > (apply + '(1 2))
    3
    ```"
-  (f (unpack xs 1 (# xs))))
+  (f (unpack xs 1 (n xs))))

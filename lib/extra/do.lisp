@@ -1,5 +1,5 @@
 (import base (defmacro gensym let* slice))
-(import string (# sub))
+(import string (sub))
 (import list (prune nth cddr))
 
 (defmacro do (&stmts)
@@ -22,7 +22,7 @@
                (let* [(t-sym (gensym))
                       (i-sym (gensym))]
                  `(let* [(,t-sym ,t)]
-                    (for ,i-sym 1 (# ,t-sym) 1
+                    (for ,i-sym 1 (n ,t-sym) 1
                       (let* [(,v (nth ,t-sym ,i-sym))]
                         (when ,c
                           ,cnt)))))]
@@ -30,7 +30,7 @@
                (let* [(t-sym (gensym))
                       (i-sym (gensym))]
                  `(let* [(,t-sym ,t)]
-                    (for ,i-sym 1 (# ,t-sym) 1
+                    (for ,i-sym 1 (n ,t-sym) 1
                       (let* [(,v (nth ,t-sym ,i-sym))]
                         (unless ,c
                           ,cnt)))))]
@@ -38,13 +38,13 @@
                (let* [(t-sym (gensym))
                       (i-sym (gensym))]
                  `(let* [(,t-sym ,t)]
-                    (for ,i-sym 1 (# ,t-sym) 1
+                    (for ,i-sym 1 (n ,t-sym) 1
                       (let* [(,v (nth ,t-sym ,i-sym))]
                         ,cnt))))]
               [?failed-case 
                 failed-case])))
          (inside (let* [(out '())]
-                   (for i (# stmts) 1 -1
+                   (for i (n stmts) 1 -1
                      (case (nth stmts i)
                        [((<- . _) @ ?gen-stmt)
                         (set! out (reify-generator gen-stmt out))]

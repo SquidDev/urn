@@ -97,7 +97,7 @@
            ;; Build the argument list, looking for variadic arguments.
            ;; We stop when we find one: after all, we can't emit successive args
            (w/append! out "(function(")
-           (while (and (<= i (# args)) (! variadic))
+           (while (and (<= i (n args)) (! variadic))
              (when (> i 1) (w/append! out ", "))
              (with (var (.> args i :var))
                (if (.> var :isVariadic)
@@ -110,16 +110,16 @@
 
            (when variadic
              (with (args-var (escape-var (.> args variadic :var) state))
-               (if (= variadic (# args))
+               (if (= variadic (n args))
                  ;; If it is the last argument then just pack it up into a list
                  (w/line! out (string/.. "local " args-var " = _pack(...) " args-var ".tag = \"list\""))
-                 (with (remaining (- (# args) variadic))
+                 (with (remaining (- (n args) variadic))
                    ;; Otherwise everything is a tad more complicated. We first store the number
                    ;; of arguments to add to our variadic, as well as predeclaring all args
                    (w/line! out (.. "local _n = _select(\"#\", ...) - " (number->string remaining)))
 
                    (w/append! out (.. "local " args-var))
-                   (for i (succ variadic) (# args) 1
+                   (for i (succ variadic) (n args) 1
                      (w/append! out ", ")
                      (w/append! out (escape-var (.> args i :var) state)))
                    (w/line! out)
@@ -131,9 +131,9 @@
                    (w/append! out args-var)
                    (w/line! out " = { tag=\"list\", n=_n, _unpack(_pack(...), 1, _n)}")
 
-                   (for i (succ variadic) (# args) 1
+                   (for i (succ variadic) (n args) 1
                      (w/append! out (escape-var (.> args i :var) state))
-                     (when (< i (# args)) (w/append! out ", ")))
+                     (when (< i (n args)) (w/append! out ", ")))
                    (w/line! out " = select(_n + 1, ...)")
 
                    (w/next-block! out "else")
@@ -142,9 +142,9 @@
                    (w/append! out args-var)
                    (w/line! out " = { tag=\"list\", n=0}")
 
-                   (for i (succ variadic) (# args) 1
+                   (for i (succ variadic) (n args) 1
                      (w/append! out (escape-var (.> args i :var) state))
-                     (when (< i (# args)) (w/append! out ", ")))
+                     (when (< i (n args)) (w/append! out ", ")))
                    (w/line! out " = ...")
 
                    (w/end-block! out "end")))))
@@ -166,14 +166,14 @@
            (set! ret "return "))
 
          (with (i 2)
-           (while (and (! had-final) (<= i (# node)))
+           (while (and (! had-final) (<= i (n node)))
              (let* [(item (nth node i))
                     (case (nth item 1))
                     (is-final (truthy? case))]
 
                ;; If we're the last block and there isn't anything here, then don't emit an
                ;; else
-               (when (and (> i 2) (or (! is-final) (/= ret "") (/= (# item) 1)))
+               (when (and (> i 2) (or (! is-final) (/= ret "") (/= (n item) 1)))
                  (w/append! out "else"))
 
                ;; We stop iterating after a branch marked "true" and just invoke the code.
@@ -234,7 +234,7 @@
       ["or"
        (when ret (w/append! out ret))
        (w/append! out "(")
-       (with (len (# node))
+       (with (len (n node))
          (for i 2 len 1
            (when (> i 2) (w/append! out " or "))
            (compile-expression (nth (nth node i) (if (= i len) 2 1)) out state)))
@@ -245,7 +245,7 @@
        (w/append! out "(")
        (compile-expression (nth node 2) out state)
        (let* [(branch (.> (nth (car node) 3)))
-              (len (# branch))]
+              (len (n branch))]
          (for i 3 len 1
            (w/append! out " or ")
            (compile-expression (nth (nth branch i) (if (= i len) 2 1)) out state)))
@@ -280,7 +280,7 @@
          [ret (w/append! out ret)]
          [true])
        (w/append! out "({")
-       (for i 2 (# node) 2
+       (for i 2 (n node) 2
          (when (> i 2) (w/append! out ","))
          (w/append! out "[")
          (compile-expression (nth node i) out state)
@@ -289,7 +289,7 @@
        (w/append! out "})")]
 
       ["define"
-       (compile-expression (nth node (# node)) out state (.. (escape-var (.> node :defVar) state) " = "))]
+       (compile-expression (nth node (n node)) out state (.. (escape-var (.> node :defVar) state) " = "))]
 
       ["define-native"
        (with (meta (.> state :meta (.> node :defVar :fullName)))
@@ -321,7 +321,7 @@
 
       ["quote-list"
        (when ret (w/append! out ret))
-       (w/append! out (.. "({tag = \"list\", n = " (number->string (# node))))
+       (w/append! out (.. "({tag = \"list\", n = " (number->string (n node))))
        (for-each sub node
          (w/append! out ", ")
          (compile-expression sub out state))
@@ -331,7 +331,7 @@
        (unless ret (w/begin-block! out "(function()"))
        (w/line! out "local _offset, _result, _temp = 0, {tag=\"list\",n=0}")
        (with (offset 0)
-         (for i 1 (# node) 1
+         (for i 1 (n node) 1
            (let* [(sub (nth node i))
                   (cat (.> state :cat-lookup sub))]
              (unless cat
@@ -353,7 +353,7 @@
                  (w/append! out (string/.. "_result[" (number->string (- i offset)) " + _offset] = "))
                  (compile-expression sub out state)
                  (w/line! out)))))
-         (w/line! out (.. "_result.n = _offset + " (number->string (- (# node) offset)))))
+         (w/line! out (.. "_result.n = _offset + " (number->string (- (n node) offset)))))
        (cond
          [(= ret "")]
          [ret (w/append! out (.. ret "_result"))]
@@ -397,8 +397,8 @@
 
            (cond
              [(and meta (if (.> meta :fold)
-                          (>= (pred (# node)) (.> meta :count))
-                          (= (pred (# node)) (.> meta :count))))
+                          (>= (pred (n node)) (.> meta :count))
+                          (= (pred (n node)) (.> meta :count))))
               ;; If we're dealing with an expression then we emit the returner first. Statements just
               ;; return nil.
               (when (= (.> meta :tag) "expr")
@@ -420,7 +420,7 @@
                                       [(and (= fold "l") (= entry 1) (< start end)) (build start (pred end)) (set! start end)]
                                       [(and (= fold "r") (= entry 2) (< start end)) (build (succ start) end)]
                                       [true (compile-expression (nth node (+ entry start)) out state)]))))]
-                  (build 1 (- (# node) count))))
+                  (build 1 (- (n node) count))))
 
               ;; If we're dealing with a statement then return nil.
               (when (and (/= (.> meta :tag) "expr") (/= ret ""))
@@ -432,18 +432,18 @@
               (let* [(head (.> cat :recur :def))
                      (args (nth head 2))]
 
-                (if (> (# args) 0)
+                (if (> (n args) 0)
                   ;; If we have some arguments, then set all of them in one go
                   (with (pack-name nil)
 
                     ;; First emit a series of variables we're going to set
                     (let* [(offset 1)
                            (done false)]
-                      (for i 1 (# args) 1
+                      (for i 1 (n args) 1
                         (with (var (.> args i :var))
                           (if (.> var :isVariadic)
                             ;; If we're variadic then create a list of each sub expression
-                            (with (count (- (# node) (# args)))
+                            (with (count (- (n node) (n args)))
                               (when (< count 0) (set! count 0))
                               (if done (w/append! out ", ") (set! done true))
                               (w/append! out (escape-var var state))
@@ -457,11 +457,11 @@
 
                     (let* [(offset 1)
                            (done false)]
-                      (for i 1 (# args) 1
+                      (for i 1 (n args) 1
                         (with (var (.> args i :var))
                           (if (.> var :isVariadic)
                             ;; If we're variadic then create a list of each sub expression
-                            (with (count (- (# node) (# args)))
+                            (with (count (- (n node) (n args)))
                               (when (< count 0) (set! count 0))
                               (if done (w/append! out ", ") (set! done true))
                               (when (compile-pack node out state i count)
@@ -473,7 +473,7 @@
                                 (compile-expression (nth node (+ i offset)) out state))))))
 
                       ;; Emit all arguments which haven't been used anywhere
-                      (for i (+ (# args) (+ offset 1)) (# node) 1
+                      (for i (+ (n args) (+ offset 1)) (n node) 1
                         (when (> i 1) (w/append! out ", "))
                         (compile-expression (nth node i) out state)))
 
@@ -481,7 +481,7 @@
                     (when pack-name (w/line! (.. pack-name ".tag = \"list\""))))
 
                   ;; Otherwise just emit each expression in turn.
-                  (for i 1 (# node) 1
+                  (for i 1 (n node) 1
                     (when (> i 1) (w/append! out ", "))
                     (compile-expression (nth node i) out state "")
                     (w/line! out))))]
@@ -490,7 +490,7 @@
               (when ret (w/append! out ret))
               (compile-expression head out state)
               (w/append! out "(")
-              (for i 2 (# node) 1
+              (for i 2 (n node) 1
                 (when (> i 2) (w/append! out ", "))
                 (compile-expression (nth node i) out state))
               (w/append! out ")")])))]
@@ -509,8 +509,8 @@
               (args (nth head 2))
               (arg-idx 1)
               (val-idx 2)
-              (arg-len (# args))
-              (val-len (# node))]
+              (arg-len (n args))
+              (val-len (n node))]
          (while (or (<= arg-idx arg-len) (<= val-idx val-len))
            (with (arg (.> args arg-idx))
              (cond
@@ -577,7 +577,7 @@
        (w/append! out "(")
        (compile-expression (car node) out state)
        (w/append! out ")(")
-       (for i 2 (# node) 1
+       (for i 2 (n node) 1
          (when (> i 2) (w/append! out ", "))
          (compile-expression (nth node i) out state))
        (w/append! out ")")]
@@ -587,7 +587,7 @@
        (when ret (w/append! out ret))
        (compile-expression (car node) out state)
        (w/append! out "(")
-       (for i 2 (# node) 1
+       (for i 2 (n node) 1
          (when (> i 2) (w/append! out ", "))
          (compile-expression (nth node i) out state))
        (w/append! out ")")])
@@ -623,11 +623,11 @@
 (defun compile-block (nodes out state start ret)
   "Compile a block of expressions."
   :hidden
-  (for i start (# nodes) 1
-    (with (ret' (if (= i (# nodes)) ret ""))
+  (for i start (n nodes) 1
+    (with (ret' (if (= i (n nodes)) ret ""))
       (compile-expression (nth nodes i) out state ret'))
     (w/line! out))
-  (when (and (< (# nodes) start) ret (/= ret ""))
+  (when (and (< (n nodes) start) ret (/= ret ""))
     (w/append! out ret)
     (w/line! out "nil")))
 

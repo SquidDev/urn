@@ -13,7 +13,7 @@
       [(= var (.> builtins :true)) sym]
       [(= var (.> builtins :false)) sym]
       [(= var (.> builtins :nil)) sym]
-      [(= (# (.> def :defs)) 1)
+      [(= (n (.> def :defs)) 1)
        (let* [(ent (car (.> def :defs)))
               (val (.> ent :value))
               (ty  (.> ent :tag))]
@@ -30,10 +30,10 @@
   "Strip all unused top level definitions."
   :cat '("opt" "usage")
 
-  (for i (# nodes) 1 -1
+  (for i (n nodes) 1 -1
     (with (node (nth nodes i))
       (when (and (.> node :defVar) (! (.> (usage/get-var lookup (.> node :defVar)) :active)))
-        (if (= i (# nodes))
+        (if (= i (n nodes))
           (.<! nodes i (make-nil))
           (remove-nth! nodes i))
         (changed!)))))
@@ -50,12 +50,12 @@
                (offset 1)
                (rem-offset '0)
                (removed {})]
-          (for i 1 (# args) 1
+          (for i 1 (n args) 1
             (let [(arg (nth args (- i rem-offset)))
                   (val (nth node (- (+ i offset) rem-offset)))]
               (cond
                 [(.> arg :var :isVariadic)
-                 (with (count (- (# node) (# args)))
+                 (with (count (- (n node) (n args)))
                        ;; If it's a variable number of args then just skip them
                        (when (< count 0) (set! count 0))
                        (set! offset count))]
@@ -64,7 +64,7 @@
                 ;; Obviously don't remove values which have an effect
                 [(side-effect? val)]
                 ;; And keep values which are actually used
-                [(> (# (.> (usage/get-var lookup (.> arg :var)) :usages)) 0)]
+                [(> (n (.> (usage/get-var lookup (.> arg :var)) :usages)) 0)]
                 ;; So remove things which aren't used and have no side effects.
                 [true
                   (changed!)
@@ -128,7 +128,7 @@
       (when (and (list? root) (list? (car root)) (symbol? (caar root)) (= (.> (caar root) :var) (.> builtins :lambda)))
         (letrec [(lam (car root))
                  (args (nth lam 2))
-                 (len (# args))
+                 (len (n args))
                  (validate (lambda (i)
                              (if (> i len)
                                true
@@ -139,11 +139,11 @@
                                    ;; We can't really fold variadic arguments
                                    [(.> var :isVariadic) false]
                                    ;; We won't fold if the variable is redefined
-                                   [(/= (# (.> entry :defs)) 1) false]
+                                   [(/= (n (.> entry :defs)) 1) false]
                                    ;; If the definition is a varaiable then we can't fold.
                                    [(= (.> (car (.> entry :defs)) :tag) "var") false]
                                    ;; Ensure there is only one usage of this argument
-                                   [(/= (# (.> entry :usages)) 1) false]
+                                   [(/= (n (.> entry :usages)) 1) false]
                                    ;; Otherwise ensure that the next argument is valid
                                    [true (validate (succ i))])))))]
 
@@ -155,7 +155,7 @@
                   ;; And we're not of the form ((lambda (x) x) Y) where Y is a list
                   ;; (though we'd have probably have inlined non-lists elsewhere).
                   (or
-                    (/= (# root) 2) (/= len 1) (/= (# lam) 3) (atom? (nth root 2))
+                    (/= (n root) 2) (/= len 1) (/= (n lam) 3) (atom? (nth root 2))
                     (! (symbol? (nth lam 3))) (/= (.> (nth lam 3) :var) (.> (car args) :var)))
                   ;; And no arguments are variadic or mutable
                   (validate 1))
@@ -166,7 +166,7 @@
                   (finished false)]
 
               ;; Build a lookup table of argument variables to their corresponding index
-              (for i 1 (# args) 1 (.<! arg-map (.> (nth args i) :var) i))
+              (for i 1 (n args) 1 (.<! arg-map (.> (nth args i) :var) i))
 
               (visitor/visit-list lam 3
                 (lambda (node visitor)
@@ -182,7 +182,7 @@
                          (cond
                            [(= idx nil)
                             ;; If it's not an argument, just ensure it's immutable
-                            (when (> (# (.> (usage/get-var lookup (.> node :var)) :defs)) 1)
+                            (when (> (n (.> (usage/get-var lookup (.> node :var)) :defs)) 1)
                               (set! ok false)
                               false)]
                            [(= idx current-idx)
@@ -225,8 +225,8 @@
 
                              ;; If the last argument to this function is from the parent lambda
                              ;; then we'll check if it needs lambda wrapping and mark it for later.
-                             (when (> (# node) 1)
-                               (with (last (nth node (# node)))
+                             (when (> (n node) 1)
+                               (with (last (nth node (n node)))
                                  (when (symbol? last)
                                    (when-with (idx (.> arg-map (.> last :var)))
                                      (with (val (.> root (+ idx 1)))
@@ -276,8 +276,8 @@
                             (or (nth root (+ i 1)) (make-nil)))
                           child))
                       child)))
-                (for i (# root) 2 -1 (remove-nth! root i))
-                (for i (# args) 1 -1 (remove-nth! args i))))))))))
+                (for i (n root) 2 -1 (remove-nth! root i))
+                (for i (n args) 1 -1 (remove-nth! args i))))))))))
 
 (defpass cond-eliminate (state nodes var-lookup)
   "Replace variables with known truthy/falsey values with `true` or `false` when used in branches."
@@ -299,10 +299,10 @@
                ["symbol"
                 (when (builtin? head :cond)
                   (with (vars '())
-                    (for i 2 (# node) 1
+                    (for i 2 (n node) 1
                       (let* [(entry (nth node i))
                              (test (car entry))
-                             (len (# entry))
+                             (len (n entry))
                              (var (and (symbol? test) (.> test :var)))]
 
                         (when var
@@ -310,7 +310,7 @@
                             ;; If we've already got a definition of var then we'll skip it.
                             [(/= (.> lookup var) nil) (set! var nil)]
                             ;; If this variable is redefined then we'll skip it.
-                            [(> (# (.> (usage/get-var var-lookup var) :defs)) 1) (set! var nil)]
+                            [(> (n (.> (usage/get-var var-lookup var) :defs)) 1) (set! var nil)]
                             [true]))
 
                         ;; Visit the condition, setting is-cond to true.
@@ -348,9 +348,9 @@
                   ;; sure to mark the last expression as a cond.
 
                   ;; Visit arguments to lambda
-                  (for i 2 (# node) 1 (visitor/visit-node (nth node i) visitor))
+                  (for i 2 (n node) 1 (visitor/visit-node (nth node i) visitor))
 
-                  (with (len (# head))
+                  (with (len (n head))
                     ;; Visit main lambda body
                     (for i 3 (pred len) 1 (visitor/visit-node (nth head i) visitor))
 

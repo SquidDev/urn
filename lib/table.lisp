@@ -1,5 +1,6 @@
 (import base (defmacro defun let* when if list unless debug gensym
-              progn get-idx set-idx! error = % - + # or for with ! apply))
+              progn get-idx set-idx! error = % - + n or for
+              with ! apply))
 (import lua/string (sub))
 (import lua/table (iter-pairs) :export)
 (import lua/basic (getmetatable setmetatable next len#) :export)
@@ -91,10 +92,10 @@
 (defmacro .<! (x &keys value)
   "Set the value at KEYS in the structure X to VALUE."
   (with (res x)
-    (for i 1 (- (# keys) 1) 1
+    (for i 1 (- (n keys) 1) 1
       (with (key (get-idx keys i))
         (set! res `(get-idx ,res ,key))))
-    `(set-idx! ,res ,(get-idx keys (# keys) 1) ,value)))
+    `(set-idx! ,res ,(get-idx keys (n keys) 1) ,value)))
 
 (defun struct (&entries)
   "Return the structure given by the list of pairs ENTRIES. Note that, in
@@ -112,10 +113,10 @@
    ```cl
    (struct :foo bar)
    ```"
-  (when (= (% (# entries) 2) 1)
+  (when (= (% (n entries) 2) 1)
     (error "Expected an even number of arguments to struct" 2))
   (with (out {})
-    (for i 1 (# entries) 2
+    (for i 1 (n entries) 2
       (let ((key (get-idx entries i))
             (val (get-idx entries (+ 1 i))))
         (set-idx! out (if (key? key) (get-idx key "value") key) val)))
@@ -127,10 +128,10 @@
 
    Note, if you know your values at compile time, it is more performant
    to use a struct literal."
-  (when (= (% (# entries) 2) 1)
+  (when (= (% (n entries) 2) 1)
     (error "Expected an even number of arguments to struct" 2))
   (with (out {})
-    (for i 1 (# entries) 2
+    (for i 1 (n entries) 2
       (set-idx! out (get-idx entries i) (get-idx entries (+ i 1))))
     out))
 
@@ -138,7 +139,7 @@
   "Check that XS is the empty struct."
   (! (next xs)))
 
-(defun #keys (st)
+(defun nkeys (st)
   "Return the number of keys in the structure ST."
   (with (cnt 0)
     (for-pairs () st (set! cnt (+ cnt 1)))
@@ -177,5 +178,5 @@
   "Convert VALUES into a lookup table, with each value being converted to
    a key whose corresponding value is the value's index."
   (with (res {})
-    (for i 1 (# values) 1 (.<! res (nth values i) i))
+    (for i 1 (n values) 1 (.<! res (nth values i) i))
     res))

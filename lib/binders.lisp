@@ -1,6 +1,6 @@
 (import base (defmacro if ! when car and or
               cdr and pretty print debug /=
-              % get-idx defun = # >= error
+              % get-idx defun = n >= error
               progn gensym for list +))
 (import type (list? empty?))
 (import list (cars cadrs caar cadar map cadr
@@ -10,16 +10,16 @@
 (import lua/basic (getmetatable ..))
 
 (defun make-binding (xs) :hidden
-  (if (= (# xs) 1)
+  (if (= (n xs) 1)
     (car xs)
-    (if (>= (# xs) 2)
+    (if (>= (n xs) 2)
       `(lambda ,(car xs) ,@(cdr xs))
       (error "Expected binding, got nil."))))
 
 (defun make-let-binding (xs) :hidden
-  (if (= (# xs) 2)
+  (if (= (n xs) 2)
     (cadr xs)
-    (if (>= (# xs) 3)
+    (if (>= (n xs) 3)
       `(lambda ,(cadr xs) ,@(cddr xs))
       (error "Expected binding, got nil."))))
 
@@ -120,9 +120,9 @@
   `((lambda (,(car var)) (when ,(car var) ,@body)) ,(cadr var)))
 
 (defun make-setting (var) :hidden
-  (if (= (# var) 2)
+  (if (= (n var) 2)
     `(set! ,(car var) ,(cadr var))
-    (if (>= (# var) 3)
+    (if (>= (n var) 3)
       `(set! ,(car var) (lambda ,(cadr var) ,@(cddr var)))
       (error "Expected binding, got nil."))))
 

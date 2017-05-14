@@ -47,7 +47,7 @@
 (define-native type#)
 (define-native xpcall)
 
-(define #
+(define n
   "Get the length of list X"
   (lambda (x)
     (cond

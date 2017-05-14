@@ -95,7 +95,7 @@
     :action  (lambda (a b value)
                (let* [(args (map id arg))
                       (i 1)
-                      (len (# args))]
+                      (len (n args))]
                  (while (<= i len)
                    (with (item (nth args i))
                      (cond

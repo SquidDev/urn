@@ -49,11 +49,11 @@
       :logger/put-verbose! (cut logger/put-verbose! logger <>)
       :logger/put-debug!   (cut logger/put-debug!   logger <>)
       :logger/put-node-error!   (lambda (msg node explain &lines)
-                                  (logger/put-node-error!   logger msg node explain (unpack lines 1 (# lines))))
+                                  (logger/put-node-error!   logger msg node explain (unpack lines 1 (n lines))))
       :logger/put-node-warning! (lambda (msg node explain &lines)
-                                  (logger/put-node-warning! logger msg node explain (unpack lines 1 (# lines))))
+                                  (logger/put-node-warning! logger msg node explain (unpack lines 1 (n lines))))
       :logger/do-node-error!    (lambda (msg node explain &lines)
-                                  (logger/do-node-error!    logger msg node explain (unpack lines 1 (# lines))))
+                                  (logger/do-node-error!    logger msg node explain (unpack lines 1 (n lines))))
       :range/get-source    range/get-source
 
       ;; nodes.lisp
@@ -88,7 +88,7 @@
                             (lambda (&args)
                               (case (list (xpcall (lambda () (apply func args)) debug/traceback))
                                 [(false ?msg) (fail! (traceback/remap-traceback (.> compiler :compileState :mappings) msg))]
-                                [(true . ?rest) (unpack rest 1 (# rest))]))))
+                                [(true . ?rest) (unpack rest 1 (n rest))]))))
 
                         (let* [(cats (.> pass :cat))
                                (group (if (elem? "usage" cats) "usage" "normal"))]

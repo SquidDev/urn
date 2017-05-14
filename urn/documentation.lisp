@@ -22,7 +22,7 @@
     (cond
       [(or (= ty "macro") (= ty "defined"))
        (let* [(root (.> var :node))
-              (node (nth root (# root)))]
+              (node (nth root (n root)))]
          (if (and (list? node) (symbol? (car node)) (= (.> (car node) :var) (.> builtins :lambda)))
            (nth node 2)
            nil))]
@@ -34,7 +34,7 @@
    the field"
   (let [(out '())
         (pos 1)
-        (len (# str))]
+        (len (n str))]
     (while (<= pos len)
       (let* [(spos len)
              (epos nil)

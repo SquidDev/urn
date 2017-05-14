@@ -20,8 +20,8 @@
                   (= 3 ((cut + 2 <>) 1))
                   (= "foo bar" ((cut .. <> " " <>) "foo" "bar"))))
     (will "have a fixed number of arguments"
-          (affirm (= 1 (# ((cut list <>))))
-                  (= 1 (# ((cut list <>) 1 2 3)))))
+          (affirm (= 1 (n ((cut list <>))))
+                  (= 1 (n ((cut list <>) 1 2 3)))))
     (will "evalute args each time"
       (let* [(count 0)
              (get! (lambda () (inc! count) count))
@@ -38,8 +38,8 @@
                   (= 3 ((cute + 2 <>) 1))
                   (= "foo bar" ((cut .. <> " " <>) "foo" "bar"))))
     (will "have a fixed number of arguments"
-          (affirm (= 1 (# ((cute list <>))))
-                  (= 1 (# ((cute list <>) 1 2 3)))))
+          (affirm (= 1 (n ((cute list <>))))
+                  (= 1 (n ((cute list <>) 1 2 3)))))
     (will-not "evalute args each time"
       (let* [(count 0)
              (get! (lambda () (inc! count) count))

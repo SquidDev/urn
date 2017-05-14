@@ -1,4 +1,4 @@
-(import base (defun getmetatable if # progn with for tostring
+(import base (defun getmetatable if n progn with for tostring
               type# >= > < <= = + - car or and list when set-idx!
               get-idx getmetatable let* while))
 (import base (concat) :export)
@@ -37,15 +37,15 @@
         (cond
           ;; If nothing was matched, or we've gone over the limit then append the remaining text
           ;; and exit.
-          [(or (= nstart nil) (and limit (>= (# out) limit)))
+          [(or (= nstart nil) (and limit (>= (n out) limit)))
            (set! loop false)
-           (list/push-cdr! out (sub text start (# text)))
-           (set! start (+ (# text) 1))]
+           (list/push-cdr! out (sub text start (n text)))
+           (set! start (+ (n text) 1))]
           ;; If the start is beyond the string length (somehow) then maybe append the remaining text
           ;; and exit.
-          [(> nstart (# text))
-           (when (<= start (# text))
-             (list/push-cdr! out (sub text start (# text))))
+          [(> nstart (n text))
+           (when (<= start (n text))
+             (list/push-cdr! out (sub text start (n text))))
            (set! loop false)]
           ;; If the end point is before the start point (0 width match) then we'll gobble just one character
           [(< nend nstart)

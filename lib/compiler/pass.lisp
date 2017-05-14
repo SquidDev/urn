@@ -41,7 +41,7 @@
          (options '())
          (running true)
          (idx 1)
-         (len (# body))]
+         (len (n body))]
 
     ;; If we start with a docstring then push it to both the definition
     ;; and struct

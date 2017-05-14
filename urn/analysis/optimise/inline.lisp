@@ -63,7 +63,7 @@
 
      ;; And copy this node
      (with (res (copy-of node))
-       (for i 1 (# res) 1
+       (for i 1 (n res) 1
          (.<! res i (copy-node (nth res i) lookup)))
        res)]))
 
@@ -96,8 +96,8 @@
             [(= func (.> builtins :unquote-splice))
              (score-nodes node 2 10)]
             [true
-             (score-nodes node 1 (+ (# node) 1))]))]
-       [_ (score-nodes node 1 (+ (# node) 1))])]))
+             (score-nodes node 1 (+ (n node) 1))]))]
+       [_ (score-nodes node 1 (+ (n node) 1))])]))
 
 (defun get-score (lookup node)
   "Get the score for NODE, using LOOKUP as a cache."
@@ -121,7 +121,7 @@
 
    This is slightly different to a folr as it will exit if [[score-node]] returns `false`."
   :hidden
-  (if (> start (# nodes))
+  (if (> start (n nodes))
     sum
     (with (score (score-node (nth nodes start)))
       (if score
@@ -147,7 +147,7 @@
           (let* [(func (.> (car node) :var))
                  (def (usage/get-var usage func))]
             ;; If we've only got one definition then we'll look at that
-            (when (= (# (.> def :defs)) 1)
+            (when (= (n (.> def :defs)) 1)
               (let* [(ent (car (.> def :defs)))
                      (val (.> ent :value))]
                 ;; For all lambda definitions, determine whether we can actually inline it.

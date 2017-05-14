@@ -7,9 +7,9 @@
 (randomseed (^ (os/time) (os/clock)))
 
 (defun random-string () :hidden
-  (let* [(length (random 1 255))
+  (let* [(n (random 1 255))
          (random-byte () (string/char (random 1 255)))]
-    (concat (map random-byte (range 1 length)))))
+    (concat (map random-byte (range 1 n)))))
 
 (defun random-number () :hidden
   (random (- 0 (^ 2 32)) (^ 2 32)))
@@ -22,11 +22,11 @@
 
 (defun random-type () :hidden
   (let* [(types '("symbol" "boolean" "number" "string" "key" "list" "struct"))]
-    (nth types (random 1 (# types)))))
+    (nth types (random 1 (n types)))))
 
 (defun -random-type () :hidden
   (let* [(types '("symbol" "boolean" "number" "string" "key"))]
-    (nth types (random 1 (# types)))))
+    (nth types (random 1 (n types)))))
 
 (defun random-of (type) :hidden
   (case type
@@ -40,8 +40,8 @@
     ["any" (random-of (random-type))]))
 
 (defun random-list () :hidden
-  (let* [(length (random 1 5))]
-    (map (lambda (x) (random-of (-random-type))) (range 1 length))))
+  (let* [(n (random 1 5))]
+    (map (lambda (x) (random-of (-random-type))) (range 1 n))))
 
 (defun random-struct () :hidden
   (let* [(out {})]

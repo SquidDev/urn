@@ -35,7 +35,7 @@
                  [(= func (.> builtins :lambda))
                   (visit-block node 3 visitor)]
                  [(= func (.> builtins :cond))
-                  (for i 2 (# node) 1
+                  (for i 2 (n node) 1
                        (with (case (nth node i))
                          (visit-node (nth case 1) visitor)
                          (visit-block case 2 visitor)))]
@@ -47,7 +47,7 @@
                  [(or (= func (.> builtins :unquote)) (= func (.> builtins :unquote-splice)))
                   (fail! "unquote/unquote-splice should never appear here")]
                  [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
-                  (visit-node (nth node (# node)) visitor)]
+                  (visit-node (nth node (n node)) visitor)]
                  [(= func (.> builtins :define-native))] ;; Nothing needs doing here
                  [(= func (.> builtins :import))] ;; Nothing needs doing here
                  [(= func (.> builtins :struct-literal)) (visit-list node 2 visitor)]
@@ -60,7 +60,7 @@
 
 (defun visit-block (node start visitor)
   "Visit a block of nodes, starting from START."
-  (for i start (# node) 1
+  (for i start (n node) 1
     (visit-node (nth node i) visitor)))
 
 (define visit-list visit-block)

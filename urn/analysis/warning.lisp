@@ -19,7 +19,7 @@
                           (ari (get-idx arity var))]
                           (cond
                             [(/= ari nil) ari]
-                            [(/= (# (.> var :defs)) 1) false]
+                            [(/= (n (.> var :defs)) 1) false]
                             [true
                               ;; We should never hit recursive definitions but you never know
                               (.<! arity var false)
@@ -36,7 +36,7 @@
                                        (with (args (nth def 2))
                                              (if (any (lambda (x) (.> x :var :isVariadic)) args)
                                                false
-                                               (# args)))]
+                                               (n args)))]
                                       (true false))))
                                 (.<! arity var ari)
                                 ari)]))))]
@@ -45,9 +45,9 @@
       (lambda (node)
         (when (and (list? node) (symbol? (car node)))
           (with (arity (get-arity (car node)))
-            (when (and arity (< arity (pred (# node))))
+            (when (and arity (< arity (pred (n node))))
               (logger/put-node-warning! (.> state :logger)
-                (.. "Calling " (symbol->string (car node)) " with " (string->number (pred (# node))) " arguments, expected " (string->number arity))
+                (.. "Calling " (symbol->string (car node)) " with " (string->number (pred (n node))) " arguments, expected " (string->number arity))
                 node nil
                 (get-source node) "Called here"))))))))
 

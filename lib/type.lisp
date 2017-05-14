@@ -1,6 +1,6 @@
 (import base (defun let* type# if car cdr when
-              and or >= = <= /= # get-idx defmacro for
-              error gensym ! len# pretty))
+              and or >= = <= /= n get-idx
+              defmacro for error gensym ! len# pretty))
 
 (import lua/string (format sub))
 (import lua/basic (getmetatable))
@@ -19,7 +19,7 @@
   "Check whether X is the empty list or the empty string."
   (let* [(xt (type x))]
     (cond
-      [(= xt "list") (= (# x) 0)]
+      [(= xt "list") (= (n x) 0)]
       [(= xt "string") (= (len# x) 0)]
       [true false])))
 
@@ -119,9 +119,9 @@
     (let* [(type-x (type x))
            (type-y (type y))]
       (cond
-        [(and (= type-x :list) (= type-y :list) (= (# x) (# y)))
+        [(and (= type-x :list) (= type-y :list) (= (n x) (n y)))
          (let* [(equal true)] ; be optimistic
-           (for i 1 (# x) 1
+           (for i 1 (n x) 1
              (when (neq? (get-idx x i) (get-idx y i)) (set! equal false)))
            equal)]
         [(and (= :table (type# x))
