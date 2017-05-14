@@ -2,11 +2,6 @@
 title: string
 ---
 # string
-## `#s`
-*Defined at lib/string.lisp:16:1*
-
-Return the length of the string `X`.
-
 ## `(.. &args)`
 *Defined at lib/string.lisp:12:1*
 
@@ -18,12 +13,12 @@ Concatenate the several values given in `ARGS`. They must all be strings.
 Index the string `XS`, returning the character at position `X`.
 
 ## `quoted`
-*Defined at lib/string.lisp:67:1*
+*Defined at lib/string.lisp:65:1*
 
 Quote the string `STR` so it is suitable for printing.
 
 ## `(split text pattern limit)`
-*Defined at lib/string.lisp:18:1*
+*Defined at lib/string.lisp:16:1*
 
 Split the string given by `TEXT` in at most `LIMIT` components, which are
 delineated by the Lua pattern `PATTERN`.
@@ -40,7 +35,7 @@ string into individual characters.
 ```
 
 ## `(trim str)`
-*Defined at lib/string.lisp:62:1*
+*Defined at lib/string.lisp:60:1*
 
 Remove whitespace from both sides of `STR`.
 

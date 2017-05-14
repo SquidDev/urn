@@ -18,7 +18,6 @@ given by `TYPEDECL`.
  - `copy` *Native defined at lib/luajit/ffi.lisp:11:1*
  - `errno` *Native defined at lib/luajit/ffi.lisp:18:1*
  - `fill` *Native defined at lib/luajit/ffi.lisp:7:1*
- - `foobar` *Defined at lib/luajit/ffi.lisp:21:1*
  - `gc` *Native defined at lib/luajit/ffi.lisp:17:1*
  - `istype` *Native defined at lib/luajit/ffi.lisp:6:1*
  - `load` *Native defined at lib/luajit/ffi.lisp:14:1*

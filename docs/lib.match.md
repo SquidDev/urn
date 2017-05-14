@@ -13,8 +13,9 @@ pattern ::= literal
           | metavar
           | _
           | symbol '?' ;; predicate
-          | ( -> expr pattern ) ;; view
-          | ( as pattern metavar ) ;; as
+          | ( expr -> pattern ) ;; view
+          | ( pattern @ metavar ) ;; as
+          | ( pattern :when expr) ;; when
           | ( pattern * ) ;; list
           | ( pattern + . pattern ) ;; list+rest
           | ( struct-literal :name pattern :name pattern ) ;; structure literal
@@ -47,13 +48,13 @@ their "inner" patterns.
 matches if the scrutinee matches the given predicate.
 
 ## `(case val &pts)`
-*Macro defined at lib/match.lisp:259:1*
+*Macro defined at lib/match.lisp:268:1*
 
 Match a single value against a series of patterns, evaluating the
 first body that matches, much like `cond`.
 
 ## `(destructuring-bind pt &body)`
-*Macro defined at lib/match.lisp:242:1*
+*Macro defined at lib/match.lisp:251:1*
 
 Match a single pattern against a single value, then evaluate the `BODY`.
 
@@ -61,7 +62,7 @@ The pattern is given as `(car PT)` and the value as `(cadr PT)`.  If
 the pattern does not match, an error is thrown.
 
 ## `(handler-case x &body)`
-*Macro defined at lib/match.lisp:283:1*
+*Macro defined at lib/match.lisp:292:1*
 
 Evaluate the form `X`, and if an error happened, match the series
 of `(?pattern (?arg) . ?body)` arms given in `BODY` against the value of
@@ -80,7 +81,7 @@ expression is returned by [`handler-case`](lib.match.md#handler-case-x-body).
 ```
 
 ## `(matches? pt x)`
-*Macro defined at lib/match.lisp:273:1*
+*Macro defined at lib/match.lisp:282:1*
 
 Test if the value `X` matches the pattern `PT`.
 
@@ -88,6 +89,6 @@ Note that, since this does not bind anything, all metavariables may be
 replaced by `_` with no loss of meaning.
 
 ## Undocumented symbols
- - `(compile-pattern-test pattern symb)` *Defined at lib/match.lisp:136:1*
- - `(function &arms)` *Macro defined at lib/match.lisp:312:1*
- - `(if-match cs t e)` *Macro defined at lib/match.lisp:324:1*
+ - `(compile-pattern-test pattern symb)` *Defined at lib/match.lisp:140:1*
+ - `(function &arms)` *Macro defined at lib/match.lisp:321:1*
+ - `(if-match cs t e)` *Macro defined at lib/match.lisp:333:1*

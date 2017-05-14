@@ -2,7 +2,7 @@
 title: lua/basic
 ---
 # lua/basic
-## `(# x)`
+## `(n x)`
 *Defined at lib/lua/basic.lisp:50:1*
 
 Get the length of list X

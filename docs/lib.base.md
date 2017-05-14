@@ -7,11 +7,6 @@ title: base
 
 Negate the expresison `EXPR`.
 
-## `(# x)`
-*Defined at lib/lua/basic.lisp:50:1*
-
-Get the length of list X
-
 ## `(-and a b)`
 *Defined at lib/base.lisp:159:1*
 
@@ -109,6 +104,11 @@ Evaluate `T` if `C` is true, otherwise, evaluate `B`.
 *Defined at lib/base.lisp:48:1*
 
 Return the list of variadic arguments given.
+
+## `(n x)`
+*Defined at lib/lua/basic.lisp:50:1*
+
+Get the length of list X
 
 ## `(or a b &rest)`
 *Macro defined at lib/base.lisp:138:1*

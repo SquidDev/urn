@@ -36,7 +36,7 @@ out = (2)
 ```
 
 ## `(accumulate-with f ac z xs)`
-*Defined at lib/list.lisp:489:1*
+*Defined at lib/list.lisp:483:1*
 
 `A` composition of [`foldl`](lib.list.md#foldl-f-z-xs) and [`map`](lib.list.md#map-fn-xss).
 
@@ -54,7 +54,7 @@ out = 15
 ```
 
 ## `(all p xs)`
-*Defined at lib/list.lisp:276:1*
+*Defined at lib/list.lisp:270:1*
 
 Test if all elements of `XS` match the predicate `P`.
 
@@ -79,7 +79,7 @@ true
 ```
 
 ## `(append xs ys)`
-*Defined at lib/list.lisp:442:1*
+*Defined at lib/list.lisp:436:1*
 
 Concatenate `XS` and `YS`.
 
@@ -137,7 +137,7 @@ out = (3 4 5)
 ```
 
 ## `(elem? x xs)`
-*Defined at lib/list.lisp:290:1*
+*Defined at lib/list.lisp:284:1*
 
 Test if `X` is present in the list `XS`.
 
@@ -173,7 +173,7 @@ out = 1 4 2 5 3 6
 ```
 
 ## `(flatten xss)`
-*Defined at lib/list.lisp:452:1*
+*Defined at lib/list.lisp:446:1*
 
 Concatenate all the lists in `XSS`. `XSS` must not contain elements which
 are not lists.
@@ -204,7 +204,7 @@ out = (1 2 3 4)
 ```
 
 ## `(for-each var lst &body)`
-*Macro defined at lib/list.lisp:424:1*
+*Macro defined at lib/list.lisp:418:1*
 
 Perform the set of actions `BODY` for all values in `LST`, binding the current value to `VAR`.
 
@@ -219,7 +219,7 @@ nil
 ```
 
 ## `(init xs)`
-*Defined at lib/list.lisp:338:1*
+*Defined at lib/list.lisp:332:1*
 
 Return the list `XS` with the last element removed.
 This is the dual of `LAST`.
@@ -231,7 +231,7 @@ out = '(1 2 3 4 5 6 7 8 9)
 ```
 
 ## `(last xs)`
-*Defined at lib/list.lisp:326:1*
+*Defined at lib/list.lisp:320:1*
 
 Return the last element of the list `XS`.
 Counterintutively, this function runs in constant time.
@@ -284,7 +284,7 @@ true
 ```
 
 ## `(nth xs idx)`
-*Defined at lib/list.lisp:350:1*
+*Defined at lib/list.lisp:344:1*
 
 Get the `IDX` th element in the list `XS`. The first element is 1.
 This function runs in constant time.
@@ -296,7 +296,7 @@ out = 10
 ```
 
 ## `(nths xss idx)`
-*Defined at lib/list.lisp:361:1*
+*Defined at lib/list.lisp:355:1*
 
 Get the `IDX`-th element in all the lists given at `XSS`. The first
 element is1.
@@ -308,9 +308,9 @@ out = (2 5 8)
 ```
 
 ## `(nub xs)`
-*Defined at lib/list.lisp:254:1*
+*Defined at lib/list.lisp:241:1*
 
-Remove duplicate elements from `XS`.
+Remove duplicate elements from `XS`. This runs in linear time.
 
 ### Example:
 ```
@@ -319,7 +319,7 @@ out = (1 2 3)
 ```
 
 ## `(pop-last! xs)`
-*Defined at lib/list.lisp:392:1*
+*Defined at lib/list.lisp:386:1*
 
 Mutate the list `XS`, removing and returning its last element.
 
@@ -333,7 +333,7 @@ out = (1 2)
 ``` 
 
 ## `(prod xs)`
-*Defined at lib/list.lisp:518:1*
+*Defined at lib/list.lisp:512:1*
 
 Return the product of all elements in `XS`.
 
@@ -344,7 +344,7 @@ out = 24
 ```
 
 ## `(prune xs)`
-*Defined at lib/list.lisp:303:1*
+*Defined at lib/list.lisp:297:1*
 
 Remove values matching the predicates [`empty?`](lib.type.md#empty-x) or [`nil?`](lib.type.md#nil-x) from
 the list `XS`.
@@ -356,7 +356,7 @@ out = (1 2)
 ```
 
 ## `(push-cdr! xs val)`
-*Defined at lib/list.lisp:375:1*
+*Defined at lib/list.lisp:369:1*
 
 Mutate the list `XS`, adding `VAL` to its end.
 
@@ -370,7 +370,7 @@ out = (1 2 3 4)
 ```
 
 ## `(range start end)`
-*Defined at lib/list.lisp:463:1*
+*Defined at lib/list.lisp:457:1*
 
 Build a list from `START` to `END`.
 
@@ -381,7 +381,7 @@ out = (1 2 3 4 5 6 7 8 9 10)
 ```
 
 ## `(remove-nth! li idx)`
-*Defined at lib/list.lisp:409:1*
+*Defined at lib/list.lisp:403:1*
 
 Mutate the list `LI`, removing the value at `IDX` and returning it.
 
@@ -395,7 +395,7 @@ out = (1 3)
 ``` 
 
 ## `(reverse xs)`
-*Defined at lib/list.lisp:476:1*
+*Defined at lib/list.lisp:470:1*
 
 Reverse the list `XS`, using the accumulator `ACC`.
 
@@ -410,7 +410,7 @@ out = (10 9 8 7 6 5 4 3 2 1)
 
 Return a copy of the list `XS` with the element `XS` added to its end.
 This function runs in linear time over the two input lists: That is,
-it runs in `O`(n+k) time proportional both to `(# XSS)` and `(# XS)`.
+it runs in `O`(n+k) time proportional both to `(n XSS)` and `(n XS)`.
 
 ### Example:
 ```cl
@@ -419,7 +419,7 @@ out = (1 2 3 4 5 6)
 ``` 
 
 ## `(sum xs)`
-*Defined at lib/list.lisp:508:1*
+*Defined at lib/list.lisp:502:1*
 
 Return the sum of all elements in `XS`.
 
@@ -441,7 +441,7 @@ out = (1 2)
 ```
 
 ## `(traverse xs f)`
-*Defined at lib/list.lisp:315:1*
+*Defined at lib/list.lisp:309:1*
 
 > **Warning:** traverse is deprecated: Use map instead.
 
@@ -454,7 +454,7 @@ out = (2 3 4)
 ```
 
 ## `(union xs ys)`
-*Defined at lib/list.lisp:266:1*
+*Defined at lib/list.lisp:260:1*
 
 Set-like union of `XS` and `YS`.
 
@@ -465,61 +465,61 @@ out = (1 2 3 4 5)
 ```
 
 ## Undocumented symbols
- - `(caaaar x)` *Defined at lib/list.lisp:543:1*
- - `(caaaars xs)` *Defined at lib/list.lisp:574:1*
- - `(caaadr x)` *Defined at lib/list.lisp:544:1*
- - `(caaadrs xs)` *Defined at lib/list.lisp:575:1*
- - `(caaar x)` *Defined at lib/list.lisp:535:1*
- - `(caaars xs)` *Defined at lib/list.lisp:566:1*
- - `(caadar x)` *Defined at lib/list.lisp:545:1*
- - `(caadars xs)` *Defined at lib/list.lisp:576:1*
- - `(caaddr x)` *Defined at lib/list.lisp:546:1*
- - `(caaddrs xs)` *Defined at lib/list.lisp:577:1*
- - `(caadr x)` *Defined at lib/list.lisp:536:1*
- - `(caadrs xs)` *Defined at lib/list.lisp:567:1*
- - `(caar x)` *Defined at lib/list.lisp:530:1*
- - `(caars xs)` *Defined at lib/list.lisp:562:1*
- - `(cadaar x)` *Defined at lib/list.lisp:547:1*
- - `(cadaars xs)` *Defined at lib/list.lisp:578:1*
- - `(cadadr x)` *Defined at lib/list.lisp:548:1*
- - `(cadadrs xs)` *Defined at lib/list.lisp:579:1*
- - `(cadar x)` *Defined at lib/list.lisp:537:1*
- - `(cadars xs)` *Defined at lib/list.lisp:568:1*
- - `(caddar x)` *Defined at lib/list.lisp:549:1*
- - `(caddars xs)` *Defined at lib/list.lisp:580:1*
- - `(cadddr x)` *Defined at lib/list.lisp:550:1*
- - `(cadddrs xs)` *Defined at lib/list.lisp:581:1*
- - `(caddr x)` *Defined at lib/list.lisp:538:1*
- - `(caddrs xs)` *Defined at lib/list.lisp:569:1*
- - `(cadr x)` *Defined at lib/list.lisp:531:1*
- - `(cadrs xs)` *Defined at lib/list.lisp:563:1*
- - `(cars xs)` *Defined at lib/list.lisp:560:1*
- - `(cdaaar x)` *Defined at lib/list.lisp:551:1*
- - `(cdaaars xs)` *Defined at lib/list.lisp:582:1*
- - `(cdaadr x)` *Defined at lib/list.lisp:552:1*
- - `(cdaadrs xs)` *Defined at lib/list.lisp:583:1*
- - `(cdaar x)` *Defined at lib/list.lisp:539:1*
- - `(cdaars xs)` *Defined at lib/list.lisp:570:1*
- - `(cdadar x)` *Defined at lib/list.lisp:553:1*
- - `(cdadars xs)` *Defined at lib/list.lisp:584:1*
- - `(cdaddr x)` *Defined at lib/list.lisp:554:1*
- - `(cdaddrs xs)` *Defined at lib/list.lisp:585:1*
- - `(cdadr x)` *Defined at lib/list.lisp:540:1*
- - `(cdadrs xs)` *Defined at lib/list.lisp:571:1*
- - `(cdar x)` *Defined at lib/list.lisp:532:1*
- - `(cdars xs)` *Defined at lib/list.lisp:564:1*
- - `(cddaar x)` *Defined at lib/list.lisp:555:1*
- - `(cddaars xs)` *Defined at lib/list.lisp:586:1*
- - `(cddadr x)` *Defined at lib/list.lisp:556:1*
- - `(cddadrs xs)` *Defined at lib/list.lisp:587:1*
- - `(cddar x)` *Defined at lib/list.lisp:541:1*
- - `(cddars xs)` *Defined at lib/list.lisp:572:1*
- - `(cdddar x)` *Defined at lib/list.lisp:557:1*
- - `(cdddars xs)` *Defined at lib/list.lisp:588:1*
- - `(cddddr x)` *Defined at lib/list.lisp:558:1*
- - `(cddddrs xs)` *Defined at lib/list.lisp:589:1*
- - `(cdddr x)` *Defined at lib/list.lisp:542:1*
- - `(cdddrs xs)` *Defined at lib/list.lisp:573:1*
- - `(cddr x)` *Defined at lib/list.lisp:533:1*
- - `(cddrs xs)` *Defined at lib/list.lisp:565:1*
- - `(cdrs xs)` *Defined at lib/list.lisp:561:1*
+ - `(caaaar x)` *Defined at lib/list.lisp:537:1*
+ - `(caaaars xs)` *Defined at lib/list.lisp:568:1*
+ - `(caaadr x)` *Defined at lib/list.lisp:538:1*
+ - `(caaadrs xs)` *Defined at lib/list.lisp:569:1*
+ - `(caaar x)` *Defined at lib/list.lisp:529:1*
+ - `(caaars xs)` *Defined at lib/list.lisp:560:1*
+ - `(caadar x)` *Defined at lib/list.lisp:539:1*
+ - `(caadars xs)` *Defined at lib/list.lisp:570:1*
+ - `(caaddr x)` *Defined at lib/list.lisp:540:1*
+ - `(caaddrs xs)` *Defined at lib/list.lisp:571:1*
+ - `(caadr x)` *Defined at lib/list.lisp:530:1*
+ - `(caadrs xs)` *Defined at lib/list.lisp:561:1*
+ - `(caar x)` *Defined at lib/list.lisp:524:1*
+ - `(caars xs)` *Defined at lib/list.lisp:556:1*
+ - `(cadaar x)` *Defined at lib/list.lisp:541:1*
+ - `(cadaars xs)` *Defined at lib/list.lisp:572:1*
+ - `(cadadr x)` *Defined at lib/list.lisp:542:1*
+ - `(cadadrs xs)` *Defined at lib/list.lisp:573:1*
+ - `(cadar x)` *Defined at lib/list.lisp:531:1*
+ - `(cadars xs)` *Defined at lib/list.lisp:562:1*
+ - `(caddar x)` *Defined at lib/list.lisp:543:1*
+ - `(caddars xs)` *Defined at lib/list.lisp:574:1*
+ - `(cadddr x)` *Defined at lib/list.lisp:544:1*
+ - `(cadddrs xs)` *Defined at lib/list.lisp:575:1*
+ - `(caddr x)` *Defined at lib/list.lisp:532:1*
+ - `(caddrs xs)` *Defined at lib/list.lisp:563:1*
+ - `(cadr x)` *Defined at lib/list.lisp:525:1*
+ - `(cadrs xs)` *Defined at lib/list.lisp:557:1*
+ - `(cars xs)` *Defined at lib/list.lisp:554:1*
+ - `(cdaaar x)` *Defined at lib/list.lisp:545:1*
+ - `(cdaaars xs)` *Defined at lib/list.lisp:576:1*
+ - `(cdaadr x)` *Defined at lib/list.lisp:546:1*
+ - `(cdaadrs xs)` *Defined at lib/list.lisp:577:1*
+ - `(cdaar x)` *Defined at lib/list.lisp:533:1*
+ - `(cdaars xs)` *Defined at lib/list.lisp:564:1*
+ - `(cdadar x)` *Defined at lib/list.lisp:547:1*
+ - `(cdadars xs)` *Defined at lib/list.lisp:578:1*
+ - `(cdaddr x)` *Defined at lib/list.lisp:548:1*
+ - `(cdaddrs xs)` *Defined at lib/list.lisp:579:1*
+ - `(cdadr x)` *Defined at lib/list.lisp:534:1*
+ - `(cdadrs xs)` *Defined at lib/list.lisp:565:1*
+ - `(cdar x)` *Defined at lib/list.lisp:526:1*
+ - `(cdars xs)` *Defined at lib/list.lisp:558:1*
+ - `(cddaar x)` *Defined at lib/list.lisp:549:1*
+ - `(cddaars xs)` *Defined at lib/list.lisp:580:1*
+ - `(cddadr x)` *Defined at lib/list.lisp:550:1*
+ - `(cddadrs xs)` *Defined at lib/list.lisp:581:1*
+ - `(cddar x)` *Defined at lib/list.lisp:535:1*
+ - `(cddars xs)` *Defined at lib/list.lisp:566:1*
+ - `(cdddar x)` *Defined at lib/list.lisp:551:1*
+ - `(cdddars xs)` *Defined at lib/list.lisp:582:1*
+ - `(cddddr x)` *Defined at lib/list.lisp:552:1*
+ - `(cddddrs xs)` *Defined at lib/list.lisp:583:1*
+ - `(cdddr x)` *Defined at lib/list.lisp:536:1*
+ - `(cdddrs xs)` *Defined at lib/list.lisp:567:1*
+ - `(cddr x)` *Defined at lib/list.lisp:527:1*
+ - `(cddrs xs)` *Defined at lib/list.lisp:559:1*
+ - `(cdrs xs)` *Defined at lib/list.lisp:555:1*
