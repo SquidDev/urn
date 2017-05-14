@@ -41,7 +41,7 @@
    ```"
   (when-with (data (read-all-mode! path true))
     (letrec [(string->bytes (str idx)
-               (if (> idx (# str))
+               (if (> idx (n str))
                  `()
                  (cons (byte str idx)
                        (string->bytes str (+ idx 1)))))]
@@ -95,7 +95,7 @@
    true
    ```"
   (letrec [(bytes->string (bytes idx)
-             (if (> idx (# bytes))
+             (if (> idx (n bytes))
                `()
                (cons (char (nth bytes idx))
                      (bytes->string bytes (+ idx 1)))))]
@@ -138,7 +138,7 @@
    true
    ```"
   (letrec [(bytes->string (bytes idx)
-             (if (> idx (# bytes))
+             (if (> idx (n bytes))
                `()
                (cons (char (nth bytes idx))
                      (bytes->string bytes (+ idx 1)))))]

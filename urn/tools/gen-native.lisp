@@ -15,7 +15,7 @@
 
 (defun gen-native (compiler args)
   :hidden
-  (when (/= (# (.> args :input)) 1)
+  (when (/= (n (.> args :input)) 1)
     (logger/put-error! (.> compiler :log) "Expected just one input")
     (exit! 1))
 
@@ -31,9 +31,9 @@
         (with (name (.> (nth node 2) :contents))
           (push-cdr! natives name)
 
-          (set! max-name (math/max max-name (# (quoted name))))
-          (set! max-quot (math/max max-quot (# (quoted (dot-quote prefix name)))))
-          (set! max-pref (math/max max-pref (# (dot-quote escaped name)))))))
+          (set! max-name (math/max max-name (n (quoted name))))
+          (set! max-quot (math/max max-quot (n (quoted (dot-quote prefix name)))))
+          (set! max-pref (math/max max-pref (n (dot-quote escaped name)))))))
 
     (table/sort natives)
 

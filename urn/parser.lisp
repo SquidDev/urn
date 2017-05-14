@@ -36,7 +36,7 @@
   :hidden
   (if cont
     (fail! { :msg msg :cont true })
-    (logger/do-node-error! logger msg node explain (unpack lines 1 (# lines)))))
+    (logger/do-node-error! logger msg node explain (unpack lines 1 (n lines)))))
 
 (defun lex (logger str name cont)
   "Lex STR from a file called NAME, returning a series of tokens. If CONT
@@ -50,7 +50,7 @@
          (line 1)
          (column 1)
          (offset 1)
-         (length (string/#s str))
+         (length (n str))
          (out '())
          ;; Consumes a single symbol and increments the position
          (consume! (lambda ()
@@ -419,7 +419,7 @@
            (set! auto-close true)
            (.<! head :auto-close true)]
           [(= tag "eof")
-           (when (/= 0 (# stack))
+           (when (/= 0 (n stack))
              (eof-error! cont logger
                (string/format "Expected '%s', got 'eof'" (.> head :close))
                tok nil

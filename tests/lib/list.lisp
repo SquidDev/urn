@@ -4,9 +4,9 @@
 
 (describe "A quoted list"
   (it "has a constant length"
-      (affirm (eq? (# '()) 0)
-              (eq? (# '(foo)) 1)
-              (eq? (# '(foo "foo" 2)) 3)
+      (affirm (eq? (n '()) 0)
+              (eq? (n '(foo)) 1)
+              (eq? (n '(foo "foo" 2)) 3)
               (eq? (cadr '(foo "foo")) "foo")))
   (it "compares equal to itself"
       (check [(list a)]
@@ -29,12 +29,12 @@
               (eq? (foldl append '() '((1 2) (3 4))) '(1 2 3 4))))
   (it "can be appended to another quoted list"
       (check [(list a) (list b)]
-        (eq? (# (append a b)) (+ (# a) (# b)))
+        (eq? (n (append a b)) (+ (n a) (n b)))
         (eq? (append a b) (reverse (append (reverse b) (reverse a))))))
   (it "can be mapped over"
       (check [(list a)]
         (eq? (map id a) a)
-        (eq? (# (map id a)) (# a))))
+        (eq? (n (map id a)) (n a))))
   (it "can be checked for the presence of an element"
       (affirm (eq? true (elem? 1 '(1 2 3)))
               (eq? true (elem? 2 '(1 2 3)))

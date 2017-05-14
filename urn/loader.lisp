@@ -16,7 +16,7 @@
   (with (current path)
     (for-each search paths
       (with (sub (string/match path (.. "^" (string/gsub search "%?" "(.*)") "$")))
-        (when (and sub (< (# sub) (# current)))
+        (when (and sub (< (n sub) (n current)))
           (set! current sub))))
     current))
 
@@ -28,7 +28,7 @@
            (str     (.> entry :contents))
            (idx     0)
            (max     0)
-           (len     (# str))]
+           (len     (n str))]
 
       (while (<= idx len)
         (case (list (string/find str "%${(%d+)}" idx))
@@ -72,7 +72,7 @@
   :hidden
   (logger/put-verbose! (.> state :log) (.. "Loading " path " into " name))
 
-  (let* [(prefix (.. name "-" (# (.> state :libs)) "/"))
+  (let* [(prefix (.. name "-" (n (.> state :libs)) "/"))
          (lib { :name   name
                 :prefix prefix
                 :path   path })
@@ -146,7 +146,7 @@
   (letrec [(searched '())
            (paths (.> state :paths))
            (searcher (lambda (i)
-                       (if (> i (# paths))
+                       (if (> i (n paths))
                          (list nil (.. "Cannot find " (string/quoted name) ".\nLooked in " (concat searched ", ")))
                          ;; For every path, check if we've looked at this already and use it, otherwise
                          ;; look it up on the filesystem and parse everything.

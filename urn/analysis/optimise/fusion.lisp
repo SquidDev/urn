@@ -38,9 +38,9 @@
         [(= ty-x "number") (= (const-val x) (const-val y))]
         [(= ty-x "key")    (= (const-val x) (const-val y))]
         [(= ty-x "list")
-         (if (= (# x) (# y))
+         (if (= (n x) (n y))
            (with (ok true)
-             (for i 1 (# x) 1
+             (for i 1 (n x) 1
                (when (and ok (! (peq? (nth x i) (nth y i) out)))
                  (set! ok false)))
              ok)

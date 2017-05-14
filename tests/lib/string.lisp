@@ -4,8 +4,8 @@
 
 (describe "A string"
   (it "has a constant length"
-    (affirm (eq? (#s "") 0)
-            (eq? (#s "foo") 3)))
+    (affirm (eq? (n "") 0)
+            (eq? (n "foo") 3)))
   (it "equals itself"
     (affirm (eq? "" "")
             (eq? "foo" "foo")

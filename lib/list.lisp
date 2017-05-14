@@ -23,7 +23,7 @@
 (import base (defun defmacro when let* set-idx!
               get-idx for gensym -or slice /=
               pretty print error tostring  -and
-              unpack debug if # + - >= = ! with
+              unpack debug if n + - >= = ! with
               apply and progn .. *))
 (import base)
 (import lua/table)
@@ -80,7 +80,7 @@
 (defun snoc (xss &xs)
   "Return a copy of the list XS with the element XS added to its end.
    This function runs in linear time over the two input lists: That is,
-   it runs in O(n+k) time proportional both to `(# XSS)` and `(# XS)`.
+   it runs in O(n+k) time proportional both to `(n XSS)` and `(n XS)`.
 
    ### Example:
    ```cl
@@ -118,7 +118,7 @@
   (assert-type! f function)
   (assert-type! xs list)
   (let* [(accum z)]
-    (for i 1 (# xs) 1
+    (for i 1 (n xs) 1
       (set! accum (f accum (nth xs i))))
     accum))
 
@@ -133,16 +133,16 @@
    > (map succ '(1 2 3))
    out = (2 3 4)
    ```"
-  (let* [(lengths (let* [(out '())]
-                    (for i 1 (# xss) 1
+  (let* [(ns (let* [(out '())]
+                    (for i 1 (n xss) 1
                       (if (! (list? (nth xss i)))
                         (error (.. "not a list: " (pretty (nth xss i))
                                    " (it's a " (type (nth xss i)) ")"))
                         true)
-                      (push-cdr! out (# (nth xss i))))
+                      (push-cdr! out (n (nth xss i))))
                     out))
          (out '())]
-    (for i 1 (apply min lengths) 1
+    (for i 1 (apply min ns) 1
       (push-cdr! out (apply fn (nths xss i))))
     out))
 
@@ -160,12 +160,12 @@
    out = (2 4 6 8 10)
    ```"
   (let* [(lenghts (let* [(out '())]
-                    (for i 1 (# xss) 1
+                    (for i 1 (n xss) 1
                       (if (! (list? (nth xss i)))
                         (error (.. "not a list: " (pretty (nth xss i))
                                    " (it's a " (type (nth xss i)) ")"))
                         true)
-                      (push-cdr! out (# (nth xss i))))
+                      (push-cdr! out (n (nth xss i))))
                     out))
          (out '())]
     (for i 1 (apply min lenghts) 1
@@ -198,7 +198,7 @@
   (assert-type! p function)
   (assert-type! xs list)
   (let* [(out '())]
-    (for i 1 (# xs) 1
+    (for i 1 (n xs) 1
       (with (x (nth xs i))
         (when (p x) (push-cdr! out x))))
     out))
@@ -327,7 +327,7 @@
    out = 100
    ```"
   (assert-type! xs list)
-  (get-idx xs (# xs)))
+  (get-idx xs (n xs)))
 
 (defun init (xs)
   "Return the list XS with the last element removed.
@@ -339,7 +339,7 @@
    out = '(1 2 3 4 5 6 7 8 9)
    ```"
   (assert-type! xs list)
-  (slice xs 1 (- (# xs) 1)))
+  (slice xs 1 (- (n xs) 1)))
 
 (defun nth (xs idx)
   "Get the IDX th element in the list XS. The first element is 1.
@@ -362,7 +362,7 @@
    out = (2 5 8)
    ```"
   (let* [(out '())]
-    (for i 1 (# xss) 1
+    (for i 1 (n xss) 1
       (push-cdr! out (nth (nth xss i) idx)))
     out))
 
@@ -378,7 +378,7 @@
    out = (1 2 3 4)
    ```"
   (assert-type! xs list)
-  (let* [(len (+ (# xs) 1))]
+  (let* [(len (+ (n xs) 1))]
     (set-idx! xs "n" len)
     (set-idx! xs len val)
     xs))
@@ -395,9 +395,9 @@
    out = (1 2)
    ``` "
   (assert-type! xs list)
-  (with (x (get-idx xs (# xs)))
-    (set-idx! xs (# xs) nil)
-    (set-idx! xs "n" (- (# xs) 1))
+  (with (x (get-idx xs (n xs)))
+    (set-idx! xs (n xs) nil)
+    (set-idx! xs "n" (- (n xs) 1))
     x))
 
 (defun remove-nth! (li idx)
@@ -431,7 +431,7 @@
   (let* [(ctr' (gensym))
          (lst' (gensym))]
     `(with (,lst' ,lst)
-       (for ,ctr' 1 (# ,lst') 1 (with (,var (get-idx ,lst' ,ctr')) ,@body)))))
+       (for ,ctr' 1 (n ,lst') 1 (with (,var (get-idx ,lst' ,ctr')) ,@body)))))
 
 (defun append (xs ys)
   "Concatenate XS and YS.
@@ -476,7 +476,7 @@
    out = (10 9 8 7 6 5 4 3 2 1)
    ```"
   (let* [(out '())]
-    (for i (# xs) 1 -1
+    (for i (n xs) 1 -1
       (push-cdr! out (nth xs i)))
     out))
 

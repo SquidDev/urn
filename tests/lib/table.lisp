@@ -80,10 +80,10 @@
                 (= (nth li 2) "y")
                 (= (nth li 3) "z"))))
     (will "be a constant size"
-      (affirm (= 0 (#keys {}))
-              (= 0 (#keys (struct)))
-              (= 1 (#keys (struct :foo "x")))
-              (= 2 (#keys (struct :foo "x" :bar "y")))))
+      (affirm (= 0 (nkeys {}))
+              (= 0 (nkeys (struct)))
+              (= 1 (nkeys (struct :foo "x")))
+              (= 2 (nkeys (struct :foo "x" :bar "y")))))
     (will "be empty"
           (affirm (empty-struct? {})
                   (empty-struct? (struct))

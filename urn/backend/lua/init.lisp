@@ -93,7 +93,7 @@
          (export-list '())
          (escape-list '())]
 
-    (for i (# states) 1 -1
+    (for i (n states) 1 -1
       (with (state (nth states i))
         (unless (= (.> state :stage) "executed")
           (let* [(node (assert! (.> state :node) (.. "State is in " (.> state :stage) " instead")))
@@ -114,7 +114,7 @@
         (.<! back-state :count (succ id))
 
         ;; Setup the function name
-        (when (> (# name) 20) (set! name (.. (string/sub name 1 17) "...")))
+        (when (> (n name) 20) (set! name (.. (string/sub name 1 17) "...")))
         (set! name (.. "compile#" id "{" name "}"))
 
         (prelude out)
@@ -122,7 +122,7 @@
 
 
         ;; Emit all expressions
-        (for i 1 (# state-list) 1
+        (for i 1 (n state-list) 1
           (with (state (nth state-list i))
             (expression
               (.> state :node) out back-state
@@ -144,8 +144,8 @@
             [(nil ?msg)
              (let* [(buffer '())
                     (lines (string/split str "\n"))
-                    (format (.. "%" (# (number->string (# lines))) "d | %s"))]
-               (for i 1 (# lines) 1
+                    (format (.. "%" (n (number->string (n lines))) "d | %s"))]
+               (for i 1 (n lines) 1
                  (push-cdr! buffer (string/format format i (nth lines i))))
                (fail! (.. msg ":\n" (concat buffer "\n"))))]
             [(?fun)
@@ -153,7 +153,7 @@
                [(false ?msg)
                 (fail! (traceback/remap-traceback (.> back-state :mappings) msg))]
                [(true ?tbl)
-                (for i 1 (# state-list) 1
+                (for i 1 (n state-list) 1
                   (let* [(state (nth state-list i))
                          (escaped (nth escape-list i))
                          (res (.> tbl escaped))]

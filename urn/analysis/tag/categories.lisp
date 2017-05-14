@@ -5,7 +5,7 @@
   "Create a CATEGORY data set, using ARGS as additional parameters to [[struct]]."
   (struct
     :category category
-    (unpack args 1 (# args))))
+    (unpack args 1 (n args))))
 
 (defun part-all (xs i e f)
   "An implementation of [[all]] which just goes between I and E."
@@ -45,7 +45,7 @@
                      ;; weird that we consider the condition as a statement, but
                      ;; we have enough flexibility at codegen time to allow it to
                      ;; be.
-                     (for i 2 (# node) 1
+                     (for i 2 (n node) 1
                        (with (case (nth node i))
                          (visit-node lookup (car case) true true)
                          (visit-nodes lookup case 2 true test recur)))
@@ -54,17 +54,17 @@
                      (cond
                        [(and
                           ;; If we have two conditions
-                          (= (# node) 3)
+                          (= (n node) 3)
                           ;; If the first condition is of the form `[A false]`
                           (with (sub (nth node 2))
-                            (and (= (# sub) 2) (builtin? (nth sub 2) :false)))
+                            (and (= (n sub) 2) (builtin? (nth sub 2) :false)))
                           (with (sub (nth node 3))
-                            (and (= (# sub) 2) (builtin? (nth sub 1) :true) (builtin? (nth sub 2) :true))))
+                            (and (= (n sub) 2) (builtin? (nth sub 1) :true) (builtin? (nth sub 2) :true))))
                         (cat "not" :stmt (.> lookup (car (nth node 2)) :stmt))]
 
                        [(and
                           ;; If we have two conditions
-                          (= (# node) 3)
+                          (= (n node) 3)
                           ;; If the first condition is of the form `[A <expr>]`
                           ;; The second one is of the form `[true A]` (or `[true false]`
                           ;; when in a condition test).
@@ -73,7 +73,7 @@
                                  (branch (car first))
                                  (last (nth second 2))]
                             (and
-                              (= (# first) 2) (= (# second) 2)
+                              (= (n first) 2) (= (n second) 2)
                               (! (.> lookup (nth first 2) :stmt)) (builtin? (car second) :true)
                               (symbol? last)
                               (or
@@ -83,20 +83,20 @@
 
                        [(and
                           ;; If we have at least two conditions.
-                          (>= (# node) 3)
+                          (>= (n node) 3)
                           ;; Each condition follows the form `[x x]` (or [x true] if when
                           ;; in a condition test).
-                          (part-all node 2 (pred (# node))
+                          (part-all node 2 (pred (n node))
                             (lambda (branch)
                               (let* [(head (car branch))
                                      (tail (nth branch 2))]
-                                (and (= (# branch) 2) (symbol? tail)
+                                (and (= (n branch) 2) (symbol? tail)
                                   (or
                                     (and (symbol? head) (= (.> head :var) (.> tail :var)))
                                     (and test (! (.> lookup head :stmt)) (= (.> tail :var) (.> builtins :true))))))))
                           ;; Apart from the last one, which is `[true <expr>]`.
                           (with (branch (last node))
-                            (and (= (# branch) 2) (builtin? (car branch) :true) (! (.> lookup (nth branch 2) :stmt)))))
+                            (and (= (n branch) 2) (builtin? (car branch) :true) (! (.> lookup (nth branch 2) :stmt)))))
                         (cat "or")]
 
                        [true (cat "cond" :stmt true)])]
@@ -112,7 +112,7 @@
                     [(= func (.> builtins :unquote)) (fail! "unquote should never appear")]
                     [(= func (.> builtins :unquote-splice)) (fail! "unquote should never appear")]
                     [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
-                     (with (def (nth node (# node)))
+                     (with (def (nth node (n node)))
                        (if (and (list? def) (builtin? (car def) :lambda))
                          (with (recur { :var (.> node :defVar) :def def})
                            (visit-nodes lookup def 3 true nil recur)
@@ -151,8 +151,8 @@
                   [(and
                      ;; Attempt to determine expressions of the form ((lambda (x) x) Y)
                      ;; where Y is an expression.
-                     (= (# node) 2) (builtin? (car head) :lambda)
-                     (= (# head) 3) (= (# (nth head 2)) 1)
+                     (= (n node) 2) (builtin? (car head) :lambda)
+                     (= (n head) 3) (= (n (nth head 2)) 1)
                      (symbol? (nth head 3)) (= (.> (nth head 3) :var) (.> (car (nth head 2)) :var)))
 
                    ;; We now need to visit the child node.
@@ -171,8 +171,8 @@
                      ;; Attempt to determine expressions of the form ((lambda (x) (cond ...)) Y)
                      ;; where Y is an expression.
                      ;; If the condition is an "and" or "or" on X, then we'll specialise into an and/or expression.
-                     (= (# node) 2) (builtin? (car head) :lambda)
-                     (= (# head) 3) (= (# (nth head 2)) 1)
+                     (= (n node) 2) (builtin? (car head) :lambda)
+                     (= (n head) 3) (= (n (nth head 2)) 1)
                      (with (elem (nth head 3))
                        (and
                          ;; If we're a condition
@@ -186,7 +186,7 @@
                         ;; We got a statement out of it, which means we cannot emit an "and" or "or".
                         ;; Instead we'll just emit a normal call-lambda/call.
                         (.<! lookup head (cat :lambda))
-                        (for i 3 (# head) 1
+                        (for i 3 (n head) 1
                           (visit-node lookup (nth head i) true test))
                         (if stmt
                           (cat "call-lambda" :stmt true)
@@ -211,17 +211,17 @@
                    (let* [(lam (car node))
                           (args (nth lam 2))
                           (offset 1)]
-                     (for i 1 (# args) 1
+                     (for i 1 (n args) 1
                        (with (arg (nth args i))
                          (if (.> arg :var :isVariadic)
-                           (with (count (- (# node) (# args)))
+                           (with (count (- (n node) (n args)))
                              (when (< count 0) (set! count 0))
                              (for j 1 count 1
                                (visit-node lookup (nth node (+ i j)) false))
                              (set! offset count))
                            (when-with (val (nth node (+ i offset)))
                              (visit-node lookup val true)))))
-                     (for i (+ (# args) (+ offset 1)) (# node) 1
+                     (for i (+ (n args) (+ offset 1)) (n node) 1
                        (visit-node lookup (nth node i) true))
 
                      (cat "call-lambda" :stmt true))]
@@ -242,7 +242,7 @@
 
 (defun visit-nodes (lookup nodes start stmt test recur)
   "Marks all NODES with a category."
-  (with (len (# nodes))
+  (with (len (n nodes))
     (for i start len 1
       (visit-node lookup (nth nodes i) stmt
         (and test (= i len))

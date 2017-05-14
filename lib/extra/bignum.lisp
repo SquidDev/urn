@@ -1,15 +1,17 @@
 (import lua/math ())
 
+(debug type)
+
 (define num-tag   :hidden "bignum")
 (define part-bits :hidden 24)
 (define part-max  :hidden (^ 2 part-bits))
 
 (defun trim! (a) :hidden
   (with (parts (.> a :parts))
-    (while (= (nth parts (# parts)) 0)
-      (set-idx! parts (# parts) nil)
-      (.<! parts :n (- (# parts) 1)))
-    (when (= (# parts) 0)
+    (while (= (nth parts (n parts)) 0)
+      (set-idx! parts (n parts) nil)
+      (.<! parts :n (- (n parts) 1)))
+    (when (= (n parts) 0)
       (.<! a :sign false))))
 
 (defun copy (a)
@@ -44,7 +46,7 @@
                  (a-parts (.> a :parts))
                  (b-parts (.> b :parts))
                  (val-parts (.> val :parts))
-                 (max-parts (max (# (.> a :parts)) (# (.> b :parts))))]
+                 (max-parts (max (n (.> a :parts)) (n (.> b :parts))))]
             (for i 1 (+ max-parts 1) 1
               (push-cdr! val-parts 0))
             (for i 1 max-parts 1
@@ -68,7 +70,7 @@
                  (a-parts (.> a :parts))
                  (b-parts (.> b :parts))
                  (val-parts (.> val :parts))
-                 (max-parts (max (# (.> a :parts)) (# (.> b :parts))))]
+                 (max-parts (max (n (.> a :parts)) (n (.> b :parts))))]
             (for i 1 max-parts 1
               (push-cdr! val-parts 0))
             (for i 1 max-parts 1
@@ -92,7 +94,7 @@
                  (a-parts (.> a :parts))
                  (b-parts (.> b :parts))
                  (r (copy a))]
-            (for i 1 (# b-parts) 1
+            (for i 1 (n b-parts) 1
               (for j 0 (- part-bits 1) 1
                 (when (= (% (floor (/ (nth b-parts i) (^ 2 j))) 2) 1)
                   (set! val (add val r)))
@@ -104,7 +106,7 @@
     [(= b (new)) (error! "division by zero.")]
     [true (let* [(r (new))
                  (q (new))]
-            (for i (length a) 1 -1
+            (for i (n a) 1 -1
               (shl! r 1)
               (set! r (+ r (bit-at a i)))
               (when (>= r b)
@@ -153,11 +155,11 @@
   "Shifts (modifies) A to the left by B. B should be a normal integer, not of type bignum."
   (with (a-parts (.> a :parts))
     (for i 1 b 1
-      (for j (# a-parts) 1 -1
+      (for j (n a-parts) 1 -1
         (with (new-val (* (nth a-parts j) 2))
           (set-idx! a-parts j (% new-val part-max))
           (when (>= new-val part-max) ; carry
-            (if (= j (# a-parts))
+            (if (= j (n a-parts))
               (push-cdr! a-parts 1)
               (set-idx! a-parts (+ j 1) (+ (nth a-parts (+ j 1)) 1)))))))))
 
@@ -171,7 +173,7 @@
   "Shifts (modifies) A to the right by B. B should be a normal integer, not of type bignum."
   (with (a-parts (.> a :parts))
     (for i 1 b 1
-      (for j 1 (# a-parts) 1
+      (for j 1 (n a-parts) 1
         (with (new-val (/ (nth a-parts j) 2))
           (set-idx! a-parts j (floor new-val))
           (when (and (/= (% new-val 1) 0) (/= j 1)) ; carry
@@ -186,7 +188,7 @@
 
 (defun bit-at (a bit)
   "Returns the value of the bit (0 or 1) of A at position BIT. The BIT index starts at 1."
-  (if (or (< bit 1) (> bit (* (# (.> a :parts)) part-bits)))
+  (if (or (< bit 1) (> bit (* (n (.> a :parts)) part-bits)))
     0
     (% (floor (/ (nth (.> a :parts) (+ (floor (/ (- bit 1) part-bits)) 1))
                  (^ 2 (% (- bit 1) part-bits)))) 2)))
@@ -194,7 +196,7 @@
 (defun length (a)
   "Returns the amount of numerical bits needed to contain A."
   (let* [(a-parts (.> a :parts))
-         (a-len (# a-parts))]
+         (a-len (n a-parts))]
     (if (= a-len 0)
       0
       (+ (* (- a-len 1) part-bits) (floor (/ (log (nth a-parts a-len)) (log 2))) 1))))
@@ -208,10 +210,10 @@
    'X' (uppercase hex),
    'o' (octal), or
    'b' (binary)."
-  (let* [(type (if (> (# (or format "")) 0)
-                 (string/char-at format (# format))
+  (let* [(type (if (> (n (or format "")) 0)
+                 (string/char-at format (n format))
                  "d"))
-         (digits (if (> (# (or format "")) 1) (tonumber (string/sub format 1 -2)) 0))
+         (digits (if (> (n (or format "")) 1) (tonumber (string/sub format 1 -2)) 0))
          (num->string (lambda (base size symbol)
                         (with (str (concat (reverse (map
                                                       (lambda (n)
@@ -234,15 +236,15 @@
                             (step-exp (^ 10 step-digits))
                             (step-format (.. "%" (string/format "%02u" step-digits) "u"))
                             (step (new (^ 10 step-digits)))]
-                       (for i 1 (+ (ceil (/ (log (^ 2 (* (# (.> a :parts)) part-bits))) (log step-exp))) 1) 1
+                       (for i 1 (+ (ceil (/ (log (^ 2 (* (n (.> a :parts)) part-bits))) (log step-exp))) 1) 1
                          (push-cdr! parts (string/format step-format (or (car (.> (% vald step) :parts)) 0)))
                          (set! vald (/ vald step)))
                        (string/concat (reverse parts)))]))]
     (while (= (string/char-at str 1) "0")
       (set! str (string/sub str 2)))
-    (when (= (# str) 0)
+    (when (= (n str) 0)
       (set! str "0"))
-    (.. (if (.> a :sign) "-" "") (string/rep "0" (- digits (# str))) str)))
+    (.. (if (.> a :sign) "-" "") (string/rep "0" (- digits (n str))) str)))
 
 
 (defun equals? (a b)
@@ -251,7 +253,7 @@
     [(and (= (type a) num-tag) (/= (type b) num-tag)) (equals? a (new b))]
     [(and (/= (type a) num-tag) (= (type b) num-tag)) (equals? (new a) b)]
     [(/= (.> a :sign) (.> b :sign)) false]
-    [(/= (# (.> a :parts)) (# (.> b :parts))) false]
+    [(/= (n (.> a :parts)) (n (.> b :parts))) false]
     [true (eq? (.> a :parts) (.> b :parts))]))
 
 (defun less-than? (a b)
@@ -262,12 +264,12 @@
     [(and (.> a :sign) (.> b :sign)) (less-than? (negate b) (negate a))]
     [(and (.> a :sign) (! (.> b :sign))) true]
     [(and (! (.> a :sign)) (.> b :sign)) false]
-    [(/= (# (.> a :parts)) (# (.> b :parts))) (< (# (.> a :parts)) (# (.> b :parts)))]
+    [(/= (n (.> a :parts)) (n (.> b :parts))) (< (n (.> a :parts)) (n (.> b :parts)))]
     [true (let* [(a-parts (.> a :parts))                
                  (b-parts (.> b :parts))
                  (less false)
                  (continue true)]
-            (for i (# a-parts) 1 -1
+            (for i (n a-parts) 1 -1
               (when continue
                 (let* [(a-num (nth a-parts i))
                        (b-num (nth b-parts i))]
@@ -310,8 +312,8 @@
                        (with (first-char (if (= (string/char-at a 3) "-")
                                            (progn (.<! val :sign true) 4)
                                            3))
-                         (for i 0 (floor (/ (- (# a) first-char) (/ part-bits size))) 1
-                           (let* [(end-pos (- (# a) (* i (/ part-bits size))))
+                         (for i 0 (floor (/ (- (n a) first-char) (/ part-bits size))) 1
+                           (let* [(end-pos (- (n a) (* i (/ part-bits size))))
                                   (start-upos (- end-pos (- (/ part-bits size) 1)))
                                   (start-pos (if (< start-upos first-char) first-char start-upos))
                                   (p (tonumber (string/sub a start-pos end-pos) base))]
@@ -328,7 +330,7 @@
          [_ (let* [(first-char (if (= (string/char-at a 1) "-") 2 1))
                    (mult (new 1))
                    (ten (new 10))]
-              (for i (# a) first-char -1
+              (for i (n a) first-char -1
                 (set! val (+ val (* (new (tonumber (string/char-at a i))) mult)))
                 (set! mult (* mult ten)))
               (.<! val :sign (= (string/char-at a 1) "-")))])]

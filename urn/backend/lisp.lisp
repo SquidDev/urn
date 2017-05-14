@@ -5,11 +5,11 @@
   (with (tag (.> node :tag))
     (cond
       [(or (= tag "string") (= tag "number") (= tag "symbol") (= tag "key"))
-       (# (number->string (.> node :contents)))]
+       (n (number->string (.> node :contents)))]
       [(= tag "list")
        (let* ((sum 2)
               (i 1))
-         (while (and (<= sum max) (<= i (# node)))
+         (while (and (<= sum max) (<= i (n node)))
                 (set! sum (+ sum (estimate-length (nth node i) (- max sum))))
                 (when (> i 1) (inc! sum))
                 (inc! i))
@@ -34,7 +34,7 @@
              (when (<= max 0)
                (set! newline true)
                (writer/indent! writer))
-             (for i 2 (# node) 1
+             (for i 2 (n node) 1
                   (with (entry (nth node i))
                         (when (and (! newline) (> max 0))
                           (set! max (- max (estimate-length entry max)))

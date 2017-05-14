@@ -13,7 +13,7 @@
     [true (let* [(out (if (-> name (string/char-at <> 1) (string/find <> "%d")) "_e" ""))
                  (upper false)
                  (esc false)]
-            (for i 1 (string/#s name) 1
+            (for i 1 (n name) 1
               (with (char (string/char-at name i))
                 (cond
                   [(and (= char "-")

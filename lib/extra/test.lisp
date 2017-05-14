@@ -76,22 +76,22 @@
 
      ;; Display a summary of all tests
      (print! (string/format "%d (%.2f%%) out of %d passed, %d (%.2f%%) out of %d failed"
-               (# ,tests-passed) (* 100 (/ (# ,tests-passed) ,tests-total)) ,tests-total
-               (# ,tests-failed) (* 100 (/ (# ,tests-failed) ,tests-total)) ,tests-total))
+               (n ,tests-passed) (* 100 (/ (n ,tests-passed) ,tests-total)) ,tests-total
+               (n ,tests-failed) (* 100 (/ (n ,tests-failed) ,tests-total)) ,tests-total))
 
      ;; We don't care about successful tests when quiet
      (unless ,quiet
-       (print! (string/format "%s (%d)" (colored 32 "- Passed tests:") (# ,tests-passed)))
+       (print! (string/format "%s (%d)" (colored 32 "- Passed tests:") (n ,tests-passed)))
        (for-each ,'passed ,tests-passed
          (print! (.. (colored 32 "+ ") ,'passed))))
 
      (unless (empty? ,tests-pending)
-       (print! (string/format "%s (%d)" (colored 33 "- Pending tests:") (# ,tests-pending)))
+       (print! (string/format "%s (%d)" (colored 33 "- Pending tests:") (n ,tests-pending)))
        (for-each ,'pending ,tests-pending
          (print! (.. (colored 33 "* ") ,'pending))))
 
      (unless (empty? ,tests-failed)
-       (print! (string/format "%s (%d)" (colored 31 "- Failed tests:") (# ,tests-failed)))
+       (print! (string/format "%s (%d)" (colored 31 "- Failed tests:") (n ,tests-failed)))
        (for-each ,'failed ,tests-failed
          (print! (.. (colored 31 "* ") (car ,'failed)))
          (with (,'lines (string/split (cadr ,'failed) "\n"))

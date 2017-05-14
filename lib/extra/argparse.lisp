@@ -80,7 +80,7 @@
       starting with `-`."
   (assert-type! names list)
   (when (empty? names) (error! "Names list is empty"))
-  (unless (= (% (# options) 2) 0) (error! "Options list should be a multiple of two"))
+  (unless (= (% (n options) 2) 0) (error! "Options list should be a multiple of two"))
 
   (with (result { :names   names
                   :action  nil
@@ -114,7 +114,7 @@
         [true]))
 
     ;; Read the options
-    (for i 1 (# options) 2
+    (for i 1 (n options) 2
       (let* [(key (nth options i))
              (val (nth options (+ i 1)))]
         (.<! result key val)))
@@ -184,10 +184,10 @@
 
   (with (max 0)
     (for-each arg (.> spec :pos)
-      (with (len (# (.> arg :var)))
+      (with (len (n (.> arg :var)))
         (when (> len max) (set! max len))))
     (for-each arg (.> spec :opt)
-      (with (len (# (concat (.> arg :names) ", ")))
+      (with (len (n (concat (.> arg :names) ", ")))
         (when (> len max) (set! max len))))
 
     (with (fmt (.. " %-" (number->string (+ max 1)) "s %s"))
@@ -219,7 +219,7 @@
   (let* [(result {})
          (pos (.> spec :pos))
          (idx 1)
-         (len (# args))
+         (len (n args))
          (usage! (lambda (msg) (usage-error! spec (nth args 0) msg)))
          (action (lambda (arg value) ((.> arg :action) arg result value usage!)))
          (read-args (lambda (key arg)
@@ -303,7 +303,7 @@
              [true (read-args key arg)]))]
         [((matcher "^%-(.+)$") -> (?flags))
          (let* [(i 1)
-                (s (# flags))]
+                (s (n flags))]
            (while (<= i s)
              (let* [(key (string/char-at flags i))
                     (arg (.> spec :flag-map key))]

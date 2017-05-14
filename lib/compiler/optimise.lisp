@@ -11,7 +11,7 @@
        ["%" (list `unquote (list `quote ptrn))]
        [_ ptrn])]
     ["list" ptrn
-     (for i 1 (# ptrn) 1 (.<! ptrn i (fusion/patternquote# (nth ptrn i))))
+     (for i 1 (n ptrn) 1 (.<! ptrn i (fusion/patternquote# (nth ptrn i))))
      ptrn]))
 
 (defmacro fusion/patternquote (ptrn)

@@ -1,4 +1,4 @@
-(import string (.. sub #s rep))
+(import string (.. sub rep))
 (import list (elem? traverse))
 
 (defun format-value (value)
@@ -38,26 +38,26 @@
                  (lens '())
                  (emit '())
                  (out '())]
-             (for i 1 (# expr) 1
+             (for i 1 (n expr) 1
                (let* [(var (gensym))
                       (child (nth expr i))
                       (str (pretty child))]
                  (push-cdr! vars var)
                  (push-cdr! bindings (list var child))
                  (push-cdr! emit (and (> i 1) (or (symbol? child) (list? child))))
-                 (push-cdr! lens (# str))))
+                 (push-cdr! lens (n str))))
 
              (push-cdr! out "Assertion failed\n")
              ;; Expression output
              (push-cdr! out (pretty expr))
              ;; Initial downward arrows
              (with (buffer '("\n "))
-               (for j 1 (# expr) 1
+               (for j 1 (n expr) 1
                  (push-cdr! buffer (if (nth emit j) "|" " "))
                  (push-cdr! buffer (rep " " (nth lens j))))
                (push-cdr! out (concat buffer)))
              ;; Emit each value and their lines
-             (for i (# expr) 1 -1
+             (for i (n expr) 1 -1
                (when (nth emit i)
                   (with (buffer '("\n "))
                     (for j 1 (pred i) 1

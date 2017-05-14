@@ -1,5 +1,5 @@
 (import base (defmacro if with get-idx set-idx! gensym
-              slice + - .. #))
+              slice + - .. n))
 
 (import binders (let))
 (import type (symbol?))
@@ -102,8 +102,8 @@
     ```"
   (let [(key-sym (gensym))
         (val-sym (gensym))]
-    `(let [(,val-sym (.> ,@(slice selector 1 (- (# selector) 1))))
-           (,key-sym ,(nth selector (# selector)))]
+    `(let [(,val-sym (.> ,@(slice selector 1 (- (n selector) 1))))
+           (,key-sym ,(nth selector (n selector)))]
        (set-idx! ,val-sym ,key-sym (,fun (get-idx ,val-sym ,key-sym))))))
 
 (defmacro nth/over! (selector fun)

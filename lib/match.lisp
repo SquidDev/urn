@@ -49,22 +49,22 @@
                and gensym error for set-idx!
                quasiquote list or pretty
                slice concat debug apply
-               /= # = ! - + / * >= <= % ))
+               /= n = ! - + / * >= <= % ))
 (import type ())
 (import list ( car caddr cadr cdr append for-each
                map filter push-cdr! range snoc
                nth last elem? ))
 
-(import string (.. char-at sub #s))
+(import string (.. char-at sub))
 (import binders (let*))
 
 (defun cons-pattern? (pattern) :hidden
   (and (list? pattern)
-       (symbol? (nth pattern (- (# pattern) 1)))
-       (eq? (nth pattern (- (# pattern) 1)) '.)))
+       (symbol? (nth pattern (- (n pattern) 1)))
+       (eq? (nth pattern (- (n pattern) 1)) '.)))
 
 (defun cons-pat-left-side (pattern) :hidden
-  (slice pattern 1 (- (# pattern) 2)))
+  (slice pattern 1 (- (n pattern) 2)))
 
 (defun cons-pat-right-side (pattern) :hidden
   (last pattern))
@@ -74,17 +74,17 @@
        (eq? (char-at (get-idx symbol "contents") 1) "?")))
 
 (defun pattern-length (pattern correction) :hidden
-  (let* [(length 0)]
+  (let* [(len 0)]
     (cond
       [(list? pattern)
-       (for i 1 (# pattern) 1
+       (for i 1 (n pattern) 1
          (if (and (list? (nth pattern i))
                   (eq? (car (nth pattern i)) 'optional))
            0
-           (set! length (+ length 1))))]
+           (set! len (+ len 1))))]
       [(meta? pattern) 1]
       [true 0])
-    (+ length correction)))
+    (+ len correction)))
 
 (defun pattern-# (pat) :hidden
   (cond
@@ -93,11 +93,11 @@
 
 (defun predicate? (x) :hidden
   (let* [(x (get-idx x :contents))]
-    (= (char-at x (# x)) "?")))
+    (= (char-at x (n x)) "?")))
 
 (defun struct-pat? (x) :hidden
   (and (eql? (car x) 'struct-literal)
-       (= (% (# (cdr x)) 2) 0)))
+       (= (% (n (cdr x)) 2) 0)))
 
 (defun assert-linearity! (pat seen) :hidden
   (cond
@@ -113,16 +113,16 @@
        [(eql? (car pat) 'optional)
         (assert-linearity! (cadr pat) seen)]
        [(struct-pat? pat)
-        (for i 3 (# pat) 2
+        (for i 3 (n pat) 2
           (assert-linearity! (nth pat i) seen))]
        [(cons-pattern? pat)
         (let* [(seen '())]
           (for i 1 (pattern-# pat) 1
             (assert-linearity! (nth pat i) seen))
-          (assert-linearity! (get-idx pat (# pat)) seen))]
+          (assert-linearity! (get-idx pat (n pat)) seen))]
        [true
         (let* [(seen '())]
-          (for i 1 (# pat) 1
+          (for i 1 (n pat) 1
             (assert-linearity! (nth pat i) seen)))])]
     [(or (and (! (meta? pat)) (symbol? pat))
          (and (symbol? pat) (eq? pat '_))
@@ -154,7 +154,7 @@
        [(struct-pat? pattern)
         `(and (table? ,symb)
               ,@(let* [(out '(true))]
-                  (for i 2 (# pattern) 2
+                  (for i 2 (n pattern) 2
                     (push-cdr! out (compile-pattern-test
                                      (nth pattern (+ 1 i))
                                      `(get-idx ,symb ,(nth pattern i))))
@@ -165,26 +165,26 @@
                (lhs (cons-pat-left-side pattern))
                (rhs (cons-pat-right-side pattern))
                (lhs-test '())]
-          (for i 1 (# lhs) 1
+          (for i 1 (n lhs) 1
             (push-cdr! lhs-test
                        (compile-pattern-test (nth lhs i)
                                              `(nth ,pattern-sym ,i))))
           `(let* [(,pattern-sym ,symb) (,'never 23)]
              (and (list? ,pattern-sym)
-                  (>= (# ,pattern-sym) ,(pattern-length pattern -2))
+                  (>= (n ,pattern-sym) ,(pattern-length pattern -2))
                   ,@lhs-test
                   ,(compile-pattern-test
-                     (last pattern) `(slice ,pattern-sym ,(+ 1 (# lhs)))))))]
+                     (last pattern) `(slice ,pattern-sym ,(+ 1 (n lhs)))))))]
        [true
         (let* [(out '())
                (sym (gensym))]
-          (for i 1 (# pattern) 1
+          (for i 1 (n pattern) 1
             (push-cdr! out (compile-pattern-test (nth pattern i)
                                                 `(nth ,sym ,i))))
           `(let* [(,sym ,symb)]
              (and (list? ,sym)
-                  (>= (# ,sym) ,(pattern-length pattern 0))
-                  (<= (# ,sym) ,(# pattern))
+                  (>= (n ,sym) ,(pattern-length pattern 0))
+                  (<= (n ,sym) ,(n pattern))
                   ,@out)))])]
     [(or (eq? '_ pattern) (meta? pattern))
      `true]
@@ -202,7 +202,7 @@
     [true (error (.. "unsupported pattern " (pretty pattern)))]))
 
 (defun compile-pattern-bindings (pattern symb) :hidden
-  (filter (lambda (x) (/= (# x) 0))
+  (filter (lambda (x) (/= (n x) 0))
     (cond
       [(list? pattern)
        (cond
@@ -216,7 +216,7 @@
           (compile-pattern-bindings (cadr pattern) symb)]
          [(struct-pat? pattern)
           (let* [(out '())]
-            (for i 2 (# pattern) 2
+            (for i 2 (n pattern) 2
               (for-each elem (compile-pattern-bindings (nth pattern (+ i 1))
                                                        `(get-idx ,symb ,(nth pattern i)))
                 (push-cdr! out elem)))
@@ -225,13 +225,13 @@
           (let* [(lhs (cons-pat-left-side pattern))
                  (rhs (cons-pat-right-side pattern))
                  (lhs-bindings '())]
-            (for i 1 (# lhs) 1
+            (for i 1 (n lhs) 1
               (for-each elem (compile-pattern-bindings (nth lhs i) `(nth ,symb ,i))
                 (push-cdr! lhs-bindings elem)))
-            (append lhs-bindings (compile-pattern-bindings rhs `(slice ,symb ,(+ 1 (# lhs))))))]
+            (append lhs-bindings (compile-pattern-bindings rhs `(slice ,symb ,(+ 1 (n lhs))))))]
          [true
           (let* [(out '())]
-            (for i 1 (# pattern) 1
+            (for i 1 (n pattern) 1
               (for-each elem (compile-pattern-bindings (nth pattern i) `(nth ,symb ,i))
                 (push-cdr! out elem)))
             out)])]
