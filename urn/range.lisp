@@ -16,7 +16,7 @@
    This is either its position in a source file or the macro which created it"
   (cond
     [(and (.> node :range) (.> node :contents))
-     (string/format "%s (%q)" (format-range (.> node :range)) (.> node :contents))]
+     (string/format "%s (%s)" (format-range (.> node :range)) (string/quoted (.> node :contents)))]
     [(.> node :range) (format-range (.> node :range))]
     [(.> node :owner)
      (with (owner (.> node :owner))
