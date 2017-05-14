@@ -1,6 +1,4 @@
-(import lua/math ())
-
-(debug type)
+(import lua/math (abs max floor ceil log))
 
 (define num-tag   :hidden "bignum")
 (define part-bits :hidden 24)
@@ -55,7 +53,7 @@
                 (when (>= new-part part-max) ; carry
                   (set-idx! val-parts (+ i 1) 1))))
             (trim! val)
-            val)]))  
+            val)]))
 
 (defun subtract (a b)
   "Returns A minus B."
@@ -106,7 +104,7 @@
     [(= b (new)) (error! "division by zero.")]
     [true (let* [(r (new))
                  (q (new))]
-            (for i (n a) 1 -1
+            (for i (length a) 1 -1
               (shl! r 1)
               (set! r (+ r (bit-at a i)))
               (when (>= r b)
@@ -201,10 +199,8 @@
       0
       (+ (* (- a-len 1) part-bits) (floor (/ (log (nth a-parts a-len)) (log 2))) 1))))
 
-
-
 (defun tostring (a format)
-  "Converts the bignum A to a string. FORMAT is optional and can be either 
+  "Converts the bignum A to a string. FORMAT is optional and can be either
    'd' (decimal, default),
    'x' (lowercase hex),
    'X' (uppercase hex),
@@ -265,7 +261,7 @@
     [(and (.> a :sign) (! (.> b :sign))) true]
     [(and (! (.> a :sign)) (.> b :sign)) false]
     [(/= (n (.> a :parts)) (n (.> b :parts))) (< (n (.> a :parts)) (n (.> b :parts)))]
-    [true (let* [(a-parts (.> a :parts))                
+    [true (let* [(a-parts (.> a :parts))
                  (b-parts (.> b :parts))
                  (less false)
                  (continue true)]
@@ -302,7 +298,7 @@
     :__le less-or-equal? })
 
 (defun new (a)
-  "Creates a new bignum from A.  
+  "Creates a new bignum from A.
    A is optional and can be either a normal integer, or a string.
    A string can begin with '0x' (hex), '0o' (octal), '0b' (binary),
    otherwise it's parsed as a decimal value."
