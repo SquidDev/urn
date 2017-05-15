@@ -13,13 +13,23 @@ local _temp = (function()
 	}
 end)()
 for k, v in pairs(_temp) do _libs["lua/basic-0/".. k] = v end
-local _2f3d_1, _2b_1, _2d_1, error1, getIdx1, setIdx_21_1, find1, match1, sub1, concat1, unpack1, _2e2e_1, clock1, getenv1, self1, startTimer_21_1, pauseTimer_21_1, stopTimer_21_1, config1, coloredAnsi1, colored_3f_1, colored1, putError_21_1, putWarning_21_1, putVerbose_21_1, putDebug_21_1, putNodeError_21_1, putNodeWarning_21_1, doNodeError_21_1
+local _3d_1, _2f3d_1, _2b_1, _2d_1, len_23_1, error1, getIdx1, setIdx_21_1, type_23_1, n1, find1, match1, sub1, concat1, unpack1, _2e2e_1, clock1, getenv1, self1, startTimer_21_1, pauseTimer_21_1, stopTimer_21_1, config1, coloredAnsi1, colored_3f_1, colored1, putError_21_1, putWarning_21_1, putVerbose_21_1, putDebug_21_1, putNodeError_21_1, putNodeWarning_21_1, doNodeError_21_1
+_3d_1 = function(v1, v2) return (v1 == v2) end
 _2f3d_1 = function(v1, v2) return (v1 ~= v2) end
-_2b_1 = function(v1, v2) return (v1 + v2) end
-_2d_1 = function(v1, v2) return (v1 - v2) end
+_2b_1 = function(v1, v2, ...) local t = (v1 + v2) for i = 1, _select('#', ...) do t = (t + _select(i, ...)) end return t end
+_2d_1 = function(v1, v2, ...) local t = (v1 - v2) for i = 1, _select('#', ...) do t = (t - _select(i, ...)) end return t end
+len_23_1 = function(v1) return #(v1) end
 error1 = error
 getIdx1 = function(v1, v2) return v1[v2] end
 setIdx_21_1 = function(v1, v2, v3) v1[v2] = v3 end
+type_23_1 = type
+n1 = (function(x1)
+	if (type_23_1(x1) == "table") then
+		return x1["n"]
+	else
+		return #(x1)
+	end
+end)
 find1 = string.find
 match1 = string.match
 sub1 = string.sub
@@ -31,9 +41,9 @@ _2e2e_1 = (function(...)
 end)
 clock1 = os.clock
 getenv1 = os.getenv
-self1 = (function(x1, key1, ...)
+self1 = (function(x2, key1, ...)
 	local args2 = _pack(...) args2.tag = "list"
-	return x1[key1](x1, unpack1(args2, 1, args2["n"]))
+	return x2[key1](x2, unpack1(args2, 1, n1(args2)))
 end)
 startTimer_21_1 = (function(timer1, name1, level1)
 	local instance1 = timer1["timers"][name1]
