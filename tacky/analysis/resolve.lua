@@ -1,8 +1,20 @@
+local lazymeta = {
+	__index = function(self, key)
+		setmetatable(self, nil)
+		local data = require(self.__name)
+		for k, v in pairs(data) do self[k] = v end
+		return data[key]
+	end
+}
+local function lazyrequire(name)
+	return setmetatable({ __name = name }, lazymeta)
+end
+
 local Scope = require "tacky.analysis.scope"
 local State = require "tacky.analysis.state"
-local logger = require "tacky.logger.init"
-local range = require "tacky.range"
-local traceback = require "tacky.traceback"
+local logger = lazyrequire "tacky.logger.init"
+local range = lazyrequire "tacky.range"
+local traceback = lazyrequire "tacky.traceback"
 
 local function errorPositions(log, node, message)
 	logger.doNodeError(log,

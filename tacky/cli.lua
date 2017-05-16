@@ -1267,6 +1267,7 @@ void1 = ({["callback"]=(function()
 	return nil
 end),["timers"]=({})})
 config1 = package.config
+loaded1 = package.loaded
 coloredAnsi1 = (function(col1, msg14)
 	return _2e2e_2("\27[", col1, "m", msg14, "\27[0m")
 end)
@@ -1324,7 +1325,7 @@ doNodeError_21_1 = (function(logger7, msg22, node8, explain3, ...)
 	self1(logger7, "put-node-error!", msg22, node8, explain3, lines3)
 	return error1((match1(msg22, "^([^\n]+)\n") or msg22), 0)
 end)
-local _ = ({["startTimer"]=startTimer_21_1,["pauseTimer"]=pauseTimer_21_1,["stopTimer"]=stopTimer_21_1,["putError"]=putError_21_1,["putWarning"]=putWarning_21_1,["putVerbose"]=putVerbose_21_1,["putDebug"]=putDebug_21_1,["putNodeError"]=putNodeError_21_1,["putNodeWarning"]=putNodeWarning_21_1,["doNodeError"]=doNodeError_21_1,["colored"]=colored1})
+loaded1["tacky.logger.init"] = ({["startTimer"]=startTimer_21_1,["pauseTimer"]=pauseTimer_21_1,["stopTimer"]=stopTimer_21_1,["putError"]=putError_21_1,["putWarning"]=putWarning_21_1,["putVerbose"]=putVerbose_21_1,["putDebug"]=putDebug_21_1,["putNodeError"]=putNodeError_21_1,["putNodeWarning"]=putNodeWarning_21_1,["doNodeError"]=doNodeError_21_1,["colored"]=colored1})
 passEnabled_3f_1 = (function(pass1, options2)
 	local override1 = options2["override"]
 	if (override1[pass1["name"]] == true) then
@@ -2003,7 +2004,7 @@ getSource1 = (function(node22)
 	r_5161()
 	return result4
 end)
-local _ = ({["formatPosition"]=formatPosition1,["formatRange"]=formatRange1,["formatNode"]=formatNode1,["getSource"]=getSource1})
+loaded1["tacky.range"] = ({["formatPosition"]=formatPosition1,["formatRange"]=formatRange1,["formatNode"]=formatNode1,["getSource"]=getSource1})
 stripImport1 = ({["name"]="strip-import",["help"]="Strip all import expressions in NODES",["cat"]=({tag = "list", n = 1, "opt"}),["run"]=(function(r_4923, state12, nodes5)
 	local r_5181 = nil
 	r_5181 = (function(r_5191)
@@ -4824,7 +4825,7 @@ generateMappings1 = (function(lines4)
 	end))
 	return outLines1
 end)
-local _ = ({["remapTraceback"]=remapTraceback1})
+loaded1["tacky.traceback"] = ({["remapTraceback"]=remapTraceback1})
 createState1 = (function(meta5)
 	return ({["level"]=1,["override"]=({}),["timer"]=void1,["count"]=0,["mappings"]=({}),["cat-lookup"]=({}),["ctr-lookup"]=({}),["var-lookup"]=({}),["meta"]=(meta5 or ({}))})
 end)

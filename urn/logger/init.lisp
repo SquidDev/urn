@@ -1,6 +1,8 @@
 (import urn/timer timer)
 (import extra/term (colored))
 
+(import lua/package package)
+
 (defun put-error! (logger msg)
   "Push an error message MSG to this LOGGER"
   (self logger :put-error! msg))
@@ -52,17 +54,18 @@
   (fail! (or (string/match msg "^([^\n]+)\n") msg)))
 
 ;; Export various symbols the resolver needs.
-{ :startTimer timer/start-timer!
-  :pauseTimer timer/pause-timer!
-  :stopTimer  timer/stop-timer!
+(.<! package/loaded "tacky.logger.init"
+  { :startTimer timer/start-timer!
+    :pauseTimer timer/pause-timer!
+    :stopTimer  timer/stop-timer!
 
-  :putError   put-error!
-  :putWarning put-warning!
-  :putVerbose put-verbose!
-  :putDebug   put-debug!
+    :putError   put-error!
+    :putWarning put-warning!
+    :putVerbose put-verbose!
+    :putDebug   put-debug!
 
-  :putNodeError   put-node-error!
-  :putNodeWarning put-node-warning!
-  :doNodeError    do-node-error!
+    :putNodeError   put-node-error!
+    :putNodeWarning put-node-warning!
+    :doNodeError    do-node-error!
 
-  :colored colored }
+    :colored colored })

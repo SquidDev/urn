@@ -1,5 +1,17 @@
-local logger = require "tacky.logger.init"
-local range = require "tacky.range"
+local lazymeta = {
+	__index = function(self, key)
+		setmetatable(self, nil)
+		local data = require(self.__name)
+		for k, v in pairs(data) do self[k] = v end
+		return data[key]
+	end
+}
+local function lazyrequire(name)
+	return setmetatable({ __name = name }, lazymeta)
+end
+
+local logger = lazyrequire "tacky.logger.init"
+local range = lazyrequire "tacky.range"
 
 local Scope = {}
 Scope.__index = Scope

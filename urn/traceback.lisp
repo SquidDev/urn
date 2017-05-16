@@ -1,6 +1,7 @@
 (import string)
-(import lua/math math)
+
 (import lua/debug debug)
+(import lua/package package)
 
 (defun unmangle-ident (ident)
   "Attempt to unmangle IDENT, converting it from the escaped form to the unescaped form."
@@ -109,4 +110,4 @@
     out-lines))
 
 
-{ :remapTraceback remap-traceback }
+(.<! package/loaded "tacky.traceback" { :remapTraceback remap-traceback })

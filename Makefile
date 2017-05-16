@@ -5,10 +5,6 @@ OUT_DIR    ?= tacky
 DOCS_DIR   ?= docs_tmp
 PAGES_DIR  ?= docs
 URN        ?= tacky/cli.lua
-OBJS       :=                   \
-	${OUT_DIR}/logger/init        \
-	${OUT_DIR}/range              \
-	${OUT_DIR}/traceback          \
 
 TESTS     := $(shell find tests -type f)
 LIBS      := $(shell find lib -type f -name "*.lisp")
@@ -25,7 +21,7 @@ endif
 
 compiler_test: all test
 test: ${TESTS}
-all: ${OBJS} ${OUT_DIR}/cli
+all: ${OUT_DIR}/cli
 
 ${OBJS}: ${OUT_DIR}/%: urn/%.lisp
 	@mkdir -p $(shell dirname $@)
