@@ -5,9 +5,9 @@
 (import urn/backend/lua lua)
 (import urn/logger logger)
 (import urn/parser parser)
+(import urn/resolve/scope scope)
 (import urn/timer  timer)
 
-(define scope/child (.> (require "tacky.analysis.scope") :child))
 (define compile (.> (require "tacky.compile") :compile))
 
 (defun simplify-path (path paths)

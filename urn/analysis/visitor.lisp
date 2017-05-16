@@ -1,4 +1,4 @@
-(define builtins (.> (require "tacky.analysis.resolve") :builtins))
+(import urn/resolve/builtins (builtins))
 
 (defun visit-quote (node visitor level)
   (if (= level 0)

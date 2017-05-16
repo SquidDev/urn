@@ -15,10 +15,10 @@
 (import urn/logger/void void)
 (import urn/logger)
 (import urn/parser parser)
+(import urn/resolve/scope scope)
+(import urn/resolve/state state)
 
 (define compile (.> (require "tacky.compile") :compile))
-
-(define Scope (require "tacky.analysis.scope"))
 
 (defun requires-input (str)
   "Determine whether STR requires additional input (such as quotes or parens).
@@ -90,7 +90,7 @@
       [(or (= command "doc") (= command "d"))
        (with (name (nth args 2))
          (if name
-           (with (var ((.> Scope :get) scope name))
+           (with (var (scope/get scope name))
              (cond
                [(= var nil)
                 (logger/put-error! logger (.. "Cannot find '" name "'"))]
@@ -165,7 +165,7 @@
                (when (string/find var keyword)
                  (push-cdr! name-results var)))
              ;; search by function docs
-             (when-let* [(doc-var ((.> Scope :get) scope var))
+             (when-let* [(doc-var (scope/get scope var))
                          (temp-docs (.> doc-var :doc))
                          (docs (string/lower temp-docs))
                          (keywords-found 0)]
@@ -200,7 +200,7 @@
              (exec (co/create (lambda ()
                                 (for-each elem state
                                   (set! current elem)
-                                  (self current :get)))))
+                                  (state/get! current)))))
              (compileState (.> compiler :compileState))
              (rootScope (.> compiler :rootScope))
              (global (.> compiler :global))
@@ -213,9 +213,9 @@
                (logger/put-error! logger (cadr res))
                (set! run false)]
               [(= (co/status exec) "dead")
-               (let* [(lvl (self (last state) :get))]
+               (let* [(lvl (state/get! (last state)))]
                  (print! (.. "out = " (colored 96 (pretty lvl))))
-                 (.<! global (lua/escape-var ((.> Scope :add) scope "out" "defined" lvl)
+                 (.<! global (lua/escape-var (scope/add! scope "out" "defined" lvl)
                                              compileState)
                       lvl))
                (set! run false)]
@@ -270,7 +270,7 @@
                  (set! buffer data)]
                 [true
                  (set! buffer "")
-                 (set! scope ((.> Scope :child) scope))
+                 (set! scope (scope/child scope))
                  (.<! scope :isRoot true)
 
                  (with (res (list (pcall exec-string compiler scope data)))

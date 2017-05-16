@@ -5,8 +5,8 @@
 (import urn/documentation doc)
 (import urn/logger/init logger)
 (import urn/range (get-source))
+(import urn/resolve/scope scope)
 
-(define Scope (require "tacky.analysis.scope"))
 
 (defpass check-arity (state nodes lookup)
   "Produce a warning if any NODE in NODES calls a function with too many arguments.
@@ -78,7 +78,7 @@
                 (doc (.> var :doc))]
       (for-each tok (doc/parse-docstring doc)
         (when (= (type tok) "link")
-          (with (var ((.> Scope :get) (.> var :scope) (.> tok :contents)))
+          (with (var (scope/get (.> var :scope) (.> tok :contents)))
             (unless var
               (logger/put-node-warning! (.> state :logger)
                 (string/format "%s is not defined." (string/quoted (.> tok :contents)))

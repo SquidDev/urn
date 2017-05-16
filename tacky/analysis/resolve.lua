@@ -10,11 +10,12 @@ local function lazyrequire(name)
 	return setmetatable({ __name = name }, lazymeta)
 end
 
-local Scope = require "tacky.analysis.scope"
-local State = require "tacky.analysis.state"
+local Scope = lazyrequire "tacky.resolve.scope"
+local State = lazyrequire "tacky.resolve.state"
 local logger = lazyrequire "tacky.logger.init"
 local range = lazyrequire "tacky.range"
 local traceback = lazyrequire "tacky.traceback"
+local Builtins = lazyrequire "tacky.resolve.builtins"
 
 local function errorPositions(log, node, message)
 	logger.doNodeError(log,
@@ -94,45 +95,6 @@ local function handleMetadata(log, node, var, start, finish)
 	end
 end
 
-local declaredSymbols = {
-	-- Built in
-	"lambda", "define", "define-macro", "define-native",
-	"set!", "cond",
-	"quote", "syntax-quote", "unquote", "unquote-splice",
-	"struct-literal",
-	"import",
-}
-
-local rootScope = Scope.child()
-rootScope.builtin = true
-
-local builtins = {}
-for i = 1, #declaredSymbols do
-	local symbol = declaredSymbols[i]
-	local var = Scope.add(rootScope, symbol, "builtin", nil)
-	Scope.import(rootScope, "builtin/" .. symbol, var, true)
-	builtins[symbol] = var
-end
-
-local declaredVars = {}
-local declaredVariables = { "nil", "true", "false" }
-for i = 1, #declaredVariables do
-	local defined = declaredVariables[i]
-	local var = Scope.add(rootScope, defined, "defined", nil)
-	Scope.import(rootScope, "builtin/" .. defined, var, true)
-	declaredVars[var] = true
-	declaredVars[defined] = var
-	builtins[defined] = var
-end
-
-local function getExecuteName(owner)
-	if owner.var then
-		return "macro '" .. owner.var.name .. "'"
-	else
-		return "unquote"
-	end
-end
-
 --- Resolve the result of a macro or unquote, binding the parent node and marking which macro which generated it.
 --
 -- Also correctly will re-associate syntax-quoted variables with their original definition
@@ -162,10 +124,10 @@ local function resolveExecuteResult(owner, node, parent, scope, state)
 			node = newNode
 		else
 			if tag then ty = tostring(tag) end
-			errorPositions(state.logger, parent, "Invalid node of type '" .. ty .. "' from " .. getExecuteName(owner))
+			errorPositions(state.logger, parent, "Invalid node of type '" .. ty .. "' from " .. State.name(owner))
 		end
 	else
-		errorPositions(state.logger, parent, "Invalid node of type '" .. ty .. "' from " .. getExecuteName(owner))
+		errorPositions(state.logger, parent, "Invalid node of type '" .. ty .. "' from " .. State.name(owner))
 	end
 
 
@@ -222,6 +184,7 @@ function resolveQuote(node, scope, state, level)
 				first.var = Scope.getAlways(scope, first.contents, first)
 			end
 
+			local builtins = Builtins.builtins
 			if first.var == builtins["unquote"] or first.var == builtins["unquote-splice"] then
 				node[2] = resolveQuote(node[2], scope, state, level - 1)
 				return node
@@ -267,6 +230,7 @@ function resolveNode(node, scope, state, root, many)
 
 			local func = first.var
 			local funcState = State.require(state, func, first)
+			local builtins = Builtins.builtins
 
 			if func == builtins["lambda"] then
 				expectType(log, node[2], node, "list", "argument list")
@@ -637,9 +601,5 @@ local function resolveInit(node, scope, state)
 end
 
 return {
-	createScope = function() return Scope.create(rootScope) end,
-	rootScope = rootScope,
-	builtins = builtins,
-	declaredVars = declaredVars,
 	resolve = resolveInit,
 }

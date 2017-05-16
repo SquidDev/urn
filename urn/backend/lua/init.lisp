@@ -1,6 +1,7 @@
 (import urn/backend/lua/emit ())
 (import urn/backend/lua/escape (escape-var) :export)
 (import urn/backend/writer w)
+(import urn/resolve/state state)
 (import urn/timer timer)
 (import urn/traceback traceback)
 
@@ -157,7 +158,7 @@
                   (let* [(state (nth state-list i))
                          (escaped (nth escape-list i))
                          (res (.> tbl escaped))]
-                    (self state :executed res)
+                    (state/executed! state res)
                     (when (.> state :var)
                       (.<! global escaped res))))])]))))))
 

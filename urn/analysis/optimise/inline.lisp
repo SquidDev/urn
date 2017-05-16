@@ -2,9 +2,7 @@
 (import urn/analysis/pass ())
 (import urn/analysis/usage usage)
 (import urn/analysis/visitor visitor)
-
-(define scope/child :hidden (.> (require "tacky.analysis.scope") :child))
-(define scope/add! :hidden (.> (require "tacky.analysis.scope") :add))
+(import urn/resolve/scope scope)
 
 (defun copy-of (x)
   "Create a shallow copy of X."

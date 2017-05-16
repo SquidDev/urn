@@ -11,16 +11,15 @@
 (import urn/logger logger)
 (import urn/logger/term term)
 (import urn/plugins plugins)
+(import urn/resolve/builtins builtins)
+(import urn/resolve/scope scope)
+(import urn/resolve/state state)
 (import urn/timer timer)
 
 (import extra/argparse arg)
 (import lua/basic (_G))
 (import lua/os os)
 (import string)
-
-(define root-scope (.> (require "tacky.analysis.resolve") :rootScope))
-(define scope/child (.> (require "tacky.analysis.scope") :child))
-(define scope/import! (.> (require "tacky.analysis.scope") :import))
 
 (let* [(spec (arg/create))
        (directory (with (dir (nth arg 0))
@@ -171,7 +170,7 @@
                       :warning   (warning/default)
                       :optimise  (optimise/default)
 
-                      :rootScope root-scope
+                      :rootScope builtins/root-scope
 
                       :variables {}
                       :states    {}

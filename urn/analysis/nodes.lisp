@@ -1,5 +1,4 @@
-(define builtins (.> (require "tacky.analysis.resolve") :builtins))
-(define builtin-vars (.> (require "tacky.analysis.resolve") :declaredVars))
+(import urn/resolve/builtins (builtins builtin-vars) :export)
 
 (import base (type#))
 

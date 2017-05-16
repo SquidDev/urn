@@ -8,12 +8,12 @@
 (import urn/backend/writer writer)
 (import urn/logger logger)
 (import urn/range range)
+(import urn/resolve/scope scope)
+(import urn/resolve/state state)
 (import urn/traceback traceback)
 
 (import lua/coroutine co)
 (import lua/debug debug)
-
-(define Scope (require "tacky.analysis.scope"))
 
 (defun create-plugin-state (compiler)
   (let* [(logger    (.> compiler :log))
@@ -119,7 +119,7 @@
                         (assert-type! symb symbol)
                         (when (= (active-node) nil) (error! "Not currently resolving"))
                         (unless scope (set! scope (active-scope)))
-                        ((.> Scope :getAlways) scope (symbol->string symb) (active-node)))
+                        (scope/get-always! scope (symbol->string symb) (active-node)))
       :var-definition (lambda (var)
                         (when (= (active-node) nil) (error! "Not currently resolving"))
                         (when-with (state (.> states var))
@@ -130,5 +130,5 @@
       :var-value      (lambda (var)
                         (when (= (active-node) nil) (error! "Not currently resolving"))
                         (when-with (state (.> states var))
-                          (self state :get)))
+                          (state/get! state)))
       :var-docstring (lambda (var) (.> var :doc)) }))

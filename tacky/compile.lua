@@ -10,8 +10,8 @@ local function lazyrequire(name)
 	return setmetatable({ __name = name }, lazymeta)
 end
 
-local Scope = require "tacky.analysis.scope"
-local State = require "tacky.analysis.state"
+local Scope = lazyrequire "tacky.resolve.scope"
+local State = lazyrequire "tacky.resolve.state"
 local logger = lazyrequire "tacky.logger.init"
 local range = lazyrequire "tacky.range"
 local resolve = require "tacky.analysis.resolve"
