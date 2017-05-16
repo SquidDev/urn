@@ -30,7 +30,7 @@ function State.create(scope, compiler)
 	if not scope then error("scope cannot be nil", 2) end
 	if not compiler then error("compiler cannot be nil", 2) end
 
-	local state = setmetatable({
+	return {
 		--- The scope this top level definition lives under
 		scope = scope,
 
@@ -63,9 +63,7 @@ function State.create(scope, compiler)
 		--- The actual value of this node. This is set when this function
 		-- is executed.
 		value = nil,
-	}, State)
-
-	return state
+	}
 end
 
 function State:require(var, user)

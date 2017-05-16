@@ -254,7 +254,7 @@ function resolveNode(node, scope, state, root, many)
 		if node.var.tag == "builtin" then
 			errorPositions(log, node, "Cannot have a raw builtin")
 		end
-		state:require(node.var, node)
+		State.require(state, node.var, node)
 		return node
 	elseif kind == "list" then
 		local first = node[1]
@@ -266,7 +266,7 @@ function resolveNode(node, scope, state, root, many)
 			end
 
 			local func = first.var
-			local funcState = state:require(func, first)
+			local funcState = State.require(state, func, first)
 
 			if func == builtins["lambda"] then
 				expectType(log, node[2], node, "list", "argument list")
@@ -325,7 +325,7 @@ function resolveNode(node, scope, state, root, many)
 				maxLength(log, node, 3, "set!")
 
 				local var = Scope.getAlways(scope, node[2].contents, node[2])
-				state:require(var, node[2])
+				State.require(state, var, node[2])
 				node[2].var = var
 				if var.const then
 					errorPositions(log, node, "Cannot rebind constant " .. var.name)
@@ -354,7 +354,7 @@ function resolveNode(node, scope, state, root, many)
 					local built = resolveNode(node[i], scope, childState)
 
 					-- We wrap the child state in a lambda in order to correctly handle errors inside the system
-					childState:built({
+					State.built(childState, {
 							tag = "list", n = 3,
 							range = built.range, owner = built.owner, parent = node,
 							{ tag = "symbol", contents = "lambda", var = builtins["lambda"] },
@@ -362,7 +362,7 @@ function resolveNode(node, scope, state, root, many)
 							built
 					})
 
-					local func = childState:get()
+					local func = State.get(childState)
 
 					-- setup the active scope and node
 					state.compiler['active-scope'] = scope
@@ -411,7 +411,7 @@ function resolveNode(node, scope, state, root, many)
 				local built = resolveNode(node[2], scope, childState)
 
 				-- We wrap the child state in a lambda in order to correctly handle errors inside the system
-				childState:built({
+				State.built(childState, {
 					tag = "list", n = 3,
 					range = built.range, owner = built.owner, parent = node,
 					{ tag = "symbol", contents = "lambda", var = builtins["lambda"] },
@@ -419,7 +419,7 @@ function resolveNode(node, scope, state, root, many)
 					built
 				})
 
-				local func = childState:get()
+				local func = State.get(childState)
 
 				-- Setup the active scope and node
 				state.compiler['active-scope'] = scope
@@ -461,7 +461,7 @@ function resolveNode(node, scope, state, root, many)
 				expect(log, node[3], node, "value")
 
 				local var = Scope.addVerbose(scope, node[2].contents, "defined", node, log)
-				state:define(var)
+				State.define(state, var)
 				node.defVar = var
 
 				handleMetadata(log, node, var, 3, node.n - 1)
@@ -474,7 +474,7 @@ function resolveNode(node, scope, state, root, many)
 				expect(log, node[3], node, "value")
 
 				local var = Scope.addVerbose(scope, node[2].contents, "macro", node, log)
-				state:define(var)
+				State.define(state, var)
 				node.defVar = var
 
 				handleMetadata(log, node, var, 3, node.n - 1)
@@ -486,7 +486,7 @@ function resolveNode(node, scope, state, root, many)
 				expectType(log, node[2], node, "symbol", "name")
 
 				local var = Scope.addVerbose(scope, node[2].contents, "native", node, log)
-				state:define(var)
+				State.define(state, var)
 				node.defVar = var
 
 				handleMetadata(log, node, var, 3, node.n)
@@ -552,7 +552,7 @@ function resolveNode(node, scope, state, root, many)
 				return node
 			elseif func.tag == "macro" then
 				if not funcState then errorPositions(log, first, "Macro is not defined correctly") end
-				local builder = funcState:get()
+				local builder = State.get(funcState)
 				if type(builder) ~= "function" then
 					errorPositions(first, "Macro is of type " .. type(builder))
 				end

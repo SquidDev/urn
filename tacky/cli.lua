@@ -5019,7 +5019,7 @@ executeStates1 = (function(backState1, states1, global1, logger8)
 						local state40 = stateList1[r_10811]
 						local escaped2 = escapeList1[r_10811]
 						local res8 = tbl1[escaped2]
-						self1(state40, "executed", res8)
+						require"tacky.analysis.state".executed(state40, res8)
 						if state40["var"] then
 							global1[escaped2] = res8
 						end
@@ -6158,7 +6158,7 @@ execString1 = (function(compiler8, scope6, string1)
 				if (r_12501 <= r_12511) then
 					local elem9 = state41[r_12501]
 					current3 = elem9
-					self1(current3, "get")
+					require"tacky.analysis.state".get(current3)
 					return r_12491((r_12501 + 1))
 				else
 					return nil
@@ -6179,7 +6179,7 @@ execString1 = (function(compiler8, scope6, string1)
 					self1(logger15, "put-error!", (car1(cdr1(res11))))
 					run1 = false
 				elseif (status1(exec1) == "dead") then
-					local lvl1 = self1(last1(state41), "get")
+					local lvl1 = require"tacky.analysis.state".get(last1(state41))
 					print1(_2e2e_2("out = ", colored1(96, pretty1(lvl1))))
 					global3[escapeVar1(Scope3["add"](scope6, "out", "defined", lvl1), compileState1)] = lvl1
 					run1 = false
@@ -7277,7 +7277,7 @@ createPluginState1 = (function(compiler13)
 		end
 		local state47 = states3[var44]
 		if state47 then
-			return self1(state47, "get")
+			return require"tacky.analysis.state".get(state47)
 		else
 			return nil
 		end

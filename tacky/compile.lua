@@ -167,7 +167,7 @@ local function compile(compiler, executeStates, parsed, scope, name)
 
 			-- We've successfully built the node, so we handle unpacking it.
 			if result.tag ~= "many" then
-				action._state:built(result)
+				State.built(action._state, result)
 			else
 				logger.putDebug(loggerI, "  Got multiple nodes as a result. Adding to queue")
 				--- Adjust the node offset so everything is correctly set.
