@@ -429,6 +429,8 @@
                 (w/append! out "nil")
                 (w/line! out))]
              [(.> cat :recur)
+              (when (= ret nil)
+                (print! (pretty node) " marked as :recur for " ret))
               (let* [(head (.> cat :recur :def))
                      (args (nth head 2))]
 

@@ -144,7 +144,7 @@
                      (if (and recur (= func (.> recur :var)))
                        (progn
                          (.<! recur :tail true)
-                         (cat "call-symbol" :recur recur))
+                         (cat "call-symbol" :recur recur :stmt recur))
                        (cat "call-symbol"))]))]
                ["list"
                 (cond
