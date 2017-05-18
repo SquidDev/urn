@@ -446,9 +446,9 @@ split1 = (function(text1, pattern1, limit1)
 				loop1 = false
 				pushCdr_21_1(out6, sub1(text1, start1, n1(text1)))
 				start1 = (n1(text1) + 1)
-			elseif (nstart1 > n1(text1)) then
-				if (start1 <= n1(text1)) then
-					pushCdr_21_1(out6, sub1(text1, start1, n1(text1)))
+			elseif (nstart1 > #(text1)) then
+				if (start1 <= #(text1)) then
+					pushCdr_21_1(out6, sub1(text1, start1, #(text1)))
 				end
 				loop1 = false
 			elseif (nend1 < nstart1) then
@@ -3472,7 +3472,7 @@ visitNode2 = (function(lookup16, node49, stmt1, test2, recur1)
 				visitNodes1(lookup16, node49, 1, false)
 				if (recur1 and (func7 == recur1["var"])) then
 					recur1["tail"] = true
-					cat4 = cat3("call-symbol", "recur", recur1)
+					cat4 = cat3("call-symbol", "recur", recur1, "stmt", recur1)
 				else
 					cat4 = cat3("call-symbol")
 				end
@@ -4429,6 +4429,9 @@ compileExpression1 = (function(node56, out13, state32, ret1)
 				line_21_1(out13)
 			end
 		elseif cat6["recur"] then
+			if (ret1 == nil) then
+				print1(pretty1(node56), " marked as :recur for ", ret1)
+			end
 			local head7 = cat6["recur"]["def"]
 			local args13 = head7[2]
 			if (n1(args13) > 0) then
@@ -6906,6 +6909,14 @@ runLua1 = (function(compiler12, args28)
 		local fun3 = r_13291[1]
 		_5f_G1["arg"] = args28["script-args"]
 		_5f_G1["arg"][0] = car1(args28["input"])
+		iterPairs1(loaded1, (function(k5, v6)
+			if (sub1(k5, 1, 6) == "tacky.") then
+				loaded1[k5] = nil
+				return nil
+			else
+				return nil
+			end
+		end))
 		local exec3 = (function()
 			local r_13401 = list1(xpcall1(fun3, traceback1))
 			if ((type1(r_13401) == "list") and ((n1(r_13401) >= 1) and (eq_3f_1(r_13401[1], true) and true))) then
@@ -7142,8 +7153,8 @@ readLibrary1 = (function(state50, name43, path4, lispHandle1)
 			local fun4 = r_13941[1]
 			local res16 = fun4()
 			if (type_23_1(res16) == "table") then
-				iterPairs1(res16, (function(k5, v6)
-					state50["libEnv"][_2e2e_2(prefix4, k5)] = v6
+				iterPairs1(res16, (function(k6, v7)
+					state50["libEnv"][_2e2e_2(prefix4, k6)] = v7
 					return nil
 				end))
 			else
@@ -7164,8 +7175,8 @@ readLibrary1 = (function(state50, name43, path4, lispHandle1)
 			local fun5 = r_14041[1]
 			local res17 = fun5()
 			if (type_23_1(res17) == "table") then
-				iterPairs1(res17, (function(k6, v7)
-					return readMeta1(state50, _2e2e_2(prefix4, k6), v7)
+				iterPairs1(res17, (function(k7, v8)
+					return readMeta1(state50, _2e2e_2(prefix4, k7), v8)
 				end))
 			else
 				error1(_2e2e_2(path4, ".meta.lua returned a non-table value"), 0)
