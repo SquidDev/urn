@@ -4,6 +4,7 @@
 (import lua/debug debug)
 (import lua/os os)
 (import lua/table table)
+(import lua/package package)
 
 (import urn/backend/lua lua)
 (import urn/backend/writer w)
@@ -266,6 +267,10 @@
       [(?fun)
        (.<! _G :arg (.> args :script-args))
        (.<! _G :arg 0 (car (.> args :input)))
+       ;; Clear the package loaded cache
+       (for-pairs (k v) package/loaded
+         (when (string/starts-with? k "tacky.")
+           (.<! package/loaded k nil)))
        (with (exec (lambda ()
                      (case (list (xpcall fun debug/traceback))
                        [(true . ?res)]

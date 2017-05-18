@@ -1,4 +1,4 @@
-(import base (defun getmetatable if n progn with for tostring
+(import base (defun getmetatable if n progn with for tostring len#
               type# >= > < <= = + - car or and list when set-idx!
               get-idx getmetatable let* while))
 (import base (concat) :export)
@@ -43,9 +43,9 @@
            (set! start (+ (n text) 1))]
           ;; If the start is beyond the string length (somehow) then maybe append the remaining text
           ;; and exit.
-          [(> nstart (n text))
-           (when (<= start (n text))
-             (list/push-cdr! out (sub text start (n text))))
+          [(> nstart (len# text))
+           (when (<= start (len# text))
+             (list/push-cdr! out (sub text start (len# text))))
            (set! loop false)]
           ;; If the end point is before the start point (0 width match) then we'll gobble just one character
           [(< nend nstart)
@@ -74,3 +74,11 @@
       ;; we only return one value.
       (with (result (gsub (format "%q" str) "." escapes))
         result))))
+
+(defun starts-with? (str prefix)
+  "Determine whether STR starts with PREFIX."
+  (= (sub str 1 (len# prefix)) prefix))
+
+(defun ends-with? (str suffix)
+  "Determine whether STR ends with SUFFIX."
+  (= (sub (- 0 (len# suffix))) suffix))
