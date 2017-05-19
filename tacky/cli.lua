@@ -4957,10 +4957,9 @@ get_21_1 = (function(state41)
 end)
 name19 = (function(state43)
 	if state43["var"] then
-		_2e2e_2("macro ", quoted1(state43["var"]["name"]))
-		return "unquote"
+		return "macro " .. quoted1(state43["var"]["name"])
 	else
-		return nil
+		return "unquote"
 	end
 end)
 loaded1["tacky.resolve.state"] = ({["create"]=create4,["require"]=require_21_1,["define"]=define_21_1,["built"]=built_21_1,["executed"]=executed_21_1,["get"]=get_21_1,["name"]=name19})

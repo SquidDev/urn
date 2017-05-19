@@ -112,7 +112,7 @@ local function resolveExecuteResult(owner, node, parent, scope, state)
 	elseif ty == "number" then
 		node = { tag = "number", contents = tostring(node), value = node }
 	elseif ty == "boolean" then
-		node = { tag = "symbol", contents = tostring(node), value = node, var = declaredVars[tostring(node)] }
+		node = { tag = "symbol", contents = tostring(node), value = node, var = Builtin.builtins[tostring(node)] }
 	elseif ty == "table" then
 		local tag = node.tag
 		if tag == "symbol" or tag == "string" or tag == "number" or tag == "key" or tag == "list" then
@@ -354,7 +354,7 @@ function resolveNode(node, scope, state, root, many)
 
 				if res.n == 0 or (res.n == 1 and res[1] == nil) then
 					res.n = 1
-					res[1] = { tag = "symbol", var = declaredVars["nil"] }
+					res[1] = { tag = "symbol", var = builtins["nil"] }
 				end
 
 				for i = 1, res.n do
@@ -404,7 +404,7 @@ function resolveNode(node, scope, state, root, many)
 
 				if replacement.n == 0 then
 					replacement.n = 1
-					replacement[1] = { tag = "symbol", var = declaredVars["nil"] }
+					replacement[1] = { tag = "symbol", var = builtins["nil"] }
 				end
 
 				for i = 1, replacement.n do

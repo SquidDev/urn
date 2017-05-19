@@ -156,7 +156,7 @@
 
 (defun name (state)
   "Get a pretty name for this STATE."
-  (when (.> state :var)
+  (if (.> state :var)
     (.. "macro " (string/quoted (.> state :var :name)))
     "unquote"))
 
