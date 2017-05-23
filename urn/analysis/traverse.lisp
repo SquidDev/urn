@@ -42,6 +42,9 @@
            (let* [(func (.> first :var))
                   (funct (.> func :tag))]
              (cond
+               [(or (= funct "defined") (= funct "arg") (= funct "native") (= funct "macro"))
+                (traverse-list node 1 visitor)
+                (visitor node visitor)]
                [(= func (.> builtins :lambda))
                 (traverse-block node 3 visitor)
                 (visitor node visitor)]
@@ -70,9 +73,6 @@
                 (visitor node visitor)]
                [(= func (.> builtins :struct-literal))
                 (traverse-list node 2 visitor)
-                (visitor node visitor)]
-               [(or (= funct "defined") (= funct "arg") (= funct "native") (= funct "macro"))
-                (traverse-list node 1 visitor)
                 (visitor node visitor)]
                [true
                  (fail! (.. "Unknown kind " funct " for variable " (.> func :name)))]))

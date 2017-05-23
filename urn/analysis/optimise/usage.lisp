@@ -206,6 +206,7 @@
                              ;; evaluating the side effects of this node.
                              (cond
                                ;; Only visit the actual variable to be defined
+                               [(/= (.> var :tag) "builtin") (visitor/visit-list node 1 visitor)]
                                [(= var (.> builtins :set!)) (visitor/visit-node (nth node 3) visitor)]
                                [(= var (.> builtins :define)) (visitor/visit-node (last node) visitor)]
                                [(= var (.> builtins :define-macro)) (visitor/visit-node (last node) visitor)]

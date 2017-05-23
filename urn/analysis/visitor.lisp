@@ -32,6 +32,8 @@
              (let* [(func (.> first :var))
                     (funct (.> func :tag))]
                (cond
+                 [(or (= funct "defined") (= funct "arg") (= funct "native") (= funct "macro"))
+                  (visit-block node 1 visitor)]
                  [(= func (.> builtins :lambda))
                   (visit-block node 3 visitor)]
                  [(= func (.> builtins :cond))
@@ -51,8 +53,6 @@
                  [(= func (.> builtins :define-native))] ;; Nothing needs doing here
                  [(= func (.> builtins :import))] ;; Nothing needs doing here
                  [(= func (.> builtins :struct-literal)) (visit-list node 2 visitor)]
-                 [(or (= funct "defined") (= funct "arg") (= funct "native") (= funct "macro"))
-                  (visit-block node 1 visitor)]
                  [true
                    (fail! (.. "Unknown kind " funct " for variable " (.> func :name)))]))
              (visit-block node 1 visitor)))]
