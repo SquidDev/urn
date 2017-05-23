@@ -27,7 +27,7 @@
 (defun ident? (x)
   "Determine whether X is a usable identifier character"
   :hidden
-  (or (string/find x "[%a%d']") (.> symbols x)))
+  (string/find x "[%a%d']"))
 
 (defun escape (name)
   "Escape an urn identifier NANE, converting it into a form that is valid Lua."
@@ -46,12 +46,6 @@
                         (ident? (string/char-at name (succ i))))
                    ;; If we're surrounded by ident characters then convert the next one to upper case
                    (set! upper true)]
-                  [(.> symbols char)
-                   (set! char (.> symbols char))
-                   (when (or upper (ident? (string/char-at name (pred i))))
-                     (set! char (string/gsub char "^%a" string/upper)))
-                   (set! upper true)
-                   (set! out (.. out char))]
                   [(string/find char "[^%w%d]")
                    (set! char (-> char (string/byte <>) (string/format "%02x" <>)))
                    (set! upper false)
