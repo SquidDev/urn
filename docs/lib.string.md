@@ -12,6 +12,11 @@ Concatenate the several values given in `ARGS`. They must all be strings.
 
 Index the string `XS`, returning the character at position `X`.
 
+## `(ends-with? str suffix)`
+*Defined at lib/string.lisp:82:1*
+
+Determine whether `STR` ends with `SUFFIX`.
+
 ## `quoted`
 *Defined at lib/string.lisp:65:1*
 
@@ -33,6 +38,11 @@ string into individual characters.
 > (split "foo-bar-baz" "-" 1)
 ("foo" "bar-baz")
 ```
+
+## `(starts-with? str prefix)`
+*Defined at lib/string.lisp:78:1*
+
+Determine whether `STR` starts with `PREFIX`.
 
 ## `(trim str)`
 *Defined at lib/string.lisp:60:1*
