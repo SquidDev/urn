@@ -1595,31 +1595,31 @@ traverseQuote1 = (function(node14, visitor1, level2)
 					node14[2] = traverseQuote1(node14[2], visitor1, (level2 + 1))
 					return node14
 				else
-					local r_4281 = n1(node14)
-					local r_4261 = nil
-					r_4261 = (function(r_4271)
-						if (r_4271 <= r_4281) then
-							node14[r_4271] = traverseQuote1(node14[r_4271], visitor1, level2)
-							return r_4261((r_4271 + 1))
+					local r_4311 = n1(node14)
+					local r_4291 = nil
+					r_4291 = (function(r_4301)
+						if (r_4301 <= r_4311) then
+							node14[r_4301] = traverseQuote1(node14[r_4301], visitor1, level2)
+							return r_4291((r_4301 + 1))
 						else
 							return nil
 						end
 					end)
-					r_4261(1)
+					r_4291(1)
 					return node14
 				end
 			else
-				local r_4321 = n1(node14)
-				local r_4301 = nil
-				r_4301 = (function(r_4311)
-					if (r_4311 <= r_4321) then
-						node14[r_4311] = traverseQuote1(node14[r_4311], visitor1, level2)
-						return r_4301((r_4311 + 1))
+				local r_4351 = n1(node14)
+				local r_4331 = nil
+				r_4331 = (function(r_4341)
+					if (r_4341 <= r_4351) then
+						node14[r_4341] = traverseQuote1(node14[r_4341], visitor1, level2)
+						return r_4331((r_4341 + 1))
 					else
 						return nil
 					end
 				end)
-				r_4301(1)
+				r_4331(1)
 				return node14
 			end
 		elseif error1 then
@@ -1640,23 +1640,26 @@ traverseNode1 = (function(node15, visitor2)
 		if (first3["tag"] == "symbol") then
 			local func1 = first3["var"]
 			local funct1 = func1["tag"]
-			if (func1 == builtins1["lambda"]) then
+			if ((funct1 == "defined") or ((funct1 == "arg") or ((funct1 == "native") or (funct1 == "macro")))) then
+				traverseList1(node15, 1, visitor2)
+				return visitor2(node15, visitor2)
+			elseif (func1 == builtins1["lambda"]) then
 				traverseBlock1(node15, 3, visitor2)
 				return visitor2(node15, visitor2)
 			elseif (func1 == builtins1["cond"]) then
-				local r_4361 = n1(node15)
-				local r_4341 = nil
-				r_4341 = (function(r_4351)
-					if (r_4351 <= r_4361) then
-						local case1 = node15[r_4351]
+				local r_4391 = n1(node15)
+				local r_4371 = nil
+				r_4371 = (function(r_4381)
+					if (r_4381 <= r_4391) then
+						local case1 = node15[r_4381]
 						case1[1] = traverseNode1(case1[1], visitor2)
 						traverseBlock1(case1, 2, visitor2)
-						return r_4341((r_4351 + 1))
+						return r_4371((r_4381 + 1))
 					else
 						return nil
 					end
 				end)
-				r_4341(2)
+				r_4371(2)
 				return visitor2(node15, visitor2)
 			elseif (func1 == builtins1["set!"]) then
 				node15[3] = traverseNode1(node15[3], visitor2)
@@ -1678,9 +1681,6 @@ traverseNode1 = (function(node15, visitor2)
 			elseif (func1 == builtins1["struct-literal"]) then
 				traverseList1(node15, 2, visitor2)
 				return visitor2(node15, visitor2)
-			elseif ((funct1 == "defined") or ((funct1 == "arg") or ((funct1 == "native") or (funct1 == "macro")))) then
-				traverseList1(node15, 1, visitor2)
-				return visitor2(node15, visitor2)
 			else
 				return error1(_2e2e_2("Unknown kind ", funct1, " for variable ", func1["name"]), 0)
 			end
@@ -1693,31 +1693,31 @@ traverseNode1 = (function(node15, visitor2)
 	end
 end)
 traverseBlock1 = (function(node16, start2, visitor3)
-	local r_4151 = n1(node16)
-	local r_4131 = nil
-	r_4131 = (function(r_4141)
-		if (r_4141 <= r_4151) then
-			node16[r_4141] = (traverseNode1(node16[((r_4141 + 0))], visitor3))
-			return r_4131((r_4141 + 1))
+	local r_4181 = n1(node16)
+	local r_4161 = nil
+	r_4161 = (function(r_4171)
+		if (r_4171 <= r_4181) then
+			node16[r_4171] = (traverseNode1(node16[((r_4171 + 0))], visitor3))
+			return r_4161((r_4171 + 1))
 		else
 			return nil
 		end
 	end)
-	r_4131(start2)
+	r_4161(start2)
 	return node16
 end)
 traverseList1 = (function(node17, start3, visitor4)
-	local r_4191 = n1(node17)
-	local r_4171 = nil
-	r_4171 = (function(r_4181)
-		if (r_4181 <= r_4191) then
-			node17[r_4181] = traverseNode1(node17[r_4181], visitor4)
-			return r_4171((r_4181 + 1))
+	local r_4221 = n1(node17)
+	local r_4201 = nil
+	r_4201 = (function(r_4211)
+		if (r_4211 <= r_4221) then
+			node17[r_4211] = traverseNode1(node17[r_4211], visitor4)
+			return r_4201((r_4211 + 1))
 		else
 			return nil
 		end
 	end)
-	r_4171(start3)
+	r_4201(start3)
 	return node17
 end)
 visitQuote1 = (function(node18, visitor5, level3)
@@ -1736,30 +1736,30 @@ visitQuote1 = (function(node18, visitor5, level3)
 					elseif (first4["contents"] == "syntax-quote") then
 						node18, level3 = node18[2], (level3 + 1)
 					else
-						local r_4671 = n1(node18)
-						local r_4651 = nil
-						r_4651 = (function(r_4661)
-							if (r_4661 <= r_4671) then
-								visitQuote1(node18[r_4661], visitor5, level3)
-								return r_4651((r_4661 + 1))
+						local r_4701 = n1(node18)
+						local r_4681 = nil
+						r_4681 = (function(r_4691)
+							if (r_4691 <= r_4701) then
+								visitQuote1(node18[r_4691], visitor5, level3)
+								return r_4681((r_4691 + 1))
 							else
 								return nil
 							end
 						end)
-						return r_4651(1)
+						return r_4681(1)
 					end
 				else
-					local r_4731 = n1(node18)
-					local r_4711 = nil
-					r_4711 = (function(r_4721)
-						if (r_4721 <= r_4731) then
-							visitQuote1(node18[r_4721], visitor5, level3)
-							return r_4711((r_4721 + 1))
+					local r_4761 = n1(node18)
+					local r_4741 = nil
+					r_4741 = (function(r_4751)
+						if (r_4751 <= r_4761) then
+							visitQuote1(node18[r_4751], visitor5, level3)
+							return r_4741((r_4751 + 1))
 						else
 							return nil
 						end
 					end)
-					return r_4711(1)
+					return r_4741(1)
 				end
 			elseif error1 then
 				return _2e2e_2("Unknown tag ", tag6)
@@ -1782,22 +1782,24 @@ visitNode1 = (function(node19, visitor6)
 				if (first5["tag"] == "symbol") then
 					local func2 = first5["var"]
 					local funct2 = func2["tag"]
-					if (func2 == builtins1["lambda"]) then
+					if ((funct2 == "defined") or ((funct2 == "arg") or ((funct2 == "native") or (funct2 == "macro")))) then
+						return visitBlock1(node19, 1, visitor6)
+					elseif (func2 == builtins1["lambda"]) then
 						return visitBlock1(node19, 3, visitor6)
 					elseif (func2 == builtins1["cond"]) then
-						local r_4771 = n1(node19)
-						local r_4751 = nil
-						r_4751 = (function(r_4761)
-							if (r_4761 <= r_4771) then
-								local case2 = node19[r_4761]
+						local r_4801 = n1(node19)
+						local r_4781 = nil
+						r_4781 = (function(r_4791)
+							if (r_4791 <= r_4801) then
+								local case2 = node19[r_4791]
 								visitNode1(case2[1], visitor6)
 								visitBlock1(case2, 2, visitor6)
-								return r_4751((r_4761 + 1))
+								return r_4781((r_4791 + 1))
 							else
 								return nil
 							end
 						end)
-						return r_4751(2)
+						return r_4781(2)
 					elseif (func2 == builtins1["set!"]) then
 						node19 = node19[3]
 					elseif (func2 == builtins1["quote"]) then
@@ -1814,8 +1816,6 @@ visitNode1 = (function(node19, visitor6)
 						return nil
 					elseif (func2 == builtins1["struct-literal"]) then
 						return visitBlock1(node19, 2, visitor6)
-					elseif ((funct2 == "defined") or ((funct2 == "arg") or ((funct2 == "native") or (funct2 == "macro")))) then
-						return visitBlock1(node19, 1, visitor6)
 					else
 						return error1(_2e2e_2("Unknown kind ", funct2, " for variable ", func2["name"]), 0)
 					end
@@ -1829,17 +1829,17 @@ visitNode1 = (function(node19, visitor6)
 	end
 end)
 visitBlock1 = (function(node20, start4, visitor7)
-	local r_4561 = n1(node20)
-	local r_4541 = nil
-	r_4541 = (function(r_4551)
-		if (r_4551 <= r_4561) then
-			visitNode1(node20[r_4551], visitor7)
-			return r_4541((r_4551 + 1))
+	local r_4591 = n1(node20)
+	local r_4571 = nil
+	r_4571 = (function(r_4581)
+		if (r_4581 <= r_4591) then
+			visitNode1(node20[r_4581], visitor7)
+			return r_4571((r_4581 + 1))
 		else
 			return nil
 		end
 	end)
-	return r_4541(start4)
+	return r_4571(start4)
 end)
 getVar1 = (function(state2, var10)
 	local entry1 = state2["vars"][var10]
@@ -2486,7 +2486,9 @@ expressionFold1 = ({["name"]="expression-fold",["help"]="Folds basic variable ac
 							local head2 = car1(node34)
 							if (type1(head2) == "symbol") then
 								local var19 = head2["var"]
-								if (var19 == builtins1["set!"]) then
+								if (var19["tag"] ~= "builtin") then
+									visitBlock1(node34, 1, visitor9)
+								elseif (var19 == builtins1["set!"]) then
 									visitNode1(node34[3], visitor9)
 								elseif (var19 == builtins1["define"]) then
 									visitNode1(last1(node34), visitor9)
