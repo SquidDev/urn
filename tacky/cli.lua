@@ -6392,7 +6392,7 @@ compile1 = (function(compiler7, nodes28, scope12, name33)
 			compiler7["active-node"] = nil
 			return nil
 		end)
-		if timer4 then
+		if name33 then
 			startTimer_21_1(timer4, name33, 2)
 		end
 		local r_12601 = nil
@@ -6539,12 +6539,10 @@ compile1 = (function(compiler7, nodes28, scope12, name33)
 						end))
 						local elems1
 						local r_12911
-						local r_12901 = filter1((function(x67)
+						local xs43 = filter1((function(x67)
 							return (distances1[x67] <= 0.5)
 						end), varDis1)
-						r_12911 = (function(n3)
-							return slice1(5, 1, nil)
-						end)()(r_12901)
+						r_12911 = slice1(xs43, 1, min2(5, n1(xs43)))
 						elems1 = map1((function(r_12921)
 							return colored1("1;32", r_12921)
 						end), r_12911)
@@ -6840,7 +6838,7 @@ execCommand1 = (function(compiler9, scope16, args26)
 				if not empty_3f_1(nameResults1) then
 					print1(colored1(92, "Search by function name:"))
 					if (n1(nameResults1) > 20) then
-						print1(_2e2e_2(concat1(slice1(nameResults1, 1, 20), "  "), "  ..."))
+						print1(_2e2e_2(concat1(slice1(nameResults1, 1, min2(20, n1(nameResults1))), "  "), "  ..."))
 					else
 						print1(concat1(nameResults1, "  "))
 					end
@@ -6848,7 +6846,7 @@ execCommand1 = (function(compiler9, scope16, args26)
 				if not empty_3f_1(docsResults1) then
 					print1(colored1(92, "Search by function docs:"))
 					if (n1(docsResults1) > 20) then
-						return print1(_2e2e_2(concat1(slice1(docsResults1, 1, 20), "  "), "  ..."))
+						return print1(_2e2e_2(concat1(slice1(docsResults1, 1, min2(20, n1(docsResults1))), "  "), "  ..."))
 					else
 						return print1(concat1(docsResults1, "  "))
 					end

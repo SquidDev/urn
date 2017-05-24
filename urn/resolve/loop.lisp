@@ -202,7 +202,7 @@
                        (.<! compiler :active-scope nil)
                        (.<! compiler :active-node nil)))]
 
-        (when timer (timer/start-timer! timer name 2))
+        (when name (timer/start-timer! timer name 2))
 
         (while (and (> (n queue) 0) (<= skipped (n queue)))
           (with (head (remove-nth! queue 1))
@@ -321,7 +321,7 @@
 
                  (with (elems (-> var-dis
                                 (filter (lambda (x) (<= (.> distances x) 0.5)) <>)
-                                (take 5)
+                                (take <> 5)
                                 (map (cut term/colored "1;32" <>) <>)))
                    (case (n elems)
                      [0]

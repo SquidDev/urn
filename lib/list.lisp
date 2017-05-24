@@ -65,7 +65,7 @@
    > (take '(1 2 3 4 5) 2)
    out = (1 2)
    ```"
-  (slice xs 1 n))
+  (slice xs 1 (min n (base/n xs))))
 
 (defun drop (xs n)
   "Remove the first N elements of the list XS.
