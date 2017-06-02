@@ -20,7 +20,7 @@
    in proportion to the size of the input list. This is generally a bad
    thing."
 
-(import base (defun defmacro when let* set-idx!
+(import base (defun defmacro when unless let* set-idx!
               get-idx for gensym -or slice /=
               pretty print error tostring  -and
               unpack debug if n + - >= = ! with
@@ -533,6 +533,27 @@
    out = 24
    ```"
   (foldl * 1 xs))
+
+(defun split (xs y)
+  "Splits a list into sub-lists by the separator Y.
+  
+   ### Example:
+   ```cl
+   > (split '(1 2 3 4) 3)
+   out = ((1 2) (4))
+   ```"
+  (let* [(l '())
+         (b '())]
+    (for-each x xs
+      (if (eq? x y)
+        (progn
+          (push-cdr! l b)
+          (set! b '()))
+        (push-cdr! b x)))
+    (unless (empty? b)
+      (push-cdr! l b))
+    l))
+
 
 ;; AUTOMATICALLY GENERATED
 ;; DO NOT EDIT please.
