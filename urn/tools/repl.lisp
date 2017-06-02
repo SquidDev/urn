@@ -213,7 +213,7 @@
               [(= (co/status exec) "dead")
                (let* [(lvl (state/get! (last state)))]
                  (print! (.. "out = " (colored 96 (pretty lvl))))
-                 (.<! global (lua/escape-var (scope/add! scope "out" "defined" lvl)
+                 (.<! global (lua/push-escape-var! (scope/add! scope "out" "defined" lvl)
                                              compileState)
                       lvl))
                (set! run false)]

@@ -104,12 +104,12 @@
                  (progn
                    (w/append! out "...")
                    (set! variadic i))
-                 (w/append! out (escape-var var state))))
+                 (w/append! out (push-escape-var! var state))))
              (inc! i))
            (w/begin-block! out ")")
 
            (when variadic
-             (with (args-var (escape-var (.> args variadic :var) state))
+             (with (args-var (push-escape-var! (.> args variadic :var) state))
                (if (= variadic (n args))
                  ;; If it is the last argument then just pack it up into a list
                  (w/line! out (string/.. "local " args-var " = _pack(...) " args-var ".tag = \"list\""))
@@ -121,7 +121,7 @@
                    (w/append! out (.. "local " args-var))
                    (for i (succ variadic) (n args) 1
                      (w/append! out ", ")
-                     (w/append! out (escape-var (.> args i :var) state)))
+                     (w/append! out (push-escape-var! (.> args i :var) state)))
                    (w/line! out)
 
                    (w/begin-block! out "if _n > 0 then")
@@ -153,6 +153,7 @@
            (compile-block node out state 3 "return ")
            (when (.> cat :recur) (w/end-block! out "end"))
            (w/unindent! out)
+           (for-each arg args (pop-escape-var! (.> arg :var) state))
            (w/append! out "end)")))]
 
       ["cond"
@@ -189,7 +190,7 @@
                     (w/indent! out)
                     (w/line! out)
                     (inc! ends))
-                  (with (tmp (escape-var { :name "temp" } state))
+                  (with (tmp (temp-escape-var state))
                     (w/line! out (.. "local " tmp))
                     (compile-expression case out state (.. tmp " = "))
                     (w/line! out)
@@ -289,7 +290,7 @@
        (w/append! out "})")]
 
       ["define"
-       (compile-expression (nth node (n node)) out state (.. (escape-var (.> node :defVar) state) " = "))]
+       (compile-expression (nth node (n node)) out state (.. (push-escape-var! (.> node :defVar) state) " = "))]
 
       ["define-native"
        (with (meta (.> state :meta (.> node :defVar :fullName)))
@@ -522,7 +523,7 @@
                 (inc! arg-idx)]
                [(.> (.> arg :var) :isVariadic)
                 ;; If we're variadic then create a list of each sub expression
-                (let* [(esc (escape-var (.> arg :var) state))
+                (let* [(esc (push-escape-var! (.> arg :var) state))
                        (count (- val-len arg-len))]
                   (w/append! out (.. "local " esc))
                   (when (< count 0) (set! count 0))
@@ -537,7 +538,7 @@
                        (val (nth node val-idx))
                        (ret nil)]
                   (while (<= arg-idx arg-len)
-                    (push-cdr! arg-list (escape-var (.> (nth args arg-idx) :var) state))
+                    (push-cdr! arg-list (push-escape-var! (.> (nth args arg-idx) :var) state))
                     (inc! arg-idx))
 
                   (w/append! out "local ")
@@ -553,7 +554,7 @@
                [true
                 (let* [(expr (nth node val-idx))
                        (var (.> arg :var))
-                       (esc (escape-var var state))
+                       (esc (push-escape-var! var state))
                        (ret nil)]
                   (w/append! out (.. "local " esc))
                   (if expr
@@ -570,7 +571,8 @@
                   (inc! val-idx))]))
            (w/line! out))
 
-         (compile-block head out state 3 ret))]
+         (compile-block head out state 3 ret)
+         (for-each arg args (pop-escape-var! (.> arg :var) state)))]
       ["call-literal"
        ;; Just invoke the expression as normal
        (when ret (w/append! out ret))

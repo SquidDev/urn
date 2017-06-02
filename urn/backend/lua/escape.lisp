@@ -64,15 +64,47 @@
             (when esc (set! out (.. out "_")))
             out)]))
 
+(defun push-escape-var! (var state force-num)
+  "Push an escaped form of variable VAR. This should be called when it is defined.
+
+   If FORCE-NUM is given then the variable will always be mangled with a number."
+  (or (.> state :var-lookup var)
+    (let* [(esc (escape (.> var :name)))
+           (existing (.> state :var-cache esc))]
+      (when (or force-num existing)
+        (let* [(ctr 1)
+               (finding true)]
+          (while finding
+            (let* [(esc' (.. esc ctr))
+                   (existing (.> state :var-cache esc'))]
+              (if existing
+                (inc! ctr)
+                (progn
+                  (set! finding false)
+                  (set! esc esc')))))))
+
+      (.<! state :var-cache esc true)
+      (.<! state :var-lookup var esc)
+      esc)))
+
+(defun pop-escape-var! (var state)
+  "Remove an escaped form of variable VAR."
+  (with (esc (.> state :var-lookup var))
+    (unless esc (fail! (.. (.> var :name) " has not been escaped (when popping).")))
+    (.<! state :var-cache esc nil)
+    (.<! state :var-lookup var nil)))
+
 (defun escape-var (var state)
-  "Escape an urn variable, uniquely numbering different variables with the same name."
-  (cond
-    [(.> builtin-vars var) (.> var :name)]
-    [true
-      (let* [(v (escape (.> var :name)))
-             (id (.> state :var-lookup var))]
-        (unless id
-          (set! id (succ (or (.> state :ctr-lookup v) 0)))
-          (.<! state :ctr-lookup v id)
-          (.<! state :var-lookup var id))
-        (.. v (number->string id)))]))
+  "Escape a variable VAR, which has already been escaped."
+  (if (.> builtin-vars var)
+    (.> var :name)
+    (with (esc (.> state :var-lookup var))
+      (unless esc (fail! (.. (.> var :name) " has not been escaped.")))
+      esc)))
+
+(defun temp-escape-var (state)
+  "Create a temporary escaped variable."
+  (let* [(var { :name "temp" })
+         (esc (push-escape-var! var state))]
+    (pop-escape-var! var state)
+    esc))

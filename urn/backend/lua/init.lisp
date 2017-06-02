@@ -1,5 +1,5 @@
 (import urn/backend/lua/emit ())
-(import urn/backend/lua/escape (escape-var) :export)
+(import urn/backend/lua/escape (push-escape-var! escape-var) :export)
 (import urn/backend/writer w)
 (import urn/resolve/state state)
 (import urn/timer timer)
@@ -22,7 +22,7 @@
 
                              ;; Various lookup tables
                              :cat-lookup {}
-                             :ctr-lookup {}
+                             :var-cache  {}
                              :var-lookup {}
                              :meta       (or meta {}) })
 
@@ -63,6 +63,11 @@
         (when-with (var (.> node :defVar))
           (inc! count)))
 
+      ;; Pre-escape all variables
+      (for-each node (.> compiler :out)
+        (when-with (var (.> node :defVar))
+          (push-escape-var! var state true)))
+
       ;; Predeclare all variables. We only do this if we're pretty sure we won't hit the
       ;; "too many local variable" errors. The upper bound is actually 200, but lambda inlining
       ;; will probably bring it up slightly.
@@ -99,7 +104,7 @@
         (unless (= (.> state :stage) "executed")
           (let* [(node (assert! (.> state :node) (.. "State is in " (.> state :stage) " instead")))
                  (var (or (.> state :var) { :name "temp" }))
-                 (escaped (escape-var var back-state))
+                 (escaped (push-escape-var! var back-state true))
                  (name (.> var :name))]
             (push-cdr! state-list state)
             (push-cdr! export-list (.. escaped " = " escaped))
