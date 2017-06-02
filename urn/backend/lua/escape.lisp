@@ -69,7 +69,7 @@
 
    If FORCE-NUM is given then the variable will always be mangled with a number."
   (or (.> state :var-lookup var)
-    (let* [(esc (escape (.> var :name)))
+    (let* [(esc (escape (or (.> var :display-name) (.> var :name))))
            (existing (.> state :var-cache esc))]
       (when (or force-num existing)
         (let* [(ctr 1)

@@ -87,12 +87,13 @@
       (cond
         [(if (= (type# name) "table")
             (= (get-idx name :tag) "symbol")
-            false) ; oh god
+            false)
          (set! name (.. "_" (get-idx name :contents)))]
         [name (set! name (.. "_" name))]
         [true (set! name "")])
       (set! counter (+ counter 1))
       { :tag "symbol"
+        :display-name "temp"
         :contents (string/format "r_%d%s" counter name) })))
 
 (defmacro for (ctr start end step &body)

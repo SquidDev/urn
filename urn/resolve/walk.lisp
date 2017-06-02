@@ -216,6 +216,7 @@
                              (set! has-variadic true)]))
 
                         (with (var (scope/add-verbose! child-scope name "arg" arg (.> state :logger)))
+                          (.<! var :display-name (.> arg :display-name))
                           (.<! arg :var var)
                           (.<! var :isVariadic is-var))))
 
@@ -360,6 +361,7 @@
                   (expect!      (.> state :logger) (nth node 3) node "value")
 
                   (with (var (scope/add-verbose! scope (.> (nth node 2) :contents) "defined" node (.> state :logger)))
+                    (.<! var :display-name (.> (nth node 2) :display-name))
                     (state/define! state var)
                     (.<! node :defVar var)
 
@@ -374,6 +376,7 @@
                   (expect!      (.> state :logger) (nth node 3) node "value")
 
                   (with (var (scope/add-verbose! scope (.> (nth node 2) :contents) "macro" node (.> state :logger)))
+                    (.<! var :display-name (.> (nth node 2) :display-name))
                     (state/define! state var)
                     (.<! node :defVar var)
 
@@ -387,6 +390,7 @@
 
                   (expect-type! (.> state :logger) (nth node 2) node "symbol" "name")
                   (with (var (scope/add-verbose! scope (.> (nth node 2) :contents) "native" node (.> state :logger)))
+                    (.<! var :display-name (.> (nth node 2) :display-name))
                     (state/define! state var)
                     (.<! node :defVar var)
 
