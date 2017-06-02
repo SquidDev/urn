@@ -1,8 +1,5 @@
 # Ignore compiled files
-tacky/cli.lua linguist-generated
-tacky/logger/init.lua linguist-generated
-tacky/logger/range.lua linguist-generated
-tacky/logger/traceback.lua linguist-generated
+bin/urn.lua linguist-generated
 
 # Force all files to be Common Lisp
 *.lisp linguist-language=lisp
