@@ -6242,15 +6242,15 @@ handleMetadata1 = (function(log5, node71, var45, start29, finish13)
 				if var45["doc"] then
 					doNodeError_21_1(log5, "Multiple doc strings in definition", child3, nil, getSource1(child3), "")
 				end
-				var45["doc"] = child3["doc"]
+				var45["doc"] = child3["value"]
 			elseif (r_12641 == "key") then
 				local r_12651 = child3["value"]
 				if (r_12651 == "hidden") then
-					local _ = var45["scope"]["exported"][var45["name"]][nil]
+					var45["scope"]["exported"][var45["name"]] = nil
 				elseif (r_12651 == "deprecated") then
 					local message4 = true
 					if ((i11 < finish13) and string_3f_1(node71[((i11 + 1))])) then
-						message4 = node71[((i11 + 1))]
+						message4 = node71[((i11 + 1))]["value"]
 						i11 = (i11 + 1)
 					end
 					var45["deprecated"] = message4

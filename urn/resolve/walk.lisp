@@ -57,14 +57,14 @@
           ["nil" (expect! log child node "variable metadata")]
           ["string"
            (when (.> var :doc) (error-positions! log child "Multiple doc strings in definition"))
-           (.<! var :doc (.> child :doc))]
+           (.<! var :doc (.> child :value))]
           ["key"
            (case (.> child :value)
-             ["hidden" (.> var :scope :exported (.> var :name) nil)]
+             ["hidden" (.<! var :scope :exported (.> var :name) nil)]
              ["deprecated"
               (with (message true)
                 (when (and (< i finish) (string? (nth node (succ i))))
-                  (set! message (nth node (succ i)))
+                  (set! message (.> (nth node (succ i)) :value))
                   (inc! i))
                 (.<! var :deprecated message))]
              [_ (error-positions! log child (.. "Unexpected modifier '" (pretty child) "'"))])]
