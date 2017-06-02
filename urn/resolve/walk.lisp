@@ -493,7 +493,7 @@
               [_ (resolve-list node 1 scope state)]))]
          ["list"
           (resolve-list node 1 scope state)]
-         [?ty (error-positions! (.> state :logger) (or first node) (.. "Cannot invoke a non-function type '" ty .. "'"))]))]))
+         [?ty (error-positions! (.> state :logger) (or first node) (.. "Cannot invoke a non-function type '" ty "'"))]))]))
 
 (defun resolve-list (nodes start scope state)
   "Resolve NODES in the given SCOPE and STATE, starting from START"

@@ -6765,7 +6765,7 @@ resolveNode1 = (function(node75, scope14, state50, root3, many1)
 			else
 				local log8 = state50["logger"]
 				local node77 = (first9 or node75)
-				local message7 = _2e2e_2("Cannot invoke a non-function type '", r_12921, _2e2e_2, "'")
+				local message7 = _2e2e_2("Cannot invoke a non-function type '", r_12921, "'")
 				return doNodeError_21_1(log8, message7, node77, nil, getSource1(node77), "")
 			end
 		else
