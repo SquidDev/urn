@@ -6,18 +6,10 @@
 (import urn/backend/lua backend)
 (import urn/logger logger)
 (import urn/range range)
+(import urn/resolve/walk resolve)
 (import urn/resolve/scope scope)
 (import urn/resolve/state state)
 (import urn/timer timer)
-
-(define resolve/resolve
-  :hidden
-  (with (resolver nil)
-    (lambda (&args)
-      (unless resolver
-        (set! resolver (.> (require "tacky.analysis.resolve") :resolve)))
-
-      (apply resolver args))))
 
 (defun distance (a b)
   "Compute a variation of the levenshtein distance of A and B."
