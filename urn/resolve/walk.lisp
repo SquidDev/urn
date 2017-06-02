@@ -96,6 +96,10 @@
          (error-positions! (.> state :logger) parent (.. "Invalid node of type " (type node) " from " (state/name owner)))))]
     [_ (error-positions! (.> state :logger) parent (.. "Invalid node of type " (type node) " from " (state/name owner)))])
 
+  (unless (or (.> node :range) (.> node :parent))
+    (.<! node :owner owner)
+    (.<! node :parent parent))
+
   (case (type node)
     ["list"
      (for i 1 (n node) 1
