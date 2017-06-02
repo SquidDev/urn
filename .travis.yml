@@ -19,7 +19,7 @@ script:
   - echo -e "\033[36mComparing output of compiler\033[0m"
   - export TEMP_DIR=$(mktemp -d)
   - make LUA=lua OUT_DIR="$TEMP_DIR" all
-  - "! (diff -rq \"$TEMP_DIR\" tacky | grep \"$TEMP_DIR\")"
+  - "! (diff -rq \"$TEMP_DIR\" bin | grep \"$TEMP_DIR\")"
   - echo -e "\033[36mRunning tests\033[0m"
   - make LUA=lua test
   - echo -e "\033[36mBuilding docs\033[0m"

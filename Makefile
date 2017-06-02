@@ -1,10 +1,10 @@
 LUA        ?= lua
 LUA_FLAGS  ?=-O2
 TEST_FLAGS ?=
-OUT_DIR    ?= tacky
+OUT_DIR    ?= bin
 DOCS_DIR   ?= docs_tmp
 PAGES_DIR  ?= docs
-URN        ?= tacky/cli.lua
+URN        ?= bin/urn.lua
 
 TESTS     := $(shell find tests -type f)
 LIBS      := $(shell find lib -type f -name "*.lisp")
@@ -21,13 +21,13 @@ endif
 
 compiler_test: all test
 test: ${TESTS}
-all: ${OUT_DIR}/cli
+all: ${OUT_DIR}/urn
 
 ${OBJS}: ${OUT_DIR}/%: urn/%.lisp
 	@mkdir -p $(shell dirname $@)
 	${LUA} ${URN} $^ -o $@ ${LUA_FLAGS}
 
-${OUT_DIR}/cli: urn/cli.lisp
+${OUT_DIR}/urn: urn/cli.lisp
 	@mkdir -p $(shell dirname $@)
 	${LUA} ${URN} $^ -o $@ ${LUA_FLAGS} --shebang --chmod
 

@@ -8625,7 +8625,8 @@ local dir1 = arg1[0]
 dir1 = gsub1(dir1, "\\", "/")
 dir1 = gsub1(dir1, "urn/cli%.lisp$", "")
 dir1 = gsub1(dir1, "urn/cli$", "")
-dir1 = gsub1(dir1, "tacky/cli%.lua$", "")
+dir1 = gsub1(dir1, "bin/urn%.lua$", "")
+dir1 = gsub1(dir1, "bin/urn$", "")
 if ((dir1 ~= "") and (sub1(dir1, -1, -1) ~= "/")) then
 	dir1 = _2e2e_2(dir1, "/")
 end

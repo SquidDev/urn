@@ -23,11 +23,12 @@
 
 (let* [(spec (arg/create))
        (directory (with (dir (nth arg 0))
-                    ;; Strip the two possible file names
+                    ;; Strip the possible file names
                     (set! dir (string/gsub dir "\\" "/"))
                     (set! dir (string/gsub dir "urn/cli%.lisp$" ""))
                     (set! dir (string/gsub dir "urn/cli$" ""))
-                    (set! dir (string/gsub dir "tacky/cli%.lua$" ""))
+                    (set! dir (string/gsub dir "bin/urn%.lua$" ""))
+                    (set! dir (string/gsub dir "bin/urn$" ""))
 
                     ;; Add a trailing "/" where needed
                     (when (and (/= dir "") (/= (string/char-at dir -1) "/"))
