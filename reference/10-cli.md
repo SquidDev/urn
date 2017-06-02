@@ -8,7 +8,7 @@ title: CLI
 The Urn command line interface, or CLI is used to compile and run Urn programs, as well as providing useful utilities
 such as native library generation and the REPL.
 
-The CLI can be started by executing `tacky/cli.lua` on the command line, (or `lua tacky/cli.lua` if you do not wish to
+The CLI can be started by executing `bin/urn.lua` on the command line, (or `lua bin/urn.lua` if you do not wish to
 use Lua 5.3). By default this will start the REPL. In order to get more options about the CLI, you can run it using the
 `--help` flag. This will detail the various options that the CLI provides.
 
@@ -28,8 +28,8 @@ Urn has a series of general arguments which can be useful in debugging situation
    code is wrong.
  - `--wrapper`, `-w`: You may wish to launch the CLI wrapped in another command, such
    as [rlwrap](https://github.com/hanslub42/rlwrap). Using this flag with the path to an executable, will tell Urn to
-   execute this program using all of Urn's arguments. For instance, `tacky/cli.lua -v --wrapper=rlwrap` will result in
-   `rlwrap lua5.3 tacky/cli.lua -v --wrapper=rlwrap`.
+   execute this program using all of Urn's arguments. For instance, `bin/urn.lua -v --wrapper=rlwrap` will result in
+   `rlwrap lua5.3 bin/urn.lua -v --wrapper=rlwrap`.
 
 ## Specifying files
 Obviously one of the things you'll want to be doing with Urn is loading files, in order to compile and run them. To do
@@ -82,7 +82,7 @@ Urn also allows emitting files in other formats, such as a fully expanded Lisp, 
 
  - `--emit-lisp`: Produce a lisp file, using the name given by the `--output` argument (so `--output=foo` will produce
    `foo.lisp`).
- - `--docs`: Specify a folder in which to place the generated documentation. Each file provided to `tacky/cli.lua` will
+ - `--docs`: Specify a folder in which to place the generated documentation. Each file provided to `bin/urn.lua` will
    produce one markdown file in the specified directory. Note that this will not create the directory: you have to do
    that yourself.
 
@@ -95,7 +95,7 @@ line-mapping.
  - `--profile`, `-p`: Run the compiled source with the specified profiler, defaulting to the stack profiler if none is
    given.
  - You can also use `--` to provide arguments for compiled program: anything after this will be passed to the compiled
-   program. For instance, `tacky/cli.lua foo.lisp --run -- 2 3` will run `foo.lisp` with `2` and `3` as arguments.
+   program. For instance, `bin/urn.lua foo.lisp --run -- 2 3` will run `foo.lisp` with `2` and `3` as arguments.
 
 There are two profiling modes you can use with the `--profile` flag:
 
@@ -111,7 +111,7 @@ Whilst the call profiler is very simple to use, the stack profiler provides seve
    - `term` will display a tree on the console, with each nested function being indented an additional level.
    - `flame` will produce an output suitable for consumption
      with [FlameGraph](https://github.com/brendangregg/FlameGraph). This can then be piped directly to the
-     `flamegraph.pl` command: `tacky/cli --profile=stack --stack-show=flame | flamegraph.pl > out.svg`.
+     `flamegraph.pl` command: `bin/urn's.lua --profile=stack --stack-show=flame | flamegraph.pl > out.svg`.
  - `--stack-kind`: By default the stack profiler will use a forward stack: showing what functions call what. If you use
    `--stack-kind=reverse`, you can compute a reverse stack: showing what functions are called by what. This allows you
    to see what calls a frequently called function, and so eliminate it.

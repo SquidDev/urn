@@ -197,7 +197,7 @@ Here we use the not function (`!`) to check if we haven't found a match yet, and
 This is also our first introduction to `set!`. This takes a symbol and sets it's value to that given. When `compare`
 returns true, `found` will be set to true and so `(! found)` is false, resulting in the loop terminating.
 
-You should now be able to run your code (`lua tacky/cli.lua guess.lisp --run`) and play the game.
+You should now be able to run your code (`lua bin/urn.lua guess.lisp --run`) and play the game.
 
 ## Polishing things up
 Now that we've got everything working, let's clean up the code a little. Firstly, you may notice that running the

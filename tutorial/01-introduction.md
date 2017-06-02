@@ -22,7 +22,7 @@ First off, you'll want to install Urn. The easiest way to do this is clone the r
 You can now launch the Urn REPL: this allows you to enter code and execute it, allowing for immediate feedback.
 
 ```sh
-> lua tacky/cli.lua
+> lua bin/urn.lua
 ```
 
 You should have an interactive prompt, where you can enter simple expressions like numbers (`123`) and strings
@@ -120,7 +120,7 @@ Now that you've saved your `times-two.lisp` file, you can compile it to Lua and 
 
 ```sh
 # This will generate a file called "out.lua"
-> lua tacky/cli.lua times-two.lisp
+> lua bin/urn.lua times-two.lisp
 
 # Which can then be run as normal
 > lua out.lua
@@ -129,11 +129,11 @@ Now that you've saved your `times-two.lisp` file, you can compile it to Lua and 
 If you pass `--run` when compiling, it will do both these steps at once:
 
 ```sh
-> lua tacky/cli.lua times-two.lisp --run
+> lua bin/urn.lua times-two.lisp --run
 ```
 
 You can also use `--output` to specify a different file to write to:
 
 ```sh
-> lua tacky/cli.lua times-two.lisp --output my-times-two.lua
+> lua bin/urn.lua times-two.lisp --output my-times-two.lua
 ```

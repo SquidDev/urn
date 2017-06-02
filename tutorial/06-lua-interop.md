@@ -52,7 +52,7 @@ what it should compile to. To use it, first you'll need to delete your `bit32.lu
 metadata file. Thankfully, some of this can be automated by Urn:
 
 ```cl
-tacky/cli.lua --gen-native=bit32 bit32.lisp
+bin/urn.lua --gen-native=bit32 bit32.lisp
 ```
 
 This should emit a `bit32.meta.lua` file:
