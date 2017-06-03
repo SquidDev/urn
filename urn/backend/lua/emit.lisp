@@ -190,10 +190,12 @@
                     (w/indent! out)
                     (w/line! out)
                     (inc! ends))
-                  (with (tmp (temp-escape-var state))
+                  (let* [(var { :name "temp" })
+                         (tmp (push-escape-var! var state))]
                     (w/line! out (.. "local " tmp))
                     (compile-expression case out state (.. tmp " = "))
                     (w/line! out)
+                    (pop-escape-var! var state)
                     (w/line! out (.. "if " tmp " then")))]
                  [true
                    (w/append! out "if ")

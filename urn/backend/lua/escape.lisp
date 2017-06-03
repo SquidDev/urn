@@ -101,10 +101,3 @@
     (with (esc (.> state :var-lookup var))
       (unless esc (fail! (.. (.> var :name) " has not been escaped.")))
       esc)))
-
-(defun temp-escape-var (state)
-  "Create a temporary escaped variable."
-  (let* [(var { :name "temp" })
-         (esc (push-escape-var! var state))]
-    (pop-escape-var! var state)
-    esc))
