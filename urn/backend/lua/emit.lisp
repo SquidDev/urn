@@ -1,6 +1,7 @@
 (import urn/analysis/nodes (builtins fast-any))
 (import urn/analysis/pass (run-pass))
 (import urn/analysis/tag/categories cat)
+(import urn/analysis/tag/find-letrec find-letrec)
 (import urn/backend/lua/escape ())
 (import urn/backend/writer w)
 
@@ -77,6 +78,7 @@
               (print! "Cannot find" (pretty node) (r/format-node node))))
          (cat-tag (.> cat :category))]
     (unless (.> boring-categories cat-tag) (w/push-node! out node))
+
     (case cat-tag
       ["const" (unless (= ret "")
                  (when ret (w/append! out ret))
@@ -651,10 +653,12 @@
 
 (defun expression (node out state ret)
   "Tag NODE and compile it."
-  (run-pass cat/categorise-node state nil node (.> state :cat-lookup) (/= ret nil))
+  (run-pass find-letrec/letrec-node state nil node state)
+  (run-pass cat/categorise-node state nil node state (/= ret nil))
   (compile-expression node out state ret))
 
 (defun block (nodes out state start ret)
   "Tag all NODES and compile them."
-  (run-pass cat/categorise-nodes state nil nodes (.> state :cat-lookup))
+  (run-pass find-letrec/letrec-nodes state nil nodes state)
+  (run-pass cat/categorise-nodes state nil nodes state)
   (compile-block nodes out state start ret))

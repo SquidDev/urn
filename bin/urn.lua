@@ -3348,6 +3348,20 @@ block1 = (function(list, writer)
 	end)
 	return temp1(1)
 end)
+nodeContainsVar_3f_1 = (function(node, var)
+	local found = false
+	visitNode1(node, (function(node1)
+		if found then
+			return false
+		elseif (type1(node1) == "symbol") then
+			found = (var == node1["var"])
+			return nil
+		else
+			return nil
+		end
+	end))
+	return found
+end)
 cat1 = (function(category, ...)
 	local args = _pack(...) args.tag = "list"
 	return struct1("category", category, unpack1(args, 1, n1(args)))
@@ -3557,10 +3571,46 @@ visitNode2 = (function(lookup, node, stmt, test, recur)
 					else
 						local res = visitNode2(lookup, head[3], true, test)
 						local ty = res["category"]
+						local unused_3f_ = (function()
+							local condNode = head[3]
+							local var = car1(head[2])["var"]
+							local working = true
+							local temp2 = n1(condNode)
+							local temp3 = nil
+							temp3 = (function(temp4)
+								if (temp4 <= temp2) then
+									if working then
+										local case = condNode[temp4]
+										local temp5 = n1(case)
+										local temp6 = nil
+										temp6 = (function(temp7)
+											if (temp7 <= temp5) then
+												if working then
+													local sub = case[temp7]
+													if (type1(sub) == "symbol") then
+													else
+														working = not nodeContainsVar_3f_1(sub, var)
+													end
+												end
+												return temp6((temp7 + 1))
+											else
+												return nil
+											end
+										end)
+										temp6(2)
+									end
+									return temp3((temp4 + 1))
+								else
+									return nil
+								end
+							end)
+							temp3(2)
+							return working
+						end)
 						lookup[head] = cat1("lambda")
-						if (ty == "and") then
+						if ((ty == "and") and unused_3f_()) then
 							cat = cat1("and-lambda")
-						elseif (ty == "or") then
+						elseif ((ty == "or") and unused_3f_()) then
 							cat = cat1("or-lambda")
 						elseif stmt then
 							cat = cat1("call-lambda", "stmt", true)
