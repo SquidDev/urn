@@ -1,4 +1,5 @@
 (import urn/analysis/nodes (builtins builtin-vars))
+(import urn/range range)
 
 (define keywords
   "A set of all builtin Lua variables"
@@ -99,5 +100,5 @@
   (if (.> builtin-vars var)
     (.> var :name)
     (with (esc (.> state :var-lookup var))
-      (unless esc (fail! (.. (.> var :name) " has not been escaped.")))
+      (unless esc (fail! (.. (.> var :name) " has not been escaped (at " (if (.> var :node) (range/format-node (.> var :node)) "?") ")")))
       esc)))

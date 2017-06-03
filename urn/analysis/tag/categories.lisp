@@ -41,7 +41,7 @@
     [(f (nth xs i)) (part-all xs (+ i 1) e f)]
     [true false]))
 
-(defun visit-node (lookup node stmt test recur)
+(defun visit-node (lookup state node stmt test recur)
   "Marks a specific NODE with a category.
 
    STMT marks whether this node is in a \"statement\" context. This is any node
@@ -64,7 +64,7 @@
                   (cond
                     ;; Handle all special forms
                     [(= func (.> builtins :lambda))
-                     (visit-nodes lookup node 3 true)
+                     (visit-nodes lookup state node 3 true)
                      (cat "lambda")]
                     [(= func (.> builtins :cond))
                      ;; Visit all conditions inside the node. It maybe seem
@@ -73,8 +73,8 @@
                      ;; be.
                      (for i 2 (n node) 1
                        (with (case (nth node i))
-                         (visit-node lookup (car case) true true)
-                         (visit-nodes lookup case 2 true test recur)))
+                         (visit-node lookup state (car case) true true)
+                         (visit-nodes lookup state case 2 true test recur)))
 
                      ;; And attempt to find the best condition
                      (cond
@@ -127,13 +127,24 @@
 
                        [true (cat "cond" :stmt true)])]
                     [(= func (.> builtins :set!))
-                     (visit-node lookup (nth node 3) true)
+                     (let [(def (nth node 3))
+                           (var (.> (nth node 2) :var))]
+                       (if (and
+                             (list? def) (builtin? (car def) :lambda)
+                             (with (rec (.> state :rec-lookup var))
+                               (and rec (> (.> rec :recur) 0))))
+                         (with (recur { :var var :def def})
+                           (visit-nodes lookup state def 3 true nil recur)
+                           (.<! lookup def (if (.> recur :tail)
+                                             (cat "lambda" :recur recur)
+                                             (cat "lambda"))))
+                         (visit-node lookup state def true)))
                      (cat "set!")]
                     [(= func (.> builtins :quote))
                      (visit-quote lookup node)
                      (cat "quote")]
                     [(= func (.> builtins :syntax-quote))
-                     (visit-syntax-quote lookup (nth node 2) 1)
+                     (visit-syntax-quote lookup state (nth node 2) 1)
                      (cat "syntax-quote")]
                     [(= func (.> builtins :unquote)) (fail! "unquote should never appear")]
                     [(= func (.> builtins :unquote-splice)) (fail! "unquote should never appear")]
@@ -141,32 +152,32 @@
                      (with (def (nth node (n node)))
                        (if (and (list? def) (builtin? (car def) :lambda))
                          (with (recur { :var (.> node :defVar) :def def})
-                           (visit-nodes lookup def 3 true nil recur)
+                           (visit-nodes lookup state def 3 true nil recur)
                            (.<! lookup def (if (.> recur :tail)
                                              (cat "lambda" :recur recur)
                                              (cat "lambda"))))
-                         (visit-node lookup def true)))
+                         (visit-node lookup state def true)))
                      (cat "define")]
                     [(= func (.> builtins :define-native)) (cat "define-native")]
                     [(= func (.> builtins :import)) (cat "import")]
                     [(= func (.> builtins :struct-literal))
-                     (visit-nodes lookup node 2 false)
+                     (visit-nodes lookup state node 2 false)
                      (cat "struct-literal")]
 
                     ;; Handle things like `("foo")`
                     [(= func (.> builtins :true))
-                     (visit-nodes lookup node 1 false)
+                     (visit-nodes lookup state node 1 false)
                      (cat "call-literal")]
                     [(= func (.> builtins :false))
-                     (visit-nodes lookup node 1 false)
+                     (visit-nodes lookup state node 1 false)
                      (cat "call-literal")]
                     [(= func (.> builtins :nil))
-                     (visit-nodes lookup node 1 false)
+                     (visit-nodes lookup state node 1 false)
                      (cat "call-literal")]
 
                     ;; Default invocation
                     [true
-                     (visit-nodes lookup node 1 false)
+                     (visit-nodes lookup state node 1 false)
                      (if (and recur (= func (.> recur :var)))
                        (progn
                          (.<! recur :tail true)
@@ -182,10 +193,10 @@
                      (symbol? (nth head 3)) (= (.> (nth head 3) :var) (.> (car (nth head 2)) :var)))
 
                    ;; We now need to visit the child node.
-                   (with (child-cat (visit-node lookup (nth node 2) stmt test))
+                   (with (child-cat (visit-node lookup state (nth node 2) stmt test))
                      (if (.> child-cat :stmt)
                        (progn
-                         (visit-node lookup head true)
+                         (visit-node lookup state head true)
                          ;; If we got a statement out of it, then we either need to emit
                          ;; our fancy let bindings or just a normal call.
                          (if stmt
@@ -194,7 +205,7 @@
                        (cat "wrap-value")))]
 
                   [(and
-                     ;; Attempt to determine expressions of the form ((lambda (x) (cond ...)) Y)
+                     ;; Attempt to determine expressions of the form ((lambda (x) (cond [x ...] ...)) Y)
                      ;; where Y is an expression.
                      ;; If the condition is an "and" or "or" on X, then we'll specialise into an and/or expression.
                      (= (n node) 2) (builtin? (car head) :lambda)
@@ -206,18 +217,18 @@
                          ;; And we branch on the given symbol
                          (symbol? (car (nth elem 2))) (= (.> (car (nth elem 2)) :var) (.> (car (nth head 2)) :var)))))
 
-                  (with (child-cat (visit-node lookup (nth node 2) stmt test))
+                  (with (child-cat (visit-node lookup state (nth node 2) stmt test))
                     (if (.> child-cat :stmt)
                       (progn
                         ;; We got a statement out of it, which means we cannot emit an "and" or "or".
                         ;; Instead we'll just emit a normal call-lambda/call.
-                        (.<! lookup head (cat :lambda))
+                        (.<! lookup head (cat "lambda"))
                         (for i 3 (n head) 1
-                          (visit-node lookup (nth head i) true test))
+                          (visit-node lookup state (nth head i) true test))
                         (if stmt
                           (cat "call-lambda" :stmt true)
                           (cat "call")))
-                      (let* [(res (.> (visit-node lookup (nth head 3) true test)))
+                      (let* [(res (.> (visit-node lookup state (nth head 3) true test)))
                              (ty (.> res :category))
                              (unused? (lambda ()
                                         ;; A rather horrible check to determine whether the variable is used within
@@ -235,7 +246,7 @@
                                                         (set! working (! (node-contains-var? sub var))))))))))
                                           working)))]
                         ;; Otherwise we got an expression, so we'll see what we can do.
-                        (.<! lookup head (cat :lambda))
+                        (.<! lookup head (cat "lambda"))
                         (cond
                           [(and (= ty "and") (unused?)) (cat "and-lambda")]
                           [(and (= ty "or")  (unused?)) (cat "or-lambda")]
@@ -244,7 +255,7 @@
 
                   [(and stmt (builtin? (car head) :lambda))
                    ;; Visit the lambda body
-                   (visit-nodes lookup (car node) 3 true test recur)
+                   (visit-nodes lookup state (car node) 3 true test recur)
 
                    ;; And visit the argument values
                    ;; Yay: My favourite bit of code, zipping over arguments
@@ -258,42 +269,42 @@
                            (with (count (- (n node) (n args)))
                              (when (< count 0) (set! count 0))
                              (for j 1 count 1
-                               (visit-node lookup (nth node (+ i j)) false))
+                               (visit-node lookup state (nth node (+ i j)) false))
                              (set! offset count))
                            (when-with (val (nth node (+ i offset)))
-                             (visit-node lookup val true)))))
+                             (visit-node lookup state val true)))))
                      (for i (+ (n args) (+ offset 1)) (n node) 1
-                       (visit-node lookup (nth node i) true))
+                       (visit-node lookup state (nth node i) true))
 
                      (cat "call-lambda" :stmt true))]
                   [(or (builtin? (car head) :quote) (builtin? (car head) :syntax-quote))
-                   (visit-nodes lookup node 1 false)
+                   (visit-nodes lookup state node 1 false)
                    (cat "call-literal")]
                   [true
-                    (visit-nodes lookup node 1 false)
+                    (visit-nodes lookup state node 1 false)
                     (cat "call")])]
 
                ;; We're probably calling a constant here.
                [true
-                (visit-nodes lookup node 1 false)
+                (visit-nodes lookup state node 1 false)
                 (cat "call-literal")]))]))
     (when (= cat nil) (fail! (.. "Node returned nil "(pretty node))))
     (.<! lookup node cat)
     cat))
 
-(defun visit-nodes (lookup nodes start stmt test recur)
+(defun visit-nodes (lookup state nodes start stmt test recur)
   "Marks all NODES with a category."
   (with (len (n nodes))
     (for i start len 1
-      (visit-node lookup (nth nodes i) stmt
+      (visit-node lookup state (nth nodes i) stmt
         (and test (= i len))
         (and (= i len) recur)))))
 
-(defun visit-syntax-quote (lookup node level)
+(defun visit-syntax-quote (lookup state node level)
   "Marks all syntax-quoted NODES with a category."
   :hidden
   (if (= level 0)
-    (visit-node lookup node false)
+    (visit-node lookup state node false)
     (with (cat (case (type node)
                  ["string" (cat "quote-const")]
                  ["number" (cat "quote-const")]
@@ -302,18 +313,18 @@
                  ["list"
                   (case (car node)
                     [unquote
-                     (visit-syntax-quote lookup (nth node 2) (pred level))
+                     (visit-syntax-quote lookup state (nth node 2) (pred level))
                      (cat "unquote")]
                     [unquote-splice
-                     (visit-syntax-quote lookup (nth node 2) (pred level))
+                     (visit-syntax-quote lookup state (nth node 2) (pred level))
                      (cat "unquote-splice")]
                     [syntax-quote
-                     (for-each child node (visit-syntax-quote lookup child (succ level)))
+                     (for-each child node (visit-syntax-quote lookup state child (succ level)))
                      (cat "quote-list")]
                     [_
                      (with (has-splice false)
                        (for-each child node
-                         (with (res (visit-syntax-quote lookup child level))
+                         (with (res (visit-syntax-quote lookup state child level))
                            (when (= (.> res :category) "unquote-splice")
                              (set! has-splice true))))
                        (if has-splice
@@ -332,12 +343,12 @@
       (.<! lookup node (cat "quote-list")))
     (.<! lookup node (cat "quote-const"))))
 
-(defpass categorise-nodes (state nodes lookup)
+(defpass categorise-nodes (compiler nodes state)
   "Categorise a group of NODES, annotating their appropriate node type."
   :cat '("categorise")
-  (visit-nodes lookup nodes 1 true))
+  (visit-nodes (.> state :cat-lookup) state nodes 1 true))
 
-(defpass categorise-node (state node lookup stmt)
+(defpass categorise-node (compiler node state stmt)
   "Categorise a NODE, annotating it's appropriate node type."
   :cat '("categorise")
-  (visit-node lookup node stmt))
+  (visit-node (.> state :cat-lookup) state node stmt))

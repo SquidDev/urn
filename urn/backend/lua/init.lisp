@@ -21,9 +21,10 @@
                              :mappings   {}
 
                              ;; Various lookup tables
-                             :cat-lookup {}
+                             :cat-lookup {} ;; Used to track the category state of the categorisation pass
                              :var-cache  {}
                              :var-lookup {}
+                             :rec-lookup {} ;; Used to track the recursion state of the letrec pass
                              :meta       (or meta {}) })
 
 (defun file (compiler shebang)
