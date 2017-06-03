@@ -2,6 +2,7 @@
 (define-native acos)
 (define-native asin)
 (define-native atan)
+(define-native atan2)
 (define-native ceil)
 (define-native cos)
 (define-native deg)
