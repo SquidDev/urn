@@ -64,6 +64,9 @@
   (it "can be zipped over"
       (affirm (eq? (map list '(1 foo "baz") '(2 bar "qux")) '((1 2) (foo bar) ("baz" "qux")))
               (eq? (map + '(1 2 3) '(3 7 9)) '(4 9 12))))
+  (it "can be taken from while a condition is true"
+      (affirm (eq? (take-while (lambda (x) (/= x 4)) '(1 2 3 4 5 6) 1) '(1 2 3))
+              (eq? (take-while (lambda (x) (/= x 4)) '(1 2 3 4 5 6 4) 5) '(5 6))))
   (it "can be splitted"
       (affirm (eq? (split '(1 2 3 4) 3) '((1 2) (4)))
               (eq? (split '(a b c d e) 'b) '((a) (c d e)))))

@@ -24,10 +24,10 @@
               get-idx for gensym -or slice /=
               pretty print error tostring  -and
               unpack debug if n + - >= = ! with
-              apply and progn .. *))
+              apply and progn .. * while <=))
 (import base)
 (import lua/table)
-(import type (nil? list? empty? assert-type! exists? falsey? eq? type))
+(import type (nil? list? empty? assert-type! exists? falsey? eq? neq? type))
 (import lua/math (min max))
 
 (defun car (x)
@@ -534,24 +534,53 @@
    ```"
   (foldl * 1 xs))
 
+(defun take-while (p xs idx)
+  "Takes elements from the list XS while the predicate P is true,
+   starting at index IDX. Works like `filter`, but stops after the
+   first non-matching element.
+
+   ### Example:
+   ```cl
+   > (define list '(2 2 4 3 9 8 4 6))
+   > (define p (lambda (x) (= (% x 2) 0)))
+   > (filter p list)
+   out = (2 2 4 8 4 6)
+   > (take-while p list 1)
+   out = (2 2 4)
+   ```"
+  (assert-type! p function)
+  (assert-type! xs list)
+  (unless (= (type idx) "number")
+    (set! idx 1))
+  (let* [(l '())
+         (ln (n xs))
+         (x (nth xs idx))]
+    (if (nil? x)
+      '()
+      (progn
+        (while (and (<= idx ln) (p x))
+          (push-cdr! l x)
+          (set! idx (+ idx 1))
+          (set! x (nth xs idx)))
+        l))))
+
 (defun split (xs y)
   "Splits a list into sub-lists by the separator Y.
-  
+
    ### Example:
    ```cl
    > (split '(1 2 3 4) 3)
    out = ((1 2) (4))
    ```"
+  (assert-type! xs list)
   (let* [(l '())
-         (b '())]
-    (for-each x xs
-      (if (eq? x y)
-        (progn
-          (push-cdr! l b)
-          (set! b '()))
-        (push-cdr! b x)))
-    (unless (empty? b)
-      (push-cdr! l b))
+         (p (lambda (x) (neq? x y)))
+         (idx 1)
+         (b (take-while p xs idx))]
+    (while (! (empty? b))
+      (push-cdr! l b)
+      (set! idx (+ idx (n b) 1))
+      (set! b (take-while p xs idx)))
     l))
 
 
