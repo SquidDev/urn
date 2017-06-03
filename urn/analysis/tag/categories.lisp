@@ -1,5 +1,31 @@
 (import urn/analysis/nodes ())
 (import urn/analysis/pass ())
+(import urn/analysis/visitor visitor)
+
+(defun node-contains-var? (node var)
+  "Determine whether NODE contains a reference to the given VAR."
+  :hidden
+  (with (found false)
+    (visitor/visit-node node
+      (lambda (node)
+        (cond
+          [found false]
+          [(symbol? node) (set! found (= var (.> node :var)))]
+          [true])))
+    found))
+
+(defun nodes-contain-var? (node start var)
+  "Determine whether the NODES starting from START contain the given
+   VAR."
+  :hidden
+  (with (found false)
+    (visitor/visit-list start node
+      (lambda (node)
+        (cond
+          [found false]
+          [(symbol? node) (set! found (= var (.> node :var)))]
+          [true])))
+    found))
 
 (defun cat (category &args)
   "Create a CATEGORY data set, using ARGS as additional parameters to [[struct]]."
@@ -192,12 +218,27 @@
                           (cat "call-lambda" :stmt true)
                           (cat "call")))
                       (let* [(res (.> (visit-node lookup (nth head 3) true test)))
-                             (ty (.> res :category))]
+                             (ty (.> res :category))
+                             (unused? (lambda ()
+                                        ;; A rather horrible check to determine whether the variable is used within
+                                        ;; an the branches: if so then we cannot convert it to an `and`/`or`.
+                                        (let [(cond-node (nth head 3))
+                                              (var (.> (car (nth head 2)) :var))
+                                              (working true)]
+                                          (for i 2 (n cond-node) 1
+                                            (when working
+                                              (with (case (nth cond-node i))
+                                                (for i 2 (n case) 1
+                                                  (when working
+                                                    (with (sub (nth case i))
+                                                      (unless (symbol? sub)
+                                                        (set! working (! (node-contains-var? sub var))))))))))
+                                          working)))]
                         ;; Otherwise we got an expression, so we'll see what we can do.
                         (.<! lookup head (cat :lambda))
                         (cond
-                          [(= ty "and") (cat "and-lambda")]
-                          [(= ty "or") (cat "or-lambda")]
+                          [(and (= ty "and") (unused?)) (cat "and-lambda")]
+                          [(and (= ty "or")  (unused?)) (cat "or-lambda")]
                           [stmt (cat "call-lambda" :stmt true)]
                           [true (cat "call")]))))]
 
