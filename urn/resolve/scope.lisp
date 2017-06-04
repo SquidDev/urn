@@ -2,7 +2,6 @@
 (import urn/range range)
 
 (import lua/coroutine co)
-(import lua/package package)
 
 (defun child (parent)
   "Create a new scope using PARENT as the base."
@@ -101,12 +100,3 @@
       (range/get-source (.> scope :variables name :node)) "old definition here"))
 
   (import! scope name var export))
-
-(.<! package/loaded "tacky.resolve.scope"
-  { :child         child
-    :get           get
-    :getAlways     get-always!
-    :add           add!
-    :addVerbose    add-verbose!
-    :import        import!
-    :importVerbose import-verbose! })

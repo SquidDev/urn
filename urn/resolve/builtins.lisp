@@ -1,7 +1,5 @@
 (import urn/resolve/scope scope)
 
-(import lua/package package)
-
 (define root-scope
   "The root scope containing all builtin-ins."
   (with (scope (scope/child))
@@ -33,9 +31,3 @@
 (defun create-scope ()
   "Create a new scope with [[root-scope]] as the parent."
   (scope/child root-scope))
-
-(.<! package/loaded "tacky.resolve.builtins"
-  { :rootScope   root-scope
-    :createScope create-scope
-    :builtins    builtins
-    :builtinVars builtin-vars })

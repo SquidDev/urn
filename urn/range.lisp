@@ -1,7 +1,3 @@
-(import string)
-
-(import lua/package package)
-
 (defun format-position (pos)
   "Format position POS to be user-readable"
   (string/.. (.> pos :line) ":" (.> pos :column)))
@@ -41,9 +37,3 @@
       (set! result (.> node :range))
       (set! node (.> node :parent)))
     result))
-
-(.<! package/loaded "tacky.range"
-  { :formatPosition format-position
-    :formatRange    format-range
-    :formatNode     format-node
-    :getSource      get-source })

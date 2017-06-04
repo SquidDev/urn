@@ -18,7 +18,6 @@
 (import urn/range range)
 
 (import lua/coroutine co)
-(import lua/package package)
 
 (defun create (scope compiler)
   "Create a new node state under the current STATE, using the given
@@ -159,12 +158,3 @@
   (if (.> state :var)
     (.. "macro " (string/quoted (.> state :var :name)))
     "unquote"))
-
-(.<! package/loaded "tacky.resolve.state"
-  { :create   create
-    :require  require!
-    :define   define!
-    :built    built!
-    :executed executed!
-    :get      get!
-    :name     name })

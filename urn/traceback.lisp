@@ -1,8 +1,3 @@
-(import string)
-
-(import lua/debug debug)
-(import lua/package package)
-
 (defun unmangle-ident (ident)
   "Attempt to unmangle IDENT, converting it from the escaped form to the unescaped form."
   (with (esc (string/match ident "^(.-)%d+$"))
@@ -108,6 +103,3 @@
                                 (string/format "%s:%d" best-name (.> best-lines :min))
                                 (string/format "%s:%d-%d" best-name (.> best-lines :min) (.> best-lines :max)))))))
     out-lines))
-
-
-(.<! package/loaded "tacky.traceback" { :remapTraceback remap-traceback })
