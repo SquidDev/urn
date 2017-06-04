@@ -5,6 +5,7 @@ return {
 	["acos"] =       { tag = "var", contents = "math.acos",       value = math.acos,       pure = true, },
 	["asin"] =       { tag = "var", contents = "math.asin",       value = math.asin,       pure = true, },
 	["atan"] =       { tag = "var", contents = "math.atan",       value = math.atan,       pure = true, },
+	["atan2"] =      { tag = "var", contents = "math.atan2",      value = math.atan2,      pure = true, },
 	["ceil"] =       { tag = "var", contents = "math.ceil",       value = math.ceil,       pure = true, },
 	["cos"] =        { tag = "var", contents = "math.cos",        value = math.cos,        pure = true, },
 	["deg"] =        { tag = "var", contents = "math.deg",        value = math.deg,        pure = true, },
