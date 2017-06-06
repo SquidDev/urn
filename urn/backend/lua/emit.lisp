@@ -382,125 +382,104 @@
 
       ["call-symbol"
        (with (head (car node))
-         ;; As we're invoking a known symbol here, we can do some fancy stuff. In this case, we just
-         ;; "inline" anything defined in library meta data (such as arithmetic operators).
-         (let* [(meta (and (symbol? head) (= (.> head :var :tag) "native") (.> state :meta (.> head :var :fullName))))
-                (meta-ty (type meta))]
-           ;; Obviously metadata only exists for native expressions. We can only emit it if
-           ;; we're in the right context (statements cannot be emitted when we require an expression) and
-           ;; we've passed in the correct number of arguments.
+         (when ret (w/append! out ret))
+         (compile-expression head out state)
+         (w/append! out "(")
+         (for i 2 (n node) 1
+           (when (> i 2) (w/append! out ", "))
+           (compile-expression (nth node i) out state))
+         (w/append! out ")"))]
+
+      ["call-meta"
+       (with (meta (.> cat :meta))
+         ;; If we're dealing with an expression then we emit the returner first. Statements just
+         ;; return nil.
+         (when (= (.> meta :tag) "expr")
            (cond
-             [(= meta-ty "nil")]
-             [(= meta-ty "boolean")]
-             [(= meta-ty "expr")]
-             [(= meta-ty "stmt")
-              ;; Cannot use statements if we're in an expression
-              (unless ret (set! meta nil))]
-             [(= meta-ty "var")
-              ;; We'll have cached the global lookup above
-              (set! meta nil)])
+             [(= ret "") (w/append! out "local _ = ")]
+             [ret (w/append! out ret)]
+             [true]))
 
-           (cond
-             [(and meta (if (.> meta :fold)
-                          (>= (pred (n node)) (.> meta :count))
-                          (= (pred (n node)) (.> meta :count))))
-              ;; If we're dealing with an expression then we emit the returner first. Statements just
-              ;; return nil.
-              (when (= (.> meta :tag) "expr")
-                (cond
-                  [(= ret "") (w/append! out "local _ = ")]
-                  [ret (w/append! out ret)]
-                  [true]))
+         ;; Emit all entries. Numbers represent an argument, everything else is just
+         ;; appended directly.
+         (let* [(contents (.> meta :contents))
+                (fold (.> meta :fold))
+                (count (.> meta :count))
+                (stack nil)]
+           (letrec [(build (lambda (start end)
+                             (for-each entry contents
+                               (cond
+                                 [(string? entry) (w/append! out entry)]
+                                 [(and (= fold "l") (= entry 1) (< start end)) (build start (pred end)) (set! start end)]
+                                 [(and (= fold "r") (= entry 2) (< start end)) (build (succ start) end)]
+                                 [true (compile-expression (nth node (+ entry start)) out state)]))))]
+             (build 1 (- (n node) count))))
 
-              ;; Emit all entries. Numbers represent an argument, everything else is just
-              ;; appended directly.
-              (let* [(contents (.> meta :contents))
-                     (fold (.> meta :fold))
-                     (count (.> meta :count))
-                     (stack nil)]
-                (letrec [(build (lambda (start end)
-                                  (for-each entry contents
-                                    (cond
-                                      [(string? entry) (w/append! out entry)]
-                                      [(and (= fold "l") (= entry 1) (< start end)) (build start (pred end)) (set! start end)]
-                                      [(and (= fold "r") (= entry 2) (< start end)) (build (succ start) end)]
-                                      [true (compile-expression (nth node (+ entry start)) out state)]))))]
-                  (build 1 (- (n node) count))))
+         ;; If we're dealing with a statement then return nil.
+         (when (and (/= (.> meta :tag) "expr") (/= ret ""))
+           (w/line! out)
+           (w/append! out ret)
+           (w/append! out "nil")
+           (w/line! out)))]
+      ["call-recur"
+       (when (= ret nil)
+         (print! (pretty node) " marked as call-recur for " ret))
+       (let* [(head (.> cat :recur :def))
+              (args (nth head 2))]
 
-              ;; If we're dealing with a statement then return nil.
-              (when (and (/= (.> meta :tag) "expr") (/= ret ""))
-                (w/line! out)
-                (w/append! out ret)
-                (w/append! out "nil")
-                (w/line! out))]
-             [(.> cat :recur)
-              (when (= ret nil)
-                (print! (pretty node) " marked as :recur for " ret))
-              (let* [(head (.> cat :recur :def))
-                     (args (nth head 2))]
+         (if (> (n args) 0)
+           ;; If we have some arguments, then set all of them in one go
+           (with (pack-name nil)
 
-                (if (> (n args) 0)
-                  ;; If we have some arguments, then set all of them in one go
-                  (with (pack-name nil)
+             ;; First emit a series of variables we're going to set
+             (let* [(offset 1)
+                    (done false)]
+               (for i 1 (n args) 1
+                 (with (var (.> args i :var))
+                   (if (.> var :isVariadic)
+                     ;; If we're variadic then create a list of each sub expression
+                     (with (count (- (n node) (n args)))
+                       (when (< count 0) (set! count 0))
+                       (if done (w/append! out ", ") (set! done true))
+                       (w/append! out (escape-var var state))
+                       (set! offset count))
+                     (with (expr (nth node (+ i offset)))
+                       (when (and expr (or (! (symbol? expr)) (/= (.> expr :var) var)))
+                         (if done (w/append! out ", ") (set! done true))
+                         (w/append! out (escape-var var state))))))))
 
-                    ;; First emit a series of variables we're going to set
-                    (let* [(offset 1)
-                           (done false)]
-                      (for i 1 (n args) 1
-                        (with (var (.> args i :var))
-                          (if (.> var :isVariadic)
-                            ;; If we're variadic then create a list of each sub expression
-                            (with (count (- (n node) (n args)))
-                              (when (< count 0) (set! count 0))
-                              (if done (w/append! out ", ") (set! done true))
-                              (w/append! out (escape-var var state))
-                              (set! offset count))
-                            (with (expr (nth node (+ i offset)))
-                              (when (and expr (or (! (symbol? expr)) (/= (.> expr :var) var)))
-                                (if done (w/append! out ", ") (set! done true))
-                                (w/append! out (escape-var var state))))))))
+             (w/append! out " = ")
 
-                    (w/append! out " = ")
+             (let* [(offset 1)
+                    (done false)]
+               (for i 1 (n args) 1
+                 (with (var (.> args i :var))
+                   (if (.> var :isVariadic)
+                     ;; If we're variadic then create a list of each sub expression
+                     (with (count (- (n node) (n args)))
+                       (when (< count 0) (set! count 0))
+                       (if done (w/append! out ", ") (set! done true))
+                       (when (compile-pack node out state i count)
+                         (set! pack-name (escape-var var state)))
+                       (set! offset count))
+                     (with (expr (nth node (+ i offset)))
+                       (when (and expr (or (! (symbol? expr)) (/= (.> expr :var) var)))
+                         (if done (w/append! out ", ") (set! done true))
+                         (compile-expression (nth node (+ i offset)) out state))))))
 
-                    (let* [(offset 1)
-                           (done false)]
-                      (for i 1 (n args) 1
-                        (with (var (.> args i :var))
-                          (if (.> var :isVariadic)
-                            ;; If we're variadic then create a list of each sub expression
-                            (with (count (- (n node) (n args)))
-                              (when (< count 0) (set! count 0))
-                              (if done (w/append! out ", ") (set! done true))
-                              (when (compile-pack node out state i count)
-                                (set! pack-name (escape-var var state)))
-                              (set! offset count))
-                            (with (expr (nth node (+ i offset)))
-                              (when (and expr (or (! (symbol? expr)) (/= (.> expr :var) var)))
-                                (if done (w/append! out ", ") (set! done true))
-                                (compile-expression (nth node (+ i offset)) out state))))))
+               ;; Emit all arguments which haven't been used anywhere
+               (for i (+ (n args) (+ offset 1)) (n node) 1
+                 (when (> i 1) (w/append! out ", "))
+                 (compile-expression (nth node i) out state)))
 
-                      ;; Emit all arguments which haven't been used anywhere
-                      (for i (+ (n args) (+ offset 1)) (n node) 1
-                        (when (> i 1) (w/append! out ", "))
-                        (compile-expression (nth node i) out state)))
+             (w/line! out)
+             (when pack-name (w/line! (.. pack-name ".tag = \"list\""))))
 
-                    (w/line! out)
-                    (when pack-name (w/line! (.. pack-name ".tag = \"list\""))))
-
-                  ;; Otherwise just emit each expression in turn.
-                  (for i 1 (n node) 1
-                    (when (> i 1) (w/append! out ", "))
-                    (compile-expression (nth node i) out state "")
-                    (w/line! out))))]
-             [true
-              ;; Alas, just emit as normal
-              (when ret (w/append! out ret))
-              (compile-expression head out state)
-              (w/append! out "(")
-              (for i 2 (n node) 1
-                (when (> i 2) (w/append! out ", "))
-                (compile-expression (nth node i) out state))
-              (w/append! out ")")])))]
+           ;; Otherwise just emit each expression in turn.
+           (for i 1 (n node) 1
+             (when (> i 1) (w/append! out ", "))
+             (compile-expression (nth node i) out state "")
+             (w/line! out))))]
 
       ["wrap-value"
        (when ret (w/append! out ret))

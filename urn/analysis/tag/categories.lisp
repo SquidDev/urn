@@ -178,11 +178,33 @@
                     ;; Default invocation
                     [true
                      (visit-nodes lookup state node 1 false)
-                     (if (and recur (= func (.> recur :var)))
-                       (progn
-                         (.<! recur :tail true)
-                         (cat "call-symbol" :recur recur :stmt recur))
-                       (cat "call-symbol"))]))]
+                     ;; As we're invoking a known symbol here, we can do some fancy stuff. In this case, we just
+                     ;; "inline" anything defined in library meta data (such as arithmetic operators).
+                     (let* [(meta (and (= (.> func :tag) "native") (.> state :meta (.> func :fullName))))
+                            (meta-ty (type meta))]
+                       ;; Obviously metadata only exists for native expressions. We can only emit it if
+                       ;; we're in the right context (statements cannot be emitted when we require an expression) and
+                       ;; we've passed in the correct number of arguments.
+                       (case meta-ty
+                         ["nil"]
+                         ["boolean"]
+                         ["expr"]
+                         ["stmt"
+                          ;; Cannot use statements if we're in an expression
+                          (unless stmt (set! meta nil))]
+                         ["var"
+                          ;; We'll have cached the global lookup above
+                          (set! meta nil)])
+
+                       (cond
+                         [(and meta (if (.> meta :fold)
+                                      (>= (pred (n node)) (.> meta :count))
+                                      (= (pred (n node)) (.> meta :count))))
+                          (cat "call-meta" :meta meta :stmt (= meta-ty "stmt"))]
+                         [(and recur (= func (.> recur :var)))
+                          (.<! recur :tail true)
+                          (cat "call-recur" :recur recur :stmt true)]
+                         [true (cat "call-symbol")]))]))]
                ["list"
                 (cond
                   [(and
