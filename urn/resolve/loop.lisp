@@ -337,7 +337,7 @@
                                            [node (range/format-node node)]
                                            [true "unknown node"]))))]))
 
-      (fail! "Node resolution railed"))
+      (fail! "Node resolution failed"))
 
 
     (when name (timer/stop-timer! timer name))
