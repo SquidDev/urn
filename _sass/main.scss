@@ -168,3 +168,41 @@ blockquote {
 img {
 	max-width: 100%;
 }
+
+.post-list {
+	.post {
+		padding-bottom: 16px;
+		border-bottom: solid 1px $grey05;
+		margin-bottom: 16px;
+
+		.post-content h2 {
+			font-size: 1.2em;
+			padding-top: 8px;
+			padding-bottom: 4px;
+		}
+
+		.post-content h3 {
+			font-size: 1.0em;
+			padding-top: 4px;
+			padding-bottom: 2px;
+		}
+	}
+}
+
+.pagination {
+	margin-top: 15px;
+	margin-bottom: 15px;
+	font-size: 1.3em;
+
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: space-between;
+	align-items: flex-start;
+
+	.page-number {
+		.page-sep, .page-total {
+			font-size: 0.7em;
+			color: $grey04;
+		}
+	}
+}

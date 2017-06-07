@@ -72,6 +72,12 @@
 						{% endif %}
 					{% endfor %}
 				</ul>
+				<h2><a href="{{ "posts" | relative_url }}">Recent News</a></h2>
+				<ul>
+					{% for post in site.posts limit: 3 %}
+						<li><a href="{{ post.url | relative_url }}">{{ post.title }}</a></li>
+					{% endfor %}
+				</ul>
 				<h2>All libraries</h2>
 				<ul>
 					{% for page in site.pages %}
