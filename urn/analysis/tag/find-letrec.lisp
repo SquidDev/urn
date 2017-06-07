@@ -39,6 +39,8 @@
 
    - `:lambda` The actual lambda this variable corresponds to.
 
+   - `:set!` The node which set this letrec.
+
    If we finish visiting a lambda without the `:recur` flag being set, or
    if the definition is ever rebound, then we remove it from LOOKUP."
   :hidden
@@ -93,6 +95,7 @@
                    (progn
                      ;; Set the lambda variable and visit it.
                      (.<! state :lambda val)
+                     (.<! state :set! node)
                      (visit-block val 3 nil state lookup))
                    (progn
                      ;; Otherwise clear everything and visit the node normally.
@@ -130,6 +133,7 @@
                                                              :var     0
                                                              :direct  0
                                                              :parent  node
+                                                             :set!    nil
                                                              :lambda  nil })))))
 
                 ;; Visit body with parents

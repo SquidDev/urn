@@ -41,6 +41,15 @@
     [(f (nth xs i)) (part-all xs (+ i 1) e f)]
     [true false]))
 
+(defun recur-direct? (state var)
+  "Determine whether the recursive call to VAR can be called directly."
+  (with (rec (.> state :rec-lookup var))
+    (and rec (= (.> rec :var) 0) (= (.> rec :direct) 1))))
+
+(defun var-excluded? (state var)
+  "Determine whether we will exclude all bindings for VAR."
+  (recur-direct? state var))
+
 (defun visit-node (lookup state node stmt test recur)
   "Marks a specific NODE with a category.
 
@@ -133,11 +142,10 @@
                              (list? def) (builtin? (car def) :lambda)
                              (with (rec (.> state :rec-lookup var))
                                (and rec (> (.> rec :recur) 0))))
-                         (with (recur { :var var :def def})
+                         (with (recur { :var var :def def })
                            (visit-nodes lookup state def 3 true nil recur)
-                           (.<! lookup def (if (.> recur :tail)
-                                             (cat "lambda" :recur recur)
-                                             (cat "lambda"))))
+                           (unless (.> recur :tail) (error! "Expected tail recursive function from letrec"))
+                           (.<! lookup def (cat "lambda" :recur recur)))
                          (visit-node lookup state def true)))
                      (cat "set!")]
                     [(= func (.> builtins :quote))
@@ -177,7 +185,6 @@
 
                     ;; Default invocation
                     [true
-                     (visit-nodes lookup state node 1 false)
                      ;; As we're invoking a known symbol here, we can do some fancy stuff. In this case, we just
                      ;; "inline" anything defined in library meta data (such as arithmetic operators).
                      (let* [(meta (and (= (.> func :tag) "native") (.> state :meta (.> func :fullName))))
@@ -200,11 +207,44 @@
                          [(and meta (if (.> meta :fold)
                                       (>= (pred (n node)) (.> meta :count))
                                       (= (pred (n node)) (.> meta :count))))
+                          (visit-nodes lookup state node 1 false)
                           (cat "call-meta" :meta meta :stmt (= meta-ty "stmt"))]
                          [(and recur (= func (.> recur :var)))
                           (.<! recur :tail true)
-                          (cat "call-recur" :recur recur :stmt true)]
-                         [true (cat "call-symbol")]))]))]
+                          (visit-nodes lookup state node 1 false)
+                          (cat "call-tail" :recur recur :stmt true)]
+                         [(and stmt (recur-direct? state func))
+                          ;; We're the only invocation of a recursive function, so we can inline
+                          ;; it in the codegen.
+                          (let* [(rec (.> state :rec-lookup func))
+                                 (lam (.> rec :lambda))
+                                 (args (nth lam 2))
+                                 (offset 1)
+                                 (recur (.> lookup lam :recur))]
+
+                            (unless recur
+                              (print! "Cannot find recursion for " (.> func :var :name)))
+
+                            ;; And visit the argument values
+                            (for i 1 (n args) 1
+                              (with (arg (nth args i))
+                                (if (.> arg :var :isVariadic)
+                                  (with (count (- (n node) (n args)))
+                                    (when (< count 0) (set! count 0))
+                                    (for j 1 count 1
+                                      (visit-node lookup state (nth node (+ i j)) false))
+                                    (set! offset count))
+                                  (when-with (val (nth node (+ i offset)))
+                                    (visit-node lookup state val true)))))
+                            ;; Visit the remaining arguments
+                            (for i (+ (n args) (+ offset 1)) (n node) 1
+                              (visit-node lookup state (nth node i) true))
+
+                            (.<! lookup (.> rec :set!) (cat "void"))
+                            (cat "call-recur" :recur recur))]
+                         [true
+                          (visit-nodes lookup state node 1 false)
+                          (cat "call-symbol")]))]))]
                ["list"
                 (cond
                   [(and
@@ -245,12 +285,11 @@
                         ;; We got a statement out of it, which means we cannot emit an "and" or "or".
                         ;; Instead we'll just emit a normal call-lambda/call.
                         (.<! lookup head (cat "lambda"))
-                        (for i 3 (n head) 1
-                          (visit-node lookup state (nth head i) true test))
+                        (visit-node lookup state (nth head 3) true test recur)
                         (if stmt
                           (cat "call-lambda" :stmt true)
                           (cat "call")))
-                      (let* [(res (.> (visit-node lookup state (nth head 3) true test)))
+                      (let* [(res (.> (visit-node lookup state (nth head 3) true test recur)))
                              (ty (.> res :category))
                              (unused? (lambda ()
                                         ;; A rather horrible check to determine whether the variable is used within

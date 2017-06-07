@@ -13,11 +13,21 @@
   (and (symbol? node) (= (.> builtins :true) (.> node :var))))
 
 (define boring-categories
-  "A lookup of all 'boring' which we will not emit node information for."
+  "A lookup of all 'boring' nodes, for which we will not emit node information for."
   { ;; Constant nodes
     :const true :quote true
     ;; Branch nodes
     :not true :cond true })
+
+(define break-categories
+  "A lookup of all categories which handle control flow, for which the
+   'break' information must be propagated to."
+  { ;; Each branch needs its own break
+    :cond true
+    ;; Obviously this'll occur inside.
+    :call-lambda true
+    ;; We want to avoid emitting breaks here
+    :call-tail true })
 
 (defun compile-native (out meta)
   (with (ty (type meta))
@@ -69,7 +79,7 @@
 
        (w/append! out " end")])))
 
-(defun compile-expression (node out state ret)
+(defun compile-expression (node out state ret break)
   :hidden
   (let* [(cat-lookup (.> state :cat-lookup))
          (cat (.> cat-lookup node))
@@ -80,6 +90,10 @@
     (unless (.> boring-categories cat-tag) (w/push-node! out node))
 
     (case cat-tag
+      ["void"
+       (unless (= ret "")
+         (when ret (w/append! out ret))
+         (w/append! out "nil"))]
       ["const" (unless (= ret "")
                  (when ret (w/append! out ret))
                  (cond
@@ -176,7 +190,7 @@
 
                ;; If we're the last block and there isn't anything here, then don't emit an
                ;; else
-               (when (and (> i 2) (or (! is-final) (/= ret "") (/= (n item) 1)))
+               (when (and (> i 2) (or (! is-final) (/= ret "") break (/= (n item) 1)))
                  (w/append! out "else"))
 
                ;; We stop iterating after a branch marked "true" and just invoke the code.
@@ -205,7 +219,7 @@
                    (w/append! out " then")])
 
                (w/indent! out) (w/line! out)
-               (compile-block item out state 2 ret)
+               (compile-block item out state 2 ret break)
                (w/unindent! out)
 
                (when is-final
@@ -421,16 +435,40 @@
            (w/append! out ret)
            (w/append! out "nil")
            (w/line! out)))]
+
       ["call-recur"
        (when (= ret nil)
          (print! (pretty node) " marked as call-recur for " ret))
+
+       (let* [(head (.> cat :recur :def))
+              (args (nth head 2))]
+
+         (compile-bind args node 1 2 out state)
+
+         ;; Wrap non-returning loops in an implicit lambda - this is really ugly
+         ;; but it means we don't have to handle "break"s.
+         (w/begin-block! out "while true do")
+         (if (= ret "return ")
+           (compile-block head out state 3 "return ")
+           (compile-block head out state 3 ret (.> cat :recur)))
+         (w/end-block! out "end")
+
+         (for-each arg args (pop-escape-var! (.> arg :var) state)))]
+
+      ["call-tail"
+       (when (= ret nil)
+         (print! (pretty node) " marked as call-tail for " ret))
+
+       (when (and break (/= break (.> cat :recur)))
+         (print! (.. (pretty node) " got a different break then defined for.\n  Expected: "  (pretty (.> cat :recur :def))
+                                                                           "\n       Got: "  (pretty (.> break :def)))))
+
        (let* [(head (.> cat :recur :def))
               (args (nth head 2))]
 
          (if (> (n args) 0)
            ;; If we have some arguments, then set all of them in one go
            (with (pack-name nil)
-
              ;; First emit a series of variables we're going to set
              (let* [(offset 1)
                     (done false)]
@@ -492,68 +530,9 @@
        (when (= ret nil)
          (print! (pretty node) " marked as call-lambda for " ret))
        (let* [(head (car node))
-              (args (nth head 2))
-              (arg-idx 1)
-              (val-idx 2)
-              (arg-len (n args))
-              (val-len (n node))]
-         (while (or (<= arg-idx arg-len) (<= val-idx val-len))
-           (with (arg (.> args arg-idx))
-             (cond
-               [(! arg)
-                ;; We have no variable
-                (compile-expression (nth node arg-idx) out state "")
-                (inc! arg-idx)]
-               [(.> (.> arg :var) :isVariadic)
-                ;; If we're variadic then create a list of each sub expression
-                (let* [(esc (push-escape-var! (.> arg :var) state))
-                       (count (- val-len arg-len))]
-                  (w/append! out (.. "local " esc))
-                  (when (< count 0) (set! count 0))
-                  (w/append! out " = ")
-                  (when (compile-pack node out state arg-idx count)
-                    (w/append! out (.. " " esc ".tag = \"list\"")))
-                  (w/line! out)
-                  (inc! arg-idx)
-                  (set! val-idx (+ count val-idx)))]
-               [(= val-idx val-len)
-                (let* [(arg-list '())
-                       (val (nth node val-idx))
-                       (ret nil)]
-                  (while (<= arg-idx arg-len)
-                    (push-cdr! arg-list (push-escape-var! (.> (nth args arg-idx) :var) state))
-                    (inc! arg-idx))
+              (args (nth head 2))]
 
-                  (w/append! out "local ")
-                  (w/append! out (concat arg-list ", "))
-                  (if (.> cat-lookup val :stmt)
-                    (progn
-                      (set! ret (.. (concat arg-list ", ") " = "))
-                      (w/line! out))
-                    (w/append! out " = "))
-
-                  (compile-expression val out state ret)
-                  (inc! val-idx))]
-               [true
-                (let* [(expr (nth node val-idx))
-                       (var (.> arg :var))
-                       (esc (push-escape-var! var state))
-                       (ret nil)]
-                  (w/append! out (.. "local " esc))
-                  (if expr
-                    (progn
-                      (if (.> cat-lookup expr :stmt)
-                        (progn
-                          (set! ret (.. esc " = "))
-                          (w/line! out))
-                        (w/append! out " = "))
-                      (compile-expression expr out state ret)
-                      (w/line! out))
-                    (w/line! out))
-                  (inc! arg-idx)
-                  (inc! val-idx))]))
-           (w/line! out))
-
+         (compile-bind args node 1 2 out state)
          (compile-block head out state 3 ret)
          (for-each arg args (pop-escape-var! (.> arg :var) state)))]
       ["call-literal"
@@ -581,6 +560,69 @@
 
     (unless (.> boring-categories cat-tag) (w/pop-node! out node))))
 
+(defun compile-bind (args vals arg-idx val-idx out state)
+  "Declare a series of ARGS, bindings VALS to them."
+  :hidden
+  (let* [(arg-len (n args))
+         (val-len (n vals))
+         (cat-lookup (.> state :cat-lookup))]
+    (while (or (<= arg-idx arg-len) (<= val-idx val-len))
+      (with (arg (.> args arg-idx))
+        (cond
+          [(! arg)
+           ;; We have no variable
+           (compile-expression (nth vals arg-idx) out state "")
+           (inc! arg-idx)]
+          [(.> (.> arg :var) :isVariadic)
+           ;; If we're variadic then create a list of each sub expression
+           (let* [(esc (push-escape-var! (.> arg :var) state))
+                  (count (- val-len arg-len))]
+             (w/append! out (.. "local " esc))
+             (when (< count 0) (set! count 0))
+             (w/append! out " = ")
+             (when (compile-pack vals out state arg-idx count)
+               (w/append! out (.. " " esc ".tag = \"list\"")))
+             (w/line! out)
+             (inc! arg-idx)
+             (set! val-idx (+ count val-idx)))]
+          [(= val-idx val-len)
+           (let* [(arg-list '())
+                  (val (nth vals val-idx))
+                  (ret nil)]
+             (while (<= arg-idx arg-len)
+               (push-cdr! arg-list (push-escape-var! (.> (nth args arg-idx) :var) state))
+               (inc! arg-idx))
+
+             (w/append! out "local ")
+             (w/append! out (concat arg-list ", "))
+             (if (.> cat-lookup val :stmt)
+               (progn
+                 (set! ret (.. (concat arg-list ", ") " = "))
+                 (w/line! out))
+               (w/append! out " = "))
+
+             (compile-expression val out state ret)
+             (inc! val-idx))]
+          [true
+           (let* [(expr (nth vals val-idx))
+                  (var (.> arg :var))
+                  (esc (push-escape-var! var state))
+                  (ret nil)]
+             (w/append! out (.. "local " esc))
+             (if expr
+               (progn
+                 (if (.> cat-lookup expr :stmt)
+                   (progn
+                     (set! ret (.. esc " = "))
+                     (w/line! out))
+                   (w/append! out " = "))
+                 (compile-expression expr out state ret)
+                 (w/line! out))
+               (w/line! out))
+             (inc! arg-idx)
+             (inc! val-idx))]))
+      (w/line! out))))
+
 (defun compile-pack (node out state start count)
   "Compile the code required to pack a set of arguments into a list.
    This will pack elements START to START + COUNT in NODE into a list stored
@@ -599,7 +641,7 @@
       (w/append! out "}")
       false)
     (progn
-      ;; Emit eaach element into a call of table.pack
+      ;; Emit each element into a call of table.pack
       (w/append! out " _pack(")
       (for j 1 count 1
         (when (> j 1) (w/append! out ", "))
@@ -607,16 +649,26 @@
       (w/append! out ")")
       true)))
 
-(defun compile-block (nodes out state start ret)
+(defun compile-block (nodes out state start ret break)
   "Compile a block of expressions."
   :hidden
-  (for i start (n nodes) 1
-    (with (ret' (if (= i (n nodes)) ret ""))
-      (compile-expression (nth nodes i) out state ret'))
-    (w/line! out))
-  (when (and (< (n nodes) start) ret (/= ret ""))
-    (w/append! out ret)
-    (w/line! out "nil")))
+  (with (len (n nodes))
+    (for i start (pred len) 1
+      (compile-expression (nth nodes i) out state "")
+      (w/line! out))
+
+    (if (>= len start)
+      (with (node (nth nodes len))
+        (compile-expression node out state ret break)
+        (w/line! out)
+        (when (and break (! (.> break-categories (.> state :cat-lookup node :category))))
+          (w/line! out "break")))
+      (progn
+        (when (and ret (/= ret ""))
+          (w/append! out ret)
+          (w/line! out "nil"))
+        (when break
+          (w/line! out "break"))))))
 
 (defun prelude (out)
   "Various code to emit before everything else.
