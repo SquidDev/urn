@@ -3,7 +3,7 @@ import re, shutil, os.path, mistune
 
 class BBRenderer(mistune.Renderer):
 	def block_code(self, code, lang):
-		return "[code]\n%s\n[/code]\n" % mistune.escape(code)
+		return "[code]\n%s\n[/code]\n" % code
 	def block_quote(self, text):
 		return "[quote]%s[/quote]" % text
 	def header(self, text, level, raw):
