@@ -165,9 +165,9 @@
 
                    (w/end-block! out "end")))))
 
-           (when (.> cat :recur) (w/begin-block! out "while true do"))
-           (compile-block node out state 3 "return ")
-           (when (.> cat :recur) (w/end-block! out "end"))
+           (if (.> cat :recur)
+             (compile-recur (.> cat :recur) out state "return ")
+             (compile-block node out state 3 "return "))
            (w/unindent! out)
            (for-each arg args (pop-escape-var! (.> arg :var) state))
            (w/append! out "end)")))]
@@ -447,11 +447,9 @@
 
          ;; Wrap non-returning loops in an implicit lambda - this is really ugly
          ;; but it means we don't have to handle "break"s.
-         (w/begin-block! out "while true do")
          (if (= ret "return ")
-           (compile-block head out state 3 "return ")
-           (compile-block head out state 3 ret (.> cat :recur)))
-         (w/end-block! out "end")
+           (compile-recur (.> cat :recur) out state "return ")
+           (compile-recur (.> cat :recur) out state ret (.> cat :recur)))
 
          (for-each arg args (pop-escape-var! (.> arg :var) state)))]
 
@@ -648,6 +646,30 @@
         (compile-expression (nth node (+ start j)) out state))
       (w/append! out ")")
       true)))
+
+(defun compile-recur (recur out state ret break)
+  "Compile a recursive lambda."
+  (case (.> recur :category)
+    ["while"
+     (with (node (nth (.> recur :def) 3))
+       (w/append! out "while ")
+       (compile-expression (car (nth node 2)) out state)
+       (w/begin-block! out " do")
+       (compile-block (nth node 2) out state 2 ret break)
+       (w/end-block! out "end")
+       (compile-block (nth node 3) out state 2 ret))]
+    ["while-not"
+     (with (node (nth (.> recur :def) 3))
+       (w/append! out "while not (")
+       (compile-expression (car (nth node 2)) out state)
+       (w/begin-block! out ") do")
+       (compile-block (nth node 3) out state 2 ret break)
+       (w/end-block! out "end")
+       (compile-block (nth node 2) out state 2 ret))]
+    ["forever"
+     (w/begin-block! out "while true do")
+     (compile-block (.> recur :def) out state 3 ret break)
+     (w/end-block! out "end")]))
 
 (defun compile-block (nodes out state start ret break)
   "Compile a block of expressions."

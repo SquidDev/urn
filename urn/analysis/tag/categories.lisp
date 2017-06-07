@@ -145,7 +145,7 @@
                          (with (recur { :var var :def def })
                            (visit-nodes lookup state def 3 true nil recur)
                            (unless (.> recur :tail) (error! "Expected tail recursive function from letrec"))
-                           (.<! lookup def (cat "lambda" :recur recur)))
+                           (.<! lookup def (cat "lambda" :recur (visit-recur lookup recur))))
                          (visit-node lookup state def true)))
                      (cat "set!")]
                     [(= func (.> builtins :quote))
@@ -162,7 +162,7 @@
                          (with (recur { :var (.> node :defVar) :def def})
                            (visit-nodes lookup state def 3 true nil recur)
                            (.<! lookup def (if (.> recur :tail)
-                                             (cat "lambda" :recur recur)
+                                             (cat "lambda" :recur (visit-recur lookup recur))
                                              (cat "lambda"))))
                          (visit-node lookup state def true)))
                      (cat "define")]
@@ -403,6 +403,65 @@
       (for-each child node (visit-quote lookup child))
       (.<! lookup node (cat "quote-list")))
     (.<! lookup node (cat "quote-const"))))
+
+(defun visit-recur (lookup recur)
+  "Attempts to categorise a recursive context."
+  (with (lam (.> recur :def))
+    (cond
+      [(and
+         ;; Check the lambda only has one expression
+         (= (n lam) 3)
+         (with (child (nth lam 3))
+           (and
+             ;; And that expression is a condition of the form (cond [EXPR X] [true Y])
+             (list? child) (builtin? (car child) :cond) (= (n child) 3)
+             (builtin? (car (nth child 3)) :true)
+             (! (.> lookup (car (nth child 2)) :stmt)))))
+
+       (let* [(fst-case (nth (nth lam 3) 2))
+              (snd-case (nth (nth lam 3) 3))
+
+              (fst (and (>= (n fst-case) 2) (just-recur? lookup (last fst-case) recur)))
+              (snd (and (>= (n snd-case) 2) (just-recur? lookup (last snd-case) recur)))]
+         (cond
+           [(and fst snd) (.<! recur :category "forever")]
+           [fst (.<! recur :category "while")]
+           [snd (.<! recur :category "while-not")]
+           [true (.<! recur :category "forever")]))]
+
+      [true
+       (.<! recur :category "forever")]))
+
+  recur)
+
+(defun just-recur? (lookup node recur)
+  "Determine whether NODE is just calls to the recursive context RECUR."
+  (if (list? node)
+    (let [(cat (.> lookup node))
+          (head (car node))]
+      (cond
+        ;; If we're a tail call then we're obviously not an exit.
+        [(= (.> cat :category) "call-tail")
+         (when (/= (.> cat :recur) recur) (error! "Incorrect recur"))
+         true]
+
+        ;; If we're a lambda then check the last node is an exit node.
+        [(and (list? head) (builtin? (car head) :lambda))
+         (and (>= (n head) 3) (just-recur? lookup (last node) recur))]
+
+        ;; If we're a condition, then check if any node is an exit node.
+        [(builtin? head :cond)
+         (with (found true)
+           (for i 2 (n node) 1
+             (when found
+               ;; Something is an exit if the case is empty or contains an exit.
+               (with (case (nth node i))
+                 (set! found (and (>= (n case) 2) (just-recur? lookup (last case) recur))) head)))
+           found)]
+
+        ;; If we're
+        [true false]))
+    false))
 
 (defpass categorise-nodes (compiler nodes state)
   "Categorise a group of NODES, annotating their appropriate node type."
