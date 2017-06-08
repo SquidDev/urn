@@ -1,6 +1,6 @@
 (import base (defun getmetatable if n progn with for tostring len#
               type# >= > < <= = + - car or and list when set-idx!
-              get-idx getmetatable let* while))
+              get-idx getmetatable let* while ..))
 (import base (concat) :export)
 (import list)
 (import lua/string () :export)
@@ -8,10 +8,6 @@
 (defun char-at (xs x)
   "Index the string XS, returning the character at position X."
   (sub xs x x))
-
-(defun .. (&args)
-  "Concatenate the several values given in ARGS. They must all be strings."
-  (concat args))
 
 (defun split (text pattern limit)
   "Split the string given by TEXT in at most LIMIT components, which are
@@ -81,4 +77,4 @@
 
 (defun ends-with? (str suffix)
   "Determine whether STR ends with SUFFIX."
-  (= (sub (- 0 (len# suffix))) suffix))
+  (= (sub str (- 0 (len# suffix))) suffix))

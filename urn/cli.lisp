@@ -19,7 +19,6 @@
 (import extra/argparse arg)
 (import lua/basic (_G))
 (import lua/os os)
-(import string)
 
 (let* [(spec (arg/create))
        (directory (with (dir (nth arg 0))

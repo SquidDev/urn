@@ -1,8 +1,5 @@
 (import urn/resolve/builtins (builtins))
 
-(import string)
-(import lua/math math)
-
 (define tokens
   "The primary tokens for the documentation string"
   :hidden

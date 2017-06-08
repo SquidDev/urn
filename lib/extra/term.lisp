@@ -1,11 +1,10 @@
-(import string)
 (import lua/os os)
 (import lua/package package)
 
 (defun colored-ansi (col msg)
   "Color a string MSG colored with COL, using ANSI escape codes"
   :hidden
-  (string/.. "\27[" col "m" msg "\27[0m"))
+  (.. "\27[" col "m" msg "\27[0m"))
 
 (define colored?
   "Constant defining whether the current terminal has color support"

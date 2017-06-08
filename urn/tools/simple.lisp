@@ -1,7 +1,6 @@
 (import extra/argparse arg)
 (import lua/io io)
 (import lua/os os)
-(import string)
 
 (import urn/analysis/optimise optimise)
 (import urn/analysis/warning warning)

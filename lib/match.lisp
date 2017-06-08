@@ -49,13 +49,13 @@
                and gensym error for set-idx!
                quasiquote list or pretty
                slice concat debug apply
-               /= n = ! - + / * >= <= % ))
+               /= n = ! - + / * >= <= % .. ))
 (import type ())
 (import list ( car caddr cadr cdr append for-each
                map filter push-cdr! range snoc
                nth last elem? ))
 
-(import string (.. char-at sub))
+(import string (char-at sub))
 (import binders (let*))
 
 (defun cons-pattern? (pattern) :hidden
@@ -337,4 +337,3 @@
          (let* ,(compile-pattern-bindings (car cs) x)
            ,t)
          ,e))))
-

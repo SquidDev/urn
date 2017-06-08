@@ -2,8 +2,6 @@
 (import urn/logger/void void)
 (import urn/range ())
 
-(import string)
-
 (defun hex-digit? (char)
   "Determines whether CHAR is a hecharadecimal digit"
   :hidden
@@ -445,7 +443,7 @@
                tok nil
                (.> head :range) "block opened here"
                (.> tok :range)  "end of file here"))]
-          [true (error! (string/.. "Unsupported type" tag))])
+          [true (error! (.. "Unsupported type" tag))])
         (unless auto-close
           (while (.> head :auto-close)
             (when (empty? stack)

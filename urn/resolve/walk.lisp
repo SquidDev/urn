@@ -490,7 +490,7 @@
                        (.<! replacement :tag "many")
                        replacement]
                       [true
-                       (error-positions! (.> state :logger) node (.. "Multiple values returned in a non-block context."))])]))]
+                       (error-positions! (.> state :logger) node "Multiple values returned in a non-block context.")])]))]
 
 
               ;; We're defined/arg/native so just resolve as normal

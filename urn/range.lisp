@@ -1,6 +1,6 @@
 (defun format-position (pos)
   "Format position POS to be user-readable"
-  (string/.. (.> pos :line) ":" (.> pos :column)))
+  (.. (.> pos :line) ":" (.> pos :column)))
 
 (defun format-range (range)
   "Format RANGE to be user-readable"

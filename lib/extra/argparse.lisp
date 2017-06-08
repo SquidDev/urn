@@ -23,9 +23,6 @@
    (parse! spec))
  ```"
 
-(import string)
-(import lua/math math)
-
 (defun create (description)
   "Create a new argument parser"
   { :desc      description

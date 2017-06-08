@@ -4,7 +4,6 @@
 (import urn/resolve/scope scope)
 (import urn/resolve/builtins (builtins))
 
-(import string)
 (import lua/table table)
 
 (defun format-range (range)

@@ -1,7 +1,5 @@
 (import urn/range (get-source))
 
-(import string)
-
 (defun create ()
   { :out          '()
     :indent       0

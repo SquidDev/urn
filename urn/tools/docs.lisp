@@ -1,6 +1,5 @@
 (import extra/argparse arg)
 (import lua/io io)
-(import string)
 
 (import urn/backend/markdown markdown)
 (import urn/backend/writer writer)

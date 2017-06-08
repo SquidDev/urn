@@ -6,7 +6,6 @@
 (import lua/io io)
 (import lua/os os)
 (import lua/table table)
-(import string)
 
 (import urn/backend/lua lua)
 (import urn/backend/writer writer)

@@ -1,4 +1,3 @@
-(import string)
 (import lua/io io)
 (import lua/basic (load))
 

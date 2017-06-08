@@ -70,7 +70,7 @@
                   (.<! head :folded true)
                   ;; Print a warning message
                   (logger/put-node-warning! (.> state :logger)
-                    (.. "Cannot execute constant expression")
+                    "Cannot execute constant expression"
                     node nil
                     (get-source node) (.. "Executed " (pretty node) ", failed with: " (nth res 2)))
                   node)))

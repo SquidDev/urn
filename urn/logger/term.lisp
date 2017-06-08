@@ -54,7 +54,7 @@
    ```"
   :hidden
   (when (empty? entries) (error! "Positions cannot be empty"))
-  (when (/= (% (n entries) 2) 0) (error! (string/.. "Positions must be a multiple of 2, is " (n entries))))
+  (when (/= (% (n entries) 2) 0) (error! (.. "Positions must be a multiple of 2, is " (n entries))))
 
   (let* ((previous -1)
          (file (.> (nth entries 1) :name))
@@ -90,7 +90,7 @@
              (string/rep "^" (succ (- (.> position :finish :column) (.> position :start :column))))]
             [true "^..."]))
 
-          (print! (string/format code "" (string/..
+          (print! (string/format code "" (..
             (string/rep " " (- (.> position :start :column) 1))
             pointer
             " "
@@ -103,8 +103,8 @@
     (while node
       (with (formatted (format-node node))
         (cond
-          [(= previous nil) (print! (colored 96 (string/.. "  => " formatted)))]
-          [(/= previous formatted) (print! (string/.. "  in " formatted))]
+          [(= previous nil) (print! (colored 96 (.. "  => " formatted)))]
+          [(/= previous formatted) (print! (.. "  in " formatted))]
           [true nil])
 
         (set! previous formatted)

@@ -2,10 +2,10 @@
               and or xpcall get-idx set-idx! pretty pcall
               gensym tostring tonumber require => <=>
               unpack list when unless arg apply for-pairs
-              = /= < <= > >= + - * / % ^ ! n debug) :export)
+              = /= < <= > >= + - * / % ^ ! .. n debug) :export)
 
 (import base)
-(import string (format .. concat) :export)
+(import string (format concat) :export)
 (import string string :export)
 (import lua/os)
 (import binders () :export)

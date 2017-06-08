@@ -1,4 +1,4 @@
-(import string (.. sub rep))
+(import string (sub rep))
 (import list (elem? traverse))
 
 (defun format-value (value)

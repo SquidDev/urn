@@ -1,4 +1,3 @@
-(import string)
 (import extra/term (colored))
 (import lua/debug (traceback))
 (import extra/assert (assert!) :export)
