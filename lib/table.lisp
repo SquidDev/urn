@@ -1,8 +1,7 @@
 (import base (defmacro defun let* when if list unless debug gensym
-              progn get-idx set-idx! error = % - + n or for
+              progn get-idx set-idx! error = /= % - + n or for for-pairs
               with ! apply))
 (import lua/string (sub))
-(import lua/table (iter-pairs) :export)
 (import lua/basic (getmetatable setmetatable next len#) :export)
 (import type (empty? list? eq? key?))
 (import list ())
@@ -145,9 +144,9 @@
     (for-pairs () st (set! cnt (+ cnt 1)))
     cnt))
 
-(defmacro for-pairs (vars tbl &body)
-  "Iterate over TBL, binding VARS for each key value pair in BODY"
-  `(iter-pairs ,tbl (lambda ,vars ,@body)))
+(defun iter-pairs (table func)
+  "Iterate over TABLE with a function FUNC of the form `(lambda (key val) ...)`"
+  (for-pairs (k v) table (func k v)))
 
 (defun merge (&structs)
   "Merge all tables in STRUCTS together into a new table."

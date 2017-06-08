@@ -4,7 +4,6 @@
 (import lua/basic ())
 (import lua/string string)
 (import lua/table (unpack concat) :export)
-(import lua/table tbl)
 (import lua/table table)
 
 (define copy-meta
@@ -173,6 +172,22 @@
        (print (.. ,nm (pretty ,x-sym)))
        ,x-sym)))
 
+(defmacro for-pairs (vars tbl &body)
+  "Iterate over TBL, binding VARS for each key value pair in BODY"
+  (let* [(tbl-s (gensym))
+         (func-s (gensym))
+         (var-s (gensym))]
+    `((lambda (,tbl-s ,func-s)
+        (set! ,func-s (lambda (,var-s ,@(cdr vars))
+                        (when (/= ,var-s nil)
+                          ,@(if (car vars)
+                             `((with (,(car vars) ,var-s)
+                                 ,@body))
+                             body)
+                          (,func-s (next ,tbl ,var-s)))))
+        (,func-s (next ,tbl)))
+       ,tbl nil)))
+
 (defun pretty (value)
   "Format VALUE as a valid Lisp expression which can be parsed."
   (with (ty (type# value))
@@ -195,9 +210,8 @@
            [(= tag "number") (tostring (get-idx value :value))]
            [true
              (let* [(out '())]
-               (tbl/iter-pairs value
-                 (lambda (k v)
-                   (set! out (cons (.. (pretty k) (.. " " (pretty v))) out))))
+               (for-pairs (k v) value
+                 (set! out (cons (.. (pretty k) (.. " " (pretty v))) out)))
                (.. "{" (.. (concat out " ") "}")))]
            [true (tostring value)]))]
       [(= ty "string") (string/format "%q" value)]
