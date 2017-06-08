@@ -223,7 +223,7 @@
                                  (recur (.> lookup lam :recur))]
 
                             (unless recur
-                              (print! "Cannot find recursion for " (.> func :var :name)))
+                              (print! "Cannot find recursion for " (.> func :name)))
 
                             ;; And visit the argument values
                             (for i 1 (n args) 1

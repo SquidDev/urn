@@ -64,3 +64,21 @@
     (visit-node (nth node i) visitor)))
 
 (define visit-list visit-block)
+
+(defun visit-blocks (nodes func)
+  "Visit all blocks in NODES with FUNC. FUNC takes the
+   form `(lambda (nodes start) ...)`."
+  (func nodes 1)
+  (visit-block nodes 1
+    (lambda (node)
+      (when (list? node)
+        (with (head (car node))
+          (when (symbol? head)
+            (with (var (.> head :var))
+              (cond
+                [(= var (.> builtins :lambda)) (func node 3)]
+                [(= var (.> builtins :cond))
+                 (for i 2 (n node) 1
+                   (func (nth node i) 2))]
+                [true])))))
+      nil)))

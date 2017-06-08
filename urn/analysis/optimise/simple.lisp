@@ -5,31 +5,31 @@
 (import urn/logger logger)
 (import urn/range (get-source))
 
-(import lua/math math)
-
 (defpass strip-import (state nodes)
   "Strip all import expressions in NODES"
   :cat '("opt")
-  ;; TODO: Traverse instead of looping over the top level.
-  (for i (n nodes) 1 -1
-    (with (node (nth nodes i))
-      (when (and (list? node) (> (n node) 0) (symbol? (car node)) (= (.> (car node) :var) (.> builtins :import)))
-        ;; We replace the last node in the block with a nil: otherwise we might change
-        ;; what is returned
-        (if (= i (n nodes))
-          (.<! nodes i (make-nil))
-          (remove-nth! nodes i))
-        (changed!)))))
+  (visitor/visit-blocks nodes
+    (lambda (nodes start)
+      (for i (n nodes) start -1
+        (with (node (nth nodes i))
+          (when (and (list? node) (builtin? (car node) :import))
+            ;; We replace the last node in the block with a nil: otherwise we might change
+            ;; what is returned
+            (if (= i (n nodes))
+              (.<! nodes i (make-nil))
+              (remove-nth! nodes i))
+            (changed!)))))))
 
 (defpass strip-pure (state nodes)
   "Strip all pure expressions in NODES (apart from the last one)."
   :cat '("opt")
-  ;; TODO: Traverse instead of looping over the top level.
-  (for i (pred (n nodes)) 1 -1
-    (with (node (nth nodes i))
-      (unless (side-effect? node)
-        (remove-nth! nodes i)
-        (changed!)))))
+  (visitor/visit-blocks nodes
+    (lambda (nodes start)
+      (for i (pred (n nodes)) start -1
+        (with (node (nth nodes i))
+          (unless (side-effect? node)
+            (remove-nth! nodes i)
+            (changed!)))))))
 
 (defpass constant-fold (state nodes)
   "A primitive constant folder
@@ -112,7 +112,8 @@
         node))))
 
 (defpass lambda-fold (state nodes)
-  "Simplify all directly called lambdas, inlining them were appropriate."
+  "Simplify all directly called lambdas without arguments, inlining them
+   were appropriate."
   :cat '("opt")
   (traverse/traverse-list nodes 1
     (lambda (node)
@@ -126,4 +127,27 @@
         (progn
           (changed!)
           (nth (car node) 3))
-        node))))
+        node)))
+
+  (visitor/visit-blocks nodes
+    (lambda (nodes start)
+      (let [(i start)
+            (len (n nodes))]
+        (while (<= i len)
+          (with (node (nth nodes i))
+            (if (and
+                  ;; If we're a list with one element
+                  (list? node) (= (n node) 1)
+                  ;; And the function is a lambda
+                  (list? (car node)) (builtin? (car (car node)) :lambda)
+                  ;; And has no arguments
+                  (empty? (nth (car node) 2)))
+              (with (body (car node))
+                (if (= (n body) 2)
+                  (remove-nth! nodes i)
+                  (progn
+                    (.<! nodes i (nth body 3))
+                    (for j 4 (n body) 1
+                      (insert-nth! nodes (+ i (- j 3)) (nth body j)))))
+                (set! len (+ len (pred (n node)))))
+              (inc! i))))))))
