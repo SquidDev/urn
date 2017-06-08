@@ -4,10 +4,15 @@ baseurl: /urn
 defaults:
   -
     scope:
-      path: "" # an empty string here means all files in the project
-      type: "posts" # previously `post` in Jekyll 2.2.
+      type: "posts"
     values:
       layout: "post"
+  -
+    scope:
+      path: "docs"
+      type: "pages"
+    values:
+      layout: "doc"
 
 paginate: 5
 paginate_path: "/posts/page-:num/"

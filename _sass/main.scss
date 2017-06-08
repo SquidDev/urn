@@ -111,10 +111,6 @@ p, pre, ul, blockquote, div.highlighter-rouge {
 
 em {
 	font-style: italic;
-	h2 + &, h2 + p > & {
-		font-size: 0.8em;
-		color: $grey03;
-	}
 }
 
 strong { font-weight: bold; }
@@ -167,6 +163,13 @@ blockquote {
 
 img {
 	max-width: 100%;
+}
+
+.docs {
+	h2 + em, h2 + p > em {
+		font-size: 0.8em;
+		color: $grey03;
+	}
 }
 
 .post-list {
