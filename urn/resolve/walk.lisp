@@ -131,7 +131,7 @@
          (.<! node :var (scope/get-always! scope (.> node :contents) node))
 
          ;; TODO: Allow syntax-quoting symbols in parent scope when unquoting.
-         (unless (or (.> node :var :scope :isRoot) (.> node :var :scope :builtin))
+         (unless (or (.> node :var :scope :is-root) (.> node :var :scope :builtin))
            (error-positions! (.> state :logger) node "Cannot use non-top level definition in syntax-quote")))
 
        node]

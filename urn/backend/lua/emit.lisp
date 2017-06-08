@@ -307,10 +307,10 @@
        (compile-expression (nth node (n node)) out state (.. (push-escape-var! (.> node :defVar) state) " = "))]
 
       ["define-native"
-       (with (meta (.> state :meta (.> node :defVar :fullName)))
+       (with (meta (.> state :meta (.> node :defVar :full-name)))
          (if (= meta nil)
             ;; Just copy it from the library table value
-            (w/append! out (string/format "%s = _libs[%q]" (escape-var (.> node :defVar) state) (.> node :defVar :fullName)))
+            (w/append! out (string/format "%s = _libs[%q]" (escape-var (.> node :defVar) state) (.> node :defVar :full-name)))
             (progn
               ;; Generate an accessor for it.
               (w/append! out (string/format "%s = " (escape-var (.> node :defVar) state)))

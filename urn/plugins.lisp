@@ -87,7 +87,7 @@
                           (.<! pass :run
                             (lambda (&args)
                               (case (list (xpcall (lambda () (apply func args)) debug/traceback))
-                                [(false ?msg) (fail! (traceback/remap-traceback (.> compiler :compileState :mappings) msg))]
+                                [(false ?msg) (fail! (traceback/remap-traceback (.> compiler :compile-state :mappings) msg))]
                                 [(true . ?rest) (unpack rest 1 (n rest))]))))
 
                         (let* [(cats (.> pass :cat))
@@ -107,7 +107,7 @@
       :active-node    active-node
       :active-module  (lambda ()
                         (letrec [(get (scp)
-                                      (if (.> scp :isRoot)
+                                      (if (.> scp :is-root)
                                         scp
                                         (get (.> scp :parent))))]
                           (get (active-scope))))

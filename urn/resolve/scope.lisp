@@ -47,12 +47,12 @@
   (unless (.> kinds kind) (error! (.. "Unknown kind " (string/quoted kind))))
   (when (.> scope :variables name) (error! (.. "Previous declaration of " name)))
 
-  (with (var { :tag      kind
-               :name     name
-               :fullName (.. (.> scope :prefix) name)
-               :scope    scope
-               :const    (/= kind "arg")
-               :node     node })
+  (with (var { :tag       kind
+               :name      name
+               :full-name (.. (.> scope :prefix) name)
+               :scope     scope
+               :const     (/= kind "arg")
+               :node      node })
     (.<! scope :variables name var)
     (.<! scope :exported name var)
     var))

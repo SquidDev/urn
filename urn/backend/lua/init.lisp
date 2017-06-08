@@ -33,7 +33,7 @@
    and the resulting contents.
 
    If SHEBANG is specified then it will be prepended."
-  (let* [(state (create-state (.> compiler :libMeta)))
+  (let* [(state (create-state (.> compiler :lib-meta)))
          (out (w/create))]
     (when shebang
       (w/line! out (.. "#!/usr/bin/env " shebang)))

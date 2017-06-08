@@ -161,35 +161,35 @@
                       :timer     (timer/create (cut logger/put-time! logger <> <> <>))
                       :paths     paths
 
-                      :libEnv    {}
-                      :libMeta   {}
+                      :lib-env   {}
+                      :lib-meta  {}
                       :libs      '()
-                      :libCache  {}
-                      :libNames  {}
+                      :lib-cache {}
+                      :lib-names {}
 
                       :warning   (warning/default)
                       :optimise  (optimise/default)
 
-                      :rootScope builtins/root-scope
+                      :root-scope builtins/root-scope
 
                       :variables {}
                       :states    {}
                       :out       '() })
 
       ;; Add compileState
-      (.<! compiler :compileState (lua/create-state (.> compiler :libMeta)))
+      (.<! compiler :compile-state (lua/create-state (.> compiler :lib-meta)))
 
       ;; Set the loader
       (.<! compiler :loader (lambda (name) (loader/loader compiler name true)))
 
       ;; Add globals
       (.<! compiler :global (setmetatable
-                              {  :_libs (.> compiler :libEnv)
+                              {  :_libs (.> compiler :lib-env)
                                 :_compiler (plugins/create-plugin-state compiler)}
                               { :__index _G }))
 
       ;; Store all builtin vars in the lookup
-      (for-pairs (_ var) (.> compiler :rootScope :variables)
+      (for-pairs (_ var) (.> compiler :root-scope :variables)
         (.<! compiler :variables (tostring var) var))
 
       (timer/start-timer! (.> compiler :timer) "loading")
@@ -198,9 +198,9 @@
          (logger/put-error! logger error-message)
          (exit! 1)]
         [(?lib)
-         (.<! compiler :rootScope (scope/child (.> compiler :rootScope)))
+         (.<! compiler :root-scope (scope/child (.> compiler :root-scope)))
          (for-pairs (name var) (.> lib :scope :exported)
-           (scope/import! (.> compiler :rootScope) name var))
+           (scope/import! (.> compiler :root-scope) name var))
 
          (for-each input (append (.> args :plugin) (.> args :input))
            (case (loader/loader compiler input false)

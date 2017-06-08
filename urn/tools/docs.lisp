@@ -13,7 +13,7 @@
   (for-each path (.> args :input)
     (when (= (string/sub path -5) ".lisp") (set! path (string/sub path 1 -6)))
 
-    (let* [(lib (.> compiler :libCache path))
+    (let* [(lib (.> compiler :lib-cache path))
            (writer (writer/create))]
       (markdown/exported writer (.> lib :name) (.> lib :docs) (.> lib :scope :exported) (.> lib :scope))
 

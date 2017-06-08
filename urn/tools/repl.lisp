@@ -95,7 +95,7 @@
                 (logger/put-error! logger (.. "No documentation for '" name "'"))]
                [true
                  (let* [(sig (docs/extract-signature var))
-                        (name (.> var :fullName))]
+                        (name (.> var :full-name))]
                    (when sig
                      (with (buffer (list name))
                        (for-each arg sig (push-cdr! buffer (.> arg :contents)))
@@ -108,7 +108,7 @@
       [(= command "module")
        (with (name (nth args 2))
          (if name
-           (with (mod (.> compiler :libNames name))
+           (with (mod (.> compiler :lib-names name))
              (cond
                [(= mod nil)
                 (logger/put-error! logger (.. "Cannot find '" name "'"))]
@@ -198,8 +198,8 @@
                                 (for-each elem state
                                   (set! current elem)
                                   (state/get! current)))))
-             (compileState (.> compiler :compileState))
-             (rootScope (.> compiler :rootScope))
+             (compileState (.> compiler :compile-state))
+             (rootScope (.> compiler :root-scope))
              (global (.> compiler :global))
              (logger (.> compiler :log))
              (run true)]
@@ -244,7 +244,7 @@
                              [?task fail! (.. "Cannot handle " task)]))]))))])))))))
 
 (defun repl (compiler)
-  (let* [(scope (.> compiler :rootScope))
+  (let* [(scope (.> compiler :root-scope))
          (logger (.> compiler :log))
          (buffer "")
          (running true)]
@@ -268,7 +268,7 @@
                 [true
                  (set! buffer "")
                  (set! scope (scope/child scope))
-                 (.<! scope :isRoot true)
+                 (.<! scope :is-root true)
 
                  (with (res (list (pcall exec-string compiler scope data)))
                    ;; Clear active node/scope
@@ -278,7 +278,7 @@
 
 (defun exec (compiler)
   (let* [(data (io/read "*a"))
-         (scope (.> compiler :rootScope))
+         (scope (.> compiler :root-scope))
          (logger (.> compiler :log))
          (res (list (pcall exec-string compiler scope data)))]
     (unless (car res)

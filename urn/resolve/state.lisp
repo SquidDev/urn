@@ -28,9 +28,9 @@
   { :scope scope ;; The scope this top level definition lives under
     :compiler compiler ;; The main compiler instance
     :logger (.> compiler :log) ;; The logger instance
-    :mappings (.> compiler :compileState :mappings) ;; TODO: Remove me.
+    :mappings (.> compiler :compile-state :mappings) ;; TODO: Remove me.
     :required '() ;; List and set of all required vriables
-    :requiredSet {}
+    :required-set {}
     :stage "parsed" ;; The current stage we are in. Transitions from parsed -> built -> executed.
     :var nil ;; The variable this node defines.
     :node nil ;; The final node for this entry. Set when building/resolution has finished.
@@ -46,10 +46,10 @@
   (unless user (error! "user is nil"))
 
   ;; If we're using a top level definition then add a dependency on it.
-  (if (.> var :scope :isRoot)
+  (if (.> var :scope :is-root)
     (with (other (.> state :compiler :states var))
-      (when (and other (! (.> state :requiredSet other)))
-        (.<! state :requiredSet other user)
+      (when (and other (! (.> state :required-set other)))
+        (.<! state :required-set other user)
         (push-cdr! (.> state :required) other))
       other)
     nil))
@@ -113,7 +113,7 @@
                                          (previous (nth stack (pred i)))]
                                      (push-cdr! states (.> current :var :name))
                                      (when previous
-                                       (with (user (.> previous :requiredSet current))
+                                       (with (user (.> previous :required-set current))
                                          (unless first-node (set! first-node user))
 
                                          (push-cdr! nodes (range/get-source user))

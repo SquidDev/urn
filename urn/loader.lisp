@@ -52,17 +52,17 @@
   (.<! entry :name name)
   (cond
     [(= (.> entry :value) nil)
-     (with (value (.> state :libEnv name))
+     (with (value (.> state :lib-env name))
        (when (= value nil)
          (case (list (pcall lua/native entry (.> state :global)))
            [(true . ?res) (set! value (car res))]
            [(false _)])
-         (.<! state :libEnv name value))
+         (.<! state :lib-env name value))
        (.<! entry :value value))]
-    [(/= (.> state :libEnv name) nil) (fail! (.. "Duplicate value for " name ": in native and meta file"))]
-    [true (.<! state :libEnv name (.> entry :value))])
+    [(/= (.> state :lib-env name) nil) (fail! (.. "Duplicate value for " name ": in native and meta file"))]
+    [true (.<! state :lib-env name (.> entry :value))])
 
-  (.<! state :libMeta name entry)
+  (.<! state :lib-meta name entry)
   entry)
 
 (defun read-library (state name path lisp-handle)
@@ -88,7 +88,7 @@
           [(?fun)
            (with (res (fun))
              (if (table? res)
-               (for-pairs (k v) res (.<! state :libEnv (.. prefix k) v))
+               (for-pairs (k v) res (.<! state :lib-env (.. prefix k) v))
                (fail! (.. path ".lua returned a non-table value"))))])))
 
     ;; Attempt to load the meta info
@@ -108,8 +108,8 @@
     ;; And parse all the things!
     (let* [(lexed (parser/lex (.> state :log) contents (.. path ".lisp")))
            (parsed (parser/parse (.> state :log) lexed))
-           (scope (scope/child (.> state :rootScope)))]
-      (.<! scope :isRoot true)
+           (scope (scope/child (.> state :root-scope)))]
+      (.<! scope :is-root true)
       (.<! scope :prefix prefix)
       (.<! lib :scope scope)
 
@@ -148,7 +148,7 @@
                          ;; For every path, check if we've looked at this already and use it, otherwise
                          ;; look it up on the filesystem and parse everything.
                          (let* [(path (string/gsub (nth paths i) "%?" name))
-                                (cached (.> state :libCache path))]
+                                (cached (.> state :lib-cache path))]
                            (push-cdr! searched path)
                            (cond
                              [(= cached nil)
@@ -156,12 +156,12 @@
                                 (if handle
                                   (progn
                                     ;; We set this to true to ensure we don't get loops
-                                    (.<! state :libCache path true)
-                                    (.<! state :libNames name true)
+                                    (.<! state :lib-cache path true)
+                                    (.<! state :lib-names name true)
                                     ;; And then we actually load everything
                                     (with (lib (read-library state (simplify-path path paths) path handle))
-                                      (.<! state :libCache path lib)
-                                      (.<! state :libNames name lib)
+                                      (.<! state :lib-cache path lib)
+                                      (.<! state :lib-names name lib)
                                       (list lib)))
                                   (searcher (+ i 1))))]
                              [(= cached true) (list nil (.. "Already loading " name))]
@@ -174,22 +174,22 @@
 
    If SHOULD-RESOLVE is true then we will search the compile path."
   (if should-resolve
-    (with (cached (.> state :libNames name))
+    (with (cached (.> state :lib-names name))
       (cond
         [(= cached nil) (path-locator state name)]
         [(= cached true) (list nil (.. "Already loading " name))]
         [true (list cached)]))
     (progn
       (set! name (string/gsub name "%.lisp$" ""))
-      (case (.> state :libCache name)
+      (case (.> state :lib-cache name)
         [nil
          (with (handle (io/open (.. name ".lisp")))
            (if handle
              (progn
                ;; Ensure we don't get loops
-               (.<! state :libCache name true)
+               (.<! state :lib-cache name true)
                (with (lib (read-library state (simplify-path name (.> state :paths)) name handle))
-                 (.<! state :libCache name lib)
+                 (.<! state :lib-cache name lib)
                  (list lib)))
              (list nil (.. "Cannot find " (string/quoted name)))))]
         [true (list nil (.. "Already loading " name))]

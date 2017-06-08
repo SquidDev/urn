@@ -15,7 +15,7 @@
     {
       :blacklist (create-lookup '("parent" "var" "lines" "macro" "start"
                                   "finish" "range" "variables" "scope"
-                                  "required" "states" "requiredSet" "owner")) }))
+                                  "required" "states" "required-set" "owner")) }))
 
 (defun valid-key? (key)
   "Determine KEY is table key which can be easily printed."
