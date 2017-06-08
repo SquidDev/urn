@@ -87,7 +87,6 @@
   (with (offset 0)
     (for i start (n node) 1
       (with (result (traverse-node (nth node (+ i offset)) visitor))
-        ;; TODO: Inline expressions of the form ((lambda () ...))
         (.<! node i result))))
   node)
 

@@ -335,7 +335,10 @@
                          ["key" (w/append! out (.. "({tag=\"key\", value=" (string/quoted (.> node :value)) "})"))]))]
 
       ["quote-list"
-       (when ret (w/append! out ret))
+       (cond
+         [(= ret "") (w/append! out "local _ = ")]
+         [ret (w/append! out ret)]
+         [true])
        (w/append! out (.. "({tag = \"list\", n = " (number->string (n node))))
        (for-each sub node
          (w/append! out ", ")
