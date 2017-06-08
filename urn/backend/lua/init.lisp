@@ -8,7 +8,6 @@
 (import extra/assert (assert!))
 (import lua/basic (load))
 (import lua/debug debug)
-(import string)
 
 (defun create-state (meta) {
                              ;; [[run-pass]] options

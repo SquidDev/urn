@@ -5,8 +5,6 @@
 (import urn/backend/lua/escape ())
 (import urn/backend/writer w)
 
-(import string)
-
 (defun truthy? (node)
   "Determine whether NODE is true. A more comprehensive implementation exists in the optimiser"
   :hidden
@@ -39,29 +37,26 @@
       [(or (= ty "expr") (= ty "stmt"))
        ;; Generate a custom function wrapper
        (w/append! out "function(")
-       (for i 1 (.> meta :count) 1
-         (unless (= i 1) (w/append! out ", "))
-         (w/append! out (.. "v" (string->number i))))
-
-       (when (.> meta :fold) (w/append! out ", ..."))
+       (if (.> meta :fold)
+         (w/append! out "...")
+         (for i 1 (.> meta :count) 1
+           (unless (= i 1) (w/append! out ", "))
+           (w/append! out (.. "v" (string->number i)))))
        (w/append! out ") ")
 
-       ;; Return the value if required
-       (cond
-         [(= (.> meta :tag) "stmt")]
-         [(.> meta :fold) (w/append! out "local t = ")]
-         [true (w/append! out "return ")])
-
-       ;; And create the template
-       (for-each entry (.> meta :contents)
-         (if (number? entry)
-           (w/append! out (.. "v" (string->number entry)))
-           (w/append! out entry)))
-
        (case (.> meta :fold)
-         [nil]
+         [nil
+          ;; Return the value if required.
+          (when (/= (.> meta :tag) "stmt")
+            (w/append! out "return "))
+          ;; And create the template
+          (for-each entry (.> meta :contents)
+            (if (number? entry)
+              (w/append! out (.. "v" (string->number entry)))
+              (w/append! out entry)))]
          ["l"
-          (w/append! out " for i = 1, _select('#', ...) do t = ")
+          ;; Fold values from the left.
+          (w/append! out "local t = ... for i = 2, _select('#', ...) do t = ")
           (for-each node (.> meta :contents)
             (case node
               [1 (w/append! out "t")]
@@ -69,7 +64,8 @@
               [string? (w/append! out node)]))
           (w/append! out " end return t")]
          ["r"
-          (w/append! out " for i = _select('#', ...), 1, -1 do t = ")
+          ;; Fold values from the right.
+          (w/append! out "local n = _select('#', ...) local t = _select(n, ...) for i = n - 1, 1, -1 do t = ")
           (for-each node (.> meta :contents)
             (case node
               [1 (w/append! out "_select(i, ...)")]
@@ -128,7 +124,7 @@
              (with (args-var (push-escape-var! (.> args variadic :var) state))
                (if (= variadic (n args))
                  ;; If it is the last argument then just pack it up into a list
-                 (w/line! out (string/.. "local " args-var " = _pack(...) " args-var ".tag = \"list\""))
+                 (w/line! out (.. "local " args-var " = _pack(...) " args-var ".tag = \"list\""))
                  (with (remaining (- (n args) variadic))
                    ;; Otherwise everything is a tad more complicated. We first store the number
                    ;; of arguments to add to our variadic, as well as predeclaring all args
@@ -336,7 +332,7 @@
                           (when (.> node :var)
                             (w/append! out (.. ", var=" (string/quoted(number->string (.> node :var))))))
                           (w/append! out "})")]
-                         ["key" (w/append! out (string/.. "({tag=\"key\", value=" (string/quoted (.> node :value)) "})"))]))]
+                         ["key" (w/append! out (.. "({tag=\"key\", value=" (string/quoted (.> node :value)) "})"))]))]
 
       ["quote-list"
        (when ret (w/append! out ret))
@@ -366,10 +362,10 @@
                  (compile-expression (nth sub 2) out state)
                  (w/line! out)
 
-                 (w/line! out (string/.. "for _c = 1, _temp.n do _result[" (number->string (- i offset)) " + _c + _offset] = _temp[_c] end"))
+                 (w/line! out (.. "for _c = 1, _temp.n do _result[" (number->string (- i offset)) " + _c + _offset] = _temp[_c] end"))
                  (w/line! out "_offset = _offset + _temp.n"))
                (progn
-                 (w/append! out (string/.. "_result[" (number->string (- i offset)) " + _offset] = "))
+                 (w/append! out (.. "_result[" (number->string (- i offset)) " + _offset] = "))
                  (compile-expression sub out state)
                  (w/line! out)))))
          (w/line! out (.. "_result.n = _offset + " (number->string (- (n node) offset)))))
