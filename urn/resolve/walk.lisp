@@ -337,7 +337,7 @@
                            (unless (list? result)
                              (error-positions! (.> state :logger) node (.. "Expected list from unquote-splice, got '" (type result) "'")))
 
-                           (when (= n result 0)
+                           (when (= (n result) 0)
                              (set! result { :tag "symbol"
                                             :contents "nil"
                                             :var (.> builtins :nil) }))
