@@ -9,7 +9,9 @@ local _temp = (function()
 		['slice'] = function(xs, start, finish)
 			if not finish then finish = xs.n end
 			if not finish then finish = #xs end
-			return { tag = "list", n = finish - start + 1, table.unpack(xs, start, finish) }
+			local len = finish - start + 1
+			if len < 0 then len = 0 end
+			return { tag = "list", n = len, table.unpack(xs, start, finish) }
 		end,
 	}
 end)()
@@ -4493,7 +4495,7 @@ compileExpression1 = (function(node, out, state, ret, _ebreak)
 					offset = count
 				else
 					local expr = node[((temp2 + offset))]
-					if (expr and (not (type1(expr) == "symbol") or (expr["var"] ~= var))) then
+					if (not (type1(expr) == "symbol") or (expr["var"] ~= var)) then
 						if done then
 							append_21_1(out, ", ")
 						else

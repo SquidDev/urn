@@ -480,7 +480,7 @@
                        (w/append! out (escape-var var state))
                        (set! offset count))
                      (with (expr (nth node (+ i offset)))
-                       (when (and expr (or (! (symbol? expr)) (/= (.> expr :var) var)))
+                       (when (or (! (symbol? expr)) (/= (.> expr :var) var))
                          (if done (w/append! out ", ") (set! done true))
                          (w/append! out (escape-var var state))))))))
 
