@@ -6643,14 +6643,14 @@ resolveBlock1 = (function(nodes, start, scope, state)
 		local node = resolveNode1(nodes[i], scope, state, false, true)
 		if (node["tag"] == "many") then
 			nodes[i] = node[1]
-			local temp1 = len(node)
+			local temp1 = n1(node)
 			local temp2 = nil
 			local temp3 = 2
 			while (temp3 <= temp1) do
 				insertNth_21_1(nodes, (i + (temp3 - 1)), node[temp3])
 				temp3 = (temp3 + 1)
 			end
-			len = (len + (len(node) - 1))
+			len = (len + (n1(node) - 1))
 		else
 			nodes[i] = node
 			i = (i + 1)
@@ -6767,7 +6767,7 @@ compile1 = (function(compiler, nodes, scope, name)
 				if not status then
 					error1(result, 0)
 				elseif (status1(action["_co"]) == "dead") then
-					if (result["tg"] == "many") then
+					if (result["tag"] == "many") then
 						local baseIdx = action["_idx"]
 						self1(logger, "put-debug!", "  Got multiple nodes as a result. Adding to queue")
 						local temp2 = n1(queue)

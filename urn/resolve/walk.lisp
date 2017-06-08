@@ -519,10 +519,10 @@
         (if (= (.> node :tag) "many")
           (progn
             (.<! nodes i (nth node 1))
-            (for j 2 (len node) 1
+            (for j 2 (n node) 1
               (insert-nth! nodes (+ i (pred j)) (nth node j)))
 
-            (set! len (+ len (pred (len node)))))
+            (set! len (+ len (pred (n node)))))
           (progn
             (.<! nodes i node)
             (inc! i))))))

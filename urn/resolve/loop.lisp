@@ -146,7 +146,7 @@
                            [(= (co/status (.> action :_co)) "dead")
                             ;; We've successfully built the node, so we handle unpacking it.
 
-                            (if (= (.> result :tg) "many")
+                            (if (= (.> result :tag) "many")
                               (with (base-idx (.> action :_idx))
                                 ;; We got multiple nodes, so we need to inject them all and adjust the other nodes' index
                                 (logger/put-debug! logger "  Got multiple nodes as a result. Adding to queue")
