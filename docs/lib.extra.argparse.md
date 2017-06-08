@@ -28,12 +28,12 @@ can parse inputs with [`parse!`](lib.extra.argparse.md#parse-spec-args)
 ```
 
 ## `(add-action arg data value)`
-*Defined at lib/extra/argparse.lisp:41:1*
+*Defined at lib/extra/argparse.lisp:38:1*
 
 Append `VALUE` to the appropriate key in `DATA` for `ARG`.
 
 ## `(add-argument! spec names &options)`
-*Defined at lib/extra/argparse.lisp:57:1*
+*Defined at lib/extra/argparse.lisp:54:1*
 
 Add a new argument to `SPEC`, using the specified `NAMES`.
 
@@ -60,7 +60,7 @@ following options are valid:
    starting with `-`.
 
 ## `(add-help! spec)`
-*Defined at lib/extra/argparse.lisp:134:1*
+*Defined at lib/extra/argparse.lisp:131:1*
 
 Add a help argument to `SPEC`.
 
@@ -68,38 +68,38 @@ This will show the help message whenever --help or -h is used and
 then quit the program.
 
 ## `(create description)`
-*Defined at lib/extra/argparse.lisp:29:1*
+*Defined at lib/extra/argparse.lisp:26:1*
 
 Create a new argument parser
 
 ## `(help! spec name)`
-*Defined at lib/extra/argparse.lisp:176:1*
+*Defined at lib/extra/argparse.lisp:173:1*
 
 Display the help for the argument parser as defined in `SPEC`.
 
 ## `(parse! spec args)`
-*Defined at lib/extra/argparse.lisp:214:1*
+*Defined at lib/extra/argparse.lisp:211:1*
 
 Parse `ARGS` using the argument parser defined in `SPEC`. Returns a
 lookup with each argument given its value.
 
 ## `(set-action arg data value)`
-*Defined at lib/extra/argparse.lisp:37:1*
+*Defined at lib/extra/argparse.lisp:34:1*
 
 Set the appropriate key in `DATA` for `ARG` to `VALUE`.
 
 ## `(set-num-action aspec data value usage!)`
-*Defined at lib/extra/argparse.lisp:50:1*
+*Defined at lib/extra/argparse.lisp:47:1*
 
 Set the appropriate key in `DATA` for `ARG` to `VALUE`, ensuring it is a number.
 
 ## `(usage! spec name)`
-*Defined at lib/extra/argparse.lisp:156:1*
+*Defined at lib/extra/argparse.lisp:153:1*
 
 Display a short usage for the argument parser as defined in `SPEC`.
 
 ## `(usage-error! spec name error)`
-*Defined at lib/extra/argparse.lisp:170:1*
+*Defined at lib/extra/argparse.lisp:167:1*
 
 Display the usage of `SPEC` and exit with an `ERROR` message.
 

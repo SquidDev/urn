@@ -3,7 +3,7 @@ title: base
 ---
 # base
 ## `(! expr)`
-*Defined at lib/base.lisp:79:1*
+*Defined at lib/base.lisp:78:1*
 
 Negate the expresison `EXPR`.
 
@@ -37,7 +37,7 @@ Return the logical and of values `A` and `B`, and, if present, the
 logical and of all the values in `REST`.
 
 ## `(apply f xs)`
-*Defined at lib/base.lisp:257:1*
+*Defined at lib/base.lisp:272:1*
 
 Apply the function `F` using `XS` as the argument list.
 
@@ -48,17 +48,17 @@ Apply the function `F` using `XS` as the argument list.
 ```
 
 ## `arg`
-*Defined at lib/base.lisp:205:1*
+*Defined at lib/base.lisp:220:1*
 
 The arguments passed to the currently executing program
 
 ## `(cons x xs)`
-*Defined at lib/base.lisp:52:1*
+*Defined at lib/base.lisp:51:1*
 
 Add `X` to the start of the list `XS`. Note: this is linear in time.
 
 ## `(const-val val)`
-*Defined at lib/base.lisp:217:1*
+*Defined at lib/base.lisp:232:1*
 
 Get the actual value of `VAL`, an argument to a macro.
 
@@ -72,13 +72,13 @@ unwrap them in order to use them.
 Print the value `X`, then return it unmodified.
 
 ## `(defmacro name args &body)`
-*Macro defined at lib/base.lisp:39:1*
+*Macro defined at lib/base.lisp:38:1*
 
 Define `NAME` to be the macro given by (lambda `ARGS` @`BODY`), with
 optional metadata at the start of `BODY`.
 
 ## `(defun name args &body)`
-*Macro defined at lib/base.lisp:33:1*
+*Macro defined at lib/base.lisp:32:1*
 
 Define `NAME` to be the function given by (lambda `ARGS` @`BODY`), with
 optional metadata at the start of `BODY`.
@@ -90,18 +90,23 @@ Iterate `BODY`, with the counter `CTR` bound to `START`, being incremented
 by `STEP` every iteration until `CTR` is outside of the range given by
 [`START` .. `END`]
 
+## `(for-pairs vars tbl &body)`
+*Macro defined at lib/base.lisp:175:1*
+
+Iterate over `TBL`, binding `VARS` for each key value pair in `BODY`
+
 ## `gensym`
-*Defined at lib/base.lisp:83:1*
+*Defined at lib/base.lisp:82:1*
 
 Create a unique symbol, suitable for using in macros
 
 ## `(if c t b)`
-*Macro defined at lib/base.lisp:60:1*
+*Macro defined at lib/base.lisp:59:1*
 
 Evaluate `T` if `C` is true, otherwise, evaluate `B`.
 
 ## `(list &xs)`
-*Defined at lib/base.lisp:48:1*
+*Defined at lib/base.lisp:47:1*
 
 Return the list of variadic arguments given.
 
@@ -117,17 +122,17 @@ Return the logical or of values `A` and `B`, and, if present, the
 logical or of all the values in `REST`.
 
 ## `(pretty value)`
-*Defined at lib/base.lisp:175:1*
+*Defined at lib/base.lisp:191:1*
 
 Format `VALUE` as a valid Lisp expression which can be parsed.
 
 ## `(progn &body)`
-*Macro defined at lib/base.lisp:56:1*
+*Macro defined at lib/base.lisp:55:1*
 
 Group a series of expressions together.
 
 ## `(quasiquote val)`
-*Macro defined at lib/base.lisp:250:1*
+*Macro defined at lib/base.lisp:265:1*
 
 Quote `VAL`, but replacing all `unquote` and `unquote-splice` with their actual value.
 
@@ -141,12 +146,12 @@ Take a slice of `XS`, with all values at indexes between `START` and `FINISH` (o
 entry of `XS` if not specified).
 
 ## `(unless c &body)`
-*Macro defined at lib/base.lisp:68:1*
+*Macro defined at lib/base.lisp:67:1*
 
 Evaluate `BODY` if `C` is false, otherwise, evaluate `nil`.
 
 ## `(when c &body)`
-*Macro defined at lib/base.lisp:64:1*
+*Macro defined at lib/base.lisp:63:1*
 
 Evaluate `BODY` when `C` is true, otherwise, evaluate `nil`.
 
@@ -174,14 +179,14 @@ Bind the single variable `VAR`, then evaluate `BODY`.
  - `>` *Native defined at lib/lua/basic.lisp:5:1*
  - `>=` *Native defined at lib/lua/basic.lisp:6:1*
  - `^` *Native defined at lib/lua/basic.lisp:13:1*
- - `(car xs)` *Defined at lib/base.lisp:45:1*
- - `(cdr xs)` *Defined at lib/base.lisp:46:1*
+ - `(car xs)` *Defined at lib/base.lisp:44:1*
+ - `(cdr xs)` *Defined at lib/base.lisp:45:1*
  - `concat` *Native defined at lib/lua/table.lisp:1:1*
  - `error` *Native defined at lib/lua/basic.lisp:27:1*
  - `get-idx` *Native defined at lib/lua/basic.lisp:37:1*
  - `getmetatable` *Native defined at lib/lua/basic.lisp:28:1*
  - `len#` *Native defined at lib/lua/basic.lisp:19:1*
- - `(let* vars &body)` *Macro defined at lib/base.lisp:72:1*
+ - `(let* vars &body)` *Macro defined at lib/base.lisp:71:1*
  - `pcall` *Native defined at lib/lua/basic.lisp:34:1*
  - `print` *Native defined at lib/lua/basic.lisp:35:1*
  - `require` *Native defined at lib/lua/basic.lisp:42:1*

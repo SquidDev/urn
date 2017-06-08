@@ -2,11 +2,6 @@
 title: lua/table
 ---
 # lua/table
-## `iter-pairs`
-*Native defined at lib/lua/table.lisp:8:1*
-
-Iterate over `TABLE` with a function `FUNC` of the form (lambda (`KEY` `VAL`) ...)
-
 ## Undocumented symbols
  - `concat` *Native defined at lib/lua/table.lisp:1:1*
  - `insert` *Native defined at lib/lua/table.lisp:2:1*
