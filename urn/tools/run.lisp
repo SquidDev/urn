@@ -185,7 +185,7 @@
   :hidden
   (w/line! out (string/format "\xE2\x94\x94 %s %s %d (%2.5f%%)"
                  (if (.> stack :name) (traceback/unmangle-ident (.> stack :name)) "<unknown>")
-                 (traceback/remap-message mappings (.. (.> stack :short_src) ":" (.> stack :linedefined)))
+                 (if (.> stack :short_src) (traceback/remap-message mappings (.. (.> stack :short_src) ":" (.> stack :linedefined))) "")
                  (.> stack :n) (* (/ (.> stack :n) total) 100)))
   (when (if remaining (>= remaining 1) true)
     (w/indent! out)
@@ -202,7 +202,7 @@
   (with (renamed (..
                    (if (.> stack :name) (traceback/unmangle-ident (.> stack :name)) "?")
                    "`"
-                   (traceback/remap-message mappings (.. (.> stack :short_src) ":" (.> stack :linedefined)))))
+                   (if (.> stack :short_src) (traceback/remap-message mappings (.. (.> stack :short_src) ":" (.> stack :linedefined))) "")))
     (print! (string/format "%s%s %d" before renamed (.> stack :n)))
     (when (if remaining (>= remaining 1) true)
       (with (whole (.. before renamed ";"))
