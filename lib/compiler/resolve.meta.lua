@@ -7,5 +7,6 @@ return {
 	["var-definition"] = { tag = "var", contents = "_compiler[\"var-definition\"]", value = _compiler["var-definition"], },
 	["var-docstring"] =  { tag = "var", contents = "_compiler[\"var-docstring\"]",  value = _compiler["var-docstring"],  },
 	["var-lookup"] =     { tag = "var", contents = "_compiler[\"var-lookup\"]",     value = _compiler["var-lookup"],     },
+	["try-var-lookup"] = { tag = "var", contents = "_compiler[\"try-var-lookup\"]", value = _compiler["try-var-lookup"], },
 	["var-value"] =      { tag = "var", contents = "_compiler[\"var-value\"]",      value = _compiler["var-value"],      },
 }

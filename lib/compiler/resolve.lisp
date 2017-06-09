@@ -19,6 +19,13 @@
    will yield until it has been resolved: do not call this within
    another coroutine.")
 
+(define-native try-var-lookup
+  "Try to look up SYMBOL in the given SCOPE, using the [[active-scope]]
+   if none given.
+
+   If this variable hasn't been defined yet then this will return
+   `nil`.")
+
 (define-native var-definition
   "Get the definition of the given VARIABLE, returning `nil` if it is
    not a top level definition.
