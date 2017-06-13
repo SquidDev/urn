@@ -338,9 +338,9 @@
                              (error-positions! (.> state :logger) node (.. "Expected list from unquote-splice, got '" (type result) "'")))
 
                            (when (= (n result) 0)
-                             (set! result { :tag "symbol"
-                                            :contents "nil"
-                                            :var (.> builtins :nil) }))
+                             (set! result (list { :tag "symbol"
+                                                  :contents "nil"
+                                                  :var (.> builtins :nil) })))
 
                            (for i 1 (n result) 1
                              (.<! result i (resolve-execute-result child-state (nth result i) node scope state)))
