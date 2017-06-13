@@ -42,6 +42,28 @@
   (assert-type! x list)
   (base/car x))
 
+(defmacro car/setf! (selector val)
+  "An implementation of `setf!` for [[car]].
+
+   ### Example
+   ```cl
+   (setf! (car foo) 123)
+   ```"
+  :hidden
+  `(set-idx! ,(nth selector 1) 1 ,val))
+
+(defmacro car/over! (selector fun)
+  "An implementation of `over!` for [[car]].
+
+   ### Example
+   ```cl
+   (over! (car foo) (cut + <> 2))
+   ```"
+  :hidden
+  (with (val-sym (gensym))
+    `(with (,val-sym ,(nth selector 1))
+       (set-idx! ,val-sym 1 (,fun (car ,val-sym))))))
+
 (defun cdr (x)
   "Return the list X without the first element present. In the case that
    X is nil, the empty list is returned. Due to the way lists are
@@ -351,6 +373,30 @@
    out = 10
    ```"
   (get-idx xs idx))
+
+(defmacro nth/setf! (selector val)
+  "An implementation of `setf!` for list access.
+
+   ### Example
+   ```cl
+   (setf! (nth foo 2) 123)
+   ```"
+  :hidden
+  `(set-idx! ,(nth selector 1) ,(nth selector 2) ,val))
+
+(defmacro nth/over! (selector fun)
+  "An implementation of `over!` for list access.
+
+   ### Example
+   ```cl
+   (over! (nth foo 2) (cut + <> 2))
+   ```"
+  :hidden
+  (let* [(key-sym (gensym))
+         (val-sym (gensym))]
+    `(let* [(,val-sym ,(nth selector 1))
+            (,key-sym ,(nth selector 2))]
+       (set-idx! ,val-sym ,key-sym (,fun (get-idx ,val-sym ,key-sym))))))
 
 (defun nths (xss idx)
   "Get the IDX-th element in all the lists given at XSS. The first

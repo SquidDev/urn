@@ -1,3 +1,5 @@
+(import base (defun))
+
 (define-native active-node
   "Get the node currently being resolved.")
 

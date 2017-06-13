@@ -1,10 +1,13 @@
 (import base (defmacro if with get-idx set-idx! gensym
               slice + - .. n))
 
-(import binders (let))
+(import binders (let*))
 (import type (symbol?))
 (import list (car cdr nth))
 (import table (.> .<!))
+
+(import compiler/resolve res)
+(import compiler/nodes nodes)
 
 (defmacro setf! (obj val)
   "Set the location selector OBJ to VAL.
@@ -17,8 +20,9 @@
    the first element of the list, you'd use `(setf! (car xs) 42)`.
 
    This function given in the getter will have `/setf!` appended to it,
-   and looked up in the current scope. This definition will then be used
-   to generate the setter.
+   and looked up in the scope the getter is defined in (or the current
+   scope if not found). This definition will then be used to generate the
+   setter.
 
    ### Example
    ```cl
@@ -28,41 +32,11 @@
    ```"
   (if (symbol? obj)
     `(set! ,obj ,val)
-    `(,{:tag "symbol" :contents (.. (.> (car obj) :contents) "/setf!")} ,(cdr obj) ,val)))
-
-(defmacro .>/setf! (selector val)
-  "An implementation of [[setf!]] for table acccess.
-
-   This should not be used directly, but via [[setf!]] or [[.<!]]
-   instead.
-
-   ### Example
-   ```cl
-   (setf! (.> foo :bar) 123)
-   ```"
-  `(.<! ,@selector ,val))
-
-(defmacro nth/setf! (selector val)
-  "An implementation of [[setf!]] for list access.
-
-   This should not be used directly, but via [[setf!]] instead.
-
-   ### Example
-   ```cl
-   (setf! (nth foo 2) 123)
-   ```"
-  `(set-idx! ,(nth selector 1) ,(nth selector 2) ,val))
-
-(defmacro car/setf! (selector val)
-  "An implementation of [[setf!]] for [[car]].
-
-   This should not be used directly, but via [[setf!]] instead.
-
-   ### Example
-   ```cl
-   (setf! (car foo) 123)
-   ```"
-  `(set-idx! ,(nth selector 1) 1 ,val))
+    (let* [(symb (car obj))
+           (getter (.> (res/var-lookup symb)))
+           (name { :tag "symbol" :contents (.. (.> symb :contents) "/setf!") })
+           (setter (res/try-var-lookup name (.> (res/var-lookup symb) :scope)))]
+      `(,(if setter (nodes/var->symbol setter) name) ,(cdr obj) ,val))))
 
 (defmacro over! (obj fun)
   "Apply function FUN over the location selector OBJ, storing the result
@@ -76,10 +50,10 @@
    the first element of the list, you'd use `(over! (car xs) succ)`.
 
    This function given in the getter will have `/over!` appended to it,
-   and looked up in the current scope. This definition will then be used
-   to generate the accessor and setter. Implementations should cache
-   accesses, meaning that lists and structures are not indexed multiple
-   times.
+   and looked up in the scope the getter is defined in (or the current
+   scope if not found). This definition will then be used to generate the
+   accessor and setter. Implementations should cache accesses, meaning
+   that lists and structures are not indexed multiple times.
 
    ### Example
    ```cl
@@ -89,50 +63,11 @@
    ```"
   (if (symbol? obj)
     `(set! ,obj (,fun ,obj))
-    `(,{:tag "symbol" :contents (.. (.> (car obj) :contents) "/over!")} ,(cdr obj) ,fun)))
-
-(defmacro .>/over! (selector fun)
-  "An implementation of [[over!]] for table access.
-
-   This should not be used directly, but via [[over!]].
-
-   ### Example
-   ```cl
-   (over! (.> foo :bar) (cut + <> 2))
-    ```"
-  (let [(key-sym (gensym))
-        (val-sym (gensym))]
-    `(let [(,val-sym (.> ,@(slice selector 1 (- (n selector) 1))))
-           (,key-sym ,(nth selector (n selector)))]
-       (set-idx! ,val-sym ,key-sym (,fun (get-idx ,val-sym ,key-sym))))))
-
-(defmacro nth/over! (selector fun)
-  "An implementation of [[over!]] for list access.
-
-   This should not be used directly, but via [[over!]] instead.
-
-   ### Example
-   ```cl
-   (over! (nth foo 2) (cut + <> 2))
-   ```"
-  (let [(key-sym (gensym))
-        (val-sym (gensym))]
-    `(let [(,val-sym ,(nth selector 1))
-           (,key-sym ,(nth selector 2))]
-       (set-idx! ,val-sym ,key-sym (,fun (get-idx ,val-sym ,key-sym))))))
-
-(defmacro car/over! (selector fun)
-  "An implementation of [[over!]] for [[car]].
-
-   This should not be used directly, but via [[over!]] instead.
-
-   ### Example
-   ```cl
-   (over! (car foo) (cut + <> 2))
-   ```"
-  (with (val-sym (gensym))
-    `(with (,val-sym ,(nth selector 1))
-       (set-idx! ,val-sym 1 (,fun (car ,val-sym))))))
+    (let* [(symb (car obj))
+           (getter (.> (res/var-lookup symb)))
+           (name { :tag "symbol" :contents (.. (.> symb :contents) "/over!") })
+           (setter (res/try-var-lookup name (.> (res/var-lookup symb) :scope)))]
+      `(,(if setter (nodes/var->symbol setter) name) ,(cdr obj) ,fun))))
 
 (defmacro inc! (x)
   "Increment the value selector X in place."
