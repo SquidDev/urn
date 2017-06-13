@@ -115,3 +115,51 @@
                 )))]
     `(let* ,(map generate-binding bindings)
        ,@(map generate-body props))))
+
+(defmacro tripping (f g x)
+  "Express that the composition of the functions F and G (in order!)
+   are equivalent to the identity, on the argument X.
+
+   As an example, consider a pair of encoding and decoding functions:
+   Decoding an encoded datum should be equivalent to the originally
+   encoded datum. Algebraically, we express this as
+   `(forall a (=:= (compose f g) id a))`.
+
+   Example:
+   ```cl
+   (check [(number a)]
+     (tripping tonumber tostring))
+   ```"
+  (let* [(y (gensym))]
+    `(let* [(,y ,x)]
+       (eq? (,f (,g ,y)) ,y))))
+
+(defmacro =:= (f g x)
+  "Express that the functions F and G are equivalent at the point X.
+
+   Example:
+   ```cl
+   (check [(number a)]
+     (=:= id (compose id id) a))
+   ```"
+  (let* [(y (gensym))]
+    `(let* [(,y ,x)]
+       (eq? (,f ,y) (,g ,y)))))
+
+(defmacro forall (var prop)
+  "Check that PROP holds across all possible points. This is a
+   restricted version of [[check]] that does not allow specifying
+   several variables.
+
+   VAR may be either a single, in which case it is interpreted as
+   being a variable name, or a list with a type and the variable
+   name.
+   Example:
+   ```cl
+   (forall a (eq? a (id a)))
+   ```"
+  (let* [(v (if (list? var)
+              var
+              `(,'any ,var)))]
+    `(check [,v]
+       ,prop)))
