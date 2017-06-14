@@ -8268,6 +8268,19 @@ createPluginState1 = (function(compiler)
 			scope = compiler["active-scope"]
 		end
 		return getAlways_21_1(scope, symbol_2d3e_string1(symb), compiler["active-node"])
+	end),["try-var-lookup"]=(function(symb, scope)
+		local temp = type1(symb)
+		if (temp ~= "symbol") then
+			error1(format1("bad argument %s (expected %s, got %s)", "symb", "symbol", temp), 2)
+		end
+		if (compiler["active-node"] == nil) then
+			error1("Not currently resolving")
+		end
+		if scope then
+		else
+			scope = compiler["active-scope"]
+		end
+		return get1(scope, symbol_2d3e_string1(symb))
 	end),["var-definition"]=(function(var)
 		if (compiler["active-node"] == nil) then
 			error1("Not currently resolving")
