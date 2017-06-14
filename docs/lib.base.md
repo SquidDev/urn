@@ -111,7 +111,7 @@ Evaluate `T` if `C` is true, otherwise, evaluate `B`.
 Return the list of variadic arguments given.
 
 ## `(n x)`
-*Defined at lib/lua/basic.lisp:50:1*
+*Defined at lib/lua/basic.lisp:47:1*
 
 Get the length of list X
 
@@ -139,8 +139,8 @@ Quote `VAL`, but replacing all `unquote` and `unquote-splice` with their actual 
 Be warned, by using this you loose all macro hygiene. Variables may not be bound to their
 expected values.
 
-## `slice`
-*Native defined at lib/lua/basic.lisp:20:1*
+## `(slice xs start finish)`
+*Defined at lib/lua/basic.lisp:55:1*
 
 Take a slice of `XS`, with all values at indexes between `START` and `FINISH` (or the last
 entry of `XS` if not specified).
@@ -182,17 +182,17 @@ Bind the single variable `VAR`, then evaluate `BODY`.
  - `(car xs)` *Defined at lib/base.lisp:44:1*
  - `(cdr xs)` *Defined at lib/base.lisp:45:1*
  - `concat` *Native defined at lib/lua/table.lisp:1:1*
- - `error` *Native defined at lib/lua/basic.lisp:27:1*
- - `get-idx` *Native defined at lib/lua/basic.lisp:37:1*
- - `getmetatable` *Native defined at lib/lua/basic.lisp:28:1*
+ - `error` *Native defined at lib/lua/basic.lisp:24:1*
+ - `get-idx` *Native defined at lib/lua/basic.lisp:34:1*
+ - `getmetatable` *Native defined at lib/lua/basic.lisp:25:1*
  - `len#` *Native defined at lib/lua/basic.lisp:19:1*
  - `(let* vars &body)` *Macro defined at lib/base.lisp:71:1*
- - `pcall` *Native defined at lib/lua/basic.lisp:34:1*
- - `print` *Native defined at lib/lua/basic.lisp:35:1*
- - `require` *Native defined at lib/lua/basic.lisp:42:1*
- - `set-idx!` *Native defined at lib/lua/basic.lisp:39:1*
- - `tonumber` *Native defined at lib/lua/basic.lisp:45:1*
- - `tostring` *Native defined at lib/lua/basic.lisp:46:1*
- - `type#` *Native defined at lib/lua/basic.lisp:47:1*
+ - `pcall` *Native defined at lib/lua/basic.lisp:31:1*
+ - `print` *Native defined at lib/lua/basic.lisp:32:1*
+ - `require` *Native defined at lib/lua/basic.lisp:39:1*
+ - `set-idx!` *Native defined at lib/lua/basic.lisp:36:1*
+ - `tonumber` *Native defined at lib/lua/basic.lisp:42:1*
+ - `tostring` *Native defined at lib/lua/basic.lisp:43:1*
+ - `type#` *Native defined at lib/lua/basic.lisp:44:1*
  - `unpack` *Native defined at lib/lua/table.lisp:7:1*
- - `xpcall` *Native defined at lib/lua/basic.lisp:48:1*
+ - `xpcall` *Native defined at lib/lua/basic.lisp:45:1*

@@ -3,7 +3,7 @@ title: table
 ---
 # table
 ## `(.<! x &keys value)`
-*Macro defined at lib/table.lisp:91:1*
+*Macro defined at lib/table.lisp:121:1*
 
 Set the value at `KEYS` in the structure `X` to `VALUE`.
 
@@ -31,13 +31,13 @@ the first value is chosen.
 Check that `KEY` is bound in the association list `LIST`.
 
 ## `(create-lookup values)`
-*Defined at lib/table.lisp:176:1*
+*Defined at lib/table.lisp:206:1*
 
 Convert `VALUES` into a lookup table, with each value being converted to
 a key whose corresponding value is the value's index.
 
 ## `(empty-struct? xs)`
-*Defined at lib/table.lisp:137:1*
+*Defined at lib/table.lisp:167:1*
 
 Check that `XS` is the empty struct.
 
@@ -48,7 +48,7 @@ Extend the association list `LIST`_ by inserting `VAL`, bound to the key
 `KEY`, overriding any previous value.
 
 ## `(fast-struct &entries)`
-*Defined at lib/table.lisp:124:1*
+*Defined at lib/table.lisp:154:1*
 
 `A` variation of [`struct`](lib.table.md#struct-entries), which will not perform any coercing of the
 `KEYS` in entries.
@@ -69,27 +69,27 @@ Extend the association list `LIST`_ in place by inserting `VAL`, bound to
 the key `KEY`.
 
 ## `(iter-pairs table func)`
-*Defined at lib/table.lisp:147:1*
+*Defined at lib/table.lisp:177:1*
 
 Iterate over `TABLE` with a function `FUNC` of the form `(lambda (key val) ...)`
 
 ## `(keys st)`
-*Defined at lib/table.lisp:159:1*
+*Defined at lib/table.lisp:189:1*
 
 Return the keys in the structure `ST`.
 
 ## `(merge &structs)`
-*Defined at lib/table.lisp:151:1*
+*Defined at lib/table.lisp:181:1*
 
 Merge all tables in `STRUCTS` together into a new table.
 
 ## `(nkeys st)`
-*Defined at lib/table.lisp:141:1*
+*Defined at lib/table.lisp:171:1*
 
 Return the number of keys in the structure `ST`.
 
 ## `(struct &entries)`
-*Defined at lib/table.lisp:99:1*
+*Defined at lib/table.lisp:129:1*
 
 Return the structure given by the list of pairs `ENTRIES`. Note that, in
 contrast to variations of [`let`](lib.binders.md#let-vars-body), the pairs are given "unpacked":
@@ -128,18 +128,18 @@ to a regular list. This differs from `struct->list` in that it mutates
 its argument.
 
 ## `(update-struct st &keys)`
-*Defined at lib/table.lisp:171:1*
+*Defined at lib/table.lisp:201:1*
 
 Create a new structure based of `ST`, setting the values given by the
 pairs in `KEYS`.
 
 ## `(values st)`
-*Defined at lib/table.lisp:165:1*
+*Defined at lib/table.lisp:195:1*
 
 Return the values in the structure `ST`.
 
 ## Undocumented symbols
- - `getmetatable` *Native defined at lib/lua/basic.lisp:28:1*
+ - `getmetatable` *Native defined at lib/lua/basic.lisp:25:1*
  - `len#` *Native defined at lib/lua/basic.lisp:19:1*
- - `next` *Native defined at lib/lua/basic.lisp:32:1*
- - `setmetatable` *Native defined at lib/lua/basic.lisp:44:1*
+ - `next` *Native defined at lib/lua/basic.lisp:29:1*
+ - `setmetatable` *Native defined at lib/lua/basic.lisp:41:1*
