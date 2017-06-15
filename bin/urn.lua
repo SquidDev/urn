@@ -6480,7 +6480,7 @@ resolveNode1 = (function(node, scope, state, root, many)
 							local temp6 = list1(xpcall1(func1, traceback1))
 							if ((type1(temp6) == "list") and ((n1(temp6) >= 2) and ((n1(temp6) <= 2) and (eq_3f_1(temp6[1], false) and true)))) then
 								local msg = temp6[2]
-								doNodeError_21_1(state["logger"], remapTraceback1(state["mappings"][msg]), node, nil, getSource1(node), "")
+								doNodeError_21_1(state["logger"], remapTraceback1(state["mappings"], msg), node, nil, getSource1(node), "")
 							elseif ((type1(temp6) == "list") and ((n1(temp6) >= 1) and (eq_3f_1(temp6[1], true) and true))) then
 								local replacement = slice1(temp6, 2)
 								if (temp5 == n1(node)) then
@@ -6488,7 +6488,8 @@ resolveNode1 = (function(node, scope, state, root, many)
 									local temp8 = nil
 									local temp9 = 1
 									while (temp9 <= temp7) do
-										pushCdr_21_1(result, (replacement[temp9]))
+										local child = replacement[temp9]
+										pushCdr_21_1(result, child)
 										pushCdr_21_1(states, childState)
 										temp9 = (temp9 + 1)
 									end
@@ -6505,6 +6506,9 @@ resolveNode1 = (function(node, scope, state, root, many)
 								error1(("Pattern matching failure!\nTried to match the following patterns against " .. (pretty1(temp6) .. (", but none matched.\n" .. "  Tried: `(false ?msg)`\n  Tried: `(true . ?replacement)`"))))
 							end
 							temp5 = (temp5 + 1)
+						end
+						if ((n1(result) == 0) or ((n1(result) == 1) and (car1(result) == nil))) then
+							result = list1(({["tag"]="symbol",["contents"]="nil",["var"]=builtins1["nil"]}))
 						end
 						local temp3 = n1(result)
 						local temp4 = nil
@@ -6532,7 +6536,7 @@ resolveNode1 = (function(node, scope, state, root, many)
 						local temp3 = list1(xpcall1(func1, traceback1))
 						if ((type1(temp3) == "list") and ((n1(temp3) >= 2) and ((n1(temp3) <= 2) and (eq_3f_1(temp3[1], false) and true)))) then
 							local msg = temp3[2]
-							return doNodeError_21_1(state["logger"], remapTraceback1(state["mappings"][msg]), node, nil, getSource1(node), "")
+							return doNodeError_21_1(state["logger"], remapTraceback1(state["mappings"], msg), node, nil, getSource1(node), "")
 						elseif ((type1(temp3) == "list") and ((n1(temp3) >= 1) and (eq_3f_1(temp3[1], true) and true))) then
 							local replacement = slice1(temp3, 2)
 							local result = car1(replacement)

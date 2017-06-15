@@ -287,7 +287,7 @@
 
                           (case (list (xpcall func debug/traceback))
                             [(false ?msg)
-                             (error-positions! (.> state :logger) node (remap-traceback (.> state :mappings msg)))]
+                             (error-positions! (.> state :logger) node (remap-traceback (.> state :mappings) msg))]
                             [(true . ?replacement)
                              (cond
                                [(= i (n node))
@@ -298,6 +298,11 @@
                                 (push-cdr! result (car replacement))
                                 (push-cdr! states child-state)]
                                [true (error-positions! (.> state :logger) (nth node i) (.. "Expected one value, got " (n replacement)))])]))))
+
+                    (when (or (= (n result) 0) (and (= (n result) 1) (= (car result) nil)))
+                      (set! result (list { :tag "symbol"
+                                           :contents "nil"
+                                           :var (.> builtins :nil) })))
 
                     (for i 1 (n result) 1
                       (.<! result i (resolve-execute-result (nth states i) (nth result i) node scope state)))
@@ -331,7 +336,7 @@
 
                       (case (list (xpcall func debug/traceback))
                         [(false ?msg)
-                         (error-positions! (.> state :logger) node (remap-traceback (.> state :mappings msg)))]
+                         (error-positions! (.> state :logger) node (remap-traceback (.> state :mappings) msg))]
                         [(true . ?replacement)
                          (with (result (car replacement))
                            (unless (list? result)
