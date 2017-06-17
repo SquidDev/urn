@@ -1,5 +1,6 @@
 (import extra/term (colored))
 (import lua/debug (traceback))
+(import lua/os (clock))
 (import extra/assert (assert!) :export)
 
 (define tests-passed  :hidden (gensym))
@@ -8,6 +9,8 @@
 (define tests-total   :hidden (gensym))
 (define prefix        :hidden (gensym))
 (define quiet         :hidden (gensym))
+(define time          :hidden (gensym))
+(define start-time    :hidden (gensym))
 
 (defmacro marker (color)
   "Add a dot with the given COLOR to mark a single test's result"
@@ -18,13 +21,13 @@
 (defmacro it (name &body)
   "Create a test NAME which executes all expressions and assertions in
    BODY"
-  `(progn
+  `(with (,start-time (clock))
     (inc! ,tests-total)
     (xpcall
       (lambda ()
         ,@body
-        (marker 32)
-        (push-cdr! ,tests-passed (.. ,prefix " " ,name)))
+        (push-cdr! ,tests-passed (.. ,prefix " " ,name (if ,time (string/format " (took %.2f seconds)" (- (clock) ,start-time)) "")))
+        (marker 32))
       (lambda (,'msg)
         (marker 31)
         (push-cdr! ,tests-failed (list (.. ,prefix " " ,name) (if ,quiet ,'msg (traceback ,'msg))))))))
@@ -61,12 +64,13 @@
 
 (defmacro describe (name &body)
   "Create a group of tests, defined in BODY, which test NAME"
-  `(let ((,tests-passed '())
+  `(let [(,tests-passed '())
          (,tests-failed '())
          (,tests-pending '())
          (,tests-total 0)
          (,prefix ,name)
-         (,quiet (any (lambda (,'x) (or (= ,'x "--quiet") (= ,'x "-q"))) arg)))
+         (,quiet (any (lambda (,'x) (or (= ,'x "--quiet") (= ,'x "-q"))) arg))
+         (,time  (any (lambda (,'x) (or (= ,'x "--time") (= ,'x "-t"))) arg))]
      ,@body
 
      (when (and ,quiet (> ,tests-total 0))

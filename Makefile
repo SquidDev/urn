@@ -11,6 +11,7 @@ LIBS      := $(shell find lib -type f -name "*.lisp")
 
 ifeq (${TIME},1)
 LUA_FLAGS += --time
+TEST_FLAGS += --time
 endif
 
 ifeq (${QUIET},1)
