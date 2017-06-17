@@ -84,7 +84,7 @@
                        (symbol->string name) "', had the value ") (pretty ,name))))
          (n (if (number? (car props))
               (car props)
-              1000))
+              100))
          (props (if (number? (car props))
                   (cdr props)
                   props))
