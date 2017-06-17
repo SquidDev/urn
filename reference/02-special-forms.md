@@ -136,8 +136,8 @@ will result in a compiler error.
 (import lua/os os)
 ```
 
-## `(const-struct &pairs)`
-`const-struct` is used to create a Lua table. It can either be called directly, or using the special `{}`
+## `(struct-literal &pairs)`
+`struct-literal` is used to create a Lua table. It can either be called directly, or using the special `{}`
 syntax. `PAIRS` defines a collection of keys and values: the odd numbered elements defining the keys, and the even ones
 the values. If there are not an even number of arguments, then compilation will fail.
 
