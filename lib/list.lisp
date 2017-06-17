@@ -236,7 +236,14 @@
    ```"
   (assert-type! p function)
   (assert-type! xs list)
-  (accumulate-with p -or false xs))
+  (let* [(len (n xs))
+         (fun nil)]
+    (set! fun (lambda (i)
+                (cond
+                  [(> i len) false]
+                  [(p (nth xs i)) true]
+                  [true (fun (+ i 1))])))
+    (fun 1)))
 
 (defun none (p xs)
   "Check that no elements in XS match the predicate P.
@@ -301,7 +308,14 @@
    ```"
   (assert-type! p function)
   (assert-type! xs list)
-  (accumulate-with p -and true xs))
+  (let* [(len (n xs))
+         (fun nil)]
+    (set! fun (lambda (i)
+                (cond
+                  [(> i len) true]
+                  [(p (nth xs i)) (fun (+ i 1))]
+                  [true false])))
+    (fun 1)))
 
 (defun elem? (x xs)
   "Test if X is present in the list XS.
