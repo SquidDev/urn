@@ -76,7 +76,7 @@
       ,(car (cdr (car vars))))))
 
 (defun ! (expr)
-  "Negate the expresison EXPR."
+  "Negate the expression EXPR."
   (if expr false true))
 
 (define gensym
@@ -265,7 +265,7 @@
 (defmacro quasiquote (val)
   "Quote VAL, but replacing all `unquote` and `unquote-splice` with their actual value.
 
-   Be warned, by using this you loose all macro hygiene. Variables may not be bound to their
+   Be warned, by using this you lose all macro hygiene. Variables may not be bound to their
    expected values."
   (list `syntax-quote (quasiquote# val)))
 

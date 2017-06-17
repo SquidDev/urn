@@ -102,9 +102,6 @@ gensym1 = (function(name)
 	counter = (counter + 1)
 	return ({["tag"]="symbol",["display-name"]="temp",["contents"]=format1("r_%d%s", counter, name)})
 end)
-_2d_or1 = (function(a, b)
-	return (a or b)
-end)
 pretty1 = (function(value)
 	local ty = type_23_1(value)
 	if (ty == "table") then
@@ -351,7 +348,18 @@ any1 = (function(p, xs)
 	if (temp ~= "list") then
 		error1(format1("bad argument %s (expected %s, got %s)", "xs", "list", temp), 2)
 	end
-	return accumulateWith1(p, _2d_or1, false, xs)
+	local len = n1(xs)
+	local fun = nil
+	local i = 1
+	while true do
+		if (i > len) then
+			return false
+		elseif p(xs[i]) then
+			return true
+		else
+			i = (i + 1)
+		end
+	end
 end)
 elem_3f_1 = (function(x, xs)
 	local temp = type1(xs)
@@ -426,17 +434,6 @@ append1 = (function(xs, ys)
 	_offset = _offset + _temp.n
 	_result.n = _offset + 0
 	return _result
-end)
-accumulateWith1 = (function(f, ac, z, xs)
-	local temp = type1(f)
-	if (temp ~= "function") then
-		error1(format1("bad argument %s (expected %s, got %s)", "f", "function", temp), 2)
-	end
-	local temp = type1(ac)
-	if (temp ~= "function") then
-		error1(format1("bad argument %s (expected %s, got %s)", "ac", "function", temp), 2)
-	end
-	return foldl1(ac, z, map1(f, xs))
 end)
 cadr1 = (function(xs)
 	local temp = type1(xs)
@@ -5491,7 +5488,7 @@ end),["pred"]=(function(args)
 	return (args["warning"] > 0)
 end),["run"]=passRun1(analyse1, "warning")})
 optimise2 = ({["name"]="optimise",["setup"]=(function(spec)
-	addArgument_21_1(spec, ({tag = "list", n = 2, "--optimise", "-O"}), "help", "Either the optimiation level to use or an enable/disable flag for a pass.", "default", 1, "narg", 1, "var", "LEVEL", "many", true, "action", passArg1)
+	addArgument_21_1(spec, ({tag = "list", n = 2, "--optimise", "-O"}), "help", "Either the optimisation level to use or an enable/disable flag for a pass.", "default", 1, "narg", 1, "var", "LEVEL", "many", true, "action", passArg1)
 	addArgument_21_1(spec, ({tag = "list", n = 2, "--optimise-n", "--optn"}), "help", "The maximum number of iterations the optimiser should run for.", "default", 10, "narg", 1, "action", setNumAction1)
 	return addArgument_21_1(spec, ({tag = "list", n = 2, "--optimise-time", "--optt"}), "help", "The maximum time the optimiser should run for.", "default", -1, "narg", 1, "action", setNumAction1)
 end),["pred"]=(function(args)

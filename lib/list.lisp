@@ -181,7 +181,7 @@
                 (range 1 10))
    out = (2 4 6 8 10)
    ```"
-  (let* [(lenghts (let* [(out '())]
+  (let* [(lengths (let* [(out '())]
                     (for i 1 (n xss) 1
                       (if (! (list? (nth xss i)))
                         (error (.. "not a list: " (pretty (nth xss i))
@@ -190,7 +190,7 @@
                       (push-cdr! out (n (nth xss i))))
                     out))
          (out '())]
-    (for i 1 (apply min lenghts) 1
+    (for i 1 (apply min lengths) 1
       (let* [(vl (apply fn (nths xss i)))]
         (if (/= vl nil)
           (push-cdr! out vl)

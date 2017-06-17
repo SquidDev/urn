@@ -112,7 +112,7 @@
   { :name  "optimise"
     :setup (lambda (spec)
              (arg/add-argument! spec '("--optimise" "-O")
-               :help    "Either the optimiation level to use or an enable/disable flag for a pass."
+               :help    "Either the optimisation level to use or an enable/disable flag for a pass."
                :default 1
                :narg    1
                :var     "LEVEL"
