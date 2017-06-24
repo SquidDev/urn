@@ -570,7 +570,7 @@
            ;; We have no variable
            (compile-expression (nth vals arg-idx) out state "")
            (inc! arg-idx)]
-          [(.> (.> arg :var) :isVariadic)
+          [(.> arg :var :isVariadic)
            ;; If we're variadic then create a list of each sub expression
            (let* [(esc (push-escape-var! (.> arg :var) state))
                   (count (- val-len arg-len))]
@@ -601,23 +601,53 @@
              (compile-expression val out state ret)
              (inc! val-idx))]
           [true
-           (let* [(expr (nth vals val-idx))
-                  (var (.> arg :var))
-                  (esc (push-escape-var! var state))
-                  (ret nil)]
-             (w/append! out (.. "local " esc))
-             (if expr
-               (progn
-                 (if (.> cat-lookup expr :stmt)
+           (let* [(arg-start arg-idx)
+                  (val-start val-idx)
+                  (working true)]
+             ;; Attempt to collapse multiple definitions into one.
+             (while (and working (or (<= arg-idx arg-len) (<= val-idx val-len)))
+               (let* [(arg (nth args arg-idx))
+                      (val (nth vals val-idx))]
+                 (cond
+                   ;; Variadic arguments are a faff, so we'll just ignore this.
+                   [(and arg (.> arg :var :isVariadic)) (set! working false)]
+                   ;; We've got a statement, so abort.
+                   [(and val (.> cat-lookup val :stmt)) (set! working false)]
+                   ;; Otherwise everything is dandy!.
+                   [true
+                    (when (<= arg-idx arg-len) (inc! arg-idx))
+                    (when (<= val-idx val-len) (inc! val-idx))])))
+
+             (if (= arg-start arg-len)
+               ;; We didn't consume any arguments, so let's just emit one.
+               (let* [(expr (nth vals val-idx))
+                      (var (.> arg :var))
+                      (esc (push-escape-var! var state))
+                      (ret nil)]
+                 (w/append! out (.. "local " esc))
+                 (if expr
                    (progn
-                     (set! ret (.. esc " = "))
-                     (w/line! out))
-                   (w/append! out " = "))
-                 (compile-expression expr out state ret)
-                 (w/line! out))
-               (w/line! out))
-             (inc! arg-idx)
-             (inc! val-idx))]))
+                     (if (.> cat-lookup expr :stmt)
+                       (progn
+                         (set! ret (.. esc " = "))
+                         (w/line! out))
+                       (w/append! out " = "))
+                     (compile-expression expr out state ret))
+                   (w/line! out))
+
+                 (inc! arg-idx)
+                 (inc! val-idx))
+
+               (progn
+                 (w/append! out "local ")
+                 (for i arg-start (pred arg-idx) 1
+                   (when (> i arg-start) (w/append! out ", "))
+                   (w/append! out (push-escape-var! (.> (nth args i) :var) state)))
+                 (when (< val-start val-idx)
+                   (w/append! out " = ")
+                   (for i val-start (pred val-idx) 1
+                     (when (> i val-start) (w/append! out ", "))
+                     (compile-expression (nth vals i) out state))))))]))
       (w/line! out))))
 
 (defun compile-pack (node out state start count)
