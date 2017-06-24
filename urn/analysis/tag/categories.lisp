@@ -95,7 +95,9 @@
                             (and (= (n sub) 2) (builtin? (nth sub 2) :false)))
                           (with (sub (nth node 3))
                             (and (= (n sub) 2) (builtin? (nth sub 1) :true) (builtin? (nth sub 2) :true))))
-                        (cat "not" :stmt (.> lookup (car (nth node 2)) :stmt))]
+
+                        (add-paren lookup (car (nth node 2)) 11)
+                        (cat "not" :stmt (.> lookup (car (nth node 2)) :stmt) :prec 11)]
 
                        [(and
                           ;; If we have two conditions
@@ -114,7 +116,11 @@
                               (or
                                 (and (symbol? branch) (= (.> branch :var) (.> last :var)))
                                 (and test (! (.> lookup branch :stmt)) (= (.> last :var) (.> builtins :false)))))))
-                        (cat "and")]
+
+                        (add-paren lookup (nth (nth node 2) 1) 2) ;; (case [A _] [true A])
+                        (add-paren lookup (nth (nth node 2) 2) 2) ;; (case [_ B] [true _])
+
+                        (cat "and" :prec 2)]
 
                        [(and
                           ;; If we have at least two conditions.
@@ -132,7 +138,11 @@
                           ;; Apart from the last one, which is `[true <expr>]`.
                           (with (branch (last node))
                             (and (= (n branch) 2) (builtin? (car branch) :true) (! (.> lookup (nth branch 2) :stmt)))))
-                        (cat "or")]
+
+                        (with (len (n node))
+                          (for i 2 len 1
+                            (add-paren lookup (nth (nth node i) (if (= i len) 2 1)) 1)))
+                        (cat "or" :prec 1)]
 
                        [true (cat "cond" :stmt true)])]
                     [(= func (.> builtins :set!))
@@ -208,7 +218,13 @@
                                       (>= (pred (n node)) (.> meta :count))
                                       (= (pred (n node)) (.> meta :count))))
                           (visit-nodes lookup state node 1 false)
-                          (cat "call-meta" :meta meta :stmt (= meta-ty "stmt"))]
+
+                          ;; Mark child nodes as requiring parenthesis.
+                          (let* [(prec (.> meta :prec))
+                                 (precs (.> meta :precs))]
+                            (when (or prec precs) (add-parens lookup node 2 prec precs))
+
+                            (cat "call-meta" :meta meta :stmt (= meta-ty "stmt") :prec prec))]
                          [(and recur (= func (.> recur :var)))
                           (.<! recur :tail true)
                           (visit-nodes lookup state node 1 false)
@@ -309,8 +325,12 @@
                         ;; Otherwise we got an expression, so we'll see what we can do.
                         (.<! lookup head (cat "lambda"))
                         (cond
-                          [(and (= ty "and") (unused?)) (cat "and-lambda")]
-                          [(and (= ty "or")  (unused?)) (cat "or-lambda")]
+                          [(and (= ty "and") (unused?))
+                           (add-paren lookup (nth node 2) 2)
+                           (cat "and-lambda" :prec 2)]
+                          [(and (= ty "or") (unused?))
+                           (add-paren lookup (nth node 2) 1)
+                           (cat "or-lambda" :prec 1)]
                           [stmt (cat "call-lambda" :stmt true)]
                           [true (cat "call")]))))]
 
@@ -343,6 +363,7 @@
                    (cat "call-literal")]
                   [true
                     (visit-nodes lookup state node 1 false)
+                    (add-paren lookup (car node) 100)
                     (cat "call")])]
 
                ;; We're probably calling a constant here.
@@ -462,6 +483,23 @@
         ;; If we're
         [true false]))
     false))
+
+(defun add-parens (lookup nodes start prec precs)
+  "Add parentheses all child NODES starting from START if required."
+  (for i start (n nodes) 1
+    (with (child-cat (.> lookup (nth nodes i)))
+      (when (and
+              (.> child-cat :prec)
+              (<= (.> child-cat :prec) (if precs (nth precs (pred i)) prec)))
+        (.<! child-cat :parens true)))))
+
+(defun add-paren (lookup node prec)
+  "Add parentheses around a single NODE if required."
+  (with (child-cat (.> lookup node))
+    (when (and
+            (.> child-cat :prec)
+            (<= (.> child-cat :prec) prec))
+      (.<! child-cat :parens true))))
 
 (defpass categorise-nodes (compiler nodes state)
   "Categorise a group of NODES, annotating their appropriate node type."

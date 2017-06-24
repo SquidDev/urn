@@ -240,47 +240,48 @@
            (w/end-block! out "end)()")))]
 
       ["not"
+       (when (.> cat :parens) (w/append! out "("))
        (if ret
          (set! ret (.. ret "not "))
          (w/append! out "not "))
-
-       (compile-expression (car (nth node 2)) out state ret)]
+       (compile-expression (car (nth node 2)) out state ret)
+       (when (.> cat :parens) (w/append! out ")"))]
 
       ["or"
        (when ret (w/append! out ret))
-       (w/append! out "(")
+       (when (.> cat :parens) (w/append! out "("))
        (with (len (n node))
          (for i 2 len 1
            (when (> i 2) (w/append! out " or "))
            (compile-expression (nth (nth node i) (if (= i len) 2 1)) out state)))
-       (w/append! out ")")]
+       (when (.> cat :parens) (w/append! out ")"))]
 
       ["or-lambda"
        (when ret (w/append! out ret))
-       (w/append! out "(")
+       (when (.> cat :parens) (w/append! out "("))
        (compile-expression (nth node 2) out state)
        (let* [(branch (.> (nth (car node) 3)))
               (len (n branch))]
          (for i 3 len 1
            (w/append! out " or ")
            (compile-expression (nth (nth branch i) (if (= i len) 2 1)) out state)))
-       (w/append! out ")")]
+       (when (.> cat :parens) (w/append! out ")"))]
 
       ["and"
        (when ret (w/append! out ret))
-       (w/append! out "(")
+       (when (.> cat :parens) (w/append! out "("))
        (compile-expression (nth (nth node 2) 1) out state)
        (w/append! out " and ")
        (compile-expression (nth (nth node 2) 2) out state)
-       (w/append! out ")")]
+       (when (.> cat :parens) (w/append! out ")"))]
 
       ["and-lambda"
        (when ret (w/append! out ret))
-       (w/append! out "(")
+       (when (.> cat :parens) (w/append! out "("))
        (compile-expression (nth node 2) out state)
        (w/append! out " and ")
        (compile-expression (nth (nth (nth (car node) 3) 2) 2) out state)
-       (w/append! out ")")]
+       (when (.> cat :parens) (w/append! out ")"))]
 
       ["set!"
        (compile-expression (nth node 3) out state (.. (escape-var (.> node 2 :var) state) " = "))
@@ -413,6 +414,9 @@
              [ret (w/append! out ret)]
              [true]))
 
+         ;; Wrap in parens if required
+         (when (.> cat :parens) (w/append! out "("))
+
          ;; Emit all entries. Numbers represent an argument, everything else is just
          ;; appended directly.
          (let* [(contents (.> meta :contents))
@@ -427,6 +431,9 @@
                                  [(and (= fold "r") (= entry 2) (< start end)) (build (succ start) end)]
                                  [true (compile-expression (nth node (+ entry start)) out state)]))))]
              (build 1 (- (n node) count))))
+
+         ;; Wrap in parens if required
+         (when (.> cat :parens) (w/append! out ")"))
 
          ;; If we're dealing with a statement then return nil.
          (when (and (/= (.> meta :tag) "expr") (/= ret ""))

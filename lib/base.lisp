@@ -201,7 +201,7 @@
             (with (out '())
                   (for i 1 (n value) 1
                        (set-idx! out i (pretty (get-idx value i))))
-                  (.. "(" (.. (concat out " ") ")")))]
+                  (.. "(" (concat out " ") ")"))]
            [(and (= (type# (getmetatable value)) "table")
                  (= (type# (get-idx (getmetatable value) :--pretty-print)) "function"))
             ((get-idx (getmetatable value) :--pretty-print) value)]
@@ -213,7 +213,7 @@
            [true
              (let* [(out '())]
                (for-pairs (k v) value
-                 (set! out (cons (.. (pretty k) (.. " " (pretty v))) out)))
+                 (set! out (cons (.. (pretty k) " " (pretty v)) out)))
                (.. "{" (.. (concat out " ") "}")))]
            [true (tostring value)]))]
       [(= ty "string") (string/format "%q" value)]
