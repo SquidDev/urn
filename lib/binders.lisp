@@ -2,12 +2,16 @@
               cdr and pretty print debug /=
               % get-idx defun = n >= error
               progn gensym for list +))
+(import base)
 (import type (list? empty?))
 (import list (cars cadrs caar cadar map cadr
               cdar cddr caddar snoc push-cdr!
               nth))
 
 (import lua/basic (getmetatable ..))
+
+(defun make-vars (x) :hidden
+  (if (list? x) x (list x)))
 
 (defun make-binding (xs) :hidden
   (if (= (n xs) 1)
@@ -23,7 +27,6 @@
       `(lambda ,(cadr xs) ,@(cddr xs))
       (error "Expected binding, got nil."))))
 
-;; Bind multiple variables in succession
 (defmacro let* (vars &body)
   "Bind several variables (given in VARS), then evaluate BODY.
    Variables bound with [[let*]] can refer to variables bound
@@ -35,17 +38,19 @@
           (bar (+ foo 1))]
      foo
    ```"
-  (if (! (empty? vars))
-    `((lambda (,(caar vars))
-        (let* ,(cdr vars) ,@body))
-      ,(make-binding (cdar vars)))
-    `((lambda () ,@body))))
+  (base/with (len (n vars))
+    (cond
+      [(= len 0) `((lambda () ,@body))]
+      [(= len 1) `((lambda ,(make-vars (caar vars)) ,@body) ,(make-binding (cdar vars)))]
+      [true
+       `((lambda ,(make-vars (caar vars))
+           (let* ,(cdr vars) ,@body))
+          ,(make-binding (cdar vars)))])))
 
 (defmacro with (var &body)
   "Bind the single variable VAR, then evaluate BODY."
   `(let* [,var] ,@body))
 
-;; Binds a variable to an expression
 (defmacro let (vars &body)
   "Bind several variables (given in VARS), then evaluate BODY.
    In contrast to [[let*]], variables bound with [[let]] can not refer

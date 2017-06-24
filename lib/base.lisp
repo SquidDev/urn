@@ -69,11 +69,13 @@
   `(cond (,c) (true ,@body)))
 
 (defmacro let* (vars &body)
-  (if (= (n vars) 0)
-    `((lambda () ,@body))
-    `((lambda (,(car (car vars)))
-        (let* ,(cdr vars) ,@body))
-      ,(car (cdr (car vars))))))
+  (with (len (n vars))
+    (cond
+      [(= (n vars) 0) `((lambda () ,@body))]
+      [(= (n vars) 1) `((lambda (,(car (car vars))) ,@body) ,(get-idx (car vars) 2))]
+      [true           `((lambda (,(car (car vars)))
+                          (let* ,(cdr vars) ,@body))
+                         ,(get-idx (car vars) 2))])))
 
 (defun ! (expr)
   "Negate the expression EXPR."
