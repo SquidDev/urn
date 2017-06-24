@@ -105,7 +105,7 @@
                :var     "LEVEL"
                :many    true
                :action  pass-arg))
-    :pred  (lambda (args) (> (.> args :warning) 0))
+    :pred  (cut id true)
     :run   (pass-run warning/analyse "warning") })
 
 (define optimise
@@ -128,5 +128,5 @@
                :default -1
                :narg    1
                :action  arg/set-num-action))
-    :pred  (lambda (args) (> (.> args :optimise) 0))
+    :pred  (cut id true)
     :run   (pass-run optimise/optimise "optimise") })

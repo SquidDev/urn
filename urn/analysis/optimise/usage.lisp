@@ -4,6 +4,39 @@
 (import urn/analysis/usage usage)
 (import urn/analysis/visitor visitor)
 
+(defun strip-defs-fast (nodes)
+  "A simplistic version of [[strip-defs]] which only works on top level definitions."
+  (with (defs {})
+    ;; For all nodes of the form `(define ...)` or `(define-macro ...)`, push their definition.
+    (for-each node nodes
+      (when (list? node)
+        (when-with (var (.> node :def-var))
+          (.<! defs var node))))
+
+    (let* [(visited {})
+           (queue '())
+           (visitor (lambda (node)
+                      (when (symbol? node)
+                        (let* [(var (.> node :var))
+                               (def (.> defs var))]
+                        (when (and def (! (.> visited var)))
+                          (.<! visited var true)
+                          (push-cdr! queue def))))))]
+
+      (for-each node nodes
+        (unless (.> node :def-var)
+          (visitor/visit-node node visitor)))
+
+      (while (> (n queue) 0)
+        (visitor/visit-node (pop-last! queue) visitor))
+
+      (for i (n nodes) 1 -1
+        (with (var (.> (nth nodes i) :def-var))
+          (when (and var (! (.> visited var)))
+            (if (= i (n nodes))
+              (.<! nodes i (make-nil))
+              (remove-nth! nodes i))))))))
+
 (defun get-constant-val (lookup sym)
   "Get the value of DEF if it is a constant, otherwise nil"
   :hidden

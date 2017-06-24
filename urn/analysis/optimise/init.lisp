@@ -25,6 +25,9 @@
     (changed? tracker)))
 
 (defun optimise (nodes state)
+  ;; Do a simple purge of unused nodes.
+  (opt/strip-defs-fast nodes)
+
   ;; Run the main optimiser until a "fixed point" is reached
   (let* [(max-n (.> state :max-n))
          (max-t (.> state :max-time))
