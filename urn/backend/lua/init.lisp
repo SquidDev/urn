@@ -60,12 +60,12 @@
     ;; Count the number of active variables
     (with (count 0)
       (for-each node (.> compiler :out)
-        (when-with (var (.> node :defVar))
+        (when-with (var (.> node :def-var))
           (inc! count)))
 
       ;; Pre-escape all variables
       (for-each node (.> compiler :out)
-        (when-with (var (.> node :defVar))
+        (when-with (var (.> node :def-var))
           (push-escape-var! var state true)))
 
       ;; Predeclare all variables. We only do this if we're pretty sure we won't hit the
@@ -77,7 +77,7 @@
           (w/append! out "local ")
           (with (first true)
             (for-each node (.> compiler :out)
-              (when-with (var (.> node :defVar))
+              (when-with (var (.> node :def-var))
                 (if first
                   (set! first false)
                   (w/append! out ", "))

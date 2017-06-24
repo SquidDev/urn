@@ -159,7 +159,7 @@
                     [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
                      (with (def (nth node (n node)))
                        (if (and (list? def) (builtin? (car def) :lambda))
-                         (with (recur { :var (.> node :defVar) :def def})
+                         (with (recur { :var (.> node :def-var) :def def})
                            (visit-nodes lookup state def 3 true nil recur)
                            (.<! lookup def (if (.> recur :tail)
                                              (cat "lambda" :recur (visit-recur lookup recur))
@@ -228,7 +228,7 @@
                             ;; And visit the argument values
                             (for i 1 (n args) 1
                               (with (arg (nth args i))
-                                (if (.> arg :var :isVariadic)
+                                (if (.> arg :var :is-variadic)
                                   (with (count (- (n node) (n args)))
                                     (when (< count 0) (set! count 0))
                                     (for j 1 count 1
@@ -326,7 +326,7 @@
                           (offset 1)]
                      (for i 1 (n args) 1
                        (with (arg (nth args i))
-                         (if (.> arg :var :isVariadic)
+                         (if (.> arg :var :is-variadic)
                            (with (count (- (n node) (n args)))
                              (when (< count 0) (set! count 0))
                              (for j 1 count 1

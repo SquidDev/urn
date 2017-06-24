@@ -218,7 +218,7 @@
                         (with (var (scope/add-verbose! child-scope name "arg" arg (.> state :logger)))
                           (.<! var :display-name (.> arg :display-name))
                           (.<! arg :var var)
-                          (.<! var :isVariadic is-var))))
+                          (.<! var :is-variadic is-var))))
 
                     (resolve-block node 3 child-scope state))]
 
@@ -368,7 +368,7 @@
                   (with (var (scope/add-verbose! scope (.> (nth node 2) :contents) "defined" node (.> state :logger)))
                     (.<! var :display-name (.> (nth node 2) :display-name))
                     (state/define! state var)
-                    (.<! node :defVar var)
+                    (.<! node :def-var var)
 
                     (handle-metadata (.> state :logger) node var 3 (pred (n node)))
                     (.<! node (n node) (resolve-node (nth node (n node)) scope state))
@@ -383,7 +383,7 @@
                   (with (var (scope/add-verbose! scope (.> (nth node 2) :contents) "macro" node (.> state :logger)))
                     (.<! var :display-name (.> (nth node 2) :display-name))
                     (state/define! state var)
-                    (.<! node :defVar var)
+                    (.<! node :def-var var)
 
                     (handle-metadata (.> state :logger) node var 3 (pred (n node)))
                     (.<! node (n node) (resolve-node (nth node (n node)) scope state))
@@ -397,7 +397,7 @@
                   (with (var (scope/add-verbose! scope (.> (nth node 2) :contents) "native" node (.> state :logger)))
                     (.<! var :display-name (.> (nth node 2) :display-name))
                     (state/define! state var)
-                    (.<! node :defVar var)
+                    (.<! node :def-var var)
 
                     (handle-metadata (.> state :logger) node var 3 (n node))
                     node)]

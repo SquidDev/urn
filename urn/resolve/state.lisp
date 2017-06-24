@@ -70,7 +70,7 @@
   "Mark this STATE as built, setting the resolved NODE."
   (unless node (error! "node cannot be nil"))
   (when (/= (.> state :stage) "parsed") (error! (.. "Cannot transition from "(.> state :stage) " to built")))
-  (when (/= (.> node :defVar) (.> state :var)) (error! "Variables are different"))
+  (when (/= (.> node :def-var) (.> state :var)) (error! "Variables are different"))
 
   (.<! state :node node)
   (.<! state :stage "built"))

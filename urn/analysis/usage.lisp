@@ -59,9 +59,9 @@
              [(= func (.> builtins :set!))
               (add-definition! state (.> node 2 :var) node "val" (nth node 3))]
              [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
-              (add-definition! state (.> node :defVar) node "val" (nth node (n node)))]
+              (add-definition! state (.> node :def-var) node "val" (nth node (n node)))]
              [(= func (.> builtins :define-native))
-              (add-definition! state (.> node :defVar) node "var" (.> node :defVar))]
+              (add-definition! state (.> node :def-var) node "var" (.> node :def-var))]
              [true]))]
     [(and (list? node) (list? (car node)) (symbol? (caar node)) (= (.> (caar node) :var) (.> builtins :lambda)))
      ;; Inline arguments to a directly called lambda
@@ -74,7 +74,7 @@
          (let [(arg (nth args i))
                (val (nth node (+ i offset)))]
            (cond
-             [(.> arg :var :isVariadic)
+             [(.> arg :var :is-variadic)
               (with (count (- (n node) (n args)))
                 ;; If it's a variable number of args then just skip them
                 (when (< count 0) (set! count 0))

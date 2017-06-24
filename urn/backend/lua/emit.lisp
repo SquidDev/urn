@@ -112,7 +112,7 @@
            (while (and (<= i (n args)) (! variadic))
              (when (> i 1) (w/append! out ", "))
              (with (var (.> args i :var))
-               (if (.> var :isVariadic)
+               (if (.> var :is-variadic)
                  (progn
                    (w/append! out "...")
                    (set! variadic i))
@@ -304,16 +304,16 @@
        (w/append! out "})")]
 
       ["define"
-       (compile-expression (nth node (n node)) out state (.. (push-escape-var! (.> node :defVar) state) " = "))]
+       (compile-expression (nth node (n node)) out state (.. (push-escape-var! (.> node :def-var) state) " = "))]
 
       ["define-native"
-       (with (meta (.> state :meta (.> node :defVar :full-name)))
+       (with (meta (.> state :meta (.> node :def-var :full-name)))
          (if (= meta nil)
             ;; Just copy it from the library table value
-            (w/append! out (string/format "%s = _libs[%q]" (escape-var (.> node :defVar) state) (.> node :defVar :full-name)))
+            (w/append! out (string/format "%s = _libs[%q]" (escape-var (.> node :def-var) state) (.> node :def-var :full-name)))
             (progn
               ;; Generate an accessor for it.
-              (w/append! out (string/format "%s = " (escape-var (.> node :defVar) state)))
+              (w/append! out (string/format "%s = " (escape-var (.> node :def-var) state)))
               (compile-native out meta))))]
 
       ["quote"
@@ -457,7 +457,7 @@
          (print! (pretty node) " marked as call-tail for " ret))
 
        (when (and break (/= break (.> cat :recur)))
-         (print! (.. (pretty node) " got a different break then defined for.\n  Expected: "  (pretty (.> cat :recur :def))
+         (print! (.. (pretty node) " Got a different break then defined for.\n  Expected: "  (pretty (.> cat :recur :def))
                                                                            "\n       Got: "  (pretty (.> break :def)))))
 
        (let* [(head (.> cat :recur :def))
@@ -471,7 +471,7 @@
                     (done false)]
                (for i 1 (n args) 1
                  (with (var (.> args i :var))
-                   (if (.> var :isVariadic)
+                   (if (.> var :is-variadic)
                      ;; If we're variadic then create a list of each sub expression
                      (with (count (- (n node) (n args)))
                        (when (< count 0) (set! count 0))
@@ -489,7 +489,7 @@
                     (done false)]
                (for i 1 (n args) 1
                  (with (var (.> args i :var))
-                   (if (.> var :isVariadic)
+                   (if (.> var :is-variadic)
                      ;; If we're variadic then create a list of each sub expression
                      (with (count (- (n node) (n args)))
                        (when (< count 0) (set! count 0))
@@ -570,7 +570,7 @@
            ;; We have no variable
            (compile-expression (nth vals arg-idx) out state "")
            (inc! arg-idx)]
-          [(.> arg :var :isVariadic)
+          [(.> arg :var :is-variadic)
            ;; If we're variadic then create a list of each sub expression
            (let* [(esc (push-escape-var! (.> arg :var) state))
                   (count (- val-len arg-len))]
@@ -610,7 +610,7 @@
                       (val (nth vals val-idx))]
                  (cond
                    ;; Variadic arguments are a faff, so we'll just ignore this.
-                   [(and arg (.> arg :var :isVariadic)) (set! working false)]
+                   [(and arg (.> arg :var :is-variadic)) (set! working false)]
                    ;; We've got a statement, so abort.
                    [(and val (.> cat-lookup val :stmt)) (set! working false)]
                    ;; Otherwise everything is dandy!.

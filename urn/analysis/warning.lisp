@@ -34,7 +34,7 @@
                                       [(symbol? def) (get-arity def)]
                                       [(and (list? def) (symbol? (car def)) (= (.> (car def) :var) (.> builtins :lambda)))
                                        (with (args (nth def 2))
-                                             (if (any (lambda (x) (.> x :var :isVariadic)) args)
+                                             (if (any (lambda (x) (.> x :var :is-variadic)) args)
                                                false
                                                (n args)))]
                                       (true false))))
@@ -58,7 +58,7 @@
     ;; We traverse each top-level definition and ensure it doesn't use any
     ;; deprecated variables (apart from itself). Whilst we could use usage
     ;; infomation, that doesn't include dead nodes, so isn't much help.
-    (with (def-var (.> node :defVar))
+    (with (def-var (.> node :def-var))
       (visitor/visit-node node (lambda (node)
                                  (when (symbol? node)
                                    (with (var (.> node :var))
@@ -74,7 +74,7 @@
   "Ensure doc comments are valid."
   :cat '("warn")
   (for-each node nodes
-    (when-let* [(var (.> node :defVar))
+    (when-let* [(var (.> node :def-var))
                 (doc (.> var :doc))]
       (for-each tok (doc/parse-docstring doc)
         (when (= (type tok) "link")

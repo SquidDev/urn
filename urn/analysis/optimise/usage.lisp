@@ -32,7 +32,7 @@
 
   (for i (n nodes) 1 -1
     (with (node (nth nodes i))
-      (when (and (.> node :defVar) (! (.> (usage/get-var lookup (.> node :defVar)) :active)))
+      (when (and (.> node :def-var) (! (.> (usage/get-var lookup (.> node :def-var)) :active)))
         (if (= i (n nodes))
           (.<! nodes i (make-nil))
           (remove-nth! nodes i))
@@ -54,7 +54,7 @@
             (let [(arg (nth args (- i rem-offset)))
                   (val (nth node (- (+ i offset) rem-offset)))]
               (cond
-                [(.> arg :var :isVariadic)
+                [(.> arg :var :is-variadic)
                  (with (count (- (n node) (n args)))
                        ;; If it's a variable number of args then just skip them
                        (when (< count 0) (set! count 0))
@@ -137,7 +137,7 @@
                                       (entry (usage/get-var lookup var))]
                                  (cond
                                    ;; We can't really fold variadic arguments
-                                   [(.> var :isVariadic) false]
+                                   [(.> var :is-variadic) false]
                                    ;; We won't fold if the variable is redefined
                                    [(/= (n (.> entry :defs)) 1) false]
                                    ;; If the definition is a varaiable then we can't fold.

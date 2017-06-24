@@ -22,7 +22,7 @@
           ;; If we're calling, pause the parent function
           (when (= action "call")
              (when-with (previous (nth call-stack (n call-stack)))
-               (.<! previous :sum (+ (.> previous :sum) (- start (.> previous :innerStart))))))
+               (.<! previous :sum (+ (.> previous :sum) (- start (.> previous :inner-start))))))
 
           ;; Unless this is a call, pop the current function
           (when (/= action "call")
@@ -32,34 +32,34 @@
                      (entry (.> stats hash))]
 
                 (unless entry
-                  (set! entry { :source    (.> current :source)
-                                :short-src (.> current :short_src)
-                                :line      (.> current :linedefined)
-                                :name      (.> current :name)
+                  (set! entry { :source     (.> current :source)
+                                :short-src  (.> current :short_src)
+                                :line       (.> current :linedefined)
+                                :name       (.> current :name)
 
-                                :calls     0
-                                :totalTime 0
-                                :innerTime 0 })
+                                :calls      0
+                                :total-time 0
+                                :inner-time 0 })
 
                   (.<! stats hash entry))
 
                 ;; Push the current entry
                 (.<! entry :calls (+ 1 (.> entry :calls)))
-                (.<! entry :totalTime (+ (.> entry :totalTime) (- start (.> current :totalStart))))
-                (.<! entry :innerTime (+ (.> entry :innerTime) (+ (.> current :sum) (- start (.> current :innerStart))))))))
+                (.<! entry :total-time (+ (.> entry :total-time) (- start (.> current :total-start))))
+                (.<! entry :inner-time (+ (.> entry :inner-time) (+ (.> current :sum) (- start (.> current :inner-start))))))))
 
           ;; Unless this is a return, push the new function
           (when (/= action "return")
              ;; And push the new one
-             (.<! info :totalStart start)
-             (.<! info :innerStart start)
-             (.<! info :sum        0)
-             (push-cdr! call-stack info))
+             (.<! info :total-start start)
+             (.<! info :inner-start start)
+             (.<! info :sum         0)
+             (push-cdr! call-stack  info))
 
           ;; If we're returning, resume the parent function
           (when (= action "return")
             (when-with (next (last call-stack))
-               (.<! next :innerStart start)))))
+               (.<! next :inner-start start)))))
       "cr")
 
     (fn)
@@ -67,7 +67,7 @@
     (debug/sethook)
 
     (with (out (values stats))
-      (table/sort out (lambda (a b) (> (.> a :innerTime) (.> b :innerTime))))
+      (table/sort out (lambda (a b) (> (.> a :inner-time) (.> b :inner-time))))
 
       (print! (string/format "| %20s | %-60s | %8s | %8s | %7s |"
                 "Method"
@@ -87,8 +87,8 @@
         (print! (string/format "| %20s | %-60s | %8.5f | %8.5f | %7d | "
                   (if (.> entry :name) (traceback/unmangle-ident (.> entry :name)) "<unknown>")
                   (traceback/remap-message mappings (.. (.> entry :short-src) ":" (.> entry :line)))
-                  (.> entry :totalTime)
-                  (.> entry :innerTime)
+                  (.> entry :total-time)
+                  (.> entry :inner-time)
                   (.> entry :calls)))))
 
     stats))

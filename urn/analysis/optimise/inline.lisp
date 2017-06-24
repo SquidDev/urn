@@ -56,7 +56,7 @@
              (for-each arg args
                (let* [(var (.> arg :var))
                       (new-var (scope/add! new-scope (.> var :name) (.> var :tag) nil))]
-                 (.<! new-var :isVariadic (.> var :isVariadic))
+                 (.<! new-var :is-variadic (.> var :is-variadic))
                  (.<! lookup :vars var new-var)))))))
 
      ;; And copy this node
@@ -105,7 +105,7 @@
       ;; We have a lambda. We avoid inlining if we have a varargs somewhere.
       (set! score 0)
       (for-each arg (nth node 2)
-        (when (.> arg :var :isVariadic) (set! score false)))
+        (when (.> arg :var :is-variadic) (set! score false)))
 
       ;; If we have no varargs, then let's inline this function.
       (when score (set! score (score-nodes node 3 score)))
