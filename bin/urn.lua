@@ -496,10 +496,6 @@ escapes["\n"] = "n"
 quoted1 = (function(str)
 	return (gsub1(format1("%q", str), ".", escapes))
 end)
-clock1 = os.clock
-execute1 = os.execute
-exit1 = os.exit
-getenv1 = os.getenv
 assoc1 = (function(list, key, orVal)
 	while true do
 		if not (type1(list) == "list") or empty_3f_1(list) then
@@ -575,6 +571,10 @@ createLookup1 = (function(values)
 	end
 	return res
 end)
+clock1 = os.clock
+execute1 = os.execute
+exit1 = os.exit
+getenv1 = os.getenv
 invokable_3f_1 = (function(x)
 	while true do
 		local temp = type1(x) == "function"
@@ -6453,7 +6453,7 @@ resolveQuote1 = (function(node, scope, state, level)
 				node["var"] = getAlways_21_1(scope, node["contents"], node)
 				if node["var"]["scope"]["is-root"] or node["var"]["scope"]["builtin"] then
 				else
-					doNodeError_21_1(state["logger"], "Cannot use non-top level definition in syntax-quote", node, nil, getSource1(node), "")
+					doNodeError_21_1(state["logger"], "Cannot use non-top level definition '" .. node["var"]["name"] .. "' in syntax-quote", node, nil, getSource1(node), "")
 				end
 			end
 			return node

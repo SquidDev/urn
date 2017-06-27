@@ -132,7 +132,7 @@
 
          ;; TODO: Allow syntax-quoting symbols in parent scope when unquoting.
          (unless (or (.> node :var :scope :is-root) (.> node :var :scope :builtin))
-           (error-positions! (.> state :logger) node "Cannot use non-top level definition in syntax-quote")))
+           (error-positions! (.> state :logger) node (.. "Cannot use non-top level definition '" (.> node :var :name) "' in syntax-quote"))))
 
        node]
       ["list"
