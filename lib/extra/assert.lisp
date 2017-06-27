@@ -5,8 +5,8 @@
   "Format the result of VALUE: extracting `:contents` or `:value` if
    required"
   :hidden
-  (if (and (table? value) (get-idx value "contents"))
-    (get-idx value "contents")
+  (if (and (table? value) (.> value :contents))
+    (.> value :contents)
     (pretty value)))
 
 (defmacro assert! (cnd msg)

@@ -46,7 +46,7 @@
 (defun random-struct () :hidden
   (let* [(out {})]
     (for i 1 (random 1 5) 1
-      (set-idx! out (random-of (-random-type)) (random-of (-random-type))))
+      (.<! out (random-of (-random-type)) (random-of (-random-type))))
     out))
 
 (defmacro check (bindings &props)

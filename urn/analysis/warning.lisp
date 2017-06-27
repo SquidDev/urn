@@ -16,7 +16,7 @@
   (letrec [(arity {})
            (get-arity (lambda (symbol)
                         (let* [(var (usage/get-var lookup (.> symbol :var)))
-                          (ari (get-idx arity var))]
+                          (ari (.> arity var))]
                           (cond
                             [(/= ari nil) ari]
                             [(/= (n (.> var :defs)) 1) false]

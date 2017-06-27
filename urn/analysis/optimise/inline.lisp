@@ -8,7 +8,7 @@
   "Create a shallow copy of X."
   :hidden
   (with (res {})
-    (for-pairs (k v) x (set-idx! res k v))
+    (for-pairs (k v) x (.<! res k v))
     res))
 
 (defun get-scope (scope lookup n)

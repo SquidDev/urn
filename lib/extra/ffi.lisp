@@ -4,7 +4,7 @@
 (defmacro defun-ffi (name typedecl)
   "Define the external symbol NAME with the C type signature
    given by TYPEDECL."
-  (cdef (get-idx typedecl :value))
+  (cdef (.> typedecl :value))
   (unpack
-    `((cdef ,(get-idx typedecl :value))
-      (define ,name (get-idx C ,(symbol->string name))))))
+    `((cdef ,(.> typedecl :value))
+      (define ,name (.> C ,(symbol->string name))))))

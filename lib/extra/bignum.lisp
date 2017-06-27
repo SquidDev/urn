@@ -7,7 +7,7 @@
 (defun trim! (a) :hidden
   (with (parts (.> a :parts))
     (while (= (nth parts (n parts)) 0)
-      (set-idx! parts (n parts) nil)
+      (.<! parts (n parts) nil)
       (.<! parts :n (- (n parts) 1)))
     (when (= (n parts) 0)
       (.<! a :sign false))))
@@ -49,9 +49,9 @@
               (push-cdr! val-parts 0))
             (for i 1 max-parts 1
               (with (new-part (+ (or (nth a-parts i) 0) (or (nth b-parts i) 0) (nth val-parts i)))
-                (set-idx! val-parts i (% new-part part-max))
+                (.<! val-parts i (% new-part part-max))
                 (when (>= new-part part-max) ; carry
-                  (set-idx! val-parts (+ i 1) 1))))
+                  (.<! val-parts (+ i 1) 1))))
             (trim! val)
             val)]))
 
@@ -73,9 +73,9 @@
               (push-cdr! val-parts 0))
             (for i 1 max-parts 1
               (with (new-part (- (or (nth a-parts i) 0) (or (nth b-parts i) 0) (nth val-parts i)))
-                (set-idx! val-parts i (% new-part part-max))
+                (.<! val-parts i (% new-part part-max))
                 (when (< new-part 0) ; carry
-                  (set-idx! val-parts (+ i 1) 1))))
+                  (.<! val-parts (+ i 1) 1))))
             (trim! val)
             val)]))
 
@@ -155,11 +155,11 @@
     (for i 1 b 1
       (for j (n a-parts) 1 -1
         (with (new-val (* (nth a-parts j) 2))
-          (set-idx! a-parts j (% new-val part-max))
+          (.<! a-parts j (% new-val part-max))
           (when (>= new-val part-max) ; carry
             (if (= j (n a-parts))
               (push-cdr! a-parts 1)
-              (set-idx! a-parts (+ j 1) (+ (nth a-parts (+ j 1)) 1)))))))))
+              (.<! a-parts (+ j 1) (+ (nth a-parts (+ j 1)) 1)))))))))
 
 (defun shl (a b)
   "Returns A shifted left by B. B should be a normal integer, not of type bignum."
@@ -173,9 +173,9 @@
     (for i 1 b 1
       (for j 1 (n a-parts) 1
         (with (new-val (/ (nth a-parts j) 2))
-          (set-idx! a-parts j (floor new-val))
+          (.<! a-parts j (floor new-val))
           (when (and (/= (% new-val 1) 0) (/= j 1)) ; carry
-            (set-idx! a-parts (- j 1) (+ (nth a-parts (- j 1)) (^ 2 (- part-bits 1)))))))))
+            (.<! a-parts (- j 1) (+ (nth a-parts (- j 1)) (^ 2 (- part-bits 1)))))))))
   (trim! a))
 
 (defun shr (a b)
