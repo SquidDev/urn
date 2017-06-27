@@ -64,8 +64,8 @@
    ### Example
    ```
    > (-> '(1 2 3)
-       succ
-       (* <> 2))
+       (map succ <>)
+       (map (cut * <> 2) <>))
    (4 6 8)
    ```"
   (with (res x)
