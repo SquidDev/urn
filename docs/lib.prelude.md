@@ -17,8 +17,8 @@ with the previous entry as an argument.
 ### Example
 ```
 > (-> '(1 2 3)
-    succ
-    (* <> 2))
+    (map succ <>)
+    (map (cut * <> 2) <>))
 (4 6 8)
 ```
 
@@ -172,7 +172,7 @@ Check if the numerical value `X` is between
 `MIN` and `MAX`.
 
 ## `bool->string`
-*Defined at lib/prelude.lisp:42:1*
+*Defined at lib/prelude.lisp:43:1*
 
 Convert the boolean `X` into a string.
 
@@ -182,7 +182,7 @@ Convert the boolean `X` into a string.
 Check whether `X` is a boolean.
 
 ## `(call x key &args)`
-*Defined at lib/prelude.lisp:89:1*
+*Defined at lib/prelude.lisp:90:1*
 
 Index `X` with `KEY` and invoke the resulting function with `ARGS`.
 
@@ -253,7 +253,7 @@ out = (1 2 3 4 5 6)
 ```
 
 ## `(const x)`
-*Defined at lib/prelude.lisp:84:1*
+*Defined at lib/prelude.lisp:85:1*
 
 Return a function which always returns `X`. This is equivalent to the
 `K` combinator in `SK` combinator calculus.
@@ -403,12 +403,12 @@ out = false
 ```
 
 ## `error!`
-*Defined at lib/prelude.lisp:60:1*
+*Defined at lib/prelude.lisp:61:1*
 
 Throw an error.
 
 ## `(even? x)`
-*Defined at lib/prelude.lisp:97:1*
+*Defined at lib/prelude.lisp:98:1*
 
 Is `X` an even number?
 
@@ -419,7 +419,7 @@ Check if `X` exists, i.e. it is not the special value `nil`.
 Note that, in Urn, `nil` is not the empty list.
 
 ## `(exit! reason code)`
-*Defined at lib/prelude.lisp:73:1*
+*Defined at lib/prelude.lisp:74:1*
 
 Exit the program with the exit code `CODE`, and optionally, print the
 error message `REASON`.
@@ -431,7 +431,7 @@ Extend the association list `LIST`_ by inserting `VAL`, bound to the key
 `KEY`, overriding any previous value.
 
 ## `(fail! x)`
-*Defined at lib/prelude.lisp:68:1*
+*Defined at lib/prelude.lisp:69:1*
 
 Fail with the error message `X`, that is, exit the program immediately,
 without unwinding for an error handler.
@@ -562,7 +562,7 @@ expression is returned by [`handler-case`](lib.match.md#handler-case-x-body).
 ```
 
 ## `(id x)`
-*Defined at lib/prelude.lisp:80:1*
+*Defined at lib/prelude.lisp:81:1*
 
 Return the value `X` unmodified.
 
@@ -856,7 +856,7 @@ out = (1 2 3)
 ```
 
 ## `number->string`
-*Defined at lib/prelude.lisp:38:1*
+*Defined at lib/prelude.lisp:39:1*
 
 Convert the number `X` into a string.
 
@@ -866,7 +866,7 @@ Convert the number `X` into a string.
 Check whether `X` is a number.
 
 ## `(odd? x)`
-*Defined at lib/prelude.lisp:101:1*
+*Defined at lib/prelude.lisp:102:1*
 
 Is `X` an odd number?
 
@@ -917,7 +917,7 @@ out = (1 2)
 ``` 
 
 ## `(pred x)`
-*Defined at lib/prelude.lisp:26:1*
+*Defined at lib/prelude.lisp:27:1*
 
 Return the predecessor of the number `X`.
 
@@ -927,7 +927,7 @@ Return the predecessor of the number `X`.
 Format `VALUE` as a valid Lisp expression which can be parsed.
 
 ## `print!`
-*Defined at lib/prelude.lisp:64:1*
+*Defined at lib/prelude.lisp:65:1*
 
 Print to standard output.
 
@@ -1018,7 +1018,7 @@ out = (10 9 8 7 6 5 4 3 2 1)
 ```
 
 ## `(self x key &args)`
-*Defined at lib/prelude.lisp:93:1*
+*Defined at lib/prelude.lisp:94:1*
 
 Index `X` with `KEY` and invoke the resulting function with `X` and `ARGS`
 
@@ -1077,7 +1077,7 @@ out = ((1 2) (4))
 ```
 
 ## `string->number`
-*Defined at lib/prelude.lisp:30:1*
+*Defined at lib/prelude.lisp:31:1*
 
 Convert the string `X` into a number. Returns `nil` if it could not be
 parsed.
@@ -1086,7 +1086,7 @@ Optionally takes a `BASE` which the number is in (such as 16 for
 hexadecimal).
 
 ## `(string->symbol x)`
-*Defined at lib/prelude.lisp:52:1*
+*Defined at lib/prelude.lisp:53:1*
 
 Convert the string `X` to a symbol.
 
@@ -1177,7 +1177,7 @@ to a regular list. This differs from `struct->list` in that it mutates
 its argument.
 
 ## `(succ x)`
-*Defined at lib/prelude.lisp:22:1*
+*Defined at lib/prelude.lisp:23:1*
 
 Return the successor of the number `X`.
 
@@ -1193,12 +1193,12 @@ out = 10
 ```
 
 ## `(sym.. &xs)`
-*Defined at lib/prelude.lisp:56:1*
+*Defined at lib/prelude.lisp:57:1*
 
 Concatenate all the symbols in `XS`.
 
 ## `(symbol->string x)`
-*Defined at lib/prelude.lisp:46:1*
+*Defined at lib/prelude.lisp:47:1*
 
 Convert the symbol `X` to a string.
 
@@ -1382,12 +1382,12 @@ Bind the single variable `VAR`, then evaluate `BODY`.
  - `-` *Native defined at lib/lua/basic.lisp:9:1*
  - `..` *Native defined at lib/lua/basic.lisp:14:1*
  - `/` *Native defined at lib/lua/basic.lisp:11:1*
- - `/=` *Native defined at lib/lua/basic.lisp:2:1*
- - `<` *Native defined at lib/lua/basic.lisp:3:1*
- - `<=` *Native defined at lib/lua/basic.lisp:4:1*
- - `=` *Native defined at lib/lua/basic.lisp:1:1*
- - `>` *Native defined at lib/lua/basic.lisp:5:1*
- - `>=` *Native defined at lib/lua/basic.lisp:6:1*
+ - `(/= r_156 r_157 &r_160)` *Macro defined at lib/comparison.lisp:35:1*
+ - `(< r_161 r_162 &r_165)` *Macro defined at lib/comparison.lisp:36:1*
+ - `(<= r_171 r_172 &r_175)` *Macro defined at lib/comparison.lisp:38:1*
+ - `(= r_151 r_152 &r_155)` *Macro defined at lib/comparison.lisp:34:1*
+ - `(> r_166 r_167 &r_170)` *Macro defined at lib/comparison.lisp:37:1*
+ - `(>= r_176 r_177 &r_180)` *Macro defined at lib/comparison.lisp:39:1*
  - `^` *Native defined at lib/lua/basic.lisp:13:1*
  - `(caaaar xs)` *Defined at lib/list.lisp:647:1*
  - `(caaaars xs)` *Defined at lib/list.lisp:647:1*
