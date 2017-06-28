@@ -152,7 +152,7 @@
 
 (defun usage! (spec name)
   "Display a short usage for the argument parser as defined in SPEC."
-  (unless name (set! name (or (nth arg 0) (nth arg -1) "?")))
+  (unless name (set! name (or (nth arg 0) (.> arg -1) "?")))
 
   (with (usage (list "usage: " name))
     (for-each arg (.> spec :opt)
@@ -172,7 +172,7 @@
 
 (defun help! (spec name)
   "Display the help for the argument parser as defined in SPEC."
-  (unless name (set! name (or (nth arg 0) (nth arg -1) "?")))
+  (unless name (set! name (or (nth arg 0) (.> arg -1) "?")))
   (usage! spec name)
 
   (when (.> spec :desc)
