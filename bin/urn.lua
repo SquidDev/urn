@@ -3702,7 +3702,7 @@ justRecur_3f_1 = (function(lookup, node, recur)
 			elseif type1(head) == "list" and builtin_3f_1(car1(head), "lambda") then
 				local temp = n1(head) >= 3
 				if temp then
-					node = last1(node)
+					node = last1(head)
 				else
 					return temp
 				end

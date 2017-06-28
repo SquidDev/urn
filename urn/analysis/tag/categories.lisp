@@ -466,9 +466,9 @@
          (when (/= (.> cat :recur) recur) (error! "Incorrect recur"))
          true]
 
-        ;; If we're a lambda then check the last node is an exit node.
+        ;; If we're a directly called lambda then check the last node is an exit node.
         [(and (list? head) (builtin? (car head) :lambda))
-         (and (>= (n head) 3) (just-recur? lookup (last node) recur))]
+         (and (>= (n head) 3) (just-recur? lookup (last head) recur))]
 
         ;; If we're a condition, then check if any node is an exit node.
         [(builtin? head :cond)
@@ -480,7 +480,7 @@
                  (set! found (and (>= (n case) 2) (just-recur? lookup (last case) recur))) head)))
            found)]
 
-        ;; If we're
+        ;; Otherwise we're not a tail-recursive function.
         [true false]))
     false))
 
