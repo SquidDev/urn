@@ -386,7 +386,9 @@
    > (nth (range 1 100) 10)
    out = 10
    ```"
-  (get-idx xs idx))
+  (if (>= idx 0)
+    (get-idx xs idx)
+    (get-idx xs (+ (get-idx xs :n) 1 idx))))
 
 (defmacro nth/setf! (selector val)
   "An implementation of `setf!` for list access.

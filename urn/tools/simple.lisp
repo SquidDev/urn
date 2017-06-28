@@ -15,7 +15,7 @@
              (arg/add-argument! spec '("--emit-lua")
                :help   "Emit a Lua file.")
              (arg/add-argument! spec '("--shebang")
-               :value   (or (nth arg -1) (nth arg 0) "lua")
+               :value   (or (.> arg -1) (.> arg 0) "lua")
                :help    "Set the executable to use for the shebang."
                :narg    "?")
              (arg/add-argument! spec '("--chmod")
