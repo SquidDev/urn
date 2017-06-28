@@ -21,14 +21,14 @@
    thing."
 
 (import base (defun defmacro when unless let* set-idx!
-              get-idx for gensym -or slice /=
+              get-idx for gensym -or slice /= %
               pretty print error tostring  -and
               unpack debug if n + - >= > = ! with
-              apply and progn .. * while <=))
+              apply and progn .. * while <= < or))
 (import base)
 (import lua/table)
 (import type (nil? list? empty? assert-type! exists? falsey? eq? neq? type))
-(import lua/math (min max))
+(import lua/math (min max huge))
 
 (defun car (x)
   "Return the first element present in the list X. This function operates
@@ -156,7 +156,7 @@
                   (if (even? x)
                     nil
                     (succ x)))
-                (range 1 10))
+                (range :from 1 :to 10))
    out = (2 4 6 8 10)
    ```"
   (let* [(lengths (let* [(out '())]
@@ -337,7 +337,7 @@
 
    ### Example:
    ```cl
-   > (last (range 1 100))
+   > (last (range :from 1 :to 100))
    out = 100
    ```"
   (assert-type! xs list)
@@ -349,7 +349,7 @@
 
    ### Example:
    ```cl
-   > (init (range 1 10))
+   > (init (range :from 1 :to 10))
    out = '(1 2 3 4 5 6 7 8 9)
    ```"
   (assert-type! xs list)
@@ -361,7 +361,7 @@
 
    ### Example:
    ```cl
-   > (nth (range 1 100) 10)
+   > (nth (range :from 1 :to 100) 10)
    out = 10
    ```"
   (if (>= idx 0)
@@ -509,25 +509,41 @@
    ```"
   (foldl append '() xss))
 
-(defun range (start end)
-  "Build a list from START to END.
+(defun range (&args)
+  "Build a list from :FROM to :TO, optionally passing by :BY.
 
    ### Example:
    ```cl
-   > (range 1 10)
+   > (range :from 1 :to 10)
    out = (1 2 3 4 5 6 7 8 9 10)
+   > (range :from 1 :to 10 :by 3)
+   out = (1 3 5 7 9)
    ```"
-  (let* [(out '())]
-    (for i start end 1
-      (push-cdr! out i))
-    out))
+  (let* [(x (let* [(out {})]
+              (when (= (% (n args) 2) 1)
+                (error "Expected an even number of arguments to range" 2))
+              (for i 1 (n args) 2
+                (set-idx! out (get-idx args i) (get-idx args (+ i 1))))
+              out))
+         (st (or (get-idx x :from) 1))
+         (ed (or (get-idx x :to) huge))
+         (inc (- (or (get-idx x :by) (+ 1 st)) st))
+         (tst (if (>= st ed)
+                > <))]
+    (let* [(c st)
+           (out '())]
+      (while (tst c ed)
+        (push-cdr! out c)
+        (set! c (+ c inc)))
+      out)))
+
 
 (defun reverse (xs)
   "Reverse the list XS, using the accumulator ACC.
 
    ### Example:
    ```cl
-   > (reverse (range 1 10))
+   > (reverse (range :from 1 :to 10))
    out = (10 9 8 7 6 5 4 3 2 1)
    ```"
   (let* [(out '())]
