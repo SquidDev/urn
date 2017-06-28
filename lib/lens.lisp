@@ -79,8 +79,8 @@
               or))
 (import list (foldl map filter prune
               car cdr cadr cons
-              push-cdr! reverse))
-(import type (list? function? eq?))
+              push-cdr! reverse maybe-map))
+(import type (list? function? eq? eql?))
 
 (defun lens (view over)
   "Define a lens using VIEW and OVER as the getter and the replacer
@@ -331,29 +331,34 @@
   (getter (lambda (x)
             (foldl f z (prune (map (lambda (x) (view l x)) x))))))
 
-(defun every (x)
-  "A lens that focuses on (potentially) several elements in a list,
-   as long as they are all the same. X may be either an element in
-   the list (elements are compared with `eq?`) or a function. In the
-   case that it is a function, X is interpreted as a predicate.
+(defun every (x ln)
+  "A higher-order lens that focuses LN on every element of a list that
+   satisfies the perdicate X. If X is a regular value, it is compared
+   for equality (according to [[eql?]]) with every list element. If it
+   is a function, it is treated as the predicate.
+
 
    Example:
    ```cl
-   > (view (every even?) '(1 2 3 4 5 6))
+   > (view (every even? it) '(1 2 3 4 5 6))
    out = (2 4 6)
-   > (view (every 'x) (1 x 2 x 3 x 4 x))
+   > (view (every 'x it) '(1 x 2 x 3 x 4 x))
    out = (x x x x)
    ```"
   (let* [(pred (if (invokable? x)
                  (lambda (y)
                    (or (x y)
-                       (eq? x y)))
-                 (lambda (y) (eq? x y))))]
+                       (eql? x y)))
+                 (lambda (y) (eql? x y))))]
     (lens (lambda (ls)
-            (filter pred ls))
+            (maybe-map (lambda (x)
+                   (if (pred x)
+                     (view ln x)
+                     nil))
+                 ls))
           (lambda (f ls)
-            (map (lambda (old)
-                   (if (pred old)
-                     (f old)
-                     old))
+            (map (lambda (x)
+                   (if (pred x)
+                     (over ln f x)
+                     x))
                ls)))))
