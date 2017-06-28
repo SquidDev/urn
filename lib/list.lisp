@@ -537,6 +537,16 @@
         (set! c (+ c inc)))
       out)))
 
+(defun iota (n)
+  "Build a list from 1 up to the specified N.
+
+   ### Example:
+   ```cl
+   > (iota 10)
+   out = (1 2 3 4 5 6 7 8 9 10)
+   ```"
+  (range :from 1 :to (+ n 1)))
+
 
 (defun reverse (xs)
   "Reverse the list XS, using the accumulator ACC.
