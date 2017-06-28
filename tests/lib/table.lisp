@@ -39,21 +39,21 @@
     (can "be converted to a structure"
       (let* [(li '((:foo "x") (:bar "y") (:foo "z")))
              (st (assoc->struct li))]
-        (affirm (= (assoc li :foo) (get-idx st :foo))
-                (/= (assoc li :foo) (get-idx st :bar)))))
+        (affirm (= (assoc li :foo) (.> st :foo))
+                (/= (assoc li :foo) (.> st :bar)))))
   ]
 
   [may "be a structure"
     (can "be created"
          (with (st (struct :foo "x" :bar "y"))
-           (affirm (= "x" (get-idx st :foo))
-                   (= "y" (get-idx st :bar)))))
+           (affirm (= "x" (.> st :foo))
+                   (= "y" (.> st :bar)))))
     (can "be mutated"
          (with (st (struct :foo "x"))
-           (set-idx! st :bar "y")
-           (set-idx! st :foo "z")
-           (affirm (= "z" (get-idx st :foo))
-                   (= "y" (get-idx st :bar)))))
+           (.<! st :bar "y")
+           (.<! st :foo "z")
+           (affirm (= "z" (.> st :foo))
+                   (= "y" (.> st :bar)))))
     (can "be indexed"
          (with (st (struct :foo (struct :bar (struct :baz "x"))))
            (affirm (= "x" (.> st :foo :bar :baz))
@@ -65,14 +65,14 @@
            (.<! st :bar "y")
            (.<! st :foo {})
            (.<! st :foo :bar { :baz "x" })
-           (set-idx! st :foo "z")
+           (.<! st :foo "z")
            (affirm (= "z" (.> st :foo))
                    (= "y" (.> st :bar)))))
     (can "be converted to an alist"
       (let* [(st (struct :foo "x" :bar "y" :foo "z"))
              (li (struct->assoc st))]
-        (affirm (= (get-idx st :foo) (assoc li :foo))
-                (/= (get-idx st :bar) (assoc li :foo)))))
+        (affirm (= (.> st :foo) (assoc li :foo))
+                (/= (.> st :bar) (assoc li :foo)))))
     (can "be converted to a list"
       (let* [(st (struct 1 "x" 2 "y" 3 "z"))
              (li (struct->list st))]

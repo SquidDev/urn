@@ -1,5 +1,5 @@
 (import base (defun defmacro progn for while if quasiquote const-val
-              and or xpcall get-idx set-idx! pretty pcall
+              and or xpcall pretty pcall
               gensym tostring tonumber require => <=>
               unpack list when unless arg apply for-pairs
               + - * / % ^ ! .. n debug) :export)
@@ -47,7 +47,7 @@
 (defun symbol->string (x)
   "Convert the symbol X to a string."
   (if (symbol? x)
-    (get-idx x "contents")
+    (.> x "contents")
     nil))
 
 (defun string->symbol (x)
@@ -89,11 +89,11 @@
 
 (defun call (x key &args)
   "Index X with KEY and invoke the resulting function with ARGS."
-  ((get-idx x key) (unpack args 1 (n args))))
+  ((.> x key) (unpack args 1 (n args))))
 
 (defun self (x key &args)
   "Index X with KEY and invoke the resulting function with X and ARGS"
-  ((get-idx x key) x (unpack args 1 (n args))))
+  ((.> x key) x (unpack args 1 (n args))))
 
 (defun even? (x)
   "Is X an even number?"

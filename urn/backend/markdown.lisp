@@ -40,7 +40,7 @@
       [(empty? sig)
        (.. "(" name ")")]
       [true
-        (.. "(" name " " (concat (map (cut get-idx <> "contents") sig) " ") ")")])))
+        (.. "(" name " " (concat (map (cut .> <> "contents") sig) " ") ")")])))
 
 (defun write-docstring (out str scope)
   (for-each tok (doc/parse-docstring str)
@@ -65,7 +65,7 @@
                     (hash (cond
                             [(= sig nil) (.> ovar :name)]
                             [(empty? sig) (.> ovar :name)]
-                            [true (.. name " " (concat (map (cut get-idx <> "contents") sig) " "))]))]
+                            [true (.. name " " (concat (map (cut .> <> "contents") sig) " "))]))]
                (writer/append! out (string/format "[`%s`](%s.md#%s)" name loc (string/gsub hash "%A+" "-"))))
              (writer/append! out (string/format "`%s`" name))))])))
   (writer/line! out))
