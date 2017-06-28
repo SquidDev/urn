@@ -343,5 +343,5 @@
     (when name (timer/stop-timer! timer name))
 
     (unpack (list
-              (map (cut .> <> :node) states)
+              (map (on :node) states)
               states))))
