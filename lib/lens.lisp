@@ -76,9 +76,9 @@
               get-idx set-idx! =
               if error for pretty
               for-pairs gensym >
-              or))
+              or + <))
 (import list (foldl map filter prune
-              car cdr cadr cons
+              car cdr cadr cons nth
               push-cdr! reverse maybe-map))
 (import type (list? function? eq? eql?))
 
@@ -239,12 +239,14 @@
    > (^. '(1 2 3) (at 2))
    out = 2
    ```"
-  (lens (lambda (x) (get-idx x k))
+  (lens (lambda (x) (nth x k))
         (lambda (f x)
           (let* [(out '())]
             (for i 1 (n x) 1
               (push-cdr! out
-                         (if (= i k)
+                         (if (or (= i k)
+                                 (and (< 0 i)
+                                      (= (+ (n x) 1 k) i)))
                            (f (get-idx x i))
                            (get-idx x i))))
             out))))
