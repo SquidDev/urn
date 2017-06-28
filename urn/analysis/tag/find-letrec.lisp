@@ -51,7 +51,7 @@
     ["symbol"
      ;; We'd have caught a call, so this must be a normal variable usage.
      (when-with (state (.> lookup (.> node :var)))
-       (inc! (.> state :var)))]
+       (^~ state (on! :var) succ))]
 
     ["list"
      (with (head (car node))
@@ -67,12 +67,14 @@
                    ;; If we have no state, then we can skip it.
                    [(! state)]
                    ;; If this is the active one, then increment the recursive count.
-                   [(= active state) (inc! (.> state :recur))]
+                   [(= active state)
+                    (^~ state (on! :recur) succ)]
                    ;; If we're in the function which defines this variable and the lambda has been set
                    ;; then consider this a "direct" call.
-                   [(and parents (.> parents (.> state :parent))) (inc! (.> state :direct))]
+                   [(and parents (.> parents (.> state :parent)))
+                    (^~ state (on! :direct) succ)]
                    ;; Otherwise increment the current mode.
-                   [true (inc! (.> state :var))]))
+                   [true (^~ state (on! :var) succ)]))
 
                ;; And visit the remaining arguments.
                (visit-nodes node 2 nil lookup)]
