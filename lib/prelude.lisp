@@ -9,8 +9,8 @@
 (import binders () :export)
 (import comparison () :export)
 (import function () :export)
+(import lens () :export)
 (import list () :export)
-(import setf () :export)
 (import string :export)
 (import table () :export)
 (import type () :export)
@@ -102,3 +102,9 @@
 (defun odd? (x)
   "Is X an odd number?"
   (/= (% x 2) 0))
+
+(defmacro inc! (x)
+  `(set! ,x (succ ,x)))
+
+(defmacro dec! (x)
+  `(set! ,x (pred ,x)))

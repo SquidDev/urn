@@ -39,12 +39,12 @@
   ;; Don't write empty lines
   (when (or force (! (.> writer :tabs-pending)))
     (.<! writer :tabs-pending true)
-    (.<! writer :line (succ (.> writer :line)))
+    (^~ writer (on! :line) succ)
     (push-cdr! (.> writer :out) "\n")))
 
 (defun indent! (writer)
   "Indent the writer"
-  (.<! writer :indent (succ (.> writer :indent))))
+  (^~ writer (on! :indent) succ))
 
 (defun unindent! (writer)
   "Unindent the writer"

@@ -88,36 +88,6 @@
     (for-each key keys (set! res `(get-idx ,res ,key)))
     res))
 
-(defmacro .>/setf! (selector val)
-  "An implementation of `setf!` for table access.
-
-   This should not be used directly, but via `setf!` or [[.<!]]
-   instead.
-
-   ### Example
-   ```cl
-   (setf! (.> foo :bar) 123)
-   ```"
-  :hidden
-  `(.<! ,@selector ,val))
-
-(defmacro .>/over! (selector fun)
-  "An implementation of `over!` for table access.
-
-   This should not be used directly, but via `over!`.
-
-   ### Example
-   ```cl
-   (over! (.> foo :bar) (cut + <> 2))
-    ```"
-  :hidden
-  (let [(key-sym (gensym))
-        (val-sym (gensym))]
-    `(let [(,val-sym (.> ,@(slice selector 1 (- (n selector) 1))))
-           (,key-sym ,(nth selector (n selector)))]
-       (set-idx! ,val-sym ,key-sym (,fun (get-idx ,val-sym ,key-sym))))))
-
-
 (defmacro .<! (x &keys value)
   "Set the value at KEYS in the structure X to VALUE."
   (with (res x)

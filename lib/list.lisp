@@ -42,28 +42,6 @@
   (assert-type! x list)
   (base/car x))
 
-(defmacro car/setf! (selector val)
-  "An implementation of `setf!` for [[car]].
-
-   ### Example
-   ```cl
-   (setf! (car foo) 123)
-   ```"
-  :hidden
-  `(set-idx! ,(nth selector 1) 1 ,val))
-
-(defmacro car/over! (selector fun)
-  "An implementation of `over!` for [[car]].
-
-   ### Example
-   ```cl
-   (over! (car foo) (cut + <> 2))
-   ```"
-  :hidden
-  (with (val-sym (gensym))
-    `(with (,val-sym ,(nth selector 1))
-       (set-idx! ,val-sym 1 (,fun (car ,val-sym))))))
-
 (defun cdr (x)
   "Return the list X without the first element present. In the case that
    X is nil, the empty list is returned. Due to the way lists are
