@@ -9,7 +9,7 @@
 (defun random-string () :hidden
   (let* [(n (random 1 255))
          (random-byte () (string/char (random 1 255)))]
-    (concat (map random-byte (range 1 n)))))
+    (concat (map random-byte (range :from 1 :to n)))))
 
 (defun random-number () :hidden
   (random (- 0 (^ 2 32)) (^ 2 32)))
@@ -41,7 +41,7 @@
 
 (defun random-list () :hidden
   (let* [(n (random 1 5))]
-    (map (lambda (x) (random-of (-random-type))) (range 1 n))))
+    (map (lambda (x) (random-of (-random-type))) (range :from 1 :to n))))
 
 (defun random-struct () :hidden
   (let* [(out {})]

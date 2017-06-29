@@ -40,16 +40,16 @@
               (eq? true (elem? 2 '(1 2 3)))
               (eq? false (elem? 1 '(2 3 4)))))
   (it "can be built using range"
-      (affirm (eq? (range 1 3) '(1 2 3))))
+      (affirm (eq? (range :from 1 :to 3) '(1 2 3))))
   (it "has a cancellative operation reverse"
       (check [(list a)]
         (eq? (reverse (reverse a)) a)))
   (it "can be tested for one element matching a predicate"
-      (affirm (eq? true (any (cut = <> 1) (range 1 3)))
-              (eq? false (any (cut = <> 6) (range 1 3)))))
+      (affirm (eq? true (any (cut = <> 1) (range :from 1 :to 3)))
+              (eq? false (any (cut = <> 6) (range :from 1 :to 3)))))
   (it "can be tested for all elements matching a predicate"
       (affirm (eq? true (all (cut = <> 1) '(1 1 1)))
-              (eq? false (all (cut = <> 1) (range 1 3)))))
+              (eq? false (all (cut = <> 1) (range :from 1 :to 3)))))
   (it "can be pruned to remove empty elements"
       (affirm (eq? '(1 2 3) (prune '(1 () 2 () 3)))))
   (it "can be flattened"

@@ -16,7 +16,7 @@
  and the struct.
 
  ```cl
- > (define list-example (range 1 10))
+ > (define list-example (range :from 1 :to 10))
  out = '(1 2 3 4 5 6 7 8 9 10)
  > (define struct-example (struct :foo \"bar\" :baz \"quux\"))
  out = (struct \"foo\" \"bar\" \"baz\" \"quux\")

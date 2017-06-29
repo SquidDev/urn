@@ -526,7 +526,8 @@
                 (set-idx! out (get-idx args i) (get-idx args (+ i 1))))
               out))
          (st (or (get-idx x :from) 1))
-         (ed (or (get-idx x :to) huge))
+         (ed (or (+ 1 (get-idx x :to))
+                 (error "Expected end index, got nothing")))
          (inc (- (or (get-idx x :by) (+ 1 st)) st))
          (tst (if (>= st ed)
                 > <))]
