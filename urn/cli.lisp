@@ -115,7 +115,6 @@
                    (when-with (interp (.> arg -1)) (push-cdr! command interp))
                    (push-cdr! command (.> arg 0))
 
-                   (debug (append command args))
                    (case (list (os/execute (concat (append command args) " ")))
                      [((number? @ ?code) . _) (os/exit code)] ; luajit.
                      [(_ _ ?code) (os/exit code)])))))
