@@ -1,7 +1,7 @@
 (import base (defmacro defun with for when if and or let*
               get-idx gensym =))
 (import binders (let))
-(import list (for-each push-cdr! any map traverse foldl))
+(import list (for-each push-cdr! any map traverse reduce))
 (import type (symbol? list? function? table?))
 (import table (.> getmetatable))
 (import lua/os (clock))
@@ -118,4 +118,4 @@
    .  2)
    out = 7
    ```"
-  (foldl compose (lambda (x) x) fs))
+  (reduce compose (lambda (x) x) fs))

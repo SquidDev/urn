@@ -24,9 +24,9 @@
       (affirm (eq? (snoc '(1 2) 3) '(1 2 3))
               (eq? (snoc '(bar baz) "foo") '(bar baz "foo"))
               (eq? (snoc (list 1 nil 2) "foo") (list 1 nil 2 "foo"))))
-  (it "can be reduced to a single value with foldl"
-      (affirm (eq? (foldl + 0 '(1 2 3)) (+ (+ 1 2) (+ 3 0)))
-              (eq? (foldl append '() '((1 2) (3 4))) '(1 2 3 4))))
+  (it "can be reduced to a single value with reduce"
+      (affirm (eq? (reduce + 0 '(1 2 3)) (+ (+ 1 2) (+ 3 0)))
+              (eq? (reduce append '() '((1 2) (3 4))) '(1 2 3 4))))
   (it "can be appended to another quoted list"
       (check [(list a) (list b)]
         (eq? (n (append a b)) (+ (n a) (n b)))
@@ -79,7 +79,7 @@
   (it "is equal if all elements are equal"
       (check [(list a) (list b)]
         (=> (eq? a b)
-            (foldl (lambda (x y) (and x y))
+            (reduce (lambda (x y) (and x y))
                    true
                    (map eq? a b)))))
 )

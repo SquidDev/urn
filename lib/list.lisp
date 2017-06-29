@@ -1,7 +1,7 @@
 "List manipulation functions.
 
  These include several often-used functions for manipulation of lists,
- including functional programming classics such as [[map]] and [[foldl]]
+ including functional programming classics such as [[map]] and [[reduce]]
  and useful patterns such as [[accumulate-with]].
 
  Most of these functions are tail-recursive unless noted, which means
@@ -99,28 +99,36 @@
    ```"
   `(,@xs ,@xss))
 
-(defun foldl (f z xs)
+(defun reduce (f z xs)
   "Accumulate the list XS using the binary function F and the zero
    element Z.  This function is also called `reduce` by some authors. One
-   can visualise `(foldl f z xs)` as replacing the [[cons]] operator in
+   can visualise `(reduce f z xs)` as replacing the [[cons]] operator in
    building lists with F, and the empty list with Z.
 
    Consider:
    - `'(1 2 3)` is equivalent to `(cons 1 (cons 2 (cons 3 '())))`
-   - `(foldl + 0 '(1 2 3))` is equivalent to `(+ 1 (+ 2 (+ 3 0)))`.
+   - `(reduce + 0 '(1 2 3))` is equivalent to `(+ 1 (+ 2 (+ 3 0)))`.
 
    ### Example:
    ```cl
-   > (foldl append '() '((1 2) (3 4)))
+   > (reduce append '() '((1 2) (3 4)))
    out = (1 2 3 4)
    ; equivalent to (append '(1 2) (append '(3 4) '()))
    ```"
   (assert-type! f function)
-  (assert-type! xs list)
-  (let* [(accum z)]
-    (for i 1 (n xs) 1
-      (set! accum (f accum (nth xs i))))
-    accum))
+  (let* [(start 1)]
+    (if (and (nil? xs)
+             (list? z))
+      (progn
+        (set! start 2)
+        (set! xs z)
+        (set! z (car z)))
+      nil)
+    (assert-type! xs list)
+    (let* [(accum z)]
+      (for i start (n xs) 1
+        (set! accum (f accum (nth xs i))))
+      accum)))
 
 (defun map (fn &xss)
   "Iterate over all the successive cars of XSS, producing a single list
@@ -507,7 +515,7 @@
    > (flatten '((1 2) (3 4)))
    out = (1 2 3 4)
    ```"
-  (foldl append '() xss))
+  (reduce append '() xss))
 
 (defun range (&args)
   "Build a list from :FROM to :TO, optionally passing by :BY.
@@ -563,7 +571,7 @@
     out))
 
 (defun accumulate-with (f ac z xs)
-  "A composition of [[foldl]] and [[map]].
+  "A composition of [[reduce]] and [[map]].
 
    Transform the values of XS using the function F, then accumulate them
    starting form Z using the function AC.
@@ -579,7 +587,7 @@
    ```"
   (assert-type! f function)
   (assert-type! ac function)
-  (foldl ac z (map f xs)))
+  (reduce ac z (map f xs)))
 
 (defun sum (xs)
   "Return the sum of all elements in XS.
@@ -589,7 +597,7 @@
    > (sum '(1 2 3 4))
    out = 10
    ```"
-  (foldl + 0 xs))
+  (reduce + 0 xs))
 
 (defun prod (xs)
   "Return the product of all elements in XS.
@@ -599,7 +607,7 @@
    > (prod '(1 2 3 4))
    out = 24
    ```"
-  (foldl * 1 xs))
+  (reduce * 1 xs))
 
 (defun take-while (p xs idx)
   "Takes elements from the list XS while the predicate P is true,

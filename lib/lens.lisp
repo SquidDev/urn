@@ -77,7 +77,7 @@
               if error for pretty
               for-pairs gensym >
               or + <))
-(import list (foldl map filter prune
+(import list (reduce map filter prune
               car cdr cadr cons nth
               push-cdr! reverse maybe-map))
 (import type (list? function? eq? eql?))
@@ -315,7 +315,7 @@
    out = 3
    ```"
   (getter (lambda (x)
-            (foldl f z (prune (view l x))))))
+            (reduce f z (prune (view l x))))))
 
 (defun accumulating (f z l)
   "Transform the lens L into a getter which folds the result using the
@@ -331,7 +331,7 @@
    out = 3
    ```"
   (getter (lambda (x)
-            (foldl f z (prune (map (lambda (x) (view l x)) x))))))
+            (reduce f z (prune (map (lambda (x) (view l x)) x))))))
 
 (defun every (x ln)
   "A higher-order lens that focuses LN on every element of a list that
