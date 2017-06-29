@@ -20,9 +20,9 @@ endif
 
 .PHONY: ${TESTS} all test compiler_test docs
 
+all: ${OUT_DIR}/urn
 compiler_test: all test
 test: ${TESTS}
-all: ${OUT_DIR}/urn
 
 ${OBJS}: ${OUT_DIR}/%: urn/%.lisp
 	@mkdir -p $(shell dirname $@)
