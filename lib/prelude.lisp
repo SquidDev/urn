@@ -16,9 +16,22 @@
 (import type () :export)
 (import lua/os)
 (import lua/io (write) :export)
+(import lua/io io :export)
 (import lua/math math :export)
 (import lua/math maths :export)
 (import match (destructuring-bind case handler-case matches? function if-match) :export)
+
+(define *standard-output*
+  "The standard output stream."
+  (io/output))
+
+(define *standard-error*
+  "The standard error stream."
+  (io/stderr))
+
+(define *standard-input*
+  "The standard error stream."
+  (io/input))
 
 (defun succ (x)
   "Return the successor of the number X."
