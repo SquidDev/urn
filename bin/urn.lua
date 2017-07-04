@@ -6984,7 +6984,7 @@ compile1 = (function(compiler, nodes, scope, name)
 						local temp4 = 1
 						while temp4 <= temp2 do
 							local elem = queue[temp4]
-							if elem["_idx"] > 1 then
+							if elem["_idx"] > action["_idx"] then
 								elem["_idx"] = elem["_idx"] + (n1(result) - 1)
 							end
 							temp4 = temp4 + 1
@@ -7038,7 +7038,7 @@ compile1 = (function(compiler, nodes, scope, name)
 					return "?"
 				end
 			end)()
-			 .. "?"))
+			 .. ")"))
 			local temp2 = head["tag"]
 			if temp2 == "init" then
 				resume(head, head["node"], scope, head["_state"])

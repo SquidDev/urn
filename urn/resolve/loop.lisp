@@ -153,7 +153,7 @@
 
                                 ;; Increment each element after this one by (n - 1).
                                 (for-each elem queue
-                                  (when (> (.> elem :_idx) 1)
+                                  (when (> (.> elem :_idx) (.> action :_idx))
                                     (.<! elem :_idx (+ (.> elem :_idx) (pred (n result))))))
 
                                 (for i 1 (n result) 1
@@ -201,7 +201,7 @@
             (logger/put-debug! logger
               (..
                 (.> head :tag) " for " (.> head :_state :stage) " at " (range/format-node (.> head :_node))
-                " (" (if (.> head :_state :var) (.> head :_state :var :name) "?") "?"))
+                " (" (if (.> head :_state :var) (.> head :_state :var :name) "?") ")"))
 
             (case (.> head :tag)
               ["init"
