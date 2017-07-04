@@ -93,4 +93,4 @@
   (cond
     [(> i (n li)) false]
     [(fn (nth li i)) true]
-    [true (fast-all fn li (+ i 1))]))
+    [true (fast-any fn li (+ i 1))]))

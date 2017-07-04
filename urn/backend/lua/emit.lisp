@@ -38,6 +38,12 @@
     ;; We want to avoid emitting breaks here
     :call-tail true })
 
+(define const-categories
+  "A lookup of all categories which are constant/will not be emitted when
+   the statement is nil."
+  { :const true
+    :quote true :quote-const true })
+
 (defun compile-native (out meta)
   (with (ty (type meta))
     (cond
@@ -197,7 +203,12 @@
 
                ;; If we're the last block and there isn't anything here, then don't emit an
                ;; else
-               (when (and (> i 2) (or (! is-final) (/= ret "") break (/= (n item) 1)))
+
+               (when (and (> i 2) (or
+                                    (! is-final) (/= ret "") break
+                                    (and
+                                      (/= (n item) 1)
+                                      (fast-any (lambda (x) (! (.> const-categories (.> cat-lookup x :category)))) item 2))))
                  (w/append! out "else"))
 
                ;; We stop iterating after a branch marked "true" and just invoke the code.
