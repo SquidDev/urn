@@ -5,6 +5,17 @@
 (import urn/backend/lua/escape ())
 (import urn/backend/writer w)
 
+(defun create-pass-state (state)
+  "Create a state for using in analysis passes and emitting."
+  { ;; General information copied from the parent state.
+    :meta       (.> state :meta)
+    :var-cache  (.> state :var-cache)
+    :var-lookup (.> state :var-lookup)
+
+    ;; Pass information
+    :cat-lookup {}
+    :rec-lookup {} })
+
 (defun truthy? (node)
   "Determine whether NODE is true. A more comprehensive implementation exists in the optimiser"
   :hidden
@@ -742,12 +753,14 @@
 
 (defun expression (node out state ret)
   "Tag NODE and compile it."
-  (run-pass find-letrec/letrec-node state nil node state)
-  (run-pass cat/categorise-node state nil node state (/= ret nil))
-  (compile-expression node out state ret))
+  (with (pass-state (create-pass-state state))
+    (run-pass find-letrec/letrec-node state nil node pass-state)
+    (run-pass cat/categorise-node state nil node pass-state (/= ret nil))
+    (compile-expression node out pass-state ret)))
 
 (defun block (nodes out state start ret)
   "Tag all NODES and compile them."
-  (run-pass find-letrec/letrec-nodes state nil nodes state)
-  (run-pass cat/categorise-nodes state nil nodes state)
-  (compile-block nodes out state start ret))
+  (with (pass-state (create-pass-state state))
+    (run-pass find-letrec/letrec-nodes state nil nodes pass-state)
+    (run-pass cat/categorise-nodes state nil nodes pass-state)
+    (compile-block nodes out pass-state start ret)))
