@@ -247,17 +247,18 @@
                      (range/get-source (.> head :_node)) ""))
 
                  (let* [(export (.> head :export))
-                        (scope (.> head :scope))]
+                        (scope (.> head :scope))
+                        (node (.> head :_node))]
                    (for-pairs (name var) (.> module :scope :exported)
                      (cond
                        [(.> head :as)
                         (scope/import-verbose! scope (.. (.> head :as) "/" name)
-                          var (.> head :node) export logger)]
+                          var node export logger)]
                        [(.> head :symbols)
                         (when (.> head :symbols name)
-                          (scope/import-verbose! scope name var (.> head :node) export logger))]
+                          (scope/import-verbose! scope name var node export logger))]
                        [true
-                        (scope/import-verbose! scope name var (.> head :node) export logger)])))
+                        (scope/import-verbose! scope name var node export logger)])))
 
 
 
