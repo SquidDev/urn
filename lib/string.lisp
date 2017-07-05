@@ -1,8 +1,10 @@
 (import base (defun getmetatable if n progn with for tostring len#
               type# >= > < <= = + - car or and list when set-idx!
-              get-idx getmetatable let* while ..))
+              debug
+              get-idx getmetatable let* while .. pretty defmacro))
 (import base (concat) :export)
 (import list)
+(import binders (loop))
 (import lua/string () :export)
 
 (defun char-at (xs x)
@@ -78,3 +80,46 @@
 (defun ends-with? (str suffix)
   "Determine whether STR ends with SUFFIX."
   (= (sub str (- 0 (len# suffix))) suffix))
+
+(defun display (x) :hidden
+  (cond
+    [(= (type# x) "string") x]
+    [(and (= (type# x) "table")
+          (= (get-idx x :tag) "string"))
+     x]
+    [:else (pretty x)]))
+
+(defmacro $ (str)
+  "Perform interpolation (variable substitution) on the string STR.
+
+   The string is a sequence of arbitrary characters which may contain
+   an unquote, of the form `~{foo}`, where foo is a variable name.
+
+   ### Example:
+   ```cl
+   > (let* [(x 1)] ($ \"~{x} = 1\"))
+   out = \"1 = 1\"
+   ```"
+  (set! str (get-idx str :value))
+  (let* [(sections '())]
+    (loop [(i 1)
+           (chr (char-at str 1))
+           (buf "")]
+      [(> i (n str)) (list/push-cdr! sections buf)]
+      (let* [(mth (list (find (sub str i)
+                              "~%{([^%) ]+)%}")))]
+        (if (and (>= (n mth) 0)
+                 (list/car mth))
+          (progn
+            (list/push-cdr! sections buf)
+            (list/push-cdr! sections
+                            `(display
+                               ,{ :tag "symbol"
+                               :contents (list/caddr mth) }))
+            (recur (+ i (list/cadr mth))
+                   (char-at str (+ i (list/cadr mth)))
+                   ""))
+          (recur (+ 1 i)
+                 (char-at str (+ 1 i))
+                 (.. buf chr)))))
+    `(.. ,@sections)))

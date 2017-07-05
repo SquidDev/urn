@@ -5,7 +5,7 @@
               + - * / % ^ ! .. n debug) :export)
 
 (import base)
-(import string (format concat) :export)
+(import string (format concat $) :export)
 (import binders () :export)
 (import comparison () :export)
 (import function () :export)
