@@ -186,8 +186,8 @@
                              `((with (,(car vars) ,var-s)
                                  ,@body))
                              body)
-                          (,func-s (next ,tbl ,var-s)))))
-        (,func-s (next ,tbl)))
+                          (,func-s (next ,tbl-s ,var-s)))))
+        (,func-s (next ,tbl-s)))
        ,tbl nil)))
 
 (defun pretty (value)

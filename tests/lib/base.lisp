@@ -68,6 +68,11 @@
   (it "can create a list from variadic arguments"
     (check [(number a) (number b) (number c)] (eq? (list a b c) `(,a ,b ,c))))
 
+  (it "can loop over a set of pairs"
+    (with (x 0)
+      (for-pairs () (progn (inc! x) { :x 1 :y 2 }))
+      (affirm (= x 1))))
+
   (it "can convert a value to a lisp expression"
     (affirm (eq? (pretty 3) "3")
             (eq? (pretty "abc") "\"abc\"")
