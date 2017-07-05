@@ -662,7 +662,7 @@
                     (when (<= arg-idx arg-len) (inc! arg-idx))
                     (when (<= val-idx val-len) (inc! val-idx))])))
 
-             (if (= arg-start arg-len)
+             (if (= arg-start arg-idx)
                ;; We didn't consume any arguments, so let's just emit one.
                (let* [(expr (nth vals val-idx))
                       (var (.> arg :var))
