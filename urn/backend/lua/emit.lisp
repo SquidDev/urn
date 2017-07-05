@@ -4,6 +4,7 @@
 (import urn/analysis/tag/find-letrec find-letrec)
 (import urn/backend/lua/escape ())
 (import urn/backend/writer w)
+(import urn/range range)
 
 (defun create-pass-state (state)
   "Create a state for using in analysis passes and emitting."
@@ -13,8 +14,10 @@
     :var-lookup (.> state :var-lookup)
 
     ;; Pass information
-    :cat-lookup {}
-    :rec-lookup {} })
+    :var-skip   {} ;; Variables which we will not emit bindings for
+    :cat-lookup {} ;; Node to category lookup
+    :rec-lookup {} ;; Information on recursive variables
+    })
 
 (defun truthy? (node)
   "Determine whether NODE is true. A more comprehensive implementation exists in the optimiser"
@@ -97,8 +100,7 @@
   (let* [(cat-lookup (.> state :cat-lookup))
          (cat (.> cat-lookup node))
          (_ (unless cat
-              (import urn/range r)
-              (print! "Cannot find" (pretty node) (r/format-node node))))
+              (print! "Cannot find" (pretty node) (range/format-node node))))
          (cat-tag (.> cat :category))]
     (unless (.> boring-categories cat-tag) (w/push-node! out node))
 
@@ -376,8 +378,7 @@
            (let* [(sub (nth node i))
                   (cat (.> state :cat-lookup sub))]
              (unless cat
-               (import urn/range r)
-               (print! "Cannot find" (pretty sub) (r/format-node sub)))
+               (print! "Cannot find" (pretty sub) (range/format-node sub)))
 
              (if (= (.> cat :category) "unquote-splice")
                (progn
@@ -479,7 +480,9 @@
            (compile-recur (.> cat :recur) out state "return ")
            (compile-recur (.> cat :recur) out state ret (.> cat :recur)))
 
-         (for-each arg args (pop-escape-var! (.> arg :var) state)))]
+         (for-each arg args
+           (unless (.> state :var-skip (.> arg :var))
+             (pop-escape-var! (.> arg :var) state))))]
 
       ["call-tail"
        (when (= ret nil)
@@ -560,7 +563,9 @@
 
          (compile-bind args node 1 2 out state)
          (compile-block head out state 3 ret)
-         (for-each arg args (pop-escape-var! (.> arg :var) state)))]
+         (for-each arg args
+           (unless (.> state :var-skip (.> arg :var))
+             (pop-escape-var! (.> arg :var) state))))]
       ["call-literal"
        ;; Just invoke the expression as normal
        (when ret (w/append! out ret))
@@ -591,6 +596,7 @@
   :hidden
   (let* [(arg-len (n args))
          (val-len (n vals))
+         (skip (.> state :var-skip))
          (cat-lookup (.> state :cat-lookup))]
     (while (or (<= arg-idx arg-len) (<= val-idx val-len))
       (with (arg (.> args arg-idx))
@@ -611,12 +617,21 @@
              (w/line! out)
              (inc! arg-idx)
              (set! val-idx (+ count val-idx)))]
+          [(.> skip (.> arg :var))
+           ;; If we are skipping this variable then just increment arg & val
+           (inc! arg-idx)
+           (inc! val-idx)]
           [(= val-idx val-len)
            (let* [(arg-list '())
                   (val (nth vals val-idx))
                   (ret nil)]
              (while (<= arg-idx arg-len)
-               (push-cdr! arg-list (push-escape-var! (.> (nth args arg-idx) :var) state))
+               (with (var (.> (nth args arg-idx) :var))
+                 (cond
+                   [(! (.> skip var)) (push-cdr! arg-list (push-escape-var! var state))]
+                   ;; If we're skipping a value and it isn't the last one, then we emit a placeholder.
+                   [(< arg-idx arg-len) (push-cdr! arg-list "_")]
+                   [true]))
                (inc! arg-idx))
 
              (w/append! out "local ")
@@ -670,13 +685,16 @@
                (progn
                  (w/append! out "local ")
                  (for i arg-start (pred arg-idx) 1
-                   (when (> i arg-start) (w/append! out ", "))
-                   (w/append! out (push-escape-var! (.> (nth args i) :var) state)))
+                   (with (var (.> (nth args i) :var))
+                     (unless (.> skip var)
+                       (when (> i arg-start) (w/append! out ", "))
+                       (w/append! out (push-escape-var! var state)))))
                  (when (< val-start val-idx)
                    (w/append! out " = ")
                    (for i val-start (pred val-idx) 1
-                     (when (> i val-start) (w/append! out ", "))
-                     (compile-expression (nth vals i) out state))))))]))
+                     (unless (.> skip (.> (nth args (+ (- i val-start) arg-start)) :var))
+                       (when (> i val-start) (w/append! out ", "))
+                       (compile-expression (nth vals i) out state)))))))]))
       (w/line! out))))
 
 (defun compile-pack (node out state start count)
@@ -757,7 +775,7 @@
   ;; Add some compat stuff
   (w/line! out "if not table.pack then table.pack = function(...) return { n = select(\"#\", ...), ... } end end")
   (w/line! out "if not table.unpack then table.unpack = unpack end")
-  (w/line! out "local load = load if _VERSION:find(\"5.1\") then load = function(x, n, _, env) local f, e = loadstring(x, n) if not f then error(e, 2) end if env then setfenv(f, env) end return f end end")
+  (w/line! out "local load = load if _VERSION:find(\"5.1\") then load = function(x, n, _, env) local f, e = loadstring(x, n) if not f then return f, e end if env then setfenv(f, env) end return f end end")
 
   ;; And cache some useful globals
   (w/line! out "local _select, _unpack, _pack, _error = select, table.unpack, table.pack, error"))

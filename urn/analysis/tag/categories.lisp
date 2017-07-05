@@ -1,6 +1,7 @@
 (import urn/analysis/nodes ())
 (import urn/analysis/pass ())
 (import urn/analysis/visitor visitor)
+(import urn/range range)
 
 (defun node-contains-var? (node var)
   "Determine whether NODE contains a reference to the given VAR."
@@ -257,6 +258,7 @@
                               (visit-node lookup state (nth node i) true))
 
                             (.<! lookup (.> rec :set!) (cat "void"))
+                            (.<! state :var-skip func true)
                             (cat "call-recur" :recur recur))]
                          [true
                           (visit-nodes lookup state node 1 false)
