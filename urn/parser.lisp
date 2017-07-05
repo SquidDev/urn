@@ -186,10 +186,12 @@
                                                               char))
                     (range (position)) nil
                     (range (position)) "Illegal character here. Are you missing whitespace?")))))
-          [(= char "\"")
+          [(or (= char "\"") (and (= char "$") (= (string/char-at str (succ offset)) "\"")))
             (let* [(start (position))
                    (start-col (succ column))
-                   (buffer '())]
+                   (buffer '())
+                   (interpolate (= char "$"))]
+              (when interpolate (consume!))
               (consume!)
               (set! char (string/char-at str offset))
               (while (/= char "\"")
@@ -298,7 +300,9 @@
                    (push-cdr! buffer char)])
                 (consume!)
                 (set! char (string/char-at str offset)))
-              (append-with! {:tag "string" :value (concat buffer)} start))]
+              (if interpolate
+                (append-with! {:tag "interpolate" :value (concat buffer)} start)
+                (append-with! {:tag "string" :value (concat buffer)} start)))]
           [(= char ";")
            (while (and (<= offset length) (/= (string/char-at str (succ offset)) "\n"))
              (consume!))]
@@ -382,6 +386,19 @@
         (cond
           [(or (= tag "string") (= tag "number") (= tag "symbol") (= tag "key"))
            (append! tok)]
+          [(= tag "interpolate")
+           (append! { :tag "list"
+                      :n 2
+                      :range (.> tok :range)
+                      1 { :tag "symbol"
+                          :contents "$"
+                          :range { :start  (.> tok :range :start)
+                                   :finish (.> tok :range :start)
+                                   :name   (.> tok :range :name)
+                                   :lines  (.> tok :range :lines) } }
+                      2 { :tag "string"
+                          :value (.> tok :value)
+                          :range (.> tok :range) } })]
           [(= tag "open")
            (push!)
            (.<! head :open (.> tok :contents))
