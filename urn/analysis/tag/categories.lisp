@@ -1,38 +1,13 @@
 (import urn/analysis/nodes ())
 (import urn/analysis/pass ())
+(import urn/analysis/vars ())
 (import urn/analysis/visitor visitor)
 (import urn/range range)
 
-(defun node-contains-var? (node var)
-  "Determine whether NODE contains a reference to the given VAR."
-  :hidden
-  (with (found false)
-    (visitor/visit-node node
-      (lambda (node)
-        (cond
-          [found false]
-          [(symbol? node) (set! found (= var (.> node :var)))]
-          [true])))
-    found))
-
-(defun nodes-contain-var? (node start var)
-  "Determine whether the NODES starting from START contain the given
-   VAR."
-  :hidden
-  (with (found false)
-    (visitor/visit-list start node
-      (lambda (node)
-        (cond
-          [found false]
-          [(symbol? node) (set! found (= var (.> node :var)))]
-          [true])))
-    found))
-
-(defun cat (category &args)
+(defmacro cat (category &args)
   "Create a CATEGORY data set, using ARGS as additional parameters to [[struct]]."
-  (struct
-    :category category
-    (unpack args 1 (n args))))
+  `{ :category ,category
+     ,@args })
 
 (defun part-all (xs i e f)
   "An implementation of [[all]] which just goes between I and E."
