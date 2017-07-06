@@ -16,17 +16,17 @@
 (defun print-verbose! (verbosity msg)
   "Print a verbose message, MSG if VERBOSITy is greater than 0."
   (when (> verbosity 0)
-    (print! $"[VERBOSE] ~{msg}")))
+    (print! $"[VERBOSE] ${msg}")))
 
 (defun print-debug! (verbosity msg)
   "Print a debug message, MSG if VERBOSITY is greater than 1."
   (when (> verbosity 1)
-    (print! $"[DEBUG] ~{msg}")))
+    (print! $"[DEBUG] ${msg}")))
 
 (defun print-time! (maximum name time level)
   "Print the TIME NAME took to execute, if LEVEL is <= MAXIMIM."
   (when (<= level maximum)
-    (print! $"[TIME] ~{name} took ~{time}")))
+    (print! $"[TIME] ${name} took ${time}")))
 
 (defun print-explain! (explain lines)
   "Put all LINES when explaining is enabled"
