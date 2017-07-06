@@ -31,7 +31,7 @@
       :add-categoriser!    (lambda () (fail! "add-categoriser! is not yet implemented")) ;; TODO: Add add-categoriser!
       :categorise-node     categories/visit-node
       :categorise-nodes    categories/visit-nodes
-      :cat                 categories/cat
+      :cat                 (lambda () (fail! "cat is not yet implemented"))
       :writer/append!      writer/append!
       :writer/line!        writer/line!
       :writer/indent!      writer/indent!
