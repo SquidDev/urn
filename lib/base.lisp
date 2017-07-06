@@ -280,3 +280,20 @@
    3
    ```"
   (f (unpack xs 1 (n xs))))
+
+(defmacro values-list (&xs)
+  "Return multiple values, one per element in XS.
+
+   ### Example:
+   ```cl
+   > (print! (values-list 1 2 3))
+   1   2   3
+   out = nil
+   ```"
+  `(unpack (list ,@(let* [(out '())] ; god
+                     (for i 1 (n xs) 1
+                          (set-idx! out i `((lambda (,'x) ,'x) ; wake me up
+                                           ,(get-idx xs i)))) ; (wake me up inside)
+                     (set-idx! out :n (n xs))
+                     out))
+           1 ,(n xs)))
