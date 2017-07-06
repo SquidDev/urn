@@ -1,9 +1,10 @@
+LUA        ?= lua
 LUA_FLAGS  ?=-O2
 TEST_FLAGS ?=
 OUT_DIR    ?= bin
 DOCS_DIR   ?= docs_tmp
 PAGES_DIR  ?= docs
-URN        ?= lua bin/urn.lua
+URN        ?= ${LUA} bin/urn.lua
 
 TESTS     := $(shell find tests -type f)
 LIBS      := $(shell find lib -type f -name "*.lisp")
