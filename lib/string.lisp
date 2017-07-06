@@ -1,6 +1,6 @@
 (import base (defun getmetatable if n progn with for tostring len#
               type# >= > < <= = + - car or and list when set-idx!
-              get-idx getmetatable while .. pretty defmacro))
+              get-idx getmetatable while .. pretty defmacro debug))
 (import base (concat) :export)
 (import list)
 (import binders (loop let*))
@@ -85,7 +85,7 @@
     [(= (type# x) "string") x]
     [(and (= (type# x) "table")
           (= (get-idx x :tag) "string"))
-     x]
+     (get-idx x :value)]
     [:else (pretty x)]))
 
 (defmacro $ (str)
@@ -105,19 +105,31 @@
            (chr (char-at str 1))
            (buf "")]
       [(> i (n str)) (list/push-cdr! sections buf)]
-      (let* [((start end match) (find (sub str i)
-                                      "~%{([^%} ]+)%}"))]
-        (if start
-          (progn
-            (list/push-cdr! sections buf)
-            (list/push-cdr! sections
-                            `(display
-                               ,{ :tag "symbol"
-                               :contents match }))
-            (recur (+ i end)
-                   (char-at str (+ i end))
-                   ""))
-          (recur (+ 1 i)
-                 (char-at str (+ 1 i))
-                 (.. buf chr)))))
+      (let* [((rs re rm) (find (sub str i)
+                               "~%{([^%} ]+)%}"))
+             ((is ie im) (find (sub str i)
+                               "%$%{([^%] ]+)%}"))]
+        (cond
+          [(= rs 1) ; regular ~{foo}
+           (progn
+             (list/push-cdr! sections buf)
+             (list/push-cdr! sections
+                             `(display
+                                ,{ :tag "symbol"
+                                   :contents rm }))
+             (recur (+ i re)
+                    (char-at str (+ i re))
+                    ""))]
+          [(= is 1) ; plain ${foo}
+           (progn
+             (list/push-cdr! sections buf)
+             (list/push-cdr! sections
+                             { :tag "symbol"
+                               :contents im })
+             (recur (+ i ie)
+                    (char-at str (+ i ie))
+                    ""))]
+          [true (recur (+ 1 i)
+                   (char-at str (+ 1 i))
+                   (.. buf chr))])))
     `(.. ,@sections)))
