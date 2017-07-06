@@ -1,10 +1,9 @@
 (import base (defun getmetatable if n progn with for tostring len#
               type# >= > < <= = + - car or and list when set-idx!
-              debug
-              get-idx getmetatable let* while .. pretty defmacro))
+              get-idx getmetatable while .. pretty defmacro))
 (import base (concat) :export)
 (import list)
-(import binders (loop))
+(import binders (loop let*))
 (import lua/string () :export)
 
 (defun char-at (xs x)
@@ -106,18 +105,17 @@
            (chr (char-at str 1))
            (buf "")]
       [(> i (n str)) (list/push-cdr! sections buf)]
-      (let* [(mth (list (find (sub str i)
-                              "~%{([^%) ]+)%}")))]
-        (if (and (>= (n mth) 0)
-                 (list/car mth))
+      (let* [((start end match) (find (sub str i)
+                                      "~%{([^%} ]+)%}"))]
+        (if start
           (progn
             (list/push-cdr! sections buf)
             (list/push-cdr! sections
                             `(display
                                ,{ :tag "symbol"
-                               :contents (list/caddr mth) }))
-            (recur (+ i (list/cadr mth))
-                   (char-at str (+ i (list/cadr mth)))
+                               :contents match }))
+            (recur (+ i end)
+                   (char-at str (+ i end))
                    ""))
           (recur (+ 1 i)
                  (char-at str (+ 1 i))
