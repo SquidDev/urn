@@ -98,7 +98,9 @@
                      ;; Set the lambda variable and visit it.
                      (.<! state :lambda val)
                      (.<! state :set! node)
-                     (visit-block val 3 nil state lookup))
+                     (visit-block val 3 nil state lookup)
+                     ;; If it doesn't recur, then remove it from the lookup
+                     (when (= (.> state :recur) 0) (.<! lookup var nil)))
                    (progn
                      ;; Otherwise clear everything and visit the node normally.
                      (.<! lookup var nil)

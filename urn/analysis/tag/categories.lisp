@@ -126,8 +126,7 @@
                            (var (.> (nth node 2) :var))]
                        (if (and
                              (list? def) (builtin? (car def) :lambda)
-                             (with (rec (.> state :rec-lookup var))
-                               (and rec (> (.> rec :recur) 0))))
+                             (.> state :rec-lookup var))
                          (with (recur { :var var :def def })
                            (visit-nodes lookup state def 3 true nil recur)
                            (unless (.> recur :tail) (error! "Expected tail recursive function from letrec"))
