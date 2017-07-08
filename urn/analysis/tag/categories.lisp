@@ -120,6 +120,17 @@
                             (add-paren lookup (nth (nth node i) (if (= i len) 2 1)) 1)))
                         (cat "or" :prec 1)]
 
+                       [(and
+                          ;; If we have exactly two conditions
+                          (= (n node) 3)
+                          ;; The first condition is of the form [X]
+                          (= (n (nth node 2)) 1)
+                          ;; The second condition is of the form [Y ...]
+                          (builtin? (car (nth node 3)) :true) (> (n (nth node 3)) 1))
+
+                        (add-paren lookup (car (nth node 2)) 11)
+                        (cat "unless" :stmt true)]
+
                        [true (cat "cond" :stmt true)])]
                     [(= func (.> builtins :set!))
                      (let [(def (nth node 3))

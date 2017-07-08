@@ -29,13 +29,13 @@
   { ;; Constant nodes
     :const true :quote true
     ;; Branch nodes
-    :not true :cond true })
+    :not true :cond true :unless true })
 
 (define break-categories
   "A lookup of all categories which handle control flow, for which the
    'break' information must be propagated to."
   { ;; Each branch needs its own break
-    :cond true
+    :cond true :unless true
     ;; Obviously this'll occur inside.
     :call-lambda true
     ;; We want to avoid emitting breaks here
@@ -261,7 +261,62 @@
          ;; And finish of the closure if required
          (when closure
            (w/line! out)
-           (w/end-block! out "end)()")))]
+           (w/unindent! out)
+           (w/append! out "end)()")))]
+
+      ["unless"
+       (with (closure (! ret))
+
+         ;; If we're being used as an expression then we have to wrap as a closure.
+         (when closure
+           (w/begin-block! out "(function()")
+           (set! ret "return "))
+
+         (let* [(test (car (nth node 2)))
+                (body (nth node 3))]
+
+           (if (.> cat-lookup test :stmt)
+             ;; We flatten if statements branching on an if by declaring a temp variable
+             ;; and assigning the branch result to it.
+             ;; If we're not the first condition then we also have to indent everything once.
+             ;; A further enhancement would be to detect or and and patterns and convert them
+             ;; to the relevant expression.
+             (let* [(var { :name "temp" })
+                    (tmp (push-escape-var! var state))]
+               (w/line! out (.. "local " tmp))
+               (compile-expression test out state (.. tmp " = "))
+               (w/line! out)
+               (pop-escape-var! var state)
+
+               (if (or break (and ret (/= ret "")))
+                 ;; If we have to emit a break/return statement, then all was for nought
+                 (progn
+                   (w/begin-block! out $"if ${tmp} then")
+                   (compile-block (nth node 2) out state 2 ret break)
+                   (w/next-block! out "else"))
+                 (w/begin-block! out $"if not ${tmp} then")))
+
+             (if (or break (and ret (/= ret "")))
+               ;; If we have to emit a break/return statement, then all was for nought
+               (progn
+                 (w/append! out "if ")
+                 (compile-expression test out state)
+                 (w/begin-block! out " then")
+                 (compile-block (nth node 2) out state 2 ret break)
+                 (w/next-block! out "else"))
+               (progn
+                 (w/append! out "if not ")
+                 (compile-expression test out state)
+                 (w/begin-block! out " then"))))
+
+           (compile-block (nth node 3) out state 2 ret break)
+           (w/end-block! out "end"))
+
+         ;; And finish of the closure if required
+         (when closure
+           (w/line! out)
+           (w/unindent! out)
+           (w/append! out "end)()")))]
 
       ["not"
        (when (.> cat :parens) (w/append! out "("))
