@@ -1,5 +1,5 @@
 (import base (defun getmetatable if n progn with for tostring len#
-              type# >= > < <= = + - car or and list when set-idx!
+              type# >= > < <= = /= + - car or and list when set-idx!
               get-idx getmetatable while .. pretty defmacro debug))
 (import base (concat) :export)
 (import list)
@@ -104,31 +104,30 @@
     (loop [(i 1)
            (chr (char-at str 1))
            (buf "")]
-      [(> i (n str)) (list/push-cdr! sections buf)]
+      [(> i (n str))
+       (when (/= buf "") (list/push-cdr! sections buf))]
       (let* [((rs re rm) (find (sub str i)
                                "~%{([^%} ]+)%}"))
              ((is ie im) (find (sub str i)
                                "%$%{([^%] ]+)%}"))]
         (cond
           [(= rs 1) ; regular ~{foo}
-           (progn
-             (list/push-cdr! sections buf)
-             (list/push-cdr! sections
-                             `(display
-                                ,{ :tag "symbol"
-                                   :contents rm }))
-             (recur (+ i re)
-                    (char-at str (+ i re))
-                    ""))]
+           (when (/= buf "") (list/push-cdr! sections buf))
+           (list/push-cdr! sections
+                           `(display
+                              ,{ :tag "symbol"
+                                 :contents rm }))
+           (recur (+ i re)
+                  (char-at str (+ i re))
+                  "")]
           [(= is 1) ; plain ${foo}
-           (progn
-             (list/push-cdr! sections buf)
-             (list/push-cdr! sections
-                             { :tag "symbol"
-                               :contents im })
-             (recur (+ i ie)
-                    (char-at str (+ i ie))
-                    ""))]
+           (when (/= buf "") (list/push-cdr! sections buf))
+           (list/push-cdr! sections
+                           { :tag "symbol"
+                             :contents im })
+           (recur (+ i ie)
+                  (char-at str (+ i ie))
+                  "")]
           [true (recur (+ 1 i)
                    (char-at str (+ 1 i))
                    (.. buf chr))])))
