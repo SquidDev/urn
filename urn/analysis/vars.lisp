@@ -1,4 +1,5 @@
 (import urn/analysis/visitor visitor)
+(import urn/analysis/nodes (builtin?))
 
 (defun node-contains-var? (node var)
   "Determine whether NODE contains a reference to the given VAR."
@@ -7,6 +8,7 @@
       (lambda (node)
         (cond
           [found false]
+          [(and (list? node) (builtin? (car node) :set!)) (set! found (= var (.> (nth node 2) :var)))]
           [(symbol? node) (set! found (= var (.> node :var)))]
           [true])))
     found))
@@ -20,6 +22,7 @@
       (lambda (node)
         (cond
           [found false]
+          [(and (list? node) (builtin? (car node) :set!)) (set! found (.> vars (.> (nth node 2) :var)))]
           [(symbol? node) (set! found (.> vars (.> node :var)))]
           [true])))
     found))

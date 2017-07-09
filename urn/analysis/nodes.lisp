@@ -70,10 +70,18 @@
   (with (var (.> symb :var))
     (if (string? var) (.> state :variables var) var)))
 
-
 (define make-nil
   "Make a NIL constant."
   (cute make-symbol (.> builtins :nil)))
+
+(defun simple-binding? (node)
+  "Determine whether NODE is a simple binding. Namely, it is a directly
+   called lambda with no variadic arguments and an equal number of
+   arguments and values."
+  (and (list? node)
+    (with (lam (car node))
+      (and (list? lam) (builtin? (car lam) :lambda)
+        (all (lambda (x) (! (.> x :var :is-variadic))) (nth lam 2))))))
 
 (defun fast-all (fn li i)
   "A fast implementation of all which starts from an offset.

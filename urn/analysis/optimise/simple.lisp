@@ -1,6 +1,7 @@
 (import urn/analysis/nodes ())
 (import urn/analysis/pass ())
 (import urn/analysis/traverse traverse)
+(import urn/analysis/vars ())
 (import urn/analysis/visitor visitor)
 (import urn/logger logger)
 (import urn/range (get-source))
@@ -111,10 +112,64 @@
             node))
         node))))
 
+
+
 (defpass lambda-fold (state nodes)
   "Simplify all directly called lambdas without arguments, inlining them
    were appropriate."
   :cat '("opt")
+  (visitor/visit-block nodes 1
+    (lambda (node)
+      ;; Look for directly called lambdas
+      (when (simple-binding? node)
+        (let* [(vars {})
+               (node-lam (car node))
+               (node-args (nth node-lam 2))]
+          (for-each arg node-args (.<! vars (.> arg :var) true))
+
+          ;; While the first element is a simple binding, we have the same number of arguments and values,
+          ;; and the lambda body has just one element.
+          ;; We require just one element so variables do not "grow" in scope.
+          (loop [(child (nth node-lam 3))]
+            [(or (! (simple-binding? child)) (/= (n node-args) (pred (n node))) (> (n node-lam) 3))]
+            (with (args (nth (car child) 2))
+              (loop [] []
+                (with (val (nth child 2))
+                  (cond
+                    ;; Skip empty argument lists
+                    [(empty? args)]
+                    [(! val)
+                     ;; If we have no value then we just push all arguments to the parent
+                     ;; and exit the loop.
+                     (for i 1 (n args) 1
+                       (with (arg (remove-nth! args 1))
+                         (push-cdr! node-args arg)
+                         (.<! vars (.> arg :var) true)))]
+
+                    ;; If the value contains any of the variables then we'll exit the loop
+                    [(node-contains-vars? val vars)]
+
+                    [true
+                     (push-cdr! node (remove-nth! child 2))
+                     (with (arg (remove-nth! args 1))
+                       (push-cdr! node-args arg)
+                       (.<! vars (.> arg :var) true))
+
+                     (recur)])))
+
+              ;; When we've got a directly called lambda with empty arguments and values, then inline it
+              ;; The more general case is handled below, but we might as well get a simple version done here.
+              (when (and (empty? args) (= (n child) 1))
+                ;; Remove the existing lambda
+                (remove-nth! node-lam 3)
+                ;; For each element in the child lambda, insert it into the parent one.
+                (with (lam (car child))
+                  (for i 3 (n lam) 1
+                    (insert-nth! node-lam i (nth lam i))))
+
+                ;; And continue the loop. Otherwise there was something that couldn't be merged.
+                (recur (nth node-lam 3)))))))))
+
   (traverse/traverse-list nodes 1
     (lambda (node)
       (if (and
