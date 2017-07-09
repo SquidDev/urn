@@ -20,7 +20,7 @@ We will be using, as a running example, two data structures: the list
 and the struct.
 
 ```cl
-> (define list-example (range 1 10))
+> (define list-example (range :from 1 :to 10))
 out = '(1 2 3 4 5 6 7 8 9 10)
 > (define struct-example (struct :foo "bar" :baz "quux"))
 out = (struct "foo" "bar" "baz" "quux")
@@ -94,7 +94,7 @@ Use `LENS` to replace a bit of `VAL` with `NEW`.
 Use `LENS` to apply the function `F` over a bit of `VAL`.
 
 ## `(accumulating f z l)`
-*Defined at lib/lens.lisp:318:1*
+*Defined at lib/lens.lisp:320:1*
 
 Transform the lens `L` into a getter which folds the result using the
 function `F` and the zero element `Z`. For performance reasons, a right
@@ -122,7 +122,7 @@ out = 2
 ```
 
 ## `(every x ln)`
-*Defined at lib/lens.lisp:334:1*
+*Defined at lib/lens.lisp:336:1*
 
 `A` higher-order lens that focuses `LN` on every element of a list that
 satisfies the perdicate `X`. If `X` is a regular value, it is compared
@@ -139,7 +139,7 @@ out = (x x x x)
 ```
 
 ## `(folding f z l)`
-*Defined at lib/lens.lisp:302:1*
+*Defined at lib/lens.lisp:304:1*
 
 Transform the (traversing) lens `L` into a getter which folds
 the result using the function `F` and the zero element `Z`. For
@@ -205,7 +205,7 @@ Check that is `LENS` a valid lens, that is, has the proper tag, a
 valid getter and a valid setter.
 
 ## `(on k)`
-*Defined at lib/lens.lisp:252:1*
+*Defined at lib/lens.lisp:254:1*
 
 `A` lens that focuses on the element of a structure that is at the key
 `K`.
@@ -217,7 +217,7 @@ out = "bar"
 ```
 
 ## `(on! k)`
-*Defined at lib/lens.lisp:270:1*
+*Defined at lib/lens.lisp:272:1*
 
 `A` lens that focuses (**and mutates**) the element of a structure
 that is at the key `K`.
@@ -280,7 +280,7 @@ out = (2 3)
 ```
 
 ## `(traversing l)`
-*Defined at lib/lens.lisp:289:1*
+*Defined at lib/lens.lisp:291:1*
 
 `A` lens which maps the lens `L` over every element of a given list.
 

@@ -150,6 +150,18 @@ entry of `XS` if not specified).
 
 Evaluate `BODY` if `C` is false, otherwise, evaluate `nil`.
 
+## `(values-list &xs)`
+*Macro defined at lib/base.lisp:284:1*
+
+Return multiple values, one per element in `XS`.
+
+### Example:
+```cl
+> (print! (values-list 1 2 3))
+1   2   3
+out = nil
+```
+
 ## `(when c &body)`
 *Macro defined at lib/base.lisp:63:1*
 

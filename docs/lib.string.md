@@ -2,23 +2,37 @@
 title: string
 ---
 # string
+## `($ str)`
+*Macro defined at lib/string.lisp:91:1*
+
+Perform interpolation (variable substitution) on the string `STR`.
+
+The string is a sequence of arbitrary characters which may contain
+an unquote, of the form `~{foo}`, where foo is a variable name.
+
+### Example:
+```cl
+> (let* [(x 1)] ($ "~{x} = 1"))
+out = "1 = 1"
+```
+
 ## `(char-at xs x)`
-*Defined at lib/string.lisp:8:1*
+*Defined at lib/string.lisp:9:1*
 
 Index the string `XS`, returning the character at position `X`.
 
 ## `(ends-with? str suffix)`
-*Defined at lib/string.lisp:78:1*
+*Defined at lib/string.lisp:79:1*
 
 Determine whether `STR` ends with `SUFFIX`.
 
 ## `quoted`
-*Defined at lib/string.lisp:61:1*
+*Defined at lib/string.lisp:62:1*
 
 Quote the string `STR` so it is suitable for printing.
 
 ## `(split text pattern limit)`
-*Defined at lib/string.lisp:12:1*
+*Defined at lib/string.lisp:13:1*
 
 Split the string given by `TEXT` in at most `LIMIT` components, which are
 delineated by the Lua pattern `PATTERN`.
@@ -35,12 +49,12 @@ string into individual characters.
 ```
 
 ## `(starts-with? str prefix)`
-*Defined at lib/string.lisp:74:1*
+*Defined at lib/string.lisp:75:1*
 
 Determine whether `STR` starts with `PREFIX`.
 
 ## `(trim str)`
-*Defined at lib/string.lisp:56:1*
+*Defined at lib/string.lisp:57:1*
 
 Remove whitespace from both sides of `STR`.
 

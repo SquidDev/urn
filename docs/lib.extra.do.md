@@ -9,8 +9,8 @@ Comprehend over several lists as defined by `STMTS`.
 
 ### Example:
 ```cl
-> (do (<- x (range 1 10))
-.     (<- y (range 1 10))
+> (do (<- x (range :from 1 :to 10))
+.     (<- y (range :from 1 :to 10))
 .     (when (even? (+ x y))
 .       (* x y)))
 out = (1 3 5 7 9 4 8 12 16 20 3 9 15 21 27 8 16 24 32 40 5 15 25
