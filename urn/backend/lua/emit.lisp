@@ -617,7 +617,7 @@
               (args (nth head 2))]
 
          (compile-bind args node 1 2 out state)
-         (compile-block head out state 3 ret)
+         (compile-block head out state 3 ret break)
          (for-each arg args
            (unless (.> state :var-skip (.> arg :var))
              (pop-escape-var! (.> arg :var) state))))]
