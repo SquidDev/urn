@@ -27,7 +27,10 @@
                (exit! 1))
 
              (let* [(out (lua/file compiler (.> args :shebang)))
-                    (handle (io/open (.. (.> args :output) ".lua") "w"))]
+                    ((handle error) (io/open (.. (.> args :output) ".lua") "w"))]
+               (unless handle
+                 (logger/put-error! (.> compiler :log) (format "Cannot open %q (%s)" (.. (.> args :output) ".lua") error))
+                 (exit! 1))
                (self handle :write (writer/->string out))
                (self handle :close)
 
@@ -48,7 +51,10 @@
 
              (with (writer (writer/create))
                (lisp/block (.> compiler :out) writer)
-               (with (handle (io/open (.. (.> args :output) ".lisp") "w"))
+               (with ((handle error) (io/open (.. (.> args :output) ".lisp") "w"))
+                 (unless handle
+                   (logger/put-error! (.> compiler :log) (format "Cannot open %q (%s)" (.. (.> args :output) ".lisp") error))
+                   (exit! 1))
                  (self handle :write (writer/->string writer))
                  (self handle :close)))) })
 

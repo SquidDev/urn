@@ -5496,7 +5496,11 @@ end),["run"]=(function(compiler, args)
 		self1(compiler["log"], "put-error!", "No inputs to compile.")
 		exit_21_1(1)
 	end
-	local out, handle = file1(compiler, args["shebang"]), open1(args["output"] .. ".lua", "w")
+	local out, handle, error = file1(compiler, args["shebang"]), open1(args["output"] .. ".lua", "w")
+	if not handle then
+		self1(compiler["log"], "put-error!", (format1("Cannot open %q (%s)", args["output"] .. ".lua", error)))
+		exit_21_1(1)
+	end
 	self1(handle, "write", concat1(out["out"]))
 	self1(handle, "close")
 	if args["chmod"] then
@@ -5516,7 +5520,11 @@ end),["run"]=(function(compiler, args)
 	end
 	local writer = create3()
 	block1(compiler["out"], writer)
-	local handle = open1(args["output"] .. ".lisp", "w")
+	local handle, error = open1(args["output"] .. ".lisp", "w")
+	if not handle then
+		self1(compiler["log"], "put-error!", (format1("Cannot open %q (%s)", args["output"] .. ".lisp", error)))
+		exit_21_1(1)
+	end
 	self1(handle, "write", concat1(writer["out"]))
 	return self1(handle, "close")
 end)})
