@@ -73,7 +73,7 @@
 
 (defmacro changed! ()
   "Mark this pass as having a side effect."
-  `(.<! ,pass-arg :changed true))
+  `(.<! ,pass-arg :changed (succ (.> ,pass-arg :changed))))
 
 (define-native var-usage
   "Get usage information about the specified VAR. This returns a struct

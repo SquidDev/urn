@@ -323,8 +323,8 @@
           ["symbol"
            (when is-cond
              (case (.> lookup (.> node :var))
-               [false (make-symbol (.> builtins :false))]
-               [true (make-symbol (.> builtins :true))]
+               [false (when (/= (.> node :var) (.> builtins :false)) (make-symbol (.> builtins :false)))]
+               [true  (when (/= (.> node :var) (.> builtins :true))  (make-symbol (.> builtins :true)))]
                [_ nil]))]
 
           ["list"

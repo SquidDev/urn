@@ -47,15 +47,15 @@
 
 (defmacro changed! ()
   "Mark this pass as having a side effect."
-  `(.<! ,pass-arg :changed true))
+  `(.<! ,pass-arg :changed (succ (.> ,pass-arg :changed))))
 
 (defun create-tracker ()
   "Create a modification tracker."
-  { :changed false })
+  { :changed 0 })
 
 (defun changed? (tracker)
   "Determine whether the TRACKER created by [[create-tracker]] was changed."
-  (.> tracker :changed))
+  (> (.> tracker :changed) 0))
 
 (defun pass-enabled? (pass options)
   "Determine whether a PASS is enabled."
@@ -84,8 +84,7 @@
       (timer/stop-timer! (.> options :timer) name)
 
       ;; Print out logging modification information
-      (when (changed? ptracker)
-        (when (.> options :track) (logger/put-verbose! (.> options :logger) (.. name " did something.")))
-        (when tracker (.<! tracker :changed true)))
+      (when (.> options :track) (logger/put-verbose! (.> options :logger) (format "%s made %d changes" name (.> ptracker :changed))))
+      (when tracker (.<! tracker :changed (+ (.> tracker :changed) (.> ptracker :changed))))
 
       (changed? ptracker))))
