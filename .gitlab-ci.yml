@@ -22,7 +22,7 @@ test_run:
     - echo -e "\033[36mBuilding initial compiler\033[0m"
     - make LUA=lua5.3 all
     - echo -e "\033[36mRunning tests\033[0m"
-    - make LUA=lua5.3 test
+    - make LUA=lua5.3 -k test
 
 test_docs:
   stage: test

@@ -1441,19 +1441,17 @@ end)
 runPass1 = (function(pass, options, tracker, ...)
 	local args = _pack(...) args.tag = "list"
 	if passEnabled_3f_1(pass, options) then
-		local ptracker, name = ({["changed"]=false}), "[" .. concat1(pass["cat"], " ") .. "] " .. pass["name"]
+		local ptracker, name = ({["changed"]=0}), "[" .. concat1(pass["cat"], " ") .. "] " .. pass["name"]
 		startTimer_21_1(options["timer"], name, 2)
 		pass["run"](ptracker, options, unpack1(args, 1, n1(args)))
 		stopTimer_21_1(options["timer"], name)
-		if ptracker["changed"] then
-			if options["track"] then
-				self1(options["logger"], "put-verbose!", (name .. " did something."))
-			end
-			if tracker then
-				tracker["changed"] = true
-			end
+		if options["track"] then
+			self1(options["logger"], "put-verbose!", (format1("%s made %d changes", name, ptracker["changed"])))
 		end
-		return ptracker["changed"]
+		if tracker then
+			tracker["changed"] = tracker["changed"] + ptracker["changed"]
+		end
+		return ptracker["changed"] > 0
 	else
 		return nil
 	end
@@ -1958,7 +1956,7 @@ fusion1 = ({["name"]="fusion",["help"]="Merges various loops together as specifi
 			while temp2 <= temp1 do
 				local ptrn, subs = patterns[temp2], ({})
 				if peq_3f_1(ptrn["from"], node, subs) then
-					temp["changed"] = true
+					temp["changed"] = temp["changed"] + 1
 					node = substitute1(ptrn["to"], subs, ({}))
 				end
 				temp2 = temp2 + 1
@@ -2020,7 +2018,7 @@ stripImport1 = ({["name"]="strip-import",["help"]="Strip all import expressions 
 				else
 					removeNth_21_1(nodes1, temp1)
 				end
-				temp["changed"] = true
+				temp["changed"] = temp["changed"] + 1
 			end
 			temp1 = temp1 + -1
 		end
@@ -2033,7 +2031,7 @@ stripPure1 = ({["name"]="strip-pure",["help"]="Strip all pure expressions in NOD
 		while temp1 >= start do
 			if not sideEffect_3f_1((nth1(nodes1, temp1))) then
 				removeNth_21_1(nodes1, temp1)
-				temp["changed"] = true
+				temp["changed"] = temp["changed"] + 1
 			end
 			temp1 = temp1 + -1
 		end
@@ -2053,7 +2051,7 @@ constantFold1 = ({["name"]="constant-fold",["help"]="A primitive constant folder
 						head["folded"] = true
 						return node
 					else
-						temp["changed"] = true
+						temp["changed"] = temp["changed"] + 1
 						return val_2d3e_urn1(val)
 					end
 				else
@@ -2076,12 +2074,12 @@ condFold1 = ({["name"]="cond-fold",["help"]="Simplify all `cond` nodes, removing
 			while i <= n1(node) do
 				local elem = nth1(node, i)
 				if final then
-					temp["changed"] = true
+					temp["changed"] = temp["changed"] + 1
 					removeNth_21_1(node, i)
 				else
 					local temp1 = urn_2d3e_bool1(car1(elem))
 					if eq_3f_1(temp1, false) then
-						temp["changed"] = true
+						temp["changed"] = temp["changed"] + 1
 						removeNth_21_1(node, i)
 					elseif eq_3f_1(temp1, true) then
 						final = true
@@ -2094,7 +2092,7 @@ condFold1 = ({["name"]="cond-fold",["help"]="Simplify all `cond` nodes, removing
 				end
 			end
 			if n1(node) == 2 and urn_2d3e_bool1(car1(nth1(node, 2))) == true then
-				temp["changed"] = true
+				temp["changed"] = temp["changed"] + 1
 				local body = cdr1(nth1(node, 2))
 				if n1(body) == 1 then
 					return car1(body)
@@ -2170,7 +2168,7 @@ lambdaFold1 = ({["name"]="lambda-fold",["help"]="Simplify all directly called la
 	end))
 	traverseList1(nodes, 1, (function(node)
 		if type1(node) == "list" and (n1(node) == 1 and (type1((car1(node))) == "list" and (builtin_3f_1(caar1(node), "lambda") and (n1(car1(node)) == 3 and empty_3f_1(nth1(car1(node), 2)))))) then
-			temp["changed"] = true
+			temp["changed"] = temp["changed"] + 1
 			return nth1(car1(node), 3)
 		else
 			return node
@@ -2288,7 +2286,7 @@ stripDefs1 = ({["name"]="strip-defs",["help"]="Strip all unused top level defini
 			else
 				removeNth_21_1(nodes, temp1)
 			end
-			temp["changed"] = true
+			temp["changed"] = temp["changed"] + 1
 		end
 		temp1 = temp1 + -1
 	end
@@ -2313,7 +2311,7 @@ stripArgs1 = ({["name"]="strip-args",["help"]="Strip all unused, pure arguments 
 				elseif sideEffect_3f_1(val) then
 				elseif n1(getVar1(lookup, arg["var"])["usages"]) > 0 then
 				else
-					temp["changed"] = true
+					temp["changed"] = temp["changed"] + 1
 					removed[nth1(args, temp2 - remOffset)["var"]] = true
 					removeNth_21_1(args, temp2 - remOffset)
 					removeNth_21_1(node, (temp2 + offset) - remOffset)
@@ -2347,7 +2345,7 @@ variableFold1 = ({["name"]="variable-fold",["help"]="Folds constant variable acc
 		if type1(node) == "symbol" then
 			local var = getConstantVal1(lookup, node)
 			if var and var ~= node then
-				temp["changed"] = true
+				temp["changed"] = temp["changed"] + 1
 				return var
 			else
 				return node
@@ -2483,7 +2481,7 @@ expressionFold1 = ({["name"]="expression-fold",["help"]="Folds basic variable ac
 					end
 				end))
 				if ok and finished then
-					temp["changed"] = true
+					temp["changed"] = temp["changed"] + 1
 					traverseList1(root, 1, (function(child)
 						if type1(child) == "symbol" then
 							local var = child["var"]
@@ -2533,11 +2531,19 @@ condEliminate1 = ({["name"]="cond-eliminate",["help"]="Replace variables with kn
 			if isCond then
 				local temp2 = lookup[node["var"]]
 				if eq_3f_1(temp2, false) then
-					local var = builtins1["false"]
-					return ({["tag"]="symbol",["contents"]=var["name"],["var"]=var})
+					if node["var"] ~= builtins1["false"] then
+						local var = builtins1["false"]
+						return ({["tag"]="symbol",["contents"]=var["name"],["var"]=var})
+					else
+						return nil
+					end
 				elseif eq_3f_1(temp2, true) then
-					local var = builtins1["true"]
-					return ({["tag"]="symbol",["contents"]=var["name"],["var"]=var})
+					if node["var"] ~= builtins1["true"] then
+						local var = builtins1["true"]
+						return ({["tag"]="symbol",["contents"]=var["name"],["var"]=var})
+					else
+						return nil
+					end
 				else
 					return nil
 				end
@@ -2568,7 +2574,7 @@ condEliminate1 = ({["name"]="cond-eliminate",["help"]="Replace variables with kn
 							visitNode1(test, visitor)
 						elseif eq_3f_1(temp5, false) then
 						else
-							temp["changed"] = true
+							temp["changed"] = temp["changed"] + 1
 							entry[1] = temp5
 						end
 						if var then
@@ -2588,7 +2594,7 @@ condEliminate1 = ({["name"]="cond-eliminate",["help"]="Replace variables with kn
 								visitNode1(last, visitor)
 							elseif eq_3f_1(temp5, false) then
 							else
-								temp["changed"] = true
+								temp["changed"] = temp["changed"] + 1
 								entry[len] = temp5
 							end
 						end
@@ -2629,7 +2635,7 @@ condEliminate1 = ({["name"]="cond-eliminate",["help"]="Replace variables with kn
 							visitNode1(last, visitor)
 						elseif eq_3f_1(temp3, false) then
 						else
-							temp["changed"] = true
+							temp["changed"] = temp["changed"] + 1
 							node[head] = temp3
 						end
 					end
@@ -2795,7 +2801,7 @@ inline1 = ({["name"]="inline",["help"]="Inline simple functions.",["cat"]=({tag 
 				local val = ent["value"]
 				if type1(val) == "list" and (builtin_3f_1(car1(val), "lambda") and getScore1(scoreLookup, val) <= 20) then
 					node[1] = (copyNode1(val, ({["scopes"]=({}),["vars"]=({}),["root"]=func["scope"]})))
-					temp["changed"] = true
+					temp["changed"] = temp["changed"] + 1
 					return nil
 				else
 					return nil
@@ -2809,7 +2815,7 @@ inline1 = ({["name"]="inline",["help"]="Inline simple functions.",["cat"]=({tag 
 	end))
 end)})
 optimiseOnce1 = (function(nodes, state)
-	local tracker = ({["changed"]=false})
+	local tracker = ({["changed"]=0})
 	local temp = state["pass"]["normal"]
 	local temp1 = n1(temp)
 	local temp2 = 1
@@ -2826,7 +2832,7 @@ optimiseOnce1 = (function(nodes, state)
 		runPass1(temp[temp2], state, tracker, nodes, lookup)
 		temp2 = temp2 + 1
 	end
-	return tracker["changed"]
+	return tracker["changed"] > 0
 end)
 optimise1 = (function(nodes, state)
 	stripDefsFast1(nodes)

@@ -21,6 +21,6 @@ script:
   - make LUA=lua OUT_DIR="$TEMP_DIR" all
   - "! (diff -rq \"$TEMP_DIR\" bin | grep \"$TEMP_DIR\")"
   - echo -e "\033[36mRunning tests\033[0m"
-  - make LUA=lua test
+  - make LUA=lua -k test
   - echo -e "\033[36mBuilding docs\033[0m"
   - make LUA=lua docs
