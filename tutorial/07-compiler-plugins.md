@@ -87,8 +87,8 @@ that.
     (print! "Got add var")))
 ```
 
-In order to find all calls of `+`, we'll check for lists, whose first element is a symbol which is a reference to
-`+`. For now we'll just print out a message saying we found one.
+In order to find all calls of `+`, we'll check for lists whose first element is a symbol which references them `+`
+variable. For now we'll just print out a message saying we found one.
 
 ```cl
 (defpass check-type (state nodes)

@@ -44,7 +44,7 @@ A similar macro, `.<!` allows you to set a value in a table:
 
 ```cl
 ;; Equivalent to x.size = 2
-(.<! x :size)
+(.<! x :size 2)
 
 ;; And, like above, you can do chained sets (equivalent to x.range.name = "foo")
 (.<! x :range :name "foo")
