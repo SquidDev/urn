@@ -34,17 +34,21 @@
      ,@( map
          (lambda (expr)
            (let [(bindings '())
-                 (vars '())
+                 (nodes '())
                  (lens '())
                  (emit '())
                  (out '())]
              (for i 1 (n expr) 1
-               (let* [(var (gensym))
-                      (child (nth expr i))
+               (let* [(child (nth expr i))
                       (str (pretty child))]
-                 (push-cdr! vars var)
-                 (push-cdr! bindings (list var child))
-                 (push-cdr! emit (and (> i 1) (or (symbol? child) (list? child))))
+                 (if (if (= i 1) (! (list? child)) (and (! (list? child)) (! (symbol? child))))
+                   (progn
+                     (push-cdr! nodes child)
+                     (push-cdr! emit false))
+                   (with (var (gensym))
+                     (push-cdr! nodes var)
+                     (push-cdr! bindings (list var child))
+                     (push-cdr! emit (and (> i 1) (or (symbol? child) (list? child))))))
                  (push-cdr! lens (n str))))
 
              (push-cdr! out "Assertion failed\n")
@@ -64,8 +68,8 @@
                       (push-cdr! buffer (if (nth emit j) "|" " "))
                       (push-cdr! buffer (rep " " (nth lens j))))
                     (push-cdr! out (concat buffer))
-                    (push-cdr! out `(pretty ,(nth vars i))))))
+                    (push-cdr! out `(pretty ,(nth nodes i))))))
              `(let (,@bindings)
-                (unless ,vars
+                (unless ,nodes
                   (error! (.. ,@out))))))
          asserts )))
