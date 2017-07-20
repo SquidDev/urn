@@ -41,6 +41,11 @@
      (marker 33)
      (push-cdr! ,tests-pending (.. ,prefix " " ,name))))
 
+(defmacro section (name &body)
+  "Create a group of tests defined in BODY whose names take the form
+   `<prefix> NAME <test_name>`"
+  `(with (,prefix (.. ,prefix " " ,name)) ,@body))
+
 (defmacro may (name &body)
   "Create a group of tests defined in BODY whose names take the form
    `<prefix> may NAME, and <test_name>`"

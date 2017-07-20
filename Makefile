@@ -6,7 +6,7 @@ DOCS_DIR   ?= docs_tmp
 PAGES_DIR  ?= docs
 URN        ?= ${LUA} bin/urn.lua
 
-TESTS     := $(shell find tests -type f)
+TESTS     := $(shell find tests -type f -name '*.lisp' ! -name '*-helpers.lisp')
 LIBS      := $(shell find lib -type f -name "*.lisp")
 
 ifeq (${TIME},1)

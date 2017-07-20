@@ -1,13 +1,6 @@
-;; This file, whilst it specifies a series of tests to be run, also serves as a useful collection of
-;; test cases for where the codegen should simplify expressions.
-;; This element isn't automatically tested, you'd have to confirm through manual inspection.
-
 (import extra/assert ())
 (import extra/test ())
-
-;; We declare these like this to ensure the optimiser won't inline them.
-(define foo (nth '(1 2) 1))
-(define bar (nth '(1 2) 2))
+(import tests/compiler/codegen/codegen-helpers ())
 
 (describe "The codegen"
   (may "allow variadic arguments"
@@ -37,44 +30,24 @@
                 (eq? '(1 2 ())      ((lambda (fst snd &last) (list fst snd last)) 1 2))
                 (eq? '(1 2 (3))     ((lambda (fst snd &last) (list fst snd last)) 1 2 3))
                 (eq? '(1 2 (3 4))   ((lambda (fst snd &last) (list fst snd last)) 1 2 3 4))
-                (eq? '(1 2 (3 4 5)) ((lambda (fst snd &last) (list fst snd last)) 1 2 3 4 5)))))
-  (will "simplify conds"
-    (affirm (= 0 (cond
-                   (foo 0)
-                   (bar 1)))
-            (= 0 (cond
-                   (foo 0)
-                   (bar 1)
-                   (true true)))
-            (= 0 (cond
-                   (foo 0)
-                   (true true)
-                   (bar 1)))
-            (= true (cond
-                      (true true)
-                      (foo 0)
-                      (bar 1)))))
+                (eq? '(1 2 (3 4 5)) ((lambda (fst snd &last) (list fst snd last)) 1 2 3 4 5))))
 
-  (will "handle nested conds"
-    (affirm (= 1 (cond
-                   ((cond
-                      (foo 0)
-                      (bar false)) 1)
-                   (true 2)))
-            (= 1 (cond
-                   ((cond
-                      (foo 0)
-                      (bar 10)) 1)
-                   ((cond
-                      (foo 0)
-                      (bar 10)) 2)
-                   ((cond
-                      (foo 0)
-                      (bar 10)) 3)
-                   (true 1)))))
 
-  (will "handle deeply nested conds"
-    (affirm (= 3 (cond
-                   ((cond
-                      ((cond
-                         ((cond (foo 0)) 1)) 2)) 3))))))
+    (will "handle unpacking at the end"
+      (affirm-codegen
+        '(((lambda (&args) args)
+            2 3 (foo)))
+        "local args =  _pack(2, 3, foo()) args.tag = \"list\"
+         return args")
+
+      (affirm-codegen
+        '(((lambda (&args) args)
+            2 3 ((lambda (x)
+                   (set! x 2)
+                   x)
+                  1)))
+        "local args =  _pack(2, 3, (function(x)
+           x = 2
+           return x
+         end)(1)) args.tag = \"list\"
+         return args"))))

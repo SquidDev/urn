@@ -69,7 +69,6 @@
     (affirm (eq? '("open" "open" "open-struct") (map type (lex "( [ {")))
             (eq? '("close" "close" "close") (map type (lex ") ] }")))))
 
-
   (it "stops symbols on lists"
     (affirm (teq? 'foo-bar (car (lex "foo-bar)")))
             (teq? 'foo-bar (car (lex "foo-bar]")))
@@ -87,6 +86,9 @@
             (teq? '(23 foo "foo" 23) (parse "23 foo \"foo\" 23"))
             (teq? '((23)) (parse "(23)"))))
 
+  (it "parses string interpolation"
+    (affirm (teq? '(($ "foo")) (parse "$\"foo\""))))
+
   (it "parses lists"
     (affirm (teq? '((((23)))) (parse "(((23)))"))
             (teq? '((foo bar) foo (((foo)))) (parse "(foo bar) foo (((foo)))"))
@@ -98,11 +100,13 @@
             (teq? '(((struct-literal :x 2))) (parse "[{ :x 2 }]"))
             (teq? '((struct-literal :x 2 (y) (z))) (parse "{ :x 2 (y) [z] }"))))
 
-  (it "parses unquotes"
+  (it "parses quotes"
     (affirm (teq? '((quote foo)) (parse "'foo"))
             (teq? '((quote (foo))) (parse "'(foo)"))
             (teq? '((syntax-quote foo)) (parse "`foo"))
-            (teq? '((syntax-quote (foo))) (parse "`(foo)"))))
+            (teq? '((syntax-quote (foo))) (parse "`(foo)"))
+            (teq? '((quasiquote (foo))) (parse "~(foo)"))
+            (teq? '((quasiquote (foo))) (parse "~(foo)"))))
 
   (it "parses unquotes"
     (affirm (teq? '((unquote foo)) (parse ",foo"))
