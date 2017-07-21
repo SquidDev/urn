@@ -276,7 +276,7 @@ out = 1
 ```
 
 ## `(case val &pts)`
-*Macro defined at lib/match.lisp:268:1*
+*Macro defined at lib/match.lisp:382:1*
 
 Match a single value against a series of patterns, evaluating the
 first body that matches, much like `cond`.
@@ -396,7 +396,7 @@ Define `NAME` to be the function given by (lambda `ARGS` @`BODY`), with
 optional metadata at the start of `BODY`.
 
 ## `(destructuring-bind pt &body)`
-*Macro defined at lib/match.lisp:251:1*
+*Macro defined at lib/match.lisp:365:1*
 
 Match a single pattern against a single value, then evaluate the `BODY`.
 
@@ -412,6 +412,17 @@ Remove the first `N` elements of the list `XS`.
 ```cl
 > (drop '(1 2 3 4 5) 2)
 out = (3 4 5)
+```
+
+## `(eighth &rest)`
+*Defined at lib/prelude.lisp:126:1*
+
+Get the eighth element of a series of values.
+
+### Example
+```cl
+> (eighth 1 2 3 4 5 6 7 8)
+out = 8
 ```
 
 ## `(elem? x xs)`
@@ -540,6 +551,17 @@ exist.
 Note, if you know your values at compile time, it is more performant
 to use a struct literal.
 
+## `(fifth &rest)`
+*Defined at lib/prelude.lisp:126:1*
+
+Get the fifth element of a series of values.
+
+### Example
+```cl
+> (fifth 1 2 3 4 5)
+out = 5
+```
+
 ## `(filter p xs)`
 *Defined at lib/list.lisp:198:1*
 
@@ -549,6 +571,17 @@ Return the list of elements of `XS` which match the predicate `P`.
 ```cl
 > (filter even? '(1 2 3 4 5 6))
 '(2 4 6)
+```
+
+## `(first &rest)`
+*Defined at lib/prelude.lisp:126:1*
+
+Get the first element of a series of values.
+
+### Example
+```cl
+> (first 1)
+out = 1
 ```
 
 ## `(flat-map fn &xss)`
@@ -618,6 +651,23 @@ nil
 
 Iterate over `TBL`, binding `VARS` for each key value pair in `BODY`
 
+## `(fourth &rest)`
+*Defined at lib/prelude.lisp:126:1*
+
+Get the fourth element of a series of values.
+
+### Example
+```cl
+> (fourth 1 2 3 4)
+out = 4
+```
+
+## `(function &arms)`
+*Macro defined at lib/match.lisp:435:1*
+
+Create a lambda which matches its arguments against the patterns
+defined in `ARMS`.
+
 ## `(function? x)`
 *Defined at lib/type.lisp:47:1*
 
@@ -644,7 +694,7 @@ a `LENS`. This is essentially a relaxed version of [`lens?`](lib.lens.md#lens-le
 regards to the setter check.
 
 ## `(handler-case x &body)`
-*Macro defined at lib/match.lisp:292:1*
+*Macro defined at lib/match.lisp:406:1*
 
 Evaluate the form `X`, and if an error happened, match the series
 of `(?pattern (?arg) . ?body)` arms given in `BODY` against the value of
@@ -683,6 +733,15 @@ Return the value `X` unmodified.
 *Macro defined at lib/base.lisp:59:1*
 
 Evaluate `T` if `C` is true, otherwise, evaluate `B`.
+
+## `(if-match cs t e)`
+*Macro defined at lib/match.lisp:449:1*
+
+Matches a pattern against a value defined in `CS`, evaluating `T` with the
+captured variables in scope if the pattern succeeded, otherwise
+evaluating `E`.
+
+[`if-match`](lib.match.md#if-match-cs-t-e) is to [`case`](lib.match.md#case-val-pts) what [`if`](lib.base.md#if-c-t-b) is to `cond`.
 
 ## `(init xs)`
 *Defined at lib/list.lisp:354:1*
@@ -890,7 +949,7 @@ out = (2 3 4)
 ```
 
 ## `(matches? pt x)`
-*Macro defined at lib/match.lisp:282:1*
+*Macro defined at lib/match.lisp:396:1*
 
 Test if the value `X` matches the pattern `PT`.
 
@@ -934,6 +993,17 @@ if `([[eq?]] x y)` is falsey.
 
 Check if `X` does not exist, i.e. it is the special value `nil`.
 Note that, in Urn, `nil` is not the empty list.
+
+## `(ninth &rest)`
+*Defined at lib/prelude.lisp:126:1*
+
+Get the ninth element of a series of values.
+
+### Example
+```cl
+> (ninth 1 2 3 4 5 6 7 8 9)
+out = 9
+```
 
 ## `(nkeys st)`
 *Defined at lib/table.lisp:141:1*
@@ -1141,7 +1211,7 @@ out = (1 3 5 7 9)
 *Defined at lib/list.lisp:102:1*
 
 Accumulate the list `XS` using the binary function `F` and the zero
-element `Z`.  This function is also called `reduce` by some authors. One
+element `Z`.  This function is also called `foldl` by some authors. One
 can visualise `(reduce f z xs)` as replacing the [`cons`](lib.list.md#cons-xs-xss) operator in
 building lists with `F`, and the empty list with `Z`.
 
@@ -1181,6 +1251,17 @@ Reverse the list `XS`, using the accumulator `ACC`.
 out = (10 9 8 7 6 5 4 3 2 1)
 ```
 
+## `(second &rest)`
+*Defined at lib/prelude.lisp:126:1*
+
+Get the second element of a series of values.
+
+### Example
+```cl
+> (second 1 2)
+out = 2
+```
+
 ## `(self x key &args)`
 *Defined at lib/prelude.lisp:107:1*
 
@@ -1210,6 +1291,28 @@ to replace a value (with [`over`](lib.lens.md#over-l-f-v) or [`set`](lib.lens.md
 Check that `LENS` has a defined setter, along with being tagged as
 a `LENS`. This is essentially a relaxed version of [`lens?`](lib.lens.md#lens-lens) in
 regards to the getter check.
+
+## `(seventh &rest)`
+*Defined at lib/prelude.lisp:126:1*
+
+Get the seventh element of a series of values.
+
+### Example
+```cl
+> (seventh 1 2 3 4 5 6 7)
+out = 7
+```
+
+## `(sixth &rest)`
+*Defined at lib/prelude.lisp:126:1*
+
+Get the sixth element of a series of values.
+
+### Example
+```cl
+> (sixth 1 2 3 4 5 6)
+out = 6
+```
 
 ## `(slot? symb)`
 *Defined at lib/function.lisp:11:1*
@@ -1430,6 +1533,28 @@ first non-matching element.
 out = (2 2 4 8 4 6)
 > (take-while p list 1)
 out = (2 2 4)
+```
+
+## `(tenth &rest)`
+*Defined at lib/prelude.lisp:126:1*
+
+Get the tenth element of a series of values.
+
+### Example
+```cl
+> (tenth 1 2 3 4 5 6 7 8 9 10)
+out = 10
+```
+
+## `(third &rest)`
+*Defined at lib/prelude.lisp:126:1*
+
+Get the third element of a series of values.
+
+### Example
+```cl
+> (third 1 2 3)
+out = 3
 ```
 
 ## `(traverse xs f)`
@@ -1669,9 +1794,7 @@ Bind the single variable `VAR`, then evaluate `BODY`.
  - `concat` *Native defined at lib/lua/table.lisp:1:1*
  - `(dec! x)` *Macro defined at lib/prelude.lisp:122:1*
  - `format` *Native defined at lib/lua/string.lisp:5:1*
- - `(function &arms)` *Macro defined at lib/match.lisp:321:1*
  - `getmetatable` *Native defined at lib/lua/basic.lisp:25:1*
- - `(if-match cs t e)` *Macro defined at lib/match.lisp:333:1*
  - `(inc! x)` *Macro defined at lib/prelude.lisp:119:1*
  - `io/close` *Native defined at lib/lua/io.lisp:1:1*
  - `io/flush` *Native defined at lib/lua/io.lisp:2:1*

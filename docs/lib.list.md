@@ -381,7 +381,7 @@ out = (1 3 5 7 9)
 *Defined at lib/list.lisp:102:1*
 
 Accumulate the list `XS` using the binary function `F` and the zero
-element `Z`.  This function is also called `reduce` by some authors. One
+element `Z`.  This function is also called `foldl` by some authors. One
 can visualise `(reduce f z xs)` as replacing the [`cons`](lib.list.md#cons-xs-xss) operator in
 building lists with `F`, and the empty list with `Z`.
 
