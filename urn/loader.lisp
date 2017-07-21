@@ -78,7 +78,7 @@
     (self lisp-handle :close)
 
     ;; Attempt to load the native file
-    (when-with (handle (io/open (.. path ".lua") "r"))
+    (when-with (handle (io/open (.. path ".lib.lua") "r"))
       (with (contents (self handle :read "*a"))
         (self handle :close)
         (.<! lib :native contents)
@@ -89,7 +89,7 @@
            (with (res (fun))
              (if (table? res)
                (for-pairs (k v) res (.<! state :lib-env (.. prefix k) v))
-               (fail! (.. path ".lua returned a non-table value"))))])))
+               (fail! (.. path ".lib.lua returned a non-table value"))))])))
 
     ;; Attempt to load the meta info
     (when-with (handle (io/open (.. path ".meta.lua") "r"))

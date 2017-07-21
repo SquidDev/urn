@@ -7830,7 +7830,7 @@ readLibrary1 = (function(state, name, path, lispHandle)
 	local prefix = name .. "-" .. n1(state["libs"]) .. "/"
 	local lib, contents = ({["name"]=name,["prefix"]=prefix,["path"]=path}), self1(lispHandle, "read", "*a")
 	self1(lispHandle, "close")
-	local handle = open1(path .. ".lua", "r")
+	local handle = open1(path .. ".lib.lua", "r")
 	if handle then
 		local contents1 = self1(handle, "read", "*a")
 		self1(handle, "close")
@@ -7848,7 +7848,7 @@ readLibrary1 = (function(state, name, path, lispHandle)
 					temp1, v = next1(res, temp1)
 				end
 			else
-				error1(path .. ".lua returned a non-table value", 0)
+				error1(path .. ".lib.lua returned a non-table value", 0)
 			end
 		else
 			error1("Pattern matching failure!\nTried to match the following patterns against " .. pretty1(temp) .. ", but none matched.\n" .. "  Tried: `(nil ?msg)`\n  Tried: `(?fun)`")
