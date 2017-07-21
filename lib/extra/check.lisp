@@ -8,7 +8,7 @@
 
 (defun random-string () :hidden
   (let* [(n (random 1 255))
-         (random-byte () (string/char (random 1 255)))]
+         (random-byte () (string/char (random 32 126)))]
     (concat (map random-byte (range :from 1 :to n)))))
 
 (defun random-number () :hidden
