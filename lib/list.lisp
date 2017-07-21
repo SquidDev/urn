@@ -101,7 +101,7 @@
 
 (defun reduce (f z xs)
   "Accumulate the list XS using the binary function F and the zero
-   element Z.  This function is also called `reduce` by some authors. One
+   element Z.  This function is also called `foldl` by some authors. One
    can visualise `(reduce f z xs)` as replacing the [[cons]] operator in
    building lists with F, and the empty list with Z.
 
