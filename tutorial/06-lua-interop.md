@@ -29,7 +29,7 @@ structuring the external file, so we'll start with the simplest. First create a 
 ;; Etc...
 ```
 
-We'll also need to create another file named `bit32.lua`. This is loaded when compiling and included in the compiled
+We'll also need to create another file named `bit32.lib.lua`. This is loaded when compiling and included in the compiled
 code. Here you need to export every symbol that your library will use:
 
 ```lua
@@ -48,7 +48,7 @@ only a couple of functions are used. Instead, you can use `.meta.lua` files.
 
 ## Meta files
 Instead of declaring an entire library to export, `.meta.lua` files describe each variable, providing information about
-what it should compile to. To use it, first you'll need to delete your `bit32.lua` file. Now you'll need to write a
+what it should compile to. To use it, first you'll need to delete your `bit32.lib.lua` file. Now you'll need to write a
 metadata file. Thankfully, some of this can be automated by Urn:
 
 ```cl
