@@ -1,7 +1,4 @@
-"Hash sets
- =========
-
- This module implements hash sets as backed by hash maps, optionally
+"This module implements hash sets as backed by hash maps, optionally
  with a custom hash function."
 
 (defun make-set (hash-function)
