@@ -95,6 +95,10 @@
   "Return the value X unmodified."
   x)
 
+(defun as-is (x)
+  "Return the value X unchanged."
+  x)
+
 (defun const (x)
   "Return a function which always returns X. This is equivalent to the
    `K` combinator in SK combinator calculus."
