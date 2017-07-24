@@ -25,14 +25,14 @@
 (define *set-metatable* :hidden
   { :--pretty-print (lambda (x)
                       (.. "«hash-set: " (concat (map pretty (set->list x)) " ") "»"))
-    :compare (lambda (x y)
-               (let* [(same-data true)]
-                 (for-pairs (k _) (.> y :data)
-                   (when (= (.> x :data k) nil)
-                     (set! same-data false)))
-                 (and (= (.> x :hash)
-                         (.> y :hash))
-                      same-data))) })
+    :--compare (lambda (x y)
+                 (let* [(same-data true)]
+                   (for-pairs (k _) (.> y :data)
+                              (when (= (.> x :data k) nil)
+                                (set! same-data false)))
+                   (and (= (.> x :hash)
+                           (.> y :hash))
+                        same-data))) })
 
 (defun set? (x)
   "Check that X is a set.
