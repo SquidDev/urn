@@ -41,12 +41,12 @@
            (error! err)]
           [ok
             (recur k err)])))))
-(define call/pcall-with-prompt)
+(define call/p call-with-prompt)
 
 (defmacro let-prompt (tg e h)
   "Evaluate E in a prompt with the tag TG and handler H."
   `(call-with-prompt ,tg (lambda () ,e) ,h))
-(define-macro let/p)
+(define-macro let/p let-prompt)
 
 (defun call-with-escape-continuation (body)
   "Invoke the thunk BODY with an escape continuation.
