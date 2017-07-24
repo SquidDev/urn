@@ -2,8 +2,9 @@
               and or xpcall pretty pcall values-list
               gensym tostring tonumber require => <=>
               unpack list when unless arg apply for-pairs
+              first second third fourth fifth sixth
+              seventh ninth tenth
               + - * / % ^ ! .. n debug) :export)
-
 (import base)
 (import string (format concat $) :export)
 (import binders () :export)
@@ -125,16 +126,3 @@
 
 (defmacro dec! (x)
   `(set! ,x (pred ,x)))
-
-;; Generate accessors for elements of value-lists (including docs!)
-,@(map (lambda (i n)
-         `(defun ,n (,'&rest)
-            ,(.. "Get the " (symbol->string n) " element of a series of values.\n\n"
-                 "### Example\n"
-                 "```cl\n"
-                 "> (" (symbol->string n) " " (string/concat (range :to i) " ") ")\n"
-                 "out = " i "\n"
-                 "```")
-            (nth ,'rest ,i)))
-       '(1 2 3 4 5 6 7 8 9 10)
-       '(first second third fourth fifth sixth seventh eighth ninth tenth))

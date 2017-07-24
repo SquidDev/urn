@@ -297,3 +297,15 @@
                      (set-idx! out :n (n xs))
                      out))
            1 ,(n xs)))
+
+,@(let* [(out '())
+         (ns '(first second third
+               fourth fifth sixth
+               seventh eighth ninth
+               tenth))]
+    (for i 1 10 1
+      (set-idx! out i
+                `(defun ,(get-idx ns i) (,'&rest)
+                   (get-idx ,'rest ,i))))
+    (set-idx! out :n 10)
+    out)
