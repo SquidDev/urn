@@ -1,4 +1,22 @@
+"### Continuation objects
+ 
+ The value given to the handler in [[call-with-prompt]], much like
+ the value captured by [[shift]], is not a coroutine: it is a
+ continuation object. Continuation objects (or just \"continuations\")
+ can be applied, much like functions, to continue their execution.
+
+ They may also be given to [[call-with-prompt]]."
+
 (import lua/coroutine c)
+
+(defun reify-continuation (coroutine) :hidden
+  (setmetatable
+    { :tag "continuation"
+      :thread coroutine }
+    { :--pretty-print (const "«continuation»")
+      :__call (lambda (k &args)
+                (apply continue (cons (.> k :thread)
+                                      args))) }))
 
 (defun call-with-prompt (prompt-tag body handler)
   "Call the thunk BODY with a prompt PROMPT-TAG in scope. If BODY
@@ -21,6 +39,9 @@
    ```"
   (let* [(k (cond
               [(= (type body) "thread") body]
+              ; we reify the continuation before handing it off to the
+              ; handler anyway
+              [(= (type body) "continuation") (.> body :thread)]
               [(= (type body) "function") (c/create body)]
               [true (error! (.. "expected a coroutine or a function, got " (type body)))]))
          (last-res nil)]
@@ -34,7 +55,7 @@
                 (>= (n err) 2)
                 (eq? (car err) :abort))
            (if (eq? (cadr err) prompt-tag)
-             (handler k (cddr err))
+             (handler (reify-continuation k) (cddr err))
              (abort-to-prompt (cadr err) (unpack (cddr err) 1
                                                  (n (cddr err)))))]
           [(! ok)
@@ -87,16 +108,7 @@
 (define call/ec call-with-escape-continuation)
 (define-macro let/ec let-escape-continuation)
 
-(defun continue (k &args)
-  "Continue execution of K with ARGS as the arguments.
-
-   ### Example
-   ```cl
-   > (continue (coroutine/create
-   .             (lambda () (+ 1 (coroutine/yield))))
-   .           2)
-   out = 3
-   ```"
+(defun continue (k &args) :hidden
   (let* [(last-res nil)]
     (while (/= (c/status k) :dead)
       (let* [((ok err) (c/resume k (unpack args 1 (n args))))]
