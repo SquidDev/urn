@@ -271,15 +271,19 @@
    expected values."
   (list `syntax-quote (quasiquote# val)))
 
-(defun apply (f xs)
-  "Apply the function F using XS as the argument list.
+(defun apply (f &xss xs)
+  "Apply the function F using XS as the argument list, with XSS as
+   arguments before XS is spliced.
 
    ### Example:
    ```cl
    > (apply + '(1 2))
    3
+   > (apply + 1 '(2))
+   3
    ```"
-  (f (unpack xs 1 (n xs))))
+  (let* [(args `(,@xss ,@xs))]
+    (f (unpack args 1 (n args)))))
 
 (defmacro values-list (&xs)
   "Return multiple values, one per element in XS.
