@@ -125,7 +125,7 @@
            equal)]
         [(and (= :table (type# x))
               (getmetatable x))
-         ((get-idx (getmetatable x) :compare) x y)]
+         ((get-idx (getmetatable x) :--compare) x y)]
         [(and (= :table type-x) (= :table type-y))
          (let* [(equal true)] ; optimism, ho
            (for-pairs (k v) x
