@@ -2,14 +2,11 @@
 title: urn/set
 ---
 # urn/set
-Hash sets
-=========
-
 This module implements hash sets as backed by hash maps, optionally
 with a custom hash function.
 
 ## `(element? set val)`
-*Defined at lib/urn/set.lisp:54:1*
+*Defined at lib/urn/set.lisp:51:1*
 
 Check if `VAL` is an element of `SET`.
 
@@ -20,7 +17,7 @@ out = true
 ```
 
 ## `(insert set &vals)`
-*Defined at lib/urn/set.lisp:85:1*
+*Defined at lib/urn/set.lisp:82:1*
 
 Build a copy of `SET` with VALs inserted.
 
@@ -31,7 +28,7 @@ out = «hash-set: 1 2 3 4 5 6»
 ```
 
 ## `(insert! set &vals)`
-*Defined at lib/urn/set.lisp:66:1*
+*Defined at lib/urn/set.lisp:63:1*
 
 Insert `VALS` into `SET`.
 
@@ -46,7 +43,7 @@ out = «hash-set: 1 2 3 4»
 ```
 
 ## `(intersection a b)`
-*Defined at lib/urn/set.lisp:120:1*
+*Defined at lib/urn/set.lisp:117:1*
 
 The set of values that occur in both `A` and `B`.
 
@@ -57,7 +54,7 @@ out = «hash-set: 3»
 ```
 
 ## `(make-set hash-function)`
-*Defined at lib/urn/set.lisp:7:1*
+*Defined at lib/urn/set.lisp:4:1*
 
 Create a new, empty set with the given `HASH`-`FUNCTION`. If no
 hash function is given, [`make-set`](lib.urn.set.md#make-set-hash-function) defaults to using object
@@ -74,13 +71,13 @@ out = «hash-set: »
 ```
 
 ## `(set->list set)`
-*Defined at lib/urn/set.lisp:150:1*
+*Defined at lib/urn/set.lisp:147:1*
 
 Convert `SET` to a list. Note that, since hash sets have no specified
 order, the list will not nescessarily be sorted.
 
 ## `(set-of &values)`
-*Defined at lib/urn/set.lisp:138:1*
+*Defined at lib/urn/set.lisp:135:1*
 
 Create the set containing `VALUES` with the default hash function.
 
@@ -91,7 +88,7 @@ out = «hash-set: 1 2 3»
 ```
 
 ## `(set? x)`
-*Defined at lib/urn/set.lisp:40:1*
+*Defined at lib/urn/set.lisp:37:1*
 
 Check that `X` is a set.
 
@@ -104,7 +101,7 @@ out = false
 ```
 
 ## `(union a b)`
-*Defined at lib/urn/set.lisp:101:1*
+*Defined at lib/urn/set.lisp:98:1*
 
 The set of values that occur in either `A` or `B`.
 

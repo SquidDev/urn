@@ -194,15 +194,25 @@ Bind the single variable `VAR`, then evaluate `BODY`.
  - `(car xs)` *Defined at lib/base.lisp:44:1*
  - `(cdr xs)` *Defined at lib/base.lisp:45:1*
  - `concat` *Native defined at lib/lua/table.lisp:1:1*
+ - `(eighth &rest)` *Defined at lib/base.lisp:301:1*
  - `error` *Native defined at lib/lua/basic.lisp:24:1*
+ - `(fifth &rest)` *Defined at lib/base.lisp:301:1*
+ - `(first &rest)` *Defined at lib/base.lisp:301:1*
+ - `(fourth &rest)` *Defined at lib/base.lisp:301:1*
  - `get-idx` *Native defined at lib/lua/basic.lisp:34:1*
  - `getmetatable` *Native defined at lib/lua/basic.lisp:25:1*
  - `len#` *Native defined at lib/lua/basic.lisp:19:1*
  - `(let* vars &body)` *Macro defined at lib/base.lisp:71:1*
+ - `(ninth &rest)` *Defined at lib/base.lisp:301:1*
  - `pcall` *Native defined at lib/lua/basic.lisp:31:1*
  - `print` *Native defined at lib/lua/basic.lisp:32:1*
  - `require` *Native defined at lib/lua/basic.lisp:39:1*
+ - `(second &rest)` *Defined at lib/base.lisp:301:1*
  - `set-idx!` *Native defined at lib/lua/basic.lisp:36:1*
+ - `(seventh &rest)` *Defined at lib/base.lisp:301:1*
+ - `(sixth &rest)` *Defined at lib/base.lisp:301:1*
+ - `(tenth &rest)` *Defined at lib/base.lisp:301:1*
+ - `(third &rest)` *Defined at lib/base.lisp:301:1*
  - `tonumber` *Native defined at lib/lua/basic.lisp:42:1*
  - `tostring` *Native defined at lib/lua/basic.lisp:43:1*
  - `type#` *Native defined at lib/lua/basic.lisp:44:1*
