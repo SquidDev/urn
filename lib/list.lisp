@@ -24,7 +24,8 @@
               get-idx for gensym -or slice /= %
               pretty print error tostring  -and
               unpack debug if n + - >= > = ! with
-              apply and progn .. * while <= < or))
+              apply and progn .. * while <= < or
+              values-list first second))
 (import base)
 (import lua/table)
 (import type (nil? list? empty? assert-type! exists? falsey? eq? neq? type))
@@ -195,21 +196,47 @@
    ```"
   (flatten (map fn (unpack xss))))
 
+(defun partition (p xs)
+  "Split XS based on the predicate P. Values for which the predicate
+   returns true are returned in the first list, whereas values which
+   don't pass the predicate are returned in the second list.
+
+   ### Example:
+   ```cl
+   > (print! (partition even? '(1 2 3 4 5 6)))
+   '(2 4 6)   '(1 3 5)
+   out = nil
+   ```"
+  (assert-type! p function)
+  (assert-type! xs list)
+  (let* [(passed '())
+         (failed '())]
+    (for i 1 (n xs) 1
+      (with (x (nth xs i))
+        (push-cdr! (if (p x) passed failed) x)))
+    (values-list passed failed)))
+
 (defun filter (p xs)
-  "Return the list of elements of XS which match the predicate P.
+  "Return a list with only the elements of XS that match the predicate
+   P.
 
    ### Example:
    ```cl
    > (filter even? '(1 2 3 4 5 6))
-   '(2 4 6)
+   out = '(2 4 6)
    ```"
-  (assert-type! p function)
-  (assert-type! xs list)
-  (let* [(out '())]
-    (for i 1 (n xs) 1
-      (with (x (nth xs i))
-        (when (p x) (push-cdr! out x))))
-    out))
+  (first (partition p xs)))
+
+(defun exclude (p xs)
+  "Return a list with only the elements of XS that don't match the
+   predicate P.
+
+   ### Example:
+   ```cl
+   > (exclude even? '(1 2 3 4 5 6))
+   out = '(1 3 5)
+   ```"
+  (second (partition p xs)))
 
 (defun any (p xs)
   "Check for the existence of an element in XS that matches the predicate
