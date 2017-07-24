@@ -2,13 +2,33 @@
 title: urn/control/prompt
 ---
 # urn/control/prompt
+### Continuation objects
+
+The value given to the handler in [`call-with-prompt`](lib.urn.control.prompt.md#call-with-prompt-prompt-tag-body-handler), much like
+the value captured by [`shift`](lib.urn.control.prompt.md#shift-k-body), is not a coroutine: it is a
+continuation object. Continuation objects (or just "continuations")
+can be applied, much like functions, to continue their execution.
+
+They may also be given to [`call-with-prompt`](lib.urn.control.prompt.md#call-with-prompt-prompt-tag-body-handler).
+
 ## `(abort-to-prompt tag &rest)`
-*Defined at lib/urn/control/prompt.lisp:111:1*
+*Defined at lib/urn/control/prompt.lisp:123:1*
 
 Abort to the prompt `TAG`, giving `REST` as arguments to the handler.
 
+## `(alive? k)`
+*Defined at lib/urn/control/prompt.lisp:155:1*
+
+Check that the continuation `K` may be executed further.
+
+### Example:
+```
+> (alive? (reset (shift k k)))
+out = true
+```
+
 ## `(call-with-escape-continuation body)`
-*Defined at lib/urn/control/prompt.lisp:51:1*
+*Defined at lib/urn/control/prompt.lisp:72:1*
 
 Invoke the thunk `BODY` with an escape continuation.
 
@@ -24,7 +44,7 @@ out = 1
 ```
 
 ## `(call-with-prompt prompt-tag body handler)`
-*Defined at lib/urn/control/prompt.lisp:3:1*
+*Defined at lib/urn/control/prompt.lisp:21:1*
 
 Call the thunk `BODY` with a prompt `PROMPT`-`TAG` in scope. If `BODY`
 aborts to `PROMPT`-`TAG`, then `HANDLER` is invoked with the coroutine
@@ -45,21 +65,8 @@ continuation will not be handled.
 out = 2
 ```
 
-## `(continue k &args)`
-*Defined at lib/urn/control/prompt.lisp:90:1*
-
-Continue execution of `K` with `ARGS` as the arguments.
-
-### Example
-```cl
-> (continue (coroutine/create
-.             (lambda () (+ 1 (coroutine/yield))))
-.           2)
-out = 3
-```
-
 ## `(let-escape-continuation k &body)`
-*Macro defined at lib/urn/control/prompt.lisp:72:1*
+*Macro defined at lib/urn/control/prompt.lisp:93:1*
 
 Bind `K` within `BODY` to an escape continuation.
 
@@ -74,12 +81,12 @@ out = 2
 ```
 
 ## `(let-prompt tg e h)`
-*Macro defined at lib/urn/control/prompt.lisp:46:1*
+*Macro defined at lib/urn/control/prompt.lisp:67:1*
 
 Evaluate `E` in a prompt with the tag `TG` and handler `H`.
 
 ## `(reset &body)`
-*Macro defined at lib/urn/control/prompt.lisp:115:1*
+*Macro defined at lib/urn/control/prompt.lisp:127:1*
 
 Establish a prompt, and evaluate `BODY` within that prompt.
 
@@ -90,7 +97,7 @@ out = 12
 ```
 
 ## `(shift k &body)`
-*Macro defined at lib/urn/control/prompt.lisp:130:1*
+*Macro defined at lib/urn/control/prompt.lisp:142:1*
 
 Abort to the nearest [`reset`](lib.urn.control.prompt.md#reset-body), and evaluate `BODY` in a scope where
 the captured continuation is bound to `K`.
@@ -102,7 +109,7 @@ out = 12
 ```
 
 ## Undocumented symbols
- - `call/ec` *Defined at lib/urn/control/prompt.lisp:87:1*
- - `call/p` *Defined at lib/urn/control/prompt.lisp:44:1*
- - `let/ec` *Macro defined at lib/urn/control/prompt.lisp:88:1*
- - `let/p` *Macro defined at lib/urn/control/prompt.lisp:49:1*
+ - `call/ec` *Defined at lib/urn/control/prompt.lisp:108:1*
+ - `call/p` *Defined at lib/urn/control/prompt.lisp:65:1*
+ - `let/ec` *Macro defined at lib/urn/control/prompt.lisp:109:1*
+ - `let/p` *Macro defined at lib/urn/control/prompt.lisp:70:1*
