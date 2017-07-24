@@ -139,3 +139,13 @@
   `(abort-to-prompt ','reset-tag
                     (lambda (,k)
                       ,@body)))
+
+(defun alive? (k)
+  "Check that the continuation K may be executed further.
+
+   ### Example:
+   ```
+   > (alive? (reset (shift k k)))
+   out = true
+   ```"
+  (/= (c/status k) "dead"))
