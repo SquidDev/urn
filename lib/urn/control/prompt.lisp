@@ -160,4 +160,4 @@
    > (alive? (reset (shift k k)))
    out = true
    ```"
-  (/= (c/status k) "dead"))
+  (/= (c/status (.> k :thread)) "dead"))
