@@ -194,7 +194,7 @@
    > (flat-map list '(1 2 3) '(4 5 6))
    out = 1 4 2 5 3 6
    ```"
-  (flatten (map fn (unpack xss))))
+  (flatten (apply map fn xss)))
 
 (defun partition (p xs)
   "Split XS based on the predicate P. Values for which the predicate

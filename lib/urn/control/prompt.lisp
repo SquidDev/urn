@@ -15,8 +15,7 @@
       :thread coroutine }
     { :--pretty-print (const "«continuation»")
       :__call (lambda (k &args)
-                (apply continue (cons (.> k :thread)
-                                      args))) }))
+                (apply continue (.> k :thread) args)) }))
 
 (defun call-with-prompt (prompt-tag body handler)
   "Call the thunk BODY with a prompt PROMPT-TAG in scope. If BODY
@@ -56,8 +55,7 @@
                 (eq? (car err) :abort))
            (if (eq? (cadr err) prompt-tag)
              (handler (reify-continuation k) (cddr err))
-             (abort-to-prompt (cadr err) (unpack (cddr err) 1
-                                                 (n (cddr err)))))]
+             (apply abort-to-prompt (cadr err) (cddr err)))]
           [(! ok)
            (error! err)]
           [ok
@@ -85,8 +83,8 @@
   (call-with-prompt 'escape-continuation
                     (lambda ()
                       (body (lambda (&rest)
-                              (abort-to-prompt 'escape-continuation
-                                               (unpack rest 1 (n rest))))))
+                              (apply abort-to-prompt
+                                     'escape-continuation rest))))
                     (lambda (k &rest)
                       (unpack rest 1 (n rest)))))
 
@@ -111,7 +109,7 @@
 (defun continue (k &args) :hidden
   (let* [(last-res nil)]
     (while (/= (c/status k) :dead)
-      (let* [((ok err) (c/resume k (unpack args 1 (n args))))]
+      (let* [((ok err) (apply c/resume k args))]
         (if (! ok)
           (error! err)
           (progn
