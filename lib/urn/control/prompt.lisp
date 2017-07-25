@@ -33,7 +33,7 @@
    .                   (lambda ()
    .                     (+ 1 (abort-to-prompt 'tag)))
    .                   (lambda (k)
-   .                     (continue k 1)))
+   .                     (k 1)))
    out = 2
    ```"
   (let* [(k (cond
@@ -127,7 +127,7 @@
 
    ### Example
    ```
-   > (* 2 (reset (+ 1 (shift k (continue k 5)))))
+   > (* 2 (reset (+ 1 (shift k (k 5)))))
    out = 12
    ```"
   (let* [(cont (gensym))
@@ -143,7 +143,7 @@
 
    ### Example
    ```
-   > (* 2 (reset (+ 1 (shift k (continue k 5)))))
+   > (* 2 (reset (+ 1 (shift k (k 5)))))
    out = 12
    ```"
   `(abort-to-prompt ','reset-tag
