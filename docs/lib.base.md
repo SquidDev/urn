@@ -36,14 +36,17 @@ Logical implication. `(=> a b)` is equivalent to `(or (! a) b)`.
 Return the logical and of values `A` and `B`, and, if present, the
 logical and of all the values in `REST`.
 
-## `(apply f xs)`
+## `(apply f &xss xs)`
 *Defined at lib/base.lisp:274:1*
 
-Apply the function `F` using `XS` as the argument list.
+Apply the function `F` using `XS` as the argument list, with `XSS` as
+arguments before `XS` is spliced.
 
 ### Example:
 ```cl
 > (apply + '(1 2))
+3
+> (apply + 1 '(2))
 3
 ```
 
@@ -151,7 +154,7 @@ entry of `XS` if not specified).
 Evaluate `BODY` if `C` is false, otherwise, evaluate `nil`.
 
 ## `(values-list &xs)`
-*Macro defined at lib/base.lisp:284:1*
+*Macro defined at lib/base.lisp:288:1*
 
 Return multiple values, one per element in `XS`.
 
@@ -194,25 +197,25 @@ Bind the single variable `VAR`, then evaluate `BODY`.
  - `(car xs)` *Defined at lib/base.lisp:44:1*
  - `(cdr xs)` *Defined at lib/base.lisp:45:1*
  - `concat` *Native defined at lib/lua/table.lisp:1:1*
- - `(eighth &rest)` *Defined at lib/base.lisp:301:1*
+ - `(eighth &rest)` *Defined at lib/base.lisp:305:1*
  - `error` *Native defined at lib/lua/basic.lisp:24:1*
- - `(fifth &rest)` *Defined at lib/base.lisp:301:1*
- - `(first &rest)` *Defined at lib/base.lisp:301:1*
- - `(fourth &rest)` *Defined at lib/base.lisp:301:1*
+ - `(fifth &rest)` *Defined at lib/base.lisp:305:1*
+ - `(first &rest)` *Defined at lib/base.lisp:305:1*
+ - `(fourth &rest)` *Defined at lib/base.lisp:305:1*
  - `get-idx` *Native defined at lib/lua/basic.lisp:34:1*
  - `getmetatable` *Native defined at lib/lua/basic.lisp:25:1*
  - `len#` *Native defined at lib/lua/basic.lisp:19:1*
  - `(let* vars &body)` *Macro defined at lib/base.lisp:71:1*
- - `(ninth &rest)` *Defined at lib/base.lisp:301:1*
+ - `(ninth &rest)` *Defined at lib/base.lisp:305:1*
  - `pcall` *Native defined at lib/lua/basic.lisp:31:1*
  - `print` *Native defined at lib/lua/basic.lisp:32:1*
  - `require` *Native defined at lib/lua/basic.lisp:39:1*
- - `(second &rest)` *Defined at lib/base.lisp:301:1*
+ - `(second &rest)` *Defined at lib/base.lisp:305:1*
  - `set-idx!` *Native defined at lib/lua/basic.lisp:36:1*
- - `(seventh &rest)` *Defined at lib/base.lisp:301:1*
- - `(sixth &rest)` *Defined at lib/base.lisp:301:1*
- - `(tenth &rest)` *Defined at lib/base.lisp:301:1*
- - `(third &rest)` *Defined at lib/base.lisp:301:1*
+ - `(seventh &rest)` *Defined at lib/base.lisp:305:1*
+ - `(sixth &rest)` *Defined at lib/base.lisp:305:1*
+ - `(tenth &rest)` *Defined at lib/base.lisp:305:1*
+ - `(third &rest)` *Defined at lib/base.lisp:305:1*
  - `tonumber` *Native defined at lib/lua/basic.lisp:42:1*
  - `tostring` *Native defined at lib/lua/basic.lisp:43:1*
  - `type#` *Native defined at lib/lua/basic.lisp:44:1*

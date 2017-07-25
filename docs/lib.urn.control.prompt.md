@@ -12,12 +12,12 @@ can be applied, much like functions, to continue their execution.
 They may also be given to [`call-with-prompt`](lib.urn.control.prompt.md#call-with-prompt-prompt-tag-body-handler).
 
 ## `(abort-to-prompt tag &rest)`
-*Defined at lib/urn/control/prompt.lisp:123:1*
+*Defined at lib/urn/control/prompt.lisp:121:1*
 
 Abort to the prompt `TAG`, giving `REST` as arguments to the handler.
 
 ## `(alive? k)`
-*Defined at lib/urn/control/prompt.lisp:155:1*
+*Defined at lib/urn/control/prompt.lisp:153:1*
 
 Check that the continuation `K` may be executed further.
 
@@ -28,7 +28,7 @@ out = true
 ```
 
 ## `(call-with-escape-continuation body)`
-*Defined at lib/urn/control/prompt.lisp:72:1*
+*Defined at lib/urn/control/prompt.lisp:70:1*
 
 Invoke the thunk `BODY` with an escape continuation.
 
@@ -44,7 +44,7 @@ out = 1
 ```
 
 ## `(call-with-prompt prompt-tag body handler)`
-*Defined at lib/urn/control/prompt.lisp:21:1*
+*Defined at lib/urn/control/prompt.lisp:20:1*
 
 Call the thunk `BODY` with a prompt `PROMPT`-`TAG` in scope. If `BODY`
 aborts to `PROMPT`-`TAG`, then `HANDLER` is invoked with the coroutine
@@ -61,12 +61,12 @@ continuation will not be handled.
 .                   (lambda ()
 .                     (+ 1 (abort-to-prompt 'tag)))
 .                   (lambda (k)
-.                     (continue k 1)))
+.                     (k 1)))
 out = 2
 ```
 
 ## `(let-escape-continuation k &body)`
-*Macro defined at lib/urn/control/prompt.lisp:93:1*
+*Macro defined at lib/urn/control/prompt.lisp:91:1*
 
 Bind `K` within `BODY` to an escape continuation.
 
@@ -81,35 +81,35 @@ out = 2
 ```
 
 ## `(let-prompt tg e h)`
-*Macro defined at lib/urn/control/prompt.lisp:67:1*
+*Macro defined at lib/urn/control/prompt.lisp:65:1*
 
 Evaluate `E` in a prompt with the tag `TG` and handler `H`.
 
 ## `(reset &body)`
-*Macro defined at lib/urn/control/prompt.lisp:127:1*
+*Macro defined at lib/urn/control/prompt.lisp:125:1*
 
 Establish a prompt, and evaluate `BODY` within that prompt.
 
 ### Example
 ```
-> (* 2 (reset (+ 1 (shift k (continue k 5)))))
+> (* 2 (reset (+ 1 (shift k (k 5)))))
 out = 12
 ```
 
 ## `(shift k &body)`
-*Macro defined at lib/urn/control/prompt.lisp:142:1*
+*Macro defined at lib/urn/control/prompt.lisp:140:1*
 
 Abort to the nearest [`reset`](lib.urn.control.prompt.md#reset-body), and evaluate `BODY` in a scope where
 the captured continuation is bound to `K`.
 
 ### Example
 ```
-> (* 2 (reset (+ 1 (shift k (continue k 5)))))
+> (* 2 (reset (+ 1 (shift k (k 5)))))
 out = 12
 ```
 
 ## Undocumented symbols
- - `call/ec` *Defined at lib/urn/control/prompt.lisp:108:1*
- - `call/p` *Defined at lib/urn/control/prompt.lisp:65:1*
- - `let/ec` *Macro defined at lib/urn/control/prompt.lisp:109:1*
- - `let/p` *Macro defined at lib/urn/control/prompt.lisp:70:1*
+ - `call/ec` *Defined at lib/urn/control/prompt.lisp:106:1*
+ - `call/p` *Defined at lib/urn/control/prompt.lisp:63:1*
+ - `let/ec` *Macro defined at lib/urn/control/prompt.lisp:107:1*
+ - `let/p` *Macro defined at lib/urn/control/prompt.lisp:68:1*

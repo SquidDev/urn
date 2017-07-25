@@ -179,14 +179,17 @@ Concatenate `XS` and `YS`.
 out = (1 2 3 4)
 ``` 
 
-## `(apply f xs)`
+## `(apply f &xss xs)`
 *Defined at lib/base.lisp:274:1*
 
-Apply the function `F` using `XS` as the argument list.
+Apply the function `F` using `XS` as the argument list, with `XSS` as
+arguments before `XS` is spliced.
 
 ### Example:
 ```cl
 > (apply + '(1 2))
+3
+> (apply + 1 '(2))
 3
 ```
 
@@ -1557,7 +1560,7 @@ If there is no finaliser for `VAR`, then nothing is done for it.
 Return the values in the structure `ST`.
 
 ## `(values-list &xs)`
-*Macro defined at lib/base.lisp:284:1*
+*Macro defined at lib/base.lisp:288:1*
 
 Return multiple values, one per element in `XS`.
 
@@ -1715,10 +1718,10 @@ Bind the single variable `VAR`, then evaluate `BODY`.
  - `(cdrs xs)` *Defined at lib/list.lisp:678:1*
  - `concat` *Native defined at lib/lua/table.lisp:1:1*
  - `(dec! x)` *Macro defined at lib/prelude.lisp:127:1*
- - `(fifth &rest)` *Defined at lib/base.lisp:301:1*
- - `(first &rest)` *Defined at lib/base.lisp:301:1*
+ - `(fifth &rest)` *Defined at lib/base.lisp:305:1*
+ - `(first &rest)` *Defined at lib/base.lisp:305:1*
  - `format` *Native defined at lib/lua/string.lisp:5:1*
- - `(fourth &rest)` *Defined at lib/base.lisp:301:1*
+ - `(fourth &rest)` *Defined at lib/base.lisp:305:1*
  - `getmetatable` *Native defined at lib/lua/basic.lisp:25:1*
  - `(inc! x)` *Macro defined at lib/prelude.lisp:124:1*
  - `io/close` *Native defined at lib/lua/io.lisp:1:1*
@@ -1793,13 +1796,13 @@ Bind the single variable `VAR`, then evaluate `BODY`.
  - `maths/type` *Native defined at lib/lua/math.lisp:27:1*
  - `maths/ult` *Native defined at lib/lua/math.lisp:28:1*
  - `next` *Native defined at lib/lua/basic.lisp:29:1*
- - `(ninth &rest)` *Defined at lib/base.lisp:301:1*
+ - `(ninth &rest)` *Defined at lib/base.lisp:305:1*
  - `pcall` *Native defined at lib/lua/basic.lisp:31:1*
  - `require` *Native defined at lib/lua/basic.lisp:39:1*
- - `(second &rest)` *Defined at lib/base.lisp:301:1*
+ - `(second &rest)` *Defined at lib/base.lisp:305:1*
  - `setmetatable` *Native defined at lib/lua/basic.lisp:41:1*
- - `(seventh &rest)` *Defined at lib/base.lisp:301:1*
- - `(sixth &rest)` *Defined at lib/base.lisp:301:1*
+ - `(seventh &rest)` *Defined at lib/base.lisp:305:1*
+ - `(sixth &rest)` *Defined at lib/base.lisp:305:1*
  - `string/byte` *Native defined at lib/lua/string.lisp:1:1*
  - `string/char` *Native defined at lib/lua/string.lisp:2:1*
  - `string/concat` *Native defined at lib/lua/table.lisp:1:1*
@@ -1814,8 +1817,8 @@ Bind the single variable `VAR`, then evaluate `BODY`.
  - `string/reverse` *Native defined at lib/lua/string.lisp:11:1*
  - `string/sub` *Native defined at lib/lua/string.lisp:12:1*
  - `string/upper` *Native defined at lib/lua/string.lisp:13:1*
- - `(tenth &rest)` *Defined at lib/base.lisp:301:1*
- - `(third &rest)` *Defined at lib/base.lisp:301:1*
+ - `(tenth &rest)` *Defined at lib/base.lisp:305:1*
+ - `(third &rest)` *Defined at lib/base.lisp:305:1*
  - `tonumber` *Native defined at lib/lua/basic.lisp:42:1*
  - `tostring` *Native defined at lib/lua/basic.lisp:43:1*
  - `unpack` *Native defined at lib/lua/table.lisp:7:1*
