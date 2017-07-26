@@ -43,13 +43,13 @@
     pos nil
     pos "Invalid digit here"))
 
-(defun eof-error! (cont logger msg node explain &lines)
+(defun eof-error! (context tokens logger msg node explain &lines)
   "A variation of [[logger/do-node-error!]], used when we've reached the
-   end of the file. If CONT is true, then a \"resumable\" error will be
-   thrown instead."
+   end of the file. If CONTEXT is truthy, then a \"resumable\" error will
+   be thrown instead."
   :hidden
-  (if cont
-    (fail! { :msg msg :cont true })
+  (if context
+    (fail! { :msg msg :context context :tokens tokens })
     (logger/do-node-error! logger msg node explain (unpack lines 1 (n lines)))))
 
 (defun lex (logger str name cont)
@@ -282,7 +282,7 @@
                   [(= char "")
                    (let ((start (range start))
                          (finish (range (position))))
-                     (eof-error! cont logger
+                     (eof-error! (and cont "string") out logger
                        "Expected '\"', got eof"
                        finish nil
                        start "string started here"
@@ -341,7 +341,7 @@
 
                         (push-cdr! buffer (string/char val)))]
                      [(= char "")
-                      (eof-error! cont logger
+                      (eof-error! (and cont "string") out logger
                         "Expected escape code, got eof"
                         (range (position)) nil
                         (range (position)) "end of file here")]
@@ -510,7 +510,7 @@
            (.<! head :auto-close true)]
           [(= tag "eof")
            (when (/= 0 (n stack))
-             (eof-error! cont logger
+             (eof-error! (and cont "list") toks logger
                (string/format "Expected '%s', got 'eof'" (.> head :close))
                tok nil
                (.> head :range) "block opened here"
