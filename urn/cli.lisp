@@ -20,29 +20,41 @@
 (import lua/basic (_G))
 (import lua/os os)
 
+(defun normalise-path (path trailing)
+  "Normalise the given file PATH. If TRAILING is `true`, then a trailing
+   '/' will be added if required."
+  :hidden
+  ;; Normalise path separators
+  (set! path (string/gsub path "\\" "/"))
+
+  ;; Add a trailing "/" where needed
+  (when (and trailing (/= path "") (/= (string/char-at path -1) "/"))
+    (set! path (.. path "/")))
+
+  ;; Remove leading "./"s
+  (while (= (string/sub path 1 2) "./")
+    (set! path (string/sub path 3)))
+
+  path)
+
 (let* [(spec (arg/create))
-       (directory (with (dir (nth arg 0))
-                    ;; Strip the possible file names
-                    (set! dir (string/gsub dir "\\" "/"))
-                    (set! dir (string/gsub dir "urn/cli%.lisp$" ""))
-                    (set! dir (string/gsub dir "urn/cli$" ""))
-                    (set! dir (string/gsub dir "bin/urn%.lua$" ""))
-                    (set! dir (string/gsub dir "bin/urn$" ""))
-
-                    ;; Add a trailing "/" where needed
-                    (when (and (/= dir "") (/= (string/char-at dir -1) "/"))
-                      (set! dir (.. dir "/")))
-
-                    ;; Remove leading "./"s
-                    (while (= (string/sub dir 1 2) "./")
-                      (set! dir (string/sub dir 3)))
-
-                    dir))
+       (directory (with (dir (os/getenv "URN_STDLIB"))
+                    (if dir
+                      (normalise-path dir true)
+                      ;; If we haven't got an URN_STDLIB variable then try to work it out from the current file
+                      (-> (.> arg 0)
+                        ;; Strip the possible file names
+                        (string/gsub <> "urn[/\\]cli%.lisp$" "")
+                        (string/gsub <> "urn[/\\]cli$" "")
+                        (string/gsub <> "bin[/\\]urn%.lua$" "")
+                        (string/gsub <> "bin[/\\]urn$" "")
+                        (normalise-path <> true)
+                        (.. <> "lib/")))))
        (paths (list
                 "?"
                 "?/init"
-                (.. directory "lib/?")
-                (.. directory "lib/?/init")))
+                (.. directory "?")
+                (.. directory "?/init")))
 
        (tasks (list
                 simple/warning
@@ -81,12 +93,14 @@
   (arg/add-argument! spec '("--prelude" "-p")
     :help    "A custom prelude path to use."
     :narg    1
-    :default (.. directory "lib/prelude"))
+    :default (.. directory "prelude"))
 
   (arg/add-argument! spec '("--output" "--out" "-o")
     :help    "The destination to output to."
     :narg    1
-    :default "out")
+    :default "out"
+    :action (lambda (arg data value)
+              (.<! data (.> arg :name) (string/gsub value "%.lua$" ""))))
 
   (arg/add-argument! spec '("--wrapper" "-w")
     :help    "A wrapper script to launch Urn with"
@@ -143,8 +157,7 @@
 
     ;; Process include paths
     (for-each path (.> args :include)
-      (set! path (string/gsub path "\\" "/"))
-      (set! path (string/gsub path "^%./" ""))
+      (set! path (normalise-path path false))
 
       (unless (string/find path "%?")
         (set! path (.. path (if (= (string/char-at path -1) "/") "?" "/?"))))
