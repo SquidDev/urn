@@ -8,12 +8,23 @@
 (import urn/resolve/scope scope)
 (import urn/timer timer)
 
+(define path-escape
+  "Lookup of characters to their escaped pattern variants."
+  :hidden
+  { "?" "(.*)"
+    "." "%." "%" "%%"
+    "^" "%^" "$" "%$"
+    "+" "%+" "-" "%-" "*" "%*"
+    "[" "%[" "]" "%]"
+    "(" "%)" ")" "%)" })
+
+
 (defun simplify-path (path paths)
   "Simplify PATH, attempting to reduce it to a named module inside PATHS."
   :hidden
   (with (current path)
     (for-each search paths
-      (with (sub (string/match path (.. "^" (string/gsub search "%?" "(.*)") "$")))
+      (with (sub (string/match path (.. "^" (string/gsub search "." path-escape) "$")))
         (when (and sub (< (n sub) (n current)))
           (set! current sub))))
     current))
