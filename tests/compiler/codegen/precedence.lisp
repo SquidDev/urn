@@ -35,7 +35,7 @@
         '(({ :a 1 } 1 2))
         "return ({[\"a\"]=1})(1, 2)"))
 
-    (pending "of constants"
+    (it "of constants"
       (affirm-codegen*
         '((1 1 2))
         "return (1)(1, 2)")))

@@ -354,7 +354,7 @@
                     (cat "call")])]
 
                ;; We're probably calling a constant here.
-               [true
+               [_
                 (visit-nodes lookup state node 1 false)
                 (cat "call-literal")]))]))
     (when (= cat nil) (fail! (.. "Node returned nil "(pretty node))))
