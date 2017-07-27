@@ -74,7 +74,7 @@
                      (= (type# (get-idx ll i)) "table"))
                     (set-idx! out k
                               `(cond
-                                 [,(get-idx (get-idx ll i) 1)
+                                 [(/= ,(get-idx (get-idx ll i) 1) nil)
                                    ,(get-idx (get-idx ll i) 1)]
                                  (true ,(get-idx (get-idx ll i) 2))))
                     (set! k (+ 1 k))]
