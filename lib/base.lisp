@@ -6,6 +6,85 @@
 (import lua/table (unpack concat) :export)
 (import lua/table table)
 
+; This begs for a bit of explaining. So:
+; @SquidDev is a lazy bum.
+; @hydraz is a cheating bastard.
+; The following is a macro-expanded and a bit polished version of
+; https://hydraz.club/txt/optional-arguments.lisp.html, which brings
+; optional argument support to Urn as a macro. If it breaks, don't try
+; to fix it; You're better off recompiling optional-arguments.lisp and
+; polishing the code up again.
+(define-macro lambda
+  (builtin/lambda (ll &body)
+    ((builtin/lambda (argument-names optional-argument-names optional-argument-init)
+       `(builtin/lambda ,argument-names
+          ((builtin/lambda ,optional-argument-names
+             ,@body)
+           ,@optional-argument-init)))
+      ((builtin/lambda (out)
+        ((builtin/lambda (loop)
+          (set! loop
+            (builtin/lambda (i)
+              (cond
+                [(<= i (get-idx ll :n))
+                 (set-idx! out i
+                           (cond
+                             [((builtin/lambda (x)
+                                 (cond (x (= (get-idx (get-idx ll i) :n) 2))
+                                       (true x)))
+                               (= (type# (get-idx ll i)) "table"))
+                              (get-idx (get-idx ll i) 1)]
+                             [true (get-idx ll i)]))
+                 (loop (+ i 1))]
+                [true nil])))
+          (loop 1)) nil)
+        (set-idx! out :n (get-idx ll :n))
+        out) '())
+      ((builtin/lambda (out k)
+        ((builtin/lambda (loop)
+          (set! loop
+            (builtin/lambda (i)
+              (cond
+                [(<= i (get-idx ll :n))
+                 (cond
+                   [((builtin/lambda (x)
+                       (cond
+                         [x (= (get-idx (get-idx ll i) :n) 2)]
+                         [true x]))
+                     (= (type# (get-idx ll i)) "table"))
+                    (set-idx! out k (get-idx (get-idx ll i) 1))
+                    (set! k (+ 1 k))]
+                   [true nil])
+                 (loop (+ i 1))]
+                [true nil])))
+          (loop 1)) nil)
+        (set-idx! out :n (- k 1))
+        out) '() 1)
+      ((builtin/lambda (out k)
+        ((builtin/lambda (loop)
+          (set! loop
+            (builtin/lambda (i)
+              (cond
+                [(<= i (get-idx ll :n))
+                 (cond
+                   [((builtin/lambda (x)
+                       (cond
+                         [x (= (get-idx (get-idx ll i) :n) 2)]
+                         [true x]))
+                     (= (type# (get-idx ll i)) "table"))
+                    (set-idx! out k
+                              `(cond
+                                 [,(get-idx (get-idx ll i) 1)
+                                   ,(get-idx (get-idx ll i) 1)]
+                                 (true ,(get-idx (get-idx ll i) 2))))
+                    (set! k (+ 1 k))]
+                   [true nil])
+                 (loop (+ i 1))]
+                [true nil])))
+          (loop 1)) nil)
+        (set-idx! out :n (- k 1))
+        out) '() 1))))
+
 (define copy-meta
   "Copies metadata from the inner body to the outer body"
   :hidden
