@@ -16,74 +16,45 @@
 ; polishing the code up again.
 (define-macro lambda
   (builtin/lambda (ll &body)
-    ((builtin/lambda (argument-names optional-argument-names optional-argument-init)
-       `(builtin/lambda ,argument-names
-          ((builtin/lambda ,optional-argument-names
-             ,@body)
-           ,@optional-argument-init)))
-      ((builtin/lambda (out)
-        ((builtin/lambda (loop)
-          (set! loop
-            (builtin/lambda (i)
-              (cond
-                [(<= i (get-idx ll :n))
-                 (set-idx! out i
-                           (cond
-                             [((builtin/lambda (x)
-                                 (cond (x (= (get-idx (get-idx ll i) :n) 2))
-                                       (true x)))
-                               (= (type# (get-idx ll i)) "table"))
-                              (get-idx (get-idx ll i) 1)]
-                             [true (get-idx ll i)]))
-                 (loop (+ i 1))]
-                [true nil])))
-          (loop 1)) nil)
-        (set-idx! out :n (get-idx ll :n))
-        out) '())
-      ((builtin/lambda (out k)
-        ((builtin/lambda (loop)
-          (set! loop
-            (builtin/lambda (i)
-              (cond
-                [(<= i (get-idx ll :n))
+    ((builtin/lambda (argument-names recur)
+       (set! recur
+         (builtin/lambda (i body)
+           (cond
+             [(< i 1) `(builtin/lambda (unquote argument-names) ,@body)]
+             [true
+              ((builtin/lambda (k)
                  (cond
-                   [((builtin/lambda (x)
-                       (cond
-                         [x (= (get-idx (get-idx ll i) :n) 2)]
-                         [true x]))
-                     (= (type# (get-idx ll i)) "table"))
-                    (set-idx! out k (get-idx (get-idx ll i) 1))
-                    (set! k (+ 1 k))]
-                   [true nil])
-                 (loop (+ i 1))]
-                [true nil])))
-          (loop 1)) nil)
-        (set-idx! out :n (- k 1))
-        out) '() 1)
-      ((builtin/lambda (out k)
-        ((builtin/lambda (loop)
-          (set! loop
-            (builtin/lambda (i)
-              (cond
-                [(<= i (get-idx ll :n))
-                 (cond
-                   [((builtin/lambda (x)
-                       (cond
-                         [x (= (get-idx (get-idx ll i) :n) 2)]
-                         [true x]))
-                     (= (type# (get-idx ll i)) "table"))
-                    (set-idx! out k
-                              `(cond
-                                 [(/= ,(get-idx (get-idx ll i) 1) nil)
-                                   ,(get-idx (get-idx ll i) 1)]
-                                 (true ,(get-idx (get-idx ll i) 2))))
-                    (set! k (+ 1 k))]
-                   [true nil])
-                 (loop (+ i 1))]
-                [true nil])))
-          (loop 1)) nil)
-        (set-idx! out :n (- k 1))
-        out) '() 1))))
+                   [(cond
+                      [(= (type# (get-idx ll i)) "table") (= (get-idx (get-idx ll i) :n) 2)]
+                      [true false])
+                    (recur
+                      (- i 1)
+                      `(((builtin/lambda (,(get-idx k 1)) ,@body)
+                          (cond
+                            [(= ,(get-idx k 1) nil) ,(get-idx k 2)]
+                            [true ,(get-idx k 1)]))))]
+                   [true (recur (- i 1) body)]))
+                ;; Binding for k
+                (get-idx ll i))])))
+       (recur (get-idx ll :n) body))
+      ((builtin/lambda (out recur)
+         (set! recur
+           (builtin/lambda (i)
+             (cond
+               [(<= i (get-idx ll :n))
+                (set-idx! out i
+                  (cond
+                    [(cond
+                       [(= (type# (get-idx ll i)) "table") (= (get-idx (get-idx ll i) :n) 2)]
+                       [true false])
+                     (get-idx (get-idx ll i) 1)]
+                    [true (get-idx ll i)]))
+                (recur (+ i 1))]
+               [true nil])))
+         (recur 1)
+         (set-idx! out :n (get-idx ll :n))
+         out)
+        '() nil))))
 
 (define copy-meta
   "Copies metadata from the inner body to the outer body"
