@@ -86,7 +86,7 @@
                               (apply abort-to-prompt
                                      'escape-continuation rest))))
                     (lambda (k &rest)
-                      (unpack rest 1 (n rest)))))
+                      (unpack (car rest) 1 (n (car rest))))))
 
 (defmacro let-escape-continuation (k &body)
   "Bind K within BODY to an escape continuation.
@@ -159,3 +159,17 @@
    out = true
    ```"
   (/= (c/status (.> k :thread)) "dead"))
+
+(defmacro block (&body)
+  "Estabilish an escape continuation called `break` and evaluate BODY.
+
+   ### Example:
+   ```cl
+   > (block
+   .   (print! 1)
+   .   (break)
+   .   (print! 2))
+   1
+   out = ()
+   ```"
+  `(let-escape-continuation ,'break ,@body))
