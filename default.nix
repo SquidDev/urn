@@ -1,10 +1,15 @@
-with import <nixpkgs> {};
+{ nixpkgs ? import <nixpkgs> {}
+, lua ? nixpkgs.pkgs.lua
+}:
 
+let
+  inherit (nixpkgs) stdenv;
+in
 stdenv.mkDerivation rec {
   name = "urn";
   version = "0.3.1";
   src = ./.; # oh nix
-  buildInputs = [ lua makeWrapper ];
+  buildInputs = [ lua nixpkgs.pkgs.makeWrapper ];
 
   installPhase = ''
   install -Dm755 bin/urn.lua $out/bin/urn
