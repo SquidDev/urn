@@ -158,7 +158,15 @@
    > (alive? (reset (shift k k)))
    out = true
    ```"
-  (/= (c/status (.> k :thread)) "dead"))
+  (cond
+    [(= (type k) :continuation)
+     (/= (c/status (.> k :thread)) "dead")]
+    [(= (type k) :thread)
+     (/= (c/status k) "dead")]
+    [(function? k)
+     true]
+    [true false]))
+
 
 (defmacro block (&body)
   "Estabilish an escape continuation called `break` and evaluate BODY.
