@@ -1,6 +1,22 @@
 (import urn/logger/init logger)
 (import urn/logger/void void)
 (import urn/range ())
+(import list l)
+
+(define *roman-digits* :hidden
+  "Valid roman numeral digits and their values"
+  { :I    1
+    :V    5
+    :X   10
+    :L   50
+    :C  100
+    :D  500
+    :M 1000 })
+
+(defun roman-digit? (char)
+  "Determinies whether CHAR is a roman numeral digit"
+  :hidden
+  (or (.> *roman-digits* char) false))
 
 (defun hex-digit? (char)
   "Determines whether CHAR is a hecharadecimal digit"
@@ -72,6 +88,30 @@
          ;; Appends a token to the list
          (append! (lambda (tag start finish)
                     (append-with! {:tag tag} start finish)))
+         ;; Parses a roman numeral(!)
+         (parse-roman (lambda ()
+                        (let* [(start offset)
+                               (char (string/char-at str offset))]
+                          ; we need at /least/ one digit
+                          (unless (roman-digit? char)
+                            (digit-error! logger (range (position)) "roman" char))
+                          ; consume the rest
+                          (set! char (string/char-at str (succ offset)))
+                          (while (roman-digit? char)
+                            (consume!)
+                            (set! char (string/char-at str (succ offset))))
+                          ; now this is a hack
+                          (let* [(str (string/reverse (string/sub str start offset)))]
+                            ; This implementation was stolen and adapted from
+                            ; the Rosetta code entry for decoding Roman numerals
+                            ; in Scheme.
+                            (car (reduce (function
+                                           [((?acc ?prev) ?n)
+                                            (list ((if (< n prev) - +) acc n)
+                                                  (maths/max n prev))])
+                                         (list 0 0)
+                                         (map (comp (cut .> *roman-digits* <>) string/upper (cut string/char-at str <>))
+                                              (l/range :from 1 :to (n str)))))))))
          (parse-base (lambda (name p base)
                        (let* [(start offset)
                               (char (string/char-at str offset))]
@@ -129,25 +169,32 @@
                             (with (res (parse-base "binary" bin-digit? 2))
                               (when negative (set! res (- 0 res)))
                               res)]
+                           ;; Parse roman digits
+                           [(and (= char "#") (= (string/lower (string/char-at str (succ offset))) "r"))
+                            (consume!)
+                            (consume!)
+                            (with (res (parse-roman))
+                              (when negative (set! res (- 0 res)))
+                              res)]
                            ;; Other leading "#"s are illegal
                            [(and (= char "#") (terminator? (string/lower (string/char-at str (succ offset)))))
                             (logger/do-node-error! logger
-                              "Expected hexadecimal (#x) or binary (#b) digit."
+                              "Expected hexadecimal (#x), binary (#b), or Roman (#r) digit specifier."
                               (range (position))
                               "The '#' character is used for various number representations, such as binary
                                and hexadecimal digits.
 
                                If you're looking for the '#' function, this has been replaced with 'n'. We
                                apologise for the inconvenience."
-                              (range (position)) "# must be followed by x or b")]
+                              (range (position)) "# must be followed by x, b or r")]
                            [(= char "#")
                             (consume!)
                             (logger/do-node-error! logger
-                              "Expected hexadecimal (#x) or binary (#b) digit specifier."
+                              "Expected hexadecimal (#x), binary (#b), or Roman (#r) digit specifier."
                               (range (position))
-                              "The '#' character is used for various number representations, namely binary
-                               and hexadecimal digits."
-                              (range (position)) "# must be followed by x or b")]
+                              "The '#' character is used for various number representations, namely binary,
+                               hexadecimal and roman numbers."
+                              (range (position)) "# must be followed by x, b or r")]
                            [true
                             ;; Parse leading digits
                             (while (between? (string/char-at str (succ offset))  "0" "9")
