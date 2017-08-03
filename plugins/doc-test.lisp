@@ -77,7 +77,7 @@
                            (cond
                              ;; Check we didn't fail.
                              [(! ok)
-                              (_/var-error! v (.. $"Parsing failed for ${k}: ${res}: " (concat buffer "\n")))
+                              (_/var-error! v $"Parsing failed for ${k}: ${res}")
                               (.<! asserts 1 `_/test/pending)]
                              ;; Each line must have exactly one entry
                              [(/= (n res) 1)

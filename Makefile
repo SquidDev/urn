@@ -6,8 +6,13 @@ DOCS_DIR   ?= docs_tmp
 PAGES_DIR  ?= docs
 URN        ?= ${LUA} bin/urn.lua
 
-TESTS     := $(shell find tests -type f -name '*.lisp' ! -name '*-helpers.lisp')
-LIBS      := $(shell find lib -type f -name "*.lisp")
+LIBS       := $(shell find lib -type f -name "*.lisp")
+MAIN_TESTS := $(shell find tests -type f -name '*.lisp' ! -name '*-helpers.lisp')
+DOC_TESTS  := base \
+              function \
+              list \
+              string \
+              type \
 
 ifeq (${TIME},1)
 LUA_FLAGS += --time
@@ -18,11 +23,11 @@ ifeq (${QUIET},1)
 TEST_FLAGS += --quiet
 endif
 
-.PHONY: ${TESTS} all test compiler_test docs
+.PHONY: ${MAIN_TESTS} ${DOC_TESTS} all test compiler_test docs
 
 all: ${OUT_DIR}/urn
 compiler_test: all test
-test: ${TESTS}
+test: ${MAIN_TESTS} ${DOC_TESTS}
 
 ${OBJS}: ${OUT_DIR}/%: urn/%.lisp
 	@mkdir -p $(shell dirname $@)
@@ -32,9 +37,14 @@ ${OUT_DIR}/urn: urn/cli.lisp
 	@mkdir -p $(shell dirname $@)
 	${URN} $^ -o $@ ${LUA_FLAGS} --shebang --chmod
 
-${TESTS}:
+${MAIN_TESTS}:
 	$(eval TMP := $(shell mktemp -d))
 	${URN} $(basename $@) --run -o ${TMP} -- ${TEST_FLAGS}
+	@rm -rf ${TMP}.lisp ${TMP}.lua ${TMP}
+
+${DOC_TESTS}:
+	$(eval TMP := $(shell mktemp -d))
+	${URN} plugins/doc-test --run -o ${TMP} -- ${TEST_FLAGS} $@
 	@rm -rf ${TMP}.lisp ${TMP}.lua ${TMP}
 
 docs:
