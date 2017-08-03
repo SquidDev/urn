@@ -162,10 +162,10 @@
    ### Example:
    ```cl
    > (maybe-map (lambda (x)
-                  (if (even? x)
-                    nil
-                    (succ x)))
-                (range :from 1 :to 10))
+   .              (if (even? x)
+   .                nil
+   .                (succ x)))
+   .            (range :from 1 :to 10))
    out = (2 4 6 8 10)
    ```"
   (let* [(lengths (let* [(out '())]
@@ -192,7 +192,7 @@
    ### Example:
    ```cl
    > (flat-map list '(1 2 3) '(4 5 6))
-   out = 1 4 2 5 3 6
+   out = (1 4 2 5 3 6)
    ```"
   (flatten (apply map fn xss)))
 
@@ -223,7 +223,7 @@
    ### Example:
    ```cl
    > (filter even? '(1 2 3 4 5 6))
-   out = '(2 4 6)
+   out = (2 4 6)
    ```"
   (first (partition p xs)))
 
@@ -234,7 +234,7 @@
    ### Example:
    ```cl
    > (exclude even? '(1 2 3 4 5 6))
-   out = '(1 3 5)
+   out = (1 3 5)
    ```"
   (second (partition p xs)))
 
@@ -273,7 +273,7 @@
 
    ### Example:
    ```
-   > (\\ '(1 2 3) '(1 3 5 7))
+   > (\\\\ '(1 2 3) '(1 3 5 7))
    out = (2)
    ```"
   (filter (lambda (x)
@@ -349,7 +349,7 @@
 
    ### Example:
    ```cl
-   > (prune '(() nil 1 nil () 2))
+   > (prune (list '() nil 1 nil '() 2))
    out = (1 2)
    ```"
   (assert-type! xs list)
@@ -385,7 +385,7 @@
    ### Example:
    ```cl
    > (init (range :from 1 :to 10))
-   out = '(1 2 3 4 5 6 7 8 9)
+   out = (1 2 3 4 5 6 7 8 9)
    ```"
   (assert-type! xs list)
   (slice xs 1 (- (n xs) 1)))
@@ -448,7 +448,7 @@
    ```cl
    > (define list '(1 2 3))
    > (push-cdr! list 4)
-   '(1 2 3 4)
+   out = (1 2 3 4)
    > list
    out = (1 2 3 4)
    ```"
@@ -497,7 +497,6 @@
    ```cl
    > (define list '(1 2 3))
    > (insert-nth! list 2 5)
-   2
    > list
    out = (1 5 2 3)
    ``` "
@@ -510,7 +509,7 @@
 
    ### Example:
    ```cl
-   > (for-each var '(1 2 3) \\
+   > (for-each var '(1 2 3)
    .   (print! var))
    1
    2
