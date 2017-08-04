@@ -83,7 +83,7 @@
 
   (let* [(prefix (.. name "-" (n (.> state :libs)) "/"))
          (lib { :name   name
-                :prefix prefix
+                :prefix name
                 :path   path })
          (contents (self lisp-handle :read "*a"))]
     (self lisp-handle :close)
@@ -121,7 +121,8 @@
            (parsed (parser/parse (.> state :log) lexed))
            (scope (scope/child (.> state :root-scope)))]
       (.<! scope :is-root true)
-      (.<! scope :prefix prefix)
+      (.<! scope :prefix (.. name "/"))
+      (.<! scope :unique-prefix prefix)
       (.<! lib :scope scope)
 
       (timer/stop-timer! (.> state :timer) (.. "[parse] " path))

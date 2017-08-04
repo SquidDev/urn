@@ -8,7 +8,8 @@
   { :parent    parent ;; The parent scope
     :variables {} ;; Lookup of named variables
     :exported  {} ;; Lookup of exported variables. For a given key in exported, variables will have the same value.
-    :prefix (if parent (.> parent :prefix) "") })
+    :prefix (if parent (.> parent :prefix) "")
+    :unique-prefix (if parent (.> parent :unique-prefix) "")})
 
 (defun get (scope name)
   "Lookup NAME in the given scope."
@@ -50,6 +51,7 @@
   (with (var { :tag       kind
                :name      name
                :full-name (.. (.> scope :prefix) name)
+               :unique-name (.. (.> scope :unique-prefix) name)
                :scope     scope
                :const     (/= kind "arg")
                :node      node })

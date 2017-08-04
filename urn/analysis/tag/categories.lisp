@@ -183,7 +183,7 @@
                     [true
                      ;; As we're invoking a known symbol here, we can do some fancy stuff. In this case, we just
                      ;; "inline" anything defined in library meta data (such as arithmetic operators).
-                     (let* [(meta (and (= (.> func :tag) "native") (.> state :meta (.> func :full-name))))
+                     (let* [(meta (and (= (.> func :tag) "native") (.> state :meta (.> func :unique-name))))
                             (meta-ty (type meta))]
                        ;; Obviously metadata only exists for native expressions. We can only emit it if
                        ;; we're in the right context (statements cannot be emitted when we require an expression) and
