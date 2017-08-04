@@ -37,20 +37,23 @@
       (unless (string/starts-with? k "_/")
         (with (docs (-> (or (_/var-docstring v) "")
                       _/parse-docstring
-                      (filter (lambda (x) (and (= (type x) "mono") (string/starts-with? (.> x :whole) "```"))) <>)
+                      (filter (lambda (x) (and (= (type x) "mono")
+                                               (string/starts-with? (.> x :whole) "```")
+                                               (! (string/find (.> x :whole) "^```[^\n]*:no%-test[^\n]*\n")))) <>)
                       (map (cut .> <> :contents) <>)))
           (for-each entry docs
-            (with (lines (string/split entry "\n"))
+            (let [(lines (string/split entry "\n"))
+                  (asserts `(_/test/it ,(.. "has tests for " (.> v :full-name))))]
+              (push-cdr! tests asserts)
               (cond
                 ;; Just do a couple of sanity checks on the code
-                [(empty? lines) (_/var-warning! v "This example is empty.")]
-                [(/= (string/char-at (car lines) 1) ">") (_/var-warning! v "Example is expected to begin with \">\".")]
+                [(empty? lines)
+                 (_/var-warning! v "This example is empty.")
+                 (.<! asserts 1 `_/test/pending)]
                 ;; Everything is OK so let's build a list
                 [true
-                 (let* [(asserts `(_/test/it ,$"has tests for ${k}"))
-                        (subst {})
-                        (i 1)]
-                   (push-cdr! tests asserts)
+                 (let [(subst {})
+                       (i 1)]
                    (loop []
                      [(> i (n lines))]
                      (if (/= (string/char-at (nth lines i) 1) ">")
