@@ -414,10 +414,12 @@
    ### Example:
 
    ```cl
-   > (handler-case \\
+   > (handler-case
    .   (error! \"oh no!\")
    .   [string? (x)
    .    (print! x)])
+   \"oh no!\"
+   out = nil
    ```"
   (let* [(gen-arm (cs exc)
            (destructuring-bind [(?pattern (?arg) . ?body) cs]

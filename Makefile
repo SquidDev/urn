@@ -8,11 +8,7 @@ URN        ?= ${LUA} bin/urn.lua
 
 LIBS       := $(shell find lib -type f -name "*.lisp")
 MAIN_TESTS := $(shell find tests -type f -name '*.lisp' ! -name '*-helpers.lisp')
-DOC_TESTS  := base \
-              function \
-              list \
-              string \
-              type \
+DOC_TESTS  := $(filter-out test_prelude,$(LIBS:lib/%.lisp=test_%))
 
 ifeq (${TIME},1)
 LUA_FLAGS += --time
@@ -23,7 +19,7 @@ ifeq (${QUIET},1)
 TEST_FLAGS += --quiet
 endif
 
-.PHONY: ${MAIN_TESTS} ${DOC_TESTS} all test compiler_test docs
+.PHONY: ${MAIN_TESTS} ${DOC_TESTS} all test compiler_test docs tasks
 
 all: ${OUT_DIR}/urn
 compiler_test: all test
@@ -44,7 +40,7 @@ ${MAIN_TESTS}:
 
 ${DOC_TESTS}:
 	$(eval TMP := $(shell mktemp -d))
-	${URN} plugins/doc-test --run -o ${TMP} -- ${TEST_FLAGS} $@
+	${URN} plugins/doc-test --run -o ${TMP} -- ${TEST_FLAGS} $(@:test_%=%)
 	@rm -rf ${TMP}.lisp ${TMP}.lua ${TMP}
 
 docs:
@@ -61,3 +57,6 @@ publish_docs: docs
 	git commit -m "Update docs"
 	git push origin gh-pages
 	git checkout master
+
+tasks:
+	@$(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$'

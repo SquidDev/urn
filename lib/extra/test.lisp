@@ -78,7 +78,7 @@
          (,time  (any (lambda (,'x) (or (= ,'x "--time") (= ,'x "-t"))) arg))]
      ,@body
 
-     (when (and ,quiet (> ,tests-total 0))
+     (when (and ,quiet (or (> ,tests-total 0) (> (n ,tests-pending) 0)))
        ;; If we've been outputting dots then add a new line
        (print!))
 

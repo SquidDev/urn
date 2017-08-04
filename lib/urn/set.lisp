@@ -90,9 +90,10 @@
   (assert-type! set set)
   (let* [(hash (.> set :hash))
          (out (make-set hash))]
-    (map (lambda (v)
-           (.<! out :data (hash v) v))
-         vals)
+    (for-pairs (k v) (.> set :data)
+      (.<! out :data k v))
+    (for-each v vals
+      (.<! out :data (hash v) v))
     out))
 
 (defun union (a b)
@@ -101,7 +102,7 @@
    ### Example:
    ```cl
    > (union (set-of 1 2 3) (set-of 4 5 6))
-   out = «hash-set 1 2 3 4 5 6»
+   out = «hash-set: 1 2 3 4 5 6»
    ```"
   (assert-type! a set)
   (assert-type! b set)

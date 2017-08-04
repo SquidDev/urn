@@ -7,7 +7,7 @@
    Note that documentation strings and other attributes are not
    preserved, and that the definition must be of the form
 
-   ```
+   ```cl :no-test
    (defun foo (bar) ...)
    ``` "
   (destructuring-bind [(defun ?name ?args . ?body) body]
@@ -26,7 +26,7 @@
    Note that documentation strings and other attributes are not
    preserved, and that the definition must be of the form
 
-   ```
+   ```cl :no-test
    (defun foo (bar) ...)
    ``` "
   (destructuring-bind [(defun ?name ?args . ?body) body]
