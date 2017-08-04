@@ -8,7 +8,7 @@ URN        ?= ${LUA} bin/urn.lua
 
 LIBS       := $(shell find lib -type f -name "*.lisp")
 MAIN_TESTS := $(shell find tests -type f -name '*.lisp' ! -name '*-helpers.lisp')
-DOC_TESTS  := $(filter-out test_prelude,$(LIBS:lib/%.lisp=test_%))
+DOC_TESTS  := $(LIBS:lib/%.lisp=test_%)
 
 ifeq (${TIME},1)
 LUA_FLAGS += --time

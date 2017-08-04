@@ -45,7 +45,13 @@
    parsed.
 
    Optionally takes a BASE which the number is in (such as 16 for
-   hexadecimal)."
+   hexadecimal).
+
+   ### Example:
+   ```cl
+   > (string->number \"23\")
+   out = 23
+   ```"
   tonumber)
 
 (define number->string
@@ -100,7 +106,16 @@
 
 (defun const (x)
   "Return a function which always returns X. This is equivalent to the
-   `K` combinator in SK combinator calculus."
+   `K` combinator in SK combinator calculus.
+
+   ### Example
+   ```cl
+   > (define x (const 1))
+   > (x 2)
+   out = 1
+   > (x \"const\")
+   out = 1
+   ```"
   (lambda (y) x))
 
 (defun call (x key &args)
@@ -108,7 +123,7 @@
   ((.> x key) (unpack args 1 (n args))))
 
 (defun self (x key &args)
-  "Index X with KEY and invoke the resulting function with X and ARGS"
+  "Index X with KEY and invoke the resulting function with X and ARGS."
   ((.> x key) x (unpack args 1 (n args))))
 
 (defun even? (x)
@@ -120,7 +135,25 @@
   (/= (% x 2) 0))
 
 (defmacro inc! (x)
+  "Increments the symbol X by 1.
+
+   ### Example
+   ```cl
+   > (with (x 1)
+   .   (inc! x)
+   .   x)
+   out = 2
+   ```"
   `(set! ,x (succ ,x)))
 
 (defmacro dec! (x)
+  "Decrements the symbol X by 1.
+
+   ### Example
+   ```cl
+   > (with (x 1)
+   .   (dec! x)
+   .   x)
+   out = 0
+   ```"
   `(set! ,x (pred ,x)))

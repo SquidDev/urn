@@ -1,11 +1,44 @@
+"This code block parses and executes all code blocks found within
+ documentation strings for a given module.
+
+ This script should be run as follows:
+
+ ```sh
+ $ bin/urn.lua plugins/doc-test.lisp --run -- list
+ ```
+
+ This will import the `list` library, and use the symbols declared in
+ that library to declare tests. One can also generate tests from
+ re-exported symbols declared in other libraries by passing the
+ `--all` (or `-a`) flag:
+
+ ```sh
+ $ bin/urn.lua plugins/doc-test.lisp --run -- list --all
+ ```
+
+ You can exclude particular code blocks from being tested by appending
+ `:no-test` after the language part of the code block.
+
+ The current implementation has several limitations which will be
+ rectified in the future:
+
+  - Does not test the module-level documentation string (namely this
+    thing).
+
+  - Does not handle standard output ([[print!]] and the like), as it only
+    expects a single line of output.
+
+  - Does not handle results which span multiple lines, such as that found
+    in `extra/do`.
+
+  - Cannot test for expressions which error."
+
 (import compiler/resolve _)
 (import compiler _)
 (import urn/documentation _)
 (import urn/parser _/parser)
 (import extra/test _/test)
 (import extra/assert _/test)
-
-,(string/quoted "hello")
 
 (defun _/var-warning! (var msg)
   :hidden
@@ -28,13 +61,16 @@
      tree]
     [_ tree]))
 
-(defun _/build-vars ()
+(defun _/build-vars (libs)
   :hidden
   (let* [(top-level '())
          (tests `(_/test/describe "The stdlib"))]
 
     (for-pairs (k v) (_/scope-vars)
-      (unless (string/starts-with? k "_/")
+      (when (and (! (string/starts-with? k "_/")) (or (empty? libs)
+                                                      (any (lambda (x)
+                                                             (string/starts-with? (.> v :full-name) (.. x "/")))
+                                                        libs)))
         (with (docs (-> (or (_/var-docstring v) "")
                       _/parse-docstring
                       (filter (lambda (x) (and (= (type x) "mono")
@@ -130,8 +166,10 @@
              (recur (cdr args)))))
 
     (when (empty? args) (fail! "No arguments given to doc-test"))
-    (set! args (filter (lambda (x) (/= (string/char-at x 1) "-")) args))
-
-    (with (gen (map (lambda (x) `(import ,(string->symbol x) ())) args))
-      (push-cdr! gen (list `unquote-splice `(_/build-vars)))
-      gen))
+    (with (libs (filter (lambda (x) (/= (string/char-at x 1) "-")) args))
+      (with (gen (map (lambda (x) `(import ,(string->symbol x) ())) libs))
+        (push-cdr! gen (list `unquote-splice
+                             `(_/build-vars ',(if (or (elem? "--all" args) (elem? "-a" args))
+                                                '()
+                                                libs))))
+        gen)))
