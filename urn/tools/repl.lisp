@@ -297,6 +297,6 @@
   { :name  "exec"
     :setup (lambda (spec)
              (arg/add-argument! spec '("--exec")
-               :help "Execute a program without compiling it."))
+               :help "Execute a program from stdin without compiling it. This acts as if it were input in one go via the REPL."))
     :pred  (lambda (args) (.> args :exec))
     :run   exec })

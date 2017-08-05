@@ -37,7 +37,7 @@
 
   path)
 
-(let* [(spec (arg/create))
+(let* [(spec (arg/create "The compiler and REPL for the Urn programming language."))
        (directory (with (dir (os/getenv "URN_STDLIB"))
                     (if dir
                       (normalise-path dir true)
@@ -68,6 +68,9 @@
                 repl/repl-task))]
   (arg/add-help! spec)
 
+  (arg/add-category! spec "out" "Output"
+    "Customise what is emitted, as well as where and how it is generated.")
+
   (arg/add-argument! spec '("--explain" "-e")
     :help    "Explain error messages in more detail.")
 
@@ -97,6 +100,7 @@
 
   (arg/add-argument! spec '("--output" "--out" "-o")
     :help    "The destination to output to."
+    :cat     "Output"
     :narg    1
     :default "out"
     :action (lambda (arg data value)
