@@ -84,7 +84,7 @@
   :cat '("opt")
   (traverse/traverse-list nodes 1
     (lambda (node)
-      (if (and (list? node) (symbol? (car node)) (= (.> (car node) :var) (.> builtins :cond)))
+      (if (and (list? node) (builtin? (car node) :cond))
         (let* [(final false)
                (i 2)]
           (while (<= i (n node))
@@ -98,6 +98,9 @@
                    (changed!)
                    (remove-nth! node i)]
                   [true
+                   (unless (builtin? (car elem) :true)
+                     (changed!)
+                     (.<! elem 1 (make-symbol (.> builtins :true))))
                    (set! final true)
                    (inc! i)]
                   [nil
