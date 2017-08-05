@@ -19,7 +19,7 @@
       ;; If we have ANSICON defined then we're in a windows prompt which supports ANSI.
       [(and os/getenv (/= (os/getenv "ANSICON") nil)) true]
       ;; Stick to plain text: better safe than sorry.
-      [:else false])))
+      [else false])))
 
 (define colored
   "Color a string MSG using COL if supported under the current terminal"

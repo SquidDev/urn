@@ -196,13 +196,13 @@
            0
            (set! len (+ len 1))))]
       [(meta? pattern) 1]
-      [:else 0])
+      [else 0])
     (+ len correction)))
 
 (defun pattern-# (pat) :hidden
   (cond
     [(cons-pattern? pat) (pattern-length pat -2)]
-    [:else (pattern-length pat 0)]))
+    [else (pattern-length pat 0)]))
 
 (defun predicate? (x) :hidden
   (let* [(x (get-idx x :contents))]
@@ -233,7 +233,7 @@
           (for i 1 (pattern-# pat) 1
             (assert-linearity! (nth pat i) seen))
           (assert-linearity! (get-idx pat (n pat)) seen))]
-       [:else
+       [else
         (let* [(seen '())]
           (for i 1 (n pat) 1
             (assert-linearity! (nth pat i) seen)))])]
@@ -248,7 +248,7 @@
      (if (get-idx seen (get-idx pat :contents))
        (error (.. "pattern is not linear: seen " (pretty pat) " more than once"))
        (set-idx! seen (get-idx pat :contents) true))]
-    [:else true]))
+    [else true]))
 
 (defun compile-pattern-test (pattern symb)
   :hidden
@@ -289,7 +289,7 @@
                   ,@lhs-test
                   ,(compile-pattern-test
                      (last pattern) `(slice ,pattern-sym ,(+ 1 (n lhs)))))))]
-       [:else
+       [else
         (let* [(out '())
                (sym (gensym))]
           (for i 1 (n pattern) 1
@@ -308,12 +308,12 @@
        [(eq? pattern 'false) `(eq? ,symb false)]
        [(eq? pattern 'nil) `(eq? ,symb nil)]
        [(predicate? pattern) `(,pattern ,symb)]
-       [:else `(eq? ,symb ',pattern)])]
+       [else `(eq? ,symb ',pattern)])]
     [(key? pattern)
      `(eq? ,symb ,pattern)]
     [(or (number? pattern) (boolean? pattern) (string? pattern))
      `(= ,symb ,pattern)]
-    [:else (error (.. "unsupported pattern " (pretty pattern)))]))
+    [else (error (.. "unsupported pattern " (pretty pattern)))]))
 
 (defun compile-pattern-bindings (pattern symb) :hidden
   (filter (lambda (x) (/= (n x) 0))
@@ -343,7 +343,7 @@
               (for-each elem (compile-pattern-bindings (nth lhs i) `(nth ,symb ,i))
                 (push-cdr! lhs-bindings elem)))
             (append lhs-bindings (compile-pattern-bindings rhs `(slice ,symb ,(+ 1 (n lhs))))))]
-         [:else
+         [else
           (let* [(out '())]
             (for i 1 (n pattern) 1
               (for-each elem (compile-pattern-bindings (nth pattern i) `(nth ,symb ,i))
@@ -353,7 +353,7 @@
        `((,{ :tag "symbol" :contents (sub (get-idx pattern "contents") 2) } ,symb))]
       [(or (number? pattern) (boolean? pattern) (string? pattern) (key? pattern) (eq? pattern '_) (and (! (meta? pattern)) (symbol? pattern)))
        '()]
-      [:else (error (.. "unsupported pattern " (pretty pattern)))])))
+      [else (error (.. "unsupported pattern " (pretty pattern)))])))
 
 
 (defun compile-pattern (pattern symb body) :hidden
@@ -391,7 +391,7 @@
                  ,@(cdr pt)))))]
     `(let* [(,val-sym ,val)]
        (cond ,@(map compile-arm pts)
-             [:else ,(generate-case-error pts val-sym)]))))
+             [else ,(generate-case-error pts val-sym)]))))
 
 (defmacro matches? (pt x)
   "Test if the value X matches the pattern PT.

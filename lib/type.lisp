@@ -20,7 +20,7 @@
     (cond
       [(= xt "list") (= (n x) 0)]
       [(= xt "string") (= (len# x) 0)]
-      [:else false])))
+      [else false])))
 
 (defun string? (x)
   "Check whether X is a string."
@@ -139,7 +139,7 @@
         [(and (= :string type-x) (= :symbol type-y)) (= x (get-idx y :contents))]
         [(and (= :key type-x)    (= :string type-y)) (= (get-idx x :value) y)]
         [(and (= :string type-x) (= :key type-y))    (= x (get-idx y :value))]
-        [:else false]))))
+        [else false]))))
 
 (defun neq? (x y)
   "Compare X and Y for inequality deeply. X and Y are `neq?`

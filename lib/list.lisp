@@ -26,6 +26,7 @@
               unpack debug if n + - >= > = ! with
               apply and progn .. * while <= < or
               values-list first second))
+
 (import base)
 (import lua/table)
 (import type (nil? list? empty? assert-type! exists? falsey? eq? neq? type))
@@ -255,7 +256,7 @@
                 (cond
                   [(> i len) false]
                   [(p (nth xs i)) true]
-                  [:else (fun (+ i 1))])))
+                  [else (fun (+ i 1))])))
     (fun 1)))
 
 (defun none (p xs)
@@ -296,7 +297,7 @@
           [(nil? (get-idx hm szd))
             (push-cdr! out elm)
             (set-idx! hm szd elm)]
-          [:else])))
+          [else])))
     out))
 
 (defun union (xs ys)
@@ -327,7 +328,7 @@
                 (cond
                   [(> i len) true]
                   [(p (nth xs i)) (fun (+ i 1))]
-                  [:else false])))
+                  [else false])))
     (fun 1)))
 
 (defun elem? (x xs)

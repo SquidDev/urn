@@ -49,7 +49,7 @@
            (list/push-cdr! out (sub text start nstart))
            (set! start (+ nstart 1))]
           ;; Otherwise gobble everything between matches
-          [:else
+          [else
             (list/push-cdr! out (sub text start (- nstart 1)))
             (set! start (+ nend 1))])))
     out))
@@ -86,7 +86,7 @@
     [(and (= (type# x) "table")
           (= (get-idx x :tag) "string"))
      (get-idx x :value)]
-    [:else (pretty x)]))
+    [else (pretty x)]))
 
 (defmacro $ (str)
   "Perform interpolation (variable substitution) on the string STR.
@@ -128,7 +128,7 @@
            (recur (+ i ie)
                   (char-at str (+ i ie))
                   "")]
-          [:else (recur (+ 1 i)
+          [else (recur (+ 1 i)
                    (char-at str (+ 1 i))
                    (.. buf chr))])))
     `(.. ,@sections)))
