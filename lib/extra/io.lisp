@@ -12,9 +12,9 @@
    Returns nil if it failed.
 
    ### Example
-   ```
-   > (read-all! \"hello.txt\")
-   \"Hello, world!\"
+   ```cl
+   > (read-all! \"tests/data/hello.txt\")
+   out = \"Hello, world!\"
    ```"
   (read-all-mode! path false))
 
@@ -23,21 +23,21 @@
    Returns nil if it failed.
 
    ### Example
-   ```
-   > (read-lines! \"lines.txt\")
-   (\"This is the first line.\" \"This is the second.\")
+   ```cl
+   > (read-lines! \"tests/data/lines.txt\")
+   out = (\"This is the first line.\" \"This is the second.\")
    ```"
   (when-with (data (read-all! path))
-    (split data "\n")))
+    (string/split data "\n")))
 
 (defun read-bytes! (path)
   "Reads the data from the file at PATH and returns it as a list of bytes
    (numbers). Returns nil if it failed.
 
    ### Example
-   ```
-   > (read-bytes! \"abc.txt\")
-   (97 98 99)
+   ```cl
+   > (read-bytes! \"tests/data/abc.txt\")
+   out = (97 98 99)
    ```"
   (when-with (data (read-all-mode! path true))
     (letrec [(string->bytes (str idx)
@@ -64,9 +64,9 @@
    does. Returns true if it succeeded or false if it failed.
 
    ### Example
-   ```
-   > (write-all! \"hello.txt\" \"Hello, world!\")
-   true
+   ```cl
+   > (write-all! \"tests/data/hello_.txt\" \"Hello, world!\")
+   out = true
    ```"
   (write-all-mode! path false false data))
 
@@ -77,9 +77,9 @@
    does. Returns true if it succeeded or false if it failed.
 
    ### Example
-   ```
-   > (write-lines! \"lines.txt\" `(\"This is the first line.\" \"This is the second.\"))
-   true
+   ```cl
+   > (write-lines! \"tests/data/lines_.txt\" `(\"This is the first line.\" \"This is the second.\"))
+   out = true
    ```"
   (write-all! path (concat data "\n")))
 
@@ -90,9 +90,9 @@
    does. Returns true if it succeeded or false if it failed.
 
    ### Example
-   ```
-   > (write-bytes! \"abc.txt\" `(97 98 99))
-   true
+   ```cl
+   > (write-bytes! \"tests/data/abc_.txt\" `(97 98 99))
+   out = true
    ```"
   (letrec [(bytes->string (bytes idx)
              (if (> idx (n bytes))
@@ -107,9 +107,9 @@
    Returns true if it succeeded or false if it failed.
 
    ### Example
-   ```
-   > (append-all! \"hello.txt\" \" Some appended text.\")
-   true
+   ```cl
+   > (append-all! \"tests/data/hello_.txt\" \" Some appended text.\")
+   out = true
    ```"
   (write-all-mode! path true false data))
 
@@ -120,9 +120,9 @@
    or false if it failed.
 
    ### Example
-   ```
-   > (append-lines! \"lines.txt\" `(\" Here's another line:\" \"Another line.\"))
-   true
+   ```cl
+   > (append-lines! \"tests/data/lines_.txt\" `(\" Here's another line:\" \"Another line.\"))
+   out = true
    ```"
   (append-all! path (concat data "\n")))
 
@@ -133,9 +133,9 @@
    or false if it failed.
 
    ### Example
-   ```
-   > (append-bytes! \"abc.txt\" `(100 101 102))
-   true
+   ```cl
+   > (append-bytes! \"tests/data/abc_.txt\" `(100 101 102))
+   out = true
    ```"
   (letrec [(bytes->string (bytes idx)
              (if (> idx (n bytes))

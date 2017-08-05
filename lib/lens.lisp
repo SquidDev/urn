@@ -49,16 +49,16 @@
  > (over head succ list-example)
  out = '(2 2 3 4 5 6 7 8 9 10)
  ```
- 
+
  Notice that [[over]] doesn't just return the new head, but the a copy
  of the existing list with the new head in place.
- 
+
  Again, lenses don't seem very useful until you learn the other property
  that they all have in common: _composition_. Lenses, you see, are like
  functions: You can take two and [[<>]] them together, producing a lens
  that [[view]]s and modifies (with [[over]]) a inner piece of the data
  structure.
- 
+
  For example, by composing `head` and `tail`, you may focus on the second
  element of a list using `(<> head tail)`, or the tail of the first
  element of a list (given that element itself is a list itself) using
@@ -293,7 +293,7 @@
 
    Example:
    ```cl
-   > (view (traverse (at 3)) '((1 2 3) (4 5 6)))
+   > (view (traversing (at 3)) '((1 2 3) (4 5 6)))
    out = (3 6)
    ```"
   (lens (lambda (x)

@@ -34,9 +34,10 @@
 
    ### Example
    ```cl
-   (let* [(foo 1)
-          (bar (+ foo 1))]
-     foo
+   > (let* [(foo 1)
+   .        (bar (+ foo 1))]
+   .   bar)
+   out = 2
    ```"
   (base/with (len (n vars))
     (cond
@@ -58,9 +59,10 @@
 
    ### Example
    ```cl
-   (let [(foo 1)
-         (bar 2)]
-     (+ foo bar))
+   > (let [(foo 1)
+   .       (bar 2)]
+   .   (+ foo bar))
+   out = 3
    ```"
   `((lambda ,(cars vars)
       ,@body)
@@ -71,15 +73,17 @@
    evaluating BODY.
 
    ```cl
-   (when-let [(foo 1)
-              (bar nil)]
-     foo)
+   > (when-let [(foo 1)
+   .            (bar nil)]
+   .   foo)
+   out = nil
    ```
    Does not evaluate `foo`, while
    ```
-   (when-let [(foo 1)
-              (bar 2)]
-     (+ foo bar))
+   > (when-let [(foo 1)
+   .            (bar 2)]
+   .   (+ foo bar))
+   out = 3
    ```
    does."
   `((lambda ,(cars vars)
@@ -94,10 +98,11 @@
 
    ### Example
    ```cl
-   (when-let* [(foo 1)
-               (bar nil)
-               (baz 2)
-     (+ foo baz))
+   > (when-let* [(foo 1)
+   .             (bar nil)
+   .             (baz 2)]
+   .   (+ foo baz))
+   out = nil
    ```
 
    Since `1` is truthy, it is evaluated and bound to `foo`, however,
@@ -116,8 +121,8 @@
 
    ### Example
    ```cl
-   (when-with (foo (get-idx bar :baz))
-      (print! foo))
+   > (when-with (foo (.> bar :baz))
+   .   (print! foo))
    ```
 
    When `bar` has an index `baz`, it will be bound to `foo` and
@@ -138,13 +143,13 @@
    ### Example
    ```
    > (letrec [(is-even? (lambda (n)
-                          (or (= 0 n)
-                              (is-odd? (pred n)))))
-              (is-odd? (lambda (n)
-                         (and (! (= 0 n))
-                              (is-even? (pred n)))))]
-       (is-odd? 11))
-   true
+   .                        (or (= 0 n)
+   .                            (is-odd? (pred n)))))
+   .            (is-odd? (lambda (n)
+   .                       (and (! (= 0 n))
+   .                            (is-even? (pred n)))))]
+   .     (is-odd? 11))
+   out = true
    ```"
   `((lambda ,(cars vars)
       ,@(map make-setting vars)
@@ -154,7 +159,7 @@
   `((or (and (getmetatable ,x)
             (get-idx (getmetatable ,x) :--finalise))
        (get-idx ,x :close)
-       (lambda ()))))
+       (lambda ())), x))
 
 (defmacro use (var &body)
   "Bind each variable in VAR, checking for truthyness between bindings,
@@ -170,9 +175,10 @@
 
    ### Example:
    ```
-   > (use [(file (io/open \"temp\"))] \\
+   > (use [(file (io/open \"tests/data/hello.txt\"))]
    .   (print! (self file :read \"*a\")))
-   *contents of temp*
+   \"Hello, world!\"
+   out = nil
    ```"
   `(when-let* ,var
      ,@body
@@ -182,12 +188,12 @@
 (defmacro loop (vs test &body)
   "A general iteration helper.
 
-   ```cl
-   (loop [(var0 val0)
-          (var1 val1)
-          ...]
-     [test test-body ...]
-     body ...)
+   ```cl :no-test
+   > (loop [(var0 val0)
+   .        (var1 val1)
+   .        ...]
+   .   [test test-body ...]
+   .   body ...)
    ```
 
    Bind all the variables given in VS. Each iteration begins by
@@ -203,7 +209,7 @@
 
    ```cl
    > (loop [(o '())
-            (l '(1 2 3))]
+   .        (l '(1 2 3))]
    .   [(empty? l) o]
    .   (recur (cons (car l) o) (cdr l)))
    out = (3 2 1)

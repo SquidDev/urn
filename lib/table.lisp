@@ -101,16 +101,17 @@
    contrast to variations of [[let]], the pairs are given \"unpacked\":
    Instead of invoking
 
-   ```cl
+   ```cl :no-test
    (struct [(:foo bar)])
    ```
    or
-   ```cl
+   ```cl :no-test
    (struct {:foo bar})
    ```
    you must instead invoke it like
    ```cl
-   (struct :foo bar)
+   > (struct :foo \"bar\")
+   out = {\"foo\" \"bar\"}
    ```"
   (when (= (% (n entries) 2) 1)
     (error "Expected an even number of arguments to struct" 2))

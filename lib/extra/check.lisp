@@ -57,11 +57,11 @@
 
    ### Example:
    ```
-   > (check [(number a)] \\
+   > (check [(number a)]
    .   (= a a))
    (= a a) passed 100 tests.
    nil
-   > (check [(number a)] \\
+   > (check [(number a)]
    .   (= a (+ 1 a)))
    (= a (+ 1 a)) falsified after 1 iteration(s)
    falsifying set of values:
@@ -127,8 +127,9 @@
 
    Example:
    ```cl
-   (check [(number a)]
-     (tripping tonumber tostring))
+   > (check [(number a)]
+   .   (tripping tonumber tostring a))
+   out = true
    ```"
   (let* [(y (gensym))]
     `(let* [(,y ,x)]
@@ -139,8 +140,9 @@
 
    Example:
    ```cl
-   (check [(number a)]
-     (=:= id (compose id id) a))
+   > (check [(number a)]
+   .   (=:= id (compose id id) a))
+   out = true
    ```"
   (let* [(y (gensym))]
     `(let* [(,y ,x)]
@@ -156,7 +158,8 @@
    name.
    Example:
    ```cl
-   (forall a (eq? a (id a)))
+   > (forall a (eq? a (id a)))
+   out = true
    ```"
   (let* [(v (if (list? var)
               var

@@ -4,7 +4,7 @@
   "The primary tokens for the documentation string"
   :hidden
   '(("arg"    "(%f[%a]%u+%f[%A])")
-    ("mono"   "```[a-z]*\n([^`]*)\n```")
+    ("mono"   "```[^\n]*\n(.-)\n```")
     ("mono"   "`([^`]*)`")
     ("bolic"  "(%*%*%*%w.-%w%*%*%*)")
     ("bold"   "(%*%*%w.-%w%*%*)")

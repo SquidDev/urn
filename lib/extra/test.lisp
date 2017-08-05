@@ -78,17 +78,17 @@
          (,time  (any (lambda (,'x) (or (= ,'x "--time") (= ,'x "-t"))) arg))]
      ,@body
 
-     (when (and ,quiet (> ,tests-total 0))
+     (when (and ,quiet (or (> ,tests-total 0) (> (n ,tests-pending) 0)))
        ;; If we've been outputting dots then add a new line
        (print!))
 
      ;; Display a summary of all tests
      (print! (string/format "%d (%.2f%%) out of %d passed, %d (%.2f%%) out of %d failed"
-               (n ,tests-passed) (* 100 (/ (n ,tests-passed) ,tests-total)) ,tests-total
-               (n ,tests-failed) (* 100 (/ (n ,tests-failed) ,tests-total)) ,tests-total))
+               (n ,tests-passed) (if (= ,tests-total 0) 100 (* 100 (/ (n ,tests-passed) ,tests-total))) ,tests-total
+               (n ,tests-failed) (if (= ,tests-total 0) 0   (* 100 (/ (n ,tests-failed) ,tests-total))) ,tests-total))
 
      ;; We don't care about successful tests when quiet
-     (unless ,quiet
+     (unless (or ,quiet (empty? ,tests-passed))
        (print! (string/format "%s (%d)" (colored 32 "- Passed tests:") (n ,tests-passed)))
        (for-each ,'passed ,tests-passed
          (print! (.. (colored 32 "+ ") ,'passed))))
