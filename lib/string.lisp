@@ -1,6 +1,6 @@
 (import base (defun getmetatable if n progn with for tostring len#
               type# >= > < <= = /= + - car or and list when set-idx!
-              get-idx getmetatable while .. pretty defmacro debug))
+              get-idx getmetatable while .. pretty defmacro debug else))
 (import base (concat) :export)
 (import list)
 (import binders (loop let*))

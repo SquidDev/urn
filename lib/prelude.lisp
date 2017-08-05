@@ -2,7 +2,7 @@
               or xpcall pretty pcall values-list gensym tostring tonumber
               require => <=> unpack list when unless arg apply for-pairs first
               second third fourth fifth sixth seventh ninth tenth + - * / % ^ !
-              .. n debug) :export)
+              .. n debug else) :export)
 (import base)
 (import string (format concat $) :export)
 (import binders () :export)

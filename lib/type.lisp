@@ -1,4 +1,4 @@
-(import base (defun let* type# if car cdr when
+(import base (defun let* type# if car cdr when else
               and or >= = <= /= n get-idx for-pairs
               defmacro for error gensym ! len# pretty))
 

@@ -7,7 +7,7 @@
  A literal pattern matches only if the scrutinee (what's being matched)
  compares [[eql?]] to the literal. One can use any Urn atom here:
  strings, numbers, keys and symbols.
-
+ 
  Note that the `true`, `false` and `nil` symbols will match against their
  *values*, whilst other symbols will match against a symbol object.
 
@@ -22,8 +22,8 @@
 
  ### Wildcards and captures
  If one does not require a value to take a particular form, you can use a
- wildcard (`_`). This will match anything, discarding its value. This is
- often useful as the last expression in a [[case]], where you need to
+ wildcard (`_` or `else`). This will match anything, discarding its value. This
+ is often useful as the last expression in a [[case]], where you need to
  handle any remaining forms.
 
  If you wish to use this value, you should use a capture, or
@@ -162,7 +162,7 @@
                and gensym error for set-idx!
                quasiquote list or pretty
                slice concat debug apply
-               /= n = ! - + / * >= <= % .. ))
+               /= n = ! - + / * >= <= % .. else ))
 (import type ())
 (import list ( car caddr cadr cdr append for-each
                map filter push-cdr! range snoc
@@ -238,7 +238,8 @@
           (for i 1 (n pat) 1
             (assert-linearity! (nth pat i) seen)))])]
     [(or (and (! (meta? pat)) (symbol? pat))
-         (and (symbol? pat) (eq? pat '_))
+         (and (symbol? pat) (or (eq? pat '_)
+                                (eq? pat 'else)))
          (number? pat)
          (string? pat)
          (boolean? pat)
@@ -300,7 +301,7 @@
                   (>= (n ,sym) ,(pattern-length pattern 0))
                   (<= (n ,sym) ,(n pattern))
                   ,@out)))])]
-    [(or (eq? '_ pattern) (meta? pattern))
+    [(or (eq? 'else pattern) (eq? '_ pattern) (meta? pattern))
      `true]
     [(and (! (meta? pattern)) (symbol? pattern))
      (cond

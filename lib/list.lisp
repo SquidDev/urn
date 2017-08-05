@@ -21,7 +21,7 @@
    thing."
 
 (import base (defun defmacro when unless let* set-idx!
-              get-idx for gensym -or slice /= %
+              get-idx for gensym -or slice /= % else
               pretty print error tostring  -and
               unpack debug if n + - >= > = ! with
               apply and progn .. * while <= < or

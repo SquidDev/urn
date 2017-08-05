@@ -1,5 +1,5 @@
 (import base b)
-(import base (defun defmacro gensym and n with let* if get-idx list ..))
+(import base (defun defmacro gensym and n with let* if get-idx list .. else))
 
 (defun mk-quote (a) :hidden (list `unquote a))
 (defun mk-splice-quote (a) :hidden (list `unquote-splice a))

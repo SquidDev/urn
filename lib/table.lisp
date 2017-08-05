@@ -1,6 +1,6 @@
 (import base (defmacro defun let* when if list unless debug gensym slice
               progn get-idx set-idx! error = /= % - + n or for for-pairs
-              with ! apply))
+              with ! apply else))
 (import lua/string (sub))
 (import lua/basic (getmetatable setmetatable next len#) :export)
 (import type (empty? list? eq? key?))
