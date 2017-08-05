@@ -52,8 +52,8 @@
        [(= (.> builtins :true)  (.> node :var)) true]
        [(= (.> builtins :false) (.> node :var)) false]
        [(= (.> builtins :nil)   (.> node :var)) false]
-       [true nil])]
-    [true nil]))
+       [:else nil])]
+    [:else nil]))
 
 (defun make-progn (body)
   "Allow using BODY as an expression."
@@ -91,7 +91,7 @@
   (cond
     [(> i (n li)) true]
     [(fn (nth li i)) (fast-all fn li (+ i 1))]
-    [true false]))
+    [:else false]))
 
 (defun fast-any (fn li i)
   "A fast implementation of any which starts from an offset.
@@ -101,4 +101,4 @@
   (cond
     [(> i (n li)) false]
     [(fn (nth li i)) true]
-    [true (fast-any fn li (+ i 1))]))
+    [:else (fast-any fn li (+ i 1))]))
