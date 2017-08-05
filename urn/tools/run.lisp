@@ -285,41 +285,51 @@
 (define task
   { :name  "run"
     :setup (lambda (spec)
+             (arg/add-category! spec "run" "Running files"
+               "Provides a way to running the compiled script, along with various extensions such as profiling tools.")
              (arg/add-argument! spec '("--run" "-r")
-               :help "Run the compiled code.")
+               :help "Run the compiled code."
+               :cat  "run")
+             (arg/add-argument! spec '("--")
+               :name    "script-args"
+               :cat     "run"
+               :help    "Arguments to pass to the compiled script."
+               :var     "ARG"
+               :all     true
+               :default '()
+               :action  arg/add-action
+               :narg    "*")
              (arg/add-argument! spec '("--profile" "-p")
                :help    "Run the compiled code with the profiler."
+               :cat     "run"
                :var     "none|call|stack"
                :default nil
                :value   "stack"
                :narg    "?")
              (arg/add-argument! spec '("--stack-kind")
                :help    "The kind of stack to emit when using the stack profiler. A reverse stack shows callers of that method instead."
+               :cat     "run"
                :var     "forward|reverse"
                :default "forward"
                :narg    1)
              (arg/add-argument! spec '("--stack-show")
                :help    "The method to use to display the profiling results."
+               :cat     "run"
                :var     "flame|term"
                :default "term"
                :narg    1)
              (arg/add-argument! spec '("--stack-limit")
                :help    "The maximum number of call frames to emit."
+               :cat     "run"
                :var     "LIMIT"
                :default nil
                :action  arg/set-num-action
                :narg    1)
              (arg/add-argument! spec '("--stack-fold")
                :help    "Whether to fold recursive functions into themselves. This hopefully makes deep graphs easier to understand, but may result in less accurate graphs."
+               :cat     "run"
                :value   true
-               :default false)
-             (arg/add-argument! spec '("--")
-               :name    "script-args"
-               :help    "Arguments to pass to the compiled script."
-               :var     "ARG"
-               :all     true
-               :default '()
-               :action  arg/add-action
-               :narg    "*"))
+               :default false))
+
     :pred  (lambda (args) (or (.> args :run) (.> args :profile)))
     :run   run-lua })

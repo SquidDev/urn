@@ -23,11 +23,14 @@
    (parse! spec))
  ```"
 
+(import extra/term (colored))
+
 (defun create (description)
   "Create a new argument parser"
   { :desc      description
     :flag-map  {}
     :opt-map   {}
+    :cats      '()
     :opt       '()
     :pos       '() })
 
@@ -74,7 +77,9 @@
       value.
     - `:many`: Whether you can specify this argument multiple times.
     - `:all`: Whether this will consume all values, including those
-      starting with `-`."
+      starting with `-`.
+    - `:cat`: The \"category\" this argument belongs to. This must be one
+      added by [[add-category!]]."
   (assert-type! names list)
   (when (empty? names) (error! "Names list is empty"))
   (unless (= (% (n options) 2) 0) (error! "Options list should be a multiple of two"))
@@ -141,7 +146,16 @@
                (help! spec)
                (exit! 0))))
 
-(defun help-narg! (buffer arg)
+(defun add-category! (spec id name description)
+  "Add a new category with the given ID, display NAME and an optional DESCRIPTION."
+  (assert-type! id string)
+  (assert-type! name string)
+  (push-cdr! (.> spec :cats) { :id   id
+                               :name name
+                               :desc description })
+  spec)
+
+(defun usage-narg! (buffer arg)
   "Append the narg doc of ARG to the BUFFER."
   :hidden
   (case (.> arg :narg)
@@ -157,10 +171,10 @@
   (with (usage (list "usage: " name))
     (for-each arg (.> spec :opt)
       (push-cdr! usage (.. " [" (car (.> arg :names))))
-      (help-narg! usage arg)
+      (usage-narg! usage arg)
       (push-cdr! usage "]"))
 
-    (for-each arg (.> spec :pos) (help-narg! usage arg))
+    (for-each arg (.> spec :pos) (usage-narg! usage arg))
 
     (print! (concat usage))))
 
@@ -169,6 +183,17 @@
   (usage! spec name)
   (print! error)
   (exit! 1))
+
+(defun help-args! (pos opt format)
+  "Display the help of positional (POS) and optional (OPT) arguments, using
+   the given FORMAT string."
+  :hidden
+  (unless (and (empty? pos) (empty? opt))
+    (print!)
+    (for-each arg pos
+      (print! (string/format format (.> arg :var) (.> arg :help))))
+    (for-each arg opt
+      (print! (string/format format (concat (.> arg :names) ", ") (.> arg :help))))))
 
 (defun help! (spec name)
   "Display the help for the argument parser as defined in SPEC."
@@ -188,17 +213,19 @@
         (when (> len max) (set! max len))))
 
     (with (fmt (.. " %-" (number->string (+ max 1)) "s %s"))
-      (unless (empty? (.> spec :pos))
-        (print!)
-        (print! "Positional arguments")
-        (for-each arg (.> spec :pos)
-          (print! (string/format fmt (.> arg :var) (.> arg :help)))))
+      (help-args!
+        (filter (lambda (x) (= (.> x :cat) nil)) (.> spec :pos))
+        (filter (lambda (x) (= (.> x :cat) nil)) (.> spec :opt))
+        fmt)
 
-      (unless (empty? (.> spec :opt))
+      (for-each cat (.> spec :cats)
         (print!)
-        (print! "Optional arguments")
-        (for-each arg (.> spec :opt)
-          (print! (string/format fmt (concat (.> arg :names) ", ") (.> arg :help))))))))
+        (print! (colored "4" (.> cat :name)))
+        (when-with (desc (.> cat :desc)) (print! desc))
+        (help-args!
+          (filter (lambda (x) (= (.> x :cat) (.> cat :id))) (.> spec :pos))
+          (filter (lambda (x) (= (.> x :cat) (.> cat :id))) (.> spec :opt))
+          fmt)))))
 
 (defun matcher (pattern)
   "A utility function which creates a lambda to check if PATTERN matches

@@ -13,13 +13,16 @@
   { :name  "emit-lua"
     :setup (lambda (spec)
              (arg/add-argument! spec '("--emit-lua")
-               :help   "Emit a Lua file.")
+               :help   "Emit a Lua file."
+               :cat    "out")
              (arg/add-argument! spec '("--shebang")
-               :value   (or (.> arg -1) (.> arg 0) "lua")
                :help    "Set the executable to use for the shebang."
+               :cat     "out"
+               :value   (or (.> arg -1) (.> arg 0) "lua")
                :narg    "?")
              (arg/add-argument! spec '("--chmod")
-               :help    "Run chmod +x on the resulting file"))
+               :help    "Run chmod +x on the resulting file"
+               :cat     "out"))
     :pred  (lambda (args) (.> args :emit-lua))
     :run   (lambda (compiler args)
              (when (empty? (.> args :input))
@@ -42,7 +45,8 @@
   { :name  "emit-lisp"
     :setup (lambda (spec)
              (arg/add-argument! spec '("--emit-lisp")
-               :help "Emit a Lisp file."))
+               :help "Emit a Lisp file."
+               :cat  "out"))
     :pred  (lambda (args) (.> args :emit-lisp))
     :run   (lambda (compiler args)
              (when (empty? (.> args :input))
@@ -117,8 +121,11 @@
 (define optimise
   { :name  "optimise"
     :setup (lambda (spec)
+             (arg/add-category! spec "optimise" "Optimisation"
+               "Various controls for how the source code is optimised.")
              (arg/add-argument! spec '("--optimise" "-O")
                :help    "Either the optimisation level to use or an enable/disable flag for a pass."
+               :cat     "optimise"
                :default 1
                :narg    1
                :var     "LEVEL"
@@ -126,11 +133,13 @@
                :action  pass-arg)
              (arg/add-argument! spec '("--optimise-n" "--optn")
                :help    "The maximum number of iterations the optimiser should run for."
+               :cat     "optimise"
                :default 10
                :narg    1
                :action  arg/set-num-action)
              (arg/add-argument! spec '("--optimise-time" "--optt")
                :help    "The maximum time the optimiser should run for."
+               :cat     "optimise"
                :default -1
                :narg    1
                :action  arg/set-num-action))

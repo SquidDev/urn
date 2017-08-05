@@ -26,6 +26,7 @@
     :setup (lambda (spec)
              (arg/add-argument! spec '("--docs")
                :help    "Specify the folder to emit documentation to."
+               :cat     "out"
                :default nil
                :narg    1))
     :pred  (lambda (args) (/= nil (.> args :docs)))
