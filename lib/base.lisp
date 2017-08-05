@@ -352,6 +352,11 @@
                      out))
            1 ,(n xs)))
 
+(define else
+  "[[else]] is defined as having the value `true`. Use it as the
+   last case in a `cond` expression to increase readability."
+  true)
+
 ,@(let* [(out '())
          (ns '(first second third
                fourth fifth sixth
