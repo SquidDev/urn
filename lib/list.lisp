@@ -255,7 +255,7 @@
                 (cond
                   [(> i len) false]
                   [(p (nth xs i)) true]
-                  [true (fun (+ i 1))])))
+                  [:else (fun (+ i 1))])))
     (fun 1)))
 
 (defun none (p xs)
@@ -296,7 +296,7 @@
           [(nil? (get-idx hm szd))
             (push-cdr! out elm)
             (set-idx! hm szd elm)]
-          [true])))
+          [:else])))
     out))
 
 (defun union (xs ys)
@@ -327,7 +327,7 @@
                 (cond
                   [(> i len) true]
                   [(p (nth xs i)) (fun (+ i 1))]
-                  [true false])))
+                  [:else false])))
     (fun 1)))
 
 (defun elem? (x xs)

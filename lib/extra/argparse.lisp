@@ -95,7 +95,7 @@
         [(= (string/sub first 1 1) "-")
          (push-cdr! (.> spec :opt) result)
          (.<! result :name (string/sub first 2))]
-        [true
+        [:else
          (.<! result :name first)
          (.<! result :narg "*")
          (.<! result :default '())
@@ -108,7 +108,7 @@
          (.<! spec :opt-map (string/sub name 3) result)]
         [(= (string/sub name 1 1) "-")
          (.<! spec :flag-map (string/sub name 2) result)]
-        [true]))
+        [:else]))
 
     ;; Read the options
     (for i 1 (n options) 2
@@ -228,7 +228,7 @@
                            (cond
                              [(= elem nil) (usage! (.. "Expected " (.> arg :var) " after --" key ", got nothing"))]
                              [(and (! (.> arg :all)) (string/find elem "^%-")) (usage! (.. "Expected " (.> arg :var) " after --" key ", got " (nth args idx)))]
-                             [true (action arg elem)]))
+                             [:else (action arg elem)]))
                          ;; Try to consume as many additonal tokens as possible
                          (with (running true)
                            (while running
@@ -237,7 +237,7 @@
                                (cond
                                  [(= elem nil) (set! running false)]
                                  [(and (! (.> arg :all)) (string/find elem "^%-")) (set! running false)]
-                                 [true (action arg elem)]))))]
+                                 [:else (action arg elem)]))))]
                         ["*"
                          ;; Try to consume as many as possible
                          (with (running true)
@@ -247,7 +247,7 @@
                                (cond
                                  [(= elem nil) (set! running false)]
                                  [(and (! (.> arg :all)) (string/find elem "^%-")) (set! running false)]
-                                 [true (action arg elem)]))))]
+                                 [:else (action arg elem)]))))]
                         ["?"
                          (inc! idx)
                          (with (elem (nth args idx))
@@ -266,7 +266,7 @@
                              (cond
                                [(= elem nil) (usage! (.. "Expected " cnt " args for " key ", got " (pred i)))]
                                [(and (! (.> arg :all)) (string/find elem "^%-")) (usage! (.. "Expected " cnt " for " key ", got " (pred i)))]
-                               [true (action arg elem)])))
+                               [:else (action arg elem)])))
                          (inc! idx)])))]
     (while (<= idx len)
       (case (nth args idx)
@@ -278,7 +278,7 @@
              [(and (! (.> arg :many)) (/= nil (.> result (.> arg :name))))
               ;; If we've already got a value and this doesn't accept many then fail.
               (usage! (.. "Too may values for " key " in " (nth args idx)))]
-             [true
+             [:else
               (with (narg (.> arg :narg))
                 (when (and (number? narg) (/= narg 1))
                   (usage! (.. "Expected " (number->string narg) " values, got 1 in " (nth args idx)))))
@@ -297,7 +297,7 @@
               (usage! (.. "Too may values for " key " in " (nth args idx)))]
 
              ;; Attempt to consume the correct number of arguments after this one.
-             [true (read-args key arg)]))]
+             [:else (read-args key arg)]))]
         [((matcher "^%-(.+)$") -> (?flags))
          (let* [(i 1)
                 (s (n flags))]
@@ -310,12 +310,12 @@
                  [(and (! (.> arg :many)) (/= nil (.> result (.> arg :name))))
                   ;; If we've already got a value and this doesn't accept many then fail.
                   (usage! (.. "Too many occurances of " key " in " (nth args idx)))]
-                 [true
+                 [:else
                    (with (narg (.> arg :narg))
                      (cond
                        [(= i s) (read-args key arg)]
                        [(= narg 0) (action arg (.> arg :value))]
-                       [true
+                       [:else
                         ;; Read the rest of this flag as an argument (for instance -W0).
                         (action arg (string/sub flags (succ i)))
                         (set! i (succ s))

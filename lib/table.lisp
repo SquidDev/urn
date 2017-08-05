@@ -16,7 +16,7 @@
      or-val]
     [(eq? (caar list) key)
      (cadar list)]
-    [true (assoc (cdr list) key or-val)]))
+    [:else (assoc (cdr list) key or-val)]))
 
 (defun assoc? (list key)
   "Check that KEY is bound in the association list LIST."
@@ -26,7 +26,7 @@
      false]
     [(eq? (caar list) key)
      true]
-    [true (assoc? (cdr list) key)]))
+    [:else (assoc? (cdr list) key)]))
 
 (defun insert (list_ key val)
   "Extend the association list LIST_ by inserting VAL, bound to the key
@@ -52,7 +52,7 @@
       (lambda (x)
         (let [(hd (cond
                     [(key? (car x)) (get-idx (car x) "value")]
-                    [true (car x)]))]
+                    [:else (car x)]))]
           (if (! (get-idx ret hd))
             (set-idx! ret hd (cadr x))
             nil)))

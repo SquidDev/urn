@@ -49,7 +49,7 @@
            (list/push-cdr! out (sub text start nstart))
            (set! start (+ nstart 1))]
           ;; Otherwise gobble everything between matches
-          [true
+          [:else
             (list/push-cdr! out (sub text start (- nstart 1)))
             (set! start (+ nend 1))])))
     out))
@@ -128,7 +128,7 @@
            (recur (+ i ie)
                   (char-at str (+ i ie))
                   "")]
-          [true (recur (+ 1 i)
+          [:else (recur (+ 1 i)
                    (char-at str (+ 1 i))
                    (.. buf chr))])))
     `(.. ,@sections)))

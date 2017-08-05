@@ -50,7 +50,7 @@
     (cond
       [(= (type# x) "table")
        (get-idx x "n")]
-      [true (len# x)])))
+      [:else (len# x)])))
 
 (define slice
   "Take a slice of XS, with all values at indexes between START and FINISH (or the last
@@ -59,7 +59,7 @@
     ;; Ensure finish isn't nil
     (cond
       [finish]
-      [true
+      [:else
        (set! finish (get-idx xs :n))
        (cond [finish] [true (set! finish (len# xs))])])
 
@@ -70,7 +70,7 @@
                      [(<= j finish)
                       (set-idx! out i (get-idx xs j))
                       (lam out (+ i 1) (+ j 1))]
-                     [true out])))
+                     [:else out])))
 
        (cond [(< len 0) (set! len 0)] [true])
        (lam { :tag "list" :n len } 1 start)) (+ (- finish start) 1))))

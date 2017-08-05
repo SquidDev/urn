@@ -42,7 +42,7 @@
               ; handler anyway
               [(= (type body) "continuation") (.> body :thread)]
               [(= (type body) "function") (c/create body)]
-              [true (error! (.. "expected a coroutine or a function, got " (type body)))]))
+              [:else (error! (.. "expected a coroutine or a function, got " (type body)))]))
          (last-res nil)]
     (loop [(k k)
            (res nil)]
@@ -165,7 +165,7 @@
      (/= (c/status k) "dead")]
     [(function? k)
      true]
-    [true false]))
+    [:else false]))
 
 
 (defmacro block (&body)

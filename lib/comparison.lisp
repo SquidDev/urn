@@ -25,7 +25,7 @@
        (with (,len (n ,rest))
          (cond
            [(b/= ,len 0) `(,,func-name ,,(mk-quote a) ,,(mk-quote b))]
-           [true
+           [:else
             (with (,sym (gensym))
               ;; If we've got multiple values then cache b, as that will be reused in the next operator
               `(with (,,(mk-quote sym) ,,(mk-quote b))

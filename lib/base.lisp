@@ -21,19 +21,19 @@
          (builtin/lambda (i body)
            (cond
              [(< i 1) `(builtin/lambda (unquote argument-names) ,@body)]
-             [true
+             [:else
               ((builtin/lambda (k)
                  (cond
                    [(cond
                       [(= (type# (get-idx ll i)) "table") (= (get-idx (get-idx ll i) :n) 2)]
-                      [true false])
+                      [:else false])
                     (recur
                       (- i 1)
                       `(((builtin/lambda (,(get-idx k 1)) ,@body)
                           (cond
                             [(= ,(get-idx k 1) nil) ,(get-idx k 2)]
-                            [true ,(get-idx k 1)]))))]
-                   [true (recur (- i 1) body)]))
+                            [:else ,(get-idx k 1)]))))]
+                   [:else (recur (- i 1) body)]))
                 ;; Binding for k
                 (get-idx ll i))])))
        (recur (get-idx ll :n) body))
@@ -46,11 +46,11 @@
                   (cond
                     [(cond
                        [(= (type# (get-idx ll i)) "table") (= (get-idx (get-idx ll i) :n) 2)]
-                       [true false])
+                       [:else false])
                      (get-idx (get-idx ll i) 1)]
-                    [true (get-idx ll i)]))
+                    [:else (get-idx ll i)]))
                 (recur (+ i 1))]
-               [true nil])))
+               [:else nil])))
          (recur 1)
          (set-idx! out :n (get-idx ll :n))
          out)
@@ -76,8 +76,8 @@
          [(= (get-idx (car body) "tag") "key")
           (copy-meta `(,@header ,(car body)) args (cdr body))]
          ;; Simply splice everything together into our final definition
-         [true `(,@header (lambda ,args ,@body))])]
-      [true `(,@header (lambda ,args ,@body))])))
+         [:else `(,@header (lambda ,args ,@body))])]
+      [:else `(,@header (lambda ,args ,@body))])))
 
 (define-macro defun
   "Define NAME to be the function given by (lambda ARGS @BODY), with
@@ -123,7 +123,7 @@
     (cond
       [(= (n vars) 0) `((lambda () ,@body))]
       [(= (n vars) 1) `((lambda (,(car (car vars))) ,@body) ,(get-idx (car vars) 2))]
-      [true           `((lambda (,(car (car vars)))
+      [:else           `((lambda (,(car (car vars)))
                           (let* ,(cdr vars) ,@body))
                          ,(get-idx (car vars) 2))])))
 
@@ -141,7 +141,7 @@
             false)
          (set! name (.. "_" (get-idx name :contents)))]
         [name (set! name (.. "_" name))]
-        [true (set! name "")])
+        [:else (set! name "")])
       (set! counter (+ counter 1))
       { :tag "symbol"
         :display-name "temp"
@@ -163,7 +163,7 @@
                        [(if (< 0 ,step) (<= ,ctr' ,end') (>= ,ctr' ,end'))
                         (let* ((,ctr ,ctr')) ,@body)
                         (,impl (+ ,ctr' ,step'))]
-                       [true])))
+                       [:else])))
        (,impl ,start))))
 
 (defmacro while (check &body)
@@ -174,7 +174,7 @@
          (lambda ()
            (cond
              [,check ,@body (,impl)]
-             [true])))
+             [:else])))
        (,impl))))
 
 (defmacro with (var &body)
@@ -260,25 +260,25 @@
            [(= tag "key") (.. ":" (get-idx value :value))]
            [(= tag "string") (string/format "%q" (get-idx value :value))]
            [(= tag "number") (tostring (get-idx value :value))]
-           [true
+           [:else
              (let* [(out '())]
                (for-pairs (k v) value
                  (set! out (cons (.. (pretty k) " " (pretty v)) out)))
                (.. "{" (.. (concat out " ") "}")))]
-           [true (tostring value)]))]
+           [:else (tostring value)]))]
       [(= ty "string") (string/format "%q" value)]
-      [true (tostring value)])))
+      [:else (tostring value)])))
 
 (define arg
   "The arguments passed to the currently executing program"
   (cond
     [(= nil arg#) '()]
-    [true
+    [:else
       ;; Ensure we're got a list
       (set-idx! arg# :tag "list")
       (cond
         ((get-idx arg# :n))
-        (true (set-idx! arg# :n (len# arg#))))
+        (:else (set-idx! arg# :n (len# arg#))))
       arg#]))
 
 (defun const-val (val)
@@ -292,7 +292,7 @@
       (cond
         [(= tag "number") (get-idx val :value)]
         [(= tag "string") (get-idx val :value)]
-        [true val]))
+        [:else val]))
     val))
 
 (defun quasiquote# (val)
@@ -311,7 +311,7 @@
       ((= (get-idx val "tag") "symbol")
         (list `unquote `(quote ,val)))
 
-      (true val))
+      (:else val))
     val))
 
 (defmacro quasiquote (val)

@@ -42,7 +42,7 @@
     (cond
       [(= len 0) `((lambda () ,@body))]
       [(= len 1) `((lambda ,(make-vars (caar vars)) ,@body) ,(make-binding (cdar vars)))]
-      [true
+      [:else
        `((lambda ,(make-vars (caar vars))
            (let* ,(cdr vars) ,@body))
           ,(make-binding (cdar vars)))])))
@@ -104,10 +104,10 @@
    since `nil` is falsey, evaluation does not continue."
   (cond
     [(empty? vars) `((lambda () ,@body))]
-    [true `((lambda (,(caar vars))
+    [:else `((lambda (,(caar vars))
               (cond
                 [,(caar vars) (when-let* ,(cdr vars) ,@body)]
-                [true nil]))
+                [:else nil]))
             ,(make-binding (cdar vars)))]))
 
 (defmacro when-with (var &body)

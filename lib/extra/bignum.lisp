@@ -40,7 +40,7 @@
     [(and (.> a :sign) (.> b :sign)) (negate (add (negate a) (negate b)))]
     [(and (! (.> a :sign)) (.> b :sign)) (subtract a (negate b))]
     [(and (.> a :sign) (! (.> b :sign))) (subtract b (negate a))]
-    [true (let* [(val (new))
+    [:else (let* [(val (new))
                  (a-parts (.> a :parts))
                  (b-parts (.> b :parts))
                  (val-parts (.> val :parts))
@@ -64,7 +64,7 @@
     [(and (! (.> a :sign)) (.> b :sign)) (add a (negate b))]
     [(and (.> a :sign) (! (.> b :sign))) (negate (add (negate a) b))]
     [(less-than? a b) (negate (subtract b a))]
-    [true (let* [(val (new))
+    [:else (let* [(val (new))
                  (a-parts (.> a :parts))
                  (b-parts (.> b :parts))
                  (val-parts (.> val :parts))
@@ -88,7 +88,7 @@
     [(and (! (.> a :sign)) (.> b :sign)) (negate (multiply a (negate b)))]
     [(and (.> a :sign) (! (.> b :sign))) (negate (multiply (negate a) b))]
     [(less-than? a b) (multiply b a)]
-    [true (let* [(val (new))
+    [:else (let* [(val (new))
                  (a-parts (.> a :parts))
                  (b-parts (.> b :parts))
                  (r (copy a))]
@@ -102,7 +102,7 @@
 (defun div-mod (a b) :hidden
   (cond
     [(= b (new)) (error! "division by zero.")]
-    [true (let* [(r (new))
+    [:else (let* [(r (new))
                  (q (new))]
             (for i (length a) 1 -1
               (shl! r 1)
@@ -120,7 +120,7 @@
     [(and (.> a :sign) (.> b :sign)) (divide (negate a) (negate b))]
     [(and (! (.> a :sign)) (.> b :sign)) (negate (divide a (negate b)))]
     [(and (.> a :sign) (! (.> b :sign))) (negate (divide (negate a) b))]
-    [true (car (div-mod a b))]))
+    [:else (car (div-mod a b))]))
 
 (defun modulo (a b)
   "Returns the remainder of A divided by B."
@@ -130,7 +130,7 @@
     [(and (.> a :sign) (.> b :sign)) (negate (modulo (negate a) (negate b)))]
     [(and (! (.> a :sign)) (.> b :sign)) (negate (modulo a (negate b)))]
     [(and (.> a :sign) (! (.> b :sign))) (subtract (negate b) (modulo a (negate b)))]
-    [true (cadr (div-mod a b))]))
+    [:else (cadr (div-mod a b))]))
 
 (defun power (a b)
   "Returns A to the power of B."
@@ -140,7 +140,7 @@
     [(< b (new 0)) (new 0)]
     [(= b (new 0)) (new 1)]
     [(= b (new 1) a)]
-    [true
+    [:else
       (let* [(val a)
              (r b)]
         (while (> r (new 1))
@@ -250,7 +250,7 @@
     [(and (/= (type a) num-tag) (= (type b) num-tag)) (equals? (new a) b)]
     [(/= (.> a :sign) (.> b :sign)) false]
     [(/= (n (.> a :parts)) (n (.> b :parts))) false]
-    [true (eq? (.> a :parts) (.> b :parts))]))
+    [:else (eq? (.> a :parts) (.> b :parts))]))
 
 (defun less-than? (a b)
   "Returns true if A < B."
@@ -261,7 +261,7 @@
     [(and (.> a :sign) (! (.> b :sign))) true]
     [(and (! (.> a :sign)) (.> b :sign)) false]
     [(/= (n (.> a :parts)) (n (.> b :parts))) (< (n (.> a :parts)) (n (.> b :parts)))]
-    [true (let* [(a-parts (.> a :parts))
+    [:else (let* [(a-parts (.> a :parts))
                  (b-parts (.> b :parts))
                  (less false)
                  (continue true)]
@@ -272,7 +272,7 @@
                   (cond
                     [(> a-num b-num) (set! continue false)]
                     [(< a-num b-num) (set! continue false) (set! less true)]
-                    [true nil]))))
+                    [:else nil]))))
             less)]))
 
 (defun less-or-equal? (a b)
@@ -337,6 +337,6 @@
            (.<! val :sign (< a 0))
            (for i 0 (- num-parts 1) 1
              (push-cdr! parts (floor (% (/ n (^ part-max i)) part-max))))))]
-      [true (error! (.. "string, number or nothing expected, got " (type a) "."))])
+      [:else (error! (.. "string, number or nothing expected, got " (type a) "."))])
     (trim! val)
     val))
