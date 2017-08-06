@@ -19,9 +19,9 @@ ifeq (${QUIET},1)
 TEST_FLAGS += --quiet
 endif
 
-.PHONY: ${MAIN_TESTS} ${DOC_TESTS} all test compiler_test docs tasks
+.PHONY: ${MAIN_TESTS} ${DOC_TESTS} all ${OUT_DIR}/urn.lua test compiler_test docs tasks
 
-all: ${OUT_DIR}/urn
+all: ${OUT_DIR}/urn.lua
 compiler_test: all test
 test: ${MAIN_TESTS} ${DOC_TESTS}
 
@@ -29,7 +29,7 @@ ${OBJS}: ${OUT_DIR}/%: urn/%.lisp
 	@mkdir -p $(shell dirname $@)
 	${URN} $^ -o $@ ${LUA_FLAGS}
 
-${OUT_DIR}/urn: urn/cli.lisp
+${OUT_DIR}/urn.lua: urn/cli.lisp
 	@mkdir -p $(shell dirname $@)
 	${URN} $^ -o $@ ${LUA_FLAGS} --shebang --chmod
 
