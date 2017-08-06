@@ -97,11 +97,13 @@
                             (digit-error! logger (range (position)) "roman" char))
                           ; consume the rest
                           (set! char (string/char-at str (succ offset)))
-                          (while (roman-digit? char)
+                          (while (or (roman-digit? char)
+                                     (= char "'")) ; thousands separator
                             (consume!)
                             (set! char (string/char-at str (succ offset))))
                           ; now this is a hack
-                          (let* [(str (string/reverse (string/sub str start offset)))]
+                          (let* [(str (apply .. (string/split (string/reverse (string/sub str start offset))
+                                                              "'")))]
                             ; This implementation was stolen and adapted from
                             ; the Rosetta code entry for decoding Roman numerals
                             ; in Scheme.
@@ -120,12 +122,15 @@
 
                          ;; Consume all remaining characters matching this
                          (set! char (string/char-at str (succ offset)))
-                         (while (p char)
+                         (while (or (p char)
+                                    (= "'" char)) ; thousands separator
                            (consume!)
                            (set! char (string/char-at str (succ offset))))
 
-                         ;; And convert the digit to a string
-                         (string->number (string/sub str start offset) base))))]
+                         (let* [(thousands-separated (apply .. (string/split (string/sub str start offset)
+                                                                             "'")))]
+                           ;; And convert the digit to a string
+                           (string->number thousands-separated base)))))]
     ;; Scan the input stream, consume one character, then read til the end of that token.
     (while (<= offset length)
       (with (char (string/char-at str offset))
@@ -196,14 +201,17 @@
                                hexadecimal and roman numbers."
                               (range (position)) "# must be followed by x, b or r")]
                            [true
+                            (print! "decimal")
                             ;; Parse leading digits
-                            (while (between? (string/char-at str (succ offset))  "0" "9")
+                            (while (or (between? (string/char-at str (succ offset))  "0" "9")
+                                       (= (string/char-at str (succ offset)) "'")) ; thousands separator
                               (consume!))
 
                             ;; Consume decimal places
                             (when (= (string/char-at str (succ offset)) ".")
                               (consume!)
-                              (while (between? (string/char-at str (succ offset))  "0" "9")
+                              (while (or (between? (string/char-at str (succ offset))  "0" "9")
+                                         (= (string/char-at str (succ offset)) "'")) ; thousands here too
                                 (consume!)))
 
                             ;; Consume exponent
@@ -216,10 +224,11 @@
                               (when (or (= char "-") (= char "+")) (consume!))
 
                               ;; And exponent digits
-                              (while (between? (string/char-at str (succ offset)) "0" "9")
+                              (while (or (between? (string/char-at str (succ offset))  "0" "9")
+                                         (= (string/char-at str (succ offset)) "'")) ; thousands here too
                                 (consume!)))
 
-                            (string->number (string/sub str (.> start :offset) offset))]))
+                            (string->number (apply .. (string/split (string/sub str (.> start :offset) offset) "'")))]))
                 (append-with! {:tag "number" :value val} start)
 
                 ;; Ensure the next character is a terminator of some sort, otherwise we'd allow things like 0x2-2
