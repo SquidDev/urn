@@ -8278,7 +8278,9 @@ addArgument_21_1(spec, ({tag = "list", n = 2, "--verbose", "-v"}), "help", "Make
 end))
 addArgument_21_1(spec, ({tag = "list", n = 2, "--include", "-i"}), "help", "Add an additional argument to the include path.", "many", true, "narg", 1, "default", ({tag = "list", n = 0}), "action", addAction1)
 addArgument_21_1(spec, ({tag = "list", n = 2, "--prelude", "-p"}), "help", "A custom prelude path to use.", "narg", 1, "default", directory .. "lib/prelude")
-addArgument_21_1(spec, ({tag = "list", n = 3, "--output", "--out", "-o"}), "help", "The destination to output to.", "narg", 1, "default", "out")
+addArgument_21_1(spec, ({tag = "list", n = 3, "--output", "--out", "-o"}), "help", "The destination to output to.", "narg", 1, "default", "out", "action", function(arg, data, value)
+	data[arg["name"]] = gsub1(value, "%.lua$", "")
+end)
 addArgument_21_1(spec, ({tag = "list", n = 2, "--wrapper", "-w"}), "help", "A wrapper script to launch Urn with", "narg", 1, "action", (function(a, b, value)
 	local args, i = map1(id1, arg1), 1
 	local len = n1(args)
