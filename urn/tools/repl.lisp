@@ -28,7 +28,7 @@
                          true))))
     [(true _) false]
     [(false (table? @ ?x)) (if (.> x :cont) true false)]
-    [(false ?x) (debug x) nil]))
+    [(false ?x) nil]))
 
 (defun do-resolve (compiler scope str)
   :hidden
