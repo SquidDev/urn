@@ -11,6 +11,7 @@ stdenv.mkDerivation rec {
   src = ./.; # oh nix
   buildInputs = [ lua nixpkgs.pkgs.makeWrapper ];
 
+  makeFlags = ["-B"];
   installPhase = ''
   install -Dm755 bin/urn.lua $out/bin/urn
   mkdir -p $out/lib/
