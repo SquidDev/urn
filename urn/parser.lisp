@@ -201,7 +201,6 @@
                                hexadecimal and roman numbers."
                               (range (position)) "# must be followed by x, b or r")]
                            [true
-                            (print! "decimal")
                             ;; Parse leading digits
                             (while (or (between? (string/char-at str (succ offset))  "0" "9")
                                        (= (string/char-at str (succ offset)) "'")) ; thousands separator
