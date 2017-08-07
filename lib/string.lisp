@@ -109,7 +109,7 @@
       (let* [((rs re rm) (find (sub str i)
                                "~%{([^%} ]+)%}"))
              ((is ie im) (find (sub str i)
-                               "%$%{([^%] ]+)%}"))]
+                               "%$%{([^%} ]+)%}"))]
         (cond
           [(= rs 1) ; regular ~{foo}
            (when (/= buf "") (list/push-cdr! sections buf))

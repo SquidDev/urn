@@ -5,9 +5,12 @@
 (import lua/os os)
 (import lua/table table)
 
+(import urn/analysis/visitor visitor)
+(import urn/resolve/builtins (builtins))
 (import urn/backend/lua lua)
 (import urn/backend/writer w)
 (import urn/logger logger)
+(import urn/range range)
 (import urn/traceback traceback)
 
 (defun profile-calls (fn mappings)
@@ -215,7 +218,7 @@
 
     (debug/sethook
       (lambda (action)
-        (let* [(pos 3)
+        (let* [(pos 2)
                (stack '())
                (info (debug/getinfo 2 "Sn"))]
           (while info
@@ -247,6 +250,238 @@
           (show-stack! writer mappings (n stacks) folded (or (.> args :stack-limit) 10))
           (print! (w/->string writer)))))))
 
+(defun matcher (pattern)
+  "A utility function which creates a lambda to check if PATTERN matches
+   the given argument."
+  :hidden
+  (lambda (x)
+    (with (res (list (string/match x pattern)))
+      (if (= (car res) nil) nil res))))
+
+(defun add-count! (counts name line count)
+  "Increment the COUNTS for NAME at the given LINE."
+  :hidden
+  (with (file-counts (.> counts name))
+    (unless file-counts
+      (set! file-counts { :max 0 })
+      (.<! counts name file-counts))
+
+    (when (> line (.> file-counts :max))
+      (.<! file-counts :max line))
+
+    (.<! file-counts line (+ (or (.> file-counts line) 0) count))))
+
+(defun read-stats! (file-name output)
+  "Read in the stats from the given FILE-NAME if it exists."
+  :hidden
+  (unless output (set! output {}))
+
+  (use [(file (io/open file-name "r"))]
+    (loop [] []
+      (when-let* [(max (self file :read "*n"))
+                  (_ (= (self file :read 1) ":"))
+                  (name (self file :read "*l"))]
+        (with (data (.> output name))
+          (cond
+            [(! data)
+             (set! data { :max max })
+             (.<! output name data)]
+            [(> max (.> data :max)) (.<! data :max max)]
+            [else])
+
+          (loop
+            [(line 1)]
+            [(> line max)]
+            (when-let* [(count (self file :read "*n"))
+                        (_ (= (self file :read 1) " "))]
+              (when (> count 0)
+                (.<! data line (+ (or (.> data line) 0) count)))
+              (recur (succ line)))))
+
+        (recur))))
+
+  output)
+
+(defun write-stats! (compiler file-name output)
+  "Write the OUTPUT stats to the given FILE-NAME."
+  :hidden
+  (with ((handle err) (io/open file-name "w"))
+    (unless handle
+      (logger/put-error! (.> compiler :log) $"Cannot open stats file ${err}")
+      (exit! 1))
+
+    (with (names (keys output))
+      (table/sort names)
+
+      (for-each name names
+        (with (data (.> output name))
+          (self handle :write (.> data :max) ":" name "\n")
+          (for i 1 (.> data :max) 1
+            (self handle :write (or (.> data i) 0) " "))
+          (self handle :write "\n"))))
+
+    (self handle :close)))
+
+(defun profile-coverage (fn mappings compiler)
+  "Run FN tracking coverage and mapping it back to the original files."
+  :hidden
+  (with (visited {})
+    (debug/sethook
+      (lambda (action line)
+        (with (source (.> (debug/getinfo 2 "S") :short_src))
+          (with (visited-lines (.> visited source))
+            (unless visited-lines
+              (set! visited-lines {})
+              (.<! visited source visited-lines))
+
+            (with (current (succ (or (.> visited-lines line) 0)))
+              (.<! visited-lines line current)))))
+      "l")
+
+    (fn)
+
+    (debug/sethook)
+    (.<! visited (.> (debug/getinfo 1 "S") :short_src) nil)
+
+    (with (result (read-stats! "luacov.stats.out"))
+      (for-pairs (name visited-lines) visited
+        (with (this-mappings (.> mappings name))
+          (if this-mappings
+            (for-pairs (line count) visited-lines
+              (with (mapped (.> this-mappings line))
+                (case mapped
+                  ;; This file was mapped but not within an active region: ignore it.
+                  [nil]
+                  ;; Increment very line within the range
+                  [((matcher "^(.-):(%d+)%-(%d+)$") -> (?file ?start ?end))
+                   (for line (string->number start) (string->number end) 1
+                     (add-count! result file (string->number line) count))]
+                  ;; TODO: What happens if we've got multiple lines which map to the same Urn node?
+                  ;; This could occur on conditions with variable binds in the test.
+                  [((matcher "^(.-):(%d+)$") -> (?file ?line))
+                   (add-count! result file (string->number line) count)])))
+            (for-pairs (line count) visited-lines
+              (add-count! result name line count)))))
+
+      (write-stats! compiler "luacov.stats.out" result))))
+
+(defun format-coverage (hits misses)
+  "Format the given coverage statistic"
+  :hidden
+  (if (and (= hits 0) (= misses 0))
+    "100%"
+    (string/format "%2.f%%" (* 100 (/ hits (+ hits misses))))))
+
+(defun gen-coverage-report (compiler args)
+  "Generate a coverage report, saving it to the given output."
+  :hidden
+  (when (empty? (.> args :input))
+      (logger/put-error! (.> compiler :log) "No inputs to generate a report for.")
+      (exit! 1))
+
+  (let [(stats (read-stats! "luacov.stats.out"))
+        (logger (.> compiler :log))
+        (max 0)]
+    (for-pairs (_ counts) stats
+      (for-pairs (_ count) counts
+        (when (> count max) (set! max count))))
+
+    (let* [(max-size (n (string/format "%d" max)))
+           (fmt-zero (.. (string/rep "*" max-size) "0"))
+           (fmt-none (string/rep " " (succ max-size)))
+           (fmt-num  $"%${max-size}d")
+
+           ((handle err) (io/open (or (.> args :gen-coverage) "luacov.report.out") "w"))
+           (summary '())
+           (total-hits 0)
+           (total-misses 0)]
+      (unless handle
+        (logger/put-error! logger $"Cannot open report file ${err}")
+        (exit! 1))
+
+      (for-each path (.> args :input)
+        (self handle :write (string/rep "=" 78) "\n")
+        (self handle :write path "\n")
+        (self handle :write (string/rep "=" 78) "\n")
+
+        (let* [(lib (.> compiler :lib-cache (string/gsub path "%.lisp$" "")))
+               (lines (string/split (.> lib :lisp) "\n"))
+               (n-lines (n lines))
+               (counts (.> stats path))
+               (active {})
+               (hits 0)
+               (misses 0)]
+          (visitor/visit-block (.> lib :out) 1
+            (lambda (node)
+              (when (or (! (list? node)) ;; Non-list nodes are always interesting
+                      (with (head (car node))
+                        (or (! (symbol? head)) ;; If we're invoking a non-symbol then we're OK.
+                          (with (var (.> head :var))
+                            ;; Otherwise, check the symbol isn't one of these simple side-effect-free builtins.
+                            (and
+                              (/= var (.> builtins :lambda)) (/= var (.> builtins :cond)) (/= var (.> builtins :import))
+                              (/= var (.> builtins :define)) (/= var (.> builtins :define-macro)) (/= var (.> builtins :define-native)))))))
+
+                (with (source (range/get-source node))
+                  (when (= (.> source :name) path)
+                    (for i (.> source :start :line) (.> source :finish :line) 1
+                      (.<! active i true)))))))
+
+          (for i 1 n-lines 1
+            (let* [(line (nth lines i))
+                   (is-active (.> active i))
+                   (count (or (and counts (.> counts i)) 0))]
+              (when (and (! is-active) (> count 0))
+                (logger/put-warning! logger $"${path}:${i} is not active but has count ${count}"))
+
+              (cond
+                [(! is-active)
+                 (self handle :write fmt-none)]
+                [(> count 0)
+                 (inc! hits)
+                 (self handle :write (string/format fmt-num count))]
+                [true
+                 (inc! misses)
+                 (self handle :write fmt-zero)])
+              (self handle :write " " line "\n")))
+
+          (push-cdr! summary (list path
+                               (string/format "%d" hits)
+                               (string/format "%d" misses)
+                               (format-coverage hits misses)))
+          (set! total-hits (+ total-hits hits))
+          (set! total-misses (+ total-misses misses))))
+
+      (self handle :write (string/rep "=" 78) "\n")
+      (self handle :write "Summary\n")
+      (self handle :write (string/rep "=" 78) "\n\n")
+
+      (let* [(headings '("File" "Hits" "Misses" "Coverage"))
+             (widths (map n headings))
+             (total (list "Total"
+                      (string/format "%d" total-hits)
+                      (string/format "%d" total-misses)
+                      (format-coverage total-hits total-misses)))]
+        (for-each row summary
+          (for i 1 (n row) 1
+            (with (width (n (.> row i)))
+              (when (> width (.> widths i)) (.<! widths i width)))))
+
+        (for i 1 (n total) 1
+          (with (width (n (.> total i)))
+            (when (> width (.> widths i)) (set! widths i))))
+
+        (let* [(format (.. "%-" (car widths) "s %" (concat (cdr widths) "s %") "s\n"))
+               (separator (.. (string/rep "-" (n (apply string/format format headings))) "\n"))]
+          (self handle :write (apply string/format format headings))
+          (self handle :write separator)
+          (for-each row summary
+            (self handle :write (apply string/format format row)))
+          (self handle :write separator)
+          (self handle :write (apply string/format format total))))
+
+      (self handle :close))))
+
 (defun run-lua (compiler args)
   :hidden
   (when (empty? (.> args :input))
@@ -275,9 +510,10 @@
                         (exit! 1)])))
          (case (.> args :profile)
            ["none"  (exec)]
-           [nil  (exec)]
+           [nil     (exec)]
            ["call"  (profile-calls exec { name lines })]
            ["stack" (profile-stack exec { name lines } args)]
+           ["coverage" (profile-coverage exec { name lines } compiler)]
            [?x
             (logger/put-error! logger (.. "Unknown profiler '" x "'"))
             (exit! 1)]))])))
@@ -333,3 +569,15 @@
 
     :pred  (lambda (args) (or (.> args :run) (.> args :profile)))
     :run   run-lua })
+
+(define coverage-report
+  { :name "coverage-report"
+    :setup (lambda (spec)
+             (arg/add-argument! spec '("--gen-coverage")
+               :help    "Specify the folder to emit documentation to."
+               :cat     "run"
+               :default nil
+               :value   "luacov.report.out"
+               :narg    "?"))
+    :pred  (lambda (args) (/= nil (.> args :gen-coverage)))
+    :run   gen-coverage-report })

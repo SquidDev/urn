@@ -57,12 +57,16 @@
                 (.. directory "?/init")))
 
        (tasks (list
-                simple/warning
-                simple/optimise
-                simple/emit-lisp
-                simple/emit-lua
+                ;; Must be done before any processing of the tree
+                run/coverage-report
                 docs/task
                 gen-native/task
+                ;; Various processing steps
+                simple/warning
+                simple/optimise
+                ;; Then using the fully optimised result
+                simple/emit-lisp
+                simple/emit-lua
                 run/task
                 repl/exec-task
                 repl/repl-task))]

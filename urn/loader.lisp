@@ -88,6 +88,8 @@
          (contents (self lisp-handle :read "*a"))]
     (self lisp-handle :close)
 
+    (.<! lib :lisp contents)
+
     ;; Attempt to load the native file
     (when-with (handle (io/open (.. path ".lib.lua") "r"))
       (with (contents (self handle :read "*a"))

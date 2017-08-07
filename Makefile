@@ -1,6 +1,7 @@
 LUA        ?= lua
 LUA_FLAGS  ?=-O2
 TEST_FLAGS ?=
+TEST_ARGS  ?=
 OUT_DIR    ?= bin
 DOCS_DIR   ?= docs_tmp
 PAGES_DIR  ?= docs
@@ -16,7 +17,7 @@ TEST_FLAGS += --time
 endif
 
 ifeq (${QUIET},1)
-TEST_FLAGS += --quiet
+TEST_ARGS += --quiet
 endif
 
 .PHONY: ${MAIN_TESTS} ${DOC_TESTS} all ${OUT_DIR}/urn.lua test compiler_test docs tasks
@@ -35,12 +36,12 @@ ${OUT_DIR}/urn.lua: urn/cli.lisp
 
 ${MAIN_TESTS}:
 	$(eval TMP := $(shell mktemp -d))
-	${URN} $(basename $@) --run -o ${TMP} -- ${TEST_FLAGS}
+	${URN} $(basename $@) --run -o ${TMP} ${TEST_FLAGS} -- ${TEST_ARGS}
 	@rm -rf ${TMP}.lisp ${TMP}.lua ${TMP}
 
 ${DOC_TESTS}:
 	$(eval TMP := $(shell mktemp -d))
-	${URN} plugins/doc-test --run -o ${TMP} -- ${TEST_FLAGS} $(@:test_%=%)
+	${URN} plugins/doc-test --run -o ${TMP} ${TEST_FLAGS} -- ${TEST_ARGS} $(@:test_%=%)
 	@rm -rf ${TMP}.lisp ${TMP}.lua ${TMP}
 
 docs:
