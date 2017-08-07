@@ -5,8 +5,8 @@
 (import lua/os os)
 (import lua/table table)
 
+(import urn/analysis/nodes (builtins builtin?))
 (import urn/analysis/visitor visitor)
-(import urn/resolve/builtins (builtins))
 (import urn/backend/lua lua)
 (import urn/backend/writer w)
 (import urn/logger logger)
@@ -383,13 +383,13 @@
         (logger (.> compiler :log))
         (max 0)]
     (for-pairs (_ counts) stats
-      (for-pairs (_ count) counts
-        (when (> count max) (set! max count))))
+      (for-pairs (line count) counts
+        (when (and (number? line) (> count max)) (set! max count))))
 
     (let* [(max-size (n (string/format "%d" max)))
            (fmt-zero (.. (string/rep "*" max-size) "0"))
            (fmt-none (string/rep " " (succ max-size)))
-           (fmt-num  $"%${max-size}d")
+           (fmt-num  (.. "%" (succ max-size) "d"))
 
            ((handle err) (io/open (or (.> args :gen-coverage) "luacov.report.out") "w"))
            (summary '())
@@ -415,12 +415,19 @@
             (lambda (node)
               (when (or (! (list? node)) ;; Non-list nodes are always interesting
                       (with (head (car node))
-                        (or (! (symbol? head)) ;; If we're invoking a non-symbol then we're OK.
-                          (with (var (.> head :var))
-                            ;; Otherwise, check the symbol isn't one of these simple side-effect-free builtins.
-                            (and
-                              (/= var (.> builtins :lambda)) (/= var (.> builtins :cond)) (/= var (.> builtins :import))
-                              (/= var (.> builtins :define)) (/= var (.> builtins :define-macro)) (/= var (.> builtins :define-native)))))))
+                        (case (type head)
+                          ["symbol"
+                           ;; If invoking a symbol then check whether it is a trivial builtin.
+                           (with (var (.> head :var))
+                             ;; Otherwise, check the symbol isn't one of these simple side-effect-free builtins.
+                             (and
+                               (/= var (.> builtins :lambda)) (/= var (.> builtins :cond)) (/= var (.> builtins :import))
+                               (/= var (.> builtins :define)) (/= var (.> builtins :define-macro)) (/= var (.> builtins :define-native))))]
+
+                          ["list"
+                           ;; Don't emit directly-called lambdas.
+                           (! (builtin? (car head) :lambda))]
+                          [else true])))
 
                 (with (source (range/get-source node))
                   (when (= (.> source :name) path)
