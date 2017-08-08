@@ -40,7 +40,7 @@
             (lambda ()
               (with ((ffi-ok ffi) (pcall require "ffi"))
                 (if ffi-ok
-                  (with (readline ((.> ffi :load) "readline"))
+                  (when-with ((ok readline) (pcall (.> ffi :load) "readline"))
                     ((.> ffi :cdef) "void* malloc(size_t bytes); // Required to allocate strings for completions
                                      void free(void *); // Required to free strings returned by readline
                                      char *readline (const char *prompt); // Read a line with the given prompt
