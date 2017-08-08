@@ -479,7 +479,7 @@
           (with (width (n (.> total i)))
             (when (> width (.> widths i)) (set! widths i))))
 
-        (let* [(format (.. "%-" (car widths) "s %" (concat (cdr widths) "s %") "s\n"))
+        (let* [(format (.. "%-" (concat widths "s %-") "s\n"))
                (separator (.. (string/rep "-" (n (apply string/format format headings))) "\n"))]
           (self handle :write (apply string/format format headings))
           (self handle :write separator)
