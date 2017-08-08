@@ -20,11 +20,13 @@ ifeq (${QUIET},1)
 TEST_ARGS += --quiet
 endif
 
-.PHONY: ${MAIN_TESTS} ${DOC_TESTS} all ${OUT_DIR}/urn.lua test compiler_test docs tasks
+.PHONY: ${MAIN_TESTS} ${DOC_TESTS} all ${OUT_DIR}/urn.lua test compiler_test docs tasks gen_coverage
 
 all: ${OUT_DIR}/urn.lua
 compiler_test: all test
 test: ${MAIN_TESTS} ${DOC_TESTS}
+gen_coverage:
+	${URN} $(shell find lib urn -type f -name "*.lisp") --gen-coverage
 
 ${OBJS}: ${OUT_DIR}/%: urn/%.lisp
 	@mkdir -p $(shell dirname $@)
