@@ -13,6 +13,9 @@
 (defun make-vars (x) :hidden
   (if (list? x) x (list x)))
 
+(defun make-test (x) :hidden
+  (if (list? x) (car x) x))
+
 (defun make-binding (xs) :hidden
   (if (= (n xs) 1)
     (car xs)
@@ -109,9 +112,9 @@
    since `nil` is falsey, evaluation does not continue."
   (cond
     [(empty? vars) `((lambda () ,@body))]
-    [else `((lambda (,(caar vars))
+    [else `((lambda ,(make-vars (caar vars))
               (cond
-                [,(caar vars) (when-let* ,(cdr vars) ,@body)]
+                [,(make-test (caar vars)) (when-let* ,(cdr vars) ,@body)]
                 [else nil]))
             ,(make-binding (cdar vars)))]))
 
@@ -127,7 +130,7 @@
 
    When `bar` has an index `baz`, it will be bound to `foo` and
    printed. If not, the print statement will not be executed."
-  `((lambda (,(car var)) (when ,(car var) ,@body)) ,(cadr var)))
+  `((lambda ,(make-vars (car var)) (when ,(make-test (car var)) ,@body)) ,(cadr var)))
 
 (defun make-setting (var) :hidden
   (if (= (n var) 2)
