@@ -6,7 +6,7 @@ env:
   matrix:
     - LUA=lua-5.1.5
     - LUA=lua-5.2.4
-    - LUA=lua-5.3.2
+    - LUA=lua-5.3.2 URN_COVERAGE=1
 
 before_install:
   - source .build/setup_env.sh
@@ -26,5 +26,4 @@ script:
   - make LUA=lua docs
 
 after_success:
-  - make LUA=lua gen_coverage > /dev/null
-  - bash <(curl -s https://codecov.io/bash)
+  - if [ -n "$URN_COVERAGE" ]; then make LUA=lua gen_coverage > /dev/null && bash <(curl -s https://codecov.io/bash); fi

@@ -443,14 +443,15 @@
 
               (cond
                 [(! is-active)
-                 (self handle :write fmt-none)]
+                 (if (= line "")
+                   (self handle :write "\n")
+                   (self handle :write fmt-none " " line "\n"))]
                 [(> count 0)
                  (inc! hits)
-                 (self handle :write (string/format fmt-num count))]
+                 (self handle :write (string/format fmt-num count) " " line "\n")]
                 [true
                  (inc! misses)
-                 (self handle :write fmt-zero)])
-              (self handle :write " " line "\n")))
+                 (self handle :write fmt-zero " " line "\n")])))
 
           (push-cdr! summary (list path
                                (string/format "%d" hits)
