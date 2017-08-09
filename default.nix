@@ -27,6 +27,9 @@ stdenv.mkDerivation rec {
   src = ./.;
 
   buildInputs = [ runtime nixpkgs.pkgs.makeWrapper ];
+  # any packages that depend on the compiler have a transitive
+  # dependency on the runtime support
+  propagatedBuildInputs = buildInputs;
 
   makeFlags = ["-B"];
 
