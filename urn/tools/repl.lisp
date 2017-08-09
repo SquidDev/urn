@@ -107,6 +107,8 @@
                       (lambda (prompt initial complete)
                         (set! current-initial (or initial ""))
                         (set! current-completer complete)
+                        ;; Wrap escape sequences in RL_PROMPT_(START|END)_IGNORE
+                        (set! prompt (string/gsub prompt "(\27%[%A*%a)", "\1%1\2"))
                         (with (res ((.> readline :readline) prompt))
                           (if (= res nil)
                             nil
@@ -130,6 +132,8 @@
                   (with (previous nil)
                     ((.> readline :set_options) { :histfile history-path :completion false })
                     (lambda (prompt initial complete)
+                      ;; Wrap escape sequences in RL_PROMPT_(START|END)_IGNORE
+                      (set! prompt (string/gsub prompt "(\27%[%A*%a)", "\1%1\2"))
                       (with (res ((.> readline :readline) prompt))
                         (when (and res (string/find res "%S") (/= previous res))
                           (set! previous res)
@@ -149,6 +153,9 @@
                     ((.> linenoise :historysetmaxlen) 1000)
                     ((.> linenoise :historyload) history-path)
                     (lambda (prompt initial complete)
+                      ;; Strip escape sequences as linenoise doesn't handle them
+                      (set! prompt (string/gsub prompt "(\27%[%A*%a)", ""))
+
                       ;; Setup the completion function
                       (if complete
                         ((.> linenoise :setcompletion)
