@@ -3,6 +3,7 @@
 , lua ? nixpkgs.pkgs.lua
 , luajit ? nixpkgs.pkgs.luajit
 , readline ? nixpkgs.pkgs.readline
+, extraLibraries ? []
 }:
 
 let
@@ -20,32 +21,34 @@ let
             else
               [ lua ];
   };
+  dependencies = if extraLibraries == [] then "" else "-with-libraries";
 in
-stdenv.mkDerivation rec {
-  name = "urn";
-  version = ourVersion;
-  src = ./.;
+  stdenv.mkDerivation rec {
+    name = "urn-${ourVersion}${dependencies}";
+    version = ourVersion;
+    src = ./.;
 
-  buildInputs = [ runtime nixpkgs.pkgs.makeWrapper ];
-  # any packages that depend on the compiler have a transitive
-  # dependency on the runtime support
-  propagatedBuildInputs = buildInputs;
+    buildInputs = [ runtime nixpkgs.pkgs.makeWrapper ];
+    # any packages that depend on the compiler have a transitive
+    # dependency on the runtime support
+    propagatedBuildInputs = buildInputs;
 
-  makeFlags = ["-B"];
+    makeFlags = ["-B"];
 
-  installPhase = ''
-  install -Dm755 bin/urn.lua $out/bin/urn
-  mkdir -p $out/lib/
-  cp -r lib $out/lib/urn
-  wrapProgram $out/bin/urn \
-    --add-flags "-i $out/lib/urn --prelude $out/lib/urn/prelude.lisp" \
-    --prefix PATH : ${runtime}/bin/ \
-    --prefix LD_LIBRARY_PATH : ${runtime}/lib/
-  '';
+    installPhase = ''
+    install -Dm755 bin/urn.lua $out/bin/urn
+    mkdir -p $out/lib/
+    cp -r lib $out/lib/urn
+    wrapProgram $out/bin/urn \
+      --add-flags "-i $out/lib/urn --prelude $out/lib/urn/prelude.lisp" \
+      --add-flags "${nixpkgs.lib.concatMapStringsSep " " (x: "-i ${x.libraryPath}") extraLibraries}" \
+      --prefix PATH : ${runtime}/bin/ \
+      --prefix LD_LIBRARY_PATH : ${runtime}/lib/
+    '';
 
-  meta = with stdenv.lib; {
-    homepage = https://squiddev.github.io/urn;
-    description = "A lean lisp implementation for Lua";
-    license = licenses.bsd3;
-  };
-}
+    meta = with stdenv.lib; {
+      homepage = https://squiddev.github.io/urn;
+      description = "A lean lisp implementation for Lua";
+      license = licenses.bsd3;
+    };
+  }
