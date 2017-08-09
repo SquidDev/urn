@@ -41,7 +41,7 @@
                     (for ,i-sym 1 (n ,t-sym) 1
                       (let* [(,v (nth ,t-sym ,i-sym))]
                         ,cnt))))]
-              [?failed-case 
+              [?failed-case
                 failed-case])))
          (inside (let* [(out '())]
                    (for i (n stmts) 1 -1
