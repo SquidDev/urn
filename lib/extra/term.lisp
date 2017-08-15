@@ -8,7 +8,7 @@
 
 (define colored?
   "Constant defining whether the current terminal has color support"
-  (with (term-ty (and os/getenv (string/lower (or (os/getenv "TERM") ""))))
+  (with (term-ty (string/lower (or (and os/getenv (os/getenv "TERM")) "")))
     (cond
       ;; If the terminal is dumb, then emit plain text.
       [(= term-ty "dumb") false]
