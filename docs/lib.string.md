@@ -3,12 +3,17 @@ title: string
 ---
 # string
 ## `($ str)`
-*Macro defined at lib/string.lisp:91:1*
+*Macro defined at lib/string.lisp:121:1*
 
 Perform interpolation (variable substitution) on the string `STR`.
 
-The string is a sequence of arbitrary characters which may contain
-an unquote, of the form `~{foo}`, where foo is a variable name.
+The string is a sequence of arbitrary characters which may contain an
+unquote, of the form `~{foo}` or `${foo}`, where foo is a variable
+name.
+
+The `~{x}` form will format the value using [`pretty`](lib.base.md#pretty-value), ensuring it is
+readable. `${x}` requires that `x` is a string, simply splicing the
+value in directly.
 
 ### Example:
 ```cl
@@ -21,18 +26,36 @@ out = "1 = 1"
 
 Index the string `XS`, returning the character at position `X`.
 
+### Example:
+```cl
+> (string/char-at "foo" 1)
+out = "f"
+```
+
 ## `(ends-with? str suffix)`
-*Defined at lib/string.lisp:79:1*
+*Defined at lib/string.lisp:103:1*
 
 Determine whether `STR` ends with `SUFFIX`.
 
+### Example:
+```cl
+> (string/ends-with? "Hello, world" "world")
+out = true
+```
+
 ## `quoted`
-*Defined at lib/string.lisp:62:1*
+*Defined at lib/string.lisp:74:1*
 
 Quote the string `STR` so it is suitable for printing.
 
+### Example:
+```cl
+> (string/quoted "\n")
+out = "\"\\n\""
+```
+
 ## `(split text pattern limit)`
-*Defined at lib/string.lisp:13:1*
+*Defined at lib/string.lisp:19:1*
 
 Split the string given by `TEXT` in at most `LIMIT` components, which are
 delineated by the Lua pattern `PATTERN`.
@@ -43,20 +66,32 @@ string into individual characters.
 ### Example
 ```
 > (split "foo-bar-baz" "-")
-("foo" "bar" "baz")
+out = ("foo" "bar" "baz")
 > (split "foo-bar-baz" "-" 1)
-("foo" "bar-baz")
+out = ("foo" "bar-baz")
 ```
 
 ## `(starts-with? str prefix)`
-*Defined at lib/string.lisp:75:1*
+*Defined at lib/string.lisp:93:1*
 
 Determine whether `STR` starts with `PREFIX`.
 
+### Example:
+```cl
+> (string/starts-with? "Hello, world" "Hello")
+out = true
+```
+
 ## `(trim str)`
-*Defined at lib/string.lisp:57:1*
+*Defined at lib/string.lisp:63:1*
 
 Remove whitespace from both sides of `STR`.
+
+### Example:
+```cl
+> (string/trim "  foo\n\t")
+out = "foo"
+```
 
 ## Undocumented symbols
  - `byte` *Native defined at lib/lua/string.lisp:1:1*

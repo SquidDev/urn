@@ -31,13 +31,13 @@ the first value is chosen.
 Check that `KEY` is bound in the association list `LIST`.
 
 ## `(create-lookup values)`
-*Defined at lib/table.lisp:176:1*
+*Defined at lib/table.lisp:177:1*
 
 Convert `VALUES` into a lookup table, with each value being converted to
 a key whose corresponding value is the value's index.
 
 ## `(empty-struct? xs)`
-*Defined at lib/table.lisp:137:1*
+*Defined at lib/table.lisp:138:1*
 
 Check that `XS` is the empty struct.
 
@@ -48,7 +48,7 @@ Extend the association list `LIST`_ by inserting `VAL`, bound to the key
 `KEY`, overriding any previous value.
 
 ## `(fast-struct &entries)`
-*Defined at lib/table.lisp:124:1*
+*Defined at lib/table.lisp:125:1*
 
 `A` variation of [`struct`](lib.table.md#struct-entries), which will not perform any coercing of the
 `KEYS` in entries.
@@ -56,35 +56,35 @@ Extend the association list `LIST`_ by inserting `VAL`, bound to the key
 Note, if you know your values at compile time, it is more performant
 to use a struct literal.
 
-## `(insert list_ key val)`
+## `(insert alist key val)`
 *Defined at lib/table.lisp:31:1*
 
-Extend the association list `LIST`_ by inserting `VAL`, bound to the key
+Extend the association list `ALIST` by inserting `VAL`, bound to the key
 `KEY`.
 
-## `(insert! list_ key val)`
+## `(insert! alist key val)`
 *Defined at lib/table.lisp:41:1*
 
-Extend the association list `LIST`_ in place by inserting `VAL`, bound to
+Extend the association list `ALIST` in place by inserting `VAL`, bound to
 the key `KEY`.
 
 ## `(iter-pairs table func)`
-*Defined at lib/table.lisp:147:1*
+*Defined at lib/table.lisp:148:1*
 
 Iterate over `TABLE` with a function `FUNC` of the form `(lambda (key val) ...)`
 
 ## `(keys st)`
-*Defined at lib/table.lisp:159:1*
+*Defined at lib/table.lisp:160:1*
 
 Return the keys in the structure `ST`.
 
 ## `(merge &structs)`
-*Defined at lib/table.lisp:151:1*
+*Defined at lib/table.lisp:152:1*
 
 Merge all tables in `STRUCTS` together into a new table.
 
 ## `(nkeys st)`
-*Defined at lib/table.lisp:141:1*
+*Defined at lib/table.lisp:142:1*
 
 Return the number of keys in the structure `ST`.
 
@@ -95,16 +95,17 @@ Return the structure given by the list of pairs `ENTRIES`. Note that, in
 contrast to variations of [`let`](lib.binders.md#let-vars-body), the pairs are given "unpacked":
 Instead of invoking
 
-```cl
+```cl :no-test
 (struct [(:foo bar)])
 ```
 or
-```cl
+```cl :no-test
 (struct {:foo bar})
 ```
 you must instead invoke it like
 ```cl
-(struct :foo bar)
+> (struct :foo "bar")
+out = {"foo" "bar"}
 ```
 
 ## `(struct->assoc tbl)`
@@ -128,13 +129,13 @@ to a regular list. This differs from `struct->list` in that it mutates
 its argument.
 
 ## `(update-struct st &keys)`
-*Defined at lib/table.lisp:171:1*
+*Defined at lib/table.lisp:172:1*
 
 Create a new structure based of `ST`, setting the values given by the
 pairs in `KEYS`.
 
 ## `(values st)`
-*Defined at lib/table.lisp:165:1*
+*Defined at lib/table.lisp:166:1*
 
 Return the values in the structure `ST`.
 

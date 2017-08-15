@@ -12,7 +12,7 @@ and the average running time is reported on standard output.
 Note that documentation strings and other attributes are not
 preserved, and that the definition must be of the form
 
-```
+```cl :no-test
 (defun foo (bar) ...)
 ``` 
 
@@ -25,7 +25,7 @@ automatically timed. The time report is printed to standard output.
 Note that documentation strings and other attributes are not
 preserved, and that the definition must be of the form
 
-```
+```cl :no-test
 (defun foo (bar) ...)
 ``` 
 

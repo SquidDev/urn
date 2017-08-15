@@ -10,11 +10,11 @@ then the value is placed there, otherwise the expression is invoked
 with the previous entry as an argument.
 
 ### Example
-```
+```cl
 > (-> '(1 2 3)
-    (map succ <>)
-    (map (cut * <> 2) <>))
-(4 6 8)
+.   (map succ <>)
+.   (map (cut * <> 2) <>))
+out = (4 6 8)
 ```
 
 ## `(comp &fs)`
@@ -49,10 +49,10 @@ argument to a function. Values are evaluated every time the resulting
 function is called.
 
 ### Example
-```
+```cl
 > (define double (cut * <> 2))
 > (double 3)
-6
+out = 6
 ```
 
 ## `(cute &func)`
@@ -63,10 +63,10 @@ argument to a function. Values are evaluated when this function is
 defined.
 
 ### Example
-```
+```cl
 > (define double (cute * <> 2))
 > (double 3)
-6
+out = 6
 ```
 
 ## `(invokable? x)`
@@ -76,13 +76,13 @@ Test if the expression `X` makes sense as something that can be applied
 to a set of arguments.
 
 ### Example
-```
+```cl
 > (invokable? invokable?)
-true
+out = true
 > (invokable? nil)
-false
+out = false
 > (invokable? (setmetatable {} { :__call (lambda (x) (print! "hello")) }))
-true
+out = true
 ```
 
 ## `(slot? symb)`

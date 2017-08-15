@@ -27,6 +27,21 @@ Check that the continuation `K` may be executed further.
 out = true
 ```
 
+## `(block &body)`
+*Macro defined at lib/urn/control/prompt.lisp:171:1*
+
+Estabilish an escape continuation called `break` and evaluate `BODY`.
+
+### Example:
+```cl
+> (block
+.   (print! 1)
+.   (break)
+.   (print! 2))
+1
+out = ()
+```
+
 ## `(call-with-escape-continuation body)`
 *Defined at lib/urn/control/prompt.lisp:70:1*
 

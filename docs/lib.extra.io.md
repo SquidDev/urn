@@ -10,9 +10,9 @@ Creates a new file if it doesn't exist.
 Returns true if it succeeded or false if it failed.
 
 ### Example
-```
-> (append-all! "hello.txt" " Some appended text.")
-true
+```cl
+> (append-all! "tests/data/hello_.txt" " Some appended text.")
+out = true
 ```
 
 ## `(append-bytes! path data)`
@@ -24,9 +24,9 @@ Rreates a new file if it doesn't exist. Returns true if it succeeded
 or false if it failed.
 
 ### Example
-```
-> (append-bytes! "abc.txt" `(100 101 102))
-true
+```cl
+> (append-bytes! "tests/data/abc_.txt" `(100 101 102))
+out = true
 ```
 
 ## `(append-lines! path data)`
@@ -38,9 +38,9 @@ Creates a new file if it doesn't exist. Returns true if it succeeded
 or false if it failed.
 
 ### Example
-```
-> (append-lines! "lines.txt" `(" Here's another line:" "Another line."))
-true
+```cl
+> (append-lines! "tests/data/lines_.txt" `(" Here's another line:" "Another line."))
+out = true
 ```
 
 ## `(read-all! path)`
@@ -50,9 +50,9 @@ Reads the data from the file at `PATH` and returns it as a string.
 Returns nil if it failed.
 
 ### Example
-```
-> (read-all! "hello.txt")
-"Hello, world!"
+```cl
+> (read-all! "tests/data/hello.txt")
+out = "Hello, world!"
 ```
 
 ## `(read-bytes! path)`
@@ -62,9 +62,9 @@ Reads the data from the file at `PATH` and returns it as a list of bytes
 (numbers). Returns nil if it failed.
 
 ### Example
-```
-> (read-bytes! "abc.txt")
-(97 98 99)
+```cl
+> (read-bytes! "tests/data/abc.txt")
+out = (97 98 99)
 ```
 
 ## `(read-lines! path)`
@@ -74,9 +74,9 @@ Reads the lines from the file at `PATH` and returns it as a list of strings.
 Returns nil if it failed.
 
 ### Example
-```
-> (read-lines! "lines.txt")
-("This is the first line." "This is the second.")
+```cl
+> (read-lines! "tests/data/lines.txt")
+out = ("This is the first line." "This is the second.")
 ```
 
 ## `(write-all! path data)`
@@ -88,9 +88,9 @@ Creates a new file if it doesn't exist and overwrite the file if it
 does. Returns true if it succeeded or false if it failed.
 
 ### Example
-```
-> (write-all! "hello.txt" "Hello, world!")
-true
+```cl
+> (write-all! "tests/data/hello_.txt" "Hello, world!")
+out = true
 ```
 
 ## `(write-bytes! path data)`
@@ -102,9 +102,9 @@ Creates a new file if it doesn't exist and overwrite the file if it
 does. Returns true if it succeeded or false if it failed.
 
 ### Example
-```
-> (write-bytes! "abc.txt" `(97 98 99))
-true
+```cl
+> (write-bytes! "tests/data/abc_.txt" `(97 98 99))
+out = true
 ```
 
 ## `(write-lines! path data)`
@@ -116,8 +116,8 @@ Creates a new file if it doesn't exist and overwrite the file if it
 does. Returns true if it succeeded or false if it failed.
 
 ### Example
-```
-> (write-lines! "lines.txt" `("This is the first line." "This is the second."))
-true
+```cl
+> (write-lines! "tests/data/lines_.txt" `("This is the first line." "This is the second."))
+out = true
 ```
 

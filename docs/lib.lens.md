@@ -286,7 +286,7 @@ out = (2 3)
 
 Example:
 ```cl
-> (view (traverse (at 3)) '((1 2 3) (4 5 6)))
+> (view (traversing (at 3)) '((1 2 3) (4 5 6)))
 out = (3 6)
 ```
 

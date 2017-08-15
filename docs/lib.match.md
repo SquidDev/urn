@@ -26,8 +26,8 @@ Note that the `true`, `false` and `nil` symbols will match against their
 
 ### Wildcards and captures
 If one does not require a value to take a particular form, you can use a
-wildcard (`_`). This will match anything, discarding its value. This is
-often useful as the last expression in a [`case`](lib.match.md#case-val-pts), where you need to
+wildcard (`_` or `else`). This will match anything, discarding its value. This
+is often useful as the last expression in a [`case`](lib.match.md#case-val-pts), where you need to
 handle any remaining forms.
 
 If you wish to use this value, you should use a capture, or
@@ -161,13 +161,13 @@ with `(matcher "0x(%d+)")`, apply it to `x` and then match the
 returned value (`("23")`) against the `?x` pattern.
 
 ## `(case val &pts)`
-*Macro defined at lib/match.lisp:382:1*
+*Macro defined at lib/match.lisp:383:1*
 
 Match a single value against a series of patterns, evaluating the
 first body that matches, much like `cond`.
 
 ## `(destructuring-bind pt &body)`
-*Macro defined at lib/match.lisp:365:1*
+*Macro defined at lib/match.lisp:366:1*
 
 Match a single pattern against a single value, then evaluate the `BODY`.
 
@@ -175,13 +175,13 @@ The pattern is given as `(car PT)` and the value as `(cadr PT)`.  If
 the pattern does not match, an error is thrown.
 
 ## `(function &arms)`
-*Macro defined at lib/match.lisp:435:1*
+*Macro defined at lib/match.lisp:438:1*
 
 Create a lambda which matches its arguments against the patterns
 defined in `ARMS`.
 
 ## `(handler-case x &body)`
-*Macro defined at lib/match.lisp:406:1*
+*Macro defined at lib/match.lisp:407:1*
 
 Evaluate the form `X`, and if an error happened, match the series
 of `(?pattern (?arg) . ?body)` arms given in `BODY` against the value of
@@ -193,14 +193,16 @@ expression is returned by [`handler-case`](lib.match.md#handler-case-x-body).
 ### Example:
 
 ```cl
-> (handler-case \
+> (handler-case
 .   (error! "oh no!")
 .   [string? (x)
 .    (print! x)])
+"oh no!"
+out = nil
 ```
 
 ## `(if-match cs t e)`
-*Macro defined at lib/match.lisp:449:1*
+*Macro defined at lib/match.lisp:452:1*
 
 Matches a pattern against a value defined in `CS`, evaluating `T` with the
 captured variables in scope if the pattern succeeded, otherwise
@@ -209,7 +211,7 @@ evaluating `E`.
 [`if-match`](lib.match.md#if-match-cs-t-e) is to [`case`](lib.match.md#case-val-pts) what [`if`](lib.base.md#if-c-t-b) is to `cond`.
 
 ## `(matches? pt x)`
-*Macro defined at lib/match.lisp:396:1*
+*Macro defined at lib/match.lisp:397:1*
 
 Test if the value `X` matches the pattern `PT`.
 

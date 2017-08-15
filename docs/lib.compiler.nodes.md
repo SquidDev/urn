@@ -11,17 +11,18 @@ internal representation of nodes.
 Determine whether the specified `NODE` is the given `BUILTIN`.
 
 ### Example
-```cl
-(builtin? expr :lambda)
+```cl :no-test
+> (builtin? (symbol->var `lambda) :lambda)
+out = true
 ```
 
 ## `constant?`
-*Native defined at lib/compiler/nodes.lisp:46:1*
+*Native defined at lib/compiler/nodes.lisp:47:1*
 
 Determine whether the specified `NODE` is a constant.
 
 ## `node->val`
-*Native defined at lib/compiler/nodes.lisp:49:1*
+*Native defined at lib/compiler/nodes.lisp:50:1*
 
 Gets the constant value of `NODE`.
 
@@ -51,7 +52,7 @@ Traverse a list of `NODES`, starting at `IDX`, using the specified `VISITOR`.
 See [`traverse-node`](lib.compiler.nodes.md#traverse-node) for more information about the `VISITOR`.
 
 ## `val->node`
-*Native defined at lib/compiler/nodes.lisp:52:1*
+*Native defined at lib/compiler/nodes.lisp:53:1*
 
 Gets the node representation of the constant `VALUE`.
 

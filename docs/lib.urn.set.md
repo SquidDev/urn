@@ -43,7 +43,7 @@ out = «hash-set: 1 2 3 4»
 ```
 
 ## `(intersection a b)`
-*Defined at lib/urn/set.lisp:117:1*
+*Defined at lib/urn/set.lisp:118:1*
 
 The set of values that occur in both `A` and `B`.
 
@@ -71,13 +71,13 @@ out = «hash-set: »
 ```
 
 ## `(set->list set)`
-*Defined at lib/urn/set.lisp:147:1*
+*Defined at lib/urn/set.lisp:148:1*
 
 Convert `SET` to a list. Note that, since hash sets have no specified
 order, the list will not nescessarily be sorted.
 
 ## `(set-of &values)`
-*Defined at lib/urn/set.lisp:135:1*
+*Defined at lib/urn/set.lisp:136:1*
 
 Create the set containing `VALUES` with the default hash function.
 
@@ -101,13 +101,13 @@ out = false
 ```
 
 ## `(union a b)`
-*Defined at lib/urn/set.lisp:98:1*
+*Defined at lib/urn/set.lisp:99:1*
 
 The set of values that occur in either `A` or `B`.
 
 ### Example:
 ```cl
 > (union (set-of 1 2 3) (set-of 4 5 6))
-out = «hash-set 1 2 3 4 5 6»
+out = «hash-set: 1 2 3 4 5 6»
 ```
 
