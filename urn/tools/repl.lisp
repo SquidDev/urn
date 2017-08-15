@@ -442,7 +442,13 @@
                (set! run false)]
               [(= (co/status exec) "dead")
                (let* [(lvl (state/get! (last state)))]
-                 (print! (.. "out = " (colored 96 (pretty lvl))))
+                 (with (pretty-fun pretty)
+                   (when-with (pretty-var (scope/get scope "pretty"))
+                     (with (pretty-val (state/get! (.> compiler :states pretty-var)))
+                       (set! pretty-fun pretty-val)))
+
+                   (print! (.. "out = " (colored 96 (pretty-fun lvl)))))
+
                  (.<! global (lua/push-escape-var! (scope/add! scope "out" "defined" lvl)
                                              compileState)
                       lvl))

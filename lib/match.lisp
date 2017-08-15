@@ -158,16 +158,12 @@
 
 (import lua/basic (xpcall))
 (import lua/math (max))
-(import base ( defun defmacro if get-idx
-               and gensym error for set-idx!
-               quasiquote list or pretty
-               slice concat debug apply
-               /= n = ! - + / * >= <= % .. else ))
+(import base (defun defmacro if get-idx and gensym error for set-idx!
+              quasiquote list or slice concat apply /= n = ! - + / * >= <= % ..
+              else))
 (import type ())
-(import list ( car caddr cadr cdr append for-each
-               map filter push-cdr! range snoc
-               nth last elem? ))
-
+(import list (car caddr cadr cdr append for-each map filter push-cdr! range snoc
+              nth last elem?))
 (import string (char-at sub))
 (import binders (let*))
 

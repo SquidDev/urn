@@ -1,11 +1,8 @@
-(import base (defmacro if ! when car and or
-              cdr and pretty print debug /=
-              % get-idx defun = n >= error
-              progn gensym for list + else))
+(import base (defmacro if ! when car and or cdr and print /= % get-idx defun = n
+              >= error progn gensym for list + else))
 (import base)
-(import type (list? empty?))
-(import list (cars cadrs caar cadar map cadr
-              cdar cddr caddar snoc push-cdr!
+(import type (list? empty? pretty))
+(import list (cars cadrs caar cadar map cadr cdar cddr caddar snoc push-cdr!
               nth))
 
 (import lua/basic (getmetatable ..))
