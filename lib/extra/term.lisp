@@ -8,12 +8,12 @@
 
 (define colored?
   "Constant defining whether the current terminal has color support"
-  (with (term (string/lower (or (os/getenv "TERM") "")))
+  (with (term-ty (and os/getenv (string/lower (or (os/getenv "TERM") ""))))
     (cond
       ;; If the terminal is dumb, then emit plain text.
-      [(= term "dumb") false]
+      [(= term-ty "dumb") false]
       ;; If we're running under xterm then we're OK. This covers Git Bash for Windows.
-      [(string/find term "xterm") true]
+      [(string/find term-ty "xterm") true]
       ;; If '/' is the path separator then we're probably on a UNIX system.
       [(and package/config (= (string/char-at package/config 1) "/")) true]
       ;; If we have ANSICON defined then we're in a windows prompt which supports ANSI.

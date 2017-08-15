@@ -93,8 +93,12 @@
   "Exit the program with the exit code CODE, and optionally, print the
    error message REASON."
   (with (code (if (string? reason) code reason))
-    (when (string? reason) (print! reason))
-    (lua/os/exit code)))
+    (cond
+      [lua/os/exit
+       (when (string? reason) (print! reason))
+       (lua/os/exit code)]
+      [(string? reason) (fail! reason)]
+      [else (fail!)])))
 
 (defun id (x)
   "Return the value X unmodified."
