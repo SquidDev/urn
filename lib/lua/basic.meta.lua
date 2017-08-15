@@ -22,7 +22,7 @@ return {
 	["_ENV"] =           { tag = "var", contents = "_ENV",           value = _ENV,                         },
 	["_G"] =             { tag = "var", contents = "_G",             value = _G,                           },
 	["assert"] =         { tag = "var", contents = "assert",         value = assert,                       },
-	["arg#"] =           { tag = "var", contents = "arg",            value = arg,                          },
+	["arg#"] =           { tag = "var", contents = "arg or {...}",   value = arg,                          },
 	["collectgarbage"] = { tag = "var", contents = "collectgarbage", value = collectgarbage,               },
 	["dofile"] =         { tag = "var", contents = "dofile",         value = dofile,                       },
 	["error"] =          { tag = "var", contents = "error",          value = error,                        },

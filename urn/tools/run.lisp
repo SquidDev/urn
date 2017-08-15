@@ -510,7 +510,7 @@
        (.<! _G :arg (.> args :script-args))
        (.<! _G :arg 0 (car (.> args :input)))
        (with (exec (lambda ()
-                     (case (list (xpcall fun debug/traceback))
+                     (case (list (xpcall (cut apply fun (.> args :script-args)) debug/traceback))
                        [(true . ?res)]
                        [(false ?msg)
                         (logger/put-error! logger "Execution failed.")
