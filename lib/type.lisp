@@ -18,7 +18,7 @@
   "Check whether X is the empty list or the empty string."
   (let* [(xt (type x))]
     (cond
-      [(= xt "list") (= (n x) 0)]
+      [(= xt "list") (= (get-idx x :n) 0)]
       [(= xt "string") (= (len# x) 0)]
       [else false])))
 

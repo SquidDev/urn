@@ -39,8 +39,9 @@
   "Determine whether the specified NODE is the given BUILTIN.
 
    ### Example
-   ```cl
-   (builtin? expr :lambda)
+   ```cl :no-test
+   > (builtin? (symbol->var `lambda) :lambda)
+   out = true
    ```")
 
 (define-native constant?

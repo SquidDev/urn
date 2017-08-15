@@ -95,7 +95,14 @@
 (define cdr (lambda (xs) (slice xs 2)))
 
 (defun list (&xs)
-  "Return the list of variadic arguments given."
+  "Return the list of variadic arguments given.
+
+   ### Example:
+   ```cl
+   > (list 1 2 3)
+   out = (1 2 3)
+   ```"
+
   xs)
 
 (defun cons (x xs)
@@ -103,11 +110,26 @@
   `(,x ,@xs))
 
 (defmacro progn (&body)
-  "Group a series of expressions together."
+  "Group a series of expressions together.
+
+   ### Example
+   ```cl
+   > (progn
+   .   (print! 123)
+   .   456)
+   123
+   out = 456
+   ```"
   `((lambda () ,@body)))
 
 (defmacro if (c t b)
-  "Evaluate T if C is true, otherwise, evaluate B."
+  "Evaluate T if C is true, otherwise, evaluate B.
+
+   ### Example
+   ```cl
+   > (if (> 1 3) \"> 1 3\" \"<= 1 3\")
+   out = \"<= 1 3\"
+   ```"
   `(cond (,c ,t) (true ,b)))
 
 (defmacro when (c &body)
@@ -128,7 +150,14 @@
                          ,(get-idx (car vars) 2))])))
 
 (defun ! (expr)
-  "Negate the expression EXPR."
+  "Compute the logical negation of the expression EXPR.
+
+   ### Example:
+   ```cl
+   > (with (a 1)
+   .   (! (= a 1)))
+   out = false
+   ```"
   (if expr false true))
 
 (define gensym
@@ -150,7 +179,15 @@
 (defmacro for (ctr start end step &body)
   "Iterate BODY, with the counter CTR bound to START, being incremented
    by STEP every iteration until CTR is outside of the range given by
-   [START .. END]"
+   [START .. END].
+
+   ### Example:
+   ```cl
+   > (with (x '())
+   .   (for i 1 3 1 (push-cdr! x i))
+   .   x)
+   out = (1 2 3)
+   ```"
   (let* [(impl (gensym))
          (ctr' (gensym))
          (end' (gensym))
@@ -167,7 +204,15 @@
        (,impl ,start))))
 
 (defmacro while (check &body)
-  "Iterate BODY while the expression CHECK evaluates to `true`."
+  "Iterate BODY while the expression CHECK evaluates to `true`.
+
+   ### Example:
+   ```cl
+   > (with (x 4)
+   .   (while (> x 0) (dec! x))
+   .   x)
+   out = 0
+   ```"
   (let* [(impl (gensym))]
     `(let* [(,impl nil)]
        (set! ,impl
@@ -183,34 +228,80 @@
 
 (defmacro and (a b &rest)
   "Return the logical and of values A and B, and, if present, the
-   logical and of all the values in REST."
+   logical and of all the values in REST.
+
+   Each argument is lazily evaluated, only being computed if the previous
+   argument returned a truthy value. This will return the last argument
+   to be evaluated.
+
+   ### Example:
+   ```cl
+   > (and 1 2 3)
+   out = 3
+   > (and (> 3 1) (< 3 1))
+   out = false
+   ```"
   (with (symb (gensym))
     `(with (,symb ,a) (if ,symb ,(if (= (n rest) 0) b `(and ,b ,@rest)) ,symb))))
 
 (defmacro or (a b &rest)
   "Return the logical or of values A and B, and, if present, the
-   logical or of all the values in REST."
+   logical or of all the values in REST.
+
+   Each argument is lazily evaluated, only being computed if the previous
+   argument returned a falsey value. This will return the last argument
+   to be evaluated.
+
+   ### Example:
+   ```cl
+   > (or 1 2 3)
+   out = 1
+   > (or (> 3 1) (< 3 1))
+   out = true
+   ```"
   (with (symb (gensym))
     `(with (,symb ,a) (if ,symb ,symb ,(if (= (n rest) 0) b `(or ,b ,@rest))))))
 
 (defmacro => (p q)
-  "Logical implication. `(=> a b)` is equivalent to `(or (! a) b)`."
+  "Logical implication. `(=> a b)` is equivalent to `(or (! a) b)`.
+
+   ### Example:
+   ```cl
+   > (=> (> 3 1) (< 1 3))
+   out = true
+   ```"
   `(or (! ,p) ,q))
 
 (defmacro <=> (p q)
   "Bidirectional implication. `(<=> a b)` means that `(=> a b)` and
-   `(=> b a)` both hold."
+   `(=> b a)` both hold.
+
+   ### Example:
+   ```cl
+   > (<=> (> 3 1) (< 1 3))
+   out = true
+   > (<=> (> 1 3) (< 3 1))
+   out = true
+   > (<=> (> 1 3) (< 1 3))
+   out = false
+   ```"
   `(and (or (! ,p) ,q)
         (or (! ,q) ,p)))
 
 (defun -or (a b)
   "Return the logical disjunction of values A and B.
-   This is a function, not a macro."
+
+   As this is a function rather than a macro, it can be used as a
+   variable. However, each argument is evaluated eagerly. See [[or]] for
+   a lazy version."
   (or a b))
 
 (defun -and (a b)
   "Return the logical conjunction of values A and B.
-   This is a function, not a macro."
+
+   As this is a function rather than a macro, it can be used as a
+   variable. However, each argument is evaluated eagerly. See [[and]] for
+   a lazy version."
   (and a b))
 
 (defmacro debug (x)
@@ -225,7 +316,17 @@
        ,x-sym)))
 
 (defmacro for-pairs (vars tbl &body)
-  "Iterate over TBL, binding VARS for each key value pair in BODY"
+  "Iterate over TBL, binding VARS for each key value pair in BODY.
+
+   ### Example:
+   ```cl
+   > (let [(res '())
+   .       (struct { :foo 123 })]
+   .   (for-pairs (k v) struct
+   .     (push-cdr! res (list k v)))
+   .     res)
+   out = ((\"foo\" 123))
+   ```"
   (let* [(tbl-s (gensym))
          (func-s (gensym))
          (var-s (gensym))]
@@ -318,7 +419,14 @@
   "Quote VAL, but replacing all `unquote` and `unquote-splice` with their actual value.
 
    Be warned, by using this you lose all macro hygiene. Variables may not be bound to their
-   expected values."
+   expected values.
+
+   ### Example:
+   ```cl
+   > (with (x 1)
+   .   ~(+ ,x 2))
+   out = (+ 1 2)
+   ```"
   (list `syntax-quote (quasiquote# val)))
 
 (defun apply (f &xss xs)
@@ -328,9 +436,9 @@
    ### Example:
    ```cl
    > (apply + '(1 2))
-   3
+   out = 3
    > (apply + 1 '(2))
-   3
+   out = 3
    ```"
   (let* [(args `(,@xss ,@xs))]
     (f (unpack args 1 (n args)))))

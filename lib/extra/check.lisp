@@ -60,13 +60,13 @@
    > (check [(number a)]
    .   (= a a))
    (= a a) passed 100 tests.
-   nil
+   out = nil
    > (check [(number a)]
    .   (= a (+ 1 a)))
    (= a (+ 1 a)) falsified after 1 iteration(s)
    falsifying set of values:
      the number, a, had the value 3867638440
-   nil
+   out = nil
    ```
 
    The property is checked against a different set of random values every

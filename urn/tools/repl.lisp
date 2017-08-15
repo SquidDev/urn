@@ -321,21 +321,19 @@
        (with (name (nth args 2))
          (if name
            (with (var (scope/get scope name))
-             (cond
-               [(= var nil)
-                (logger/put-error! logger (.. "Cannot find '" name "'"))]
-               [(! (.> var :doc))
-                (logger/put-error! logger (.. "No documentation for '" name "'"))]
-               [true
-                 (let* [(sig (docs/extract-signature var))
-                        (name (.> var :full-name))]
-                   (when sig
-                     (with (buffer (list name))
-                       (for-each arg sig (push-cdr! buffer (.> arg :contents)))
-                       (set! name (.. "(" (concat buffer " ") ")"))))
+             (if (= var nil)
+               (logger/put-error! logger (.. "Cannot find '" name "'"))
+               (let* [(sig (docs/extract-signature var))
+                      (name (.> var :full-name))]
+                 (when sig
+                   (with (buffer (list name))
+                     (for-each arg sig (push-cdr! buffer (.> arg :contents)))
+                     (set! name (.. "(" (concat buffer " ") ")"))))
+                 (print! (colored 96 name))
 
-                   (print! (colored 96 name))
-                   (print-docs! (.> var :doc)))]))
+                 (if (.> var :doc)
+                   (print-docs! (.> var :doc))
+                   (logger/put-error! logger (.. "No documentation for '" name "'"))))))
            (logger/put-error! logger ":doc <variable>")))]
 
       [(= command "module")

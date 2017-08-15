@@ -246,7 +246,7 @@
    ### Example:
    ```cl
    > (any exists? '(nil 1 \"foo\"))
-   true
+   out = true
    ```"
   (assert-type! p function)
   (assert-type! xs list)
@@ -265,7 +265,7 @@
    ### Example:
    ```cl
    > (none nil? '(\"foo\" \"bar\" \"baz\"))
-   true
+   out = true
    ```"
   (! (any p xs)))
 
@@ -273,7 +273,7 @@
   "The difference between XS and YS (non-associative.)
 
    ### Example:
-   ```
+   ```cl
    > (\\\\ '(1 2 3) '(1 3 5 7))
    out = (2)
    ```"
@@ -285,7 +285,7 @@
   "Remove duplicate elements from XS. This runs in linear time.
 
    ### Example:
-   ```
+   ```cl
    > (nub '(1 1 2 2 3 3))
    out = (1 2 3)
    ```"
@@ -304,7 +304,7 @@
   "Set-like union of XS and YS.
 
    ### Example:
-   ```
+   ```cl
    > (union '(1 2 3 4) '(1 2 3 4 5))
    out = (1 2 3 4 5)
    ```"
@@ -316,9 +316,9 @@
    ### Example:
    ```cl
    > (all symbol? '(foo bar baz))
-   true
+   out = true
    > (all number? '(1 2 foo))
-   false
+   out = false
    ```"
   (assert-type! p function)
   (assert-type! xs list)
@@ -337,9 +337,9 @@
    ### Example:
    ```cl
    > (elem? 1 '(1 2 3))
-   true
+   out = true
    > (elem? 'foo '(1 2 3))
-   false
+   out = false
    ```"
   (assert-type! xs list)
   (any (lambda (y) (eq? x y)) xs))
@@ -404,30 +404,6 @@
     (get-idx xs idx)
     (get-idx xs (+ (get-idx xs :n) 1 idx))))
 
-(defmacro nth/setf! (selector val)
-  "An implementation of `setf!` for list access.
-
-   ### Example
-   ```cl
-   (setf! (nth foo 2) 123)
-   ```"
-  :hidden
-  `(set-idx! ,(nth selector 1) ,(nth selector 2) ,val))
-
-(defmacro nth/over! (selector fun)
-  "An implementation of `over!` for list access.
-
-   ### Example
-   ```cl
-   (over! (nth foo 2) (cut + <> 2))
-   ```"
-  :hidden
-  (let* [(key-sym (gensym))
-         (val-sym (gensym))]
-    `(let* [(,val-sym ,(nth selector 1))
-            (,key-sym ,(nth selector 2))]
-       (set-idx! ,val-sym ,key-sym (,fun (get-idx ,val-sym ,key-sym))))))
-
 (defun nths (xss idx)
   "Get the IDX-th element in all the lists given at XSS. The first
    element is1.
@@ -466,7 +442,7 @@
    ```cl
    > (define list '(1 2 3))
    > (pop-last! list)
-   3
+   out = 3
    > list
    out = (1 2)
    ``` "
@@ -483,7 +459,7 @@
    ```cl
    > (define list '(1 2 3))
    > (remove-nth! list 2)
-   2
+   out = 2
    > list
    out = (1 3)
    ``` "
@@ -515,7 +491,7 @@
    1
    2
    3
-   nil
+   out = nil
    ```"
   (assert-type! var symbol)
   (let* [(ctr' (gensym))

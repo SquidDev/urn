@@ -124,7 +124,7 @@
                               (.<! asserts 1 `_/test/pending)
                               (set! ok false)]
                              ;; Do a primitive check for top level definitions, ensuring they are pushed to the head.
-                             [(and (list? (car res)) (or (eq? (caar res) 'define) (eq? (caar res) 'defun)))
+                             [(and (list? (car res)) (elem? (caar res) '(define define-macro defun defmacro defgeneric)))
                               (with (renamed (string->symbol (.. k "/" (symbol->string (cadar res)))))
                                 (.<! subst (symbol->string (cadar res)) renamed)
                                 (push-cdr! top-level (_/subst (car res) subst))
@@ -135,15 +135,16 @@
                              ;; If we have no result then exit the loop.
                              [(! ok) (set! i (n lines))]
                              [(> i (n lines))
-                              (_/var-warning! v (.. "Expected result, got nothing"))
+                              (_/var-warning! v "Expected result, got nothing")
                               (.<! asserts 1 `_/test/pending)]
                              ;; If there was no "complex" expression, then just push the raw body.
                              [(= (string/char-at (nth lines i) 1) ">") (push-cdr! asserts res)]
                              ;; Else assume this is an assertion.
                              [true
                               (with (line (nth lines i))
-                                (when (string/starts-with? line "out =")
-                                  (set! line (string/trim (string/sub line 6))))
+                                (if (string/starts-with? line "out =")
+                                  (set! line (string/trim (string/sub line 6)))
+                                  (_/var-warning! v (.. "Expected result to start with \"out = \", got " (pretty line))))
                                 (push-cdr! asserts `(_/test/affirm (= (pretty ,res) ,line))))
                               (inc! i)]))
                          ;; Discard lines starting with ";"

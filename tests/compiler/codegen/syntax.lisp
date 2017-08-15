@@ -27,7 +27,7 @@
         ~((define ,(string->symbol "foo-bar") 2))
         "fooBar = 2")))
 
-  (pending "Adds semi-colons between functions"
+  (pending "semi-colons between function calls"
     (affirm-codegen
       '((foo) ((cond [foo foo] [true bar])) 1)
       "foo();

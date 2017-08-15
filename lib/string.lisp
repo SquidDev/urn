@@ -7,7 +7,13 @@
 (import lua/string () :export)
 
 (defun char-at (xs x)
-  "Index the string XS, returning the character at position X."
+  "Index the string XS, returning the character at position X.
+
+   ### Example:
+   ```cl
+   > (string/char-at \"foo\" 1)
+   out = \"f\"
+   ```"
   (sub xs x x))
 
 (defun split (text pattern limit)
@@ -20,9 +26,9 @@
    ### Example
    ```
    > (split \"foo-bar-baz\" \"-\")
-   (\"foo\" \"bar\" \"baz\")
+   out = (\"foo\" \"bar\" \"baz\")
    > (split \"foo-bar-baz\" \"-\" 1)
-   (\"foo\" \"bar-baz\")
+   out = (\"foo\" \"bar-baz\")
    ```"
   (let* [(out '())
          (loop true)
@@ -55,12 +61,24 @@
     out))
 
 (defun trim (str)
-  "Remove whitespace from both sides of STR."
+  "Remove whitespace from both sides of STR.
+
+   ### Example:
+   ```cl
+   > (string/trim \"  foo\\n\\t\")
+   out = \"foo\"
+   ```"
   (with (res (gsub (gsub str "^%s+" "") "%s+$" ""))
     res))
 
 (define quoted
-  "Quote the string STR so it is suitable for printing."
+  "Quote the string STR so it is suitable for printing.
+
+   ### Example:
+   ```cl
+   > (string/quoted \"\\n\")
+   out = \"\\\"\\\\n\\\"\"
+   ```"
   (with (escapes {})
     ;; Define some mappings for escape characters
     (for i 0 31 1 (set-idx! escapes (char i) (.. "\\" (tostring i))))
@@ -73,11 +91,23 @@
         result))))
 
 (defun starts-with? (str prefix)
-  "Determine whether STR starts with PREFIX."
+  "Determine whether STR starts with PREFIX.
+
+   ### Example:
+   ```cl
+   > (string/starts-with? \"Hello, world\" \"Hello\")
+   out = true
+   ```"
   (= (sub str 1 (len# prefix)) prefix))
 
 (defun ends-with? (str suffix)
-  "Determine whether STR ends with SUFFIX."
+  "Determine whether STR ends with SUFFIX.
+
+   ### Example:
+   ```cl
+   > (string/ends-with? \"Hello, world\" \"world\")
+   out = true
+   ```"
   (= (sub str (- 0 (len# suffix))) suffix))
 
 (defun display (x) :hidden
@@ -91,8 +121,13 @@
 (defmacro $ (str)
   "Perform interpolation (variable substitution) on the string STR.
 
-   The string is a sequence of arbitrary characters which may contain
-   an unquote, of the form `~{foo}`, where foo is a variable name.
+   The string is a sequence of arbitrary characters which may contain an
+   unquote, of the form `~{foo}` or `${foo}`, where foo is a variable
+   name.
+
+   The `~{x}` form will format the value using [[pretty]], ensuring it is
+   readable. `${x}` requires that `x` is a string, simply splicing the
+   value in directly.
 
    ### Example:
    ```cl

@@ -4,7 +4,7 @@
    come after LL; The mixed syntax accepted by `define` is not allowed.
 
    ### Examples:
-   ```cl
+   ```cl :no-test
    > (defgeneric my-pretty-print (x)
    .   \"Pretty-print a value.\")
    out = «method: (my-pretty-print x)»
@@ -53,7 +53,7 @@
    BODY has in scope a symbol, `myself`, that refers specifically to this
    instantiation of the generic method NAME. For instance, in
 
-   ```cl
+   ```cl :no-test
    (defmethod (my-pretty-print string) (x)
      (myself (.. \"foo \" x)))
    ```
@@ -61,7 +61,7 @@
    `myself` refers only to the case of `my-pretty-print` that handles strings.
 
    ### Example
-   ```cl
+   ```cl :no-test
    > (defgeneric my-pretty-print (x)
    .   \"Pretty-print a value.\")
    out = «method: (my-pretty-print x)»

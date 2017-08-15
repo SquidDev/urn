@@ -126,6 +126,8 @@
    ```cl
    > (when-with (foo (.> bar :baz))
    .   (print! foo))
+   \"foo\"
+   out = nil
    ```
 
    When `bar` has an index `baz`, it will be bound to `foo` and
@@ -144,7 +146,7 @@
   "Bind several variables (given in VARS), which may be recursive.
 
    ### Example
-   ```
+   ```cl
    > (letrec [(is-even? (lambda (n)
    .                        (or (= 0 n)
    .                            (is-odd? (pred n)))))
@@ -177,7 +179,7 @@
    If there is no finaliser for VAR, then nothing is done for it.
 
    ### Example:
-   ```
+   ```cl
    > (use [(file (io/open \"tests/data/hello.txt\"))]
    .   (print! (self file :read \"*a\")))
    \"Hello, world!\"
@@ -209,7 +211,6 @@
 
 
    ### Examples:
-
    ```cl
    > (loop [(o '())
    .        (l '(1 2 3))]

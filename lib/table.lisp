@@ -28,20 +28,20 @@
      true]
     [else (assoc? (cdr list) key)]))
 
-(defun insert (list_ key val)
-  "Extend the association list LIST_ by inserting VAL, bound to the key
+(defun insert (alist key val)
+  "Extend the association list ALIST by inserting VAL, bound to the key
    KEY."
-  (snoc list_ (list key val)))
+  (snoc alist (list key val)))
 
 (defun extend (ls key val)
   "Extend the association list LIST_ by inserting VAL, bound to the key
    KEY, overriding any previous value."
   (cons (list key val) ls))
 
-(defun insert! (list_ key val)
-  "Extend the association list LIST_ in place by inserting VAL, bound to
+(defun insert! (alist key val)
+  "Extend the association list ALIST in place by inserting VAL, bound to
    the key KEY."
-  (push-cdr! list_ (list key val)))
+  (push-cdr! alist (list key val)))
 
 (defun assoc->struct (list)
   "Convert the association list LIST into a structure. Much like

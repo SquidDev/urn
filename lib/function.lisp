@@ -19,10 +19,10 @@
    function is called.
 
    ### Example
-   ```
+   ```cl
    > (define double (cut * <> 2))
    > (double 3)
-   6
+   out = 6
    ```"
   (let [(args '())
         (call '())]
@@ -40,10 +40,10 @@
    defined.
 
    ### Example
-   ```
+   ```cl
    > (define double (cute * <> 2))
    > (double 3)
-   6
+   out = 6
    ```"
   (let ((args '())
         (vals '())
@@ -62,11 +62,11 @@
    with the previous entry as an argument.
 
    ### Example
-   ```
+   ```cl
    > (-> '(1 2 3)
    .   (map succ <>)
    .   (map (cut * <> 2) <>))
-   (4 6 8)
+   out = (4 6 8)
    ```"
   (with (res x)
     (for-each form funcs
@@ -82,13 +82,13 @@
    to a set of arguments.
 
    ### Example
-   ```
+   ```cl
    > (invokable? invokable?)
-   true
+   out = true
    > (invokable? nil)
-   false
+   out = false
    > (invokable? (setmetatable {} { :__call (lambda (x) (print! \"hello\")) }))
-   true
+   out = true
    ```"
   (or (function? x)
       (and (table? x)
