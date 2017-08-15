@@ -13,9 +13,10 @@
   (setmetatable
     { :tag "continuation"
       :thread coroutine }
-    { :--pretty-print (const "«continuation»")
-      :__call (lambda (k &args)
+    { :__call (lambda (k &args)
                 (apply continue (.> k :thread) args)) }))
+
+(defmethod (pretty continuation) (x) "«continuation»")
 
 (defun call-with-prompt (prompt-tag body handler)
   "Call the thunk BODY with a prompt PROMPT-TAG in scope. If BODY
@@ -119,6 +120,10 @@
     last-res))
 
 (defun abort-to-prompt (tag &rest)
+  "Abort to the prompt TAG, giving REST as arguments to the handler."
+  (c/yield (cons :abort tag rest)))
+
+(defun abort/p (tag &rest)
   "Abort to the prompt TAG, giving REST as arguments to the handler."
   (c/yield (cons :abort tag rest)))
 

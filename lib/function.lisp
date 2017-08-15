@@ -2,11 +2,11 @@
               get-idx gensym =))
 (import binders (let))
 (import list (for-each push-cdr! any map traverse reduce))
-(import type (symbol? list? function? table?))
+(import type (symbol? list? function? table? pretty))
 (import table (.> getmetatable))
 (import lua/os (clock))
 
-(import base (print pretty))
+(import base (print))
 
 (defun slot? (symb)
   "Test whether SYMB is a slot. For this, it must be a symbol, whose

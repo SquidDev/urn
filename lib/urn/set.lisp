@@ -16,11 +16,9 @@
    out = «hash-set: »
    ```"
   (let* [(hash (or hash-function id))]
-    (setmetatable
-      { :tag "set"
-        :hash hash
-        :data {} }
-      *set-metatable*)))
+    { :tag "set"
+      :hash hash
+      :data {} }))
 
 (define *set-metatable* :hidden
   { :--pretty-print (lambda (x)
@@ -33,6 +31,18 @@
                    (and (= (.> x :hash)
                            (.> y :hash))
                         same-data))) })
+
+(defmethod (eq? set set) (x y)
+  (let* [(same-data true)]
+    (for-pairs (k _) (.> y :data)
+               (when (= (.> x :data k) nil)
+                 (set! same-data false)))
+    (and (= (.> x :hash)
+            (.> y :hash))
+         same-data)))
+
+(defmethod (pretty set) (x)
+  (.. "«hash-set: " (concat (map pretty (set->list x)) " ") "»"))
 
 (defun set? (x)
   "Check that X is a set.

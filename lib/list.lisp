@@ -20,16 +20,13 @@
    in proportion to the size of the input list. This is generally a bad
    thing."
 
-(import base (defun defmacro when unless let* set-idx!
-              get-idx for gensym -or slice /= % else
-              pretty print error tostring  -and
-              unpack debug if n + - >= > = ! with
-              apply and progn .. * while <= < or
-              values-list first second))
-
+(import base (defun defmacro when unless let* set-idx!  get-idx for gensym -or
+               slice /= % else print error tostring  -and unpack if n + - >= > =
+               ! with apply and progn .. * while <= < or values-list first
+               second))
 (import base)
 (import lua/table)
-(import type (nil? list? empty? assert-type! exists? falsey? eq? neq? type))
+(import type (nil? list? empty? assert-type! exists? falsey? eq? neq? type pretty))
 (import lua/math (min max huge))
 
 (defun car (x)

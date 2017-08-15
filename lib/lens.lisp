@@ -72,15 +72,11 @@
 (import lua/basic (setmetatable .. n))
 (import function (compose invokable?))
 (import binders (let* letrec))
-(import base (defun defmacro and
-              get-idx set-idx! =
-              if error for pretty
-              for-pairs gensym >
-              or + <))
-(import list (reduce map filter prune
-              car cdr cadr cons nth
-              push-cdr! reverse maybe-map))
-(import type (list? function? eq? eql?))
+(import base (defun defmacro and get-idx set-idx! = if error for for-pairs
+               gensym > or + <))
+(import list (reduce map filter prune car cdr cadr cons nth push-cdr! reverse
+                     maybe-map))
+(import type (list? function? eq? eql? pretty))
 
 (defun lens (view over)
   "Define a lens using VIEW and OVER as the getter and the replacer

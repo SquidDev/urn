@@ -173,7 +173,7 @@
         [else (set! name "")])
       (set! counter (+ counter 1))
       { :tag "symbol"
-        :display-name "temp"
+        :display-name (.. "temp" name)
         :contents (string/format "r_%d%s" counter name) })))
 
 (defmacro for (ctr start end step &body)
@@ -304,17 +304,6 @@
    a lazy version."
   (and a b))
 
-(defmacro debug (x)
-  "Print the value X, then return it unmodified."
-  (let* [(x-sym (gensym))
-         (px (pretty x))
-         (nm (if (>= 20 (len# px))
-               (.. px " = ")
-               ""))]
-    `(let* [(,x-sym ,x)]
-       (print (.. ,nm (pretty ,x-sym)))
-       ,x-sym)))
-
 (defmacro for-pairs (vars tbl &body)
   "Iterate over TBL, binding VARS for each key value pair in BODY.
 
@@ -341,34 +330,6 @@
         (,func-s (next ,tbl-s)))
        ,tbl nil)))
 
-(defun pretty (value)
-  "Format VALUE as a valid Lisp expression which can be parsed."
-  (with (ty (type# value))
-    (cond
-      [(= ty "table")
-       (with (tag (get-idx value :tag))
-         (cond
-           [(= tag "list")
-            (with (out '())
-                  (for i 1 (n value) 1
-                       (set-idx! out i (pretty (get-idx value i))))
-                  (.. "(" (concat out " ") ")"))]
-           [(and (= (type# (getmetatable value)) "table")
-                 (= (type# (get-idx (getmetatable value) :--pretty-print)) "function"))
-            ((get-idx (getmetatable value) :--pretty-print) value)]
-           [(= tag "list") (get-idx value :contents)]
-           [(= tag "symbol") (get-idx value :contents)]
-           [(= tag "key") (.. ":" (get-idx value :value))]
-           [(= tag "string") (string/format "%q" (get-idx value :value))]
-           [(= tag "number") (tostring (get-idx value :value))]
-           [else
-             (let* [(out '())]
-               (for-pairs (k v) value
-                 (set! out (cons (.. (pretty k) " " (pretty v)) out)))
-               (.. "{" (.. (concat out " ") "}")))]
-           [else (tostring value)]))]
-      [(= ty "string") (string/format "%q" value)]
-      [else (tostring value)])))
 
 (define arg
   "The arguments passed to the currently executing program"
