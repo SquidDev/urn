@@ -8,13 +8,13 @@
       (affirm-codegen
         ~((define ,(string->symbol "") 2))
         "_e = 2"))
-    (pending "numbers"
+    (it "numbers"
       (affirm-codegen
         ~((define ,(string->symbol "23") 2))
         "_e23 = 2")
       (affirm-codegen
-        (list (string->symbol "23.0"))
-        "return _e23"))
+        ~((define ,(string->symbol "23.0") 2))
+        "_e23_2e_0 = 2"))
     (it "symbols"
       (affirm-codegen
         ~((define ,(string->symbol "a+") 2))
