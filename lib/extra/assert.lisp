@@ -22,7 +22,7 @@
    printed out.
 
    ### Example
-   ```
+   ```cl :no-test
    > (affirm (= (+ 2 3) (* 2 3)))
    [ERROR] Assertion failed
    (= (+ 2 3) (* 2 3))
