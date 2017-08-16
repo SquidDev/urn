@@ -412,7 +412,7 @@
 
    ```cl
    > (handler-case
-   .   (error! \"oh no!\")
+   .   (fail! \"oh no!\")
    .   [string? (x)
    .    (print! x)])
    oh no!
