@@ -36,9 +36,9 @@
    TEST marks whether this node is in a \"test\" context. This is any node which
    is used directly or indirectly inside a condition test."
   (with (cat (case (type node)
-          ["string" (cat "const")]
-          ["number" (cat "const")]
-          ["key"    (cat "const")]
+          ["string" (cat "const" :prec 100)]
+          ["number" (cat "const" :prec 100)]
+          ["key"    (cat "const" :prec 100)]
           ["symbol" (cat "const")]
           ["list"
            (with (head (car node))

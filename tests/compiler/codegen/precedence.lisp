@@ -40,6 +40,14 @@
         '((1 1 2))
         "return (1)(1, 2)")))
 
+  (it "will correctly wrap constants"
+    (affirm-codegen
+      '((get-idx 1 2))
+      "return (1)[2]")
+    (affirm-codegen
+      '((get-idx foo 2))
+      "return foo[2]"))
+
   (section "will correctly wrap nested expressions"
     (it "with nots"
       (affirm-codegen

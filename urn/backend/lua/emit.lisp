@@ -109,14 +109,17 @@
        (unless (= ret "")
          (when ret (w/append! out ret))
          (w/append! out "nil"))]
-      ["const" (unless (= ret "")
-                 (when ret (w/append! out ret))
-                 (cond
-                   [(symbol? node) (w/append! out (escape-var (.> node :var) state))]
-                   [(string? node) (w/append! out (string/quoted (.> node :value)))]
-                   [(number? node) (w/append! out (number->string (.> node :value)))]
-                   [(key? node) (w/append! out (string/quoted (.> node :value)))] ;; TODO: Should this be a table instead? If so, can we make this more efficient?
-                   [true (error! (.. "Unknown type: " (type node)))]))]
+      ["const"
+       (unless (= ret "")
+         (when ret (w/append! out ret))
+         (when (.> cat :parens) (w/append! out "("))
+         (cond
+           [(symbol? node) (w/append! out (escape-var (.> node :var) state))]
+           [(string? node) (w/append! out (string/quoted (.> node :value)))]
+           [(number? node) (w/append! out (number->string (.> node :value)))]
+           [(key? node) (w/append! out (string/quoted (.> node :value)))] ;; TODO: Should this be a table instead? If so, can we make this more efficient?
+           [true (error! (.. "Unknown type: " (type node)))])
+         (when (.> cat :parens) (w/append! out ")")))]
 
       ["lambda"
        (unless (= ret "")
