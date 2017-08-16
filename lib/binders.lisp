@@ -121,9 +121,9 @@
 
    ### Example
    ```cl
-   > (when-with (foo (.> bar :baz))
+   > (when-with (foo (.> { :baz \"foo\" } :baz))
    .   (print! foo))
-   \"foo\"
+   foo
    out = nil
    ```
 
@@ -179,8 +179,8 @@
    ```cl
    > (use [(file (io/open \"tests/data/hello.txt\"))]
    .   (print! (self file :read \"*a\")))
-   \"Hello, world!\"
-   out = nil
+   Hello, world!
+   out = true
    ```"
   `(when-let* ,var
      ,@body

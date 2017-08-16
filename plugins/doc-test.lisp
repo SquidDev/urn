@@ -106,11 +106,7 @@
                                (push-cdr! buffer (string/sub line 2))
                                (inc! i)
                                (recur))))
-                         ;; Discard lines starting with ";"
-                         (loop [] [(> i (n lines))]
-                           (when (= (string/char-at (nth lines i) 1) ";")
-                             (inc! i)
-                             (recur)))
+
                          ;; Parse the expression
                          (with ((ok res) (pcall _/parser/read (concat buffer "\n")))
                            (cond
@@ -130,30 +126,60 @@
                                 (push-cdr! top-level (_/subst (car res) subst))
                                 (set! res renamed))]
                              [true (set! res (_/subst (car res) subst))])
-                           ;; Parse the expected result
-                           (cond
-                             ;; If we have no result then exit the loop.
-                             [(! ok) (set! i (n lines))]
-                             [(> i (n lines))
-                              (_/var-warning! v "Expected result, got nothing")
-                              (.<! asserts 1 `_/test/pending)]
-                             ;; If there was no "complex" expression, then just push the raw body.
-                             [(= (string/char-at (nth lines i) 1) ">") (push-cdr! asserts res)]
-                             ;; Else assume this is an assertion.
-                             [true
-                              (with (line (nth lines i))
-                                (if (string/starts-with? line "out =")
-                                  (set! line (string/trim (string/sub line 6)))
-                                  (_/var-warning! v (.. "Expected result to start with \"out = \", got " (pretty line))))
-                                (push-cdr! asserts `(_/test/affirm (= (pretty ,res) ,line))))
-                              (inc! i)]))
-                         ;; Discard lines starting with ";"
-                         (loop [] [(> i (n lines))]
-                           (when (= (string/char-at (nth lines i) 1) ";")
-                             (inc! i)
-                             (recur)))
 
-                         (recur)))))]))))))
+                           (when ok
+                             (with (stdout '())
+                               ;; Gobble stdout lines
+                               (loop [] [(> i (n lines))]
+                                 (with (line (nth lines i))
+                                   (unless (or (string/starts-with? line "out = ") (string/starts-with? line ">"))
+                                     (push-cdr! stdout line)
+                                     (inc! i)
+                                     (recur))))
+
+                               (with (line (nth lines i))
+                                 (cond
+                                   ;; If we're the last line, then we expect some sort of result
+                                   [(! line)
+                                    (_/var-warning! v "Expected result, got nothing")
+                                    (.<! asserts 1 `_/test/pending)]
+
+                                   ;; If we've got no result and we're not the last entry then just push the expression
+                                   ;; unless there was a stdout, then warn.
+                                   [(! (string/starts-with? line "out ="))
+                                    (if (empty? stdout)
+                                      (push-cdr! asserts res)
+                                      (progn
+                                        (_/var-warning! v (.. "Expected result to start with \"out = \", got " (pretty line)))
+                                        (.<! asserts 1 `_/test/pending)))]
+
+                                   ;; Otherwise, let's push our affirmation and continue
+                                   [true
+                                    (with (res-lines (list (string/trim (string/sub line 6))))
+                                      (inc! i)
+                                      (loop [] [(> i (n lines))]
+                                        (with (line (nth lines i))
+                                          (when (string/starts-with? line " ")
+                                            (push-cdr! res-lines (string/trim line))
+                                            (inc! i)
+                                            (recur))))
+
+                                      (if (empty? stdout)
+                                        (push-cdr! asserts `(_/test/affirm (= (pretty ,res) ,(concat res-lines " "))))
+                                        (with (stdout-sym (gensym 'stdout))
+                                          (push-cdr! asserts `(let* [(,stdout-sym '())
+                                                                     (print! (lambda (,'&args) (push-cdr! ,stdout-sym (concat (map tostring ,'args) "   ")) nil))]
+                                                                (_/test/affirm
+                                                                  (= (pretty ,res) ,(concat res-lines " "))
+                                                                  (eq? ',stdout ,stdout-sym)))))))
+
+                                    ;; Discard lines starting with ";"
+                                    (loop [] [(> i (n lines))]
+                                      (when (= (string/char-at (nth lines i) 1) ";")
+                                        (inc! i)
+                                        (recur)))
+
+                                    (recur)])))))))))]))))))
 
     (push-cdr! top-level tests)
     top-level))

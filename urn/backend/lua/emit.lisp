@@ -552,10 +552,10 @@
 
          (if (> (n args) 0)
            ;; If we have some arguments, then set all of them in one go
-           (with (pack-name nil)
+           (let [(pack-name nil)
+                 (done false)]
              ;; First emit a series of variables we're going to set
-             (let* [(offset 1)
-                    (done false)]
+             (with (offset 1)
                (for i 1 (n args) 1
                  (with (var (.> args i :var))
                    (if (.> var :is-variadic)
@@ -570,29 +570,37 @@
                          (if done (w/append! out ", ") (set! done true))
                          (w/append! out (escape-var var state))))))))
 
-             (w/append! out " = ")
+             (if done
+               ;; If we had variables, then bind them
+               (progn
+                 (w/append! out " = ")
 
-             (let* [(offset 1)
-                    (done false)]
-               (for i 1 (n args) 1
-                 (with (var (.> args i :var))
-                   (if (.> var :is-variadic)
-                     ;; If we're variadic then create a list of each sub expression
-                     (with (count (- (n node) (n args)))
-                       (when (< count 0) (set! count 0))
-                       (if done (w/append! out ", ") (set! done true))
-                       (when (compile-pack node out state i count)
-                         (set! pack-name (escape-var var state)))
-                       (set! offset count))
-                     (with (expr (nth node (+ i offset)))
-                       (when (and expr (or (! (symbol? expr)) (/= (.> expr :var) var)))
-                         (if done (w/append! out ", ") (set! done true))
-                         (compile-expression (nth node (+ i offset)) out state))))))
+                 (let* [(offset 1)
+                        (done false)]
+                   (for i 1 (n args) 1
+                     (with (var (.> args i :var))
+                       (if (.> var :is-variadic)
+                         ;; If we're variadic then create a list of each sub expression
+                         (with (count (- (n node) (n args)))
+                           (when (< count 0) (set! count 0))
+                           (if done (w/append! out ", ") (set! done true))
+                           (when (compile-pack node out state i count)
+                             (set! pack-name (escape-var var state)))
+                           (set! offset count))
+                         (with (expr (nth node (+ i offset)))
+                           (when (and expr (or (! (symbol? expr)) (/= (.> expr :var) var)))
+                             (if done (w/append! out ", ") (set! done true))
+                             (compile-expression (nth node (+ i offset)) out state))))))
 
-               ;; Emit all arguments which haven't been used anywhere
-               (for i (+ (n args) (+ offset 1)) (n node) 1
-                 (when (> i 1) (w/append! out ", "))
-                 (compile-expression (nth node i) out state)))
+                   ;; Emit all arguments which haven't been used anywhere
+                   (for i (+ (n args) (+ offset 1)) (n node) 1
+                     (when (> i 1) (w/append! out ", "))
+                     (compile-expression (nth node i) out state))))
+
+               ;; Otherwise, just emit each variable
+               (for i 2 (n node) 1
+                 (when (> i 1) (w/line! out))
+                 (compile-expression (nth node i) out state "")))
 
              (w/line! out)
              (when pack-name (w/line! (.. pack-name ".tag = \"list\""))))

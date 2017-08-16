@@ -1,5 +1,5 @@
 "### Continuation objects
- 
+
  The value given to the handler in [[call-with-prompt]], much like
  the value captured by [[shift]], is not a coroutine: it is a
  continuation object. Continuation objects (or just \"continuations\")
@@ -183,6 +183,6 @@
    .   (break)
    .   (print! 2))
    1
-   out = ()
+   out = nil
    ```"
   `(let-escape-continuation ,'break ,@body))

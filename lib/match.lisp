@@ -7,12 +7,12 @@
  A literal pattern matches only if the scrutinee (what's being matched)
  compares [[eql?]] to the literal. One can use any Urn atom here:
  strings, numbers, keys and symbols.
- 
+
  Note that the `true`, `false` and `nil` symbols will match against their
  *values*, whilst other symbols will match against a symbol object.
 
  ### Example
- ```
+ ```cl
  > (with (x 1)
  .   (case x
  .     [1 \"Is 1!\"]
@@ -31,7 +31,7 @@
  variable of the same name (though without the `?`), bound to the
  captured value.
 
- ```
+ ```cl
  > (with (x 3)
  .   (case x
  .     [1 \"Is 1!\"]
@@ -48,7 +48,7 @@
  metavariable. It will attempt to match the value against the provided
  pattern and, if it matches, bind it to the given variable.
 
- ```
+ ```cl
  > (with (x 3)
  .   (case x
  .     [1 \"Is 1!\"]
@@ -74,7 +74,7 @@
  Both these patterns allow variables to be bound by their \"inner\"
  patterns, allowing one to build up complex expressions.
 
- ```
+ ```cl
  > (with (x '(1 2 (3 4 5)))
  .   (case x
  .     ;; Matching against a fixed list
@@ -91,7 +91,7 @@
  the presence of keys, and does not verify no additional keys are
  present.
 
- ```
+ ```cl
  > (with (x { :x 1 :y '(1 2 3) })
  .   (case x
  .     [{ :x 1 :y 1 } \"A struct of 1, 1\"]
@@ -113,7 +113,7 @@
  value, bind the patterns metavariables and evaluate the expression, only
  succeeding if the expression evaluates to a truthy value.
 
- ```
+ ```cl
  > (with (x \"foo\")
  .   (case x
  .     [(string? @ ?x) x]
@@ -136,7 +136,7 @@
  they call an expression with the required value and match the returned
  value against a pattern.
 
- ```
+ ```cl
  > ;; Declare a helper method for matching strings.
  > (defun matcher (ptrn)
  .    \"Create a function which matches its input against PTRN, returning
@@ -415,7 +415,7 @@
    .   (error! \"oh no!\")
    .   [string? (x)
    .    (print! x)])
-   \"oh no!\"
+   oh no!
    out = nil
    ```"
   (let* [(gen-arm (cs exc)

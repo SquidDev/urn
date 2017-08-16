@@ -47,7 +47,7 @@
          y = y + 1
        end"))
 
-  (pending "handle no variables being bound"
+  (will "handle no variables being bound"
     (affirm-codegen
       '(((lambda (recur)
            (set! recur (lambda (x) (recur x)))
