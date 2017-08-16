@@ -2,8 +2,8 @@
 
 (defun gen-def (name ll body &extra) :hidden
   (case name
-    [(hide ?x) `(defun ,x ,ll :hidden ,@body ,@extra)]
-    [?x `(defun ,x ,ll ,body ,@extra)]))
+    [(hide ?x) `(defun ,x ,ll :hidden ,@extra ,@body)]
+    [?x `(defun ,x ,ll ,@extra ,@body)]))
 
 (defun map-name (f field) :hidden
   (case field
@@ -12,32 +12,36 @@
 
 (defun field->def (nm field) :hidden
   (case field
-    [(immutable ?name)
+    [(immutable ?name (optional (string? @ ?docs)))
      (list
        (gen-def (map-name (cut sym.. nm '- <>) name)
               '(self)
-              `((.> ,'self ,(symbol->string name)))))]
-    [(immutable ?name ?accessor)
+              `((.> ,'self ,(symbol->string name)))
+              docs))]
+    [(immutable ?name ?accessor (optional (string? @ ?docs)))
      (list
        (gen-def accessor
               '(self)
-              `((.> ,'self ,(symbol->string name)))))]
+              `((.> ,'self ,(symbol->string name)))
+              docs))]
     [(symbol? @ ?name)
      (field->def name (list 'immutable name))]
-    [(mutable ?name)
+    [(mutable ?name (optional (string? @ ?docs)))
      (snoc
        (field->def nm (list 'immutable name))
        (gen-def (map-name (cut sym.. 'set- nm '- <> '!) name)
                 '(self val)
-                `((.<! ,'self ,(symbol->string name) ,'val))))]
-    [(mutable ?name ?getter ?setter)
+                `((.<! ,'self ,(symbol->string name) ,'val))
+                docs))]
+    [(mutable ?name ?getter ?setter (optional (string? @ ?docs)))
      (snoc
        (field->def nm (list 'immutable name getter))
        (gen-def setter
                 '(self val)
-                `((.<! ,'self ,(symbol->string name) ,'val))))]))
+                `((.<! ,'self ,(symbol->string name) ,'val))
+                docs))]))
 
-(defun make-constructor (type-name fields symbol spec) :hidden
+(defun make-constructor (docs type-name fields symbol spec) :hidden
   (let* [(lambda-list (map (function
                              [((immutable ?name . _)) name]
                              [((mutable ?name . _)) name]
@@ -55,6 +59,7 @@
                  [?x x]))
          (hide (and (list? type-name) (eq? (car type-name) 'hide)))]
     `(define ,name ,@(if hide '(:hidden) '())
+       ,@(if (nil? docs) '() (list docs))
        (let* [(,(car spec)
                 (lambda ,lambda-list
                   { :tag ,(symbol->string type-name)
@@ -108,10 +113,15 @@
           (case name
             [(?n ?c ?p) (values-list n c p)]
             [?n (values-list n (sym.. 'make- n) (sym.. n '?))]))
+         ((docs clauses)
+          (if (string? (car clauses))
+            (values-list (car clauses) (cdr clauses))
+            (values-list nil clauses)))
          (fields (assoc-cdr clauses 'fields '()))
          (constructor (assoc-cdr clauses 'constructor '(new new)))]
     (let* [(work '())]
-      (push-cdr! work (make-constructor name fields constr constructor))
+      (push-cdr! work (make-constructor docs name fields
+                                        constr constructor))
       (push-cdr! work (gen-def pred '(self) `(= (.> ,'self :tag) ,(symbol->string name))))
       (map (lambda (x)
              (map (cut push-cdr! work <>) (field->def name x)))
