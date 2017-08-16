@@ -5,16 +5,16 @@
     [(hide ?x) `(defun ,x ,ll :hidden ,@body ,@extra)]
     [?x `(defun ,x ,ll ,body ,@extra)]))
 
-(defun paste-names (prefix field) :hidden
+(defun map-name (f field) :hidden
   (case field
-    [(hide ?x) (list 'hide (sym.. prefix '- x))]
-    [?x (sym.. prefix '- x)]))
+    [(hide ?x) (list 'hide (f x))]
+    [?x (f x)]))
 
 (defun field->def (nm field) :hidden
   (case field
     [(immutable ?name)
      (list
-       (gen-def (paste-names nm name)
+       (gen-def (map-name (cut sym.. nm '- <>) name)
               '(self)
               `((.> ,'self ,(symbol->string name)))))]
     [(immutable ?name ?accessor)
@@ -27,7 +27,7 @@
     [(mutable ?name)
      (snoc
        (field->def nm (list 'immutable name))
-       (gen-def (paste-names (paste-names nm 'set-) name)
+       (gen-def (map-name (cut sym.. 'set- nm '- <> '!) name)
                 '(self val)
                 `((.<! ,'self ,(symbol->string name) ,'val))))]
     [(mutable ?name ?getter ?setter)
