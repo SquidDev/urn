@@ -8,13 +8,16 @@
  They may also be given to [[call-with-prompt]]."
 
 (import lua/coroutine c)
+(import urn/struct ())
 
-(defun reify-continuation (coroutine) :hidden
-  (setmetatable
-    { :tag "continuation"
-      :thread coroutine }
-    { :__call (lambda (k &args)
-                (apply continue (.> k :thread) args)) }))
+(defstruct (continuation (hide reify-continuation) continuation?)
+  (fields
+    (immutable thread (hide cont-thread)))
+  (constructor new
+    (lambda (k)
+      (setmetatable (new k)
+        { :__call (lambda (k &args)
+                    (apply continue (cont-thread k) args)) }))))
 
 (defmethod (pretty continuation) (x) "«continuation»")
 
@@ -41,7 +44,7 @@
               [(= (type body) "thread") body]
               ; we reify the continuation before handing it off to the
               ; handler anyway
-              [(= (type body) "continuation") (.> body :thread)]
+              [(= (type body) "continuation") (cont-thread body)]
               [(= (type body) "function") (c/create body)]
               [else (error! (.. "expected a coroutine or a function, got " (type body)))]))
          (last-res nil)]
@@ -164,8 +167,8 @@
    out = true
    ```"
   (cond
-    [(= (type k) :continuation)
-     (/= (c/status (.> k :thread)) "dead")]
+    [(continuation? k)
+     (/= (c/status (cont-thread k)) "dead")]
     [(= (type k) :thread)
      (/= (c/status k) "dead")]
     [(function? k)
