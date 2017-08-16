@@ -1,5 +1,3 @@
-(import urn/control/prompt ())
-
 (defun gen-def (name ll body &extra) :hidden
   (case name
     [(hide ?x) `(defun ,x ,ll :hidden ,@extra ,@body)]
@@ -61,7 +59,7 @@
          (name (case symbol
                  [(hide ?x) x]
                  [?x x]))
-         (hide (and (list? type-name) (eq? (car type-name) 'hide)))]
+         (hide (and (list? symbol) (eq? (car symbol) 'hide)))]
     `(define ,name ,@(if hide '(:hidden) '())
        ,@(if (nil? docs) '() (list docs))
        (let* [(,(car spec)
