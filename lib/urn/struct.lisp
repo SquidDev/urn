@@ -11,42 +11,46 @@
     [?x (f x)]))
 
 (defun field->def (nm field) :hidden
-  (case field
-    [(immutable ?name (optional (string? @ ?docs)))
-     (list
-       (gen-def (map-name (cut sym.. nm '- <>) name)
-              '(self)
-              `((.> ,'self ,(symbol->string name)))
-              docs))]
-    [(immutable ?name ?accessor (optional (string? @ ?docs)))
-     (list
-       (gen-def accessor
-              '(self)
-              `((.> ,'self ,(symbol->string name)))
-              docs))]
-    [(symbol? @ ?name)
-     (field->def name (list 'immutable name))]
-    [(mutable ?name (optional (string? @ ?docs)))
-     (snoc
-       (field->def nm (list 'immutable name))
-       (gen-def (map-name (cut sym.. 'set- nm '- <> '!) name)
-                '(self val)
-                `((.<! ,'self ,(symbol->string name) ,'val))
-                docs))]
-    [(mutable ?name ?getter ?setter (optional (string? @ ?docs)))
-     (snoc
-       (field->def nm (list 'immutable name getter))
-       (gen-def setter
-                '(self val)
-                `((.<! ,'self ,(symbol->string name) ,'val))
-                docs))]))
+  (let* [(self (gensym))
+         (val (gensym))]
+    (case field
+      [(immutable ?name (optional (string? @ ?docs)))
+       (list
+         (gen-def (map-name (cut sym.. nm '- <>) name)
+                `(,self)
+                `((.> ,self ,(symbol->string name)))
+                (or docs `nil)))]
+      [(immutable ?name ?accessor (optional (string? @ ?docs)))
+       (list
+         (gen-def accessor
+                `(,self)
+                `((.> ,self ,(symbol->string name)))
+                (or docs `nil)))]
+      [(symbol? @ ?name)
+       (field->def name (list 'immutable name))]
+      [(mutable ?name (optional (string? @ ?docs)))
+       (snoc
+         (field->def nm (list 'immutable name))
+         (gen-def (map-name (cut sym.. 'set- nm '- <> '!) name)
+                  (list self val)
+                  `((.<! ,self ,(symbol->string name) ,val))
+                  (or docs `nil)))]
+      [(mutable ?name ?getter ?setter (optional (string? @ ?docs)))
+       (snoc
+         (field->def nm (list 'immutable name getter))
+         (gen-def setter
+                  (list self val)
+                  `((.<! ,self ,(symbol->string name) ,val))
+                  (or docs `nil)))])))
+
+(defun field-name (x)
+  (case x
+    [(immutable ?name . _) name]
+    [(mutable ?name . _) name]
+    [?name name]))
 
 (defun make-constructor (docs type-name fields symbol spec) :hidden
-  (let* [(lambda-list (map (function
-                             [((immutable ?name . _)) name]
-                             [((mutable ?name . _)) name]
-                             [?name name])
-                           fields))
+  (let* [(lambda-list (map field-name fields))
          (kv-pairs (map (function
                           [((immutable ?name . _))
                            (list (symbol->string name) `(or ,name nil))]
@@ -122,7 +126,14 @@
     (let* [(work '())]
       (push-cdr! work (make-constructor docs name fields
                                         constr constructor))
-      (push-cdr! work (gen-def pred '(self) `(= (.> ,'self :tag) ,(symbol->string name))))
+      (push-cdr! work (let* [(self (gensym))]
+                        (gen-def pred (list self)
+                               `((and (table? ,self)
+                                      (= (.> ,self :tag) ,(symbol->string name))
+                                      ,@(map (lambda (x)
+                                               (let* [(x (field-name x))]
+                                                 `(/= (.> ,self ,(symbol->string x)) nil)))
+                                             fields))))))
       (map (lambda (x)
              (map (cut push-cdr! work <>) (field->def name x)))
            fields)
