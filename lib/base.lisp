@@ -6,6 +6,12 @@
 (import lua/table (unpack concat) :export)
 (import lua/table table)
 
+
+(define else
+  "[[else]] is defined as having the value `true`. Use it as the
+   last case in a `cond` expression to increase readability."
+  true)
+
 ; This begs for a bit of explaining. So:
 ; @SquidDev is a lazy bum.
 ; @hydraz is a cheating bastard.
@@ -335,12 +341,12 @@
   "The arguments passed to the currently executing program"
   (cond
     [(= nil arg#) '()]
-    [else
-      ;; Ensure we're got a list
+    [true
+      ;; Ensure we've got a list
       (set-idx! arg# :tag "list")
       (cond
-        ((get-idx arg# :n))
-        (else (set-idx! arg# :n (len# arg#))))
+        [(get-idx arg# :n)]
+        [true (set-idx! arg# :n (len# arg#))])
       arg#]))
 
 (defun const-val (val)
@@ -421,10 +427,6 @@
                      out))
            1 ,(n xs)))
 
-(define else
-  "[[else]] is defined as having the value `true`. Use it as the
-   last case in a `cond` expression to increase readability."
-  true)
 
 ,@(let* [(out '())
          (ns '(first second third
