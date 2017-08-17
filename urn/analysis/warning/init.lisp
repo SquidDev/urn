@@ -3,10 +3,11 @@
 (import urn/analysis/usage usage)
 (import urn/analysis/visitor visitor)
 (import urn/documentation doc)
-(import urn/logger/init logger)
+(import urn/logger logger)
 (import urn/range (get-source))
 (import urn/resolve/scope scope)
 
+(import urn/analysis/warning/order warning)
 
 (defpass check-arity (state nodes lookup)
   "Produce a warning if any NODE in NODES calls a function with too many arguments.
@@ -97,5 +98,5 @@
 
 (defun default ()
   "Create a collection of default warnings."
-  { :normal (list documentation)
+  { :normal (list documentation warning/check-order)
     :usage (list check-arity deprecated)})

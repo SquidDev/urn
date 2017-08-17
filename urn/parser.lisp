@@ -1,4 +1,4 @@
-(import urn/logger/init logger)
+(import urn/logger logger)
 (import urn/logger/void void)
 (import urn/range ())
 (import list l)
