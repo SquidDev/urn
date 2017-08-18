@@ -148,7 +148,9 @@
                                    ;; unless there was a stdout, then warn.
                                    [(! (string/starts-with? line "out ="))
                                     (if (empty? stdout)
-                                      (push-cdr! asserts res)
+                                      (progn
+                                        (push-cdr! asserts res)
+                                        (recur))
                                       (progn
                                         (_/var-warning! v (.. "Expected result to start with \"out = \", got " (pretty line)))
                                         (.<! asserts 1 `_/test/pending)))]

@@ -8,7 +8,15 @@
 
 (defun assoc (list key or-val)
   "Return the value given by KEY in the association list LIST, or, in the
-   case that it does not exist, the value OR-VAL, which can be nil."
+   case that it does not exist, the value OR-VAL, which can be nil.
+
+   ### Example:
+   ```cl
+   > (assoc '((\"foo\" 1) (\"bar\" 2)) \"foo\" \"?\")
+   out = 1
+   > (assoc '((\"foo\" 1) (\"bar\" 2)) \"baz\" \"?\")
+   out = \"?\"
+   ```"
   (cond
     [(or (! (list? list))
          (empty? list))
@@ -18,7 +26,15 @@
     [else (assoc (cdr list) key or-val)]))
 
 (defun assoc? (list key)
-  "Check that KEY is bound in the association list LIST."
+  "Check that KEY is bound in the association list LIST.
+
+   ### Example:
+   ```cl
+   > (assoc? '((\"foo\" 1) (\"bar\" 2)) \"foo\")
+   out = true
+   > (assoc? '((\"foo\" 1) (\"bar\" 2)) \"baz\")
+   out = false
+   ```"
   (cond
     [(or (! (list? list))
          (empty? list))
@@ -29,17 +45,37 @@
 
 (defun insert (alist key val)
   "Extend the association list ALIST by inserting VAL, bound to the key
-   KEY."
+   KEY.
+
+   ### Example:
+   ```cl
+   > (insert '((\"foo\" 1)) \"bar\" 2)
+   out = ((\"foo\" 1) (\"bar\" 2))
+   ```"
   (snoc alist (list key val)))
 
 (defun extend (ls key val)
   "Extend the association list LIST_ by inserting VAL, bound to the key
-   KEY, overriding any previous value."
+   KEY, overriding any previous value.
+
+   ### Example:
+   ```cl
+   > (extend '((\"foo\" 1)) \"bar\" 2)
+   out = ((\"bar\" 2) (\"foo\" 1))
+   ```"
   (cons (list key val) ls))
 
 (defun insert! (alist key val)
   "Extend the association list ALIST in place by inserting VAL, bound to
-   the key KEY."
+   the key KEY.
+
+   ### Example:
+   ```cl
+   > (define x '((\"foo\" 1)))
+   > (insert! x \"bar\" 2)
+   > x
+   out = ((\"foo\" 1) (\"bar\" 2))
+   ```"
   (push-cdr! alist (list key val)))
 
 (defun assoc->struct (list)
@@ -80,16 +116,28 @@
 
 (defun struct->list (tbl)
   "Converts a structure TBL that is a list by having its keys be indices
-   to a regular list."
+   to a regular list.
+
+   ### Example
+   ```cl
+   > (struct->list { 1 \"foo\" 2 \"bar\" })
+   out = (\"foo\" \"bar\")
+   ```"
   (update-struct tbl :tag "list"
                      :n   (len# tbl)))
 
 (defun struct->list! (tbl)
   "Converts a structure TBL that is a list by having its keys be indices
    to a regular list. This differs from `struct->list` in that it mutates
-   its argument."
+   its argument.
+   ### Example
+   ```cl
+   > (struct->list! { 1 \"foo\" 2 \"bar\" })
+   out = (\"foo\" \"bar\")
+   ```"
   (.<! tbl :tag "list")
-  (.<! tbl :n (len# tbl)))
+  (.<! tbl :n (len# tbl))
+  tbl)
 
 ;; Chain a series of index accesses together
 (defmacro .> (x &keys)
@@ -146,7 +194,15 @@
     out))
 
 (defun empty-struct? (xs)
-  "Check that XS is the empty struct."
+  "Check that XS is the empty struct.
+
+   ### Example
+   ```cl
+   > (empty-struct? {})
+   out = true
+   > (empty-struct? { :a 1 })
+   out = false
+   ```"
   (! (next xs)))
 
 (defun nkeys (st)
