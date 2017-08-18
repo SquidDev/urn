@@ -151,7 +151,7 @@
       (set! n (+ 1 n))
       (set-idx! out n k))
     (set-idx! out :n n)
-    (unpack out 1 (n out))))
+    (unpack out 1 (get-idx out :n))))
 
 (defun s->s (x) :hidden (get-idx x :contents))
 
@@ -298,6 +298,9 @@
   (= x (get-idx y :value)))
 (defmethod (eq? key key) (x y)
   (= (get-idx x :value) (get-idx y :value)))
+
+(defmethod (eq? number number) (x y) (= (const-val x) (const-val y)))
+(defmethod (eq? string string) (x y) (= (const-val x) (const-val y)))
 
 (defdefault eq? (x y) false)
 
