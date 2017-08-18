@@ -145,6 +145,7 @@
                      ;; If we have no value then we just push all arguments to the parent
                      ;; and exit the loop.
                      (for i 1 (n args) 1
+                       (changed!)
                        (with (arg (remove-nth! args 1))
                          (push-cdr! node-args arg)
                          (.<! vars (.> arg :var) true)))]
@@ -153,6 +154,7 @@
                     [(node-contains-vars? val vars)]
 
                     [true
+                     (changed!)
                      (push-cdr! node (remove-nth! child 2))
                      (with (arg (remove-nth! args 1))
                        (push-cdr! node-args arg)
@@ -201,6 +203,7 @@
                   ;; And has no arguments
                   (empty? (nth (car node) 2)))
               (with (body (car node))
+                (changed!)
                 (if (= (n body) 2)
                   (remove-nth! nodes i)
                   (progn

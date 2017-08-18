@@ -1,37 +1,13 @@
 (import extra/assert ())
 (import extra/term (colored))
-(import lua/basic (type# slice))
+(import lua/basic (slice))
 
 (import urn/backend/lua/emit lua)
 (import urn/backend/lua/escape lua)
 (import urn/backend/lua lua)
 (import urn/backend/writer writer)
-(import urn/logger/void logger)
-(import urn/timer timer)
-(import urn/resolve/builtins builtins)
 (import urn/resolve/loop resolve)
-(import urn/resolve/scope scope)
-
-(define start-range
-  "The default range for all objects"
-  :hidden
-  { :name  "init.lisp"
-    :lines  '(";; Empty")
-    :start  { :line 1 :column 1 }
-    :finish { :line 1 :column 1 } })
-
-(defun wrap-node (node)
-  "Wraps a NODE, converting it into something usable by [[resolve/compile]]."
-  :hidden
-  (case (type# node)
-    ["number" { :tag "number" :value node :range start-range }]
-    ["string" { :tag "string" :value node :range start-range }]
-    ["table"
-     (.<! node :range start-range)
-     (when (list? node)
-       (for i 1 (n node) 1
-         (.<! node i (wrap-node (nth node i)))))
-     node]))
+(import tests/compiler/compiler-helpers (create-compiler wrap-node))
 
 (defun diff-lines (old new out)
   "Diff the strings in OLD to NEW, writing the result to OUT."
@@ -82,31 +58,21 @@
 
 (defun affirm-codegen (input-nodes expected-src)
   "Affirm compiling INPUT-NODES generates EXPECTED-SRC."
-  (let [(scope (builtins/create-scope))
-        (compiler { :log           logger/void
-                    :timer         (timer/create (lambda ()))
-                    :variables     {}
-                    :states        {}
-                    :compile-state (lua/create-state
-                                     { :+       { :tag "expr" :contents '(1 " + " 2) :count 2 :fold "l" :prec 9 }
-                                       :-       { :tag "expr" :contents '(1 " - " 2) :count 2 :fold "l" :prec 9 }
-                                       :..      { :tag "expr" :contents '(1 " .. " 2) :count 2 :fold "r" :prec 8 }
-                                       :get-idx { :tag "expr" :contents '(1 "[" 2 "]") :count 2 :precs '(100 0) }
-                                       :print   { :tag "var" :contents "print" } })
-                    :loader        (lambda (name) (fail! $"Cannot load external module '${name}'")) })
-        (writer (writer/create))]
-    (for-each var '("foo" "bar" "baz" "qux" "+" "-" ".." "get-idx" "print")
-      (lua/push-escape-var! (scope/add! scope var "native") (.> compiler :compile-state)))
-
-    (for-pairs (_ var) (.> scope :parent :variables) (.<! compiler :variables (tostring var) var))
-    (for-pairs (_ var) (.> scope :variables) (.<! compiler :variables (tostring var) var))
+  (let* [(compiler (create-compiler))
+         (compile-state (lua/create-state (.> compiler :lib-meta)))
+         (writer (writer/create))]
+    (.<! compiler :compile-state compile-state)
 
     (with (resolved (resolve/compile
-                      compiler
-                      (wrap-node input-nodes)
-                      scope
-                      "init.lisp"))
-      (lua/block resolved writer (.> compiler :compile-state) 1 "return ")
+                     compiler
+                     (wrap-node input-nodes)
+                     (.> compiler :root-scope)
+                     "init.lisp"))
+
+      (for-pairs (_ var) (.> compiler :root-scope :variables)
+        (lua/push-escape-var! var compile-state))
+
+      (lua/block resolved writer compile-state 1 "return ")
 
       (with (res (string/trim (string/gsub (writer/->string writer) "\t" "  ")))
         (when (/= res expected-src)
