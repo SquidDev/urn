@@ -1,6 +1,7 @@
 (import extra/assert ())
 
 (import urn/analysis/pass pass)
+(import urn/analysis/usage usage)
 (import urn/resolve/loop resolve)
 (import tests/compiler/compiler-helpers (create-compiler wrap-node))
 
@@ -25,3 +26,13 @@
 
       (affirm (eq? expected-nodes resolved)
               (= expected-change  (.> tracker :changed)))))
+
+(defun affirm-usage-optimise (pass input-nodes expected-nodes expected-change)
+  "Affirm running INPUT-NODES through PASS produces the given
+   EXPECTED-NODES, with EXPECTED-CHANGE nodes being modified."
+  (affirm-optimise
+    (lambda (tracker options nodes)
+      (with (lookup (usage/create-state))
+        ((.> usage/tag-usage :run) tracker options nodes lookup)
+        ((.> pass :run) tracker options nodes lookup)))
+    input-nodes expected-nodes expected-change))
