@@ -345,6 +345,7 @@
                 (logger/put-error! logger (.. "Cannot find '" name "'"))]
                [true
                 (print! (colored 96 (.> mod :name)))
+                (print! (.. "Located at " (.> mod :path)))
 
                 (when (.> mod :docs)
                   (print-docs! (.> mod :docs))

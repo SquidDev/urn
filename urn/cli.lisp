@@ -42,14 +42,17 @@
                     (if dir
                       (normalise-path dir true)
                       ;; If we haven't got an URN_STDLIB variable then try to work it out from the current file
-                      (-> (.> arg 0)
+                      (with (path (.> arg 0))
                         ;; Strip the possible file names
-                        (string/gsub <> "urn[/\\]cli%.lisp$" "")
-                        (string/gsub <> "urn[/\\]cli$" "")
-                        (string/gsub <> "bin[/\\]urn%.lua$" "")
-                        (string/gsub <> "bin[/\\]urn$" "")
-                        (normalise-path <> true)
-                        (.. <> "lib/")))))
+                        (set! path (cond
+                                     ;; X/urn/cli.lisp -> X
+                                     [(string/find path "urn[/\\]cli%.lisp$") (string/gsub path "urn[/\\]cli%.lisp$" "")]
+                                     ;; X/bin/* -> X
+                                     [(string/find path "bin[/\\][^/\\]*$")   (string/gsub path "bin[/\\][^/\\]*$" "")]
+                                     ;; X/* -> X
+                                     [else (string/gsub path "[^/\\]*$" "")]))
+                        ;; Normalise the path, append the library directory
+                        (.. (normalise-path path true) "lib/")))))
        (paths (list
                 "?"
                 "?/init"
