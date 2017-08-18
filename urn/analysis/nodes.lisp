@@ -83,6 +83,25 @@
       (and (list? lam) (builtin? (car lam) :lambda)
         (all (lambda (x) (! (.> x :var :is-variadic))) (nth lam 2))))))
 
+(defun single-return? (node)
+  "Whether this NODE will return a single value."
+  (or
+    (! (list? node))
+    (with (head (car node))
+      (if (symbol? head)
+        (with (func (.> head :var))
+          (cond
+            ;; Non-builtin functions will "always" return multiple values.
+            [(/= (.> func :tag) "builtin") false]
+            ;; Various literals will just return a single value
+            [(= func (.> builtins :lambda)) true]
+            [(= func (.> builtins :struct-literal)) true]
+            [(= func (.> builtins :quote)) true]
+            [(= func (.> builtins :syntax-quote)) true]
+            ;; Otherwise just assume it returns multiple values
+            [else false]))
+        true))))
+
 (defun fast-all (fn li i)
   "A fast implementation of all which starts from an offset.
 

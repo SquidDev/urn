@@ -63,8 +63,8 @@
    - A function"
   (or (/= (type# x) "table")
       (and (= (type# x) "table")
-           (or (= (get-idx x :tag) "symbol")
-               (= (get-idx x :tag) "key")))))
+           (with (tag (get-idx x :tag))
+             (or (= tag "symbol") (= tag "key") (= tag "number") (= tag "string"))))))
 
 (defun falsey? (x)
   "Check whether X is falsey, that is, it is either `false` or does not

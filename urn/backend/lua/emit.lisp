@@ -1,4 +1,4 @@
-(import urn/analysis/nodes (builtins fast-any))
+(import urn/analysis/nodes (builtins builtin? fast-any))
 (import urn/analysis/pass (run-pass))
 (import urn/analysis/tag/categories cat)
 (import urn/analysis/tag/find-letrec find-letrec)
@@ -22,7 +22,7 @@
 (defun truthy? (node)
   "Determine whether NODE is true. A more comprehensive implementation exists in the optimiser"
   :hidden
-  (and (symbol? node) (= (.> builtins :true) (.> node :var))))
+  (builtin? node :true))
 
 (define boring-categories
   "A lookup of all 'boring' nodes, for which we will not emit node information for."

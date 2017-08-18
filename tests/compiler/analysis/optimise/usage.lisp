@@ -103,8 +103,26 @@
     (it "and push directly called lambdas in for variable returns"
       (affirm-usage-optimise optimise/expression-fold
         '(((lambda (x) (+ 1 x)) (+ 2 3)))
-        '(((lambda ()  (+ 1 ((lambda(x) x) (+ 2 3))))))
+        '(((lambda () (+ 1 ((lambda(x) x) (+ 2 3))))))
         1))
+
+    (it "for simple (id x) like expressions"
+      (affirm-usage-optimise optimise/expression-fold
+        '(((lambda (x) x) 2))
+        '(((lambda () 2)))
+        1))
+
+    (it "for complex (id x) like expressions"
+      (affirm-usage-optimise optimise/expression-fold
+        '(((lambda (x) x) (lambda ())))
+        '(((lambda () (lambda ()))))
+        1))
+
+    (it "unless it's a variadic (id x) like expressions"
+      (affirm-usage-optimise optimise/expression-fold
+        '(((lambda (x) x) (+ 1 1)))
+        '(((lambda (x) x) (+ 1 1)))
+        0))
 
     (it "when a variable is mutated after"
       (affirm-usage-optimise optimise/expression-fold

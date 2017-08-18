@@ -188,7 +188,7 @@
                   ;; And we're not of the form ((lambda (x) x) Y) where Y is a list
                   ;; (though we'd have probably have inlined non-lists elsewhere).
                   (or
-                    (/= (n root) 2) (/= len 1) (/= (n lam) 3) (atom? (nth root 2))
+                    (/= (n root) 2) (/= len 1) (/= (n lam) 3) (single-return? (nth root 2))
                     (! (symbol? (nth lam 3))) (/= (.> (nth lam 3) :var) (.> (car args) :var)))
                   ;; And no arguments are variadic or mutable
                   (validate 1))
