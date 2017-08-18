@@ -115,12 +115,60 @@
             node))
         node))))
 
-
-
 (defpass lambda-fold (state nodes)
   "Simplify all directly called lambdas without arguments, inlining them
    were appropriate."
   :cat '("opt")
+  (visitor/visit-block nodes 1
+    (lambda (node)
+      ;; Look for directly called lambdas
+      (when (simple-binding? node)
+        (let* [(vars {})
+               (node-lam (car node))
+               (node-args (nth node-lam 2))
+               (arg-n (n node-args))
+               (val-n (pred (n node)))
+               (i 1)]
+
+          ;; If we've got more values then arguments then we can't do anything - we'd have to
+          ;; introduce additional variables.
+          (when (<= val-n arg-n)
+            ;; Build a set of all arguments
+            (for-each arg node-args (.<! vars (.> arg :var) true))
+
+            ;; Find the first non-nil argument
+            (while (and (<= i val-n) (! (builtin? (nth node (succ i)) :nil)))
+              (inc! i))
+
+            ;; If we've some arguments within the range, let's just debug for now
+            (when (<= i arg-n)
+              (loop
+                []
+                [(> i arg-n)]
+
+                (with (head (nth node-lam 3))
+                  (when (and
+                          ;; If the first element is a setter
+                          (list? head) (builtin? (car head) :set!)
+                          ;; And we're setting the current argument
+                          (= (.> (nth head 2) :var) (.> (nth node-args i) :var))
+                          ;; And we don't include a previous definition
+                          (! (node-contains-vars? (nth head 3) vars)))
+
+                    ;; Push all the `nil`s we need
+                    (while (< val-n i)
+                      (push-cdr! node (make-nil))
+                      (inc! val-n))
+
+                    ;; Remove the setter and shift it to the function call
+                    (remove-nth! node-lam 3)
+                    (.<! node (succ i) (nth head 3))
+                    (changed!)))
+
+                (inc! i)
+                (recur))))))))
+
+
   (visitor/visit-block nodes 1
     (lambda (node)
       ;; Look for directly called lambdas
@@ -133,7 +181,8 @@
           ;; While the first element is a simple binding, we have the same number of arguments and values,
           ;; and the lambda body has just one element.
           ;; We require just one element so variables do not "grow" in scope.
-          (loop [(child (nth node-lam 3))]
+          (loop
+            [(child (nth node-lam 3))]
             [(or (! (simple-binding? child)) (/= (n node-args) (pred (n node))) (> (n node-lam) 3))]
             (with (args (nth (car child) 2))
               (loop [] []

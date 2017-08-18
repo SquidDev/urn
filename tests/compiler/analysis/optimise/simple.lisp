@@ -94,4 +94,38 @@
         '(((lambda (x y) (+ x y)) 2)
           ((lambda (x)
              ((lambda (y) (+ x y)) 3))))
+        1))
+
+    (it "folding letrec bindings into lets"
+      ;; Without nil args
+      (affirm-optimise optimise/lambda-fold
+        '(((lambda (x y)
+             (set! x 1)
+             (set! y (lambda ()))
+             (foo x y))))
+        '(((lambda (x y)
+             (foo x y))
+            1 (lambda ())))
+        2)
+
+      ;; With nil args
+      (affirm-optimise optimise/lambda-fold
+        '(((lambda (x y)
+             (set! x 1)
+             (set! y (lambda ()))
+             (foo x y)) nil nil))
+        '(((lambda (x y)
+             (foo x y))
+            1 (lambda ())))
+        2)
+
+      ;; Bindings which rely on previous ones
+      ;; TODO: compile this into a letrec if possible
+      (affirm-optimise optimise/lambda-fold
+        '(((lambda (x y)
+             (set! x 1)
+             (set! y x))))
+        '(((lambda (x y)
+             (set! y x))
+            1))
         1))))
