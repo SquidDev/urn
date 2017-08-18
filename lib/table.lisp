@@ -2,7 +2,7 @@
               set-idx! error = /= % - + n or for for-pairs with ! apply else))
 (import lua/string (sub))
 (import lua/basic (getmetatable setmetatable next len#) :export)
-(import type (empty? list? eq? key?))
+(import type (empty? list? eq? key? assert-type!))
 (import list ())
 (import binders (let))
 
@@ -45,23 +45,34 @@
 (defun assoc->struct (list)
   "Convert the association list LIST into a structure. Much like
    [[assoc]], in the case there are several values bound to the same key,
-   the first value is chosen."
-  (let [(ret '())]
-    (map
-      (lambda (x)
-        (let [(hd (cond
-                    [(key? (car x)) (get-idx (car x) "value")]
-                    [else (car x)]))]
-          (if (! (get-idx ret hd))
-            (set-idx! ret hd (cadr x))
-            nil)))
-      list)
+   the first value is chosen.
+
+   ### Example:
+   ```cl
+   > (assoc->struct '((\"a\" 1)))
+   out = {\"a\" 1}
+   ```"
+  (assert-type! list list)
+  (let [(ret {})]
+    (for-each x list
+      (let [(hd (cond
+                  [(key? (car x)) (get-idx (car x) "value")]
+                  [else (car x)]))]
+        (if (! (get-idx ret hd))
+          (set-idx! ret hd (cadr x))
+          nil)))
     ret))
 
 (defun struct->assoc (tbl)
   "Convert the structure TBL into an association list. Note that
    `(eq? x (struct->assoc (assoc->struct x)))` is not guaranteed,
-   because duplicate elements will be removed."
+   because duplicate elements will be removed.
+
+   ### Example
+   ```cl
+   > (struct->assoc { :a 1 })
+   out = ((\"a\" 1))
+   ```"
   (with (out '())
     (for-pairs (k v) tbl
       (push-cdr! out (list k v)))
