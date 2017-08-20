@@ -162,8 +162,8 @@
               quasiquote list or slice concat apply /= n = ! - + / * >= <= % ..
               else))
 (import type ())
-(import list (car caddr cadr cdr append for-each map filter push-cdr! range snoc
-              nth last elem?))
+(import list (car caddr cadr cdr cddr append for-each map filter
+              push-cdr! range snoc nth last elem? flat-map))
 (import string (char-at sub))
 (import binders (let*))
 
@@ -198,6 +198,9 @@
 (defun pattern-# (pat) :hidden
   (cond
     [(cons-pattern? pat) (pattern-length pat -2)]
+    [(and (list? pat)
+          (eql? '$ (car pat)))
+     (pattern-length pat -3)]
     [else (pattern-length pat 0)]))
 
 (defun predicate? (x) :hidden
@@ -221,6 +224,8 @@
         (assert-linearity! (caddr pat) seen)]
        [(eql? (car pat) 'optional)
         (assert-linearity! (cadr pat) seen)]
+       [(eql? (car pat) '$)
+        (assert-linearity! (cddr pat) seen)]
        [(struct-pat? pat)
         (for i 3 (n pat) 2
           (assert-linearity! (nth pat i) seen))]
@@ -256,6 +261,14 @@
         (compile-pattern-test (car pattern) symb)]
        [(eql? (cadr pattern) '->)
         (compile-pattern-test (caddr pattern) `(,(car pattern) ,symb))]
+       [(eql? (car pattern) '$)
+        (let* [(sym (gensym))]
+          `(and ((get-idx ,(cadr pattern) :test) ,symb)
+             (let* [(,sym (,(cadr pattern) ,symb))]
+               ,@(map (lambda (x k)
+                        (compile-pattern-test x `(nth ,sym ,k)))
+                      (cddr pattern)
+                      (range :from 1 :to (n (cddr pattern)))))))]
        [(eql? (cadr pattern) ':when)
         `(and ,(compile-pattern-test (car pattern) symb)
               (let* ,(compile-pattern-bindings (car pattern) symb)
@@ -323,6 +336,11 @@
           (compile-pattern-bindings (car pattern) symb)]
          [(eql? (cadr pattern) '->)
           (compile-pattern-bindings (caddr pattern) `(,(car pattern) ,symb))]
+         [(eql? (car pattern) '$)
+          (flat-map (lambda (x k)
+                      (compile-pattern-bindings x `((get-idx ,(cadr pattern) :nth-field) ,symb ,k)))
+               (cddr pattern)
+               (range :from 1 :to (n (cddr pattern))))]
          [(eql? (car pattern) 'optional)
           (compile-pattern-bindings (cadr pattern) symb)]
          [(struct-pat? pattern)

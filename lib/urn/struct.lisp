@@ -25,7 +25,7 @@
                 `((.> ,self ,(symbol->string name)))
                 (or docs `nil)))]
       [(symbol? @ ?name)
-       (field->def name (list 'immutable name))]
+       (field->def nm (list 'immutable name))]
       [(mutable ?name (optional (string? @ ?docs)))
        (snoc
          (field->def nm (list 'immutable name))
@@ -54,7 +54,7 @@
                            (list (symbol->string name) `(or ,name nil))]
                           [((mutable ?name . _))
                            (list (symbol->string name) `(or ,name nil))]
-                          [?name (list (symbol->string name) `(or ,name nil))])
+                          [(?name) (list (symbol->string name) `(or ,name nil))])
                         fields))
          (name (case symbol
                  [(hide ?x) x]
@@ -75,6 +75,42 @@
       :when (eq? x k))
      y]
     [(_ . ?x) (assoc-cdr x k or-val)]))
+
+(defun make-meta-decl (type-name constructor-name predicate-name clauses meta-clause fields-clause) :hidden
+  (let* [(name-sym (case (car meta-clause)
+                     [(hide ?x) x]
+                     [?x x]))
+         (hide (if (list? (car meta-clause)) (eql? (caar meta-clause) 'hide) false))
+         (docs (or (cadr meta-clause) nil))
+         (fields-clause-sym (gensym))
+         (nth-field (let* [(self (gensym 'self))
+                           (x (gensym 'x))
+                           (n (gensym 'n))]
+                      `(lambda (,self ,n)
+                         (.> ,self
+                             (let* [(,x (nth ,fields-clause-sym ,n))]
+                               (symbol->string (if (list? ,x)
+                                                 (cadr ,x)
+                                                 ,x)))))))
+         (destructure (let* [(self (gensym 'self))]
+                        `(lambda (,'_ ,self)
+                           (list ,@(map (lambda (x)
+                                          `(.> ,self
+                                               ,(symbol->string (if (list? x)
+                                                                  (cadr x)
+                                                                  x))))
+                                        fields-clause)))))]
+    `(define ,name-sym ,@(if hide '(:hidden) '()) ,@(if docs (list docs) '())
+       (let* [(,fields-clause-sym ',fields-clause)]
+         (setmetatable
+           { :type-name ,(symbol->string type-name)
+             :constructor-name ,(symbol->string constructor-name)
+             :predicate-name ,(symbol->string predicate-name)
+             :test ,predicate-name
+             :constructor ,constructor-name
+             :clauses ',clauses
+             :nth-field ,nth-field }
+           { :__call ,destructure })))))
 
 (defmacro defstruct (name &clauses)
   "Define a struct called NAME.
@@ -119,6 +155,7 @@
           (if (string? (car clauses))
             (values-list (car clauses) (cdr clauses))
             (values-list nil clauses)))
+         (meta (assoc-cdr clauses 'meta (list (sym.. '$ name))))
          (fields (assoc-cdr clauses 'fields '()))
          (constructor (assoc-cdr clauses 'constructor '(new new)))]
     (let* [(work '())]
@@ -135,4 +172,7 @@
       (map (lambda (x)
              (map (cut push-cdr! work <>) (field->def name x)))
            fields)
+      (push-cdr! work (make-meta-decl name constr pred ; names
+                                      clauses ; clauses
+                                      meta fields)) ; clauses we use
       (unpack work 1 (n work)))))
