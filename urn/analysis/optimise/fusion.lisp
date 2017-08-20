@@ -63,8 +63,9 @@
         (let* [(name (symbol->string x))
                (sym (.> syms name))]
           (unless sym
-            (set! sym (gensym))
-            (.<! sym :var { :tag "arg" :name (symbol->string sym) })
+            (set! sym { :tag "symbol"
+                        :name name
+                        :var { :tag "arg" :name name })
             (.<! syms name sym))
           sym)]
        [_ (make-symbol (.> x :var))])]

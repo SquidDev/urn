@@ -436,6 +436,7 @@
    defined in ARMS."
   (let* [(rest-sym (gensym "remaining-arguments"))
          (rest { :tag :symbol
+                 :display-name (get-idx rest-sym :display-name)
                  :contents (.. "&" (get-idx rest-sym :contents)) })
          (param-n (apply max (map (lambda (x)
                                     (pattern-# (car x)))

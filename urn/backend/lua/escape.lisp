@@ -34,8 +34,10 @@
   "Escape an urn identifier NANE, converting it into a form that is valid Lua."
   (cond
     [(= name "") "_e"]
-    [(.> keywords name) (.. "_e" name)] ;; Keywords are trivial to escape
-    [(string/find name "^[_%a][_%w]*$") name] ;; Explicitly forbit leading _ as used for compiler internals
+    ;; Keywords are trivial to escape
+    [(.> keywords name) (.. "_e" name)]
+    ;; Syntactically valid Lua variables. We exclude _ as they mess with "symbol" quoting.
+    [(string/find name "^%a%w*$") name]
     [true (let* [(out (if (-> name (string/char-at <> 1) (string/find <> "%d")) "_e" ""))
                  (upper false)
                  (esc false)]

@@ -15,6 +15,17 @@
       (affirm-codegen
         ~((define ,(string->symbol "23.0") 2))
         "_e23_2e_0 = 2"))
+    (it "underscores"
+      (affirm-codegen
+        ~((define ,(string->symbol "_G") 2))
+        "_5f_G = 2")
+      (affirm-codegen
+        ~((define ,(string->symbol "G_G") 2))
+        "G_5f_G = 2"))
+    (it "keywords"
+      (affirm-codegen
+        ~((define ,(string->symbol "and") 2))
+        "_and = 2"))
     (it "symbols"
       (affirm-codegen
         ~((define ,(string->symbol "a+") 2))

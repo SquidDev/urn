@@ -174,8 +174,8 @@
         [(if (= (type# name) "table")
             (= (get-idx name :tag) "symbol")
             false)
-         (set! name (.. "_" (get-idx name :contents)))]
-        [name (set! name (.. "_" name))]
+         (set! name (.. "-" (get-idx name :contents)))]
+        [name (set! name (.. "-" name))]
         [else (set! name "")])
       (set! counter (+ counter 1))
       { :tag "symbol"
