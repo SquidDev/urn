@@ -220,27 +220,22 @@
                           ;; it in the codegen.
                           (let* [(rec (.> state :rec-lookup func))
                                  (lam (.> rec :lambda))
-                                 (args (nth lam 2))
-                                 (offset 1)
                                  (recur (.> lookup lam :recur))]
 
                             (unless recur
                               (print! "Cannot find recursion for " (.> func :name)))
 
-                            ;; And visit the argument values
-                            (for i 1 (n args) 1
-                              (with (arg (nth args i))
-                                (if (.> arg :var :is-variadic)
-                                  (with (count (- (n node) (n args)))
-                                    (when (< count 0) (set! count 0))
-                                    (for j 1 count 1
-                                      (visit-node lookup state (nth node (+ i j)) false))
-                                    (set! offset count))
-                                  (when-with (val (nth node (+ i offset)))
-                                    (visit-node lookup state val true)))))
-                            ;; Visit the remaining arguments
-                            (for i (+ (n args) (+ offset 1)) (n node) 1
-                              (visit-node lookup state (nth node i) true))
+                            (for-each zip (zip-args (cadr lam) 1 node 2)
+                              (let [(args (car zip))
+                                    (vals (cadr zip))]
+                                (cond
+                                  [(= (n vals) 0)]
+                                  ;; If we're binding multiple values or we're going to pack it,
+                                  ;; then we'll have to emit an expression
+                                  [(or (> (n vals) 1) (.> (car args) :is-variadic))
+                                   (for-each val vals (visit-node lookup state val false))]
+                                  ;; Otherwise it's a simple binding, so we can emit it as a statement.
+                                  [else (visit-node lookup state (car vals) true)])))
 
                             (.<! lookup (.> rec :set!) (cat "void"))
                             (.<! state :var-skip func true)
@@ -323,28 +318,22 @@
 
                   [(and stmt (builtin? (car head) :lambda))
                    ;; Visit the lambda body
-                   (visit-nodes lookup state (car node) 3 true test recur)
+                   (visit-nodes lookup state head 3 true test recur)
 
                    ;; And visit the argument values
-                   ;; Yay: My favourite bit of code, zipping over arguments
-                   ;; No seriously: I need to write an abstraction layer at some point for this.
-                   (let* [(lam (car node))
-                          (args (nth lam 2))
-                          (offset 1)]
-                     (for i 1 (n args) 1
-                       (with (arg (nth args i))
-                         (if (.> arg :var :is-variadic)
-                           (with (count (- (n node) (n args)))
-                             (when (< count 0) (set! count 0))
-                             (for j 1 count 1
-                               (visit-node lookup state (nth node (+ i j)) false))
-                             (set! offset count))
-                           (when-with (val (nth node (+ i offset)))
-                             (visit-node lookup state val true)))))
-                     (for i (+ (n args) (+ offset 1)) (n node) 1
-                       (visit-node lookup state (nth node i) true))
+                   (for-each zip (zip-args (cadr head) 1 node 2)
+                     (let [(args (car zip))
+                           (vals (cadr zip))]
+                       (cond
+                         [(= (n vals) 0)]
+                         ;; If we're binding multiple values or we're going to pack it,
+                         ;; then we'll have to emit an expression
+                         [(or (> (n vals) 1) (.> (car args) :is-variadic))
+                          (for-each val vals (visit-node lookup state val false))]
+                         ;; Otherwise it's a simple binding, so we can emit it as a statement.
+                         [else (visit-node lookup state (car vals) true)])))
 
-                     (cat "call-lambda" :stmt true))]
+                   (cat "call-lambda" :stmt true)]
                   [(or (builtin? (car head) :quote) (builtin? (car head) :syntax-quote))
                    (visit-nodes lookup state node 1 false)
                    (cat "call-literal")]

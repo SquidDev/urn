@@ -4,7 +4,7 @@
 (import table)
 
 (import urn/analysis/visitor visitor)
-(import urn/analysis/nodes (side-effect? builtins))
+(import urn/analysis/nodes (side-effect? builtins make-nil zip-args))
 (import urn/analysis/pass (defpass))
 
 (defun create-state ()
@@ -62,39 +62,20 @@
               (add-definition! state (.> node :def-var) node "val" (nth node (n node)))]
              [(= func (.> builtins :define-native))
               (add-definition! state (.> node :def-var) node "var" (.> node :def-var))]
-             [true]))]
+             [else]))]
     [(and (list? node) (list? (car node)) (symbol? (caar node)) (= (.> (caar node) :var) (.> builtins :lambda)))
      ;; Inline arguments to a directly called lambda
-     (let* [(lam (car node))
-            (args (nth lam 2))
-            (offset 1)
-            (i 1)
-            (arg-len (n args))]
-       (while (<= i arg-len)
-         (let [(arg (nth args i))
-               (val (nth node (+ i offset)))]
-           (cond
-             [(.> arg :var :is-variadic)
-              (with (count (- (n node) (n args)))
-                ;; If it's a variable number of args then just skip them
-                (when (< count 0) (set! count 0))
-                (set! offset count)
-                ;; And define as a normal argument
-                (add-definition! state (.> arg :var) arg "var" (.> arg :var)))]
-             [(and (= (+ i offset) (n node)) (< i arg-len) (list? val))
-              (for j i arg-len 1
-                (with (arg (nth args j))
-                  (add-definition! state (.> arg :var) arg "var" arg)))
-              (set! i arg-len)]
-             [true
-              (add-definition! state (.> arg :var) arg "val" (or val { :tag "symbol"
-                                                                       :contents "nil"
-                                                                       :var (.> builtins :nil) }))]))
-         (inc! i))
-       (visitor/visit-list node 2 visitor)
-       (visitor/visit-block lam 3 visitor))
+     (for-each zipped (zip-args (cadar node) 1 node 2)
+       (let [(args (car zipped))
+             (vals (cadr zipped))]
+         (if (and (= (n args) 1) (<= (n vals) 1) (! (.> (car args) :var :is-variadic)))
+           (add-definition! state (.> (car args) :var) (car args) "val" (or (car vals) (make-nil)))
+           (for-each arg args (add-definition! state (.> arg :var) arg "var" (.> arg :var))))))
+
+     (visitor/visit-list node 2 visitor)
+     (visitor/visit-block (car node) 3 visitor)
      false]
-    (true)))
+    [else]))
 
 (defun definitions-visit (state nodes)
   "Visit all NODES, gathering the definitions for a set of variables."
