@@ -65,7 +65,7 @@
           (unless sym
             (set! sym { :tag "symbol"
                         :name name
-                        :var { :tag "arg" :name name })
+                        :var { :tag "arg" :name name } })
             (.<! syms name sym))
           sym)]
        [_ (make-symbol (.> x :var))])]

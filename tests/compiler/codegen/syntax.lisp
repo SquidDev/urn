@@ -25,7 +25,7 @@
     (it "keywords"
       (affirm-codegen
         ~((define ,(string->symbol "and") 2))
-        "_and = 2"))
+        "_eand = 2"))
     (it "symbols"
       (affirm-codegen
         ~((define ,(string->symbol "a+") 2))
