@@ -1,3 +1,4 @@
+(import urn/analysis/visitor visitor)
 (import urn/backend/lua/emit ())
 (import urn/backend/lua/escape (push-escape-var! escape-var) :export)
 (import urn/backend/writer w)
@@ -8,6 +9,7 @@
 (import extra/assert (assert!))
 (import lua/basic (load))
 (import lua/debug debug)
+(import lua/table table)
 
 (defun create-state (meta) {
                              ;; [[run-pass]] options
@@ -70,18 +72,44 @@
       ;; "too many local variable" errors. The upper bound is actually 200, but lambda inlining
       ;; will probably bring it up slightly.
       ;; In the future we probably ought to handle this smartly when it is over 150 too.
-      (if (between? count 1 150)
-        (progn
-          (w/append! out "local ")
-          (with (first true)
-            (for-each node (.> compiler :out)
-              (when-with (var (.> node :def-var))
-                (if first
-                  (set! first false)
-                  (w/append! out ", "))
-                (w/append! out (escape-var var state)))))
-          (w/line! out))
-        (w/line! out "local _ENV = setmetatable({}, {__index=ENV or (getfenv and getfenv()) or _G}) if setfenv then setfenv(0, _ENV) end")))
+      (cond
+        [(= count 0)]
+        [(<= count 100)
+         (w/append! out "local ")
+         (with (first true)
+           (for-each node (.> compiler :out)
+             (when-with (var (.> node :def-var))
+               (if first
+                 (set! first false)
+                 (w/append! out ", "))
+               (w/append! out (escape-var var state)))))
+         (w/line! out)]
+        [else
+         ;; Very primitive counting of how often each variable is accessed.
+         ;; TODO: Do some fancy things with graphs, to flow counts down
+         ;; dependency graph.
+         (let* [(counts {})
+                (vars '())]
+           (for-each node (.> compiler :out)
+             (when-with (var (.> node :def-var))
+               (.<! counts var 0)
+               (push-cdr! vars var)))
+           (visitor/visit-block (.> compiler :out) 1
+             (lambda (x)
+               (when (symbol? x)
+                 (let* [(var (.> x :var))
+                        (count (.> counts var))]
+                   (when count (.<! counts var (succ count)))))))
+           (table/sort vars (lambda (x y) (> (.> counts x) (.> counts y))))
+
+           (w/append! out "local ")
+           (for i 1 100 1
+             (when (> i 1) (w/append! out ", "))
+             (w/append! out (escape-var (nth vars i) state)))
+           (w/line! out))
+
+         ;; Create a magic metatable which avoids polluting the global output.
+         (w/line! out "local _ENV = setmetatable({}, {__index=ENV or (getfenv and getfenv()) or _G}) if setfenv then setfenv(0, _ENV) end")]))
 
     (block (.> compiler :out) out state 1 "return ")
     out))
@@ -123,7 +151,6 @@
 
         (prelude out)
         (w/line! out (.. "local " (concat escape-list ", ")))
-
 
         ;; Emit all expressions
         (for i 1 (n state-list) 1

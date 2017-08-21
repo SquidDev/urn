@@ -22,10 +22,11 @@
 
 (import base (defun defmacro when unless let* set-idx!  get-idx for gensym -or
                slice /= % else print error tostring  -and unpack if n + - >= > =
-               ! with apply and progn .. * while <= < or values-list first
+               ! with apply and progn .. * while <= < or values-list first list
                second))
 (import base)
 (import lua/table)
+(import lua/string)
 (import type (nil? list? empty? assert-type! exists? falsey? eq? neq? type pretty))
 (import lua/math (min max huge))
 
@@ -649,18 +650,29 @@
 ;; Auto-generate all `c[ad]r`/`c[ad]rs` methods.
 ,@(let* [(out '())
          (symb (lambda (x) { :tag "symbol" :contents x }))
+         (depth-symb (lambda (idx mode) (symb (.. "c" mode (lua/string/rep "d" (- idx 1)) "r"))))
+         (pair (lambda (x y) (list y x)))
          (generate nil)]
-    (set! generate (lambda (name body idx depth)
-                     (when (> depth 0)
-                       ;; Hack as `car` and `cdr` are generated above.
-                       (when (/= name "")
-                         (push-cdr! out `(define ,(symb (.. "ca" name "r")) (lambda (,'xs) (assert-type! ,'xs ,'list) (get-idx ,body ,idx))))
-                         (push-cdr! out `(define ,(symb (.. "cd" name "r")) (lambda (,'xs) (assert-type! ,'xs ,'list) (slice ,body ,(+ idx 1))))))
+    (set! generate (lambda (name stack do-idx idx depth)
+                     (when (> (n name) 1)
+                       (with (head (if do-idx `(get-idx ,'xs ,idx) `(slice ,'xs ,(+ idx 1))))
+                         (push-cdr! out `(define ,(symb (.. "c" name "r"))
+                                           (lambda (,'xs)
+                                             (assert-type! ,'xs ,'list)
+                                             ,(reduce pair head stack))))))
 
-                       (push-cdr! out `(define ,(symb (.. "ca" name "rs")) (lambda (,'xs) (map ,(symb (.. "ca" name "r")) ,'xs))))
-                       (push-cdr! out `(define ,(symb (.. "cd" name "rs")) (lambda (,'xs) (map ,(symb (.. "cd" name "r")) ,'xs))))
+                     (when (> (n name) 0)
+                       (push-cdr! out `(define ,(symb (.. "c" name "rs")) (lambda (,'xs) (map ,(symb (.. "c" name "r")) ,'xs)))))
 
-                       (generate (.. "d" name) body (+ idx 1) (- depth 1))
-                       (generate (.. "a" name) `(get-idx ,body 1) 1 (- depth 1)))))
-    (generate "" 'xs 1 4)
+                     (cond
+                       [(<= depth 0)]
+                       [do-idx
+                        (generate (.. name "a") (cons (depth-symb idx "a") stack) true 1 (- depth 1))
+                        (generate (.. name "d") stack                             true (+ idx 1) (- depth 1))]
+                       [else
+                        (generate (.. name "a") (cons (depth-symb idx "d") stack) true 1 (- depth 1))
+                        (generate (.. name "d") stack                             false (+ idx 1) (- depth 1))])))
+
+    (generate "a" '() true 1 3)
+    (generate "d" '() false 1 3)
     out)
