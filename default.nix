@@ -51,4 +51,8 @@ in
       description = "A lean lisp implementation for Lua";
       license = licenses.bsd3;
     };
+    passthru = {
+      # useful for getting a nix-shell
+      urn-rt = runtime;
+    };
   }
