@@ -82,4 +82,27 @@
             (reduce (lambda (x y) (and x y))
                    true
                    (map eq? a b)))))
+  (it "can be indexed by c[ad]+ functions"
+    (let* [(ctr 0)
+           (tree (loop
+                   [(depth 4)]
+                   [(<= depth 0) (inc! ctr) ctr]
+                   (list (recur (pred depth)) (recur (pred depth)) (recur (pred depth)))))]
+      (affirm (eq? (caaaar tree) (car (car (car (car tree)))))
+              (eq? (caaadr tree) (car (car (car (cdr tree)))))
+              (eq? (caadar tree) (car (car (cdr (car tree)))))
+              (eq? (caaddr tree) (car (car (cdr (cdr tree)))))
+              (eq? (cadaar tree) (car (cdr (car (car tree)))))
+              (eq? (cadadr tree) (car (cdr (car (cdr tree)))))
+              (eq? (caddar tree) (car (cdr (cdr (car tree)))))
+              (eq? (cadddr tree) (car (cdr (cdr (cdr tree)))))
+              (eq? (cdaaar tree) (cdr (car (car (car tree)))))
+              (eq? (cdaaar tree) (cdr (car (car (car tree)))))
+              (eq? (cdaadr tree) (cdr (car (car (cdr tree)))))
+              (eq? (cdadar tree) (cdr (car (cdr (car tree)))))
+              (eq? (cdaddr tree) (cdr (car (cdr (cdr tree)))))
+              (eq? (cddaar tree) (cdr (cdr (car (car tree)))))
+              (eq? (cddadr tree) (cdr (cdr (car (cdr tree)))))
+              (eq? (cdddar tree) (cdr (cdr (cdr (car tree)))))
+              (eq? (cddddr tree) (cdr (cdr (cdr (cdr tree))))))))
 )

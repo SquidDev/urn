@@ -29,7 +29,7 @@
   (io/stderr))
 
 (define *standard-input*
-  "The standard error stream."
+  "The standard input stream."
   (io/input))
 
 (defun succ (x)
