@@ -41,11 +41,16 @@
                   `((.<! ,self ,(symbol->string name) ,val))
                   (or docs `nil)))])))
 
-(defun field-name (x)
+(defun field-name (x) :hidden
   (case x
     [(immutable ?name . _) name]
     [(mutable ?name . _) name]
     [?name name]))
+
+(defun symb-name (x) :hidden
+  (case x
+    [(hide ?x) x]
+    [?x x]))
 
 (defun make-constructor (docs type-name fields symbol spec) :hidden
   (let* [(lambda-list (map field-name fields))
@@ -56,9 +61,7 @@
                            (list (symbol->string name) `(or ,name nil))]
                           [(?name) (list (symbol->string name) `(or ,name nil))])
                         fields))
-         (name (case symbol
-                 [(hide ?x) x]
-                 [?x x]))
+         (name (symb-name symbol))
          (hide (and (list? symbol) (eq? (car symbol) 'hide)))]
     `(define ,name ,@(if hide '(:hidden) '())
        ,@(if (nil? docs) '() (list docs))
@@ -77,9 +80,7 @@
     [(_ . ?x) (assoc-cdr x k or-val)]))
 
 (defun make-meta-decl (type-name constructor-name predicate-name clauses meta-clause fields-clause) :hidden
-  (let* [(name-sym (case (car meta-clause)
-                     [(hide ?x) x]
-                     [?x x]))
+  (let* [(name-sym (symb-name (car meta-clause)))
          (hide (if (list? (car meta-clause)) (eql? (caar meta-clause) 'hide) false))
          (docs (or (cadr meta-clause) nil))
          (fields-clause-sym (gensym))
@@ -172,7 +173,7 @@
       (map (lambda (x)
              (map (cut push-cdr! work <>) (field->def name x)))
            fields)
-      (push-cdr! work (make-meta-decl name constr pred ; names
+      (push-cdr! work (make-meta-decl name (symb-name constr) (symb-name pred) ; names
                                       clauses ; clauses
                                       meta fields)) ; clauses we use
       (unpack work 1 (n work)))))
