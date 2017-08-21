@@ -74,7 +74,7 @@
       ;; In the future we probably ought to handle this smartly when it is over 150 too.
       (cond
         [(= count 0)]
-        [(<= count 150)
+        [(<= count 100)
          (w/append! out "local ")
          (with (first true)
            (for-each node (.> compiler :out)
@@ -103,7 +103,7 @@
            (table/sort vars (lambda (x y) (> (.> counts x) (.> counts y))))
 
            (w/append! out "local ")
-           (for i 1 150 1
+           (for i 1 100 1
              (when (> i 1) (w/append! out ", "))
              (w/append! out (escape-var (nth vars i) state)))
            (w/line! out))
