@@ -123,7 +123,16 @@
     [else (fast-any fn li (+ i 1))]))
 
 (defun zip-args (args args-start vals vals-start)
-  "Zip a set of ARGS with their corresponding VALS."
+  "Zip a set of ARGS with their corresponding VALS.
+
+   This returns a list of pairs. The first element in each pair is a
+   list of arguments, the second value is a list of values. Several
+   observations can be made about these pairs:
+
+    - If there are multiple values, then the first argument is variadic.
+    - If the first argument is variadic, then there is only one.
+    - If there are multiple arguments, then this is the last element. Note that
+      any of these arguments may be variadic, except from the first one."
   (let* [(res '())
          (an (n args))
          (vn (n vals))]

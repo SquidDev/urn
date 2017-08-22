@@ -1,4 +1,4 @@
-(import urn/analysis/nodes (builtins builtin? fast-any))
+(import urn/analysis/nodes (builtins builtin? fast-any zip-args single-return?))
 (import urn/analysis/pass (run-pass))
 (import urn/analysis/tag/categories cat)
 (import urn/analysis/tag/find-letrec find-letrec)
@@ -163,7 +163,7 @@
                    ;; the section. It might be more efficient to pack it and append/assign to the various
                    ;; regions, but that can be profiled later.
                    (w/append! out args-var)
-                   (w/line! out " = { tag=\"list\", n=_n, _unpack(_pack(...), 1, _n)}")
+                   (w/line! out " = {tag=\"list\", n=_n, _unpack(_pack(...), 1, _n)}")
 
                    (for i (succ variadic) (n args) 1
                      (w/append! out (escape-var (.> args i :var) state))
@@ -174,7 +174,7 @@
                    ;; Otherwise we'll just assign an empt list to the variadic and pass the ... to the
                    ;; remaining args
                    (w/append! out args-var)
-                   (w/line! out " = { tag=\"list\", n=0}")
+                   (w/line! out " = {tag=\"list\", n=0}")
 
                    (for i (succ variadic) (n args) 1
                      (w/append! out (escape-var (.> args i :var) state))
@@ -208,7 +208,6 @@
 
                ;; If we're the last block and there isn't anything here, then don't emit an
                ;; else
-
                (when (and (> i 2) (or
                                     (! is-final) (/= ret "") break
                                     (and
@@ -530,7 +529,7 @@
        (let* [(head (.> cat :recur :def))
               (args (nth head 2))]
 
-         (compile-bind args node 1 2 out state)
+         (compile-bind args 1 node 2 out state)
 
          ;; Wrap non-returning loops in an implicit lambda - this is really ugly
          ;; but it means we don't have to handle "break"s.
@@ -550,12 +549,11 @@
          (print! (.. (pretty node) " Got a different break then defined for.\n  Expected: "  (pretty (.> cat :recur :def))
                                                                            "\n       Got: "  (pretty (.> break :def)))))
 
-       (let* [(head (.> cat :recur :def))
-              (args (nth head 2))]
-
+       (with (args (nth (.> cat :recur :def) 2))
          (if (> (n args) 0)
            ;; If we have some arguments, then set all of them in one go
-           (let [(pack-name nil)
+           (let [(zipped (zip-args args 1 node 2))
+                 (pack-name nil)
                  (done false)]
              ;; First emit a series of variables we're going to set
              (with (offset 1)
@@ -600,7 +598,7 @@
                      (when (> i 1) (w/append! out ", "))
                      (compile-expression (nth node i) out state))))
 
-               ;; Otherwise, just emit each variable
+               ;; Otherwise, just emit each value
                (for i 2 (n node) 1
                  (when (> i 1) (w/line! out))
                  (compile-expression (nth node i) out state "")))
@@ -627,7 +625,7 @@
        (let* [(head (car node))
               (args (nth head 2))]
 
-         (compile-bind args node 1 2 out state)
+         (compile-bind args 1 node 2 out state)
          (compile-block head out state 3 ret break)
          (for-each arg args
            (unless (.> state :var-skip (.> arg :var))
@@ -657,111 +655,200 @@
 
     (unless (.> boring-categories cat-tag) (w/pop-node! out node))))
 
-(defun compile-bind (args vals arg-idx val-idx out state)
+(defun compile-bind (args args-start vals vals-start out state)
   "Declare a series of ARGS, bindings VALS to them."
   :hidden
-  (let* [(arg-len (n args))
-         (val-len (n vals))
+  (let* [(zipped (zip-args args args-start vals vals-start))
+         (zipped-n (n zipped))
+         (zipped-i 1)
          (skip (.> state :var-skip))
          (cat-lookup (.> state :cat-lookup))]
-    (while (or (<= arg-idx arg-len) (<= val-idx val-len))
-      (with (arg (.> args arg-idx))
+    (while (<= zipped-i zipped-n)
+      (let* [(zip (nth zipped zipped-i))
+             (args (car zip))
+             (vals (cadr zip))]
         (cond
-          [(! arg)
-           ;; We have no variable
-           (compile-expression (nth vals arg-idx) out state "")
-           (inc! arg-idx)]
-          [(.> arg :var :is-variadic)
-           ;; If we're variadic then create a list of each sub expression
-           (let* [(esc (push-escape-var! (.> arg :var) state))
-                  (count (- val-len arg-len))]
-             (w/append! out (.. "local " esc))
-             (when (< count 0) (set! count 0))
-             (w/append! out " = ")
-             (when (compile-pack vals out state arg-idx count)
-               (w/append! out (.. " " esc ".tag = \"list\"")))
-             (w/line! out)
-             (inc! arg-idx)
-             (set! val-idx (+ count val-idx)))]
-          [(.> skip (.> arg :var))
-           ;; If we are skipping this variable then just increment arg & val
-           (inc! arg-idx)
-           (inc! val-idx)]
-          [(= val-idx val-len)
-           (let* [(arg-list '())
-                  (val (nth vals val-idx))
-                  (ret nil)]
-             (while (<= arg-idx arg-len)
-               (with (var (.> (nth args arg-idx) :var))
-                 (cond
-                   [(! (.> skip var)) (push-cdr! arg-list (push-escape-var! var state))]
-                   ;; If we're skipping a value and it isn't the last one, then we emit a placeholder.
-                   [(< arg-idx arg-len) (push-cdr! arg-list "_")]
-                   [true]))
-               (inc! arg-idx))
+          [(empty? args)
+           ;; Emit each value on its own.
+           (for-each val vals
+             (compile-expression val out state "")
+             (w/line! out))]
 
-             (w/append! out "local ")
-             (w/append! out (concat arg-list ", "))
-             (if (.> cat-lookup val :stmt)
-               (progn
-                 (set! ret (.. (concat arg-list ", ") " = "))
-                 (w/line! out))
-               (w/append! out " = "))
+          ;; If we're variadic then emit all the complicated binding.
+          ;; Note we use the same check later on in the program.
+          [(or (.> (car args) :var :is-variadic)
+               (and (> (n args) 1) (any (cut .> <> :var :is-variadic) args)))
 
-             (compile-expression val out state ret)
-             (inc! val-idx))]
+           (cond
+             ;; We've got multiple arguments. This is going to be tricky.
+             [(> (n args) 1)
+              ;; Keep track of the variable portion.
+              (let* [(var-idx (loop [(i 1)]
+                                [(.> (nth args i) :var :is-variadic) i]
+                                (recur (succ i))))
+                     (var-esc (push-escape-var! (.> (nth args var-idx) :var) state))
+                     (nargs (n args))]
+
+                ;; Pack all the arguments together
+                (w/append! out "local _p = _pack(")
+                (for i 1 (n vals) 1
+                  (when (> i 1) (w/append! out ", "))
+                  (compile-expression (nth vals i) out state))
+                (w/append! out ")")
+                (w/line! out)
+                (w/line! out "local _n = _p.n")
+
+                ;; Now declare these variables
+                (w/append! out "local ")
+                (for i 1 nargs 1
+                  (when (> i 1) (w/append! out ", "))
+                  (w/append! out (push-escape-var! (.> (nth args i) :var) state)))
+
+                (when (> var-idx 1)
+                  (w/append! out " = ")
+                  ;; Set all arguments before the variadic point
+                  (for i 1 (pred var-idx) 1
+                    (when (> i 1) (w/append! out ", "))
+                    (w/append! out (string/format "_p[%d]" i))))
+                (w/line! out)
+
+                ;; If we've enough values, then copy them across
+                (w/begin-block! out (string/format "if _n > %d then" (pred nargs)))
+                (w/line! out (string/format "%s = {tag=\"list\",n=_n-%d}" var-esc (pred nargs)))
+                (w/line! out (string/format "for i = %d, _n-%d do %s[i-%d]=_p[i] end"
+                               var-idx (- nargs var-idx) var-esc (pred var-idx)))
+
+                ;; And bind the remaining arguments to values after the variadic ones.
+                (when (< var-idx nargs)
+                  (for i (succ var-idx) nargs 1
+                    (when (> i (succ var-idx)) (w/append! out ", "))
+                    (w/append! out (escape-var (.> (nth args i) :var) state)))
+                  (w/append! out " = ")
+                  (for i (succ var-idx) nargs 1
+                    (when (> i (succ var-idx)) (w/append! out ", "))
+                    (w/append! out (string/format "_p[_n-%d]" (- nargs i))))
+                  (w/line! out))
+
+                ;; We have insufficient values, so make the varargs empty and bind
+                ;; all remaining arguments to values after the fixed ones.
+                (w/next-block! out "else")
+                (w/line! out (string/format "%s = {tag=\"list\",n=0}" var-esc))
+
+                (when (< var-idx nargs)
+                  (for i (succ var-idx) nargs 1
+                    (when (> i (succ var-idx)) (w/append! out ", "))
+                    (w/append! out (escape-var (.> (nth args i) :var) state)))
+                  (w/append! out " = ")
+                  (for i (succ var-idx) nargs 1
+                    (when (> i (succ var-idx)) (w/append! out ", "))
+                    (w/append! out (string/format "_p[%d]" (pred i))))
+                  (w/line! out))
+                (w/end-block! out "end"))]
+
+             ;; We have a fixed number of arguments & values, thus we know the length
+             ;; in advance and so can emit a simple list
+             [(or (empty? vals) (single-return? (last vals)))
+              (w/append! out "local ")
+              (w/append! out (push-escape-var! (.> (car args) :var) state))
+              (w/append! out " = {tag=\"list\", n=")
+              (w/append! out (number->string (n vals)))
+              (for i 1 (n vals) 1
+                (w/append! out ", ")
+                (compile-expression (nth vals i) out state))
+              (w/append! out "}")
+              (w/line! out)]
+             ;; We don't know how many arguments, so pass it through table.pack
+             ;; and then unpack it into wherever is appropriate.
+             [else
+              (with (name (push-escape-var! (.> (car args) :var) state))
+                (w/append! out "local ")
+                (w/append! out name)
+                (w/append! out " = _pack(")
+                (for i 1 (n vals) 1
+                  (when (> i 1) (w/append! out ", "))
+                  (compile-expression (nth vals i) out state))
+                (w/append! out ") ")
+                (w/append! out name)
+                (w/append! out ".tag = \"list\"")
+                (w/line! out))])]
+
+          ;; If we are skipping this variable then just continue
+          [(and (= (n args) 1) (.> skip (.> (car args) :var)))]
+
           [true
-           (let* [(arg-start arg-idx)
-                  (val-start val-idx)
-                  (working true)]
+           (let [(zipped-lim zipped-i)
+                 (working true)]
              ;; Attempt to collapse multiple definitions into one.
-             (while (and working (or (<= arg-idx arg-len) (<= val-idx val-len)))
-               (let* [(arg (nth args arg-idx))
-                      (val (nth vals val-idx))]
+             ;; We make use of several "facts" about zip-args behaviour.
+             ;;  - Only the last element will bind multiple values
+             ;;  - We'll only use multiple bindings if the first argument is variadic.
+             (while (and working (<= zipped-lim zipped-n))
+               (let* [(zip (nth zipped zipped-lim))
+                      (args (car zip))
+                      (vals (cadr zip))]
                  (cond
-                   ;; Variadic arguments are a faff, so we'll just ignore this.
-                   [(and arg (.> arg :var :is-variadic)) (set! working false)]
-                   ;; We've got a statement, so abort.
-                   [(and val (.> cat-lookup val :stmt)) (set! working false)]
+                   ;; We've got no arguments to bind to, so abort.
+                   [(empty? args) (set! working false)]
+                   ;; Variadic arguments are handled elsewhere as they are rather
+                   ;; complicated to work with
+                   [(or (.> (car args) :var :is-variadic)
+                        (and (> (n args) 1) (any (cut .> <> :var :is-variadic) args)))
+                    (set! working false)]
+                   ;; We've got a statement, so we'll have to handle that elsewhere.
+                   [(and (= (n vals) 1) (.> cat-lookup (car vals) :stmt)) (set! working false)]
                    ;; Otherwise everything is dandy!.
-                   [true
-                    (when (<= arg-idx arg-len) (inc! arg-idx))
-                    (when (<= val-idx val-len) (inc! val-idx))])))
+                   [true (inc! zipped-lim)])))
 
-             (if (= arg-start arg-idx)
-               ;; We didn't consume any arguments, so let's just emit one.
-               (let* [(expr (nth vals val-idx))
-                      (var (.> arg :var))
-                      (esc (push-escape-var! var state))
-                      (ret nil)]
-                 (w/append! out (.. "local " esc))
-                 (if expr
-                   (progn
-                     (if (.> cat-lookup expr :stmt)
-                       (progn
-                         (set! ret (.. esc " = "))
-                         (w/line! out))
-                       (w/append! out " = "))
-                     (compile-expression expr out state ret))
-                   (w/line! out))
+             (if (= zipped-lim zipped-i)
+               ;; We didn't consume any arguments, so let's just emit the first
+               ;; one. It _has_ to be a single statement
+               (with (esc (if (= (n args) 1)
+                            (push-escape-var! (.> (car args) :var) state)
+                            (with (escs '())
+                              (for-each arg args
+                                (push-cdr! escs (push-escape-var! (.> arg :var) state)))
+                              (concat escs ", "))))
+                 (unless (and (= (n vals) 1) (.> cat-lookup (car vals) :stmt))
+                   (error! (.. "Expected statement, got something " (pretty zip))))
 
-                 (inc! arg-idx)
-                 (inc! val-idx))
+                 (w/line! out (.. "local " esc))
+                 (compile-expression (car vals) out state (.. esc " = "))
+                 (w/line! out))
 
-               (progn
+               (with (has-val false)
                  (w/append! out "local ")
-                 (for i arg-start (pred arg-idx) 1
-                   (with (var (.> (nth args i) :var))
-                     (unless (.> skip var)
-                       (when (> i arg-start) (w/append! out ", "))
-                       (w/append! out (push-escape-var! var state)))))
-                 (when (< val-start val-idx)
+                 (with (first true)
+                   (for i zipped-i (pred zipped-lim) 1
+                     (let* [(zip (nth zipped i))
+                            (args (car zip))
+                            (vals (cadr zip))]
+
+                       ;; Check we've got vals
+                       (unless (empty? vals) (set! has-val true))
+
+                       ;; Emit all arguments
+                       (unless (and (= (n args) 1) (.> skip (.> (car args) :var)))
+                         (for-each arg args
+                           (if first (set! first false) (w/append! out ", "))
+                           (with (var (.> arg :var))
+                             (if (.> skip var)
+                               (w/append! out "_")
+                               (w/append! out (push-escape-var! var state)))))))))
+
+                 (when has-val
                    (w/append! out " = ")
-                   (for i val-start (pred val-idx) 1
-                     (unless (.> skip (.> (nth args (+ (- i val-start) arg-start)) :var))
-                       (when (> i val-start) (w/append! out ", "))
-                       (compile-expression (nth vals i) out state)))))))]))
-      (w/line! out))))
+                   (with (first true)
+                     (for i zipped-i (pred zipped-lim) 1
+                       (let* [(zip (nth zipped i))
+                              (args (car zip))
+                              (vals (cadr zip))]
+                         (unless (and (= (n args) 1) (.> skip (.> (car args) :var)))
+                           (for-each val vals
+                             (if first (set! first false) (w/append! out ", "))
+                             (compile-expression val out state)))))))
+                 (w/line! out)
+                 (set! zipped-i (pred zipped-lim)))))]))
+      (inc! zipped-i))))
 
 (defun compile-pack (node out state start count)
   "Compile the code required to pack a set of arguments into a list.
@@ -772,7 +859,7 @@
     (progn
       ;; Emit each expression into the list.
       ;; A future enhancement might be to check if these are statements and, if so, push it
-      (w/append! out "{ tag=\"list\", n=")
+      (w/append! out "{tag=\"list\", n=")
       (w/append! out (number->string count))
 
       (for j 1 count 1
