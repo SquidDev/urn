@@ -25,7 +25,7 @@ This can be used as a rudimentary algebraic property checker, where
 the list of properties you're checking.
 
 ### Example:
-```cl :no-test
+```cl
 > (check [(number a)]
 .   (= a a))
 out = true

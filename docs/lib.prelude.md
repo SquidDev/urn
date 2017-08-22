@@ -347,7 +347,7 @@ The arguments passed to the currently executing program
 Return the value `X` unchanged.
 
 ## `(assert-type! arg ty)`
-*Macro defined at lib/type.lisp:116:1*
+*Macro defined at lib/type.lisp:118:1*
 
 Assert that the argument `ARG` has type `TY`, as reported by the function
 [`type`](lib.type.md#type-val).
@@ -405,7 +405,7 @@ out = 2
 ```
 
 ## `(atom? x)`
-*Defined at lib/type.lisp:56:1*
+*Defined at lib/type.lisp:58:1*
 
 Check whether `X` is an atomic object, that is, one of
 - `A` boolean
@@ -416,7 +416,7 @@ Check whether `X` is an atomic object, that is, one of
 - `A` function
 
 ## `(between? val min max)`
-*Defined at lib/type.lisp:84:1*
+*Defined at lib/type.lisp:86:1*
 
 Check if the numerical value `X` is between
 `MIN` and `MAX`.
@@ -561,7 +561,7 @@ out = 6
 ```
 
 ## `(debug x)`
-*Macro defined at lib/type.lisp:351:1*
+*Macro defined at lib/type.lisp:365:1*
 
 Print the value `X`, then return it unmodified.
 
@@ -579,7 +579,7 @@ out = 0
 ```
 
 ## `(defdefault name ll &body)`
-*Macro defined at lib/type.lisp:249:1*
+*Macro defined at lib/type.lisp:260:1*
 
 Add a default case to the generic method `NAME` with the arguments `LL` and the
 body `BODY`.
@@ -587,7 +587,7 @@ body `BODY`.
 `BODY` has in scope a symbol, `myself`, that refers specifically to this
 instantiation of the generic method `NAME`. For instance, in
 
-```cl :no-test
+```cl
 (defdefault my-pretty-print (x)
   (myself (.. "foo " x)))
 ```
@@ -595,14 +595,14 @@ instantiation of the generic method `NAME`. For instance, in
 `myself` refers only to the default case of `my-pretty-print`
 
 ## `(defgeneric name ll &attrs)`
-*Macro defined at lib/type.lisp:158:1*
+*Macro defined at lib/type.lisp:160:1*
 
 Define a generic method called `NAME` with the arguments given in `LL`,
 and the attributes given in `ATTRS`. Note that documentation _must_
 come after `LL`; The mixed syntax accepted by `define` is not allowed.
 
 ### Examples:
-```cl :no-test
+```cl
 > (defgeneric my-pretty-print (x)
 .   "Pretty-print a value.")
 out = «method: (my-pretty-print x)»
@@ -619,7 +619,7 @@ Define `NAME` to be the macro given by (lambda `ARGS` @`BODY`), with
 optional metadata at the start of `BODY`.
 
 ## `(defmethod name ll &body)`
-*Macro defined at lib/type.lisp:217:1*
+*Macro defined at lib/type.lisp:228:1*
 
 Add a case to the generic method `NAME` with the arguments `LL` and the body
 `BODY`. The types of arguments for this specialisation are given in the list
@@ -628,7 +628,7 @@ Add a case to the generic method `NAME` with the arguments `LL` and the body
 `BODY` has in scope a symbol, `myself`, that refers specifically to this
 instantiation of the generic method `NAME`. For instance, in
 
-```cl :no-test
+```cl
 (defmethod (my-pretty-print string) (x)
   (myself (.. "foo " x)))
 ```
@@ -636,7 +636,7 @@ instantiation of the generic method `NAME`. For instance, in
 `myself` refers only to the case of `my-pretty-print` that handles strings.
 
 ### Example
-```cl :no-test
+```cl
 > (defgeneric my-pretty-print (x)
 .   "Pretty-print a value.")
 out = «method: (my-pretty-print x)»
@@ -740,12 +740,12 @@ out = false
 Check whether `X` is the empty list or the empty string.
 
 ## `eq?`
-*Defined at lib/type.lisp:267:1*
+*Defined at lib/type.lisp:278:1*
 
 Compare values for equality deeply.
 
 ## `(eql? x y)`
-*Defined at lib/type.lisp:102:1*
+*Defined at lib/type.lisp:104:1*
 
 `A` version of [`eq?`](lib.type.md#eq-) that compares the types of `X` and `Y` instead of
 just the values.
@@ -798,7 +798,7 @@ out = (1 3 5)
 ```
 
 ## `(exists? x)`
-*Defined at lib/type.lisp:74:1*
+*Defined at lib/type.lisp:76:1*
 
 Check if `X` exists, i.e. it is not the special value `nil`.
 Note that, in Urn, `nil` is not the empty list.
@@ -828,7 +828,7 @@ Fail with the error message `X`, that is, exit the program immediately,
 without unwinding for an error handler.
 
 ## `(falsey? x)`
-*Defined at lib/type.lisp:69:1*
+*Defined at lib/type.lisp:71:1*
 
 Check whether `X` is falsey, that is, it is either `false` or does not
 exist.
@@ -1123,7 +1123,7 @@ element of the list.
 Iterate over `TABLE` with a function `FUNC` of the form `(lambda (key val) ...)`
 
 ## `(key? x)`
-*Defined at lib/type.lisp:52:1*
+*Defined at lib/type.lisp:54:1*
 
 Check whether `X` is a key.
 
@@ -1228,7 +1228,7 @@ Check whether `X` is a list.
 
 `A` general iteration helper.
 
-```cl :no-test
+```cl
 > (loop [(var0 val0)
 .        (var1 val1)
 .        ...]
@@ -1303,13 +1303,13 @@ Merge all tables in `STRUCTS` together into a new table.
 Get the length of list X
 
 ## `(neq? x y)`
-*Defined at lib/type.lisp:97:1*
+*Defined at lib/type.lisp:99:1*
 
 Compare `X` and `Y` for inequality deeply. `X` and `Y` are `neq?`
 if `([[eq?]] x y)` is falsey.
 
 ## `(nil? x)`
-*Defined at lib/type.lisp:79:1*
+*Defined at lib/type.lisp:81:1*
 
 Check if `X` does not exist, i.e. it is the special value `nil`.
 Note that, in Urn, `nil` is not the empty list.
@@ -1469,7 +1469,7 @@ out = (1 2)
 Return the predecessor of the number `X`.
 
 ## `pretty`
-*Defined at lib/type.lisp:324:1*
+*Defined at lib/type.lisp:335:1*
 
 Pretty-print a value.
 
@@ -1784,11 +1784,11 @@ Return the structure given by the list of pairs `ENTRIES`. Note that, in
 contrast to variations of [`let`](lib.binders.md#let-vars-body), the pairs are given "unpacked":
 Instead of invoking
 
-```cl :no-test
+```cl
 (struct [(:foo bar)])
 ```
 or
-```cl :no-test
+```cl
 (struct {:foo bar})
 ```
 you must instead invoke it like
@@ -1936,7 +1936,7 @@ out = (3 6)
 ```
 
 ## `(type val)`
-*Defined at lib/type.lisp:89:1*
+*Defined at lib/type.lisp:91:1*
 
 Return the type of `VAL`.
 

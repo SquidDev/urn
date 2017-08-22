@@ -11,7 +11,7 @@ internal representation of nodes.
 Determine whether the specified `NODE` is the given `BUILTIN`.
 
 ### Example
-```cl :no-test
+```cl
 > (builtin? (symbol->var `lambda) :lambda)
 out = true
 ```

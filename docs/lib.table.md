@@ -145,11 +145,11 @@ Return the structure given by the list of pairs `ENTRIES`. Note that, in
 contrast to variations of [`let`](lib.binders.md#let-vars-body), the pairs are given "unpacked":
 Instead of invoking
 
-```cl :no-test
+```cl
 (struct [(:foo bar)])
 ```
 or
-```cl :no-test
+```cl
 (struct {:foo bar})
 ```
 you must instead invoke it like

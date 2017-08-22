@@ -14,7 +14,7 @@ the predicate's name. In case `NAME` is a symbol, the constructor
 and predicate names are automatically derived from that symbol.
 
 Consider:
-```cl :no-test
+```cl
 (defstruct thing ...)
 (defstruct (other-thing make-something-else is-something-else?) ...)
 ```

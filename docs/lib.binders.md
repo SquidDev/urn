@@ -54,7 +54,7 @@ out = true
 
 `A` general iteration helper.
 
-```cl :no-test
+```cl
 > (loop [(var0 val0)
 .        (var1 val1)
 .        ...]

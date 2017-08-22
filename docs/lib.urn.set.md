@@ -100,4 +100,4 @@ out = «hash-set: 1 2 3 4 5 6»
 
 ## Undocumented symbols
  - `$set` *Defined at lib/urn/set.lisp:6:1*
- - `(set? r_632)` *Defined at lib/urn/set.lisp:6:1*
+ - `(set? r_635)` *Defined at lib/urn/set.lisp:6:1*

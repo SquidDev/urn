@@ -132,6 +132,6 @@ out = 12
  - `$continuation` *Defined at lib/urn/control/prompt.lisp:13:1*
  - `call/ec` *Defined at lib/urn/control/prompt.lisp:110:1*
  - `call/p` *Defined at lib/urn/control/prompt.lisp:67:1*
- - `(continuation? r_671)` *Defined at lib/urn/control/prompt.lisp:13:1*
+ - `(continuation? r_674)` *Defined at lib/urn/control/prompt.lisp:13:1*
  - `let/ec` *Macro defined at lib/urn/control/prompt.lisp:111:1*
  - `let/p` *Macro defined at lib/urn/control/prompt.lisp:72:1*
