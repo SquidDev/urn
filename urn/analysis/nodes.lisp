@@ -100,7 +100,7 @@
             [(= func (.> builtins :syntax-quote)) true]
             ;; Otherwise just assume it returns multiple values
             [else false]))
-        true))))
+        false))))
 
 (defun fast-all (fn li i)
   "A fast implementation of all which starts from an offset.

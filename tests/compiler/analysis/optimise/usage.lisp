@@ -120,8 +120,10 @@
 
     (it "unless it's a variadic (id x) like expressions"
       (affirm-usage-optimise optimise/expression-fold
-        '(((lambda (x) x) (+ 1 1)))
-        '(((lambda (x) x) (+ 1 1)))
+        '(((lambda (x) x) (+ 1 1))
+          ((lambda (x) x) ((lambda () (+ 1 1)))))
+        '(((lambda (x) x) (+ 1 1))
+          ((lambda (x) x) ((lambda () (+ 1 1)))))
         0))
 
     (it "when a variable is mutated after"
