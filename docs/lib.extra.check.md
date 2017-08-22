@@ -5,7 +5,7 @@ title: extra/check
 `A` checker for algebraic properties.
 
 ## `(=:= f g x)`
-*Macro defined at lib/extra/check.lisp:138:1*
+*Macro defined at lib/extra/check.lisp:137:1*
 
 Express that the functions `F` and `G` are equivalent at the point `X`.
 
@@ -25,11 +25,10 @@ This can be used as a rudimentary algebraic property checker, where
 the list of properties you're checking.
 
 ### Example:
-```
+```cl :no-test
 > (check [(number a)]
 .   (= a a))
-(= a a) passed 100 tests.
-out = nil
+out = true
 > (check [(number a)]
 .   (= a (+ 1 a)))
 (= a (+ 1 a)) falsified after 1 iteration(s)
@@ -43,7 +42,7 @@ iteration. This library has the ability to generate random numbers,
 strings, symbols, booleans, keys and lists.
 
 ## `(forall var prop)`
-*Macro defined at lib/extra/check.lisp:151:1*
+*Macro defined at lib/extra/check.lisp:150:1*
 
 Check that `PROP` holds across all possible points. This is a
 restricted version of [`check`](lib.extra.check.md#check-bindings-props) that does not allow specifying
@@ -59,7 +58,7 @@ out = true
 ```
 
 ## `(tripping f g x)`
-*Macro defined at lib/extra/check.lisp:119:1*
+*Macro defined at lib/extra/check.lisp:118:1*
 
 Express that the composition of the functions `F` and `G` (in order!)
 are equivalent to the identity, on the argument `X`.

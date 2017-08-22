@@ -3,7 +3,7 @@ title: base
 ---
 # base
 ## `(! expr)`
-*Defined at lib/base.lisp:152:1*
+*Defined at lib/base.lisp:158:1*
 
 Compute the logical negation of the expression `EXPR`.
 
@@ -15,7 +15,7 @@ out = false
 ```
 
 ## `(-and a b)`
-*Defined at lib/base.lisp:299:1*
+*Defined at lib/base.lisp:305:1*
 
 Return the logical conjunction of values `A` and `B`.
 
@@ -24,7 +24,7 @@ variable. However, each argument is evaluated eagerly. See [`and`](lib.base.md#a
 a lazy version.
 
 ## `(-or a b)`
-*Defined at lib/base.lisp:291:1*
+*Defined at lib/base.lisp:297:1*
 
 Return the logical disjunction of values `A` and `B`.
 
@@ -33,7 +33,7 @@ variable. However, each argument is evaluated eagerly. See [`or`](lib.base.md#or
 a lazy version.
 
 ## `(<=> p q)`
-*Macro defined at lib/base.lisp:275:1*
+*Macro defined at lib/base.lisp:281:1*
 
 Bidirectional implication. `(<=> a b)` means that `(=> a b)` and
 `(=> b a)` both hold.
@@ -49,7 +49,7 @@ out = false
 ```
 
 ## `(=> p q)`
-*Macro defined at lib/base.lisp:265:1*
+*Macro defined at lib/base.lisp:271:1*
 
 Logical implication. `(=> a b)` is equivalent to `(or (! a) b)`.
 
@@ -60,7 +60,7 @@ out = true
 ```
 
 ## `(and a b &rest)`
-*Macro defined at lib/base.lisp:229:1*
+*Macro defined at lib/base.lisp:235:1*
 
 Return the logical and of values `A` and `B`, and, if present, the
 logical and of all the values in `REST`.
@@ -78,7 +78,7 @@ out = false
 ```
 
 ## `(apply f &xss xs)`
-*Defined at lib/base.lisp:432:1*
+*Defined at lib/base.lisp:399:1*
 
 Apply the function `F` using `XS` as the argument list, with `XSS` as
 arguments before `XS` is spliced.
@@ -92,17 +92,17 @@ out = 3
 ```
 
 ## `arg`
-*Defined at lib/base.lisp:373:1*
+*Defined at lib/base.lisp:340:1*
 
 The arguments passed to the currently executing program
 
 ## `(cons x xs)`
-*Defined at lib/base.lisp:108:1*
+*Defined at lib/base.lisp:114:1*
 
 Add `X` to the start of the list `XS`. Note: this is linear in time.
 
 ## `(const-val val)`
-*Defined at lib/base.lisp:385:1*
+*Defined at lib/base.lisp:352:1*
 
 Get the actual value of `VAL`, an argument to a macro.
 
@@ -110,31 +110,26 @@ Due to how macros are implemented, all values are wrapped as tables
 in order to preserve positional data about nodes. You will need to
 unwrap them in order to use them.
 
-## `(debug x)`
-*Macro defined at lib/base.lisp:307:1*
-
-Print the value `X`, then return it unmodified.
-
 ## `(defmacro name args &body)`
-*Macro defined at lib/base.lisp:88:1*
+*Macro defined at lib/base.lisp:94:1*
 
 Define `NAME` to be the macro given by (lambda `ARGS` @`BODY`), with
 optional metadata at the start of `BODY`.
 
 ## `(defun name args &body)`
-*Macro defined at lib/base.lisp:82:1*
+*Macro defined at lib/base.lisp:88:1*
 
 Define `NAME` to be the function given by (lambda `ARGS` @`BODY`), with
 optional metadata at the start of `BODY`.
 
 ## `else`
-*Defined at lib/base.lisp:463:1*
+*Defined at lib/base.lisp:10:1*
 
 [`else`](lib.base.md#else) is defined as having the value `true`. Use it as the
 last case in a `cond` expression to increase readability.
 
 ## `(for ctr start end step &body)`
-*Macro defined at lib/base.lisp:179:1*
+*Macro defined at lib/base.lisp:185:1*
 
 Iterate `BODY`, with the counter `CTR` bound to `START`, being incremented
 by `STEP` every iteration until `CTR` is outside of the range given by
@@ -149,7 +144,7 @@ out = (1 2 3)
 ```
 
 ## `(for-pairs vars tbl &body)`
-*Macro defined at lib/base.lisp:318:1*
+*Macro defined at lib/base.lisp:313:1*
 
 Iterate over `TBL`, binding `VARS` for each key value pair in `BODY`.
 
@@ -164,12 +159,12 @@ out = (("foo" 123))
 ```
 
 ## `gensym`
-*Defined at lib/base.lisp:163:1*
+*Defined at lib/base.lisp:169:1*
 
 Create a unique symbol, suitable for using in macros
 
 ## `(if c t b)`
-*Macro defined at lib/base.lisp:125:1*
+*Macro defined at lib/base.lisp:131:1*
 
 Evaluate `T` if `C` is true, otherwise, evaluate `B`.
 
@@ -180,7 +175,7 @@ out = "<= 1 3"
 ```
 
 ## `(list &xs)`
-*Defined at lib/base.lisp:97:1*
+*Defined at lib/base.lisp:103:1*
 
 Return the list of variadic arguments given.
 
@@ -196,7 +191,7 @@ out = (1 2 3)
 Get the length of list X
 
 ## `(or a b &rest)`
-*Macro defined at lib/base.lisp:247:1*
+*Macro defined at lib/base.lisp:253:1*
 
 Return the logical or of values `A` and `B`, and, if present, the
 logical or of all the values in `REST`.
@@ -213,13 +208,8 @@ out = 1
 out = true
 ```
 
-## `(pretty value)`
-*Defined at lib/base.lisp:344:1*
-
-Format `VALUE` as a valid Lisp expression which can be parsed.
-
 ## `(progn &body)`
-*Macro defined at lib/base.lisp:112:1*
+*Macro defined at lib/base.lisp:118:1*
 
 Group a series of expressions together.
 
@@ -233,7 +223,7 @@ out = 456
 ```
 
 ## `(quasiquote val)`
-*Macro defined at lib/base.lisp:418:1*
+*Macro defined at lib/base.lisp:385:1*
 
 Quote `VAL`, but replacing all `unquote` and `unquote-splice` with their actual value.
 
@@ -254,12 +244,12 @@ Take a slice of `XS`, with all values at indexes between `START` and `FINISH` (o
 entry of `XS` if not specified).
 
 ## `(unless c &body)`
-*Macro defined at lib/base.lisp:139:1*
+*Macro defined at lib/base.lisp:145:1*
 
 Evaluate `BODY` if `C` is false, otherwise, evaluate `nil`.
 
 ## `(values-list &xs)`
-*Macro defined at lib/base.lisp:446:1*
+*Macro defined at lib/base.lisp:413:1*
 
 Return multiple values, one per element in `XS`.
 
@@ -271,12 +261,12 @@ out = nil
 ```
 
 ## `(when c &body)`
-*Macro defined at lib/base.lisp:135:1*
+*Macro defined at lib/base.lisp:141:1*
 
 Evaluate `BODY` when `C` is true, otherwise, evaluate `nil`.
 
 ## `(while check &body)`
-*Macro defined at lib/base.lisp:206:1*
+*Macro defined at lib/base.lisp:212:1*
 
 Iterate `BODY` while the expression `CHECK` evaluates to `true`.
 
@@ -289,7 +279,7 @@ out = 0
 ```
 
 ## `(with var &body)`
-*Macro defined at lib/base.lisp:225:1*
+*Macro defined at lib/base.lisp:231:1*
 
 Bind the single variable `VAR`, then evaluate `BODY`.
 
@@ -307,29 +297,29 @@ Bind the single variable `VAR`, then evaluate `BODY`.
  - `>` *Native defined at lib/lua/basic.lisp:5:1*
  - `>=` *Native defined at lib/lua/basic.lisp:6:1*
  - `^` *Native defined at lib/lua/basic.lisp:13:1*
- - `(car xs)` *Defined at lib/base.lisp:94:1*
- - `(cdr xs)` *Defined at lib/base.lisp:95:1*
+ - `(car xs)` *Defined at lib/base.lisp:100:1*
+ - `(cdr xs)` *Defined at lib/base.lisp:101:1*
  - `concat` *Native defined at lib/lua/table.lisp:1:1*
- - `(eighth &rest)` *Defined at lib/base.lisp:468:1*
+ - `(eighth &rest)` *Defined at lib/base.lisp:431:1*
  - `error` *Native defined at lib/lua/basic.lisp:24:1*
- - `(fifth &rest)` *Defined at lib/base.lisp:468:1*
- - `(first &rest)` *Defined at lib/base.lisp:468:1*
- - `(fourth &rest)` *Defined at lib/base.lisp:468:1*
+ - `(fifth &rest)` *Defined at lib/base.lisp:431:1*
+ - `(first &rest)` *Defined at lib/base.lisp:431:1*
+ - `(fourth &rest)` *Defined at lib/base.lisp:431:1*
  - `get-idx` *Native defined at lib/lua/basic.lisp:34:1*
  - `getmetatable` *Native defined at lib/lua/basic.lisp:25:1*
- - `(lambda ll &body)` *Macro defined at lib/base.lisp:17:1*
+ - `(lambda ll &body)` *Macro defined at lib/base.lisp:23:1*
  - `len#` *Native defined at lib/lua/basic.lisp:19:1*
- - `(let* vars &body)` *Macro defined at lib/base.lisp:143:1*
- - `(ninth &rest)` *Defined at lib/base.lisp:468:1*
+ - `(let* vars &body)` *Macro defined at lib/base.lisp:149:1*
+ - `(ninth &rest)` *Defined at lib/base.lisp:431:1*
  - `pcall` *Native defined at lib/lua/basic.lisp:31:1*
  - `print` *Native defined at lib/lua/basic.lisp:32:1*
  - `require` *Native defined at lib/lua/basic.lisp:39:1*
- - `(second &rest)` *Defined at lib/base.lisp:468:1*
+ - `(second &rest)` *Defined at lib/base.lisp:431:1*
  - `set-idx!` *Native defined at lib/lua/basic.lisp:36:1*
- - `(seventh &rest)` *Defined at lib/base.lisp:468:1*
- - `(sixth &rest)` *Defined at lib/base.lisp:468:1*
- - `(tenth &rest)` *Defined at lib/base.lisp:468:1*
- - `(third &rest)` *Defined at lib/base.lisp:468:1*
+ - `(seventh &rest)` *Defined at lib/base.lisp:431:1*
+ - `(sixth &rest)` *Defined at lib/base.lisp:431:1*
+ - `(tenth &rest)` *Defined at lib/base.lisp:431:1*
+ - `(third &rest)` *Defined at lib/base.lisp:431:1*
  - `tonumber` *Native defined at lib/lua/basic.lisp:42:1*
  - `tostring` *Native defined at lib/lua/basic.lisp:43:1*
  - `type#` *Native defined at lib/lua/basic.lisp:44:1*

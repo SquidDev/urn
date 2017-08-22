@@ -3,7 +3,7 @@ title: string
 ---
 # string
 ## `($ str)`
-*Macro defined at lib/string.lisp:121:1*
+*Macro defined at lib/string.lisp:122:1*
 
 Perform interpolation (variable substitution) on the string `STR`.
 
@@ -11,7 +11,7 @@ The string is a sequence of arbitrary characters which may contain an
 unquote, of the form `~{foo}` or `${foo}`, where foo is a variable
 name.
 
-The `~{x}` form will format the value using [`pretty`](lib.base.md#pretty-value), ensuring it is
+The `~{x}` form will format the value using [`pretty`](lib.type.md#pretty), ensuring it is
 readable. `${x}` requires that `x` is a string, simply splicing the
 value in directly.
 
@@ -22,7 +22,7 @@ out = "1 = 1"
 ```
 
 ## `(char-at xs x)`
-*Defined at lib/string.lisp:9:1*
+*Defined at lib/string.lisp:10:1*
 
 Index the string `XS`, returning the character at position `X`.
 
@@ -33,7 +33,7 @@ out = "f"
 ```
 
 ## `(ends-with? str suffix)`
-*Defined at lib/string.lisp:103:1*
+*Defined at lib/string.lisp:104:1*
 
 Determine whether `STR` ends with `SUFFIX`.
 
@@ -44,7 +44,7 @@ out = true
 ```
 
 ## `quoted`
-*Defined at lib/string.lisp:74:1*
+*Defined at lib/string.lisp:75:1*
 
 Quote the string `STR` so it is suitable for printing.
 
@@ -55,7 +55,7 @@ out = "\"\\n\""
 ```
 
 ## `(split text pattern limit)`
-*Defined at lib/string.lisp:19:1*
+*Defined at lib/string.lisp:20:1*
 
 Split the string given by `TEXT` in at most `LIMIT` components, which are
 delineated by the Lua pattern `PATTERN`.
@@ -72,7 +72,7 @@ out = ("foo" "bar-baz")
 ```
 
 ## `(starts-with? str prefix)`
-*Defined at lib/string.lisp:93:1*
+*Defined at lib/string.lisp:94:1*
 
 Determine whether `STR` starts with `PREFIX`.
 
@@ -83,7 +83,7 @@ out = true
 ```
 
 ## `(trim str)`
-*Defined at lib/string.lisp:63:1*
+*Defined at lib/string.lisp:64:1*
 
 Remove whitespace from both sides of `STR`.
 

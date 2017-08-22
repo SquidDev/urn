@@ -74,27 +74,27 @@ out = '(1 3 3 4 5 6 7 8 9 10)
 ```
 
 ## `(<> &lenses)`
-*Defined at lib/lens.lisp:148:1*
+*Defined at lib/lens.lisp:144:1*
 
 Compose, left-associatively, the list of lenses given by `LENSES`.
 
 ## `(^. val lens)`
-*Defined at lib/lens.lisp:159:1*
+*Defined at lib/lens.lisp:155:1*
 
 Use `LENS` to focus on a bit of `VAL`.
 
 ## `(^= val lens new)`
-*Defined at lib/lens.lisp:171:1*
+*Defined at lib/lens.lisp:167:1*
 
 Use `LENS` to replace a bit of `VAL` with `NEW`.
 
 ## `(^~ val lens f)`
-*Defined at lib/lens.lisp:165:1*
+*Defined at lib/lens.lisp:161:1*
 
 Use `LENS` to apply the function `F` over a bit of `VAL`.
 
 ## `(accumulating f z l)`
-*Defined at lib/lens.lisp:320:1*
+*Defined at lib/lens.lisp:316:1*
 
 Transform the lens `L` into a getter which folds the result using the
 function `F` and the zero element `Z`. For performance reasons, a right
@@ -110,7 +110,7 @@ out = 3
 ```
 
 ## `(at k)`
-*Defined at lib/lens.lisp:233:1*
+*Defined at lib/lens.lisp:229:1*
 
 `A` lens that focuses on the `K`-th element of a list. [`view`](lib.lens.md#view-l-v) is
 equivalent to `get-idx`, and [`over`](lib.lens.md#over-l-f-v) is like `set-idx!`.
@@ -122,7 +122,7 @@ out = 2
 ```
 
 ## `(every x ln)`
-*Defined at lib/lens.lisp:336:1*
+*Defined at lib/lens.lisp:332:1*
 
 `A` higher-order lens that focuses `LN` on every element of a list that
 satisfies the perdicate `X`. If `X` is a regular value, it is compared
@@ -139,7 +139,7 @@ out = (x x x x)
 ```
 
 ## `(folding f z l)`
-*Defined at lib/lens.lisp:304:1*
+*Defined at lib/lens.lisp:300:1*
 
 Transform the (traversing) lens `L` into a getter which folds
 the result using the function `F` and the zero element `Z`. For
@@ -155,7 +155,7 @@ out = 3
 ```
 
 ## `(getter view)`
-*Defined at lib/lens.lisp:98:1*
+*Defined at lib/lens.lisp:94:1*
 
 Define a getting lens using `VIEW` as the accessor.
 
@@ -163,14 +163,14 @@ Lenses built with [`getter`](lib.lens.md#getter-view) can be composed (with [`<>
 to focus on a value (with [`view`](lib.lens.md#view-l-v)).
 
 ## `(getter? lens)`
-*Defined at lib/lens.lisp:120:1*
+*Defined at lib/lens.lisp:116:1*
 
 Check that `LENS` has a defined getter, along with being tagged as
 a `LENS`. This is essentially a relaxed version of [`lens?`](lib.lens.md#lens-lens) in
 regards to the setter check.
 
 ## `head`
-*Defined at lib/lens.lisp:211:1*
+*Defined at lib/lens.lisp:207:1*
 
 `A` lens equivalent to [`car`](lib.list.md#car-x), which [`view`](lib.lens.md#view-l-v)s and applies [`over`](lib.lens.md#over-l-f-v)
 the first element of a list.
@@ -182,14 +182,14 @@ out = 1
 ```
 
 ## `it`
-*Defined at lib/lens.lisp:201:1*
+*Defined at lib/lens.lisp:197:1*
 
 The simplest lens, not focusing on any subcomponent. In the case of [`over`](lib.lens.md#over-l-f-v),
 if the value being focused on is a list, the function is mapped over every
 element of the list.
 
 ## `(lens view over)`
-*Defined at lib/lens.lisp:85:1*
+*Defined at lib/lens.lisp:81:1*
 
 Define a lens using `VIEW` and `OVER` as the getter and the replacer
 functions, respectively.
@@ -199,13 +199,13 @@ to focus on a value (with [`view`](lib.lens.md#view-l-v)), and replace that valu
 (with [`set`](lib.lens.md#set-l-n-v) or [`over`](lib.lens.md#over-l-f-v))
 
 ## `(lens? lens)`
-*Defined at lib/lens.lisp:112:1*
+*Defined at lib/lens.lisp:108:1*
 
 Check that is `LENS` a valid lens, that is, has the proper tag, a
 valid getter and a valid setter.
 
 ## `(on k)`
-*Defined at lib/lens.lisp:254:1*
+*Defined at lib/lens.lisp:250:1*
 
 `A` lens that focuses on the element of a structure that is at the key
 `K`.
@@ -217,7 +217,7 @@ out = "bar"
 ```
 
 ## `(on! k)`
-*Defined at lib/lens.lisp:272:1*
+*Defined at lib/lens.lisp:268:1*
 
 `A` lens that focuses (**and mutates**) the element of a structure
 that is at the key `K`.
@@ -233,27 +233,27 @@ out = {"value" 5}
 ```
 
 ## `(over l f v)`
-*Defined at lib/lens.lisp:179:1*
+*Defined at lib/lens.lisp:175:1*
 
 Flipped synonym for [`^~`](lib.lens.md#-val-lens-f)
 
 ## `(overl! lens f val)`
-*Macro defined at lib/lens.lisp:193:1*
+*Macro defined at lib/lens.lisp:189:1*
 
 Mutate `VAL` by applying to a bit of it the function `F`, using `LENS`.
 
 ## `(set l n v)`
-*Defined at lib/lens.lisp:183:1*
+*Defined at lib/lens.lisp:179:1*
 
 Flipped synonym for [`^=`](lib.lens.md#-val-lens-new)
 
 ## `(setl! lens new val)`
-*Macro defined at lib/lens.lisp:187:1*
+*Macro defined at lib/lens.lisp:183:1*
 
 Mutate `VAL` by replacing a bit of it with `NEW`, using `LENS`.
 
 ## `(setter over)`
-*Defined at lib/lens.lisp:105:1*
+*Defined at lib/lens.lisp:101:1*
 
 Define a setting lens using `VIEW` as the accessor.
 
@@ -261,14 +261,14 @@ Lenses built with [`setter`](lib.lens.md#setter-over) can be composed (with [`<>
 to replace a value (with [`over`](lib.lens.md#over-l-f-v) or [`set`](lib.lens.md#set-l-n-v)).
 
 ## `(setter? lens)`
-*Defined at lib/lens.lisp:127:1*
+*Defined at lib/lens.lisp:123:1*
 
 Check that `LENS` has a defined setter, along with being tagged as
 a `LENS`. This is essentially a relaxed version of [`lens?`](lib.lens.md#lens-lens) in
 regards to the getter check.
 
 ## `tail`
-*Defined at lib/lens.lisp:222:1*
+*Defined at lib/lens.lisp:218:1*
 
 `A` lens equivalent to [`cdr`](lib.list.md#cdr-x), which [`view`](lib.lens.md#view-l-v)s and applies [`over`](lib.lens.md#over-l-f-v)
 to all but the first element of a list.
@@ -280,7 +280,7 @@ out = (2 3)
 ```
 
 ## `(traversing l)`
-*Defined at lib/lens.lisp:291:1*
+*Defined at lib/lens.lisp:287:1*
 
 `A` lens which maps the lens `L` over every element of a given list.
 
@@ -291,7 +291,7 @@ out = (3 6)
 ```
 
 ## `(view l v)`
-*Defined at lib/lens.lisp:175:1*
+*Defined at lib/lens.lisp:171:1*
 
 Flipped synonym for [`^.`](lib.lens.md#-val-lens)
 

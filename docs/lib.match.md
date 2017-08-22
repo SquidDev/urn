@@ -16,7 +16,7 @@ Note that the `true`, `false` and `nil` symbols will match against their
 *values*, whilst other symbols will match against a symbol object.
 
 ### Example
-```
+```cl
 > (with (x 1)
 .   (case x
 .     [1 "Is 1!"]
@@ -35,7 +35,7 @@ metavariable. This is a symbol prefixed with `?`. This will declare a
 variable of the same name (though without the `?`), bound to the
 captured value.
 
-```
+```cl
 > (with (x 3)
 .   (case x
 .     [1 "Is 1!"]
@@ -52,7 +52,7 @@ form. This is a list which takes a pattern, the `@` symbol and then a
 metavariable. It will attempt to match the value against the provided
 pattern and, if it matches, bind it to the given variable.
 
-```
+```cl
 > (with (x 3)
 .   (case x
 .     [1 "Is 1!"]
@@ -78,7 +78,7 @@ list and matching that against a new pattern.
 Both these patterns allow variables to be bound by their "inner"
 patterns, allowing one to build up complex expressions.
 
-```
+```cl
 > (with (x '(1 2 (3 4 5)))
 .   (case x
 .     ;; Matching against a fixed list
@@ -95,7 +95,7 @@ against an arbitrary struct. However, the struct pattern only checks for
 the presence of keys, and does not verify no additional keys are
 present.
 
-```
+```cl
 > (with (x { :x 1 :y '(1 2 3) })
 .   (case x
 .     [{ :x 1 :y 1 } "A struct of 1, 1"]
@@ -117,7 +117,7 @@ Guards are not dissimilar to predicates. They match a pattern against a
 value, bind the patterns metavariables and evaluate the expression, only
 succeeding if the expression evaluates to a truthy value.
 
-```
+```cl
 > (with (x "foo")
 .   (case x
 .     [(string? @ ?x) x]
@@ -140,7 +140,7 @@ Views are a way of implementing your own quasi-patterns. Simply put,
 they call an expression with the required value and match the returned
 value against a pattern.
 
-```
+```cl
 > ;; Declare a helper method for matching strings.
 > (defun matcher (ptrn)
 .    "Create a function which matches its input against PTRN, returning
@@ -161,13 +161,13 @@ with `(matcher "0x(%d+)")`, apply it to `x` and then match the
 returned value (`("23")`) against the `?x` pattern.
 
 ## `(case val &pts)`
-*Macro defined at lib/match.lisp:383:1*
+*Macro defined at lib/match.lisp:397:1*
 
 Match a single value against a series of patterns, evaluating the
 first body that matches, much like `cond`.
 
 ## `(destructuring-bind pt &body)`
-*Macro defined at lib/match.lisp:366:1*
+*Macro defined at lib/match.lisp:380:1*
 
 Match a single pattern against a single value, then evaluate the `BODY`.
 
@@ -175,13 +175,13 @@ The pattern is given as `(car PT)` and the value as `(cadr PT)`.  If
 the pattern does not match, an error is thrown.
 
 ## `(function &arms)`
-*Macro defined at lib/match.lisp:438:1*
+*Macro defined at lib/match.lisp:452:1*
 
 Create a lambda which matches its arguments against the patterns
 defined in `ARMS`.
 
 ## `(handler-case x &body)`
-*Macro defined at lib/match.lisp:407:1*
+*Macro defined at lib/match.lisp:421:1*
 
 Evaluate the form `X`, and if an error happened, match the series
 of `(?pattern (?arg) . ?body)` arms given in `BODY` against the value of
@@ -194,15 +194,15 @@ expression is returned by [`handler-case`](lib.match.md#handler-case-x-body).
 
 ```cl
 > (handler-case
-.   (error! "oh no!")
+.   (fail! "oh no!")
 .   [string? (x)
 .    (print! x)])
-"oh no!"
+oh no!
 out = nil
 ```
 
 ## `(if-match cs t e)`
-*Macro defined at lib/match.lisp:452:1*
+*Macro defined at lib/match.lisp:467:1*
 
 Matches a pattern against a value defined in `CS`, evaluating `T` with the
 captured variables in scope if the pattern succeeded, otherwise
@@ -211,7 +211,7 @@ evaluating `E`.
 [`if-match`](lib.match.md#if-match-cs-t-e) is to [`case`](lib.match.md#case-val-pts) what [`if`](lib.base.md#if-c-t-b) is to `cond`.
 
 ## `(matches? pt x)`
-*Macro defined at lib/match.lisp:397:1*
+*Macro defined at lib/match.lisp:411:1*
 
 Test if the value `X` matches the pattern `PT`.
 
