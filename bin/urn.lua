@@ -4,6 +4,7 @@ if not table.unpack then table.unpack = unpack end
 local load = load if _VERSION:find("5.1") then load = function(x, n, _, env) local f, e = loadstring(x, n) if not f then return f, e end if env then setfenv(f, env) end return f end end
 local _select, _unpack, _pack, _error = select, table.unpack, table.pack, error
 local _libs = {}
+local getIdx1, _3d_1, n1, nth1, _2b_1, setIdx_21_1, _2e2e_1, _3c3d_1, type1, append_21_1, car1, error1, _2f3d_1, builtins1, pushCdr_21_1, _2d_1, line_21_1, sub1, self1, _3e_1, format1, list1, pretty1, _3e3d_1, print1, eq_3f_1, next1, getSource1, compileExpression1, doNodeError_21_1, builtin_3f_1, concat1, empty_3f_1, _3c_1, gsub1, exit_21_1, addArgument_21_1, tostring1, succ1, on_21_1, find1, _5e7e_1, string_3f_1, quoted1, visitBlock1, cadr1, type_23_1, visitNode1, removeNth_21_1, put_21_1, colored1, last1, visitNodes1, tonumber1, pushEscapeVar_21_1, visitNode3, unpack1, slice1, getenv1, constVal1, usage_21_1, resolveNode1, open1, map2, escapeVar1, arg1, getVar1, split1, compileBlock1, pcall1, unmangleIdent1, sort1, expectType_21_1, number_3f_1, apply1, runPass1, scoreNodes1, traverseList1, symbol_2d3e_string1, between_3f_1, caar1, visitNode4, lower1, sethook1, makeNil1, expect_21_1, len_23_1, putNodeWarning_21_1, addParen1, get1, formatNode1, popLast_21_1, child1, matcher2, traverseNode1, any1, get_21_1, matcher1, visitNode2, match1
 local _ENV = setmetatable({}, {__index=ENV or (getfenv and getfenv()) or _G}) if setfenv then setfenv(0, _ENV) end
 _3d_1 = function(v1, v2) return v1 == v2 end
 _2f3d_1 = function(v1, v2) return v1 ~= v2 end
@@ -48,7 +49,7 @@ slice1 = (function(xs, start, finish)
 			finish = #xs
 		end
 	end
-	local len = (finish - start) + 1
+	local len, _ = (finish - start) + 1
 	if len < 0 then
 		len = 0
 	end
@@ -79,67 +80,6 @@ list1 = (function(...)
 	local xs = _pack(...) xs.tag = "list"
 	return xs
 end)
-cons1 = (function(x, xs)
-	local _offset, _result, _temp = 0, {tag="list",n=0}
-	_result[1 + _offset] = x
-	_temp = xs
-	for _c = 1, _temp.n do _result[1 + _c + _offset] = _temp[_c] end
-	_offset = _offset + _temp.n
-	_result.n = _offset + 1
-	return _result
-end)
-local counter = 0
-gensym1 = (function(name)
-	if type_23_1(name) == "table" and name["tag"] == "symbol" then
-		name = "_" .. name["contents"]
-	elseif name then
-		name = "_" .. name
-	else
-		name = ""
-	end
-	counter = counter + 1
-	return ({["tag"]="symbol",["display-name"]="temp" .. name,["contents"]=format1("r_%d%s", counter, name)})
-end)
-pretty1 = (function(value)
-	local ty = type_23_1(value)
-	if ty == "table" then
-		local tag = value["tag"]
-		if tag == "list" then
-			local out = ({tag = "list", n = 0})
-			local temp = n1(value)
-			local temp1 = 1
-			while temp1 <= temp do
-				out[temp1] = pretty1(value[temp1])
-				temp1 = temp1 + 1
-			end
-			return "(" .. concat1(out, " ") .. ")"
-		elseif type_23_1(getmetatable1(value)) == "table" and type_23_1(getmetatable1(value)["--pretty-print"]) == "function" then
-			return getmetatable1(value)["--pretty-print"](value)
-		elseif tag == "list" then
-			return value["contents"]
-		elseif tag == "symbol" then
-			return value["contents"]
-		elseif tag == "key" then
-			return ":" .. value["value"]
-		elseif tag == "string" then
-			return format1("%q", value["value"])
-		elseif tag == "number" then
-			return tostring1(value["value"])
-		else
-			local out = ({tag = "list", n = 0})
-			local temp, v = next1(value)
-			while temp ~= nil do
-				out = cons1(pretty1(temp) .. " " .. pretty1(v), out)
-				temp, v = next1(value, temp)
-			end
-			return "{" .. (concat1(out, " ") .. "}")
-		end
-	elseif ty == "string" then
-		return format1("%q", value)
-	else
-		return tostring1(value)
-	end
-end)
 if nil == arg_23_1 then
 	arg1 = ({tag = "list", n = 0})
 else
@@ -167,10 +107,10 @@ apply1 = (function(f, ...)
 	local _n = _select("#", ...) - 1
 	local xss, xs
 	if _n > 0 then
-		xss = { tag="list", n=_n, _unpack(_pack(...), 1, _n)}
+		xss = {tag="list", n=_n, _unpack(_pack(...), 1, _n)}
 		xs = select(_n + 1, ...)
 	else
-		xss = { tag="list", n=0}
+		xss = {tag="list", n=0}
 		xs = ...
 	end
 	local args = (function()
@@ -207,7 +147,18 @@ number_3f_1 = (function(x)
 	return type_23_1(x) == "number" or type_23_1(x) == "table" and x["tag"] == "number"
 end)
 atom_3f_1 = (function(x)
-	return type_23_1(x) ~= "table" or type_23_1(x) == "table" and (x["tag"] == "symbol" or x["tag"] == "key")
+	local temp = type_23_1(x) ~= "table"
+	if temp then
+		return temp
+	else
+		local temp1 = type_23_1(x) == "table"
+		if temp1 then
+			local tag = x["tag"]
+			return tag == "symbol" or (tag == "key" or (tag == "number" or tag == "string"))
+		else
+			return temp1
+		end
+	end
 end)
 between_3f_1 = (function(val, min, max)
 	return val >= min and val <= max
@@ -223,6 +174,17 @@ end)
 neq_3f_1 = (function(x, y)
 	return not eq_3f_1(x, y)
 end)
+map1 = (function(f, x)
+	local out = ({tag = "list", n = 0})
+	local temp = n1(x)
+	local temp1 = 1
+	while temp1 <= temp do
+		out[temp1] = f(x[temp1])
+		temp1 = temp1 + 1
+	end
+	out["n"] = n1(x)
+	return out
+end)
 keys1 = (function(x)
 	local out, n = ({tag = "list", n = 0}), 0
 	local temp, _5f_ = next1(x)
@@ -232,7 +194,7 @@ keys1 = (function(x)
 		temp, _5f_ = next1(x, temp)
 	end
 	out["n"] = n
-	return out
+	return unpack1(out, 1, out["n"])
 end)
 put_21_1 = (function(t, typs, l)
 	while not (type1(typs) == "list" and n1(typs) == 1) do
@@ -247,133 +209,82 @@ put_21_1 = (function(t, typs, l)
 	t[typs[1]] = l
 	return nil
 end)
-eq_3f_1 = setmetatable1(({["lookup"]=({})}), ({["__call"]=(function(temp_this, x, y)
-	local temp_method
-	local temp
-	local temp1
-	if temp_this then
-		temp1 = temp_this["lookup"]
-	else
-		temp1 = nil
-	end
-	if temp1 then
-		temp = (function()
-			if temp_this then
-				return temp_this["lookup"]
-			else
-				return nil
-			end
-		end)()[type1(x)]
-	else
-		temp = nil
-	end
+eq_3f_1 = setmetatable1(({["lookup"]=({})}), ({["__call"]=(function(tempThis, x, y)
+	local tempMethod
+	local temp = tempThis["lookup"]
 	if temp then
-		temp_method = (function()
-			local temp
-			if temp_this then
-				temp = temp_this["lookup"]
-			else
-				temp = nil
-			end
-			if temp then
-				return (function()
-					if temp_this then
-						return temp_this["lookup"]
-					else
-						return nil
-					end
-				end)()[type1(x)]
-			else
-				return nil
-			end
-		end)()[type1(y)]
+		local temp1 = temp[type1(x)]
+		if temp1 then
+			tempMethod = temp1[type1(y)] or nil
+		else
+			tempMethod = nil
+		end
 	else
-		temp_method = nil
+		tempMethod = nil
 	end
-	if not temp_method then
-		if temp_this["default"] then
-			temp_method = temp_this["default"]
+	if not tempMethod then
+		if tempThis["default"] then
+			tempMethod = tempThis["default"]
 		else
-			error1("No matching method to call for " .. (type1(x) .. " ") .. (type1(y) .. " ") .. "\nthere are methods to call for " .. pretty1(keys1(temp_this["lookup"])))
+			error1("No matching method to call for " .. (type1(x) .. " ") .. (type1(y) .. " ") .. "\nthere are methods to call for " .. keys1(tempThis["lookup"]))
 		end
 	end
-	return temp_method(x, y)
+	return tempMethod(x, y)
 end)}))
-put_21_1(eq_3f_1, list1("lookup", "list", "list"), (function(myself)
-	myself = (function(x, y)
-		if n1(x) ~= n1(y) then
-			return false
-		else
-			local equal = true
-			local temp = n1(x)
-			local temp1 = 1
-			while temp1 <= temp do
-				if neq_3f_1(x[temp1], y[temp1]) then
-					equal = false
-				end
-				temp1 = temp1 + 1
-			end
-			return equal
-		end
-	end)
-	return myself
-end)(nil))
-put_21_1(eq_3f_1, list1("lookup", "table", "table"), (function(myself)
-	myself = (function(x, y)
+put_21_1(eq_3f_1, list1("lookup", "list", "list"), (function(x, y)
+	if n1(x) ~= n1(y) then
+		return false
+	else
 		local equal = true
-		local temp, v = next1(x)
-		while temp ~= nil do
-			if neq_3f_1(v, y[temp]) then
+		local temp = n1(x)
+		local temp1 = 1
+		while temp1 <= temp do
+			if neq_3f_1(x[temp1], y[temp1]) then
 				equal = false
 			end
-			temp, v = next1(x, temp)
+			temp1 = temp1 + 1
 		end
 		return equal
-	end)
-	return myself
-end)(nil))
-put_21_1(eq_3f_1, list1("lookup", "symbol", "symbol"), (function(myself)
-	myself = (function(x, y)
-		return x["contents"] == y["contents"]
-	end)
-	return myself
-end)(nil))
-put_21_1(eq_3f_1, list1("lookup", "string", "symbol"), (function(myself)
-	myself = (function(x, y)
-		return x == y["contents"]
-	end)
-	return myself
-end)(nil))
-put_21_1(eq_3f_1, list1("lookup", "symbol", "string"), (function(myself)
-	myself = (function(x, y)
-		return x["contents"] == y
-	end)
-	return myself
-end)(nil))
-put_21_1(eq_3f_1, list1("lookup", "key", "string"), (function(myself)
-	myself = (function(x, y)
-		return x["value"] == y
-	end)
-	return myself
-end)(nil))
-put_21_1(eq_3f_1, list1("lookup", "string", "key"), (function(myself)
-	myself = (function(x, y)
-		return x == y["value"]
-	end)
-	return myself
-end)(nil))
-put_21_1(eq_3f_1, list1("lookup", "key", "key"), (function(myself)
-	myself = (function(x, y)
-		return x["value"] == y["value"]
-	end)
-	return myself
-end)(nil))
-eq_3f_1["default"] = (function(myself)
-	myself = (function(x, y)
-		return false
-	end)
-	return myself
-end)(nil)
+	end
+end))
+put_21_1(eq_3f_1, list1("lookup", "table", "table"), (function(x, y)
+	local equal = true
+	local temp, v = next1(x)
+	while temp ~= nil do
+		if neq_3f_1(v, y[temp]) then
+			equal = false
+		end
+		temp, v = next1(x, temp)
+	end
+	return equal
+end))
+put_21_1(eq_3f_1, list1("lookup", "symbol", "symbol"), (function(x, y)
+	return x["contents"] == y["contents"]
+end))
+put_21_1(eq_3f_1, list1("lookup", "string", "symbol"), (function(x, y)
+	return x == y["contents"]
+end))
+put_21_1(eq_3f_1, list1("lookup", "symbol", "string"), (function(x, y)
+	return x["contents"] == y
+end))
+put_21_1(eq_3f_1, list1("lookup", "key", "string"), (function(x, y)
+	return x["value"] == y
+end))
+put_21_1(eq_3f_1, list1("lookup", "string", "key"), (function(x, y)
+	return x == y["value"]
+end))
+put_21_1(eq_3f_1, list1("lookup", "key", "key"), (function(x, y)
+	return x["value"] == y["value"]
+end))
+put_21_1(eq_3f_1, list1("lookup", "number", "number"), (function(x, y)
+	return constVal1(x) == constVal1(y)
+end))
+put_21_1(eq_3f_1, list1("lookup", "string", "string"), (function(x, y)
+	return constVal1(x) == constVal1(y)
+end))
+eq_3f_1["default"] = (function(x, y)
+	return false
+end)
 local original = getmetatable1(eq_3f_1)["__call"]
 getmetatable1(eq_3f_1)["__call"] = (function(self, x, y)
 	if x == y then
@@ -381,6 +292,56 @@ getmetatable1(eq_3f_1)["__call"] = (function(self, x, y)
 	else
 		return original(self, x, y)
 	end
+end)
+pretty1 = setmetatable1(({["lookup"]=({})}), ({["__call"]=(function(tempThis, x)
+	local tempMethod
+	local temp = tempThis["lookup"]
+	if temp then
+		tempMethod = temp[type1(x)] or nil
+	else
+		tempMethod = nil
+	end
+	if not tempMethod then
+		if tempThis["default"] then
+			tempMethod = tempThis["default"]
+		else
+			error1("No matching method to call for " .. (type1(x) .. " ") .. "\nthere are methods to call for " .. keys1(tempThis["lookup"]))
+		end
+	end
+	return tempMethod(x)
+end)}))
+put_21_1(pretty1, list1("lookup", "list"), (function(xs)
+	return "(" .. concat1(map1(pretty1, xs), " ") .. ")"
+end))
+put_21_1(pretty1, list1("lookup", "symbol"), (function(x)
+	return x["contents"]
+end))
+put_21_1(pretty1, list1("lookup", "key"), (function(x)
+	return ":" .. x["value"]
+end))
+put_21_1(pretty1, list1("lookup", "number"), (function(x)
+	return tostring1(constVal1(x))
+end))
+put_21_1(pretty1, list1("lookup", "string"), (function(x)
+	return format1("%q", constVal1(x))
+end))
+put_21_1(pretty1, list1("lookup", "table"), (function(x)
+	local out = ({tag = "list", n = 0})
+	local temp, v = next1(x)
+	while temp ~= nil do
+		local _offset, _result, _temp = 0, {tag="list",n=0}
+		_result[1 + _offset] = pretty1(temp) .. " " .. pretty1(v)
+		_temp = out
+		for _c = 1, _temp.n do _result[1 + _c + _offset] = _temp[_c] end
+		_offset = _offset + _temp.n
+		_result.n = _offset + 1
+		out = _result
+		temp, v = next1(x, temp)
+	end
+	return "{" .. (concat1(out, " ") .. "}")
+end))
+pretty1["default"] = (function(x)
+	return tostring1(x)
 end)
 abs1 = math.abs
 huge1 = math.huge
@@ -429,7 +390,7 @@ reduce1 = (function(f, z, xs)
 	end
 	return accum
 end)
-map1 = (function(fn, ...)
+map2 = (function(fn, ...)
 	local xss = _pack(...) xss.tag = "list"
 	local ns
 	local out = ({tag = "list", n = 0})
@@ -628,6 +589,13 @@ range1 = (function(...)
 	end
 	return out
 end)
+caar1 = (function(xs)
+	local temp = type1(xs)
+	if temp ~= "list" then
+		error1(format1("bad argument %s (expected %s, got %s)", "xs", "list", temp), 2)
+	end
+	return car1(xs[1])
+end)
 cadr1 = (function(xs)
 	local temp = type1(xs)
 	if temp ~= "list" then
@@ -635,19 +603,12 @@ cadr1 = (function(xs)
 	end
 	return xs[2]
 end)
-caar1 = (function(xs)
-	local temp = type1(xs)
-	if temp ~= "list" then
-		error1(format1("bad argument %s (expected %s, got %s)", "xs", "list", temp), 2)
-	end
-	return xs[1][1]
-end)
 cadar1 = (function(xs)
 	local temp = type1(xs)
 	if temp ~= "list" then
 		error1(format1("bad argument %s (expected %s, got %s)", "xs", "list", temp), 2)
 	end
-	return xs[1][2]
+	return cadr1(xs[1])
 end)
 split1 = (function(text, pattern, limit)
 	local out, loop, start = ({tag = "list", n = 0}), true, 1
@@ -707,6 +668,9 @@ assoc_3f_1 = (function(list, key)
 			list = cdr1(list)
 		end
 	end
+end)
+emptyStruct_3f_1 = (function(xs)
+	return not next1(xs)
 end)
 iterPairs1 = (function(table, func)
 	local temp, v = next1(table)
@@ -862,7 +826,6 @@ exit_21_1 = (function(reason, code)
 	elseif string_3f_1(reason) then
 		return error1(reason, 0)
 	else
-		local x
 		return error1(nil, 0)
 	end
 end)
@@ -1626,6 +1589,32 @@ simpleBinding_3f_1 = (function(node)
 		return temp
 	end
 end)
+singleReturn_3f_1 = (function(node)
+	local temp = not (type1(node) == "list")
+	if temp then
+		return temp
+	else
+		local head = car1(node)
+		if type1(head) == "symbol" then
+			local func = head["var"]
+			if func["tag"] ~= "builtin" then
+				return false
+			elseif func == builtins1["lambda"] then
+				return true
+			elseif func == builtins1["struct-literal"] then
+				return true
+			elseif func == builtins1["quote"] then
+				return true
+			elseif func == builtins1["syntax-quote"] then
+				return true
+			else
+				return false
+			end
+		else
+			return false
+		end
+	end
+end)
 fastAll1 = (function(fn, li, i)
 	while true do
 		if i > n1(li) then
@@ -1645,6 +1634,40 @@ fastAny1 = (function(fn, li, i)
 			return true
 		else
 			i = i + 1
+		end
+	end
+end)
+zipArgs1 = (function(args, argsStart, vals, valsStart)
+	local res, an, vn, _ = ({tag = "list", n = 0}), n1(args), n1(vals)
+	local ai, vi = argsStart, valsStart
+	while true do
+		if ai > an and vi > vn then
+			return res
+		else
+			local arg = args[ai]
+			if not arg then
+				pushCdr_21_1(res, list1(({tag = "list", n = 0}), list1(nth1(vals, vi))))
+				vi = vi + 1
+			elseif vi > vn then
+				pushCdr_21_1(res, list1(list1(arg), ({tag = "list", n = 0})))
+				ai = ai + 1
+			elseif arg["var"]["is-variadic"] then
+				if singleReturn_3f_1(nth1(vals, vn)) then
+					local vEnd = vn - (an - ai)
+					if vEnd < vi then
+						vEnd = vi - 1
+					end
+					pushCdr_21_1(res, list1(list1(arg), slice1(vals, vi, vEnd)))
+					ai, vi = ai + 1, vEnd + 1
+				else
+					return pushCdr_21_1(res, list1(slice1(args, ai), slice1(vals, vi)))
+				end
+			elseif vi < vn or singleReturn_3f_1(nth1(vals, vi)) then
+				pushCdr_21_1(res, list1(list1(arg), list1(nth1(vals, vi))))
+				ai, vi = ai + 1, vi + 1
+			else
+				return pushCdr_21_1(res, list1(slice1(args, ai), list1(nth1(vals, vi))))
+			end
 		end
 	end
 end)
@@ -2008,33 +2031,27 @@ definitionsVisitor1 = (function(state, node, visitor)
 			return nil
 		end
 	elseif type1(node) == "list" and (type1((car1(node))) == "list" and (type1((caar1(node))) == "symbol" and caar1(node)["var"] == builtins1["lambda"])) then
-		local lam = car1(node)
-		local args, offset, i = nth1(lam, 2), 1, 1
-		local argLen = n1(args)
-		while i <= argLen do
-			local arg, val = nth1(args, i), nth1(node, i + offset)
-			if arg["var"]["is-variadic"] then
-				local count = n1(node) - n1(args)
-				if count < 0 then
-					count = 0
-				end
-				offset = count
-				addDefinition_21_1(state, arg["var"], arg, "var", arg["var"])
-			elseif i + offset == n1(node) and (i < argLen and type1(val) == "list") then
-				local temp = i
-				while temp <= argLen do
-					local arg2 = nth1(args, temp)
-					addDefinition_21_1(state, arg2["var"], arg2, "var", arg2)
-					temp = temp + 1
-				end
-				i = argLen
+		local temp = zipArgs1(cadar1(node), 1, node, 2)
+		local temp1 = n1(temp)
+		local temp2 = 1
+		while temp2 <= temp1 do
+			local zipped = temp[temp2]
+			local args, vals = car1(zipped), cadr1(zipped)
+			if n1(args) == 1 and (n1(vals) <= 1 and not car1(args)["var"]["is-variadic"]) then
+				addDefinition_21_1(state, car1(args)["var"], car1(args), "val", car1(vals) or makeNil1())
 			else
-				addDefinition_21_1(state, arg["var"], arg, "val", val or ({["tag"]="symbol",["contents"]="nil",["var"]=builtins1["nil"]}))
+				local temp3 = n1(args)
+				local temp4 = 1
+				while temp4 <= temp3 do
+					local arg = args[temp4]
+					addDefinition_21_1(state, arg["var"], arg, "var", arg["var"])
+					temp4 = temp4 + 1
+				end
 			end
-			i = i + 1
+			temp2 = temp2 + 1
 		end
 		visitBlock1(node, 2, visitor)
-		visitBlock1(lam, 3, visitor)
+		visitBlock1(car1(node), 3, visitor)
 		return false
 	else
 		return nil
@@ -2172,8 +2189,7 @@ substitute1 = (function(x, subs, syms)
 			local name = symbol_2d3e_string1(x)
 			local sym = syms[name]
 			if not sym then
-				sym = gensym1()
-				sym["var"] = ({["tag"]="arg",["name"]=symbol_2d3e_string1(sym)})
+				sym = ({["tag"]="symbol",["name"]=name,["var"]=({["tag"]="arg",["name"]=name})})
 				syms[name] = sym
 			end
 			return sym
@@ -2182,7 +2198,7 @@ substitute1 = (function(x, subs, syms)
 			return ({["tag"]="symbol",["contents"]=var["name"],["var"]=var})
 		end
 	elseif temp == "list" then
-		return map1((function(temp1)
+		return map2((function(temp1)
 			return substitute1(temp1, subs, syms)
 		end), x)
 	else
@@ -2203,7 +2219,7 @@ fixPattern_21_1 = (function(state, ptrn)
 			return ptrn
 		end
 	elseif temp == "list" then
-		return map1((function(temp1)
+		return map2((function(temp1)
 			return fixPattern_21_1(state, temp1)
 		end), ptrn)
 	else
@@ -2214,7 +2230,7 @@ fixRule_21_1 = (function(state, rule)
 	return ({["from"]=fixPattern_21_1(state, rule["from"]),["to"]=fixPattern_21_1(state, rule["to"])})
 end)
 fusion1 = ({["name"]="fusion",["help"]="Merges various loops together as specified by a pattern.",["cat"]=({tag = "list", n = 1, "opt"}),["on"]=false,["run"]=(function(temp, state, nodes)
-	local patterns = map1((function(temp1)
+	local patterns = map2((function(temp1)
 		return fixRule_21_1(state["compiler"], temp1)
 	end), fusionPatterns1)
 	return traverseBlock1(nodes, 1, (function(node)
@@ -2312,7 +2328,7 @@ constantFold1 = ({["name"]="constant-fold",["help"]="A primitive constant folder
 			local head = car1(node)
 			local meta = type1(head) == "symbol" and (not head["folded"] and (head["var"]["tag"] == "native" and state["meta"][head["var"]["unique-name"]]))
 			if meta and (meta["pure"] and meta["value"]) then
-				local res = list1(pcall1(meta["value"], unpack1(map1(urn_2d3e_val1, cdr1(node)), 1, n1(node) - 1)))
+				local res = list1(pcall1(meta["value"], unpack1(map2(urn_2d3e_val1, cdr1(node)), 1, n1(node) - 1)))
 				if car1(res) then
 					local val = nth1(res, 2)
 					if n1(res) ~= 2 or number_3f_1(val) and (cadr1(list1(modf1(val))) ~= 0 or abs1(val) == huge1) then
@@ -2386,6 +2402,46 @@ lambdaFold1 = ({["name"]="lambda-fold",["help"]="Simplify all directly called la
 		if simpleBinding_3f_1(node) then
 			local vars, nodeLam = ({}), car1(node)
 			local nodeArgs = nth1(nodeLam, 2)
+			local argN, valN, i = n1(nodeArgs), n1(node) - 1, 1
+			if valN <= argN then
+				local temp1 = n1(nodeArgs)
+				local temp2 = 1
+				while temp2 <= temp1 do
+					vars[nodeArgs[temp2]["var"]] = true
+					temp2 = temp2 + 1
+				end
+				while i <= valN and not builtin_3f_1(nth1(node, i + 1), "nil") do
+					i = i + 1
+				end
+				if i <= argN then
+					while not ((i > argN)) do
+						local head = nth1(nodeLam, 3)
+						if type1(head) == "list" and (builtin_3f_1(car1(head), "set!") and (nth1(head, 2)["var"] == nth1(nodeArgs, i)["var"] and not nodeContainsVars_3f_1(nth1(head, 3), vars))) then
+							while valN < i do
+								pushCdr_21_1(node, makeNil1())
+								valN = valN + 1
+							end
+							removeNth_21_1(nodeLam, 3)
+							node[i + 1] = nth1(head, 3)
+							temp["changed"] = temp["changed"] + 1
+						end
+						i = i + 1
+					end
+					return nil
+				else
+					return nil
+				end
+			else
+				return nil
+			end
+		else
+			return nil
+		end
+	end))
+	visitBlock1(nodes, 1, (function(node)
+		if simpleBinding_3f_1(node) then
+			local vars, nodeLam = ({}), car1(node)
+			local nodeArgs = nth1(nodeLam, 2)
 			local temp1 = n1(nodeArgs)
 			local temp2 = 1
 			while temp2 <= temp1 do
@@ -2406,6 +2462,7 @@ lambdaFold1 = ({["name"]="lambda-fold",["help"]="Simplify all directly called la
 							local temp1 = n1(args)
 							local temp2 = 1
 							while temp2 <= temp1 do
+								temp["changed"] = temp["changed"] + 1
 								local arg = removeNth_21_1(args, 1)
 								pushCdr_21_1(nodeArgs, arg)
 								vars[arg["var"]] = true
@@ -2415,6 +2472,7 @@ lambdaFold1 = ({["name"]="lambda-fold",["help"]="Simplify all directly called la
 						elseif nodeContainsVars_3f_1(val, vars) then
 							break
 						else
+							temp["changed"] = temp["changed"] + 1
 							pushCdr_21_1(node, removeNth_21_1(child, 2))
 							local arg = removeNth_21_1(args, 1)
 							pushCdr_21_1(nodeArgs, arg)
@@ -2454,6 +2512,7 @@ lambdaFold1 = ({["name"]="lambda-fold",["help"]="Simplify all directly called la
 			local node = nth1(nodes1, i)
 			if type1(node) == "list" and (n1(node) == 1 and (type1((car1(node))) == "list" and (builtin_3f_1(car1(car1(node)), "lambda") and empty_3f_1(nth1(car1(node), 2))))) then
 				local body = car1(node)
+				temp["changed"] = temp["changed"] + 1
 				if n1(body) == 2 then
 					removeNth_21_1(nodes1, i)
 				else
@@ -2570,30 +2629,36 @@ stripArgs1 = ({["name"]="strip-args",["help"]="Strip all unused, pure arguments 
 	return visitBlock1(nodes, 1, (function(node)
 		if type1(node) == "list" and (type1((car1(node))) == "list" and (type1((caar1(node))) == "symbol" and caar1(node)["var"] == builtins1["lambda"])) then
 			local lam = car1(node)
-			local args, offset, remOffset, removed = nth1(lam, 2), 1, 0, ({})
-			local temp1 = n1(args)
-			local temp2 = 1
-			while temp2 <= temp1 do
-				local arg, val = nth1(args, temp2 - remOffset), nth1(node, (temp2 + offset) - remOffset)
-				if arg["var"]["is-variadic"] then
-					local count = n1(node) - n1(args)
-					if count < 0 then
-						count = 0
-					end
-					offset = count
-				elseif nil == val then
-				elseif sideEffect_3f_1(val) then
-				elseif n1(getVar1(lookup, arg["var"])["usages"]) > 0 then
+			local lamArgs, argOffset, valOffset, removed = nth1(lam, 2), 1, 2, ({})
+			local temp1 = zipArgs1(lamArgs, 1, node, 2)
+			local temp2 = n1(temp1)
+			local temp3 = 1
+			while temp3 <= temp2 do
+				local zipped = temp1[temp3]
+				local args = car1(zipped)
+				local arg, vals = car1(args), cadr1(zipped)
+				if n1(args) > 1 or (arg and n1(getVar1(lookup, arg["var"])["usages"]) > 0 or any1(sideEffect_3f_1, vals)) then
+					argOffset = argOffset + n1(args)
+					valOffset = argOffset + n1(vals)
 				else
 					temp["changed"] = temp["changed"] + 1
-					removed[nth1(args, temp2 - remOffset)["var"]] = true
-					removeNth_21_1(args, temp2 - remOffset)
-					removeNth_21_1(node, (temp2 + offset) - remOffset)
-					remOffset = remOffset + 1
+					if arg then
+						removed[arg["var"]] = true
+						removeNth_21_1(lamArgs, argOffset)
+					end
+					local temp4 = n1(vals)
+					local temp5 = 1
+					while temp5 <= temp4 do
+						local val = vals[temp5]
+						removeNth_21_1(node, valOffset)
+						temp5 = temp5 + 1
+					end
 				end
-				temp2 = temp2 + 1
+				temp3 = temp3 + 1
 			end
-			if remOffset > 0 then
+			if emptyStruct_3f_1(removed) then
+				return nil
+			else
 				return traverseList1(lam, 3, (function(node1)
 					if type1(node1) == "list" and (builtin_3f_1(car1(node1), "set!") and removed[nth1(node1, 2)["var"]]) then
 						local val = nth1(node1, 3)
@@ -2606,8 +2671,6 @@ stripArgs1 = ({["name"]="strip-args",["help"]="Strip all unused, pure arguments 
 						return node1
 					end
 				end))
-			else
-				return nil
 			end
 		else
 			return nil
@@ -2632,8 +2695,7 @@ end)})
 expressionFold1 = ({["name"]="expression-fold",["help"]="Folds basic variable accesses where execution order will not change.\n\nFor instance, converts ((lambda (x) (+ x 1)) (Y)) to (+ Y 1) in the case\nwhere Y is an arbitrary expression.\n\nThere are a couple of complexities in the implementation here. Firstly, we\nwant to ensure that the arguments are executed in the correct order and only\nonce.\n\nIn order to achieve this, we find the lambda forms and visit the body, stopping\nif we visit arguments in the wrong order or non-constant terms such as mutable\nvariables or other function calls. For simplicities sake, we fail if we hit\nother lambdas or conds as that makes analysing control flow significantly more\ncomplex.\n\nAnother source of added complexity is the case where where Y could return multiple\nvalues: namely in the last argument to function calls. Here it is an invalid optimisation\nto just place Y, as that could result in additional values being passed to the function.\n\nIn order to avoid this, Y will get converted to the form ((lambda (<tmp>) <tmp>) Y).\nThis is understood by the codegen and so is not as inefficient as it looks. However, we do\nhave to take additional steps to avoid trying to fold the above again and again.",["cat"]=({tag = "list", n = 2, "opt", "usage"}),["run"]=(function(temp, state, nodes, lookup)
 	return visitBlock1(nodes, 1, (function(root)
 		if type1(root) == "list" and (type1((car1(root))) == "list" and (type1((caar1(root))) == "symbol" and caar1(root)["var"] == builtins1["lambda"])) then
-			local lam, args, len, validate
-			lam = car1(root)
+			local lam, args, len, validate = car1(root)
 			args = nth1(lam, 2)
 			len = n1(args)
 			validate = (function(i)
@@ -2658,7 +2720,7 @@ expressionFold1 = ({["name"]="expression-fold",["help"]="Folds basic variable ac
 					end
 				end
 			end)
-			if len > 0 and ((n1(root) ~= 2 or (len ~= 1 or (n1(lam) ~= 3 or (atom_3f_1(nth1(root, 2)) or (not (type1((nth1(lam, 3))) == "symbol") or nth1(lam, 3)["var"] ~= car1(args)["var"]))))) and validate(1)) then
+			if len > 0 and ((n1(root) ~= 2 or (len ~= 1 or (n1(lam) ~= 3 or (singleReturn_3f_1(nth1(root, 2)) or (not (type1((nth1(lam, 3))) == "symbol") or nth1(lam, 3)["var"] ~= car1(args)["var"]))))) and validate(1)) then
 				local currentIdx, argMap, wrapMap, ok, finished = 1, ({}), ({}), true, false
 				local temp1 = n1(args)
 				local temp2 = 1
@@ -3166,9 +3228,139 @@ parseDocstring1 = (function(str)
 	end
 	return out
 end)
+visitQuote2 = (function(defined, logger, node, level)
+	while true do
+		if level == 0 then
+			return visitNode2(defined, logger, node)
+		elseif type1(node) == "list" then
+			local first = nth1(node, 1)
+			if type1(first) == "symbol" then
+				if first["contents"] == "unquote" or first["contents"] == "unquote-splice" then
+					node, level = nth1(node, 2), level - 1
+				elseif first["contents"] == "syntax-quote" then
+					node, level = nth1(node, 2), level + 1
+				else
+					local temp = n1(node)
+					local temp1 = 1
+					while temp1 <= temp do
+						visitQuote2(defined, logger, node[temp1], level)
+						temp1 = temp1 + 1
+					end
+					return nil
+				end
+			else
+				local temp = n1(node)
+				local temp1 = 1
+				while temp1 <= temp do
+					visitQuote2(defined, logger, node[temp1], level)
+					temp1 = temp1 + 1
+				end
+				return nil
+			end
+		else
+			return nil
+		end
+	end
+end)
+visitNode2 = (function(defined, logger, node, last)
+	while true do
+		local temp = type1(node)
+		if temp == "string" then
+			return nil
+		elseif temp == "number" then
+			return nil
+		elseif temp == "key" then
+			return nil
+		elseif temp == "symbol" then
+			if node["var"]["scope"]["is-root"] and not defined[node["var"]] then
+				return putNodeWarning_21_1(logger, node["contents"] .. " has not been defined yet", node, "This symbol is not defined until later in the program, but is accessed here.\nConsequently, it's value may be undefined when executing the program.", getSource1(node), "")
+			else
+				return nil
+			end
+		elseif temp == "list" then
+			local first = nth1(node, 1)
+			local firstTy = type1(first)
+			if firstTy == "symbol" then
+				local func = first["var"]
+				local funcTy = func["tag"]
+				if funcTy == "defined" or (funcTy == "arg" or (funcTy == "native" or funcTy == "macro")) then
+					return visitList1(defined, logger, node, 1)
+				elseif func == builtins1["lambda"] then
+					if last then
+						return nil
+					else
+						return visitBlock2(defined, logger, node, 3)
+					end
+				elseif func == builtins1["cond"] then
+					local temp1 = n1(node)
+					local temp2 = 2
+					while temp2 <= temp1 do
+						local case = nth1(node, temp2)
+						visitNode2(defined, logger, nth1(case, 1))
+						visitBlock2(defined, logger, case, 2, last)
+						temp2 = temp2 + 1
+					end
+					return nil
+				elseif func == builtins1["set!"] then
+					node, last = nth1(node, 3)
+				elseif func == builtins1["struct-literal"] then
+					return visitList1(defined, logger, node, 2)
+				elseif func == builtins1["syntax-quote"] then
+					return visitQuote2(defined, logger, nth1(node, 2), 1)
+				elseif func == builtins1["define"] or func == builtins1["define-macro"] then
+					visitNode2(defined, logger, nth1(node, n1(node)), true)
+					defined[node["def-var"]] = true
+					return nil
+				elseif func == builtins1["define-native"] then
+					defined[node["def-var"]] = true
+					return nil
+				elseif func == builtins1["quote"] then
+					return nil
+				elseif func == builtins1["import"] then
+					return nil
+				elseif func == builtins1["unquote"] or func == builtins1["unquote-splice"] then
+					return error1("unquote/unquote-splice should never appear here", 0)
+				else
+					return error1("Unknown kind " .. funcTy .. " for variable " .. func["name"], 0)
+				end
+			elseif firstTy == "list" and builtin_3f_1(car1(first), "lambda") then
+				visitList1(defined, logger, node, 2)
+				return visitBlock2(defined, logger, first, 3, last)
+			else
+				return visitList1(defined, logger, node, 1)
+			end
+		else
+			return error1("Pattern matching failure!\nTried to match the following patterns against " .. pretty1(temp) .. ", but none matched.\n" .. "  Tried: `\"string\"`\n  Tried: `\"number\"`\n  Tried: `\"key\"`\n  Tried: `\"symbol\"`\n  Tried: `\"list\"`")
+		end
+	end
+end)
+visitBlock2 = (function(defined, logger, node, start, last)
+	local temp = n1(node) - 1
+	local temp1 = start
+	while temp1 <= temp do
+		visitNode2(defined, logger, nth1(node, temp1))
+		temp1 = temp1 + 1
+	end
+	if n1(node) >= start then
+		return visitNode2(defined, logger, nth1(node, n1(node)), last)
+	else
+		return nil
+	end
+end)
+visitList1 = (function(defined, logger, node, start)
+	local temp = n1(node)
+	local temp1 = start
+	while temp1 <= temp do
+		visitNode2(defined, logger, nth1(node, temp1))
+		temp1 = temp1 + 1
+	end
+	return nil
+end)
+checkOrder1 = ({["name"]="check-order",["help"]="Check each node only eagerly accesses nodes defined after it.",["cat"]=({tag = "list", n = 1, "warn"}),["run"]=(function(temp, state, nodes)
+	return visitList1(({}), state["logger"], nodes, 1)
+end)})
 checkArity1 = ({["name"]="check-arity",["help"]="Produce a warning if any NODE in NODES calls a function with too many arguments.\n\nLOOKUP is the variable usage lookup table.",["cat"]=({tag = "list", n = 2, "warn", "usage"}),["run"]=(function(temp, state, nodes, lookup)
-	local arity, getArity
-	arity = ({})
+	local arity, getArity = ({})
 	getArity = (function(symbol)
 		local var = getVar1(lookup, symbol["var"])
 		local ari = arity[var]
@@ -3288,6 +3480,9 @@ analyse1 = (function(nodes, state)
 		temp2 = temp2 + 1
 	end
 	return nil
+end)
+default2 = (function()
+	return ({["normal"]=list1(documentation1, checkOrder1),["usage"]=list1(checkArity1, deprecated1)})
 end)
 create3 = (function()
 	return ({["out"]=({tag = "list", n = 0}),["indent"]=0,["tabs-pending"]=false,["line"]=1,["lines"]=({}),["node-stack"]=({tag = "list", n = 0}),["active-pos"]=nil})
@@ -3459,15 +3654,15 @@ recurDirect_3f_1 = (function(state, var)
 	local rec = state["rec-lookup"][var]
 	return rec and (rec["var"] == 0 and rec["direct"] == 1)
 end)
-visitNode2 = (function(lookup, state, node, stmt, test, recur)
+visitNode3 = (function(lookup, state, node, stmt, test, recur)
 	local cat
 	local temp = type1(node)
 	if temp == "string" then
-		cat = ({["category"]="const"})
+		cat = ({["category"]="const",["prec"]=100})
 	elseif temp == "number" then
-		cat = ({["category"]="const"})
+		cat = ({["category"]="const",["prec"]=100})
 	elseif temp == "key" then
-		cat = ({["category"]="const"})
+		cat = ({["category"]="const",["prec"]=100})
 	elseif temp == "symbol" then
 		cat = ({["category"]="const"})
 	elseif temp == "list" then
@@ -3484,7 +3679,7 @@ visitNode2 = (function(lookup, state, node, stmt, test, recur)
 				local temp3 = 2
 				while temp3 <= temp2 do
 					local case = nth1(node, temp3)
-					visitNode2(lookup, state, car1(case), true, true)
+					visitNode3(lookup, state, car1(case), true, true)
 					visitNodes1(lookup, state, case, 2, true, test, recur)
 					temp3 = temp3 + 1
 				end
@@ -3565,11 +3760,11 @@ visitNode2 = (function(lookup, state, node, stmt, test, recur)
 					end
 					lookup[def] = ({["category"]="lambda",["recur"]=visitRecur1(lookup, recur1)})
 				else
-					visitNode2(lookup, state, def, true)
+					visitNode3(lookup, state, def, true)
 				end
 				cat = ({["category"]="set!"})
 			elseif func == builtins1["quote"] then
-				visitQuote2(lookup, node)
+				visitQuote3(lookup, node)
 				cat = ({["category"]="quote"})
 			elseif func == builtins1["syntax-quote"] then
 				visitSyntaxQuote1(lookup, state, nth1(node, 2), 1)
@@ -3591,7 +3786,7 @@ visitNode2 = (function(lookup, state, node, stmt, test, recur)
 						end
 					end)()
 				else
-					visitNode2(lookup, state, def, true)
+					visitNode3(lookup, state, def, true)
 				end
 				cat = ({["category"]="define"})
 			elseif func == builtins1["define-native"] then
@@ -3649,38 +3844,28 @@ visitNode2 = (function(lookup, state, node, stmt, test, recur)
 				elseif stmt and recurDirect_3f_1(state, func) then
 					local rec = state["rec-lookup"][func]
 					local lam = rec["lambda"]
-					local args, offset, recur1 = nth1(lam, 2), 1, lookup[lam]["recur"]
+					local recur1 = lookup[lam]["recur"]
 					if not recur1 then
 						print1("Cannot find recursion for ", func["name"])
 					end
-					local temp2 = n1(args)
-					local temp3 = 1
-					while temp3 <= temp2 do
-						if nth1(args, temp3)["var"]["is-variadic"] then
-							local count = n1(node) - n1(args)
-							if count < 0 then
-								count = 0
+					local temp2 = zipArgs1(cadr1(lam), 1, node, 2)
+					local temp3 = n1(temp2)
+					local temp4 = 1
+					while temp4 <= temp3 do
+						local zip = temp2[temp4]
+						local args, vals = car1(zip), cadr1(zip)
+						if n1(vals) == 0 then
+						elseif n1(vals) > 1 or car1(args)["is-variadic"] then
+							local temp5 = n1(vals)
+							local temp6 = 1
+							while temp6 <= temp5 do
+								visitNode3(lookup, state, vals[temp6], false)
+								temp6 = temp6 + 1
 							end
-							local temp4 = count
-							local temp5 = 1
-							while temp5 <= temp4 do
-								visitNode2(lookup, state, nth1(node, temp3 + temp5), false)
-								temp5 = temp5 + 1
-							end
-							offset = count
 						else
-							local val = nth1(node, temp3 + offset)
-							if val then
-								visitNode2(lookup, state, val, true)
-							end
+							visitNode3(lookup, state, car1(vals), true)
 						end
-						temp3 = temp3 + 1
-					end
-					local temp2 = n1(node)
-					local temp3 = n1(args) + (offset + 1)
-					while temp3 <= temp2 do
-						visitNode2(lookup, state, nth1(node, temp3), true)
-						temp3 = temp3 + 1
+						temp4 = temp4 + 1
 					end
 					lookup[rec["set!"]] = ({["category"]="void"})
 					state["var-skip"][func] = true
@@ -3692,8 +3877,8 @@ visitNode2 = (function(lookup, state, node, stmt, test, recur)
 			end
 		elseif temp1 == "list" then
 			if n1(node) == 2 and (builtin_3f_1(car1(head), "lambda") and (n1(head) == 3 and (n1(nth1(head, 2)) == 1 and (type1((nth1(head, 3))) == "symbol" and nth1(head, 3)["var"] == car1(nth1(head, 2))["var"])))) then
-				if visitNode2(lookup, state, nth1(node, 2), stmt, test)["stmt"] then
-					visitNode2(lookup, state, head, true)
+				if visitNode3(lookup, state, nth1(node, 2), stmt, test)["stmt"] then
+					visitNode3(lookup, state, head, true)
 					if stmt then
 						cat = ({["category"]="call-lambda",["stmt"]=true})
 					else
@@ -3723,16 +3908,16 @@ visitNode2 = (function(lookup, state, node, stmt, test, recur)
 					temp2 = false
 				end
 				if temp2 then
-					if visitNode2(lookup, state, nth1(node, 2), stmt, test)["stmt"] then
+					if visitNode3(lookup, state, nth1(node, 2), stmt, test)["stmt"] then
 						lookup[head] = ({["category"]="lambda"})
-						visitNode2(lookup, state, nth1(head, 3), true, test, recur)
+						visitNode3(lookup, state, nth1(head, 3), true, test, recur)
 						if stmt then
 							cat = ({["category"]="call-lambda",["stmt"]=true})
 						else
 							cat = ({["category"]="call"})
 						end
 					else
-						local res = visitNode2(lookup, state, nth1(head, 3), true, test, recur)
+						local res = visitNode3(lookup, state, nth1(head, 3), true, test, recur)
 						local ty, unused_3f_ = res["category"], (function()
 							local condNode, var, working = nth1(head, 3), car1(nth1(head, 2))["var"], true
 							local temp2 = n1(condNode)
@@ -3770,37 +3955,25 @@ visitNode2 = (function(lookup, state, node, stmt, test, recur)
 						end
 					end
 				elseif stmt and builtin_3f_1(car1(head), "lambda") then
-					visitNodes1(lookup, state, car1(node), 3, true, test, recur)
-					local lam = car1(node)
-					local args, offset = nth1(lam, 2), 1
-					local temp2 = n1(args)
-					local temp3 = 1
-					while temp3 <= temp2 do
-						if nth1(args, temp3)["var"]["is-variadic"] then
-							local count = n1(node) - n1(args)
-							if count < 0 then
-								count = 0
+					visitNodes1(lookup, state, head, 3, true, test, recur)
+					local temp2 = zipArgs1(cadr1(head), 1, node, 2)
+					local temp3 = n1(temp2)
+					local temp4 = 1
+					while temp4 <= temp3 do
+						local zip = temp2[temp4]
+						local args, vals = car1(zip), cadr1(zip)
+						if n1(vals) == 0 then
+						elseif n1(vals) > 1 or car1(args)["is-variadic"] then
+							local temp5 = n1(vals)
+							local temp6 = 1
+							while temp6 <= temp5 do
+								visitNode3(lookup, state, vals[temp6], false)
+								temp6 = temp6 + 1
 							end
-							local temp4 = count
-							local temp5 = 1
-							while temp5 <= temp4 do
-								visitNode2(lookup, state, nth1(node, temp3 + temp5), false)
-								temp5 = temp5 + 1
-							end
-							offset = count
 						else
-							local val = nth1(node, temp3 + offset)
-							if val then
-								visitNode2(lookup, state, val, true)
-							end
+							visitNode3(lookup, state, car1(vals), true)
 						end
-						temp3 = temp3 + 1
-					end
-					local temp2 = n1(node)
-					local temp3 = n1(args) + (offset + 1)
-					while temp3 <= temp2 do
-						visitNode2(lookup, state, nth1(node, temp3), true)
-						temp3 = temp3 + 1
+						temp4 = temp4 + 1
 					end
 					cat = ({["category"]="call-lambda",["stmt"]=true})
 				elseif builtin_3f_1(car1(head), "quote") or builtin_3f_1(car1(head), "syntax-quote") then
@@ -3829,14 +4002,14 @@ visitNodes1 = (function(lookup, state, nodes, start, stmt, test, recur)
 	local len = n1(nodes)
 	local temp = start
 	while temp <= len do
-		visitNode2(lookup, state, nth1(nodes, temp), stmt, test and temp == len, temp == len and recur)
+		visitNode3(lookup, state, nth1(nodes, temp), stmt, test and temp == len, temp == len and recur)
 		temp = temp + 1
 	end
 	return nil
 end)
 visitSyntaxQuote1 = (function(lookup, state, node, level)
 	if level == 0 then
-		return visitNode2(lookup, state, node, false)
+		return visitNode3(lookup, state, node, false)
 	else
 		local cat
 		local temp = type1(node)
@@ -3890,12 +4063,12 @@ visitSyntaxQuote1 = (function(lookup, state, node, level)
 		return cat
 	end
 end)
-visitQuote2 = (function(lookup, node)
+visitQuote3 = (function(lookup, node)
 	if type1(node) == "list" then
 		local temp = n1(node)
 		local temp1 = 1
 		while temp1 <= temp do
-			visitQuote2(lookup, (node[temp1]))
+			visitQuote3(lookup, (node[temp1]))
 			temp1 = temp1 + 1
 		end
 		lookup[node] = ({["category"]="quote-list"})
@@ -3998,12 +4171,12 @@ categoriseNodes1 = ({["name"]="categorise-nodes",["help"]="Categorise a group of
 	return visitNodes1(state["cat-lookup"], state, nodes, 1, true)
 end)})
 categoriseNode1 = ({["name"]="categorise-node",["help"]="Categorise a NODE, annotating it's appropriate node type.",["cat"]=({tag = "list", n = 1, "categorise"}),["run"]=(function(temp, compiler, node, state, stmt)
-	return visitNode2(state["cat-lookup"], state, node, stmt)
+	return visitNode3(state["cat-lookup"], state, node, stmt)
 end)})
-visitQuote3 = (function(node, level, lookup)
+visitQuote4 = (function(node, level, lookup)
 	while true do
 		if level == 0 then
-			return visitNode3(node, nil, nil, lookup)
+			return visitNode4(node, nil, nil, lookup)
 		else
 			local tag = node["tag"]
 			if tag == "string" or (tag == "number" or (tag == "key" or tag == "symbol")) then
@@ -4019,7 +4192,7 @@ visitQuote3 = (function(node, level, lookup)
 						local temp = n1(node)
 						local temp1 = 1
 						while temp1 <= temp do
-							visitQuote3(node[temp1], level, lookup)
+							visitQuote4(node[temp1], level, lookup)
 							temp1 = temp1 + 1
 						end
 						return nil
@@ -4028,7 +4201,7 @@ visitQuote3 = (function(node, level, lookup)
 					local temp = n1(node)
 					local temp1 = 1
 					while temp1 <= temp do
-						visitQuote3(node[temp1], level, lookup)
+						visitQuote4(node[temp1], level, lookup)
 						temp1 = temp1 + 1
 					end
 					return nil
@@ -4041,7 +4214,7 @@ visitQuote3 = (function(node, level, lookup)
 		end
 	end
 end)
-visitNode3 = (function(node, parents, active, lookup)
+visitNode4 = (function(node, parents, active, lookup)
 	while true do
 		local temp = type1(node)
 		if temp == "string" then
@@ -4075,14 +4248,14 @@ visitNode3 = (function(node, parents, active, lookup)
 					end
 					return visitNodes2(node, 2, nil, lookup)
 				elseif func == builtins1["lambda"] then
-					return visitBlock2(node, 3, nil, nil, lookup)
+					return visitBlock3(node, 3, nil, nil, lookup)
 				elseif func == builtins1["set!"] then
 					local var = nth1(node, 2)["var"]
 					local state, val = lookup[var], nth1(node, 3)
 					if state and (state["lambda"] == nil and (parents and (parents[state["parent"]] and (type1(val) == "list" and builtin_3f_1(car1(val), "lambda"))))) then
 						state["lambda"] = val
 						state["set!"] = node
-						visitBlock2(val, 3, nil, state, lookup)
+						visitBlock3(val, 3, nil, state, lookup)
 						if state["recur"] == 0 then
 							lookup[var] = nil
 							return nil
@@ -4098,15 +4271,15 @@ visitNode3 = (function(node, parents, active, lookup)
 					local temp3 = 2
 					while temp3 <= temp2 do
 						local case = nth1(node, temp3)
-						visitNode3(car1(case), nil, nil, lookup)
-						visitBlock2(case, 2, nil, active, lookup)
+						visitNode4(car1(case), nil, nil, lookup)
+						visitBlock3(case, 2, nil, active, lookup)
 						temp3 = temp3 + 1
 					end
 					return nil
 				elseif func == builtins1["quote"] then
 					return nil
 				elseif func == builtins1["syntax-quote"] then
-					return visitQuote3(nth1(node, 2), 1, lookup)
+					return visitQuote4(nth1(node, 2), 1, lookup)
 				elseif func == builtins1["unquote"] or func == builtins1["unquote-splice"] then
 					return error1("unquote/unquote-splice should never appear here", 0)
 				elseif func == builtins1["define"] or func == builtins1["define-macro"] then
@@ -4138,7 +4311,7 @@ visitNode3 = (function(node, parents, active, lookup)
 					else
 						parents = ({[node]=true})
 					end
-					visitBlock2(first, 3, parents, active, lookup)
+					visitBlock3(first, 3, parents, active, lookup)
 					parents[node] = nil
 					return visitNodes2(node, 2, nil, lookup)
 				else
@@ -4156,20 +4329,20 @@ visitNodes2 = (function(node, start, parents, lookup)
 	local temp = n1(node)
 	local temp1 = start
 	while temp1 <= temp do
-		visitNode3(nth1(node, temp1), parents, nil, lookup)
+		visitNode4(nth1(node, temp1), parents, nil, lookup)
 		temp1 = temp1 + 1
 	end
 	return nil
 end)
-visitBlock2 = (function(node, start, parents, active, lookup)
+visitBlock3 = (function(node, start, parents, active, lookup)
 	local temp = n1(node) - 1
 	local temp1 = start
 	while temp1 <= temp do
-		visitNode3(nth1(node, temp1), parents, nil, lookup)
+		visitNode4(nth1(node, temp1), parents, nil, lookup)
 		temp1 = temp1 + 1
 	end
 	if n1(node) >= start then
-		return visitNode3(last1(node), parents, active, lookup)
+		return visitNode4(last1(node), parents, active, lookup)
 	else
 		return nil
 	end
@@ -4178,7 +4351,7 @@ letrecNodes1 = ({["name"]="letrec-nodes",["help"]="Find letrec constructs in a l
 	return visitNodes2(nodes, 1, nil, state["rec-lookup"])
 end)})
 letrecNode1 = ({["name"]="letrec-node",["help"]="Find letrec constructs in a node",["cat"]=({tag = "list", n = 1, "categorise"}),["run"]=(function(temp, compiler, node, state, stmt)
-	return visitNode3(node, nil, nil, state["rec-lookup"])
+	return visitNode4(node, nil, nil, state["rec-lookup"])
 end)})
 keywords1 = createLookup1(({tag = "list", n = 21, "and", "break", "do", "else", "elseif", "end", "false", "for", "function", "if", "in", "local", "nil", "not", "or", "repeat", "return", "then", "true", "until", "while"}))
 escape1 = (function(name)
@@ -4186,7 +4359,7 @@ escape1 = (function(name)
 		return "_e"
 	elseif keywords1[name] then
 		return "_e" .. name
-	elseif find1(name, "^[_%a][_%w]*$") then
+	elseif find1(name, "^%a%w*$") then
 		return name
 	else
 		local out
@@ -4285,9 +4458,6 @@ escapeVar1 = (function(var, state)
 end)
 createPassState1 = (function(state)
 	return ({["meta"]=state["meta"],["var-cache"]=state["var-cache"],["var-lookup"]=state["var-lookup"],["var-skip"]=({}),["cat-lookup"]=({}),["rec-lookup"]=({})})
-end)
-truthy_3f_1 = (function(node)
-	return type1(node) == "symbol" and builtins1["true"] == node["var"]
 end)
 boringCategories1 = ({["const"]=true,["quote"]=true,["not"]=true,["cond"]=true,["unless"]=true})
 breakCategories1 = ({["cond"]=true,["unless"]=true,["call-lambda"]=true,["call-tail"]=true})
@@ -4400,6 +4570,9 @@ compileExpression1 = (function(node, out, state, ret, _ebreak)
 			if ret then
 				append_21_1(out, ret)
 			end
+			if cat["parens"] then
+				append_21_1(out, "(")
+			end
 			if type1(node) == "symbol" then
 				append_21_1(out, escapeVar1(node["var"], state))
 			elseif string_3f_1(node) then
@@ -4410,6 +4583,9 @@ compileExpression1 = (function(node, out, state, ret, _ebreak)
 				append_21_1(out, quoted1(node["value"]))
 			else
 				error1("Unknown type: " .. type1(node))
+			end
+			if cat["parens"] then
+				append_21_1(out, ")")
 			end
 		end
 	elseif catTag == "lambda" then
@@ -4453,7 +4629,7 @@ compileExpression1 = (function(node, out, state, ret, _ebreak)
 					line_21_1(out, "if _n > 0 then")
 					_5e7e_1(out, on_21_1("indent"), succ1)
 					append_21_1(out, argsVar)
-					line_21_1(out, " = { tag=\"list\", n=_n, _unpack(_pack(...), 1, _n)}")
+					line_21_1(out, " = {tag=\"list\", n=_n, _unpack(_pack(...), 1, _n)}")
 					local temp = n1(args)
 					local temp1 = variadic + 1
 					while temp1 <= temp do
@@ -4466,7 +4642,7 @@ compileExpression1 = (function(node, out, state, ret, _ebreak)
 					line_21_1(out, " = select(_n + 1, ...)")
 					nextBlock_21_1(out, "else")
 					append_21_1(out, argsVar)
-					line_21_1(out, " = { tag=\"list\", n=0}")
+					line_21_1(out, " = {tag=\"list\", n=0}")
 					local temp = n1(args)
 					local temp1 = variadic + 1
 					while temp1 <= temp do
@@ -4506,7 +4682,7 @@ compileExpression1 = (function(node, out, state, ret, _ebreak)
 		while not hadFinal and i <= n1(node) do
 			local item = nth1(node, i)
 			local case = nth1(item, 1)
-			local isFinal = truthy_3f_1(case)
+			local isFinal = builtin_3f_1(case, "true")
 			if i > 2 and (not isFinal or (ret ~= "" or (_ebreak or n1(item) ~= 1 and fastAny1((function(x)
 				return not constCategories1[catLookup[x]["category"]]
 			end), item, 2)))) then
@@ -4900,7 +5076,7 @@ compileExpression1 = (function(node, out, state, ret, _ebreak)
 		end
 		local head = cat["recur"]["def"]
 		local args = nth1(head, 2)
-		compileBind1(args, node, 1, 2, out, state)
+		compileBind1(args, 1, node, 2, out, state)
 		if ret == "return " then
 			compileRecur1(cat["recur"], out, state, "return ")
 		else
@@ -4922,11 +5098,10 @@ compileExpression1 = (function(node, out, state, ret, _ebreak)
 		if _ebreak and _ebreak ~= cat["recur"] then
 			print1(pretty1(node) .. " Got a different break then defined for.\n  Expected: " .. pretty1(cat["recur"]["def"]) .. "\n       Got: " .. pretty1(_ebreak["def"]))
 		end
-		local head = cat["recur"]["def"]
-		local args = nth1(head, 2)
+		local args = nth1(cat["recur"]["def"], 2)
 		if n1(args) > 0 then
-			local packName = nil
-			local offset, done, temp = 1, false, n1(args)
+			local zipped, packName, done = zipArgs1(args, 1, node, 2), nil, false
+			local offset, temp = 1, n1(args)
 			local temp1 = 1
 			while temp1 <= temp do
 				local var = args[temp1]["var"]
@@ -4955,47 +5130,59 @@ compileExpression1 = (function(node, out, state, ret, _ebreak)
 				end
 				temp1 = temp1 + 1
 			end
-			append_21_1(out, " = ")
-			local offset, done = 1, false
-			local temp = n1(args)
-			local temp1 = 1
-			while temp1 <= temp do
-				local var = args[temp1]["var"]
-				if var["is-variadic"] then
-					local count = n1(node) - n1(args)
-					if count < 0 then
-						count = 0
-					end
-					if done then
-						append_21_1(out, ", ")
-					else
-						done = true
-					end
-					if compilePack1(node, out, state, temp1, count) then
-						packName = escapeVar1(var, state)
-					end
-					offset = count
-				else
-					local expr = nth1(node, temp1 + offset)
-					if expr and (not (type1(expr) == "symbol") or expr["var"] ~= var) then
-						if done then
+			if done then
+				append_21_1(out, " = ")
+				local offset, done1 = 1, false
+				local temp = n1(args)
+				local temp1 = 1
+				while temp1 <= temp do
+					local var = args[temp1]["var"]
+					if var["is-variadic"] then
+						local count = n1(node) - n1(args)
+						if count < 0 then
+							count = 0
+						end
+						if done1 then
 							append_21_1(out, ", ")
 						else
-							done = true
+							done1 = true
 						end
-						compileExpression1(nth1(node, temp1 + offset), out, state)
+						if compilePack1(node, out, state, temp1, count) then
+							packName = escapeVar1(var, state)
+						end
+						offset = count
+					else
+						local expr = nth1(node, temp1 + offset)
+						if expr and (not (type1(expr) == "symbol") or expr["var"] ~= var) then
+							if done1 then
+								append_21_1(out, ", ")
+							else
+								done1 = true
+							end
+							compileExpression1(nth1(node, temp1 + offset), out, state)
+						end
 					end
+					temp1 = temp1 + 1
 				end
-				temp1 = temp1 + 1
-			end
-			local temp = n1(node)
-			local temp1 = n1(args) + (offset + 1)
-			while temp1 <= temp do
-				if temp1 > 1 then
-					append_21_1(out, ", ")
+				local temp = n1(node)
+				local temp1 = n1(args) + (offset + 1)
+				while temp1 <= temp do
+					if temp1 > 1 then
+						append_21_1(out, ", ")
+					end
+					compileExpression1(nth1(node, temp1), out, state)
+					temp1 = temp1 + 1
 				end
-				compileExpression1(nth1(node, temp1), out, state)
-				temp1 = temp1 + 1
+			else
+				local temp = n1(node)
+				local temp1 = 2
+				while temp1 <= temp do
+					if temp1 > 1 then
+						line_21_1(out)
+					end
+					compileExpression1(nth1(node, temp1), out, state, "")
+					temp1 = temp1 + 1
+				end
 			end
 			line_21_1(out)
 			if packName then
@@ -5026,7 +5213,7 @@ compileExpression1 = (function(node, out, state, ret, _ebreak)
 		end
 		local head = car1(node)
 		local args = nth1(head, 2)
-		compileBind1(args, node, 1, 2, out, state)
+		compileBind1(args, 1, node, 2, out, state)
 		compileBlock1(head, out, state, 3, ret, _ebreak)
 		local temp = n1(args)
 		local temp1 = 1
@@ -5079,121 +5266,252 @@ compileExpression1 = (function(node, out, state, ret, _ebreak)
 		return popNode_21_1(out, node)
 	end
 end)
-compileBind1 = (function(args, vals, argIdx, valIdx, out, state)
-	local argLen, valLen, skip, catLookup = n1(args), n1(vals), state["var-skip"], state["cat-lookup"]
-	while argIdx <= argLen or valIdx <= valLen do
-		local arg = args[argIdx]
-		if not arg then
-			compileExpression1(nth1(vals, argIdx), out, state, "")
-			argIdx = argIdx + 1
-		elseif arg["var"]["is-variadic"] then
-			local esc, count = pushEscapeVar_21_1(arg["var"], state), valLen - argLen
-			append_21_1(out, "local " .. esc)
-			if count < 0 then
-				count = 0
-			end
-			append_21_1(out, " = ")
-			if compilePack1(vals, out, state, argIdx, count) then
-				append_21_1(out, " " .. esc .. ".tag = \"list\"")
-			end
-			line_21_1(out)
-			argIdx = argIdx + 1
-			valIdx = count + valIdx
-		elseif skip[arg["var"]] then
-			argIdx = argIdx + 1
-			valIdx = valIdx + 1
-		elseif valIdx == valLen then
-			local argList, val, ret = ({tag = "list", n = 0}), nth1(vals, valIdx), nil
-			while argIdx <= argLen do
-				local var = nth1(args, argIdx)["var"]
-				if not skip[var] then
-					pushCdr_21_1(argList, pushEscapeVar_21_1(var, state))
-				elseif argIdx < argLen then
-					pushCdr_21_1(argList, "_")
-				end
-				argIdx = argIdx + 1
-			end
-			append_21_1(out, "local ")
-			append_21_1(out, concat1(argList, ", "))
-			if catLookup[val]["stmt"] then
-				ret = concat1(argList, ", ") .. " = "
+compileBind1 = (function(args, argsStart, vals, valsStart, out, state)
+	local zipped = zipArgs1(args, argsStart, vals, valsStart)
+	local zippedN, zippedI, skip, catLookup = n1(zipped), 1, state["var-skip"], state["cat-lookup"]
+	while zippedI <= zippedN do
+		local zip = nth1(zipped, zippedI)
+		local args1, vals1 = car1(zip), cadr1(zip)
+		if empty_3f_1(args1) then
+			local temp = n1(vals1)
+			local temp1 = 1
+			while temp1 <= temp do
+				compileExpression1(vals1[temp1], out, state, "")
 				line_21_1(out)
-			else
-				append_21_1(out, " = ")
+				temp1 = temp1 + 1
 			end
-			compileExpression1(val, out, state, ret)
-			valIdx = valIdx + 1
-		else
-			local argStart, valStart, working = argIdx, valIdx, true
-			while working and (argIdx <= argLen or valIdx <= valLen) do
-				local arg2, val = nth1(args, argIdx), nth1(vals, valIdx)
-				if arg2 and arg2["var"]["is-variadic"] then
-					working = false
-				elseif val and catLookup[val]["stmt"] then
-					working = false
-				else
-					if argIdx <= argLen then
-						argIdx = argIdx + 1
-					end
-					if valIdx <= valLen then
-						valIdx = valIdx + 1
-					end
+		elseif car1(args1)["var"]["is-variadic"] or n1(args1) > 1 and any1((function(temp)
+			return temp["var"]["is-variadic"]
+		end), args1) then
+			if n1(args1) > 1 then
+				local varIdx
+				local i = 1
+				while not (nth1(args1, i)["var"]["is-variadic"]) do
+					i = i + 1
 				end
-			end
-			if argStart == argIdx then
-				local expr, var = nth1(vals, valIdx), arg["var"]
-				local esc, ret = pushEscapeVar_21_1(var, state), nil
-				append_21_1(out, "local " .. esc)
-				if expr then
-					if catLookup[expr]["stmt"] then
-						ret = esc .. " = "
-						line_21_1(out)
-					else
-						append_21_1(out, " = ")
-					end
-					compileExpression1(expr, out, state, ret)
-				else
-					line_21_1(out)
-				end
-				argIdx = argIdx + 1
-				valIdx = valIdx + 1
-			else
-				append_21_1(out, "local ")
-				local temp = argIdx - 1
-				local temp1 = argStart
+				varIdx = i
+				local varEsc, nargs = pushEscapeVar_21_1(nth1(args1, varIdx)["var"], state), n1(args1)
+				append_21_1(out, "local _p = _pack(")
+				local temp = n1(vals1)
+				local temp1 = 1
 				while temp1 <= temp do
-					local var = nth1(args, temp1)["var"]
-					if not skip[var] then
-						if temp1 > argStart then
+					if temp1 > 1 then
+						append_21_1(out, ", ")
+					end
+					compileExpression1(nth1(vals1, temp1), out, state)
+					temp1 = temp1 + 1
+				end
+				append_21_1(out, ")")
+				line_21_1(out)
+				line_21_1(out, "local _n = _p.n")
+				append_21_1(out, "local ")
+				local temp = 1
+				while temp <= nargs do
+					if temp > 1 then
+						append_21_1(out, ", ")
+					end
+					append_21_1(out, pushEscapeVar_21_1(nth1(args1, temp)["var"], state))
+					temp = temp + 1
+				end
+				if varIdx > 1 then
+					append_21_1(out, " = ")
+					local temp = varIdx - 1
+					local temp1 = 1
+					while temp1 <= temp do
+						if temp1 > 1 then
 							append_21_1(out, ", ")
 						end
-						append_21_1(out, pushEscapeVar_21_1(var, state))
+						append_21_1(out, format1("_p[%d]", temp1))
+						temp1 = temp1 + 1
+					end
+				end
+				line_21_1(out)
+				line_21_1(out, (format1("if _n > %d then", nargs - 1)))
+				_5e7e_1(out, on_21_1("indent"), succ1)
+				line_21_1(out, format1("%s = {tag=\"list\",n=_n-%d}", varEsc, nargs - 1))
+				line_21_1(out, format1("for i = %d, _n-%d do %s[i-%d]=_p[i] end", varIdx, nargs - varIdx, varEsc, varIdx - 1))
+				if varIdx < nargs then
+					local temp = varIdx + 1
+					while temp <= nargs do
+						if temp > varIdx + 1 then
+							append_21_1(out, ", ")
+						end
+						append_21_1(out, escapeVar1(nth1(args1, temp)["var"], state))
+						temp = temp + 1
+					end
+					append_21_1(out, " = ")
+					local temp = varIdx + 1
+					while temp <= nargs do
+						if temp > varIdx + 1 then
+							append_21_1(out, ", ")
+						end
+						append_21_1(out, format1("_p[_n-%d]", nargs - temp))
+						temp = temp + 1
+					end
+					line_21_1(out)
+				end
+				nextBlock_21_1(out, "else")
+				line_21_1(out, format1("%s = {tag=\"list\",n=0}", varEsc))
+				if varIdx < nargs then
+					local temp = varIdx + 1
+					while temp <= nargs do
+						if temp > varIdx + 1 then
+							append_21_1(out, ", ")
+						end
+						append_21_1(out, escapeVar1(nth1(args1, temp)["var"], state))
+						temp = temp + 1
+					end
+					append_21_1(out, " = ")
+					local temp = varIdx + 1
+					while temp <= nargs do
+						if temp > varIdx + 1 then
+							append_21_1(out, ", ")
+						end
+						append_21_1(out, format1("_p[%d]", temp - 1))
+						temp = temp + 1
+					end
+					line_21_1(out)
+				end
+				out["indent"] = out["indent"] - 1
+				line_21_1(out, "end")
+			elseif empty_3f_1(vals1) or singleReturn_3f_1(last1(vals1)) then
+				append_21_1(out, "local ")
+				append_21_1(out, pushEscapeVar_21_1(car1(args1)["var"], state))
+				append_21_1(out, " = {tag=\"list\", n=")
+				append_21_1(out, tostring1(n1(vals1)))
+				local temp = n1(vals1)
+				local temp1 = 1
+				while temp1 <= temp do
+					append_21_1(out, ", ")
+					compileExpression1(nth1(vals1, temp1), out, state)
+					temp1 = temp1 + 1
+				end
+				append_21_1(out, "}")
+				line_21_1(out)
+			else
+				local name = pushEscapeVar_21_1(car1(args1)["var"], state)
+				append_21_1(out, "local ")
+				append_21_1(out, name)
+				append_21_1(out, " = _pack(")
+				local temp = n1(vals1)
+				local temp1 = 1
+				while temp1 <= temp do
+					if temp1 > 1 then
+						append_21_1(out, ", ")
+					end
+					compileExpression1(nth1(vals1, temp1), out, state)
+					temp1 = temp1 + 1
+				end
+				append_21_1(out, ") ")
+				append_21_1(out, name)
+				append_21_1(out, ".tag = \"list\"")
+				line_21_1(out)
+			end
+		elseif n1(args1) == 1 and skip[car1(args1)["var"]] then
+		else
+			local zippedLim, working = zippedI, true
+			while working and zippedLim <= zippedN do
+				local zip1 = nth1(zipped, zippedLim)
+				local args2, vals2 = car1(zip1), cadr1(zip1)
+				if empty_3f_1(args2) then
+					working = false
+				elseif car1(args2)["var"]["is-variadic"] or n1(args2) > 1 and any1((function(temp)
+					return temp["var"]["is-variadic"]
+				end), args2) then
+					working = false
+				elseif n1(vals2) == 1 and catLookup[car1(vals2)]["stmt"] then
+					working = false
+				else
+					zippedLim = zippedLim + 1
+				end
+			end
+			if zippedLim == zippedI then
+				local esc
+				if n1(args1) == 1 then
+					esc = pushEscapeVar_21_1(car1(args1)["var"], state)
+				else
+					local escs = ({tag = "list", n = 0})
+					local temp = n1(args1)
+					local temp1 = 1
+					while temp1 <= temp do
+						pushCdr_21_1(escs, pushEscapeVar_21_1(args1[temp1]["var"], state))
+						temp1 = temp1 + 1
+					end
+					esc = concat1(escs, ", ")
+				end
+				if not (n1(vals1) == 1 and catLookup[car1(vals1)]["stmt"]) then
+					error1("Expected statement, got something " .. pretty1(zip))
+				end
+				line_21_1(out, "local " .. esc)
+				compileExpression1(car1(vals1), out, state, esc .. " = ")
+				line_21_1(out)
+			else
+				local hasVal = false
+				append_21_1(out, "local ")
+				local first, temp = true, zippedLim - 1
+				local temp1 = zippedI
+				while temp1 <= temp do
+					local zip1 = nth1(zipped, temp1)
+					local args2, vals2 = car1(zip1), cadr1(zip1)
+					if not empty_3f_1(vals2) then
+						hasVal = true
+					end
+					if not (n1(args2) == 1 and skip[car1(args2)["var"]]) then
+						local temp2 = n1(args2)
+						local temp3 = 1
+						while temp3 <= temp2 do
+							local arg = args2[temp3]
+							if first then
+								first = false
+							else
+								append_21_1(out, ", ")
+							end
+							local var = arg["var"]
+							if skip[var] then
+								append_21_1(out, "_")
+							else
+								append_21_1(out, pushEscapeVar_21_1(var, state))
+							end
+							temp3 = temp3 + 1
+						end
 					end
 					temp1 = temp1 + 1
 				end
-				if valStart < valIdx then
+				if hasVal then
 					append_21_1(out, " = ")
-					local temp = valIdx - 1
-					local temp1 = valStart
+					local first, temp = true, zippedLim - 1
+					local temp1 = zippedI
 					while temp1 <= temp do
-						if not skip[nth1(args, (temp1 - valStart) + argStart)["var"]] then
-							if temp1 > valStart then
-								append_21_1(out, ", ")
+						local zip1 = nth1(zipped, temp1)
+						local args2, vals2 = car1(zip1), cadr1(zip1)
+						if not (n1(args2) == 1 and skip[car1(args2)["var"]]) then
+							local temp2 = n1(vals2)
+							local temp3 = 1
+							while temp3 <= temp2 do
+								local val = vals2[temp3]
+								if first then
+									first = false
+								else
+									append_21_1(out, ", ")
+								end
+								compileExpression1(val, out, state)
+								temp3 = temp3 + 1
 							end
-							compileExpression1(nth1(vals, temp1), out, state)
 						end
 						temp1 = temp1 + 1
 					end
 				end
+				line_21_1(out)
+				zippedI = zippedLim - 1
 			end
 		end
-		line_21_1(out)
+		zippedI = zippedI + 1
 	end
 	return nil
 end)
 compilePack1 = (function(node, out, state, start, count)
 	if count <= 0 or atom_3f_1(nth1(node, start + count)) then
-		append_21_1(out, "{ tag=\"list\", n=")
+		append_21_1(out, "{tag=\"list\", n=")
 		append_21_1(out, tostring1(count))
 		local temp = 1
 		while temp <= count do
@@ -5636,7 +5954,8 @@ file1 = (function(compiler, shebang)
 		end
 		temp2 = temp2 + 1
 	end
-	if between_3f_1(count, 1, 150) then
+	if count == 0 then
+	elseif count <= 100 then
 		append_21_1(out, "local ")
 		local first, temp = true, compiler["out"]
 		local temp1 = n1(temp)
@@ -5656,6 +5975,46 @@ file1 = (function(compiler, shebang)
 		end
 		line_21_1(out)
 	else
+		local counts, vars = ({}), ({tag = "list", n = 0})
+		local temp = compiler["out"]
+		local temp1 = n1(temp)
+		local temp2 = 1
+		while temp2 <= temp1 do
+			local node = temp[temp2]
+			local var = node["def-var"]
+			if var then
+				counts[var] = 0
+				pushCdr_21_1(vars, var)
+			end
+			temp2 = temp2 + 1
+		end
+		visitBlock1(compiler["out"], 1, (function(x)
+			if type1(x) == "symbol" then
+				local var = x["var"]
+				local count1 = counts[var]
+				if count1 then
+					counts[var] = count1 + 1
+					return nil
+				else
+					return nil
+				end
+			else
+				return nil
+			end
+		end))
+		sort1(vars, (function(x, y)
+			return counts[x] > counts[y]
+		end))
+		append_21_1(out, "local ")
+		local temp = 1
+		while temp <= 100 do
+			if temp > 1 then
+				append_21_1(out, ", ")
+			end
+			append_21_1(out, escapeVar1(nth1(vars, temp), state))
+			temp = temp + 1
+		end
+		line_21_1(out)
 		line_21_1(out, "local _ENV = setmetatable({}, {__index=ENV or (getfenv and getfenv()) or _G}) if setfenv then setfenv(0, _ENV) end")
 	end
 	block2(compiler["out"], out, state, 1, "return ")
@@ -5875,7 +6234,7 @@ formatSignature1 = (function(name, var)
 	elseif empty_3f_1(sig) then
 		return "(" .. name .. ")"
 	else
-		return "(" .. name .. " " .. concat1(map1(on1("contents"), sig), " ") .. ")"
+		return "(" .. name .. " " .. concat1(map2(on1("contents"), sig), " ") .. ")"
 	end
 end)
 writeDocstring1 = (function(out, str, scope)
@@ -5908,7 +6267,7 @@ writeDocstring1 = (function(out, str, scope)
 					elseif empty_3f_1(sig) then
 						return ovar["name"]
 					else
-						return name .. " " .. concat1(map1(on1("contents"), sig), " ")
+						return name .. " " .. concat1(map2(on1("contents"), sig), " ")
 					end
 				end)(), "%A+", "-")))
 			else
@@ -6076,31 +6435,31 @@ lex1 = (function(logger, str, name, cont)
 			char = sub1(xs, x, x)
 		end
 		local str1 = apply1(_2e2e_1, split1(reverse1(sub1(str, start, offset)), "'"))
-		return car1(reduce1((function(temp_1, temp_2, ...)
-			local r_5f_1609_5f_remainingArguments = _pack(...) r_5f_1609_5f_remainingArguments.tag = "list"
-			local temp = append1(list1(temp_1, temp_2), r_5f_1609_5f_remainingArguments)
-			local temp1
+		return car1(reduce1((function(temp1, temp2, ...)
+			local tempRemainingArguments = _pack(...) tempRemainingArguments.tag = "list"
+			local temp = append1(list1(temp1, temp2), tempRemainingArguments)
+			local temp3
 			if type1(temp) == "list" then
 				if n1(temp) >= 2 then
 					if n1(temp) <= 2 then
-						local temp2
-						local temp3 = nth1(temp, 1)
-						temp2 = type1(temp3) == "list" and (n1(temp3) >= 2 and (n1(temp3) <= 2 and true))
-						if temp2 then
-							temp1 = true
+						local temp4
+						local temp5 = nth1(temp, 1)
+						temp4 = type1(temp5) == "list" and (n1(temp5) >= 2 and (n1(temp5) <= 2 and true))
+						if temp4 then
+							temp3 = true
 						else
-							temp1 = false
+							temp3 = false
 						end
 					else
-						temp1 = false
+						temp3 = false
 					end
 				else
-					temp1 = false
+					temp3 = false
 				end
 			else
-				temp1 = false
+				temp3 = false
 			end
-			if temp1 then
+			if temp3 then
 				local acc, prev, n = nth1(nth1(temp, 1), 1), nth1(nth1(temp, 1), 2), nth1(temp, 2)
 				return list1((function()
 					if n < prev then
@@ -6112,7 +6471,7 @@ lex1 = (function(logger, str, name, cont)
 			else
 				return error1("Pattern matching failure!\nTried to match the following patterns against " .. pretty1(temp) .. ", but none matched.\n" .. "  Tried: `((?acc ?prev) ?n)`")
 			end
-		end), list1(0, 0), map1(comp1((function(temp)
+		end), list1(0, 0), map2(comp1((function(temp)
 			return _2a_romanDigits_2a_1[temp]
 		end), upper1, (function(temp)
 			return sub1(str1, temp, temp)
@@ -6152,13 +6511,10 @@ lex1 = (function(logger, str, name, cont)
 		elseif char == "}" then
 			appendWith_21_(({["tag"]="close",["open"]="{"}))
 		elseif char == "'" then
-			local start, finish
 			appendWith_21_(({["tag"]="quote"}), nil, nil)
 		elseif char == "`" then
-			local start, finish
 			appendWith_21_(({["tag"]="syntax-quote"}), nil, nil)
 		elseif char == "~" then
-			local start, finish
 			appendWith_21_(({["tag"]="quasiquote"}), nil, nil)
 		elseif char == "," then
 			if (function(xs, x)
@@ -6166,10 +6522,8 @@ lex1 = (function(logger, str, name, cont)
 			end)(str, offset + 1) == "@" then
 				local start = ({["line"]=line,["column"]=column,["offset"]=offset})
 				consume_21_()
-				local finish
 				appendWith_21_(({["tag"]="unquote-splice"}), start, nil)
 			else
-				local start, finish
 				appendWith_21_(({["tag"]="unquote"}), nil, nil)
 			end
 		elseif find1(str, "^%-?%.?[#0-9]", offset) then
@@ -6396,13 +6750,11 @@ lex1 = (function(logger, str, name, cont)
 			if key then
 				appendWith_21_(({["tag"]="key",["value"]=sub1(str, start["offset"] + 1, offset)}), start)
 			else
-				local finish
 				appendWith_21_(({["tag"]="symbol"}), start, nil)
 			end
 		end
 		consume_21_()
 	end
-	local start, finish
 	appendWith_21_(({["tag"]="eof"}), nil, nil)
 	return out
 end)
@@ -7308,7 +7660,7 @@ compile1 = (function(compiler, nodes, scope, name)
 						return distances[x] <= 0.5
 					end), varDis))
 					temp3 = slice1(xs, 1, min1(5, n1(xs)))
-					elems = map1((function(temp4)
+					elems = map2((function(temp4)
 						return colored1("1;32", temp4)
 					end), temp3)
 					local temp3 = n1(elems)
@@ -7342,7 +7694,7 @@ compile1 = (function(compiler, nodes, scope, name)
 	if name then
 		stopTimer_21_1(timer, name)
 	end
-	return unpack1(list1(map1(on1("node"), states), states))
+	return unpack1(list1(map2(on1("node"), states), states))
 end)
 local home = getenv1 and (getenv1("HOME") or (getenv1("USERPROFILE") or (getenv1("HOMEDRIVE") or getenv1("HOMEPATH"))))
 if home then
@@ -7674,6 +8026,7 @@ execCommand1 = (function(compiler, scope, args)
 				return self1(logger, "put-error!", ("Cannot find '" .. name .. "'"))
 			else
 				print1(colored1(96, mod["name"]))
+				print1("Located at " .. mod["path"])
 				if mod["docs"] then
 					printDocs_21_1(mod["docs"])
 					print1()
@@ -7710,7 +8063,7 @@ execCommand1 = (function(compiler, scope, args)
 		return print1(concat1(vars, "  "))
 	elseif command == "search" or command == "s" then
 		if n1(args) > 1 then
-			local keywords, nameResults, docsResults, vars, varsSet, current = map1(lower1, cdr1(args)), ({tag = "list", n = 0}), ({tag = "list", n = 0}), ({tag = "list", n = 0}), ({}), scope
+			local keywords, nameResults, docsResults, vars, varsSet, current = map2(lower1, cdr1(args)), ({tag = "list", n = 0}), ({tag = "list", n = 0}), ({tag = "list", n = 0}), ({}), scope
 			while current do
 				local temp = current["variables"]
 				local temp1, var = next1(temp)
@@ -7811,7 +8164,12 @@ execString1 = (function(compiler, scope, string)
 				run = false
 			elseif status1(exec) == "dead" then
 				local lvl = get_21_1(last1(state))
-				print1("out = " .. colored1(96, pretty1(lvl)))
+				local prettyFun = pretty1
+				local prettyVar = get1(scope, "pretty")
+				if prettyVar then
+					prettyFun = (get_21_1(compiler["states"][prettyVar]))
+				end
+				print1("out = " .. colored1(96, prettyFun(lvl)))
 				global[pushEscapeVar_21_1(add_21_1(scope, "out", "defined", lvl), compileState)] = lvl
 				run = false
 			else
@@ -7876,7 +8234,7 @@ repl1 = (function(compiler)
 			end
 			if sub1(data, 1, 1) == ":" then
 				buffer = ""
-				execCommand1(compiler, scope, map1(trim1, split1(sub1(data, 2), " ")))
+				execCommand1(compiler, scope, map2(trim1, split1(sub1(data, 2), " ")))
 			elseif line and (n1(line) > 0 and requiresInput1(data)) then
 				buffer = data
 			else
@@ -8139,7 +8497,7 @@ profileStack1 = (function(fn, mappings, args)
 			end
 		end
 		return pushCdr_21_1(stacks, stack)
-	end), "", 100000)
+	end), "", 100000.0)
 	fn()
 	sethook1()
 	local folded = ({["n"]=0,["name"]="<root>"})
@@ -8430,7 +8788,7 @@ genCoverageReport1 = (function(compiler, args)
 	self1(handle, "write", "Summary\n")
 	self1(handle, "write", "==============================================================================", "\n\n")
 	local headings = ({tag = "list", n = 4, "File", "Hits", "Misses", "Coverage"})
-	local widths, total = map1(n1, headings), list1("Total", format1("%d", totalHits), format1("%d", totalMisses), formatCoverage1(totalHits, totalMisses))
+	local widths, total = map2(n1, headings), list1("Total", format1("%d", totalHits), format1("%d", totalMisses), formatCoverage1(totalHits, totalMisses))
 	local temp = n1(summary)
 	local temp1 = 1
 	while temp1 <= temp do
@@ -8759,9 +9117,7 @@ readLibrary1 = (function(state, name, path, lispHandle)
 	return lib
 end)
 pathLocator1 = (function(state, name)
-	local searched, paths
-	searched = ({tag = "list", n = 0})
-	paths = state["paths"]
+	local searched, paths, _ = ({tag = "list", n = 0}), state["paths"]
 	local i = 1
 	while true do
 		if i > n1(paths) then
@@ -8971,7 +9327,7 @@ createPluginState1 = (function(compiler)
 	end)
 	return ({["add-categoriser!"]=(function()
 		return error1("add-categoriser! is not yet implemented", 0)
-	end),["categorise-node"]=visitNode2,["categorise-nodes"]=visitNodes1,["cat"]=(function()
+	end),["categorise-node"]=visitNode3,["categorise-nodes"]=visitNodes1,["cat"]=(function()
 		return error1("cat is not yet implemented", 0)
 	end),["writer/append!"]=append_21_1,["writer/line!"]=line_21_1,["writer/indent!"]=indent_21_1,["writer/unindent!"]=unindent_21_1,["writer/begin-block!"]=beginBlock_21_1,["writer/next-block!"]=nextBlock_21_1,["writer/end-block!"]=endBlock_21_1,["add-emitter!"]=(function()
 		return error1("add-emitter! is not yet implemented", 0)
@@ -9123,7 +9479,15 @@ local dir = getenv1("URN_STDLIB")
 if dir then
 	directory = normalisePath1(dir, true)
 else
-	directory = normalisePath1(gsub1(gsub1(gsub1(gsub1(arg1[0], "urn[/\\]cli%.lisp$", ""), "urn[/\\]cli$", ""), "bin[/\\]urn%.lua$", ""), "bin[/\\]urn$", ""), true) .. "lib/"
+	local path = arg1[0]
+	if find1(path, "urn[/\\]cli%.lisp$") then
+		path = gsub1(path, "urn[/\\]cli%.lisp$", "")
+	elseif find1(path, "bin[/\\][^/\\]*$") then
+		path = gsub1(path, "bin[/\\][^/\\]*$", "")
+	else
+		path = gsub1(path, "[^/\\]*$", "")
+	end
+	directory = normalisePath1(path, true) .. "lib/"
 end
 local paths, tasks = list1("?", "?/init", directory .. "?", directory .. "?/init"), list1(coverageReport1, task1, task3, warning1, optimise2, emitLisp1, emitLua1, task2, execTask1, replTask1)
 addHelp_21_1(spec)
@@ -9144,7 +9508,7 @@ addArgument_21_1(spec, ({tag = "list", n = 3, "--output", "--out", "-o"}), "help
 	return nil
 end))
 addArgument_21_1(spec, ({tag = "list", n = 2, "--wrapper", "-w"}), "help", "A wrapper script to launch Urn with", "narg", 1, "action", (function(a, b, value)
-	local args, i = map1(id1, arg1), 1
+	local args, i = map2(id1, arg1), 1
 	local len = n1(args)
 	while i <= len do
 		local item = nth1(args, i)
@@ -9213,7 +9577,7 @@ else
 end
 local compiler = ({["log"]=logger,["timer"]=({["callback"]=(function(temp, temp1, temp2)
 	return self1(logger, "put-time!", temp, temp1, temp2)
-end),["timers"]=({})}),["paths"]=paths,["lib-env"]=({}),["lib-meta"]=({}),["libs"]=({tag = "list", n = 0}),["lib-cache"]=({}),["lib-names"]=({}),["warning"]=({["normal"]=list1(documentation1),["usage"]=list1(checkArity1, deprecated1)}),["optimise"]=default1(),["root-scope"]=rootScope1,["variables"]=({}),["states"]=({}),["out"]=({tag = "list", n = 0})})
+end),["timers"]=({})}),["paths"]=paths,["lib-env"]=({}),["lib-meta"]=({}),["libs"]=({tag = "list", n = 0}),["lib-cache"]=({}),["lib-names"]=({}),["warning"]=default2(),["optimise"]=default1(),["root-scope"]=rootScope1,["variables"]=({}),["states"]=({}),["out"]=({tag = "list", n = 0})})
 compiler["compile-state"] = createState1(compiler["lib-meta"])
 compiler["loader"] = (function(name)
 	return loader1(compiler, name, true)

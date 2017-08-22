@@ -8,7 +8,7 @@
 
 let
   inherit (nixpkgs) stdenv;
-  ourVersion = "0.4.4";
+  ourVersion = "0.5.0";
 
   # Build a sort of "union package" with all the native dependencies we
   # have: Lua (or LuaJIT), readline, etc. Then, we can depend on this
