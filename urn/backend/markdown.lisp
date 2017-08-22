@@ -51,7 +51,9 @@
         [(= ty "bold") (writer/append! out (.> tok :contents))]
         [(= ty "italic") (writer/append! out (.> tok :contents))]
         [(= ty "arg")  (writer/append! out (.. "`" (.> tok :contents) "`"))]
-        [(= ty "mono") (writer/append! out (.> tok :whole))]
+        [(= ty "mono") (writer/append! out (-> (.> tok :whole)
+                                             ;; Remove anything after the language definition.
+                                             (string/gsub <> "^```(%S+)[^\n]*" "```%1")))]
         [(= ty "link")
          (let* [(name (.> tok :contents))
                 (ovar (scope/get scope name))]

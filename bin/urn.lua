@@ -4,7 +4,7 @@ if not table.unpack then table.unpack = unpack end
 local load = load if _VERSION:find("5.1") then load = function(x, n, _, env) local f, e = loadstring(x, n) if not f then return f, e end if env then setfenv(f, env) end return f end end
 local _select, _unpack, _pack, _error = select, table.unpack, table.pack, error
 local _libs = {}
-local getIdx1, _3d_1, n1, nth1, _2b_1, setIdx_21_1, _2e2e_1, _3c3d_1, type1, append_21_1, car1, error1, _2f3d_1, builtins1, pushCdr_21_1, _2d_1, line_21_1, sub1, self1, _3e_1, format1, list1, pretty1, _3e3d_1, print1, eq_3f_1, next1, getSource1, compileExpression1, doNodeError_21_1, builtin_3f_1, concat1, empty_3f_1, _3c_1, gsub1, exit_21_1, addArgument_21_1, tostring1, succ1, on_21_1, find1, _5e7e_1, string_3f_1, quoted1, visitBlock1, cadr1, type_23_1, visitNode1, removeNth_21_1, put_21_1, colored1, last1, visitNodes1, tonumber1, pushEscapeVar_21_1, visitNode3, unpack1, slice1, getenv1, constVal1, usage_21_1, resolveNode1, open1, map2, escapeVar1, arg1, getVar1, split1, compileBlock1, pcall1, unmangleIdent1, sort1, expectType_21_1, number_3f_1, apply1, runPass1, scoreNodes1, traverseList1, symbol_2d3e_string1, between_3f_1, caar1, visitNode4, lower1, sethook1, makeNil1, expect_21_1, len_23_1, putNodeWarning_21_1, addParen1, get1, formatNode1, popLast_21_1, child1, matcher2, traverseNode1, any1, get_21_1, matcher1, visitNode2, match1
+local getIdx1, _3d_1, n1, nth1, _2b_1, setIdx_21_1, _2e2e_1, _3c3d_1, type1, append_21_1, car1, error1, _2f3d_1, builtins1, pushCdr_21_1, _2d_1, line_21_1, sub1, list1, self1, _3e_1, format1, pretty1, _3e3d_1, print1, eq_3f_1, next1, getSource1, compileExpression1, doNodeError_21_1, concat1, builtin_3f_1, empty_3f_1, _3c_1, gsub1, addArgument_21_1, exit_21_1, tostring1, on_21_1, _5e7e_1, find1, succ1, string_3f_1, quoted1, type_23_1, cadr1, visitBlock1, removeNth_21_1, visitNode1, put_21_1, colored1, last1, tonumber1, visitNodes1, visitNode3, pushEscapeVar_21_1, slice1, open1, constVal1, unpack1, resolveNode1, getenv1, usage_21_1, map2, escapeVar1, split1, compileBlock1, getVar1, arg1, number_3f_1, sort1, apply1, pcall1, unmangleIdent1, expectType_21_1, scoreNodes1, runPass1, traverseList1, between_3f_1, symbol_2d3e_string1, caar1, sethook1, len_23_1, putNodeWarning_21_1, getmetatable1, visitNode4, addParen1, lower1, get1, formatNode1, expect_21_1, makeNil1, matcher1, traverseNode1, visitNode2, match1, popLast_21_1, rep1, any1, get_21_1
 local _ENV = setmetatable({}, {__index=ENV or (getfenv and getfenv()) or _G}) if setfenv then setfenv(0, _ENV) end
 _3d_1 = function(v1, v2) return v1 == v2 end
 _2f3d_1 = function(v1, v2) return v1 ~= v2 end
@@ -146,6 +146,9 @@ end)
 number_3f_1 = (function(x)
 	return type_23_1(x) == "number" or type_23_1(x) == "table" and x["tag"] == "number"
 end)
+function_3f_1 = (function(x)
+	return type1(x) == "function" or type1(x) == "multimethod"
+end)
 atom_3f_1 = (function(x)
 	local temp = type_23_1(x) ~= "table"
 	if temp then
@@ -194,7 +197,7 @@ keys1 = (function(x)
 		temp, _5f_ = next1(x, temp)
 	end
 	out["n"] = n
-	return unpack1(out, 1, out["n"])
+	return out
 end)
 put_21_1 = (function(t, typs, l)
 	while not (type1(typs) == "list" and n1(typs) == 1) do
@@ -209,7 +212,7 @@ put_21_1 = (function(t, typs, l)
 	t[typs[1]] = l
 	return nil
 end)
-eq_3f_1 = setmetatable1(({["lookup"]=({})}), ({["__call"]=(function(tempThis, x, y)
+eq_3f_1 = setmetatable1(({["lookup"]=({}),["tag"]="multimethod"}), ({["__call"]=(function(tempThis, x, y)
 	local tempMethod
 	local temp = tempThis["lookup"]
 	if temp then
@@ -226,11 +229,19 @@ eq_3f_1 = setmetatable1(({["lookup"]=({})}), ({["__call"]=(function(tempThis, x,
 		if tempThis["default"] then
 			tempMethod = tempThis["default"]
 		else
-			error1("No matching method to call for " .. (type1(x) .. " ") .. (type1(y) .. " ") .. "\nthere are methods to call for " .. keys1(tempThis["lookup"]))
+			error1("No matching method to call for (" .. concat1(list1("eq?", type1(x), type1(y)), " ") .. ")\n  " .. (function()
+				if n1((keys1(tempThis["lookup"]))) >= 1 then
+					return "There are methods to call for " .. concat1(map1((function(tempKey)
+						return "  - " .. tempKey
+					end), keys1(tempThis["lookup"])), "\n")
+				else
+					return "There are no methods to call."
+				end
+			end)())
 		end
 	end
 	return tempMethod(x, y)
-end)}))
+end),["name"]="eq?",["args"]=list1("x", "y")}))
 put_21_1(eq_3f_1, list1("lookup", "list", "list"), (function(x, y)
 	if n1(x) ~= n1(y) then
 		return false
@@ -293,7 +304,7 @@ getmetatable1(eq_3f_1)["__call"] = (function(self, x, y)
 		return original(self, x, y)
 	end
 end)
-pretty1 = setmetatable1(({["lookup"]=({})}), ({["__call"]=(function(tempThis, x)
+pretty1 = setmetatable1(({["lookup"]=({}),["tag"]="multimethod"}), ({["__call"]=(function(tempThis, x)
 	local tempMethod
 	local temp = tempThis["lookup"]
 	if temp then
@@ -305,11 +316,19 @@ pretty1 = setmetatable1(({["lookup"]=({})}), ({["__call"]=(function(tempThis, x)
 		if tempThis["default"] then
 			tempMethod = tempThis["default"]
 		else
-			error1("No matching method to call for " .. (type1(x) .. " ") .. "\nthere are methods to call for " .. keys1(tempThis["lookup"]))
+			error1("No matching method to call for (" .. concat1(list1("pretty", type1(x)), " ") .. ")\n  " .. (function()
+				if n1((keys1(tempThis["lookup"]))) >= 1 then
+					return "There are methods to call for " .. concat1(map1((function(tempKey)
+						return "  - " .. tempKey
+					end), keys1(tempThis["lookup"])), "\n")
+				else
+					return "There are no methods to call."
+				end
+			end)())
 		end
 	end
 	return tempMethod(x)
-end)}))
+end),["name"]="pretty",["args"]=list1("x")}))
 put_21_1(pretty1, list1("lookup", "list"), (function(xs)
 	return "(" .. concat1(map1(pretty1, xs), " ") .. ")"
 end))
@@ -339,6 +358,9 @@ put_21_1(pretty1, list1("lookup", "table"), (function(x)
 		temp, v = next1(x, temp)
 	end
 	return "{" .. (concat1(out, " ") .. "}")
+end))
+put_21_1(pretty1, list1("lookup", "multimethod"), (function(x)
+	return "«method: (" .. getmetatable1(x)["name"] .. " " .. concat1(getmetatable1(x)["args"], " ") .. ")»"
 end))
 pretty1["default"] = (function(x)
 	return tostring1(x)
@@ -714,7 +736,7 @@ exit1 = os.exit
 getenv1 = os.getenv
 invokable_3f_1 = (function(x)
 	while true do
-		local temp = type1(x) == "function"
+		local temp = function_3f_1(x)
 		if temp then
 			return temp
 		else
@@ -753,10 +775,10 @@ lens1 = (function(view, over)
 	end)}))
 end)
 getter_3f_1 = (function(lens)
-	return lens["tag"] == "lens" and type1((lens["view"])) == "function"
+	return lens["tag"] == "lens" and function_3f_1(lens["view"])
 end)
 setter_3f_1 = (function(lens)
-	return lens["tag"] == "lens" and type1((lens["over"])) == "function"
+	return lens["tag"] == "lens" and function_3f_1(lens["over"])
 end)
 _5e2e_1 = (function(val, lens)
 	if getter_3f_1(lens) then
@@ -6255,7 +6277,7 @@ writeDocstring1 = (function(out, str, scope)
 		elseif ty == "arg" then
 			append_21_1(out, "`" .. tok["contents"] .. "`")
 		elseif ty == "mono" then
-			append_21_1(out, tok["whole"])
+			append_21_1(out, gsub1(tok["whole"], "^```(%S+)[^\n]*", "```%1"))
 		elseif ty == "link" then
 			local name = tok["contents"]
 			local ovar = get1(scope, name)
