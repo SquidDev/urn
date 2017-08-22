@@ -40,12 +40,16 @@
     (it "that are immutable"
       (affirm-usage-optimise optimise/strip-args
         '(((lambda (x) 2) 3)
+          ((lambda (x y z) 2) 3 4 5) ;; Multiple arguments
           ((lambda (x) 2) (foo)) ;; Side effect in definition
-          ((lambda (x) x) 3))    ;; x is used
+          ((lambda (x) x) 3)     ;; x is used
+          ((lambda (x y z) x z) 3 4 5)) ;; Multiple arguments with some used
         '(((lambda () 2))
+          ((lambda () 2))
           ((lambda (x) 2) (foo))
-          ((lambda (x) x) 3))
-        1))
+          ((lambda (x) x) 3)
+          ((lambda (x z) x z) 3 5))
+        5))
     (it "that are mutable"
       (affirm-usage-optimise optimise/strip-args
         '(((lambda (x) (set! x 3) 2) 3)
@@ -54,7 +58,31 @@
         '(((lambda () nil 2))
           ((lambda (x) (set! x 3) 2) (foo))
           ((lambda () ((lambda () (foo) nil)) 2)))
-        2)))
+        2))
+    (it "that are variadic"
+      (affirm-usage-optimise optimise/strip-args
+        '(((lambda (&x) 2) 3)
+          ((lambda (a &b c d) a c d) 2 3)
+          ((lambda (a &b c d) a c d) 2 3 4)
+          ((lambda (a &b c d) a c d) 2 3 4 5)
+          ((lambda (a &b c d) a c d) 2 3 4 5 6)
+          ((lambda (&x) 2) (foo)) ;; Side effect in definition
+          ((lambda (&x) x) 3))    ;; x is used
+        '(((lambda () 2))
+          ((lambda (a c d) a c d) 2 3)
+          ((lambda (a c d) a c d) 2 3 4)
+          ((lambda (a c d) a c d) 2 4 5)
+          ((lambda (a c d) a c d) 2 5 6)
+          ((lambda (&x) 2) (foo))
+          ((lambda (&x) x) 3))
+        5))
+    (it "when there are no values"
+      (affirm-usage-optimise optimise/strip-args
+        '(((lambda (x) 2))
+          ((lambda (x) x)))    ;; x is used
+        '(((lambda () 2))
+          ((lambda (x) x)))
+        1)))
 
   (section "will fold variables"
     (it "defined in the top-level"

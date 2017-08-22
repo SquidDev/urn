@@ -79,35 +79,36 @@
     (lambda (node)
       (when (and (list? node) (list? (car node)) (symbol? (caar node)) (= (.> (caar node) :var) (.> builtins :lambda)))
         (let* [(lam (car node))
-               (args (nth lam 2))
-               (offset 1)
-               (rem-offset '0)
+               (lam-args (nth lam 2))
+               (arg-offset 1)
+               (val-offset 2)
                (removed {})]
-          (for i 1 (n args) 1
-            (let [(arg (nth args (- i rem-offset)))
-                  (val (nth node (- (+ i offset) rem-offset)))]
-              (cond
-                [(.> arg :var :is-variadic)
-                 (with (count (- (n node) (n args)))
-                       ;; If it's a variable number of args then just skip them
-                       (when (< count 0) (set! count 0))
-                       (set! offset count))]
+          (for-each zipped (zip-args lam-args 1 node 2)
+            (let* [(args (car zipped))
+                   (arg  (car args))
+                   (vals (cadr zipped))]
+              (if (or
+                    ;; Ignore times we've got multiple arguments
+                    (> (n args) 1)
+                    ;; And keep arguments which are actually used
+                    (and arg (> (n (.> (usage/get-var lookup (.> arg :var)) :usages)) 0))
+                    ;; Obviously don't remove values which have an effect
+                    (any side-effect? vals))
+                (progn
+                  ;; We're skipping, so move onto the next set of arguments
+                  (set! arg-offset (+ arg-offset (n args)))
+                  (set! val-offset (+ arg-offset (n vals))))
 
-                [(= nil val)]
-                ;; Obviously don't remove values which have an effect
-                [(side-effect? val)]
-                ;; And keep values which are actually used
-                [(> (n (.> (usage/get-var lookup (.> arg :var)) :usages)) 0)]
-                ;; So remove things which aren't used and have no side effects.
-                [true
+                (progn
                   (changed!)
-                  (.<! removed (.> (nth args (- i rem-offset)) :var) true)
-                  (remove-nth! args (- i rem-offset))
-                  (remove-nth! node (- (+ i offset) rem-offset))
-                  (inc! rem-offset)])))
+                  (when arg
+                    (.<! removed (.> arg :var) true)
+                    (remove-nth! lam-args arg-offset))
+
+                  (for-each val vals (remove-nth! node val-offset))))))
 
           ;; We convert every set! into a progn with the value and `nil`.
-          (when (> rem-offset 0)
+          (unless (empty-struct? removed)
             (traverse/traverse-list lam 3
               (lambda (node)
                 (if (and (list? node) (builtin? (car node) :set!) (.> removed (.> (nth node 2) :var)))

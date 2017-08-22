@@ -289,4 +289,34 @@
          return nil
        else
          return bar()
-       end")))
+       end"))
+
+  (will "emit if statements in bindings"
+    (affirm-codegen
+      '(((lambda (x) (+ x 1))
+          (cond
+            [foo 1]
+            [true 2])))
+      "local x
+       if foo then
+         x = 1
+       else
+         x = 2
+       end
+       return x + 1")
+
+    (affirm-codegen
+      '(((lambda (x) (+ x 1))
+          ((lambda (y)
+             (cond
+               [y 1]
+               [true 2]))
+             3)))
+      "local x
+       local y = 3
+       if y then
+         x = 1
+       else
+         x = 2
+       end
+       return x + 1")))

@@ -1,6 +1,6 @@
 (import urn/resolve/builtins (builtins builtin-vars) :export)
 
-(import base (type#))
+(import base (type# slice))
 
 (defun builtin? (node name)
   "Determine whether NODE is builtin NAME."
@@ -121,3 +121,56 @@
     [(> i (n li)) false]
     [(fn (nth li i)) true]
     [else (fast-any fn li (+ i 1))]))
+
+(defun zip-args (args args-start vals vals-start)
+  "Zip a set of ARGS with their corresponding VALS.
+
+   This returns a list of pairs. The first element in each pair is a
+   list of arguments, the second value is a list of values. Several
+   observations can be made about these pairs:
+
+    - If there are multiple values, then the first argument is variadic.
+    - If the first argument is variadic, then there is only one.
+    - If there are multiple arguments, then this is the last element. Note that
+      any of these arguments may be variadic, except from the first one."
+  (let* [(res '())
+         (an (n args))
+         (vn (n vals))]
+    (loop
+      [(ai args-start)
+       (vi vals-start)]
+      [(and (> ai an) (> vi vn)) res]
+
+      (with (arg (.> args ai))
+        (cond
+          ;; If we have no corresponding argument, then push a single value
+          [(! arg)
+           (push-cdr! res (list '() (list (nth vals vi))))
+           (recur ai (succ vi))]
+
+          ;; If we've no more values, then just push an empty list
+          [(> vi vn)
+           (push-cdr! res (list (list arg) '()))
+           (recur (succ ai) vi)]
+
+          [(.> arg :var :is-variadic)
+           (if (single-return? (nth vals vn))
+             ;; We know how many values will be passed, so merge them
+             ;; all in and continue.
+             (with (v-end (- vn (- an ai)))
+               (when (< v-end vi) (set! v-end (pred vi)))
+               (push-cdr! res (list (list arg) (slice vals vi v-end)))
+               (recur (succ ai) (succ v-end)))
+             ;; We've no clue how many arguments are here, so zip em all
+             ;; up and exit.
+             (push-cdr! res (list (slice args ai) (slice vals vi))))]
+
+          ;; Just your bog standard argument -> value mapping
+          [(or (< vi vn) (single-return? (nth vals vi)))
+           (push-cdr! res (list (list arg) (list (nth vals vi))))
+           (recur (succ ai) (succ vi))]
+
+          ;; Last value and we don't know how many there are. Let's
+          ;; store all arguments to this one value
+          [true
+           (push-cdr! res (list (slice args ai) (list (nth vals vi))))])))))
