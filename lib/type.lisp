@@ -47,7 +47,9 @@
 
 (defun function? (x)
   "Check whether X is a function."
-  (= (type x) "function"))
+  (or (= (type x) "function")
+      ; HACK: We pretend that multimethods are functions.
+      (= (type x) "multimethod")))
 
 (defun key? (x)
   "Check whether X is a key."
@@ -151,7 +153,7 @@
       (set! n (+ 1 n))
       (set-idx! out n k))
     (set-idx! out :n n)
-    (unpack out 1 (get-idx out :n))))
+    out))
 
 (defun s->s (x) :hidden (get-idx x :contents))
 
@@ -171,27 +173,36 @@
    out = \"foo\"
    ```"
   (let* [(this (gensym 'this))
+         (key (gensym 'key))
          (method (gensym 'method))]
     `(define ,name
        ,@attrs
        (setmetatable
-         { :lookup {} }
+         { :lookup {}
+           :tag :multimethod }
          { :__call (lambda (,this ,@ll)
                      (let* [(,method (deep-get ,this :lookup ,@(map (lambda (x)
                                                                       `(type ,x)) ll)))]
                        (unless ,method
                          (if (get-idx ,this :default)
                            (set! ,method (get-idx ,this :default))
-                           (error (.. "No matching method to call for "
-                                      ,@(map (lambda (x)
-                                               `(.. (type ,x) " "))
-                                             ll)
-                                      "\nthere are methods to call for "
-                                      (keys (get-idx ,this :lookup))))))
-                       (,method ,@ll))) }))))
-          ; :--pretty-print (lambda (,this)
-          ;                   ,(.. "«method: (" (s->s name) " "
-          ;                        (concat (map s->s ll) " ") ")»")) }))))
+                           (error (.. "No matching method to call for ("
+                                      (concat (list
+                                                ,(s->s name)
+                                                ,@(map (lambda (x) `(type ,x)) ll))
+                                              " ")
+                                      ")\n  "
+                                      (let* [(,key (keys (get-idx ,this :lookup)))]
+                                        (if (>= (n ,key) 1)
+                                          (.. "There are methods to call for "
+                                              (concat (map (lambda (,key)
+                                                             (.. "  - " ,key))
+                                                           (keys (get-idx ,this :lookup)))
+                                                      "\n"))
+                                          "There are no methods to call."))))))
+                       (,method ,@ll)))
+           :name ,(s->s name)
+           :args (list ,@(map s->s ll)) }))))
 
 (defun put! (t typs l) :hidden
   "Insert the method L (at TYPS) into the lookup table T, creating any needed
@@ -344,6 +355,9 @@
     (for-pairs (k v) x
       (set! out `(,(.. (pretty k) " " (pretty v)) ,@out)))
     (.. "{" (.. (concat out " ") "}"))))
+
+(defmethod (pretty multimethod) (x)
+  (.. "«method: (" (get-idx (getmetatable x) :name) " " (concat (get-idx (getmetatable x) :args) " ") ")»"))
 
 (defdefault pretty (x)
   (tostring x))
