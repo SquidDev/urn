@@ -479,6 +479,7 @@
   (lua/table/insert li idx val))
 
 (defmacro for-each (var lst &body)
+  :deprecated "Use [[do]]/[[dolist]] instead"
   "Perform the set of actions BODY for all values in LST, binding the current value to VAR.
 
    ### Example:
@@ -490,11 +491,65 @@
    3
    out = nil
    ```"
-  (assert-type! var symbol)
-  (let* [(ctr' (gensym))
-         (lst' (gensym))]
-    `(with (,lst' ,lst)
-       (for ,ctr' 1 (n ,lst') 1 (with (,var (get-idx ,lst' ,ctr')) ,@body)))))
+  `(do [(,var ,lst)]
+     ,@body))
+
+(defmacro dolist (vars &stmts)
+  "Iterate over all given VARS, running STMTS and collecting the results.
+
+   ### Example:
+   ```cl
+   > (dolist [(a '(1 2 3))
+   .          (b '(1 2 3))]
+   .   (list a b))
+   out = ((1 1) (1 2) (1 3) (2 1) (2 2) (2 3) (3 1) (3 2) (3 3))
+   ```"
+  (let* [(collect (gensym 'list))
+         (arg (gensym 'val))
+         (yield (gensym 'yield))
+         (out `(,yield (progn ,@stmts)))]
+    (for i (n vars) 1 -1
+      (let* [(var (nth vars i))
+             (cur-list (gensym))
+             (i (gensym 'i))]
+        (set! out
+          `(let* [(,cur-list ,(cadr var))]
+             (for ,i 1 (n ,cur-list) 1
+                  (let* [(,(car var) (get-idx ,cur-list ,i))]
+                    ,out))))))
+    `(let* [(,collect '())
+            (,yield (lambda (,arg)
+                      (when (/= ,arg nil)
+                        (push-cdr! ,collect ,arg))))]
+       ,out
+       ,collect)))
+
+(defmacro do (vars &stmts)
+  "Iterate over all given VARS, running STMTS **without** collecting the
+   results.
+
+   ### Example:
+   ```cl
+   > (do [(a '(1 2))
+   .      (b '(1 2))]
+   .   (print! $\"a = ${a}, b = ${b}\"))
+   a = 1, b = 1
+   a = 1, b = 2
+   a = 2, b = 1
+   a = 2, b = 2
+   out = nil
+   ```"
+  (let* [(out `(progn ,@stmts))]
+    (for i (n vars) 1 -1
+      (let* [(var (nth vars i))
+             (cur-list (gensym))
+             (i (gensym 'i))]
+        (set! out
+          `(let* [(,cur-list ,(cadr var))]
+             (for ,i 1 (n ,cur-list) 1
+               (let* [(,(car var) (get-idx ,cur-list ,i))]
+                 ,out))))))
+    out))
 
 (defun append (xs ys)
   "Concatenate XS and YS.
