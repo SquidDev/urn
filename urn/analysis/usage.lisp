@@ -1,10 +1,11 @@
-;;; Defines various methods for gathering and tracking definitions and usages of all variables
-;; in the program.
+"Defines various methods for gathering and tracking definitions and
+ usages of all variables in the program."
 
 (import table)
+(import lua/basic (type#))
 
 (import urn/analysis/visitor visitor)
-(import urn/analysis/nodes (side-effect? builtins make-nil zip-args))
+(import urn/analysis/nodes (side-effect? builtins builtin? make-nil zip-args))
 (import urn/analysis/pass (defpass))
 
 (defun create-state ()
@@ -47,80 +48,99 @@
                                      :node  node
                                      :value value })))
 
-(defun definitions-visitor (state node visitor)
-  "Visit one NODE and gather its definitions."
-  (cond
-    [(and (list? node) (symbol? (car node)))
-     (with (func (.> (car node) :var))
-           (cond
-             [(= func (.> builtins :lambda))
-              (for-each arg (nth node 2) 1
-                        (add-definition! state (.> arg :var) arg "var" (.> arg :var)))]
-             [(= func (.> builtins :set!))
-              (add-definition! state (.> node 2 :var) node "val" (nth node 3))]
-             [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
-              (add-definition! state (.> node :def-var) node "val" (nth node (n node)))]
-             [(= func (.> builtins :define-native))
-              (add-definition! state (.> node :def-var) node "var" (.> node :def-var))]
-             [else]))]
-    [(and (list? node) (list? (car node)) (symbol? (caar node)) (= (.> (caar node) :var) (.> builtins :lambda)))
-     ;; Inline arguments to a directly called lambda
-     (for-each zipped (zip-args (cadar node) 1 node 2)
-       (let [(args (car zipped))
-             (vals (cadr zipped))]
-         (if (and (= (n args) 1) (<= (n vals) 1) (! (.> (car args) :var :is-variadic)))
-           (add-definition! state (.> (car args) :var) (car args) "val" (or (car vals) (make-nil)))
-           (for-each arg args (add-definition! state (.> arg :var) arg "var" (.> arg :var))))))
-
-     (visitor/visit-list node 2 visitor)
-     (visitor/visit-block (car node) 3 visitor)
-     false]
-    [else]))
-
-(defun definitions-visit (state nodes)
-  "Visit all NODES, gathering the definitions for a set of variables."
-  (visitor/visit-block nodes 1 (cut definitions-visitor state <> <>)))
-
-(defun usages-visit (state nodes pred)
-  "Build a lookup of usages.
-
-   Note, this will only visit \"active\" nodes: those which have a side effect
-   or are used somewhere else."
+(defun populate-definitions (state nodes pred)
   (unless pred (set! pred (lambda() true)))
   (let* [(queue '())
-         (visited {})
-         (add-usage (lambda (var user)
-                      (with (var-meta (get-var state var))
-                        (unless (.> var-meta :active)
-                          (for-each def (.> var-meta :defs)
-                            (with (val (.> def :value))
-                              (when (and (= (.> def :tag) "val") (! (.> visited val)))
-                                (push-cdr! queue val))))))
-                      (add-usage! state var user)))
-         (visit (lambda (node)
-                  (if (.> visited node)
-                    ;; Don't visit nodes we've already visited
-                    false
-                    (progn
-                      (.<! visited node true)
-                      (cond
-                        [(symbol? node)
-                         (add-usage (.> node :var) node)
-                         true]
-                        [(and (list? node) (> (n node) 0) (symbol? (car node)))
-                         (with (func (.> (car node) :var))
-                               (if (or (= func (.> builtins :set!)) (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
-                                 ;; If this is a definition and the predicate fails then skip
-                                 (if (pred (nth node 3)) true false)
-                                 true))]
-                        [true true])))))]
-    (for-each node nodes
-      (push-cdr! queue node))
-    (while (> (n queue) 0)
-      (visitor/visit-node (pop-last! queue) visit))))
+         (lazy-defs {})
+         ;; Add a usage and enqueue all lazy definitions if required
+         (add-checked-usage! (lambda (var user)
+                               (unless (.> (get-var state var) :active)
+                                 (when-with (defs (.> lazy-defs var))
+                                   (for-each def defs
+                                     (push-cdr! queue def))))
+                               (add-usage! state var user)))
+         ;; Enqueue a lazy definition if required, returning whether it
+         ;; should be visited or not.
+         (add-lazy-def! (lambda (var node)
+                          (if (.> (get-var state var) :active)
+                            true
+                            (with (defs (.> lazy-defs var))
+                              (unless defs
+                                (set! defs '())
+                                (.<! lazy-defs var defs))
+                              (push-cdr! defs node)
+                              false))))
+         ;; The main visitor function.
+         (visitor
+           (lambda (node visitor)
+             (case (type node)
+               ["symbol" (add-checked-usage! (.> node :var) node)]
+               ["list"
+                (with (head (car node))
+                  (case (type head)
+                    ["symbol"
+                     (with (func (.> head :var))
+                       (cond
+                         ;; "Fast track" for non-builtin symbols
+                         [(/= (.> func :tag) "builtin")]
+                         ;; First the simple arguments, where there is no default definition.
+                         [(= func (.> builtins :lambda))
+                          (for-each arg (nth node 2)
+                            (add-definition! state (.> arg :var) arg "var" (.> arg :var)))]
+                         [(= func (.> builtins :define-native))
+                          (add-definition! state (.> node :def-var) node "var" (.> node :def-var))]
+
+                         ;; Now consider definitions which are "lazy"
+                         [(= func (.> builtins :set!))
+                          (let [(var (.> (nth node 2) :var))
+                                (val (nth node 3))]
+                            (add-definition! state var node "val" val)
+                            (or (pred val var node) (add-lazy-def! var val)))]
+                         [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
+                          (let [(var (.> node :def-var))
+                                (val (last node))]
+                            (add-definition! state var node "val" val)
+                            (or (pred val var node) (add-lazy-def! var val)))]
+
+                         [else]))]
+                    ["list"
+                     (if (builtin? (car head) :lambda)
+                       ;; Inline arguments to a directly called lambda
+                       (progn
+                         (for-each zipped (zip-args (cadar node) 1 node 2)
+                           (let [(args (car zipped))
+                                 (vals (cadr zipped))]
+                             (if (and (= (n args) 1) (<= (n vals) 1) (! (.> (car args) :var :is-variadic)))
+                               ;; If we've just got one argument and one value then lazily visit these
+                               ;; values. Technically this lazy visiting could happen for all arguments,
+                               ;; but this system is easier.
+                               (let [(var (.> (car args) :var))
+                                     (val (or (car vals) (make-nil)))]
+                                 (add-definition! state var (car args) "val" val)
+                                 (when (or (pred val var node) (add-lazy-def! var val))
+                                   (visitor/visit-node val visitor)))
+                               (progn
+                                 (for-each arg args
+                                   (add-definition! state (.> arg :var) arg "var" (.> arg :var)))
+                                 (for-each val vals
+                                   (visitor/visit-node val visitor))))))
+
+                         ;; Never visit directly called lambdas, we'll do that ourselves.
+                         (visitor/visit-block head 3 visitor)
+                         false)
+                       true)]
+                    [_]))]
+               [_])))]
+
+  (for-each node nodes
+    (push-cdr! queue node))
+  (while (> (n queue) 0)
+    (visitor/visit-node (pop-last! queue) visitor))))
 
 (defpass tag-usage (state nodes lookup)
   "Gathers usage and definition data for all expressions in NODES, storing it in LOOKUP."
   :cat '("tag" "usage")
-  (definitions-visit lookup nodes)
-  (usages-visit lookup nodes side-effect?))
+  (populate-definitions lookup nodes (lambda (val var node)
+                                       (! (or (and (list? val) (builtin? (car val) :lambda))
+                                              (and (list? node) (or (builtin? (car node) :define)
+                                                                    (builtin? (car node) :define-macro))))))))

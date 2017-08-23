@@ -34,7 +34,16 @@
         '((define x (lambda() y))
           (define y (lambda() x)))
         '(nil)
-        2)))
+        2))
+    (it "that are used in unused lambdas"
+      ;; TODO: I'm not entirely sure about this test - this does result in invalid
+      ;; code after all. If we merge optimise/strip-defs and optimise/strip args then
+      ;; I think we'd be OK.
+      (affirm-usage-optimise optimise/strip-defs
+        '((define x (lambda() 1))
+          ((lambda (x)) (lambda () (x))))
+        '(((lambda (x)) (lambda () (x))))
+        1)))
 
   (section "will strip unused arguments"
     (it "that are immutable"
