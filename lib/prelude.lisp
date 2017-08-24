@@ -161,3 +161,24 @@
    out = 0
    ```"
   `(set! ,x (pred ,x)))
+
+(defun sprintf (fmt &args)
+  "Format the format string FMT using ARGS.
+
+   ### Example
+   ```cl
+   > (sprintf \"%.3d\" 1)
+   out = \"001\"
+   ```"
+  (apply string/format fmt args))
+
+(defun printf (fmt &args)
+  "Print the formatted string FMT using ARGS.
+
+   ### Example
+   ```cl
+   > (printf \"%.3d\" 1)
+   001
+   out = nil
+   ```"
+  (print! (apply sprintf fmt args)))
