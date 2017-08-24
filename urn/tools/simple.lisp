@@ -83,7 +83,7 @@
       [true
        (usage! (.. "Expected number or enable/disable flag for --" (.> arg :name) " , got " value))])))
 
-(defun pass-run (fun name passes)
+(defun pass-run (fun name)
   "Create a task which runs FUN using the options from argument NAME."
   :hidden
   (lambda (compiler args)

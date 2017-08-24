@@ -44,8 +44,7 @@
            (with (head (car node))
              (case (type head)
                ["symbol"
-                (let* [(func (.> head :var))
-                       (funct (.> func :tag))]
+                (with (func (.> head :var))
                   (cond
                     ;; Handle all special forms
                     [(= func (.> builtins :lambda))

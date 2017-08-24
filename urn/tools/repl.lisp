@@ -430,8 +430,7 @@
                                 (for-each elem state
                                   (set! current elem)
                                   (state/get! current)))))
-             (compileState (.> compiler :compile-state))
-             (rootScope (.> compiler :root-scope))
+             (compile-state (.> compiler :compile-state))
              (global (.> compiler :global))
              (logger (.> compiler :log))
              (run true)]
@@ -451,8 +450,7 @@
                    (print! (.. "out = " (colored 96 (pretty-fun lvl)))))
 
                  (.<! global (lua/push-escape-var! (scope/add! scope "out" "defined" lvl)
-                                             compileState)
-                      lvl))
+                                                   compile-state) lvl))
                (set! run false)]
               [true
                 (let* [(states (.> (cadr res) :states))
@@ -466,7 +464,7 @@
 
                     (with (res (if task
                                  (list (co/resume co))
-                                 (list (co/resume co compileState states global logger))))
+                                 (list (co/resume co compile-state states global))))
 
                       (.<! compiler :active-node nil)
                       (.<! compiler :active-scope nil)
@@ -478,7 +476,7 @@
                          (when (/= (co/status co) "dead")
                            (set! task arg)
                            (case (.> task :tag)
-                             ["execute" (lua/execute-states compileState (.> task :states) global logger)]
+                             ["execute" (lua/execute-states compile-state (.> task :states) global)]
                              [?task fail! (.. "Cannot handle " task)]))]))))])))))))
 
 (defun repl (compiler)

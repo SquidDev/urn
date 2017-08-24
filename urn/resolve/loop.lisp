@@ -230,7 +230,7 @@
                    (inc! skipped)
                    (push-cdr! queue head)))]
               ["execute"
-               (backend/execute-states (.> compiler :compile-state) (.> head :states) (.> compiler :global) logger)
+               (backend/execute-states (.> compiler :compile-state) (.> head :states) (.> compiler :global))
                (resume head)]
               ["import"
                (when name (timer/pause-timer! timer name))

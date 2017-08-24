@@ -173,7 +173,7 @@
    the most called method at the beginning."
   :hidden
   (with (children '())
-    (for-pairs (k child) element
+    (for-pairs (_ child) element
       (when (table? child)
         (push-cdr! children child)))
 
@@ -511,7 +511,7 @@
        (.<! _G :arg 0 (car (.> args :input)))
        (with (exec (lambda ()
                      (case (list (xpcall (cut apply fun (.> args :script-args)) debug/traceback))
-                       [(true . ?res)]
+                       [(true . _)]
                        [(false ?msg)
                         (logger/put-error! logger "Execution failed.")
                         (print! (traceback/remap-traceback { name lines } msg))
