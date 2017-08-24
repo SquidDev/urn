@@ -293,7 +293,7 @@
             (push-cdr! lhs-test
                        (compile-pattern-test (nth lhs i)
                                              `(nth ,pattern-sym ,i))))
-          `(let* [(,pattern-sym ,symb) (,'never 23)]
+          `(let* [(,pattern-sym ,symb)]
              (and (list? ,pattern-sym)
                   (>= (n ,pattern-sym) ,(pattern-length pattern -2))
                   ,@lhs-test
@@ -436,7 +436,7 @@
    oh no!
    out = nil
    ```"
-  (let* [(gen-arm (cs exc)
+  (let* [(gen-arm (cs)
            (destructuring-bind [(?pattern (?arg) . ?body) cs]
              ~((,pattern @ ,(->meta arg)) ,@body)))
          (exc-sym (gensym))

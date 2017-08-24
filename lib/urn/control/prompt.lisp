@@ -19,7 +19,7 @@
         { :__call (lambda (k &args)
                     (apply continue (cont-thread k) args)) }))))
 
-(defmethod (pretty continuation) (x) "«continuation»")
+(defmethod (pretty continuation) (_) "«continuation»")
 
 (defun call-with-prompt (prompt-tag body handler)
   "Call the thunk BODY with a prompt PROMPT-TAG in scope. If BODY
@@ -46,8 +46,7 @@
               ; handler anyway
               [(= (type body) "continuation") (cont-thread body)]
               [(= (type body) "function") (c/create body)]
-              [else (error! (.. "expected a coroutine or a function, got " (type body)))]))
-         (last-res nil)]
+              [else (error! (.. "expected a coroutine or a function, got " (type body)))]))]
     (loop [(k k)
            (res nil)]
       [(= (c/status k) :dead) res]
@@ -89,7 +88,7 @@
                       (body (lambda (&rest)
                               (apply abort-to-prompt
                                      'escape-continuation rest))))
-                    (lambda (k &rest)
+                    (lambda (_ &rest)
                       (unpack (car rest) 1 (n (car rest))))))
 
 (defmacro let-escape-continuation (k &body)
@@ -104,8 +103,7 @@
    1
    out = 2
    ```"
-  (let* [(tag 'escape-continuation)]
-    `(call-with-escape-continuation (lambda (,k) ,@body))))
+  `(call-with-escape-continuation (lambda (,k) ,@body)))
 
 (define call/ec call-with-escape-continuation)
 (define-macro let/ec let-escape-continuation)

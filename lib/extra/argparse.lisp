@@ -142,7 +142,7 @@
     :help    "Show this help message"
     :default nil
     :value   nil
-    :action  (lambda (arg result value)
+    :action  (lambda ()
                (help! spec)
                (exit! 0))))
 
@@ -349,7 +349,7 @@
                         (inc! idx)]))]))
              (inc! i)))]
         [?any
-         (with (arg (car (.> spec :pos)))
+         (with (arg (car pos))
            (if arg
              (action arg any)
              (usage! (.. "Unknown argument " arg))))

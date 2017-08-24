@@ -23,4 +23,4 @@
 
 (define colored
   "Color a string MSG using COL if supported under the current terminal"
-  (if colored? colored-ansi (lambda (col msg) msg)))
+  (if colored? colored-ansi (lambda (_ msg) msg)))

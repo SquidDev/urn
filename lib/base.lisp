@@ -149,11 +149,11 @@
 (defmacro let* (vars &body)
   (with (len (n vars))
     (cond
-      [(= (n vars) 0) `((lambda () ,@body))]
-      [(= (n vars) 1) `((lambda (,(car (car vars))) ,@body) ,(get-idx (car vars) 2))]
-      [else           `((lambda (,(car (car vars)))
-                          (let* ,(cdr vars) ,@body))
-                         ,(get-idx (car vars) 2))])))
+      [(= len 0) `((lambda () ,@body))]
+      [(= len 1) `((lambda (,(car (car vars))) ,@body) ,(get-idx (car vars) 2))]
+      [else      `((lambda (,(car (car vars)))
+                     (let* ,(cdr vars) ,@body))
+                    ,(get-idx (car vars) 2))])))
 
 (defun ! (expr)
   "Compute the logical negation of the expression EXPR.
