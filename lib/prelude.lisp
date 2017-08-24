@@ -176,7 +176,7 @@
   "Print the formatted string FMT using ARGS.
 
    ### Example
-   ```cl
+   ```cl :no-test
    > (printf \"%.3d\" 1)
    001
    out = nil
