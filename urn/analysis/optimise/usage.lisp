@@ -119,19 +119,17 @@
                       (make-nil)))
                   node)))))))))
 
-(defpass variable-fold (state nodes lookup)
+(defpass variable-fold (state node lookup)
   "Folds constant variable accesses"
-  :cat '("opt" "usage")
-  (traverse/traverse-list nodes 1
-    (lambda (node)
-      (if (symbol? node)
-        (with (var (get-constant-val lookup node))
-          (if (and var (/= var node))
-            (progn
-              (changed!)
-              var)
-            node))
-        node))))
+  :cat '("opt" "usage" "transform-pre")
+  (if (symbol? node)
+    (with (var (get-constant-val lookup node))
+      (if (and var (/= var node))
+        (progn
+          (changed!)
+          var)
+        node))
+    node))
 
 (defpass expression-fold (state nodes lookup)
   "Folds basic variable accesses where execution order will not change.

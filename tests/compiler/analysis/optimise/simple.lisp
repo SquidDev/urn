@@ -6,40 +6,41 @@
 (describe "The optimiser"
   (section "will remove pointless expressions"
     (it "on the top level"
-      (affirm-optimise optimise/strip-pure
+      (affirm-transform-optimise (list optimise/strip-pure)
         '(2 "hello" :foo foo (lambda ()) 4)
         '(4)
         5))
     (it "in nested lambdas"
-      (affirm-optimise optimise/strip-pure
+      (affirm-transform-optimise (list optimise/strip-pure)
         '((lambda () 4 5))
         '((lambda() 5))
         1)))
 
   (section "will fold constants"
     (it "of pure functions"
-      (affirm-optimise optimise/constant-fold
+      (affirm-transform-optimise (list optimise/constant-fold)
         '((+ 2 3) (- 2 3) (.. "foo" "bar"))
         '(5 -1 "foobar")
         3))
     (it "unless the call is invalid"
+      (affirm-transform-optimise (list optimise/constant-fold)
         '((+ 0.1 0.2) (+ 23 "ab"))
         '((+ 0.1 0.2) (+ 23 "ab"))
-        0))
+        0)))
 
   (section "will simplify conds"
     (it "removing false branches"
-      (affirm-optimise optimise/cond-fold
+      (affirm-transform-optimise (list optimise/cond-fold)
         '((cond [false 23] [foo "foo"] [true "true"]))
         '((cond [foo "foo"] [true "true"]))
         1))
     (it "removing branches after true ones"
-      (affirm-optimise optimise/cond-fold
+      (affirm-transform-optimise (list optimise/cond-fold)
         '((cond [foo "foo"] [true "true"] [bar "bar"]))
         '((cond [foo "foo"] [true "true"]))
         1))
     (it "removing pointless conds"
-      (affirm-optimise optimise/cond-fold
+      (affirm-transform-optimise (list optimise/cond-fold)
         '((cond [true "true"])
           (cond [true 1 2]))
         '("true"

@@ -13,8 +13,6 @@
 
 (defun create-state (meta) {
                              ;; [[run-pass]] options
-                             :level      1
-                             :override   {}
                              :timer      timer/void
 
                              ;; execute-states options

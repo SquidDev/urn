@@ -95,7 +95,7 @@
 
   (section "will fold variables"
     (it "defined in the top-level"
-      (affirm-usage-optimise optimise/variable-fold
+      (affirm-transform-optimise (list optimise/variable-fold)
         '((define-native a)
           (define b a)
           b
@@ -113,7 +113,7 @@
         3))
 
     (it "defined in let bindings"
-      (affirm-usage-optimise optimise/variable-fold
+      (affirm-transform-optimise (list optimise/variable-fold)
         '((define-native a)
           ((lambda (b c)
              ((lambda (d) d c) b)) 1 a))
@@ -123,7 +123,7 @@
         3))
 
     (it "with missing definitions in let bindings"
-      (affirm-usage-optimise optimise/variable-fold
+      (affirm-transform-optimise (list optimise/variable-fold)
         '(((lambda (x)
              ((lambda (y) y) x))))
         '(((lambda (x)
