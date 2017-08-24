@@ -193,7 +193,7 @@
           (when-with (group (string/match cat "^transform%-(.*)"))
             (unless (.> trans-lookup group)
               (error! (.. "Unknown category " cat " for " (.> trans :name))))
-            (if (or (string/ends-with? group "-block") (string/ends-with? group "-bind"))
+            (if (string/ends-with? group "-block")
               (push-cdr! (.> trans-lookup group)
                 (lambda (node start) (run tracker state node start lookup)))
               (push-cdr! (.> trans-lookup group)

@@ -49,7 +49,7 @@
 
   (section "will simplify lambdas"
     (it "removing pointless progns with a single element"
-      (affirm-optimise optimise/lambda-fold
+      (affirm-transform-optimise (list optimise/progn-fold-expr)
         '((foo ((lambda () 2)))
           (foo ((lambda () 2 3))) ;; Contains multiple elements
           (foo ((lambda (x) 2)))  ;; Has an argument
@@ -61,7 +61,7 @@
         1))
 
     (it "removing pointless progns with multiple elements"
-      (affirm-optimise optimise/lambda-fold
+      (affirm-transform-optimise (list optimise/progn-fold-block)
         '(((lambda () 2 3))
           ((lambda () ((lambda () 2 3)) 4)) ;; Will hamdle recursive elements
           ((lambda (x) 2 3))   ;; Has an argument
@@ -73,20 +73,20 @@
         3))
 
     (it "folding let* bindings into lets"
-      (affirm-optimise optimise/lambda-fold
+      (affirm-transform-optimise (list optimise/lambda-fold)
         '(((lambda (x)
              ((lambda (y) (+ x y)) 3)) 2))
         '(((lambda (x y) (+ x y)) 2 3))
         1)
       ;; Bindings which rely on previous ones
-      (affirm-optimise optimise/lambda-fold
+      (affirm-transform-optimise (list optimise/lambda-fold)
         '(((lambda (x)
              ((lambda (y) (+ x y)) (+ x 1))) 2))
         '(((lambda (x)
              ((lambda (y) (+ x y)) (+ x 1))) 2))
         0)
       ;; Bindings which are missing
-      (affirm-optimise optimise/lambda-fold
+      (affirm-transform-optimise (list optimise/lambda-fold)
         '(((lambda (x)
              ((lambda (y) (+ x y)))) 2)
           ((lambda (x)
@@ -99,7 +99,7 @@
 
     (it "folding letrec bindings into lets"
       ;; Without nil args
-      (affirm-optimise optimise/lambda-fold
+      (affirm-transform-optimise (list optimise/lambda-fold)
         '(((lambda (x y)
              (set! x 1)
              (set! y (lambda ()))
@@ -110,7 +110,7 @@
         2)
 
       ;; With nil args
-      (affirm-optimise optimise/lambda-fold
+      (affirm-transform-optimise (list optimise/lambda-fold)
         '(((lambda (x y)
              (set! x 1)
              (set! y (lambda ()))
@@ -121,8 +121,8 @@
         2)
 
       ;; Bindings which rely on previous ones
-      ;; TODO: compile this into a letrec if possible
-      (affirm-optimise optimise/lambda-fold
+      ;; TODO: compile this into a let* if possible
+      (affirm-transform-optimise (list optimise/lambda-fold)
         '(((lambda (x y)
              (set! x 1)
              (set! y x))))

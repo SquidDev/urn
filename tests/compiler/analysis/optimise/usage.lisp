@@ -47,7 +47,7 @@
 
   (section "will strip unused arguments"
     (it "that are immutable"
-      (affirm-usage-optimise optimise/strip-args
+      (affirm-transform-optimise (list optimise/strip-args)
         '(((lambda (x) 2) 3)
           ((lambda (x y z) 2) 3 4 5) ;; Multiple arguments
           ((lambda (x) 2) (foo)) ;; Side effect in definition
@@ -60,7 +60,7 @@
           ((lambda (x z) x z) 3 5))
         5))
     (it "that are mutable"
-      (affirm-usage-optimise optimise/strip-args
+      (affirm-transform-optimise (list optimise/strip-args)
         '(((lambda (x) (set! x 3) 2) 3)
           ((lambda (x) (set! x 3) 2) (foo))  ;; Side effect in definition
           ((lambda (x) (set! x (foo)) 2) 2)) ;; Side effect in mutation
@@ -69,7 +69,7 @@
           ((lambda () ((lambda () (foo) nil)) 2)))
         2))
     (it "that are variadic"
-      (affirm-usage-optimise optimise/strip-args
+      (affirm-transform-optimise (list optimise/strip-args)
         '(((lambda (&x) 2) 3)
           ((lambda (a &b c d) a c d) 2 3)
           ((lambda (a &b c d) a c d) 2 3 4)
@@ -86,7 +86,7 @@
           ((lambda (&x) x) 3))
         5))
     (it "when there are no values"
-      (affirm-usage-optimise optimise/strip-args
+      (affirm-transform-optimise (list optimise/strip-args)
         '(((lambda (x) 2))
           ((lambda (x) x)))    ;; x is used
         '(((lambda () 2))
@@ -132,39 +132,53 @@
 
   (section "will fold basic variable access in expressions"
     (it "for simple expressions"
-      (affirm-usage-optimise optimise/expression-fold
+      (affirm-transform-optimise (list optimise/expression-fold)
         '(((lambda (x) (+ x 1)) (+ 2 3)))
         '(((lambda ()  (+ (+ 2 3) 1))))
         1))
 
     (it "and push directly called lambdas in for variable returns"
-      (affirm-usage-optimise optimise/expression-fold
+      (affirm-transform-optimise (list optimise/expression-fold)
         '(((lambda (x) (+ 1 x)) (+ 2 3)))
         '(((lambda () (+ 1 ((lambda(x) x) (+ 2 3))))))
         1))
 
     (it "for simple (id x) like expressions"
-      (affirm-usage-optimise optimise/expression-fold
+      (affirm-transform-optimise (list optimise/expression-fold)
         '(((lambda (x) x) 2))
         '(((lambda () 2)))
         1))
 
     (it "for complex (id x) like expressions"
-      (affirm-usage-optimise optimise/expression-fold
+      (affirm-transform-optimise (list optimise/expression-fold)
         '(((lambda (x) x) (lambda ())))
         '(((lambda () (lambda ()))))
         1))
 
     (it "unless it's a variadic (id x) like expressions"
-      (affirm-usage-optimise optimise/expression-fold
+      (affirm-transform-optimise (list optimise/expression-fold)
         '(((lambda (x) x) (+ 1 1))
           ((lambda (x) x) ((lambda () (+ 1 1)))))
         '(((lambda (x) x) (+ 1 1))
           ((lambda (x) x) ((lambda () (+ 1 1)))))
         0))
 
+    (it "for nested expressions"
+      (affirm-transform-optimise (list optimise/expression-fold)
+        '((lambda (x)
+            ((lambda (key)
+               ((lambda (val)
+                  (foo key val))
+                 (bar x)))
+              (bar (+ x 1)))))
+        '((lambda (x)
+            ((lambda ()
+               ((lambda ()
+                  (foo (bar (+ x 1)) ((lambda (val) val) (bar x)))))))))
+        2))
+
     (it "when a variable is mutated after"
-      (affirm-usage-optimise optimise/expression-fold
+      (affirm-transform-optimise (list optimise/expression-fold)
         '(((lambda (tmp)
              ((lambda (x)
                 (+ x 1)
@@ -179,7 +193,7 @@
         1))
 
     (it "unless a variable is mutated before"
-      (affirm-usage-optimise optimise/expression-fold
+      (affirm-transform-optimise (list optimise/expression-fold)
         '(((lambda (tmp)
              ((lambda (x)
                 (set! tmp 2)
@@ -194,8 +208,8 @@
            2))
         0))
 
-    (pending "when a mutable variable is used after"
-      (affirm-usage-optimise optimise/expression-fold
+    (it "when a mutable variable is used after"
+      (affirm-transform-optimise (list optimise/expression-fold)
         '(((lambda (tmp)
              (set! tmp 2)
              ((lambda (x)
@@ -210,7 +224,7 @@
         1))
 
     (it "unless a mutable variable is used before"
-      (affirm-usage-optimise optimise/expression-fold
+      (affirm-transform-optimise (list optimise/expression-fold)
         '(((lambda (tmp)
              (set! tmp 2)
              ((lambda (x)
@@ -225,8 +239,19 @@
            2))
         0))
 
-    (it "unless there is potential for mutation"
-      (affirm-usage-optimise optimise/expression-fold
+    (it "when there is potential for mutation after"
+      (affirm-transform-optimise (list optimise/expression-fold)
+        '(((lambda (tmp)
+             ((lambda (x) (+ x 1 (tmp)))
+              (+ 2 3)))
+           2))
+        '(((lambda (tmp)
+             ((lambda () (+ (+ 2 3) 1 (tmp)))))
+           2))
+        1))
+
+    (it "unless there is potential for mutation before"
+      (affirm-transform-optimise (list optimise/expression-fold)
         '(((lambda (tmp)
              ((lambda (x) (+ (tmp) x 1))
               (+ 2 3)))

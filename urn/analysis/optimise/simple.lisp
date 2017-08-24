@@ -107,149 +107,149 @@
         node))
     node))
 
-(defpass lambda-fold (state nodes)
+(defpass lambda-fold (state node)
   "Simplify all directly called lambdas without arguments, inlining them
    were appropriate."
-  :cat '("opt")
-  (visitor/visit-block nodes 1
-    (lambda (node)
-      ;; Look for directly called lambdas
-      (when (simple-binding? node)
-        (let* [(vars {})
-               (node-lam (car node))
-               (node-args (nth node-lam 2))
-               (arg-n (n node-args))
-               (val-n (pred (n node)))
-               (i 1)]
+  :cat '("opt" "deforest" "transform-post-bind")
+  ;; Look for directly called lambdas
+  (when (simple-binding? node)
+    (let* [(vars {})
+           (node-lam (car node))
+           (node-args (nth node-lam 2))
+           (arg-n (n node-args))
+           (val-n (pred (n node)))
+           (i 1)]
 
-          ;; If we've got more values then arguments then we can't do anything - we'd have to
-          ;; introduce additional variables.
-          (when (<= val-n arg-n)
-            ;; Build a set of all arguments
-            (for-each arg node-args (.<! vars (.> arg :var) true))
+      ;; If we've got more values then arguments then we can't do anything - we'd have to
+      ;; introduce additional variables.
+      (when (<= val-n arg-n)
+        ;; Build a set of all arguments
+        (for-each arg node-args (.<! vars (.> arg :var) true))
 
-            ;; Find the first non-nil argument
-            (while (and (<= i val-n) (! (builtin? (nth node (succ i)) :nil)))
-              (inc! i))
+        ;; Find the first non-nil argument
+        (while (and (<= i val-n) (! (builtin? (nth node (succ i)) :nil)))
+          (inc! i))
 
-            ;; If we've some arguments within the range, let's just debug for now
-            (when (<= i arg-n)
-              (loop
-                []
-                [(> i arg-n)]
-
-                (with (head (nth node-lam 3))
-                  (when (and
-                          ;; If the first element is a setter
-                          (list? head) (builtin? (car head) :set!)
-                          ;; And we're setting the current argument
-                          (= (.> (nth head 2) :var) (.> (nth node-args i) :var))
-                          ;; And we don't include a previous definition
-                          (! (node-contains-vars? (nth head 3) vars)))
-
-                    ;; Push all the `nil`s we need
-                    (while (< val-n i)
-                      (push-cdr! node (make-nil))
-                      (inc! val-n))
-
-                    ;; Remove the setter and shift it to the function call
-                    (remove-nth! node-lam 3)
-                    (.<! node (succ i) (nth head 3))
-                    (changed!)))
-
-                (inc! i)
-                (recur))))))))
-
-
-  (visitor/visit-block nodes 1
-    (lambda (node)
-      ;; Look for directly called lambdas
-      (when (simple-binding? node)
-        (let* [(vars {})
-               (node-lam (car node))
-               (node-args (nth node-lam 2))]
-          (for-each arg node-args (.<! vars (.> arg :var) true))
-
-          ;; While the first element is a simple binding, we have the same number of arguments and values,
-          ;; and the lambda body has just one element.
-          ;; We require just one element so variables do not "grow" in scope.
+        ;; If we've some arguments within the range, let's just debug for now
+        (when (<= i arg-n)
           (loop
-            [(child (nth node-lam 3))]
-            [(or (! (simple-binding? child)) (/= (n node-args) (pred (n node))) (> (n node-lam) 3))]
-            (with (args (nth (car child) 2))
-              (loop [] []
-                (with (val (nth child 2))
-                  (cond
-                    ;; Skip empty argument lists
-                    [(empty? args)]
-                    [(! val)
-                     ;; If we have no value then we just push all arguments to the parent
-                     ;; and exit the loop.
-                     (for i 1 (n args) 1
-                       (changed!)
-                       (with (arg (remove-nth! args 1))
-                         (push-cdr! node-args arg)
-                         (.<! vars (.> arg :var) true)))]
+            []
+            [(> i arg-n)]
 
-                    ;; If the value contains any of the variables then we'll exit the loop
-                    [(node-contains-vars? val vars)]
+            (with (head (nth node-lam 3))
+              (when (and
+                      ;; If the first element is a setter
+                      (list? head) (builtin? (car head) :set!)
+                      ;; And we're setting the current argument
+                      (= (.> (nth head 2) :var) (.> (nth node-args i) :var))
+                      ;; And we don't include a previous definition
+                      (! (node-contains-vars? (nth head 3) vars)))
 
-                    [true
-                     (changed!)
-                     (push-cdr! node (remove-nth! child 2))
-                     (with (arg (remove-nth! args 1))
-                       (push-cdr! node-args arg)
-                       (.<! vars (.> arg :var) true))
+                ;; Push all the `nil`s we need
+                (while (< val-n i)
+                  (push-cdr! node (make-nil))
+                  (inc! val-n))
 
-                     (recur)])))
-
-              ;; When we've got a directly called lambda with empty arguments and values, then inline it
-              ;; The more general case is handled below, but we might as well get a simple version done here.
-              (when (and (empty? args) (= (n child) 1))
-                ;; Remove the existing lambda
+                ;; Remove the setter and shift it to the function call
                 (remove-nth! node-lam 3)
-                ;; For each element in the child lambda, insert it into the parent one.
-                (with (lam (car child))
-                  (for i 3 (n lam) 1
-                    (insert-nth! node-lam i (nth lam i))))
+                (.<! node (succ i) (nth head 3))
+                (changed!)))
 
-                ;; And continue the loop. Otherwise there was something that couldn't be merged.
-                (recur (nth node-lam 3)))))))))
+            (inc! i)
+            (recur))))))
 
-  (traverse/traverse-list nodes 1
-    (lambda (node)
-      (if (and
-            ;; If we're a list with one element (the function to call)
-            (list? node) (= (n node) 1)
-            ;; And this list is a lambda
-            (list? (car node)) (builtin? (caar node) :lambda)
-            ;; With no arguments and one expression
-            (= (n (car node)) 3) (empty? (nth (car node) 2)))
-        (progn
-          (changed!)
-          (nth (car node) 3))
-        node)))
 
-  (visitor/visit-blocks nodes
-    (lambda (nodes start)
-      (let [(i start)
-            (len (n nodes))]
-        (while (<= i len)
-          (with (node (nth nodes i))
-            (if (and
-                  ;; If we're a list with one element
-                  (list? node) (= (n node) 1)
-                  ;; And the function is a lambda
-                  (list? (car node)) (builtin? (car (car node)) :lambda)
-                  ;; And has no arguments
-                  (empty? (nth (car node) 2)))
-              (with (body (car node))
-                (changed!)
-                (if (= (n body) 2)
-                  (remove-nth! nodes i)
-                  (progn
-                    (.<! nodes i (nth body 3))
-                    (for j 4 (n body) 1
-                      (insert-nth! nodes (+ i (- j 3)) (nth body j)))))
-                (set! len (+ len (pred (n node)))))
-              (inc! i))))))))
+  ;; Look for directly called lambdas
+  (when (simple-binding? node)
+    (let* [(vars {})
+           (node-lam (car node))
+           (node-args (nth node-lam 2))]
+      (for-each arg node-args (.<! vars (.> arg :var) true))
+
+      ;; While the first element is a simple binding, we have the same number of arguments and values,
+      ;; and the lambda body has just one element.
+      ;; We require just one element so variables do not "grow" in scope.
+      (loop
+        [(child (nth node-lam 3))]
+        [(or (! (simple-binding? child)) (/= (n node-args) (pred (n node))) (> (n node-lam) 3))]
+        (with (args (nth (car child) 2))
+          (loop [] []
+            (with (val (nth child 2))
+              (cond
+                ;; Skip empty argument lists
+                [(empty? args)]
+                [(! val)
+                 ;; If we have no value then we just push all arguments to the parent
+                 ;; and exit the loop.
+                 (for i 1 (n args) 1
+                   (changed!)
+                   (with (arg (remove-nth! args 1))
+                     (push-cdr! node-args arg)
+                     (.<! vars (.> arg :var) true)))]
+
+                ;; If the value contains any of the variables then we'll exit the loop
+                [(node-contains-vars? val vars)]
+
+                [true
+                 (changed!)
+                 (push-cdr! node (remove-nth! child 2))
+                 (with (arg (remove-nth! args 1))
+                   (push-cdr! node-args arg)
+                   (.<! vars (.> arg :var) true))
+
+                 (recur)])))
+
+          ;; When we've got a directly called lambda with empty arguments and values, then inline it
+          ;; The more general case is handled below, but we might as well get a simple version done here.
+          (when (and (empty? args) (= (n child) 1))
+            ;; Remove the existing lambda
+            (remove-nth! node-lam 3)
+            ;; For each element in the child lambda, insert it into the parent one.
+            (with (lam (car child))
+              (for i 3 (n lam) 1
+                (insert-nth! node-lam i (nth lam i))))
+
+            ;; And continue the loop. Otherwise there was something that couldn't be merged.
+            (recur (nth node-lam 3))))))))
+
+(defpass progn-fold-expr (state node)
+  "Reduce [[progn]]-like nodes with a single body element into a single
+   expression."
+  :cat '("opt" "deforest" "transform-post")
+  (if (and
+        ;; If we're a list with one element (the function to call)
+        (list? node) (= (n node) 1)
+        ;; And this list is a lambda
+        (list? (car node)) (builtin? (caar node) :lambda)
+        ;; With no arguments and one expression
+        (= (n (car node)) 3) (empty? (nth (car node) 2)))
+    (progn
+      (changed!)
+      (nth (car node) 3))
+    node))
+
+(defpass progn-fold-block (state nodes start)
+  "Reduce [[progn]]-like nodes with a single body element into a single
+   expression."
+  :cat '("opt" "deforest" "transform-post-block")
+  (let [(i start)
+        (len (n nodes))]
+    (while (<= i len)
+      (with (node (nth nodes i))
+        (if (and
+              ;; If we're a list with one element
+              (list? node) (= (n node) 1)
+              ;; And the function is a lambda
+              (list? (car node)) (builtin? (car (car node)) :lambda)
+              ;; And has no arguments
+              (empty? (nth (car node) 2)))
+          (with (body (car node))
+            (changed!)
+            (if (= (n body) 2)
+              (remove-nth! nodes i)
+              (progn
+                (.<! nodes i (nth body 3))
+                (for j 4 (n body) 1
+                  (insert-nth! nodes (+ i (- j 3)) (nth body j)))))
+            (set! len (+ len (pred (n node)))))
+          (inc! i))))))
