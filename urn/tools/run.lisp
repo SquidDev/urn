@@ -279,7 +279,7 @@
   (use [(file (io/open file-name "r"))]
     (loop [] []
       (when-let* [(max (self file :read "*n"))
-                  (_ (= (self file :read 1) ":"))
+                  (colon (= (self file :read 1) ":"))
                   (name (self file :read "*l"))]
         (with (data (.> output name))
           (cond
@@ -293,7 +293,7 @@
             [(line 1)]
             [(> line max)]
             (when-let* [(count (self file :read "*n"))
-                        (_ (= (self file :read 1) " "))]
+                        (space (= (self file :read 1) " "))]
               (when (> count 0)
                 (.<! data line (+ (or (.> data line) 0) count)))
               (recur (succ line)))))

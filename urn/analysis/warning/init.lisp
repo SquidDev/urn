@@ -7,6 +7,8 @@
 (import urn/range (get-source))
 (import urn/resolve/scope scope)
 
+(import lua/table table)
+
 (import urn/analysis/warning/order warning)
 
 (defpass check-arity (state nodes lookup)
@@ -52,7 +54,7 @@
                 node nil
                 (get-source node) "Called here"))))))))
 
-(defpass deprecated (state nodes lookup)
+(defpass deprecated (state nodes)
   "Produce a warning whenever a deprecated variable is used."
   :cat '("warn" "usage")
   (for-each node nodes
@@ -86,17 +88,49 @@
                 node nil
                 (get-source node) "Referenced in docstring."))))))))
 
+(defpass unused-vars (state _ lookup)
+  "Ensure all non-exported NODES are used."
+  :cat '("warn")
+  :level 2
+  (with (unused '())
+    (for-pairs (var entry) (.> lookup :vars)
+      (unless (or
+                ;; Ignore variables which are visited or obviously temporary ones
+                (> (n (.> entry :usages)) 0) (> (n (.> entry :soft)) 0)
+                (= (.> var :name) "_") (/= (.> var :display-name) nil)
+                ;; Ignore places where we have no definition. These are probably builtin-ins.
+                (empty? (.> entry :defs)))
+        (with (def (.> (car (.> entry :defs)) :node))
+          (when (or ;; Non top-level definitions
+                    (= (.> def :def-var) nil)
+                    ;; or non-macro, exported symbols
+                    (and (/= (.> var :tag) "macro") (! (.> var :scope :exported (.> var :name)))))
+            (push-cdr! unused (list var def))))))
+
+    (table/sort unused (lambda (node1 node2)
+                         (let [(source1 (get-source (cadr node1)))
+                               (source2 (get-source (cadr node2)))]
+                           (if (= (.> source1 :name) (.> source2 :name))
+                             (if (= (.> source1 :start :line) (.> source2 :start :line))
+                               (< (.> source1 :start :column) (.> source2 :start :column))
+                               (< (.> source1 :start :line) (.> source2 :start :line)))
+                             (< (.> source1 :name) (.> source2 :name)) ))))
+    (for-each pair unused
+      (logger/put-node-warning! (.> state :logger)
+        (string/format "%s is not used." (string/quoted (.> (car pair) :name)))
+        (cadr pair) nil
+        (get-source (cadr pair)) "Defined here"))))
 
 (defun analyse (nodes state)
   (for-each pass (.> state :pass :normal)
     (run-pass pass state nil nodes))
 
   (with (lookup (usage/create-state))
-    (run-pass usage/tag-usage state nil nodes lookup)
+    (run-pass usage/tag-usage state nil nodes lookup usage/visit-eager-exported?)
     (for-each pass (.> state :pass :usage)
       (run-pass pass state nil nodes lookup))))
 
 (defun default ()
   "Create a collection of default warnings."
-  { :normal (list documentation warning/check-order)
-    :usage (list check-arity deprecated)})
+  { :normal (list documentation warning/check-order deprecated)
+    :usage (list check-arity unused-vars)})
