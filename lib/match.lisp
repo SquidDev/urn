@@ -156,7 +156,7 @@
  with `(matcher \"0x(%d+)\")`, apply it to `x` and then match the
  returned value (`(\"23\")`) against the `?x` pattern."
 
-(import lua/basic (xpcall))
+(import lua/basic (pcall))
 (import lua/math (max))
 (import base (defun defmacro if get-idx and gensym error for set-idx!
               quasiquote list or slice concat apply /= n = ! - + / * >= <= % ..
@@ -439,15 +439,16 @@
   (let* [(gen-arm (cs)
            (destructuring-bind [(?pattern (?arg) . ?body) cs]
              ~((,pattern @ ,(->meta arg)) ,@body)))
-         (exc-sym (gensym))
-         (tmp-sym (gensym))
-         (error-handler `(lambda (,exc-sym)
-                           (case ,exc-sym
+         (ok (gensym))
+         (val (gensym))
+         (err (gensym))
+         (error-handler `(lambda (,err)
+                           (case ,err
                              ,@(map gen-arm body))))]
-    `(let* [(,tmp-sym (list (xpcall (lambda () ,x) ,error-handler)))]
-       (if (car ,tmp-sym)
-         (cadr ,tmp-sym)
-         nil))))
+    `(let* [((,ok ,val) (pcall (lambda () ,x)))]
+       (if ,ok
+         ,val
+         (,error-handler ,val)))))
 
 (defmacro function (&arms)
   "Create a lambda which matches its arguments against the patterns
