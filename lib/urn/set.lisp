@@ -138,6 +138,6 @@
    order, the list will not nescessarily be sorted."
   (assert-type! set set)
   (let* [(out '())]
-    (for-pairs (k v) (hashset-data set)
+    (for-pairs (_ v) (hashset-data set)
       (push-cdr! out v))
     out))

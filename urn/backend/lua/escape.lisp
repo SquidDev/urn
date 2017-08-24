@@ -8,23 +8,6 @@
                    "if" "in" "local" "nil" "not" "or" "repeat" "return" "then" "true"
                    "until" "while")))
 
-(define symbols
-  "A mapping of various symbols to an their escaped form."
-  :hidden
-  { "!" "bang"
-    "+" "add"
-    "-" "sub"
-    "*" "mul"
-    "/" "div"
-    "%" "mod"
-    "^" "pow"
-    "=" "eq"
-    ">" "gt"
-    "<" "lt"
-    "." "dot"
-    "#" "hash"
-    "?" "ask" })
-
 (defun ident? (x)
   "Determine whether X is a usable identifier character"
   :hidden

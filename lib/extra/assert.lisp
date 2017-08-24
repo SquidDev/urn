@@ -1,14 +1,6 @@
 (import string (sub rep))
 (import list (elem? traverse))
 
-(defun format-value (value)
-  "Format the result of VALUE: extracting `:contents` or `:value` if
-   required"
-  :hidden
-  (if (and (table? value) (.> value :contents))
-    (.> value :contents)
-    (pretty value)))
-
 (defmacro assert! (cnd msg)
   "Assert CND is true, otherwise failing with MSG"
   `(unless ,cnd (error! ,msg 0)))

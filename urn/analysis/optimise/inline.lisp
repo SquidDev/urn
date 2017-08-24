@@ -11,7 +11,7 @@
     (for-pairs (k v) x (.<! res k v))
     res))
 
-(defun get-scope (scope lookup n)
+(defun get-scope (scope lookup)
   "Gets SCOPE, copying it if is is a child, otherwise reusing it."
   :hidden
   (with (new-scope (.> lookup :scopes scope))
@@ -52,7 +52,7 @@
      (when (builtin? (car node) :lambda)
        (with (args (cadr node))
          (unless (empty? args)
-           (with (new-scope (scope/child (get-scope (.> (car args) :var :scope) lookup node)))
+           (with (new-scope (scope/child (get-scope (.> (car args) :var :scope) lookup)))
              (for-each arg args
                (let* [(var (.> arg :var))
                       (new-var (scope/add! new-scope (.> var :name) (.> var :tag) nil))]

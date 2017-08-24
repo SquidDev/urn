@@ -274,8 +274,7 @@
            (w/begin-block! out "(function()")
            (set! ret "return "))
 
-         (let* [(test (car (nth node 2)))
-                (body (nth node 3))]
+         (with (test (car (nth node 2)))
 
            (if (.> cat-lookup test :stmt)
              ;; We flatten if statements branching on an if by declaring a temp variable
@@ -501,8 +500,7 @@
          ;; appended directly.
          (let* [(contents (.> meta :contents))
                 (fold (.> meta :fold))
-                (count (.> meta :count))
-                (stack nil)]
+                (count (.> meta :count))]
            (letrec [(build (lambda (start end)
                              (for-each entry contents
                                (cond
@@ -552,8 +550,7 @@
        (with (args (nth (.> cat :recur :def) 2))
          (if (> (n args) 0)
            ;; If we have some arguments, then set all of them in one go
-           (let [(zipped (zip-args args 1 node 2))
-                 (pack-name nil)
+           (let [(pack-name nil)
                  (done false)]
              ;; First emit a series of variables we're going to set
              (with (offset 1)

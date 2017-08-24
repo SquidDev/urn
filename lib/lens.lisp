@@ -166,7 +166,7 @@
 
 (defun ^= (val lens new)
   "Use LENS to replace a bit of VAL with NEW."
-  (^~ val lens (lambda (x) new)))
+  (^~ val lens (lambda () new)))
 
 (defun view (l v)
   "Flipped synonym for [[^.]]"

@@ -57,8 +57,7 @@
      (with (head (car node))
        (case (type head)
          ["symbol"
-          (let* [(func (.> head :var))
-                 (funct (.> func :tag))]
+          (with (func (.> head :var))
             (cond
               ;; Just a bog-standard call.
               [(/= (.> func :tag) "builtin")
@@ -175,7 +174,7 @@
   :cat '("categorise")
   (visit-nodes nodes 1 nil (.> state :rec-lookup)))
 
-(defpass letrec-node (compiler node state stmt)
+(defpass letrec-node (compiler node state)
   "Find letrec constructs in a node"
   :cat '("categorise")
   (visit-node node nil nil (.> state :rec-lookup)))

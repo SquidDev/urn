@@ -16,7 +16,7 @@
 (defstruct (vertex (hide make-vertex) vertex?)
   "Create a vertex associated with a graph."
   (fields
-    (mutable value (hide vertex-value) (hide set-vertex-value!))
+    (immutable value (hide vertex-value))
     (immutable graph (hide vertex-graph))
     (immutable in-edges (hide vertex-in-edges))
     (immutable out-edges (hide vertex-out-edges))))

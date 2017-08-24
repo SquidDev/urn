@@ -114,12 +114,10 @@
     (block (.> compiler :out) out state 1 "return ")
     out))
 
-(defun execute-states (back-state states global logger)
+(defun execute-states (back-state states global)
   "Attempt to execute a series of STATES in the GLOBAL environment.
 
-   BACK-STATE is the backend state, as created with [[create-state]].
-   All errors are logged to LOGGER."
-
+   BACK-STATE is the backend state, as created with [[create-state]]."
   (let* [(state-list '())
          (name-list '())
          (export-list '())
@@ -128,8 +126,8 @@
     (for i (n states) 1 -1
       (with (state (nth states i))
         (unless (= (.> state :stage) "executed")
-          (let* [(node (assert! (.> state :node) (.. "State is in " (.> state :stage) " instead")))
-                 (var (or (.> state :var) { :name "temp" }))
+          (assert! (.> state :node) (.. "State is in " (.> state :stage) " instead"))
+          (let* [(var (or (.> state :var) { :name "temp" }))
                  (escaped (push-escape-var! var back-state true))
                  (name (.> var :name))]
             (push-cdr! state-list state)

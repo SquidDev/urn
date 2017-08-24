@@ -120,7 +120,7 @@
    > (x \"const\")
    out = 1
    ```"
-  (lambda (y) x))
+  (lambda () x))
 
 (defun call (x key &args)
   "Index X with KEY and invoke the resulting function with ARGS."

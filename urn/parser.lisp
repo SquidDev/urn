@@ -380,8 +380,7 @@
   "Parse tokens TOKS, the result of [[lex]]. If CONT is true, then
    \"resumable\" errors will be thrown if the end of the stream is
    reached."
-  (let* [(index 1)
-         (head '())
+  (let* [(head '())
          (stack '())
 
          ;; Append a node onto the current head

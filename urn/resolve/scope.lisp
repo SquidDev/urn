@@ -46,7 +46,8 @@
   (assert-type! name string)
   (assert-type! kind string)
   (unless (.> kinds kind) (error! (.. "Unknown kind " (string/quoted kind))))
-  (when (.> scope :variables name) (error! (.. "Previous declaration of " name)))
+  (when (.> scope :variables name) (error! (.. "Previous declaration of " (string/quoted name))))
+  (when (and (= name "_") (.> scope :is-root)) (fail! "Cannot declare \"_\" as a top level definition"))
 
   (with (var { :tag       kind
                :name      name
@@ -55,8 +56,9 @@
                :scope     scope
                :const     (/= kind "arg")
                :node      node })
-    (.<! scope :variables name var)
-    (.<! scope :exported name var)
+    (unless (= name "_")
+      (.<! scope :variables name var)
+      (.<! scope :exported name var))
     var))
 
 (defun add-verbose! (scope name kind node logger)
@@ -67,10 +69,15 @@
   (assert-type! kind string)
   (unless (.> kinds kind) (error! (.. "Unknown kind " (string/quoted kind))))
   (when-with (previous (.> scope :variables name))
-    (logger/do-node-error! logger (.. "Previous declaration of " name)
+    (logger/do-node-error! logger (.. "Previous declaration of " (string/quoted name))
       node nil
       (range/get-source node) "new definition here"
       (range/get-source (.> previous :node)) "old definition here"))
+
+  (when (and (= name "_") (.> scope :is-root))
+    (logger/do-node-error! logger "Cannot declare \"_\" as a top level definition"
+      node nil
+      (range/get-source node) "declared here"))
 
   (add! scope name kind node))
 
