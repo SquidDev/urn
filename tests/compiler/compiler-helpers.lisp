@@ -1,9 +1,10 @@
-(import lua/basic (type#))
-
 (import urn/logger/void logger)
 (import urn/timer timer)
 (import urn/resolve/builtins builtins)
 (import urn/resolve/scope scope)
+
+(import lua/basic (type#))
+(import lua/basic b)
 
 (define start-range
   "The default range for all objects"
@@ -34,6 +35,8 @@
                      :lib-meta      { :+       { :tag "expr" :contents '(1 " + " 2)   :count 2 :fold "l" :prec 9 :pure true :value + }
                                       :-       { :tag "expr" :contents '(1 " - " 2)   :count 2 :fold "l" :prec 9 :pure true :value - }
                                       :..      { :tag "expr" :contents '(1 " .. " 2)  :count 2 :fold "r" :prec 8 :pure true :value .. }
+                                      :=       { :tag "expr" :contents '(1 " == " 2)  :count 2           :prec 3 :pure true :value b/= }
+                                      :>=      { :tag "expr" :contents '(1 " >= " 2)  :count 2           :prec 3 :pure true :value b/>= }
                                       :get-idx { :tag "expr" :contents '(1 "[" 2 "]") :count 2 :precs '(100 0) :value (cut .> <> <>) }
                                       :print   { :tag "var"  :contents "print" } }
 
@@ -44,7 +47,7 @@
 
                      :loader        (lambda (name) (fail! $"Cannot load external module '${name}'")) })]
 
-    (for-each var '("foo" "bar" "baz" "qux" "+" "-" ".." "get-idx" "print")
+    (for-each var '("foo" "bar" "baz" "qux" "+" "-" ".." "=" ">=" "get-idx" "print")
       (scope/add! scope var "native"))
 
     (for-pairs (_ var) (.> scope :parent :variables) (.<! compiler :variables (tostring var) var))

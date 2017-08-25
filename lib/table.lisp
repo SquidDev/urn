@@ -215,6 +215,12 @@
   "Iterate over TABLE with a function FUNC of the form `(lambda (key val) ...)`"
   (for-pairs (k v) table (func k v)))
 
+(defun copy-of (struct)
+  "Create a shallow copy of STRUCT."
+  (with (out {})
+    (for-pairs (k v) struct (.<! out k v))
+    out))
+
 (defun merge (&structs)
   "Merge all tables in STRUCTS together into a new table."
   (with (out {})

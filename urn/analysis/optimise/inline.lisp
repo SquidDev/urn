@@ -4,13 +4,6 @@
 (import urn/analysis/visitor visitor)
 (import urn/resolve/scope scope)
 
-(defun copy-of (x)
-  "Create a shallow copy of X."
-  :hidden
-  (with (res {})
-    (for-pairs (k v) x (.<! res k v))
-    res))
-
 (defun get-scope (scope lookup)
   "Gets SCOPE, copying it if is is a child, otherwise reusing it."
   :hidden
@@ -65,37 +58,87 @@
          (.<! res i (copy-node (nth res i) lookup)))
        res)]))
 
-(defun score-node (node)
-  "Attempt to score NODE, determining whether it can be inlined or not."
-  :hidden
+(defun score-node (node cumulative threshold)
+  "Attempt to score NODE, determining whether it can be inlined or not.
+   We pass the CUMULATIVE score of each nodes through the system,
+   terminating early if it is larger than THRESHOLD."
   (case (type node)
-    ;; Honestly, I'm not sure what to do with these. They are basically "free" so we don't need to worry.
-    ["string" 0]
-    ["key" 0]
-    ["number" 0]
-    ["symbol" 1]
+    ;; Constants are considered free.
+    ["string" cumulative]
+    ["key"    cumulative]
+    ["number" cumulative]
+
+    ;; Symbol access is mostly free
+    ;; TODO: Put an additional cost if an argument is accessed more than once.
+    ["symbol" (+ cumulative 1)]
 
     ["list"
      (case (type (car node))
        ["symbol"
         (with (func (.> (car node) :var))
           (cond
-            ;; Please note, these values are entirely arbitrary.
+            ;; Just a normal function call with symbols. We consider these
+            ;; "free".
+            ;; TODO: Block recursive functions
+            [(/= (.> func :tag) "builtin")
+             (score-nodes node 1 (+ cumulative (n node) 1) threshold)]
+
+            ;; Now visit the core builtins. This isn't exactly an advanced herustic.
+
             [(= func (.> builtins :lambda))
-             (score-nodes node 3 10)]
+             (score-nodes node 3 (+ cumulative 10) threshold)]
+
             [(= func (.> builtins :cond))
-             (score-nodes node 2 10)]
+             (set! cumulative (+ cumulative 3)) ;; Base cost of 3
+             (with (len (n node))
+               (loop [(i 2)] [(> i len)]
+                 (set! cumulative (+ cumulative 4)) ;; Each branch costs 4
+                 (when (<= cumulative threshold)
+                   (set! cumulative (score-nodes (nth node i) 1 cumulative threshold))
+                   (recur (succ i)))))
+             cumulative]
+
             [(= func (.> builtins :set!))
-             (score-nodes node 2 5)]
+             (score-node (nth node 3) (+ cumulative 5) threshold)]
+
+            ;; As constants are free, "technically" this is all going to be free
+            ;; too.
             [(= func (.> builtins :quote))
-             (score-nodes node 2 2)]
-            [(= func (.> builtins :quasi-quote))
-             (score-nodes node 2 3)]
+             (if (list? (nth node 2)) (+ cumulative (n node)) cumulative)]
+            [(= func (.> builtins :import)) cumulative]
+
+            ;; TODO: Actually walk this and remove the below handlers
+            [(= func (.> builtins :syntax-quote))
+             (score-node (nth node 2) (+ cumulative 3) threshold)]
+            [(= func (.> builtins :unquote))
+             (score-node (nth node 2) cumulative threshold)]
             [(= func (.> builtins :unquote-splice))
-             (score-nodes node 2 10)]
-            [true
-             (score-nodes node 1 (+ (n node) 1))]))]
-       [_ (score-nodes node 1 (+ (n node) 1))])]))
+             (score-node (nth node 2) (+ cumulative 10) threshold)]
+
+            [(= func (.> builtins :struct-literal))
+             (score-nodes node 2 (+ cumulative (/ (pred (n node)) 2) 3) threshold)]))]
+
+       ["list"
+        (if (builtin? (caar node) :lambda)
+          ;; Currently directly called lambdas are free. Ideally we'd exclude
+          ;; variadic functions and symbols with lots of bindings.
+          (-> cumulative
+            (score-nodes node 2 <> threshold)
+            (score-nodes (car node) 3 <> threshold))
+          (score-nodes node 1 (+ cumulative (n node) 1) threshold))]
+
+       [_ (score-nodes node 1 (+ cumulative (n node) 1) threshold)])]))
+
+(defun score-nodes (nodes start cumulative threshold)
+  "Score the lambda NODES, starting from START and adding to SUM.
+
+   This is slightly different to a folr as it will exit if [[score-node]] returns `false`."
+  (with (len (n nodes))
+    (loop [(i start)] [(> i len)]
+      (when (<= cumulative threshold)
+        (set! cumulative (score-node (nth nodes i) cumulative threshold))
+        (recur (succ i)))))
+  cumulative)
 
 (defun get-score (lookup node)
   "Get the score for NODE, using LOOKUP as a cache."
@@ -108,25 +151,11 @@
         (when (.> arg :var :is-variadic) (set! score false)))
 
       ;; If we have no varargs, then let's inline this function.
-      (when score (set! score (score-nodes node 3 score)))
+      (when score (set! score (score-nodes node 3 score threshold)))
 
       (.<! lookup node score))
 
     (if score score math/huge)))
-
-(defun score-nodes (nodes start sum)
-  "Score the lambda NODES, starting from START and adding to SUM.
-
-   This is slightly different to a folr as it will exit if [[score-node]] returns `false`."
-  :hidden
-  (if (> start (n nodes))
-    sum
-    (with (score (score-node (nth nodes start)))
-      (if score
-        (if (> score threshold)
-          score
-          (score-nodes nodes (succ start) (+ sum score)))
-        false))))
 
 (define threshold
   "The maximum score a function can have in order for inlining to be applied."

@@ -127,10 +127,8 @@
 
           ;; Copy symbol to ensure a unique hash, and add new usage.
           (when (symbol? replace)
-            (with (copy {})
-              (for-pairs (k v) replace (.<! copy k v))
-              (set! replace copy)
-              (usage/add-usage! lookup (.> copy :var) copy)))
+            (set! replace (copy-of replace))
+            (usage/add-usage! lookup (.> replace :var) replace))
 
           (changed!)
           replace)
