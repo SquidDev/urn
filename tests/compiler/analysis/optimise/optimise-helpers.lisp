@@ -1,6 +1,7 @@
 (import extra/assert ())
 
 (import urn/analysis/pass pass)
+(import urn/analysis/transform ())
 (import urn/analysis/usage usage)
 (import urn/resolve/loop resolve)
 (import tests/compiler/compiler-helpers (create-compiler wrap-node))
@@ -32,7 +33,17 @@
    EXPECTED-NODES, with EXPECTED-CHANGE nodes being modified."
   (affirm-optimise
     (lambda (tracker options nodes)
-      (with (lookup (usage/create-state))
+      (with (lookup {})
         ((.> usage/tag-usage :run) tracker options nodes lookup)
         ((.> pass :run) tracker options nodes lookup)))
+    input-nodes expected-nodes expected-change))
+
+(defun affirm-transform-optimise (transformers input-nodes expected-nodes expected-change)
+  "Affirm running INPUT-NODES from the given TRANSFORMERS produces the
+   given EXPECTED-NODES, with EXPECTED-CHANGE nodes being modified."
+  (affirm-optimise
+    (lambda (tracker options nodes)
+      (with (lookup {})
+        ((.> usage/tag-usage :run) tracker options nodes lookup)
+        ((.> transformer :run) tracker options nodes lookup transformers)))
     input-nodes expected-nodes expected-change))

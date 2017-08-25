@@ -45,9 +45,9 @@
 
     main))
 
-(defmacro changed! ()
+(defmacro changed! ((count 1))
   "Mark this pass as having a side effect."
-  `(.<! ,pass-arg :changed (succ (.> ,pass-arg :changed))))
+  `(.<! ,pass-arg :changed (+ (.> ,pass-arg :changed) ,count)))
 
 (defun create-tracker ()
   "Create a modification tracker."
@@ -70,21 +70,31 @@
       ;; Otherwise ensure that the pass is on and it has a sufficient level
       [true (and (/= (.> pass :on) false) (>= (.> options :level) (or (.> pass :level) 1)))])))
 
+(defun filter-passes (passes options)
+  "Filter a table of PASSES, using the given OPTIONS."
+  (with (res {})
+    (for-pairs (k v) passes
+      (.<! res k (filter (cut pass-enabled? <> options) v)))
+    res))
+
+(defun has-category? (pass cat)
+  "Determine whether a PASS has a particular category."
+  (any (cut = <> cat) (.> pass :cat)))
+
 (defun run-pass (pass options tracker &args)
   "Run a PASS with the given ARGS, using OPTIONS to determine how the task should be run.
 
    This will return whether the PASS did something, though you can also specify TRACKER for
    more convenient tracking of multiple passes."
-  (when (pass-enabled? pass options)
-    (let [(ptracker (create-tracker))
-          (name (.. "[" (concat (.> pass :cat) " ") "] " (.> pass :name)))]
+  (let [(ptracker (create-tracker))
+        (name (.. "[" (concat (.> pass :cat) " ") "] " (.> pass :name)))]
 
-      (timer/start-timer! (.> options :timer) name 2)
-      ((.> pass :run) ptracker options (unpack args 1 (n args)))
-      (timer/stop-timer! (.> options :timer) name)
+    (timer/start-timer! (.> options :timer) name 2)
+    ((.> pass :run) ptracker options (unpack args 1 (n args)))
+    (timer/stop-timer! (.> options :timer) name)
 
-      ;; Print out logging modification information
-      (when (.> options :track) (logger/put-verbose! (.> options :logger) (format "%s made %d changes" name (.> ptracker :changed))))
-      (when tracker (.<! tracker :changed (+ (.> tracker :changed) (.> ptracker :changed))))
+    ;; Print out logging modification information
+    (when (.> options :track) (logger/put-verbose! (.> options :logger) (format "%s made %d changes" name (.> ptracker :changed))))
+    (when tracker (.<! tracker :changed (+ (.> tracker :changed) (.> ptracker :changed))))
 
-      (changed? ptracker))))
+    (changed? ptracker)))

@@ -93,7 +93,7 @@
   :cat '("warn")
   :level 2
   (with (unused '())
-    (for-pairs (var entry) (.> lookup :vars)
+    (for-pairs (var entry) (.> lookup :usage-vars)
       (unless (or
                 ;; Ignore variables which are visited or obviously temporary ones
                 (> (n (.> entry :usages)) 0) (> (n (.> entry :soft)) 0)
@@ -121,13 +121,13 @@
         (cadr pair) nil
         (get-source (cadr pair)) "Defined here"))))
 
-(defun analyse (nodes state)
-  (for-each pass (.> state :pass :normal)
-    (run-pass pass state nil nodes))
+(defun analyse (nodes state passes)
+  (with (lookup {})
+    (for-each pass (.> passes :normal)
+      (run-pass pass state nil nodes lookup))
 
-  (with (lookup (usage/create-state))
     (run-pass usage/tag-usage state nil nodes lookup usage/visit-eager-exported?)
-    (for-each pass (.> state :pass :usage)
+    (for-each pass (.> passes :usage)
       (run-pass pass state nil nodes lookup))))
 
 (defun default ()

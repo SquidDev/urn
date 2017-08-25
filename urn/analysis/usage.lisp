@@ -2,19 +2,19 @@
  usages of all variables in the program."
 
 (import table)
-(import lua/basic (type#))
 
 (import urn/analysis/nodes (side-effect? builtins builtin? make-nil zip-args))
 (import urn/analysis/pass (defpass))
 
-(defun create-state ()
-  "Create a new, empty usage state."
-  { :vars {}
-    :nodes {}})
+(defun setup-state! (state)
+  "Setup the given STATE ready for usage information"
+  (.<! state :usage-vars {})
+  state)
 
 (defun get-var (state var)
   "Find a VAR entry in the current STATE."
-  (with (entry (.> state :vars var))
+  (let* [(vars (.> state :usage-vars))
+         (entry (.> vars var))]
     (unless entry
       (set! entry
         { :var    var
@@ -22,23 +22,23 @@
           :soft   '()
           :defs   '()
           :active false })
-      (.<! state :vars var entry))
-    entry))
-
-(defun get-node (state node)
-  "Find a NODE entry in the current STATE."
-  (with (entry (.> state :nodes node))
-    (unless entry
-      (set! entry { :uses '() })
-      (.<! state :nodes node entry))
+      (.<! vars var entry))
     entry))
 
 (defun add-usage! (state var node)
   "Mark a NODE as using a specific VAR."
-  :hidden
   (with (var-meta (get-var state var))
     (push-cdr! (.> var-meta :usages) node)
     (.<! var-meta :active true)))
+
+(defun remove-usage! (state var node)
+  "Remove NODE using VAR."
+  (let* [(var-meta (get-var state var))
+         (users (.> var-meta :usages))]
+    (for i (n users) 1 -1
+      (when (= (nth users i) node)
+        (remove-nth! users i)
+        (when (empty? users) (.<! var-meta :active false))))))
 
 (defun add-soft-usage! (state var node)
   "Mark a NODE as referencing a specific VAR using a syntax quote."
@@ -48,11 +48,26 @@
 
 (defun add-definition! (state var node kind value)
   "Add a definition for a specific VAR."
-  :hidden
   (with (var-meta (get-var state var))
     (push-cdr! (.> var-meta :defs) { :tag   kind
                                      :node  node
                                      :value value })))
+
+(defun remove-definition! (state var value)
+  "Remove a definition VALUE for a specific VAR."
+  (let* [(var-meta (.> state :usage-vars var))
+         (defs (.> var-meta :defs))]
+    (for i (n defs) 1 -1
+      (when (= (.> (nth defs i) :value) value) (remove-nth! defs i)))))
+
+(defun replace-definition! (state var old-value new-kind new-value)
+  "Replace OLD-VALUE with NEW-VALUE in the definition list of VAR."
+  (let* [(var-meta (.> state :usage-vars var))
+         (defs (.> var-meta :defs))]
+    (for-each def defs
+      (when (= (.> def :value) old-value)
+        (.<! def :tag   new-kind)
+        (.<! def :value new-value)))))
 
 (defun populate-definitions (state nodes visit?)
   (unless visit? (set! visit? (lambda() true)))
@@ -176,10 +191,10 @@
                          (for i 1 (n node) 1 (visit-node (nth node i))))]
                       [_ (for i 1 (n node) 1 (visit-node (nth node i)))]))])))]
 
-  (for-each node nodes
-    (push-cdr! queue node))
-  (while (> (n queue) 0)
-    (visit-node (pop-last! queue)))))
+    (for-each node nodes
+      (push-cdr! queue node))
+    (while (> (n queue) 0)
+      (visit-node (pop-last! queue)))))
 
 (defun visit-lazy-definition? (val _ node)
   "A predicate for [[populate-definitions]] which will defer visiting a
@@ -199,4 +214,5 @@
 (defpass tag-usage (state nodes lookup (visit? visit-lazy-definition?))
   "Gathers usage and definition data for all expressions in NODES, storing it in LOOKUP."
   :cat '("tag" "usage")
+  (setup-state! lookup)
   (populate-definitions lookup nodes visit?))

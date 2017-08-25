@@ -4,6 +4,7 @@
 
 (import urn/analysis/optimise optimise)
 (import urn/analysis/warning warning)
+(import urn/analysis/pass pass)
 (import urn/backend/lisp lisp)
 (import urn/backend/lua lua)
 (import urn/backend/writer writer)
@@ -87,23 +88,22 @@
   "Create a task which runs FUN using the options from argument NAME."
   :hidden
   (lambda (compiler args)
-    (fun (.> compiler :out) {
-                              ;; General pass options
-                              :track     true
-                              :level     (.> args name)
-                              :override  (or (.> args (.. name "-override")) {})
-                              :pass      (.> compiler name)
+    (with (options { ;; General pass options
+                    :track     true
+                    :level     (.> args name)
+                    :override  (or (.> args (.. name "-override")) {})
 
-                              ;; Optimisation specific options
-                              :max-n     (.> args (.. name "-n"))
-                              :max-time  (.> args (.. name "-time"))
+                    ;; Optimisation specific options
+                    :max-n     (.> args (.. name "-n"))
+                    :max-time  (.> args (.. name "-time"))
 
-                              ;; General shared options
-                              :compiler  compiler
-                              :meta      (.> compiler :lib-meta)
-                              :libs      (.> compiler :libs)
-                              :logger    (.> compiler :log)
-                              :timer     (.> compiler :timer) })))
+                    ;; General shared options
+                    :compiler  compiler
+                    :meta      (.> compiler :lib-meta)
+                    :libs      (.> compiler :libs)
+                    :logger    (.> compiler :log)
+                    :timer     (.> compiler :timer) })
+      (fun (.> compiler :out) options (pass/filter-passes (.> compiler name) options)))))
 
 (define warning
   { :name  "warning"
