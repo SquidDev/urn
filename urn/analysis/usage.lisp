@@ -31,6 +31,15 @@
     (push-cdr! (.> var-meta :usages) node)
     (.<! var-meta :active true)))
 
+(defun remove-usage! (state var node)
+  "Remove NODE using VAR."
+  (let* [(var-meta (get-var state var))
+         (users (.> var-meta :usages))]
+    (for i (n users) 1 -1
+      (when (= (nth users i) node)
+        (remove-nth! users i)
+        (when (empty? users) (.<! var-meta :active false))))))
+
 (defun add-soft-usage! (state var node)
   "Mark a NODE as referencing a specific VAR using a syntax quote."
   :hidden

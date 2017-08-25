@@ -177,6 +177,18 @@
                   (foo (bar (+ x 1)) ((lambda (val) val) (bar x)))))))))
         2))
 
+    (it "unless variables are used multiple times"
+      (affirm-transform-optimise (list optimise/expression-fold)
+        '(((lambda (x) (foo x x)) (+ 1 1)))
+        '(((lambda (x) (foo x x)) (+ 1 1)))
+        0))
+
+    (it "unless variables are used out of order"
+      (affirm-transform-optimise (list optimise/expression-fold)
+        '(((lambda (x y) (foo y x)) (+ 1 1) (+ 1 1)))
+        '(((lambda (x y) (foo y x)) (+ 1 1) (+ 1 1)))
+        0))
+
     (it "when a variable is mutated after"
       (affirm-transform-optimise (list optimise/expression-fold)
         '(((lambda (tmp)

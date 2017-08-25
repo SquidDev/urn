@@ -119,11 +119,21 @@
   "Folds constant variable accesses"
   :cat '("opt" "usage" "transform-pre")
   (if (symbol? node)
-    (with (var (get-constant-val lookup node))
-      (if (and var (/= var node))
+    (with (replace (get-constant-val lookup node))
+      (if (and replace (/= replace node))
         (progn
+          ;; Remove usage of old node
+          (usage/remove-usage! lookup (.> node :var) node)
+
+          ;; Copy symbol to ensure a unique hash, and add new usage.
+          (when (symbol? replace)
+            (with (copy {})
+              (for-pairs (k v) replace (.<! copy k v))
+              (set! replace copy)
+              (usage/add-usage! lookup (.> copy :var) copy)))
+
           (changed!)
-          var)
+          replace)
         node))
     node))
 
