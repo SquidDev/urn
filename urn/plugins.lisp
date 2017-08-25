@@ -23,27 +23,8 @@
          (optimise  (.> compiler :optimise))
 
          (active-scope (lambda () (.> compiler :active-scope)))
-         (active-node  (lambda () (.> compiler :active-node)))
-
-         (categorise '())
-         (emit       '())]
-    { ;; backend.lisp
-      :add-categoriser!    (lambda () (fail! "add-categoriser! is not yet implemented")) ;; TODO: Add add-categoriser!
-      :categorise-node     categories/visit-node
-      :categorise-nodes    categories/visit-nodes
-      :cat                 (lambda () (fail! "cat is not yet implemented"))
-      :writer/append!      writer/append!
-      :writer/line!        writer/line!
-      :writer/indent!      writer/indent!
-      :writer/unindent!    writer/unindent!
-      :writer/begin-block! writer/begin-block!
-      :writer/next-block!  writer/next-block!
-      :writer/end-block!   writer/end-block!
-      :add-emitter!        (lambda () (fail! "add-emitter! is not yet implemented")) ;; TODO: Add add-emitter!
-      :emit-node           lua/expression
-      :emit-block          lua/block
-
-      ;; init.lisp
+         (active-node  (lambda () (.> compiler :active-node)))]
+    { ;; init.lisp
       :logger/put-error!   (cut logger/put-error!   logger <>)
       :logger/put-warning! (cut logger/put-warning! logger <>)
       :logger/put-verbose! (cut logger/put-verbose! logger <>)
@@ -90,14 +71,19 @@
                                 [(false ?msg) (fail! (traceback/remap-traceback (.> compiler :compile-state :mappings) msg))]
                                 [(true . ?rest) (unpack rest 1 (n rest))]))))
 
-                        (let* [(cats (.> pass :cat))
-                               (group (if (elem? "usage" cats) "usage" "normal"))]
+                        (with (cats (.> pass :cat))
                           (cond
                             [(elem? "opt" cats)
-                             (push-cdr! (.> optimise group) pass)]
+                             (cond
+                               [(any (cut string/starts-with? <> "transform-") cats)
+                                (push-cdr! (.> optimise :transform) pass)]
+                               [(elem? "usage" cats) (push-cdr! (.> optimise :usage) pass)]
+                               [else                 (push-cdr! (.> optimise :normal) pass)])]
                             [(elem? "warn" cats)
-                             (push-cdr! (.> warnings group) pass)]
-                            [true (error! (.. "Cannot register " (pretty (.> pass :name)) " (do not know how to process " (pretty cats) ")"))]))
+                             (cond
+                               [(elem? "usage" cats) (push-cdr! (.> warnings :usage) pass)]
+                               [else                 (push-cdr! (.> warnings :normal) pass)])]
+                            [else (error! (.. "Cannot register " (pretty (.> pass :name)) " (do not know how to process " (pretty cats) ")"))]))
                         nil)
       :var-usage      usage/get-var
 
