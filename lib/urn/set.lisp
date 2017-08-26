@@ -33,9 +33,6 @@
             (hashset-fn y))
          same-data)))
 
-(defmethod (pretty set) (x)
-  (.. "«hash-set: " (concat (map pretty (set->list x)) " ") "»"))
-
 (defun element? (set val)
   "Check if VAL is an element of SET.
 
@@ -141,3 +138,7 @@
     (for-pairs (_ v) (hashset-data set)
       (push-cdr! out v))
     out))
+
+(defmethod (pretty set) (x)
+  (.. "«hash-set: " (concat (map pretty (set->list x)) " ") "»"))
+
