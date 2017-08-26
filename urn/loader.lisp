@@ -18,6 +18,16 @@
     "[" "%[" "]" "%]"
     "(" "%)" ")" "%)" })
 
+(define lisp-extensions
+  "List of extensions Lisp files may end in."
+  :hidden
+  '(".lisp" ".cl" ".urn"))
+
+(defun try-handle (name)
+  "Attempt to open NAME with the various extensions."
+  :hidden
+  (loop [(i 1)] [(> i (n lisp-extensions))]
+    (or (io/open (.. name (nth lisp-extensions i)) "r") (recur (succ i)))))
 
 (defun simplify-path (path paths)
   "Simplify PATH, attempting to reduce it to a named module inside PATHS."
@@ -166,7 +176,7 @@
                            (push-cdr! searched path)
                            (cond
                              [(= cached nil)
-                              (with (handle (io/open (.. path ".lisp") "r"))
+                              (with (handle (try-handle path))
                                 (if handle
                                   (progn
                                     ;; We set this to true to ensure we don't get loops
@@ -193,11 +203,17 @@
         [(= cached nil) (path-locator state name)]
         [(= cached true) (list nil (.. "Already loading " name))]
         [true (list cached)]))
-    (progn
-      (set! name (string/gsub name "%.lisp$" ""))
-      (case (.> state :lib-cache name)
+    (with (path name)
+      ;; Attempt to strip various file extensions
+      (loop [(i 1)] [(> i (n lisp-extensions))]
+        (with (suffix (nth lisp-extensions i))
+          (if (string/ends-with? path suffix)
+            (set! name (string/sub name 1 (- -1 (n suffix))))
+            (recur (succ i)))))
+
+      (case (.> state :lib-cache path)
         [nil
-         (with (handle (io/open (.. name ".lisp")))
+         (with (handle (if (= name path) (try-handle name) (io/open path "r")))
            (if handle
              (progn
                ;; Ensure we don't get loops
@@ -205,6 +221,6 @@
                (with (lib (read-library state (simplify-path name (.> state :paths)) name handle))
                  (.<! state :lib-cache name lib)
                  (list lib)))
-             (list nil (.. "Cannot find " (string/quoted name)))))]
+             (list nil (.. "Cannot find " (string/quoted path)))))]
         [true (list nil (.. "Already loading " name))]
         [?cached (list cached)]))))
