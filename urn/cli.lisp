@@ -168,12 +168,12 @@
 
     ;; Process include paths
     (for-each path (.> args :include)
-      (set! path (normalise-path path false))
-
-      (unless (string/find path "%?")
-        (set! path (.. path (if (= (string/char-at path -1) "/") "?" "/?"))))
-
-      (push-cdr! paths path))
+      (cond
+        [(string/find path "%?") (push-cdr! paths (normalise-path path false))]
+        [else
+         (set! path (normalise-path path true))
+         (push-cdr! paths (.. path "?"))
+         (push-cdr! paths (.. path "?/init"))]))
 
     (logger/put-verbose! logger (.. "Using path: " (pretty paths)))
 
