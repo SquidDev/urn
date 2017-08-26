@@ -316,7 +316,11 @@
                 [:d]oc NAME        Get documentation about a symbol
                 :scope             Print out all variables in the scope
                 [:s]earch QUERY    Search the current scope for symbols and documentation containing a string.
-                :module NAME       Display a loaded module's docs and definitions.")]
+                :module NAME       Display a loaded module's docs and definitions.
+                [:q]uit            Exit the REPL cleanly.")]
+      [(or (= command "quit") (= command "q"))
+       (print! "Goodbye.")
+       (os/exit 0)]
       [(or (= command "doc") (= command "d"))
        (with (name (nth args 2))
          (if name
