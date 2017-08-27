@@ -85,7 +85,7 @@
         ; Write a pointer to the current line
         (with (pointer
           (cond
-            [(! range) "^"]
+            [(not range) "^"]
             [(and (.> position :finish) (= (.> position :start :line) (.> position :finish :line)))
              (string/rep "^" (succ (- (.> position :finish :column) (.> position :start :column))))]
             [true "^..."]))

@@ -19,7 +19,7 @@
                       (when (symbol? node)
                         (let* [(var (.> node :var))
                                (def (.> defs var))]
-                        (when (and def (! (.> visited var)))
+                        (when (and def (not (.> visited var)))
                           (.<! visited var true)
                           (push-cdr! queue def))))))]
 
@@ -32,7 +32,7 @@
 
       (for i (n nodes) 1 -1
         (with (var (.> (nth nodes i) :def-var))
-          (when (and var (! (.> visited var)))
+          (when (and var (not (.> visited var)))
             (if (= i (n nodes))
               (.<! nodes i (make-nil))
               (remove-nth! nodes i))))))))
@@ -65,7 +65,7 @@
 
   (for i (n nodes) 1 -1
     (with (node (nth nodes i))
-      (when (and (.> node :def-var) (! (.> (usage/get-var lookup (.> node :def-var)) :active)))
+      (when (and (.> node :def-var) (not (.> (usage/get-var lookup (.> node :def-var)) :active)))
         (if (= i (n nodes))
           (.<! nodes i (make-nil))
           (remove-nth! nodes i))
@@ -197,7 +197,7 @@
             ;; (though we'd have probably have inlined non-lists elsewhere).
             (or
               (/= (n root) 2) (/= len 1) (/= (n lam) 3) (single-return? (nth root 2))
-              (! (symbol? (nth lam 3))) (/= (.> (nth lam 3) :var) (.> (car args) :var)))
+              (not (symbol? (nth lam 3))) (/= (.> (nth lam 3) :var) (.> (car args) :var)))
             ;; And no arguments are variadic or mutable
             (validate 1))
       (let [(current-idx 1)
@@ -210,7 +210,7 @@
         (for i 1 (n args) 1 (.<! arg-map (.> (nth args i) :var) i))
         (visitor/visit-list lam 3
           (lambda (node visitor)
-            (if (and ok (! finished))
+            (if (and ok (not finished))
               (case (type node)
                 ["string"]
                 ["number"]

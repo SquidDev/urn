@@ -89,6 +89,6 @@
                   (empty-struct? (struct))
                   (empty-struct? (struct :foo nil))))
     (will "not be empty"
-          (affirm (! (empty-struct? (struct :foo "x")))
-                  (! (empty-struct? (struct :foo false)))
-                  (! (empty-struct? (struct :foo {})))))])
+          (affirm (not (empty-struct? (struct :foo "x")))
+                  (not (empty-struct? (struct :foo false)))
+                  (not (empty-struct? (struct :foo {})))))])

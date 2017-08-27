@@ -31,7 +31,7 @@
 
     ["symbol"
      ;; TODO: Check this is defined
-     (when (and (.> (.> node :var) :scope :is-root) (! (.> defined (.> node :var))))
+     (when (and (.> (.> node :var) :scope :is-root) (not (.> defined (.> node :var))))
        (logger/put-node-warning! logger
          (.. (.> node :contents) " has not been defined yet") node
          "This symbol is not defined until later in the program, but is accessed here.

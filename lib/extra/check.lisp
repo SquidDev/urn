@@ -100,14 +100,14 @@
                      (,ctr 1)]
                 (while (and (>= ,n ,ctr) ,ok)
                   ,@(map generate-regenerator bindings)
-                  (if (! ,prop)
+                  (if (not ,prop)
                     (progn
                       (set! ,ok false)
                       (error! (.. "Proposition " ,(pretty prop) " falsified after "
                           ,ctr " iteration(s).\n Falsifying set of values:\n"
                           ,@(map make-printing bindings))))
                     (inc! ,ctr)))
-                ,(if (! silent)
+                ,(if (not silent)
                    `(progn (print! (.. "Ok. Proposition `" ,(pretty prop) "` passed " ,n " tests."))
                            true)
                    `true)

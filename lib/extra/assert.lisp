@@ -33,7 +33,7 @@
              (for i 1 (n expr) 1
                (let* [(child (nth expr i))
                       (str (pretty child))]
-                 (if (if (= i 1) (! (list? child)) (and (! (list? child)) (! (symbol? child))))
+                 (if (if (= i 1) (not (list? child)) (and (not (list? child)) (not (symbol? child))))
                    (progn
                      (push-cdr! nodes child)
                      (push-cdr! emit false))

@@ -67,7 +67,7 @@
          (tests `(_/test/describe "The stdlib"))]
 
     (for-pairs (k v) (_/scope-vars)
-      (when (and (! (string/starts-with? k "_/")) (or (empty? libs)
+      (when (and (not (string/starts-with? k "_/")) (or (empty? libs)
                                                       (any (lambda (x)
                                                              (string/starts-with? (.> v :full-name) (.. x "/")))
                                                         libs)))
@@ -75,7 +75,7 @@
                       _/parse-docstring
                       (filter (lambda (x) (and (= (type x) "mono")
                                                (string/starts-with? (.> x :whole) "```")
-                                               (! (string/find (.> x :whole) "^```[^\n]*:no%-test[^\n]*\n")))) <>)
+                                               (not (string/find (.> x :whole) "^```[^\n]*:no%-test[^\n]*\n")))) <>)
                       (map (cut .> <> :contents) <>)))
           (for-each entry docs
             (let [(lines (string/split entry "\n"))
@@ -111,7 +111,7 @@
                          (with ((ok res) (pcall _/parser/read (concat buffer "\n")))
                            (cond
                              ;; Check we didn't fail.
-                             [(! ok)
+                             [(not ok)
                               (_/var-error! v $"Parsing failed for ${k}: ${res}")
                               (.<! asserts 1 `_/test/pending)]
                              ;; Each line must have exactly one entry
@@ -140,13 +140,13 @@
                                (with (line (nth lines i))
                                  (cond
                                    ;; If we're the last line, then we expect some sort of result
-                                   [(! line)
+                                   [(not line)
                                     (_/var-warning! v "Expected result, got nothing")
                                     (.<! asserts 1 `_/test/pending)]
 
                                    ;; If we've got no result and we're not the last entry then just push the expression
                                    ;; unless there was a stdout, then warn.
-                                   [(! (string/starts-with? line "out ="))
+                                   [(not (string/starts-with? line "out ="))
                                     (if (empty? stdout)
                                       (progn
                                         (push-cdr! asserts res)

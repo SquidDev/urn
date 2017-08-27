@@ -43,7 +43,7 @@
   (if (and (list? node) (fast-all constant? node 2))
     ;; If we're invoking a function with entirely constant arguments then
     (let* [(head (car node))
-           (meta (and (symbol? head) (! (.> head :folded)) (= (.> head :var :tag) "native") (.> state :meta (.> head :var :unique-name))))]
+           (meta (and (symbol? head) (not (.> head :folded)) (= (.> head :var :tag) "native") (.> state :meta (.> head :var :unique-name))))]
       ;; Determine whether we have a native (and pure) function. If so, we'll invoke it.
       (if (and meta (.> meta :pure) (.> meta :value))
         (with (res (list (pcall (.> meta :value) (unpack (map urn->val (cdr node)) 1 (- (n node) 1)))))
@@ -127,7 +127,7 @@
         (for-each arg node-args (.<! vars (.> arg :var) true))
 
         ;; Find the first non-nil argument
-        (while (and (<= i val-n) (! (builtin? (nth node (succ i)) :nil)))
+        (while (and (<= i val-n) (not (builtin? (nth node (succ i)) :nil)))
           (inc! i))
 
         ;; If we've some arguments within the range, let's just debug for now
@@ -143,7 +143,7 @@
                       ;; And we're setting the current argument
                       (= (.> (nth head 2) :var) (.> (nth node-args i) :var))
                       ;; And we don't include a previous definition
-                      (! (node-contains-vars? (nth head 3) vars)))
+                      (not (node-contains-vars? (nth head 3) vars)))
 
                 ;; Push all the `nil`s we need
                 (while (< val-n i)
@@ -171,14 +171,14 @@
       ;; We require just one element so variables do not "grow" in scope.
       (loop
         [(child (nth node-lam 3))]
-        [(or (! (simple-binding? child)) (/= (n node-args) (pred (n node))) (> (n node-lam) 3))]
+        [(or (not (simple-binding? child)) (/= (n node-args) (pred (n node))) (> (n node-lam) 3))]
         (with (args (nth (car child) 2))
           (loop [] []
             (with (val (nth child 2))
               (cond
                 ;; Skip empty argument lists
                 [(empty? args)]
-                [(! val)
+                [(not val)
                  ;; If we have no value then we just push all arguments to the parent
                  ;; and exit the loop.
                  (for i 1 (n args) 1

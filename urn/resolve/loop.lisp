@@ -142,7 +142,7 @@
 
                        (destructuring-bind [(?status ?result) (list (co/resume (.> action :_co) (unpack args 1 (n args))))]
                          (cond
-                           [(! status) (fail! result)]
+                           [(not status) (fail! result)]
                            [(= (co/status (.> action :_co)) "dead")
                             ;; We've successfully built the node, so we handle unpacking it.
 

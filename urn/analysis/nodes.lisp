@@ -81,12 +81,12 @@
   (and (list? node)
     (with (lam (car node))
       (and (list? lam) (builtin? (car lam) :lambda)
-        (all (lambda (x) (! (.> x :var :is-variadic))) (nth lam 2))))))
+        (all (lambda (x) (not (.> x :var :is-variadic))) (nth lam 2))))))
 
 (defun single-return? (node)
   "Whether this NODE will return a single value."
   (or
-    (! (list? node))
+    (not (list? node))
     (with (head (car node))
       (if (symbol? head)
         (with (func (.> head :var))
@@ -144,7 +144,7 @@
       (with (arg (.> args ai))
         (cond
           ;; If we have no corresponding argument, then push a single value
-          [(! arg)
+          [(not arg)
            (push-cdr! res (list '() (list (nth vals vi))))
            (recur ai (succ vi))]
 

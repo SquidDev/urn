@@ -253,7 +253,7 @@
              [(scope scope)]
              [(= scope nil)]
              (for-pairs (name _) (.> scope :variables)
-               (when (and (string/starts-with? name contents) (! (.> visited name)))
+               (when (and (string/starts-with? name contents) (not (.> visited name)))
                  (.<! visited name true)
                  (push-cdr! vars (string/sub name (succ (n contents))))))
              (recur (.> scope :parent)))
@@ -410,12 +410,12 @@
            (if (and (empty? name-results) (empty? docs-results))
              (logger/put-error! logger "No results")
              (progn
-               (when (! (empty? name-results))
+               (when (not (empty? name-results))
                  (print! (colored 92 "Search by function name:"))
                  (if (> (n name-results) 20)
                    (print! (.. (concat (take name-results 20) "  ") "  ..."))
                    (print! (concat name-results "  "))))
-               (when (! (empty? docs-results))
+               (when (not (empty? docs-results))
                  (print! (colored 92 "Search by function docs:"))
                  (if (> (n docs-results) 20)
                    (print! (.. (concat (take docs-results 20) "  ") "  ..."))
@@ -441,7 +441,7 @@
         (while run
           (with (res (list (co/resume exec)))
             (cond
-              [(! (car res))
+              [(not (car res))
                (logger/put-error! logger (cadr res))
                (set! run false)]
               [(= (co/status exec) "dead")
@@ -495,7 +495,7 @@
                     (lambda (x) (get-complete (.. buffer x) scope))))
         (cond
           ;; If we got no input, then exit the REPL
-          [(and (! line) (empty? buffer)) (set! running false)]
+          [(and (not line) (empty? buffer)) (set! running false)]
 
           [true
             (with (data (if line (.. buffer line "\n") buffer))

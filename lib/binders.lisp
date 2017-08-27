@@ -1,4 +1,4 @@
-(import base (defmacro if ! when car and or cdr and print /= % get-idx defun = n
+(import base (defmacro if not when car and or cdr and print /= % get-idx defun = n
               >= error progn gensym for list + else))
 (import base)
 (import type (list? empty? pretty))
@@ -148,7 +148,7 @@
    .                        (or (= 0 n)
    .                            (is-odd? (pred n)))))
    .            (is-odd? (lambda (n)
-   .                       (and (! (= 0 n))
+   .                       (and (not (= 0 n))
    .                            (is-even? (pred n)))))]
    .     (is-odd? 11))
    out = true
@@ -215,7 +215,7 @@
    .   (recur (cons (car l) o) (cdr l)))
    out = (3 2 1)
    ```"
-  (when (! vs)
+  (when (not vs)
     (error "expected variables, got nil"))
   (when (empty? test)
     (set! test '(false)))

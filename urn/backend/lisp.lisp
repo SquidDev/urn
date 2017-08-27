@@ -36,7 +36,7 @@
                (writer/indent! writer))
              (for i 2 (n node) 1
                   (with (entry (nth node i))
-                        (when (and (! newline) (> max 0))
+                        (when (and (not newline) (> max 0))
                           (set! max (- max (estimate-length entry max)))
                           (when (<= max 0)
                             (set! newline true)

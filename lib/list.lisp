@@ -22,7 +22,7 @@
 
 (import base (defun defmacro when unless let* set-idx!  get-idx for gensym -or
                slice /= % else print error tostring  -and unpack if n + - >= > =
-               ! with apply and progn .. * while <= < or values-list first list
+               not with apply and progn .. * while <= < or values-list first list
                second))
 (import base)
 (import lua/table)
@@ -143,7 +143,7 @@
    ```"
   (let* [(ns (let* [(out '())]
                     (for i 1 (n xss) 1
-                      (if (! (list? (nth xss i)))
+                      (if (not (list? (nth xss i)))
                         (error (.. "not a list: " (pretty (nth xss i))
                                    " (it's a " (type (nth xss i)) ")"))
                         true)
@@ -169,7 +169,7 @@
    ```"
   (let* [(lengths (let* [(out '())]
                     (for i 1 (n xss) 1
-                      (if (! (list? (nth xss i)))
+                      (if (not (list? (nth xss i)))
                         (error (.. "not a list: " (pretty (nth xss i))
                                    " (it's a " (type (nth xss i)) ")"))
                         true)
@@ -264,7 +264,7 @@
    > (none nil? '(\"foo\" \"bar\" \"baz\"))
    out = true
    ```"
-  (! (any p xs)))
+  (not (any p xs)))
 
 (defun \\ (xs ys)
   "The difference between XS and YS (non-associative.)
@@ -275,7 +275,7 @@
    out = (2)
    ```"
   (filter (lambda (x)
-            (! (elem? x ys)))
+            (not (elem? x ys)))
           xs))
 
 (defun nub (xs)
@@ -351,7 +351,7 @@
    out = (1 2)
    ```"
   (assert-type! xs list)
-  (filter (lambda (x) (and (! (nil? x)) (! (empty? x)))) xs))
+  (filter (lambda (x) (and (not (nil? x)) (not (empty? x)))) xs))
 
 (defun traverse (xs f)
   :deprecated "Use map instead."
@@ -696,7 +696,7 @@
          (p (lambda (x) (neq? x y)))
          (idx 1)
          (b (take-while p xs idx))]
-    (while (! (empty? b))
+    (while (not (empty? b))
       (push-cdr! l b)
       (set! idx (+ idx (n b) 1))
       (set! b (take-while p xs idx)))

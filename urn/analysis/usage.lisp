@@ -171,7 +171,7 @@
                            (for-each zipped (zip-args (cadar node) 1 node 2)
                              (let [(args (car zipped))
                                    (vals (cadr zipped))]
-                               (if (and (= (n args) 1) (<= (n vals) 1) (! (.> (car args) :var :is-variadic)))
+                               (if (and (= (n args) 1) (<= (n vals) 1) (not (.> (car args) :var :is-variadic)))
                                  ;; If we've just got one argument and one value then lazily visit these
                                  ;; values. Technically this lazy visiting could happen for all arguments,
                                  ;; but this system is easier.
@@ -200,7 +200,7 @@
   "A predicate for [[populate-definitions]] which will defer visiting a
    value VAL if it's owning NODE is a definition or the value a lambda."
   (and (= (.> node :def-var) nil)
-       (! (and (list? val) (builtin? (car val) :lambda)))))
+       (not (and (list? val) (builtin? (car val) :lambda)))))
 
 (defun visit-eager-exported? (val _ node)
   "A predicate for [populate-definitions]] which will always visit
@@ -208,8 +208,8 @@
    be referenced or not."
   (with (def (.> node :def-var))
     (or (and def (or (= (.> def :tag) "macro") (.> def :scope :exported (.> def :name))))
-        (! (list? val))
-        (! (builtin? (car val) :lambda)))))
+        (not (list? val))
+        (not (builtin? (car val) :lambda)))))
 
 (defpass tag-usage (state nodes lookup (visit? visit-lazy-definition?))
   "Gathers usage and definition data for all expressions in NODES, storing it in LOOKUP."

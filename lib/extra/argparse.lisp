@@ -254,7 +254,7 @@
                          (with (elem (nth args idx))
                            (cond
                              [(= elem nil) (usage! (.. "Expected " (.> arg :var) " after --" key ", got nothing"))]
-                             [(and (! (.> arg :all)) (string/find elem "^%-")) (usage! (.. "Expected " (.> arg :var) " after --" key ", got " (nth args idx)))]
+                             [(and (not (.> arg :all)) (string/find elem "^%-")) (usage! (.. "Expected " (.> arg :var) " after --" key ", got " (nth args idx)))]
                              [else (action arg elem)]))
                          ;; Try to consume as many additonal tokens as possible
                          (with (running true)
@@ -263,7 +263,7 @@
                              (with (elem (nth args idx))
                                (cond
                                  [(= elem nil) (set! running false)]
-                                 [(and (! (.> arg :all)) (string/find elem "^%-")) (set! running false)]
+                                 [(and (not (.> arg :all)) (string/find elem "^%-")) (set! running false)]
                                  [else (action arg elem)]))))]
                         ["*"
                          ;; Try to consume as many as possible
@@ -273,12 +273,12 @@
                              (with (elem (nth args idx))
                                (cond
                                  [(= elem nil) (set! running false)]
-                                 [(and (! (.> arg :all)) (string/find elem "^%-")) (set! running false)]
+                                 [(and (not (.> arg :all)) (string/find elem "^%-")) (set! running false)]
                                  [else (action arg elem)]))))]
                         ["?"
                          (inc! idx)
                          (with (elem (nth args idx))
-                           (if (or (= elem nil) (and (! (.> arg :all)) (string/find elem "^%-")))
+                           (if (or (= elem nil) (and (not (.> arg :all)) (string/find elem "^%-")))
                              ((.> arg :action) arg result (.> arg :value))
                              (progn
                                (inc! idx)
@@ -292,7 +292,7 @@
                            (with (elem (nth args idx))
                              (cond
                                [(= elem nil) (usage! (.. "Expected " cnt " args for " key ", got " (pred i)))]
-                               [(and (! (.> arg :all)) (string/find elem "^%-")) (usage! (.. "Expected " cnt " for " key ", got " (pred i)))]
+                               [(and (not (.> arg :all)) (string/find elem "^%-")) (usage! (.. "Expected " cnt " for " key ", got " (pred i)))]
                                [else (action arg elem)])))
                          (inc! idx)])))]
     (while (<= idx len)
@@ -302,7 +302,7 @@
            (cond
              [(= arg nil)
               (usage! (.. "Unknown argument " key  " in " (nth args idx)))]
-             [(and (! (.> arg :many)) (/= nil (.> result (.> arg :name))))
+             [(and (not (.> arg :many)) (/= nil (.> result (.> arg :name))))
               ;; If we've already got a value and this doesn't accept many then fail.
               (usage! (.. "Too may values for " key " in " (nth args idx)))]
              [else
@@ -319,7 +319,7 @@
            (cond
              [(= arg nil)
               (usage! (.. "Unknown argument " key  " in " (nth args idx)))]
-             [(and (! (.> arg :many)) (/= nil (.> result (.> arg :name))))
+             [(and (not (.> arg :many)) (/= nil (.> result (.> arg :name))))
               ;; If we've already got a value and this doesn't accept many then fail.
               (usage! (.. "Too may values for " key " in " (nth args idx)))]
 
@@ -334,7 +334,7 @@
                (cond
                  [(= arg nil)
                   (usage! (.. "Unknown flag " key " in " (nth args idx)))]
-                 [(and (! (.> arg :many)) (/= nil (.> result (.> arg :name))))
+                 [(and (not (.> arg :many)) (/= nil (.> result (.> arg :name))))
                   ;; If we've already got a value and this doesn't accept many then fail.
                   (usage! (.. "Too many occurances of " key " in " (nth args idx)))]
                  [else

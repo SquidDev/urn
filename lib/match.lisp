@@ -159,7 +159,7 @@
 (import lua/basic (pcall))
 (import lua/math (max))
 (import base (defun defmacro if get-idx and gensym error for set-idx!
-              quasiquote list or slice concat apply /= n = ! - + / * >= <= % ..
+              quasiquote list or slice concat apply /= n = not - + / * >= <= % ..
               else))
 (import type ())
 (import list (car caddr cadr cdr cddr append for-each map filter
@@ -213,7 +213,7 @@
 
 (defun assert-linearity! (pat seen) :hidden
   (cond
-    [(! seen) (assert-linearity! pat {})]
+    [(not seen) (assert-linearity! pat {})]
     [(list? pat)
      (cond
        [(eql? (cadr pat) '@)
@@ -238,7 +238,7 @@
         (let* [(seen '())]
           (for i 1 (n pat) 1
             (assert-linearity! (nth pat i) seen)))])]
-    [(or (and (! (meta? pat)) (symbol? pat))
+    [(or (and (not (meta? pat)) (symbol? pat))
          (and (symbol? pat) (or (eq? pat '_)
                                 (eq? pat 'else)))
          (number? pat)
@@ -312,7 +312,7 @@
                   ,@out)))])]
     [(or (eq? 'else pattern) (eq? '_ pattern) (meta? pattern))
      `true]
-    [(and (! (meta? pattern)) (symbol? pattern))
+    [(and (not (meta? pattern)) (symbol? pattern))
      (cond
        [(eq? pattern 'true) `(eq? ,symb true)]
        [(eq? pattern 'false) `(eq? ,symb false)]
@@ -366,7 +366,7 @@
             out)])]
       [(meta? pattern)
        `((,{ :tag "symbol" :contents (sub (get-idx pattern "contents") 2) } ,symb))]
-      [(or (number? pattern) (boolean? pattern) (string? pattern) (key? pattern) (eq? pattern '_) (and (! (meta? pattern)) (symbol? pattern)))
+      [(or (number? pattern) (boolean? pattern) (string? pattern) (key? pattern) (eq? pattern '_) (and (not (meta? pattern)) (symbol? pattern)))
        '()]
       [else (error (.. "unsupported pattern " (pretty pattern)))])))
 

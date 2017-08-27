@@ -98,7 +98,7 @@
                                         (get (.> scp :parent))))]
                           (get (active-scope))))
       :scope-vars     (lambda (scp)
-                        (if (! scp)
+                        (if (not scp)
                           (.> (active-scope) :variables)
                           (.> scp :variables)))
       :var-lookup     (lambda (symb scope)

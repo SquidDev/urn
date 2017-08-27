@@ -37,7 +37,7 @@
   (when text (append! writer text))
 
   ;; Don't write empty lines
-  (when (or force (! (.> writer :tabs-pending)))
+  (when (or force (not (.> writer :tabs-pending)))
     (.<! writer :tabs-pending true)
     (^~ writer (on! :line) succ)
     (push-cdr! (.> writer :out) "\n")))
