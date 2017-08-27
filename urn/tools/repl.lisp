@@ -5,7 +5,6 @@
 (import lua/debug debug)
 (import lua/io io)
 (import lua/os os)
-(import lua/table table)
 
 (import urn/backend/lua lua)
 (import urn/backend/writer writer)
@@ -259,7 +258,7 @@
                  (.<! visited name true)
                  (push-cdr! vars (string/sub name (succ (n contents))))))
              (recur (.> scope :parent)))
-           (table/sort vars)
+           (sort! vars)
            vars)
          '()))]
     ;; EOF errors within the lexer only occur in strings, thus we do not need to complete them.
@@ -396,7 +395,7 @@
                 (print! (coloured 92 "Exported symbols"))
                 (with (vars '())
                   (for-pairs (name) (.> mod :scope :exported) (push-cdr! vars name))
-                  (table/sort vars)
+                  (sort! vars)
                   (print! (concat vars "  ")))]))
            (logger/put-error! logger ":module <variable>")))]
 
@@ -456,7 +455,7 @@
                (.<! vars-set name true)))
            (set! current (.> current :parent)))
 
-         (table/sort vars)
+         (sort! vars)
 
          (print! (concat vars "  ")))]
 

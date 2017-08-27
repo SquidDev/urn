@@ -4,8 +4,6 @@
 (import urn/resolve/scope scope)
 (import urn/resolve/builtins (builtins))
 
-(import lua/table table)
-
 (defun format-range (range)
   "Format a range."
   :hidden
@@ -14,8 +12,7 @@
 (defun sort-vars! (list)
   "Sort a list of variables"
   :hidden
-  (table/sort list (lambda (a b)
-                        (< (car a) (car b)))))
+  (sort! list (lambda (a b) (< (car a) (car b)))))
 
 (defun format-definition (var)
   "Format a variable VAR, including it's kind and the position it was defined at."

@@ -3,7 +3,6 @@
 (import lua/basic b)
 (import lua/debug debug)
 (import lua/os os)
-(import lua/table table)
 
 (import urn/analysis/nodes (builtins builtin?))
 (import urn/analysis/visitor visitor)
@@ -70,7 +69,7 @@
     (debug/sethook)
 
     (with (out (values stats))
-      (table/sort out (lambda (a b) (> (.> a :inner-time) (.> b :inner-time))))
+      (sort! out (lambda (a b) (> (.> a :inner-time) (.> b :inner-time))))
 
       (print! (string/format "| %20s | %-60s | %8s | %8s | %7s |"
                 "Method"
@@ -177,7 +176,7 @@
       (when (table? child)
         (push-cdr! children child)))
 
-    (table/sort children (lambda (a b) (> (.> a :n) (.> b :n))))
+    (sort! children (lambda (a b) (> (.> a :n) (.> b :n))))
 
     (.<! element :children children)
     (for-each child children (finish-stack child))))
@@ -311,7 +310,7 @@
       (exit! 1))
 
     (with (names (keys output))
-      (table/sort names)
+      (sort! names)
 
       (for-each name names
         (with (data (.> output name))
@@ -510,7 +509,7 @@
        (.<! _G :arg (.> args :script-args))
        (.<! _G :arg 0 (car (.> args :input)))
        (with (exec (lambda ()
-                     (case (list (xpcall (cut apply fun (.> args :script-args)) debug/traceback))
+                     (case (list (xpcall (cut apply fun (.> args :script-args)) traceback/traceback))
                        [(true . _)]
                        [(false ?msg)
                         (logger/put-error! logger "Execution failed.")

@@ -67,7 +67,7 @@
                         (with (func (.> pass :run))
                           (.<! pass :run
                             (lambda (&args)
-                              (case (list (xpcall (lambda () (apply func args)) debug/traceback))
+                              (case (list (xpcall (lambda () (apply func args)) traceback/traceback))
                                 [(false ?msg) (fail! (traceback/remap-traceback (.> compiler :compile-state :mappings) msg))]
                                 [(true . ?rest) (unpack rest 1 (n rest))]))))
 

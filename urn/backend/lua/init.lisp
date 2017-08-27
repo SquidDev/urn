@@ -8,8 +8,6 @@
 
 (import extra/assert (assert!))
 (import lua/basic (load))
-(import lua/debug debug)
-(import lua/table table)
 
 (defun create-state (meta) {
                              ;; [[run-pass]] options
@@ -98,7 +96,7 @@
                  (let* [(var (.> x :var))
                         (count (.> counts var))]
                    (when count (.<! counts var (succ count)))))))
-           (table/sort vars (lambda (x y) (> (.> counts x) (.> counts y))))
+           (sort! vars (lambda (x y) (> (.> counts x) (.> counts y))))
 
            (w/append! out "local ")
            (for i 1 100 1
@@ -176,7 +174,7 @@
                  (push-cdr! buffer (string/format format i (nth lines i))))
                (fail! (.. msg ":\n" (concat buffer "\n"))))]
             [(?fun)
-             (case (list (xpcall fun debug/traceback))
+             (case (list (xpcall fun traceback/traceback))
                [(false ?msg)
                 (fail! (traceback/remap-traceback (.> back-state :mappings) msg))]
                [(true ?tbl)

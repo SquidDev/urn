@@ -7,8 +7,6 @@
 (import urn/range (get-source))
 (import urn/resolve/scope scope)
 
-(import lua/table table)
-
 (import urn/analysis/warning/order warning)
 
 (defpass check-arity (state nodes lookup)
@@ -110,14 +108,15 @@
                     (and (/= (.> var :tag) "macro") (not (.> var :scope :exported (.> var :name)))))
             (push-cdr! unused (list var def))))))
 
-    (table/sort unused (lambda (node1 node2)
-                         (let [(source1 (get-source (cadr node1)))
-                               (source2 (get-source (cadr node2)))]
-                           (if (= (.> source1 :name) (.> source2 :name))
-                             (if (= (.> source1 :start :line) (.> source2 :start :line))
-                               (< (.> source1 :start :column) (.> source2 :start :column))
-                               (< (.> source1 :start :line) (.> source2 :start :line)))
-                             (< (.> source1 :name) (.> source2 :name)) ))))
+    (sort! unused (lambda (node1 node2)
+                    (let [(source1 (get-source (cadr node1)))
+                          (source2 (get-source (cadr node2)))]
+                      (if (= (.> source1 :name) (.> source2 :name))
+                        (if (= (.> source1 :start :line) (.> source2 :start :line))
+                          (< (.> source1 :start :column) (.> source2 :start :column))
+                          (< (.> source1 :start :line) (.> source2 :start :line)))
+                        (< (.> source1 :name) (.> source2 :name)) ))))
+
     (for-each pair unused
       (logger/put-node-warning! (.> state :logger)
         (string/format "%s is not used." (string/quoted (.> (car pair) :name)))

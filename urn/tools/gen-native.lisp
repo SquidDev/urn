@@ -1,7 +1,6 @@
 (import extra/argparse arg)
 (import lua/io io)
 (import lua/math math)
-(import lua/table table)
 (import string (quoted))
 
 (import urn/logger logger)
@@ -35,7 +34,7 @@
           (set! max-quot (math/max max-quot (n (quoted (dot-quote prefix name)))))
           (set! max-pref (math/max max-pref (n (dot-quote escaped name)))))))
 
-    (table/sort natives)
+    (sort! natives)
 
     (let* [(handle (io/open (.. (.> lib :path) ".meta.lua") "w"))
            (format (..

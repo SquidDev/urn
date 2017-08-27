@@ -1,3 +1,10 @@
+(import lua/debug debug)
+
+(defun traceback (msg)
+  "An alternative for [[debug/traceback]] which correctly remaps the error."
+  (unless (string? msg) (set! msg (pretty msg)))
+  (debug/traceback msg 2))
+
 (defun unmangle-ident (ident)
   "Attempt to unmangle IDENT, converting it from the escaped form to the unescaped form."
   (with (esc (string/match ident "^(.-)%d+$"))

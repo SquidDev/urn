@@ -1,7 +1,6 @@
 (import lua/coroutine co)
 (import lua/debug debug)
 (import extra/term term)
-(import lua/table table)
 
 (import urn/backend/lua backend)
 (import urn/logger logger)
@@ -309,8 +308,8 @@
 
                    (set! scope (.> scope :parent)))
 
-                 (table/sort vars)
-                 (table/sort var-dis (lambda (a b) (< (.> distances a) (.> distances b))))
+                 (sort! vars)
+                 (sort! var-dis (lambda (a b) (< (.> distances a) (.> distances b))))
 
                  (with (elems (-> var-dis
                                 (filter (lambda (x) (<= (.> distances x) 0.5)) <>)

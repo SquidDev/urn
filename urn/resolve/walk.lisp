@@ -7,14 +7,13 @@
 
 (import lua/basic (type#))
 (import lua/coroutine co)
-(import lua/debug debug)
 
 (import urn/logger logger)
 (import urn/range range)
 (import urn/resolve/builtins (builtins))
 (import urn/resolve/scope scope)
 (import urn/resolve/state state)
-(import urn/traceback (remap-traceback))
+(import urn/traceback traceback)
 
 (defun error-positions! (log node message)
   "Fail resolution at NODE with the given MESSAGE."
@@ -285,9 +284,9 @@
                           (.<! state :compiler :active-scope scope)
                           (.<! state :compiler :active-node  built)
 
-                          (case (list (xpcall func debug/traceback))
+                          (case (list (xpcall func traceback/traceback))
                             [(false ?msg)
-                             (error-positions! (.> state :logger) node (remap-traceback (.> state :mappings) msg))]
+                             (error-positions! (.> state :logger) node (traceback/remap-traceback (.> state :mappings) msg))]
                             [(true . ?replacement)
                              (cond
                                [(= i (n node))
@@ -334,9 +333,9 @@
                       (.<! state :compiler :active-scope scope)
                       (.<! state :compiler :active-node  built)
 
-                      (case (list (xpcall func debug/traceback))
+                      (case (list (xpcall func traceback/traceback))
                         [(false ?msg)
-                         (error-positions! (.> state :logger) node (remap-traceback (.> state :mappings) msg))]
+                         (error-positions! (.> state :logger) node (traceback/remap-traceback (.> state :mappings) msg))]
                         [(true . ?replacement)
                          (with (result (car replacement))
                            (unless (list? result)
@@ -477,10 +476,10 @@
                  (.<! state :compiler :active-node  node)
 
                  ;; Execute the macro
-                 (case (list (xpcall (lambda () (builder (unpack node 2 (n node)))) debug/traceback))
+                 (case (list (xpcall (lambda () (builder (unpack node 2 (n node)))) traceback/traceback))
                    ;; The macro failed so remap the traceback and error
                    [(false ?msg)
-                    (error-positions! (.> state :logger) first (remap-traceback (.> state :mappings) msg))]
+                    (error-positions! (.> state :logger) first (traceback/remap-traceback (.> state :mappings) msg))]
 
                    ;; The macro worked, we'll gather the output and continue.
                    [(true . ?replacement)
