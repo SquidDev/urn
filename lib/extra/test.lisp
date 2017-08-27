@@ -13,7 +13,7 @@
 (define start-time    :hidden (gensym))
 
 (defmacro marker (colour)
-  "Add a dot with the given COLOR to mark a single test's result"
+  "Add a dot with the given COLOUR to mark a single test's result"
   :hidden
   `(when ,quiet
      (write (coloured ,colour "\226\128\162"))))
