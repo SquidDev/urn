@@ -302,7 +302,7 @@
       ["operator" 0])))
 
 (define token-mapping :hidden
-  "Mapping of token names to their corresponding definition in [[color-for]]"
+  "Mapping of token names to their corresponding definition in [[colour-for]]"
   { :string      :string
     :interpolate :string
     :number      :number
