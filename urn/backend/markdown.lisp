@@ -44,7 +44,7 @@
 
 (defun write-docstring (out str scope)
   (for-each tok (doc/parse-docstring str)
-    (with (ty (type tok))
+    (with (ty (.> tok :kind))
       (cond
         [(= ty "text") (writer/append! out (.> tok :contents))]
         [(= ty "boldic") (writer/append! out (.> tok :contents))]
@@ -102,12 +102,13 @@
         (writer/line! out "" true)
 
         (when (.> var :deprecated)
-          (writer/line! out
-            (if (string? (.> var :deprecated))
-              (string/format "> **Warning:** %s is deprecated: %s" name (.> var :deprecated))
-              (string/format "> **Warning:** %s is deprecated." name)))
+          (cond
+            [(string? (.> var :deprecated))
+             (writer/append! out (string/format ">**Warning:** %s is deprecated: " name))
+             (write-docstring out (.> var :deprecated) (.> var :scope))]
+            [else
+             (writer/append! out (string/format ">**Warning:** %s is deprecated." name))])
           (writer/line! out "" true))
-
 
         (write-docstring out (.> var :doc) (.> var :scope))
         (writer/line! out "" true)))

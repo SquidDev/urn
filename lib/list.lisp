@@ -353,7 +353,7 @@
   (filter (lambda (x) (and (not (nil? x)) (not (empty? x)))) xs))
 
 (defun traverse (xs f)
-  :deprecated "Use map instead."
+  :deprecated "Use [[map]] instead."
   "An alias for [[map]] with the arguments XS and F flipped.
 
    ### Example:

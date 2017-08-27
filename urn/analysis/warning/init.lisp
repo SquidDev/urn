@@ -76,17 +76,20 @@
 (defpass documentation (state nodes)
   "Ensure doc comments are valid."
   :cat '("warn")
-  (for-each node nodes
-    (when-let* [(var (.> node :def-var))
-                (doc (.> var :doc))]
-      (for-each tok (doc/parse-docstring doc)
-        (when (= (type tok) "link")
-          (with (var (scope/get (.> var :scope) (.> tok :contents)))
-            (unless var
-              (logger/put-node-warning! (.> state :logger)
-                (string/format "%s is not defined." (string/quoted (.> tok :contents)))
-                node nil
-                (get-source node) "Referenced in docstring."))))))))
+  (with (validate
+          (lambda (node var doc kind)
+            (for-each tok (doc/parse-docstring doc)
+              (when (= (.> tok :kind) "link")
+                (with (var (scope/get (.> var :scope) (.> tok :contents)))
+                  (unless var
+                    (logger/put-node-warning! (.> state :logger)
+                      (string/format "%s is not defined." (string/quoted (.> tok :contents)))
+                      node nil
+                      (get-source node) (string/format "Referenced in %s." kind))))))))
+    (for-each node nodes
+      (when-with (var (.> node :def-var))
+        (when (string? (.> var :doc))        (validate node var (.> var :doc)         "docstring"))
+        (when (string? (.> var :deprecated)) (validate node var (.> var :deprecated) "deprecation message"))))))
 
 (defpass unused-vars (state _ lookup)
   "Ensure all non-exported NODES are used."

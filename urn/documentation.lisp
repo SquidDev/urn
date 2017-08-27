@@ -3,7 +3,7 @@
 (define tokens
   "The primary tokens for the documentation string"
   :hidden
-  '(("arg"    "(%f[%a]%u+%f[%A])")
+  '(("arg"    "(%f[%a][%u-]+%f[^%a%d%-])")
     ("mono"   "```[^\n]*\n(.-)\n```")
     ("mono"   "`([^`]*)`")
     ("bolic"  "(%*%*%*%w.-%w%*%*%*)")
@@ -49,18 +49,18 @@
           (progn
             ;; Find any text between tokens
             (when (< pos spos)
-              (push-cdr! out { :tag "text"
+              (push-cdr! out { :kind     "text"
                                :contents (string/sub str pos (pred spos)) }))
 
             ;; And push this token
-            (push-cdr! out { :tag name
+            (push-cdr! out { :kind     name
                              :whole    (string/sub str spos epos)
                              :contents (string/match (string/sub str spos epos) ptrn) })
             (set! pos (succ epos)))
 
           (progn
             ;; Nothing matched to push the remaining text and exit
-            (push-cdr! out { :tag "text"
+            (push-cdr! out { :kind     "text"
                              :contents (string/sub str pos len) })
             (set! pos (succ len))))))
     out))

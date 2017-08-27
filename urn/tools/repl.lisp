@@ -295,7 +295,7 @@
   :hidden
   (with (docs (docs/parse-docstring str))
     (for-each tok docs
-      (with (tag (.> tok :tag))
+      (with (tag (.> tok :kind))
         (cond
           [(= tag "bolic")
            (io/write (colored (colour-for :bold) (colored (colour-for :italic) (.> tok :contents))))]
