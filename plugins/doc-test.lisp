@@ -73,7 +73,7 @@
                                                         libs)))
         (with (docs (-> (or (_/var-docstring v) "")
                       _/parse-docstring
-                      (filter (lambda (x) (and (= (type x) "mono")
+                      (filter (lambda (x) (and (= (.> x :kind) "mono")
                                                (string/starts-with? (.> x :whole) "```")
                                                (not (string/find (.> x :whole) "^```[^\n]*:no%-test[^\n]*\n")))) <>)
                       (map (cut .> <> :contents) <>)))
