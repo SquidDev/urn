@@ -1,7 +1,7 @@
 (import base (lambda defun defmacro progn for while if quasiquote const-val and
               or xpcall pcall values-list gensym tostring tonumber
               require => <=> unpack list when unless arg apply for-pairs first
-              second third fourth fifth sixth seventh ninth tenth + - * / % ^ !
+              second third fourth fifth sixth seventh ninth tenth + - * / % ^ ! not
               .. n else) :export)
 (import base)
 (import string (format concat $) :export)

@@ -23,7 +23,7 @@
 (defun negate (a)
   "Returns A with the sign inverted."
   (with (val (copy a))
-    (.<! val :sign (! (.> a :sign)))
+    (.<! val :sign (not (.> a :sign)))
     val))
 
 (defun absolute (a)
@@ -38,8 +38,8 @@
     [(and (= (type a) num-tag) (/= (type b) num-tag)) (add a (new b))]
     [(and (/= (type a) num-tag) (= (type b) num-tag)) (add (new a) b)]
     [(and (.> a :sign) (.> b :sign)) (negate (add (negate a) (negate b)))]
-    [(and (! (.> a :sign)) (.> b :sign)) (subtract a (negate b))]
-    [(and (.> a :sign) (! (.> b :sign))) (subtract b (negate a))]
+    [(and (not (.> a :sign)) (.> b :sign)) (subtract a (negate b))]
+    [(and (.> a :sign) (not (.> b :sign))) (subtract b (negate a))]
     [else (let* [(val (new))
                  (a-parts (.> a :parts))
                  (b-parts (.> b :parts))
@@ -61,8 +61,8 @@
     [(and (= (type a) num-tag) (/= (type b) num-tag)) (subtract a (new b))]
     [(and (/= (type a) num-tag) (= (type b) num-tag)) (subtract (new a) b)]
     [(and (.> a :sign) (.> b :sign)) (subtract (negate b) (negate a))]
-    [(and (! (.> a :sign)) (.> b :sign)) (add a (negate b))]
-    [(and (.> a :sign) (! (.> b :sign))) (negate (add (negate a) b))]
+    [(and (not (.> a :sign)) (.> b :sign)) (add a (negate b))]
+    [(and (.> a :sign) (not (.> b :sign))) (negate (add (negate a) b))]
     [(less-than? a b) (negate (subtract b a))]
     [else (let* [(val (new))
                  (a-parts (.> a :parts))
@@ -85,8 +85,8 @@
     [(and (= (type a) num-tag) (/= (type b) num-tag)) (multiply a (new b))]
     [(and (/= (type a) num-tag) (= (type b) num-tag)) (multiply (new a) b)]
     [(and (.> a :sign) (.> b :sign)) (multiply (negate a) (negate b))]
-    [(and (! (.> a :sign)) (.> b :sign)) (negate (multiply a (negate b)))]
-    [(and (.> a :sign) (! (.> b :sign))) (negate (multiply (negate a) b))]
+    [(and (not (.> a :sign)) (.> b :sign)) (negate (multiply a (negate b)))]
+    [(and (.> a :sign) (not (.> b :sign))) (negate (multiply (negate a) b))]
     [(less-than? a b) (multiply b a)]
     [else (let* [(val (new))
                  (a-parts (.> a :parts))
@@ -118,8 +118,8 @@
     [(and (= (type a) num-tag) (/= (type b) num-tag)) (divide a (new b))]
     [(and (/= (type a) num-tag) (= (type b) num-tag)) (divide (new a) b)]
     [(and (.> a :sign) (.> b :sign)) (divide (negate a) (negate b))]
-    [(and (! (.> a :sign)) (.> b :sign)) (negate (divide a (negate b)))]
-    [(and (.> a :sign) (! (.> b :sign))) (negate (divide (negate a) b))]
+    [(and (not (.> a :sign)) (.> b :sign)) (negate (divide a (negate b)))]
+    [(and (.> a :sign) (not (.> b :sign))) (negate (divide (negate a) b))]
     [else (car (div-mod a b))]))
 
 (defun modulo (a b)
@@ -128,8 +128,8 @@
     [(and (= (type a) num-tag) (/= (type b) num-tag)) (modulo a (new b))]
     [(and (/= (type a) num-tag) (= (type b) num-tag)) (modulo (new a) b)]
     [(and (.> a :sign) (.> b :sign)) (negate (modulo (negate a) (negate b)))]
-    [(and (! (.> a :sign)) (.> b :sign)) (negate (modulo a (negate b)))]
-    [(and (.> a :sign) (! (.> b :sign))) (subtract (negate b) (modulo a (negate b)))]
+    [(and (not (.> a :sign)) (.> b :sign)) (negate (modulo a (negate b)))]
+    [(and (.> a :sign) (not (.> b :sign))) (subtract (negate b) (modulo a (negate b)))]
     [else (cadr (div-mod a b))]))
 
 (defun power (a b)
@@ -258,8 +258,8 @@
     [(and (= (type a) num-tag) (/= (type b) num-tag)) (less-than? a (new b))]
     [(and (/= (type a) num-tag) (= (type b) num-tag)) (less-than? (new a) b)]
     [(and (.> a :sign) (.> b :sign)) (less-than? (negate b) (negate a))]
-    [(and (.> a :sign) (! (.> b :sign))) true]
-    [(and (! (.> a :sign)) (.> b :sign)) false]
+    [(and (.> a :sign) (not (.> b :sign))) true]
+    [(and (not (.> a :sign)) (.> b :sign)) false]
     [(/= (n (.> a :parts)) (n (.> b :parts))) (< (n (.> a :parts)) (n (.> b :parts)))]
     [else (let* [(a-parts (.> a :parts))
                  (b-parts (.> b :parts))

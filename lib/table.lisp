@@ -1,5 +1,5 @@
 (import base (defmacro defun let* when if list unless gensym slice progn get-idx
-              set-idx! error = /= % - + n or for for-pairs with ! apply else))
+              set-idx! error = /= % - + n or for for-pairs with not apply else))
 (import lua/string (sub))
 (import lua/basic (getmetatable setmetatable next len#) :export)
 (import type (empty? list? eq? key? assert-type!))
@@ -18,7 +18,7 @@
    out = \"?\"
    ```"
   (cond
-    [(or (! (list? list))
+    [(or (not (list? list))
          (empty? list))
      or-val]
     [(eq? (caar list) key)
@@ -36,7 +36,7 @@
    out = false
    ```"
   (cond
-    [(or (! (list? list))
+    [(or (not (list? list))
          (empty? list))
      false]
     [(eq? (caar list) key)
@@ -94,7 +94,7 @@
       (let [(hd (cond
                   [(key? (car x)) (get-idx (car x) "value")]
                   [else (car x)]))]
-        (if (! (get-idx ret hd))
+        (if (not (get-idx ret hd))
           (set-idx! ret hd (cadr x))
           nil)))
     ret))
@@ -203,7 +203,7 @@
    > (empty-struct? { :a 1 })
    out = false
    ```"
-  (! (next xs)))
+  (not (next xs)))
 
 (defun nkeys (st)
   "Return the number of keys in the structure ST."

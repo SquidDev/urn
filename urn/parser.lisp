@@ -88,7 +88,7 @@
          ;; Appends a token to the list
          (append! (lambda (tag start finish)
                     (append-with! {:tag tag} start finish)))
-         ;; Parses a roman numeral(!)
+         ;; Parses a roman numeral(not)
          (parse-roman (lambda ()
                         (let* [(start offset)
                                (char (string/char-at str offset))]
@@ -365,7 +365,7 @@
             (let ((start (position))
                   (key (= char ":" )))
               (set! char (string/char-at str (succ offset)))
-              (while (! (terminator? char))
+              (while (not (terminator? char))
                 (consume!)
                 (set! char (string/char-at str (succ offset))))
 

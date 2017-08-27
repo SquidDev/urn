@@ -135,7 +135,7 @@
                              (for-each zipped (zip-args (nth head 2) 1 node 2)
                                (let [(args (car zipped))
                                      (vals (cadr zipped))]
-                                 (if (and (= (n args) 1) (= (n vals) 1) (! (.> (car args) :var :is-variadic)))
+                                 (if (and (= (n args) 1) (= (n vals) 1) (not (.> (car args) :var :is-variadic)))
                                    ;; If we've just got one argument and one value then we'll have defined it,
                                    ;; so it can be replaced.
                                    (let* [(old (car vals))

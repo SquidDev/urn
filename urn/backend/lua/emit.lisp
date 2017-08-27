@@ -131,7 +131,7 @@
            ;; Build the argument list, looking for variadic arguments.
            ;; We stop when we find one: after all, we can't emit successive args
            (w/append! out "(function(")
-           (while (and (<= i (n args)) (! variadic))
+           (while (and (<= i (n args)) (not variadic))
              (when (> i 1) (w/append! out ", "))
              (with (var (.> args i :var))
                (if (.> var :is-variadic)
@@ -191,7 +191,7 @@
            (w/append! out "end)")))]
 
       ["cond"
-       (let [(closure (! ret))
+       (let [(closure (not ret))
              (had-final false)
              (ends 1)]
 
@@ -201,7 +201,7 @@
            (set! ret "return "))
 
          (with (i 2)
-           (while (and (! had-final) (<= i (n node)))
+           (while (and (not had-final) (<= i (n node)))
              (let* [(item (nth node i))
                     (case (nth item 1))
                     (is-final (truthy? case))]
@@ -209,10 +209,10 @@
                ;; If we're the last block and there isn't anything here, then don't emit an
                ;; else
                (when (and (> i 2) (or
-                                    (! is-final) (/= ret "") break
+                                    (not is-final) (/= ret "") break
                                     (and
                                       (/= (n item) 1)
-                                      (fast-any (lambda (x) (! (.> const-categories (.> cat-lookup x :category)))) item 2))))
+                                      (fast-any (lambda (x) (not (.> const-categories (.> cat-lookup x :category)))) item 2))))
                  (w/append! out "else"))
 
                ;; We stop iterating after a branch marked "true" and just invoke the code.
@@ -267,7 +267,7 @@
            (w/append! out "end)()")))]
 
       ["unless"
-       (with (closure (! ret))
+       (with (closure (not ret))
 
          ;; If we're being used as an expression then we have to wrap as a closure.
          (when closure
@@ -564,7 +564,7 @@
                        (w/append! out (escape-var var state))
                        (set! offset count))
                      (with (expr (nth node (+ i offset)))
-                       (when (or (! (symbol? expr)) (/= (.> expr :var) var))
+                       (when (or (not (symbol? expr)) (/= (.> expr :var) var))
                          (if done (w/append! out ", ") (set! done true))
                          (w/append! out (escape-var var state))))))))
 
@@ -586,7 +586,7 @@
                              (set! pack-name (escape-var var state)))
                            (set! offset count))
                          (with (expr (nth node (+ i offset)))
-                           (when (and expr (or (! (symbol? expr)) (/= (.> expr :var) var)))
+                           (when (and expr (or (not (symbol? expr)) (/= (.> expr :var) var)))
                              (if done (w/append! out ", ") (set! done true))
                              (compile-expression (nth node (+ i offset)) out state))))))
 
@@ -909,7 +909,7 @@
       (with (node (nth nodes len))
         (compile-expression node out state ret break)
         (w/line! out)
-        (when (and break (! (.> break-categories (.> state :cat-lookup node :category))))
+        (when (and break (not (.> break-categories (.> state :cat-lookup node :category))))
           (w/line! out "break")))
       (progn
         (when (and ret (/= ret ""))

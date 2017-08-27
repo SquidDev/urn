@@ -155,16 +155,19 @@
                      (let* ,(cdr vars) ,@body))
                     ,(get-idx (car vars) 2))])))
 
-(defun ! (expr)
+(defun not (expr)
   "Compute the logical negation of the expression EXPR.
 
    ### Example:
    ```cl
    > (with (a 1)
-   .   (! (= a 1)))
+   .   (not (= a 1)))
    out = false
    ```"
   (if expr false true))
+
+(defun ! (expr) :deprecated "Use [[not]] instead."
+  (not expr))
 
 (define gensym
   "Create a unique symbol, suitable for using in macros"
@@ -269,14 +272,14 @@
     `(with (,symb ,a) (if ,symb ,symb ,(if (= (n rest) 0) b `(or ,b ,@rest))))))
 
 (defmacro => (p q)
-  "Logical implication. `(=> a b)` is equivalent to `(or (! a) b)`.
+  "Logical implication. `(=> a b)` is equivalent to `(or (not a) b)`.
 
    ### Example:
    ```cl
    > (=> (> 3 1) (< 1 3))
    out = true
    ```"
-  `(or (! ,p) ,q))
+  `(or (not ,p) ,q))
 
 (defmacro <=> (p q)
   "Bidirectional implication. `(<=> a b)` means that `(=> a b)` and
@@ -291,8 +294,8 @@
    > (<=> (> 1 3) (< 1 3))
    out = false
    ```"
-  `(and (or (! ,p) ,q)
-        (or (! ,q) ,p)))
+  `(and (or (not ,p) ,q)
+        (or (not ,q) ,p)))
 
 (defun -or (a b)
   "Return the logical disjunction of values A and B.

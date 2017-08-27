@@ -17,8 +17,8 @@
             (eq? '(1 2 5) ~(1 2 ,(+ 2 3)))))
 
   (it "can negate expressions"
-    (affirm (eq? (! false) true)
-            (eq? (! true) false)))
+    (affirm (eq? (not false) true)
+            (eq? (not true) false)))
 
   (it "can get the length of lists"
     (affirm (eq? (n '(1 2 3 4)) 4)

@@ -104,7 +104,7 @@
           (when (or ;; Non top-level definitions
                     (= (.> def :def-var) nil)
                     ;; or non-macro, exported symbols
-                    (and (/= (.> var :tag) "macro") (! (.> var :scope :exported (.> var :name)))))
+                    (and (/= (.> var :tag) "macro") (not (.> var :scope :exported (.> var :name)))))
             (push-cdr! unused (list var def))))))
 
     (table/sort unused (lambda (node1 node2)

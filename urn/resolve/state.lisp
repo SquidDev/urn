@@ -48,7 +48,7 @@
   ;; If we're using a top level definition then add a dependency on it.
   (if (.> var :scope :is-root)
     (with (other (.> state :compiler :states var))
-      (when (and other (! (.> state :required-set other)))
+      (when (and other (not (.> state :required-set other)))
         (.<! state :required-set other user)
         (push-cdr! (.> state :required) other))
       other)

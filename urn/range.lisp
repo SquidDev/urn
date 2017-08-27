@@ -33,7 +33,7 @@
 
    This will walk up NODE's tree until a non-macro node is found"
   (with (result nil)
-    (while (and node (! result))
+    (while (and node (not result))
       (set! result (.> node :range))
       (set! node (.> node :parent)))
     result))

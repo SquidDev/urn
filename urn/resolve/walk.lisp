@@ -26,7 +26,7 @@
 (defun expect-type! (log node parent type name)
   "Expect NODE to have the given TYPE."
   :hidden
-  (when (or (! node) (/= (.> node :tag) type))
+  (when (or (not node) (/= (.> node :tag) type))
     (error-positions! log (or node parent)
       (.. "Expected " (or name type) ", got " (if node (.> node :tag) "nothing")))))
 

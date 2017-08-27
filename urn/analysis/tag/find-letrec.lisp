@@ -64,7 +64,7 @@
                (with (state (.> lookup func))
                  (cond
                    ;; If we have no state, then we can skip it.
-                   [(! state)]
+                   [(not state)]
                    ;; If this is the active one, then increment the recursive count.
                    [(= active state)
                     (^~ state (on! :recur) succ)]

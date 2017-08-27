@@ -59,7 +59,7 @@
            (if (eq? (cadr err) prompt-tag)
              (handler (reify-continuation k) (cddr err))
              (apply abort-to-prompt (cadr err) (cddr err)))]
-          [(! ok)
+          [(not ok)
            (error! err)]
           [ok
             (recur k err)])))))
@@ -112,7 +112,7 @@
   (let* [(last-res nil)]
     (while (/= (c/status k) :dead)
       (let* [((ok err) (apply c/resume k args))]
-        (if (! ok)
+        (if (not ok)
           (error! err)
           (progn
             (set! args '())

@@ -41,7 +41,7 @@
          (if (= (n x) (n y))
            (with (ok true)
              (for i 1 (n x) 1
-               (when (and ok (! (peq? (nth x i) (nth y i) out)))
+               (when (and ok (not (peq? (nth x i) (nth y i) out)))
                  (set! ok false)))
              ok)
            false)]))))

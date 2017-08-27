@@ -86,11 +86,11 @@
                                  (last (nth second 2))]
                             (and
                               (= (n first) 2) (= (n second) 2)
-                              (! (.> lookup (nth first 2) :stmt)) (builtin? (car second) :true)
+                              (not (.> lookup (nth first 2) :stmt)) (builtin? (car second) :true)
                               (symbol? last)
                               (or
                                 (and (symbol? branch) (= (.> branch :var) (.> last :var)))
-                                (and test (! (.> lookup branch :stmt)) (= (.> last :var) (.> builtins :false)))))))
+                                (and test (not (.> lookup branch :stmt)) (= (.> last :var) (.> builtins :false)))))))
 
                         (add-paren lookup (nth (nth node 2) 1) 2) ;; (case [A _] [true A])
                         (add-paren lookup (nth (nth node 2) 2) 2) ;; (case [_ B] [true _])
@@ -109,10 +109,10 @@
                                 (and (= (n branch) 2) (symbol? tail)
                                   (or
                                     (and (symbol? head) (= (.> head :var) (.> tail :var)))
-                                    (and test (! (.> lookup head :stmt)) (= (.> tail :var) (.> builtins :true))))))))
+                                    (and test (not (.> lookup head :stmt)) (= (.> tail :var) (.> builtins :true))))))))
                           ;; Apart from the last one, which is `[true <expr>]`.
                           (with (branch (last node))
-                            (and (= (n branch) 2) (builtin? (car branch) :true) (! (.> lookup (nth branch 2) :stmt)))))
+                            (and (= (n branch) 2) (builtin? (car branch) :true) (not (.> lookup (nth branch 2) :stmt)))))
 
                         (with (len (n node))
                           (for i 2 len 1
@@ -301,7 +301,7 @@
                                                   (when working
                                                     (with (sub (nth case i))
                                                       (unless (symbol? sub)
-                                                        (set! working (! (node-contains-var? sub var))))))))))
+                                                        (set! working (not (node-contains-var? sub var))))))))))
                                           working)))]
                         ;; Otherwise we got an expression, so we'll see what we can do.
                         (.<! lookup head (cat "lambda"))
@@ -412,7 +412,7 @@
              ;; And that expression is a condition of the form (cond [EXPR X] [true Y])
              (list? child) (builtin? (car child) :cond) (= (n child) 3)
              (builtin? (car (nth child 3)) :true)
-             (! (.> lookup (car (nth child 2)) :stmt)))))
+             (not (.> lookup (car (nth child 2)) :stmt)))))
 
        (let* [(fst-case (nth (nth lam 3) 2))
               (snd-case (nth (nth lam 3) 3))

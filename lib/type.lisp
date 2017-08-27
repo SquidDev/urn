@@ -1,5 +1,5 @@
 (import base (defun let* type# if car cdr list when with else and or >= = <= /=
-              n get-idx for-pairs set-idx! defmacro for error gensym ! len#
+              n get-idx for-pairs set-idx! defmacro for error gensym not len#
               unless + progn print values-list unpack const-val))
 
 (import lua/string (format sub))
@@ -71,12 +71,12 @@
 (defun falsey? (x)
   "Check whether X is falsey, that is, it is either `false` or does not
    exist."
-  (! x))
+  (not x))
 
 (defun exists? (x)
   "Check if X exists, i.e. it is not the special value `nil`.
    Note that, in Urn, `nil` is not the empty list."
-  (! (= (type# x) "nil")))
+  (not (= (type# x) "nil")))
 
 (defun nil? (x)
   "Check if X does not exist, i.e. it is the special value `nil`.
@@ -99,7 +99,7 @@
 (defun neq? (x y)
   "Compare X and Y for inequality deeply. X and Y are `neq?`
    if `([[eq?]] x y)` is falsey."
-  (! (eq? x y)))
+  (not (eq? x y)))
 
 (defun eql? (x y)
   "A version of [[eq?]] that compares the types of X and Y instead of

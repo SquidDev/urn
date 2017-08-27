@@ -283,7 +283,7 @@
                   (name (self file :read "*l"))]
         (with (data (.> output name))
           (cond
-            [(! data)
+            [(not data)
              (set! data { :max max })
              (.<! output name data)]
             [(> max (.> data :max)) (.<! data :max max)]
@@ -413,7 +413,7 @@
                (misses 0)]
           (visitor/visit-block (.> lib :out) 1
             (lambda (node)
-              (when (or (! (list? node)) ;; Non-list nodes are always interesting
+              (when (or (not (list? node)) ;; Non-list nodes are always interesting
                       (with (head (car node))
                         (case (type head)
                           ["symbol"
@@ -426,7 +426,7 @@
 
                           ["list"
                            ;; Don't emit directly-called lambdas.
-                           (! (builtin? (car head) :lambda))]
+                           (not (builtin? (car head) :lambda))]
                           [else true])))
 
                 (with (source (range/get-source node))
@@ -438,11 +438,11 @@
             (let* [(line (nth lines i))
                    (is-active (.> active i))
                    (count (or (and counts (.> counts i)) 0))]
-              (when (and (! is-active) (> count 0))
+              (when (and (not is-active) (> count 0))
                 (logger/put-warning! logger $"${path}:${i} is not active but has count ${count}"))
 
               (cond
-                [(! is-active)
+                [(not is-active)
                  (if (= line "")
                    (self handle :write "\n")
                    (self handle :write fmt-none " " line "\n"))]
