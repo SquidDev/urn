@@ -315,7 +315,7 @@
                  (with (elems (-> var-dis
                                 (filter (lambda (x) (<= (.> distances x) 0.5)) <>)
                                 (take <> 5)
-                                (map (cut term/colored "1;32" <>) <>)))
+                                (map (cut term/coloured "1;32" <>) <>)))
                    (case (n elems)
                      [0]
                      [1 (set! suggestions (.. "\nDid you mean '" (car elems) "'?"))]

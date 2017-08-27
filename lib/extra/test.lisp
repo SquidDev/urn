@@ -1,4 +1,4 @@
-(import extra/term (colored))
+(import extra/term (coloured))
 (import lua/debug (traceback))
 (import lua/os (clock))
 (import extra/assert (assert!) :export)
@@ -12,11 +12,11 @@
 (define time          :hidden (gensym))
 (define start-time    :hidden (gensym))
 
-(defmacro marker (color)
+(defmacro marker (colour)
   "Add a dot with the given COLOR to mark a single test's result"
   :hidden
   `(when ,quiet
-     (write (colored ,color "\226\128\162"))))
+     (write (coloured ,colour "\226\128\162"))))
 
 (defmacro it (name &body)
   "Create a test NAME which executes all expressions and assertions in
@@ -89,19 +89,19 @@
 
      ;; We don't care about successful tests when quiet
      (unless (or ,quiet (empty? ,tests-passed))
-       (print! (string/format "%s (%d)" (colored 32 "- Passed tests:") (n ,tests-passed)))
+       (print! (string/format "%s (%d)" (coloured 32 "- Passed tests:") (n ,tests-passed)))
        (for-each ,'passed ,tests-passed
-         (print! (.. (colored 32 "+ ") ,'passed))))
+         (print! (.. (coloured 32 "+ ") ,'passed))))
 
      (unless (empty? ,tests-pending)
-       (print! (string/format "%s (%d)" (colored 33 "- Pending tests:") (n ,tests-pending)))
+       (print! (string/format "%s (%d)" (coloured 33 "- Pending tests:") (n ,tests-pending)))
        (for-each ,'pending ,tests-pending
-         (print! (.. (colored 33 "* ") ,'pending))))
+         (print! (.. (coloured 33 "* ") ,'pending))))
 
      (unless (empty? ,tests-failed)
-       (print! (string/format "%s (%d)" (colored 31 "- Failed tests:") (n ,tests-failed)))
+       (print! (string/format "%s (%d)" (coloured 31 "- Failed tests:") (n ,tests-failed)))
        (for-each ,'failed ,tests-failed
-         (print! (.. (colored 31 "* ") (car ,'failed)))
+         (print! (.. (coloured 31 "* ") (car ,'failed)))
          (with (,'lines (string/split (cadr ,'failed) "\n"))
            (for-each ,'line ,'lines (print! (string/format "  %s" ,'line)))))
        (exit! 1))))

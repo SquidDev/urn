@@ -1,5 +1,5 @@
 (import extra/argparse arg)
-(import extra/term (colored))
+(import extra/term (coloured))
 (import lua/basic (load))
 (import lua/coroutine co)
 (import lua/debug debug)
@@ -336,9 +336,9 @@
       (with (tag (.> tok :kind))
         (cond
           [(= tag "bolic")
-           (io/write (colored (colour-for :bold) (colored (colour-for :italic) (.> tok :contents))))]
+           (io/write (coloured (colour-for :bold) (coloured (colour-for :italic) (.> tok :contents))))]
           [true
-           (io/write (colored (colour-for tag) (.> tok :contents)))])))
+           (io/write (coloured (colour-for tag) (.> tok :contents)))])))
     (print!)))
 
 (defun exec-command (compiler scope args)
@@ -371,7 +371,7 @@
                    (with (buffer (list name))
                      (for-each arg sig (push-cdr! buffer (.> arg :contents)))
                      (set! name (.. "(" (concat buffer " ") ")"))))
-                 (print! (colored 96 name))
+                 (print! (coloured 96 name))
 
                  (if (.> var :doc)
                    (print-docs! (.> var :doc))
@@ -386,14 +386,14 @@
                [(= mod nil)
                 (logger/put-error! logger (.. "Cannot find '" name "'"))]
                [true
-                (print! (colored 96 (.> mod :name)))
+                (print! (coloured 96 (.> mod :name)))
                 (print! (.. "Located at " (.> mod :path)))
 
                 (when (.> mod :docs)
                   (print-docs! (.> mod :docs))
                   (print!))
 
-                (print! (colored 92 "Exported symbols"))
+                (print! (coloured 92 "Exported symbols"))
                 (with (vars '())
                   (for-pairs (name) (.> mod :scope :exported) (push-cdr! vars name))
                   (table/sort vars)
@@ -434,12 +434,12 @@
              (logger/put-error! logger "No results")
              (progn
                (when (not (empty? name-results))
-                 (print! (colored 92 "Search by function name:"))
+                 (print! (coloured 92 "Search by function name:"))
                  (if (> (n name-results) 20)
                    (print! (.. (concat (take name-results 20) "  ") "  ..."))
                    (print! (concat name-results "  "))))
                (when (not (empty? docs-results))
-                 (print! (colored 92 "Search by function docs:"))
+                 (print! (coloured 92 "Search by function docs:"))
                  (if (> (n docs-results) 20)
                    (print! (.. (concat (take docs-results 20) "  ") "  ..."))
                    (print! (concat docs-results "  ")))))))
@@ -483,13 +483,13 @@
                        (for-each tok (parser/lex void/void contents "stdin")
                          (with (start (.> tok :range :start  :offset))
                            (when (/= start previous)
-                             (io/write (colored (colour-for "comment") (string/sub contents previous (pred start))))))
+                             (io/write (coloured (colour-for "comment") (string/sub contents previous (pred start))))))
 
                          (unless (= (.> tok :tag) "eof")
                            (with (tag (.> tok :tag))
                              (if (and (= tag "symbol") (.> keywords (.> tok :contents)))
-                               (io/write (colored (colour-for "keyword") (.> tok :contents)))
-                               (io/write (colored (colour-for (.> token-mapping (.> tok :tag))) (.> tok :contents))))))
+                               (io/write (coloured (colour-for "keyword") (.> tok :contents)))
+                               (io/write (coloured (colour-for (.> token-mapping (.> tok :tag))) (.> tok :contents))))))
 
                          (set! previous (succ (.> tok :range :finish :offset)))))
                      (io/write "\n"))
@@ -531,7 +531,7 @@
                      (with (pretty-val (state/get! (.> compiler :states pretty-var)))
                        (set! pretty-fun pretty-val)))
 
-                   (print! (.. "out = " (colored 96 (pretty-fun lvl)))))
+                   (print! (.. "out = " (coloured 96 (pretty-fun lvl)))))
 
                  (.<! global (lua/push-escape-var! (scope/add! scope "out" "defined" lvl)
                                                    compile-state) lvl))
@@ -579,7 +579,7 @@
 
     (while running
       (with (line (read-line!
-                    (colored 92 (if (empty? buffer) "> " ". "))
+                    (coloured 92 (if (empty? buffer) "> " ". "))
                     (get-indent buffer)
                     (lambda (x) (get-complete (.. buffer x) scope))))
         (cond

@@ -23,7 +23,7 @@
    (parse! spec))
  ```"
 
-(import extra/term (colored))
+(import extra/term (coloured))
 
 (defun create (description)
   "Create a new argument parser"
@@ -220,7 +220,7 @@
 
       (for-each cat (.> spec :cats)
         (print!)
-        (print! (colored "4" (.> cat :name)))
+        (print! (coloured "4" (.> cat :name)))
         (when-with (desc (.> cat :desc)) (print! desc))
         (help-args!
           (filter (lambda (x) (= (.> x :cat) (.> cat :id))) (.> spec :pos))

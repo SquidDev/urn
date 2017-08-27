@@ -1,5 +1,5 @@
 (import extra/assert ())
-(import extra/term (colored))
+(import extra/term (coloured))
 (import lua/basic (slice))
 
 (import urn/backend/lua/emit lua)
@@ -40,8 +40,8 @@
 
       (if (= sub-length 0)
         (progn
-          (for-each elem old (push-cdr! out (colored 31 (.. "- " elem))))
-          (for-each elem new (push-cdr! out (colored 32 (.. "+ " elem)))))
+          (for-each elem old (push-cdr! out (coloured 31 (.. "- " elem))))
+          (for-each elem new (push-cdr! out (coloured 32 (.. "+ " elem)))))
         (progn
           (diff-lines
             (slice old 1 sub-start-old)

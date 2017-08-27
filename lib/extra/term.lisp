@@ -1,13 +1,13 @@
 (import lua/os os)
 (import lua/package package)
 
-(defun colored-ansi (col msg)
-  "Color a string MSG colored with COL, using ANSI escape codes"
+(defun coloured-ansi (col msg)
+  "Color a string MSG coloured with COL, using ANSI escape codes"
   :hidden
   (.. "\27[" col "m" msg "\27[0m"))
 
-(define colored?
-  "Constant defining whether the current terminal has color support"
+(define coloured?
+  "Constant defining whether the current terminal has colour support"
   (with (term-ty (string/lower (or (and os/getenv (os/getenv "TERM")) "")))
     (cond
       ;; If the terminal is dumb, then emit plain text.
@@ -21,6 +21,6 @@
       ;; Stick to plain text: better safe than sorry.
       [else false])))
 
-(define colored
+(define coloured
   "Color a string MSG using COL if supported under the current terminal"
-  (if colored? colored-ansi (lambda (_ msg) msg)))
+  (if coloured? coloured-ansi (lambda (_ msg) msg)))
