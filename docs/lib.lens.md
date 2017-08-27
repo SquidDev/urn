@@ -112,7 +112,7 @@ out = 3
 ## `(at k)`
 *Defined at lib/lens.lisp:229:1*
 
-`A` lens that focuses on the `K`-th element of a list. [`view`](lib.lens.md#view-l-v) is
+`A` lens that focuses on the K-th element of a list. [`view`](lib.lens.md#view-l-v) is
 equivalent to `get-idx`, and [`over`](lib.lens.md#over-l-f-v) is like `set-idx!`.
 
 ### Example:

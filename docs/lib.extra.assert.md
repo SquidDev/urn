@@ -3,7 +3,7 @@ title: extra/assert
 ---
 # extra/assert
 ## `(affirm &asserts)`
-*Macro defined at lib/extra/assert.lisp:16:1*
+*Macro defined at lib/extra/assert.lisp:8:1*
 
 Assert each expression in `ASSERTS` evaluates to true
 
@@ -23,7 +23,7 @@ printed out.
 ```
 
 ## `(assert! cnd msg)`
-*Macro defined at lib/extra/assert.lisp:12:1*
+*Macro defined at lib/extra/assert.lisp:4:1*
 
 Assert `CND` is true, otherwise failing with `MSG`
 

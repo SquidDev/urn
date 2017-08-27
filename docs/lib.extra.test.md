@@ -3,7 +3,7 @@ title: extra/test
 ---
 # extra/test
 ## `(assert! cnd msg)`
-*Macro defined at lib/extra/assert.lisp:12:1*
+*Macro defined at lib/extra/assert.lisp:4:1*
 
 Assert `CND` is true, otherwise failing with `MSG`
 

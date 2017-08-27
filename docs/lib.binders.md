@@ -43,7 +43,7 @@ Bind several variables (given in `VARS`), which may be recursive.
 .                        (or (= 0 n)
 .                            (is-odd? (pred n)))))
 .            (is-odd? (lambda (n)
-.                       (and (! (= 0 n))
+.                       (and (not (= 0 n))
 .                            (is-even? (pred n)))))]
 .     (is-odd? 11))
 out = true
@@ -63,8 +63,8 @@ out = true
 ```
 
 Bind all the variables given in `VS`. Each iteration begins by
-evaluating `TEST`. If it evaluates to a truthy value, `TEST`-`BODY`
-is evaluated and the final expression in `TEST`-`BODY` is returned.
+evaluating `TEST`. If it evaluates to a truthy value, `TEST-BODY`
+is evaluated and the final expression in `TEST-BODY` is returned.
 In the case that `TEST` is falsey, the set of expressions `BODY` is
 evaluated. `BODY` may contain the "magic" form
 `(recur val0 val1 ...)`, which rebinds the respective variables

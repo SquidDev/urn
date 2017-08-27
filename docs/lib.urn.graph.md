@@ -20,7 +20,7 @@ Create a vertex with the corresponding `VALUE` and add it to the `GRAPH`.
 ## `(condensation in-graph)`
 *Defined at lib/urn/graph.lisp:142:1*
 
-Compute the condensation of an input graph, `IN`-`GRAPH`, replacing all strongly connected
+Compute the condensation of an input graph, `IN-GRAPH`, replacing all strongly connected
 components with a super vertex.
 
 ### Example:
@@ -151,7 +151,7 @@ out = nil
 ## Undocumented symbols
  - `$graph` *Defined at lib/urn/graph.lisp:8:1*
  - `$vertex` *Defined at lib/urn/graph.lisp:16:1*
- - `(graph-vertex-lookup r_544)` *Defined at lib/urn/graph.lisp:8:1*
- - `(graph-vertices r_542)` *Defined at lib/urn/graph.lisp:8:1*
- - `(graph? r_541)` *Defined at lib/urn/graph.lisp:8:1*
- - `(vertex? r_551)` *Defined at lib/urn/graph.lisp:16:1*
+ - `(graph-vertex-lookup r_547)` *Defined at lib/urn/graph.lisp:8:1*
+ - `(graph-vertices r_545)` *Defined at lib/urn/graph.lisp:8:1*
+ - `(graph? r_544)` *Defined at lib/urn/graph.lisp:8:1*
+ - `(vertex? r_554)` *Defined at lib/urn/graph.lisp:16:1*

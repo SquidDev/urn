@@ -16,7 +16,7 @@ Index the structure `X` with the sequence of accesses given by `KEYS`.
 *Defined at lib/table.lisp:9:1*
 
 Return the value given by `KEY` in the association list `LIST`, or, in the
-case that it does not exist, the value `OR`-`VAL`, which can be nil.
+case that it does not exist, the value `OR-VAL`, which can be nil.
 
 ### Example:
 ```cl
@@ -52,8 +52,13 @@ out = true
 out = false
 ```
 
+## `(copy-of struct)`
+*Defined at lib/table.lisp:218:1*
+
+Create a shallow copy of `STRUCT`.
+
 ## `(create-lookup values)`
-*Defined at lib/table.lisp:243:1*
+*Defined at lib/table.lisp:249:1*
 
 Convert `VALUES` into a lookup table, with each value being converted to
 a key whose corresponding value is the value's index.
@@ -124,12 +129,12 @@ out = (("foo" 1) ("bar" 2))
 Iterate over `TABLE` with a function `FUNC` of the form `(lambda (key val) ...)`
 
 ## `(keys st)`
-*Defined at lib/table.lisp:226:1*
+*Defined at lib/table.lisp:232:1*
 
 Return the keys in the structure `ST`.
 
 ## `(merge &structs)`
-*Defined at lib/table.lisp:218:1*
+*Defined at lib/table.lisp:224:1*
 
 Merge all tables in `STRUCTS` together into a new table.
 
@@ -196,13 +201,13 @@ out = ("foo" "bar")
 ```
 
 ## `(update-struct st &keys)`
-*Defined at lib/table.lisp:238:1*
+*Defined at lib/table.lisp:244:1*
 
 Create a new structure based of `ST`, setting the values given by the
 pairs in `KEYS`.
 
 ## `(values st)`
-*Defined at lib/table.lisp:232:1*
+*Defined at lib/table.lisp:238:1*
 
 Return the values in the structure `ST`.
 
