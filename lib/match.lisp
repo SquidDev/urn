@@ -444,7 +444,8 @@
          (err (gensym))
          (error-handler `(lambda (,err)
                            (case ,err
-                             ,@(map gen-arm body))))]
+                             ,@(map gen-arm body)
+                             [else (error ,err 2)])))]
     `(let* [((,ok ,val) (pcall (lambda () ,x)))]
        (if ,ok
          ,val
