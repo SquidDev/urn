@@ -15,6 +15,7 @@
 (import urn/logger)
 (import urn/logger/void void)
 (import urn/parser parser)
+(import urn/range range)
 (import urn/resolve/loop (compile))
 (import urn/resolve/scope scope)
 (import urn/resolve/state state)
@@ -290,7 +291,43 @@
       ["mono" 97]
       ["bold" 1]
       ["italic" 3]
-      ["link" 94])))
+      ["link" 94]
+
+      ["comment"  90]
+      ["string"   32]
+      ["number"   0]
+      ["key"      36]
+      ["symbol"   0]
+      ["keyword"  35]
+      ["operator" 0])))
+
+(define token-mapping :hidden
+  "Mapping of token names to their corresponding definition in [[color-for]]"
+  { :string      :string
+    :interpolate :string
+    :number      :number
+    :key         :key
+    :symbol      :symbol
+
+    :open           :operator
+    :close          :operator
+    :open-struct    :operator
+    :close-struct   :operator
+    :quote          :operator
+    :quasi-quote    :operator
+    :syntax-quote   :operator
+    :unquote        :operator
+    :unquote-splice :operator })
+
+(define keywords :hidden
+  "Set of keywords which will be highlighted differently."
+  (create-lookup '("define" "define-macro" "define-native"
+                   "lambda" "set!" "cond" "import" "struct-literal"
+                   "quote" "syntax-quote" "unquote" "unquote-splice"
+
+                   "defun" "defmacro" "car" "cdr" "list" "cons" "progn"
+                   "if" "when" "unless" "let" "let*" "with" "not" "gensym"
+                   "for" "while" "and" "or" "loop" "case")))
 
 (defun print-docs! (str)
   :hidden
@@ -312,16 +349,16 @@
     (cond
       [nil
        (logger/put-error! logger "Expected command after ':'")]
+
       [(or (= command "help") (= command "h"))
        (print! "REPL commands:
                 [:d]oc NAME        Get documentation about a symbol
+                :module NAME       Display a loaded module's docs and definitions.
                 :scope             Print out all variables in the scope
                 [:s]earch QUERY    Search the current scope for symbols and documentation containing a string.
-                :module NAME       Display a loaded module's docs and definitions.
+                [:v]iew NAME       Display the definition of a symbol.
                 [:q]uit            Exit the REPL cleanly.")]
-      [(or (= command "quit") (= command "q"))
-       (print! "Goodbye.")
-       (os/exit 0)]
+
       [(or (= command "doc") (= command "d"))
        (with (name (nth args 2))
          (if name
@@ -362,21 +399,6 @@
                   (table/sort vars)
                   (print! (concat vars "  ")))]))
            (logger/put-error! logger ":module <variable>")))]
-
-      [(= command "scope")
-       (let* [(vars '())
-              (vars-set {})
-              (current scope)]
-         (while current
-           (for-pairs (name var) (.> current :variables)
-             (unless (.> vars-set name)
-               (push-cdr! vars name)
-               (.<! vars-set name true)))
-           (set! current (.> current :parent)))
-
-         (table/sort vars)
-
-         (print! (concat vars "  ")))]
 
       [(or (= command "search") (= command "s"))
        (if (> (n args) 1)
@@ -423,8 +445,65 @@
                    (print! (concat docs-results "  ")))))))
          (logger/put-error! logger ":search <keywords>"))]
 
-      [true
-        (logger/put-error! logger (.. "Unknown command '" command "'"))])))
+      [(= command "scope")
+       (let* [(vars '())
+              (vars-set {})
+              (current scope)]
+         (while current
+           (for-pairs (name var) (.> current :variables)
+             (unless (.> vars-set name)
+               (push-cdr! vars name)
+               (.<! vars-set name true)))
+           (set! current (.> current :parent)))
+
+         (table/sort vars)
+
+         (print! (concat vars "  ")))]
+
+      [(or (= command "view") (= command "v"))
+       (with (name (nth args 2))
+         (if name
+           (with (var (scope/get scope name))
+             (if (/= var nil)
+               (let* [(node (.> var :node))
+                      (range (and node (range/get-source node)))]
+                 (if (/= range nil)
+                   (let* [(lines (.> range :lines))
+                          (start (.> range :start))
+                          (finish (.> range :finish))
+                          (buffer '())]
+
+                     (for i (.> start :line) (.> finish :line) 1
+                       (push-cdr! buffer (string/sub (.> lines i)
+                                                     (if (= i (.> start  :line)) (.> start  :column) 1)
+                                                     (if (= i (.> finish :line)) (.> finish :column) -1))))
+
+                     (let* [(contents (concat buffer "\n"))
+                            (previous 0)]
+                       (for-each tok (parser/lex void/void contents "stdin")
+                         (with (start (.> tok :range :start  :offset))
+                           (when (/= start previous)
+                             (io/write (colored (colour-for "comment") (string/sub contents previous (pred start))))))
+
+                         (unless (= (.> tok :tag) "eof")
+                           (with (tag (.> tok :tag))
+                             (if (and (= tag "symbol") (.> keywords (.> tok :contents)))
+                               (io/write (colored (colour-for "keyword") (.> tok :contents)))
+                               (io/write (colored (colour-for (.> token-mapping (.> tok :tag))) (.> tok :contents))))))
+
+                         (set! previous (succ (.> tok :range :finish :offset)))))
+                     (io/write "\n"))
+
+                   (logger/put-error! logger (.. "Cannot extract source code for " (string/quoted name)))))
+               (logger/put-error! logger (.. "Cannot find " (string/quoted name)))))
+           (logger/put-error! logger ":view <variable>")))]
+
+      [(or (= command "quit") (= command "q"))
+       (print! "Goodbye.")
+       (os/exit 0)]
+
+      [else
+       (logger/put-error! logger (.. "Unknown command '" command "'"))])))
 
 (defun exec-string (compiler scope string)
   :hidden
