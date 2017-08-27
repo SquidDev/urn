@@ -183,7 +183,6 @@
           nil)))
     out))
 
-
 (defun flat-map (fn &xss)
   "Map the function FN over the lists XSS, then flatten the result
    lists.
@@ -701,6 +700,38 @@
       (set! idx (+ idx (n b) 1))
       (set! b (take-while p xs idx)))
     l))
+
+(defun sort (xs f)
+  "Sort the list XS, non-destructively, optionally using F as a
+   comparator.  A sorted version of the list is returned, while the
+   original remains untouched.
+
+   ### Example:
+   ```cl
+   > (define li '(9 5 7 2 1))
+   out = (9 5 7 2 1)
+   > (sort li)
+   out = (1 2 5 7 9)
+   > li
+   out = (9 5 7 2 1)
+   ```"
+  (let* [(copy (map (lambda (x) x) xs))]
+    (lua/table/sort copy f)
+    copy))
+
+(defun sort! (xs f)
+  "Sort the list XS in place, optionally using F as a comparator.
+
+   ### Example:
+   > (define li '(9 5 7 2 1))
+   out = (9 5 7 2 1)
+   > (sort! li)
+   out = (1 2 5 7 9)
+   > li
+   out = (1 2 5 7 9)
+   ```"
+  (lua/table/sort xs f)
+  xs)
 
 ;; Auto-generate all `c[ad]r`/`c[ad]rs` methods.
 ,@(let* [(out '())
