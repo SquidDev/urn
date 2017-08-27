@@ -10,9 +10,10 @@
 (import urn/backend/lua lua)
 (import urn/backend/writer writer)
 (import urn/documentation docs)
+(import urn/loader loader)
 (import urn/logger logger)
-(import urn/logger/void void)
 (import urn/logger)
+(import urn/logger/void void)
 (import urn/parser parser)
 (import urn/resolve/loop (compile))
 (import urn/resolve/scope scope)
@@ -483,11 +484,20 @@
                              ["execute" (lua/execute-states compile-state (.> task :states) global)]
                              [?task fail! (.. "Cannot handle " task)]))]))))])))))))
 
-(defun repl (compiler)
+(defun repl (compiler args)
   (let* [(scope (.> compiler :root-scope))
          (logger (.> compiler :log))
          (buffer "")
          (running true)]
+
+    ;; Import all specified modules if possible
+    (for-each input (.> args :input)
+      (with (library (car (loader/loader compiler input false)))
+        (for-pairs (name var) (.> library :scope :exported)
+          (if (.> scope :variables name)
+            (scope/import! scope (.. (.> library :name) "/" name))
+            (scope/import! scope name var)))))
+
     (while running
       (with (line (read-line!
                     (colored 92 (if (empty? buffer) "> " ". "))
