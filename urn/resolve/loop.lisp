@@ -5,9 +5,10 @@
 (import urn/backend/lua backend)
 (import urn/logger logger)
 (import urn/range range)
-(import urn/resolve/walk resolve)
+(import urn/resolve/error error)
 (import urn/resolve/scope scope)
 (import urn/resolve/state state)
+(import urn/resolve/walk resolve)
 (import urn/timer timer)
 
 (defun distance (a b)
@@ -240,7 +241,7 @@
                  (when name (timer/start-timer! timer name))
 
                  (unless module
-                   (logger/do-node-error! logger
+                   (error/do-node-error! logger
                      (nth result 2)
                      (.> head :_node) nil
                      (range/get-source (.> head :_node)) ""))
@@ -271,7 +272,7 @@
                            (range/get-source (.> head :_node)) "Importing here"
                            (range/get-source (.> name-node)) "Required here")))
 
-                     (when failed (fail! "Node resolution failed")))))
+                     (when failed (error/resolver-error!)))))
 
                (resume head)])))))
 
@@ -337,7 +338,7 @@
                                            [node (range/format-node node)]
                                            [true "unknown node"]))))]))
 
-      (fail! "Node resolution failed"))
+      (error/resolver-error!))
 
 
     (when name (timer/stop-timer! timer name))

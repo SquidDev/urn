@@ -1,5 +1,5 @@
-(import urn/logger logger)
 (import urn/range range)
+(import urn/resolve/error error)
 
 (import lua/coroutine co)
 
@@ -69,13 +69,13 @@
   (assert-type! kind string)
   (unless (.> kinds kind) (error! (.. "Unknown kind " (string/quoted kind))))
   (when-with (previous (.> scope :variables name))
-    (logger/do-node-error! logger (.. "Previous declaration of " (string/quoted name))
+    (error/do-node-error! logger (.. "Previous declaration of " (string/quoted name))
       node nil
       (range/get-source node) "new definition here"
       (range/get-source (.> previous :node)) "old definition here"))
 
   (when (and (= name "_") (.> scope :is-root))
-    (logger/do-node-error! logger "Cannot declare \"_\" as a top level definition"
+    (error/do-node-error! logger "Cannot declare \"_\" as a top level definition"
       node nil
       (range/get-source node) "declared here"))
 
@@ -101,7 +101,7 @@
    resulted in this variable being imported."
   (unless var (fail! "var is nil"))
   (when (and (.> scope :variables name) (/= (.> scope :variables name) var))
-    (logger/do-node-error! logger
+    (error/do-node-error! logger
       (.. "Previous declaration of " name)
       node nil
       (range/get-source node) "imported here"

@@ -15,6 +15,7 @@
 (import urn/logger/void void)
 (import urn/parser parser)
 (import urn/range range)
+(import urn/resolve/error (resolver-error?))
 (import urn/resolve/loop (compile))
 (import urn/resolve/scope scope)
 (import urn/resolve/state state)
@@ -264,16 +265,6 @@
     ;; EOF errors within the lexer only occur in strings, thus we do not need to complete them.
     [_ '()]))
 
-(defun do-resolve (compiler scope str)
-  :hidden
-  (let* [(logger (.> compiler :log))
-         (lexed (parser/lex logger str "<stdin>"))
-         (parsed (parser/parse logger lexed))]
-    (cadr (list (compile
-                  compiler
-                  parsed
-                  scope)))))
-
 (define repl-colour-scheme
   :hidden
   (when-let* [(ge os/getenv) ; actually check that os/getenv exists
@@ -506,7 +497,10 @@
 
 (defun exec-string (compiler scope string)
   :hidden
-  (with (state (do-resolve compiler scope string))
+  (let* [(logger (.> compiler :log))
+         (lexed (parser/lex logger string "<stdin>"))
+         (parsed (parser/parse logger lexed))
+         (state (cadr (list (compile compiler parsed scope))))]
     (when (> (n state) 0)
       (let* [(current 0)
              (exec (co/create (lambda ()
@@ -602,14 +596,15 @@
                    ;; Clear active node/scope
                    (.<! compiler :active-node nil)
                    (.<! compiler :active-scope nil)
-                   (unless (car res) (logger/put-error! logger (cadr res))))]))])))))
+                   (unless (or (car res) (resolver-error? (cadr res)))
+                     (logger/put-error! logger (cadr res))))]))])))))
 
 (defun exec (compiler)
   (let* [(data (io/read "*a"))
          (scope (.> compiler :root-scope))
          (logger (.> compiler :log))
          (res (list (pcall exec-string compiler scope data)))]
-    (unless (car res)
+    (unless (or (car res) (resolver-error? (cadr res)))
       (logger/put-error! logger (cadr res)))
     (os/exit 0)))
 

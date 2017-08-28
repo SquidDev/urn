@@ -12,6 +12,7 @@
 (import urn/logger/term term)
 (import urn/plugins plugins)
 (import urn/resolve/builtins builtins)
+(import urn/resolve/error error)
 (import urn/resolve/scope scope)
 (import urn/resolve/state state)
 (import urn/timer timer)
@@ -217,21 +218,27 @@
         (.<! compiler :variables (tostring var) var))
 
       (timer/start-timer! (.> compiler :timer) "loading")
-      (case (loader/loader compiler (.> args :prelude) false)
-        [(nil ?error-message)
-         (logger/put-error! logger error-message)
-         (exit! 1)]
-        [(?lib)
-         (.<! compiler :root-scope (scope/child (.> compiler :root-scope)))
-         (for-pairs (name var) (.> lib :scope :exported)
-           (scope/import! (.> compiler :root-scope) name var))
+      (with (do-load! (lambda (name)
+                        (case (list (xpcall (lambda () (loader/loader compiler name false)) error/traceback))
+                          ;; Could not resolve any nodes, so just do a pure exit
+                          [(false error/resolver-error?) (exit! 1)]
+                          ;; Some unknown crash, so fail with that.
+                          [(false ?error-message)  (fail! error-message)]
+                          ;; Module not found
+                          [(true (nil ?error-message))
+                           (logger/put-error! logger error-message)
+                           (exit! 1)]
+                          [(true (?lib)) lib])))
 
-         (for-each input (append (.> args :plugin) (.> args :input))
-           (case (loader/loader compiler input false)
-             [(nil ?error-message)
-              (logger/put-error! logger error-message)
-              (exit! 1)]
-             [(_)]))])
+        ;; Load the prelude and setup the environment
+        (with (lib (do-load! (.> args :prelude)))
+          (.<! compiler :root-scope (scope/child (.> compiler :root-scope)))
+          (for-pairs (name var) (.> lib :scope :exported)
+            (scope/import! (.> compiler :root-scope) name var)))
+
+        ;; And load remaining files
+        (for-each input (append (.> args :plugin) (.> args :input))
+          (do-load! input)))
 
       (timer/stop-timer! (.> compiler :timer) "loading")
 

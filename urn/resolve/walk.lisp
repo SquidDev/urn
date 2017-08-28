@@ -8,9 +8,9 @@
 (import lua/basic (type#))
 (import lua/coroutine co)
 
-(import urn/logger logger)
 (import urn/range range)
 (import urn/resolve/builtins (builtins))
+(import urn/resolve/error error)
 (import urn/resolve/scope scope)
 (import urn/resolve/state state)
 (import urn/traceback traceback)
@@ -18,7 +18,7 @@
 (defun error-positions! (log node message)
   "Fail resolution at NODE with the given MESSAGE."
   :hidden
-  (logger/do-node-error! log
+  (error/do-node-error! log
     message node nil
     (range/get-source node) ""))
 

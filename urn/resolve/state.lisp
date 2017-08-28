@@ -14,8 +14,8 @@
  this node to be executed and build, detecting cycles in building (say
  two macros each require the other in order to be expanded)."
 
-(import urn/logger logger)
 (import urn/range range)
+(import urn/resolve/error error)
 
 (import lua/coroutine co)
 
@@ -119,7 +119,7 @@
                                          (push-cdr! nodes (range/get-source user))
                                          (push-cdr! nodes (.. (.> current :var :name) " used in " (.> previous :var :name)))))))
 
-                                 (logger/do-node-error! (.> state :logger)
+                                 (error/do-node-error! (.> state :logger)
                                    (.. "Loop in macros " (concat states " -> "))
                                    first-node nil
                                    (unpack nodes 1 (n nodes)))))]
