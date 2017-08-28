@@ -331,9 +331,21 @@
        (when ret (w/append! out ret))
        (when (.> cat :parens) (w/append! out "("))
        (with (len (n node))
-         (for i 2 len 1
-           (when (> i 2) (w/append! out " or "))
-           (compile-expression (nth (nth node i) (if (= i len) 2 1)) out state)))
+         (for i 2 (- len 2) 1
+           (compile-expression (car (nth node i)) out state)
+           (w/append! out " or "))
+         (case (.> cat :kind)
+           ["not"
+            (w/append! out "not ")
+            (compile-expression (nth (nth node (pred len)) 1) out state)]
+           ["and"
+            (compile-expression (nth (nth node (pred len)) 1) out state)
+            (w/append! out " and ")
+            (compile-expression (nth (nth node (pred len)) 2) out state)]
+           ["or"
+            (compile-expression (nth (nth node (pred len)) 1) out state)
+            (w/append! out " or ")
+            (compile-expression (nth (nth node len) 2) out state)]))
        (when (.> cat :parens) (w/append! out ")"))]
 
       ["or-lambda"
@@ -342,9 +354,23 @@
        (compile-expression (nth node 2) out state)
        (let* [(branch (.> (nth (car node) 3)))
               (len (n branch))]
-         (for i 3 len 1
-           (w/append! out " or ")
-           (compile-expression (nth (nth branch i) (if (= i len) 2 1)) out state)))
+         (w/append! out " or ")
+         (for i 3 (- len 2) 1
+           (compile-expression (car (nth branch i)) out state)
+           (w/append! out " or "))
+         (case (.> cat :kind)
+           ["not"
+            (w/append! out "not ")
+            (compile-expression (nth (nth branch (pred len)) 1) out state)]
+           ["and"
+            (compile-expression (nth (nth branch (pred len)) 1) out state)
+            (w/append! out " and ")
+            (compile-expression (nth (nth branch (pred len)) 2) out state)]
+           ["or"
+            (when (> len 3)
+              (compile-expression (nth (nth branch (pred len)) 1) out state)
+              (w/append! out " or "))
+            (compile-expression (nth (nth branch len) 2) out state)]))
        (when (.> cat :parens) (w/append! out ")"))]
 
       ["and"

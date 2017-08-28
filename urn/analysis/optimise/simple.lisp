@@ -97,14 +97,27 @@
                (inc! i)]
               [nil
                (inc! i)]))))
-      (if (and (= (n node) 2) (= (urn->bool (car (nth node 2))) true))
-        (progn
-          (changed!)
-          (with (body (cdr (nth node 2)))
-            (if (= (n body) 1)
-              (car body)
-              (make-progn (cdr (nth node 2))))))
-        node))
+
+      (cond
+        ;; If we're of the form (cond [true X]), replace with X.
+        [(and (= (n node) 2) (builtin? (car (nth node 2)) :true))
+         (changed!)
+         (with (body (cdr (nth node 2)))
+           (if (= (n body) 1)
+             (car body)
+             (make-progn (cdr (nth node 2)))))]
+        ;; If we're of the form (cond ... [true (cond ...)]), replace with (cond ... ...)
+        [(and (> (n node) 1)
+              (with (branch (last node))
+                (and (= (n branch) 2) (builtin? (car branch) :true)
+                     (list? (cadr branch)) (builtin? (caadr branch) :cond))))
+         (let* [(branch (pop-last! node))
+                (child-cond (nth branch 2))]
+           (for i 2 (n child-cond) 1
+             (push-cdr! node (nth child-cond i))))
+         (changed!)
+         node]
+        [else node]))
     node))
 
 (defpass lambda-fold (state node)

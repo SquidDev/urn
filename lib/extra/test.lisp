@@ -1,5 +1,5 @@
 (import extra/term (coloured))
-(import lua/debug (traceback))
+(import lua/debug debug)
 (import lua/os (clock))
 (import extra/assert (assert!) :export)
 
@@ -11,6 +11,10 @@
 (define quiet         :hidden (gensym))
 (define time          :hidden (gensym))
 (define start-time    :hidden (gensym))
+
+(defun traceback (obj)
+  :hidden
+  (debug/traceback (if (string? obj) obj (pretty obj)) 2))
 
 (defmacro marker (colour)
   "Add a dot with the given COLOUR to mark a single test's result"

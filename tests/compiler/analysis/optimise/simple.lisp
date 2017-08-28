@@ -45,7 +45,20 @@
           (cond [true 1 2]))
         '("true"
           ((lambda () 1 2)))
-        2)))
+        2))
+    (it "merging trailing conds"
+      (affirm-transform-optimise (list optimise/cond-fold)
+        '((cond
+            [foo 1]
+            [true
+             (cond
+               [bar 2]
+               [true 3])]))
+        '((cond
+            [foo 1]
+            [bar 2]
+            [true 3]))
+        1)))
 
   (section "will simplify lambdas"
     (it "removing pointless progns with a single element"

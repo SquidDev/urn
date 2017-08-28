@@ -26,6 +26,44 @@
   "Determine whether we will exclude all bindings for VAR."
   (recur-direct? state var))
 
+(defun not-cond? (first second)
+  "Determine whether the branches FIRST and SECOND form a not expression.
+
+   Namely, FIRST is of the form `[<expr> false]` and SECOND is of the
+   form `[true true]`."
+  :hidden
+  (and (= (n first) 2)  (builtin?  (nth first 2) :false)
+       (= (n second) 2) (builtin?  (nth second 1) :true) (builtin? (nth second 2) :true)))
+
+(defun and-cond? (lookup first second test)
+  "Determine whether the branches FIRST and SECOND form an and expression.
+
+   Namely, FIRST is of the form `[A <expr>]` and SECOND is of the form
+   `[true A]` (or `[true false]` when in a condition TEST context)."
+  :hidden
+  (let [(branch (car first))
+        (last (nth second 2))]
+    (and
+      (= (n first) 2) (= (n second) 2)
+      (not (.> lookup (nth first 2) :stmt)) (builtin? (car second) :true)
+      (symbol? last)
+      (or
+        (and (symbol? branch) (= (.> branch :var) (.> last :var)))
+        (and test (not (.> lookup branch :stmt)) (= (.> last :var) (.> builtins :false)))))))
+
+(defun or-cond? (lookup branch test)
+  "Determine whether this BRANCH forms part of an `or` expression.
+
+   Namely, BRANCH follows the form `[x x]` (or `[x true]` when in a
+   condition TEST context)."
+  :hidden
+  (let* [(head (car branch))
+         (tail (nth branch 2))]
+    (and (= (n branch) 2) (symbol? tail)
+      (or
+        (and (symbol? head) (= (.> head :var) (.> tail :var)))
+        (and test (not (.> lookup head :stmt)) (= (.> tail :var) (.> builtins :true)))))))
+
 (defun visit-node (lookup state node stmt test recur)
   "Marks a specific NODE with a category.
 
@@ -65,11 +103,8 @@
                        [(and
                           ;; If we have two conditions
                           (= (n node) 3)
-                          ;; If the first condition is of the form `[A false]`
-                          (with (sub (nth node 2))
-                            (and (= (n sub) 2) (builtin? (nth sub 2) :false)))
-                          (with (sub (nth node 3))
-                            (and (= (n sub) 2) (builtin? (nth sub 1) :true) (builtin? (nth sub 2) :true))))
+                          ;; And these are of the appropriate form
+                          (not-cond? (nth node 2) (nth node 3)))
 
                         (add-paren lookup (car (nth node 2)) 11)
                         (cat "not" :stmt (.> lookup (car (nth node 2)) :stmt) :prec 11)]
@@ -77,20 +112,8 @@
                        [(and
                           ;; If we have two conditions
                           (= (n node) 3)
-                          ;; If the first condition is of the form `[A <expr>]`
-                          ;; The second one is of the form `[true A]` (or `[true false]`
-                          ;; when in a condition test).
-                          (let* [(first (nth node 2))
-                                 (second (nth node 3))
-                                 (branch (car first))
-                                 (last (nth second 2))]
-                            (and
-                              (= (n first) 2) (= (n second) 2)
-                              (not (.> lookup (nth first 2) :stmt)) (builtin? (car second) :true)
-                              (symbol? last)
-                              (or
-                                (and (symbol? branch) (= (.> branch :var) (.> last :var)))
-                                (and test (not (.> lookup branch :stmt)) (= (.> last :var) (.> builtins :false)))))))
+                          ;; If these conditions are of the appropriate form
+                          (and-cond? lookup (nth node 2) (nth node 3) test))
 
                         (add-paren lookup (nth (nth node 2) 1) 2) ;; (case [A _] [true A])
                         (add-paren lookup (nth (nth node 2) 2) 2) ;; (case [_ B] [true _])
@@ -100,24 +123,44 @@
                        [(and
                           ;; If we have at least two conditions.
                           (>= (n node) 3)
-                          ;; Each condition follows the form `[x x]` (or [x true] if when
-                          ;; in a condition test).
-                          (part-all node 2 (pred (n node))
-                            (lambda (branch)
-                              (let* [(head (car branch))
-                                     (tail (nth branch 2))]
-                                (and (= (n branch) 2) (symbol? tail)
-                                  (or
-                                    (and (symbol? head) (= (.> head :var) (.> tail :var)))
-                                    (and test (not (.> lookup head :stmt)) (= (.> tail :var) (.> builtins :true))))))))
-                          ;; Apart from the last one, which is `[true <expr>]`.
-                          (with (branch (last node))
-                            (and (= (n branch) 2) (builtin? (car branch) :true) (not (.> lookup (nth branch 2) :stmt)))))
+                          ;; All but the last two nodes are or expressions.
+                          (part-all node 2 (- (n node) 2) (cut or-cond? lookup <> test))
 
-                        (with (len (n node))
-                          (for i 2 len 1
-                            (add-paren lookup (nth (nth node i) (if (= i len) 2 1)) 1)))
-                        (cat "or" :prec 1)]
+                          (let [(first (nth node (pred (n node))))
+                                (second (nth node (n node)))]
+                            (or
+                              ;; The last two nodes form an or expression
+                              (not-cond? first second)
+                              ;; The last two nodes form an and expression
+                              (and-cond? lookup first second test)
+                              ;; The last two nodes form an or expression
+                              (and
+                                ;; The penultimate node forms an and condition
+                                (or-cond? lookup first test)
+                                ;; The last one is `[true <expr>]`.
+                                (= (n second) 2) (builtin? (car second) :true) (not (.> lookup (nth second 2) :stmt))))))
+
+                        (let* [(len (n node))
+                               (first (nth node (pred (n node))))
+                               (second (nth node (n node)))]
+
+                          (for i 2 (- len 2) 1
+                            (add-paren lookup (car (nth node i)) 1))
+
+                          (cond
+                            [(not-cond? first second)
+                             (add-paren lookup (nth first 1) 11)
+                             (cat "or" :prec 1 :kind "not")]
+
+                            [(and-cond? lookup first second test)
+                             (add-paren lookup (nth first 1) 2)
+                             (add-paren lookup (nth first 2) 2)
+                             (cat "or" :prec 1 :kind "and")]
+
+                            [else
+                             (add-paren lookup (nth first 1) 1)
+                             (add-paren lookup (nth second 2) 1)
+                             (cat "or" :prec 1 :kind "or")]))]
 
                        [(and
                           ;; If we have exactly two conditions
@@ -311,7 +354,7 @@
                            (cat "and-lambda" :prec 2)]
                           [(and (= ty "or") (unused?))
                            (add-paren lookup (nth node 2) 1)
-                           (cat "or-lambda" :prec 1)]
+                           (cat "or-lambda" :prec 1 :kind (.> res :kind))]
                           [stmt (cat "call-lambda" :stmt true)]
                           [true (cat "call")]))))]
 

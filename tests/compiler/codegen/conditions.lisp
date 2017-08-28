@@ -262,7 +262,71 @@
                [true (bar x)]))
             foo))
         "local x = foo
-         return x or bar(x)")))
+         return x or bar(x)"))
+
+    (section "will handle a trailing `and`"
+      (it "in the simple case"
+        (affirm-codegen
+          '((cond
+              [foo foo]
+              [bar bar]
+              [baz qux]
+              [true baz]))
+          "return foo or bar or baz and qux"))
+
+      (it "with a directly called lambda"
+        (affirm-codegen
+          '(((lambda (x)
+               (cond
+                 [x x]
+                 [bar (foo 3)]
+                 [true bar])) (foo 2)))
+          "return foo(2) or bar and foo(3)"))
+
+      (it "inside a condition"
+        (affirm-codegen
+          '((cond
+              [(cond
+                 [foo foo]
+                 [bar baz]
+                 [true bar]) 1]
+              [true 2]))
+          "if foo or bar and baz then
+             return 1
+           else
+             return 2
+           end")))
+
+    (section "will handle a trailing `or not`"
+      (it "in the simple case"
+        '((cond
+            [foo foo]
+            [bar bar]
+            [baz false]
+            [true true]))
+        "return foo or bar or not baz")
+
+      (it "with a directly called lambda"
+        '(((lambda (x)
+             (cond
+               [x x]
+               [bar false]
+               [true true])) (foo 2)))
+        "return foo(2) or not bar")
+
+      (it "inside a condition"
+        (affirm-codegen
+          '((cond
+              [(cond
+                 [foo foo]
+                 [bar false]
+                 [true true]) 1]
+              [true 2]))
+          "if foo or not bar then
+             return 1
+           else
+             return 2
+           end"))))
 
   (will "emit not expressions"
     (affirm-codegen
