@@ -15,13 +15,13 @@ new line. There is no block comment syntax, meaning you will have to comment eac
 ## Number literals
 Numbers follow a similar format as Lua, with additional support for binary literals.
 
- - Binary digits start with `0b`, then one or more `0` or `1`s. Using an invalid digit (such as 2, will result in a syntax error).
- - Hexadecimal digits start with `0x`, then one or more hexadecimal digits, (`[0-9a-zA-Z]`). Unlike Lua, you cannot have
+ - Binary digits start with `#b`, then one or more `0` or `1`s. Using an invalid digit (such as 2, will result in a syntax error).
+ - Hexadecimal digits start with `#x`, then one or more hexadecimal digits, (`[0-9a-zA-Z]`). Unlike Lua, you cannot have
    fractions or exponents in hexadecimal digits.
  - Decimal digits: these follow the same format as Lua: an optional integer part, an optional fractional part, all
    followed by an optional exponent (marked `e` or `E`).
 
-For example, `2`, `0x2`, `0b10`, `2.e0`, `.2e1` and `20e-1` are all the same value.
+For example, `2`, `#x2`, `#b10`, `2.e0`, `.2e1` and `20e-1` are all the same value.
 
 ## Strings
 Strings are delimited by *double* quotes. Characters can be escaped using the `\` character, with the following escape
@@ -58,6 +58,16 @@ Should you wish to split a string over multiple lines, but not insert a new line
 ;; Equivalent to (print! "Hello, World!")
 (print! "Hello, \
          World!")
+```
+
+### Interpolation
+Following the `$` character with a string, will result in a string interpolation form. One can embed symbols inside a
+string and they will be expanded
+automatically. See [the `$` macro](https://squiddev.github.io/urn/docs/lib.string.html#-str) for more information.
+
+```cl
+(with (x "World")
+  (print! $"Hello, ${x}!"))
 ```
 
 ## Symbols

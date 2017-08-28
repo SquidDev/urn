@@ -188,14 +188,14 @@ tail-recursive function but, just for fun, let's use a `while` loop instead.
 ```cl
 (with (my-number (random 1 10))
   (with (found false)
-    (while (! found)
+    (while (not found)
       (set! found (compare (read-input) my-number)))))
 ```
 
-Here we use the not function (`!`) to check if we haven't found a match yet, and loop until we do.
+Here we use the `not` function to check if we haven't found a match yet, and loop until we do.
 
 This is also our first introduction to `set!`. This takes a symbol and sets it's value to that given. When `compare`
-returns true, `found` will be set to true and so `(! found)` is false, resulting in the loop terminating.
+returns true, `found` will be set to true and so `(not found)` is false, resulting in the loop terminating.
 
 You should now be able to run your code (`lua bin/urn.lua guess.lisp --run`) and play the game.
 
@@ -222,7 +222,7 @@ up using `let*`:
 ```cl
 (let* [(my-number (random 1 10))
        (found false)]
-  (while (! found)
+  (while (not found)
     (set! found (compare (read-input) my-number))))
 ```
 

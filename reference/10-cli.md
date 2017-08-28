@@ -103,6 +103,8 @@ There are two profiling modes you can use with the `--profile` flag:
    called. This has a large overhead, but is useful for getting detailed information on the whole program.
  - `stack`: This will randomly sample the call stack every 10,000 instructions. This allows you to get a rough measure
    of what proportion of time is spent within a given function, as well as what functions call what.
+ - `coverage`: This will generate code coverage reports for the given file, appending or creating a `luacov.stats.out`
+   file.
 
 ### The stack profiler
 Whilst the call profiler is very simple to use, the stack profiler provides several other configuration options.
@@ -120,6 +122,17 @@ Whilst the call profiler is very simple to use, the stack profiler provides seve
  - `--stack-fold`: When working with tree traversal (or other recursive functions), your call stack gets increasingly
    hard to understand. This flag will fold recursive function "loops" into themselves. For instance, `foo -> bar -> foo
    -> baz` will get folded into: `foo -> bar` and `foo -> baz`.
+   
+### The coverage profiler
+The coverage profiler does not profile how long your code takes to execute, but instead determines how much of your code
+is executed. It is designed to be run for multiple files and then merged together to generate a report, hence requiring
+several a separate report generation process.
+
+This is done using the `--gen-coverage` option. This will read the `luacov.stats.out` file and merge it with all command
+line inputs, producing a `luacov.report.out` file. In order for a file to be included in the report, you *must* specify
+it on the command line. This allows you to track coverage for files which are not executed, and exclude files which are,
+say, part of the standard library.
+
 
 ## The REPL
  - `--repl`: Launch an interactive session, as detailed in [the main REPL documentation](11-repl.md).
