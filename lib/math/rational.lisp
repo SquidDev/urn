@@ -50,7 +50,7 @@
    ```"
   (/ (numerator y) (denominator y)))
 
-(defgeneric r+ (x y) "Add rational numbers")
+(defgeneric r+ (x y) "Add rational numbers" :hidden)
 (defmethod (r+ rational rational) (x y)
   (let* [((xn xd) (normalised-rational-components x))
          ((yn yd) (normalised-rational-components y))]
@@ -61,7 +61,7 @@
 (defmethod (r+ number rational) (x y) (r+ (->rat x) y))
 (defmethod (r+ number number)   (x y) (r+ (->rat x) (->rat y)))
 
-(defgeneric r- (x y) "Subtract rational numbers")
+(defgeneric r- (x y) "Subtract rational numbers" :hidden)
 (defmethod (r- rational rational) (x y)
   (let* [((xn xd) (normalised-rational-components x))
          ((yn yd) (normalised-rational-components y))]
@@ -72,7 +72,7 @@
 (defmethod (r- number rational) (x y) (r- (->rat x) y))
 (defmethod (r- number number)   (x y) (r- (->rat x) (->rat y)))
 
-(defgeneric r* (x y) "Multiply rational numbers")
+(defgeneric r* (x y) "Multiply rational numbers" :hidden)
 (defmethod (r* rational rational) (x y)
   (let* [((xn xd) (normalised-rational-components x))
          ((yn yd) (normalised-rational-components y))]
@@ -82,19 +82,39 @@
 (defmethod (r* number rational) (x y) (r* (->rat x) y))
 (defmethod (r* number number)   (x y) (r* (->rat x) (->rat y)))
 
-(defun r/ (x y)
-  "Divide rational numbers"
+(defgeneric r< (x y) "Less-than relationship between rational numbers")
+(defmethod (r< rational rational) (x y)
+  (let* [((xn xd) (normalised-rational-components x))
+         ((yn yd) (normalised-rational-components y))]
+    (< (* xn yd) (* yn xd))))
+
+(defmethod (r< rational number) (x y) (r< x (->rat y)))
+(defmethod (r< number rational) (x y) (r< (->rat x) y))
+(defmethod (r< number number)   (x y) (r< (->rat x) (->rat y)))
+
+(defgeneric r<= (x y) "Less-than-or-equals relationship between rational numbers")
+(defmethod (r<= rational rational) (x y)
+  (let* [((xn xd) (normalised-rational-components x))
+         ((yn yd) (normalised-rational-components y))]
+    (<= (* xn yd) (* yn xd))))
+
+(defmethod (r<= rational number) (x y) (r< x (->rat y)))
+(defmethod (r<= number rational) (x y) (r< (->rat x) y))
+(defmethod (r<= number number)   (x y) (r< (->rat x) (->rat y)))
+
+(defun r>= (x y)
+  "Check if the rational number X is greater than or equal to the
+   rational number Y"
+  (r<= y x))
+
+(defun r> (x y)
+  "Check if the rational number X is greater than the rational number Y"
+  (r< y x))
+
+(defun r/ (x y) :hidden
   (r* x (recip y)))
 
-(defun rexp (x y)
-  "Raise the rational number X to the primitive numeric (integral or float)
-   power Y.
-
-   ### Example:
-   ```cl
-   > (rexp (rational 1 4) 2)
-   out = (rational 1 16)
-   ```"
+(defun rexp (x y) :hidden
   (if (>= y 0)
     (let* [((xn xd) (normalised-rational-components x))]
       (rational (^ xn y) (^ xd y)))
@@ -115,7 +135,10 @@
   { :__add r+
     :__sub r-
     :__mul r*
-    :__div r/ })
+    :__div r/
+    :__pow rexp
+    :__lt r<
+    :__lte r<= })
 
 (defmethod (pretty rational) (x)
   (let* [((xn xd) (normalised-rational-components x))]
