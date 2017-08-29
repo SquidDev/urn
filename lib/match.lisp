@@ -434,7 +434,7 @@
 
 (defmacro handler-case (x &body)
   "Evaluate the form X, and if an error happened, match the series
-   of `(?pattern (?arg) . ?body)` arms given in BODY against the value of
+   of `(?pattern . ?body)` arms given in BODY against the value of
    the error, executing the first that succeeeds.
 
    In the case that X does not throw an error, the value of that
@@ -445,20 +445,17 @@
    ```cl
    > (handler-case
    .   (fail! \"oh no!\")
-   .   [string? (x)
+   .   [string?
    .    (print! x)])
    oh no!
    out = nil
    ```"
-  (let* [(gen-arm (cs)
-           (destructuring-bind [(?pattern (?arg) . ?body) cs]
-             ~((,pattern @ ,(->meta arg)) ,@body)))
-         (ok (gensym))
+  (let* [(ok (gensym))
          (val (gensym))
          (err (gensym))
          (error-handler `(lambda (,err)
                            (case ,err
-                             ,@(map gen-arm body)
+                             ,@body
                              [else (error ,err 2)])))]
     `(let* [((,ok ,val) (pcall (lambda () ,x)))]
        (if ,ok
