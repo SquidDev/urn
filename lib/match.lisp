@@ -154,7 +154,13 @@
 
  You can see the view pattern in use on the last line: we create the view
  with `(matcher \"0x(%d+)\")`, apply it to `x` and then match the
- returned value (`(\"23\")`) against the `?x` pattern."
+ returned value (`(\"23\")`) against the `?x` pattern.
+
+ ### The [[case]] expression
+ 
+ Bodies in case may be either of the form `[pattern exps]` or
+ `[pattern => exps]`. In the latter case, the form matched against is
+ bound, in its entirety, to the variable `it`."
 
 (import lua/basic (pcall))
 (import lua/math (max))
@@ -163,7 +169,7 @@
               else))
 (import type ())
 (import list (car caddr cadr cdr cddr append for-each map filter
-              push-cdr! range snoc nth last elem? flat-map))
+              push-cdr! range snoc nth last elem? flat-map cons))
 (import string (char-at sub))
 (import binders (let*))
 
@@ -401,9 +407,16 @@
          (compile-arm
            (lambda (pt)
              (assert-linearity! (car pt))
-             `(,(compile-pattern-test (car pt) val-sym)
-               (let* ,(compile-pattern-bindings (car pt) val-sym)
-                 ,@(cdr pt)))))]
+             (cond
+               [(eql? '=> (cadr pt))
+                `(,(compile-pattern-test (car pt) val-sym)
+                   (let* ,(cons (list 'it val-sym)
+                                (compile-pattern-bindings (car pt) val-sym))
+                     ,@(cddr pt)))]
+               [else
+                 `(,(compile-pattern-test (car pt) val-sym)
+                    (let* ,(compile-pattern-bindings (car pt) val-sym)
+                      ,@(cdr pt)))])))]
     `(let* [(,val-sym ,val)]
        (cond ,@(map compile-arm pts)
              [else ,(generate-case-error pts val-sym)]))))
