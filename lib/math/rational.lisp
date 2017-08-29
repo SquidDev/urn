@@ -45,8 +45,8 @@
 
    ### Example:
    ```cl
-   > (->float (rational 20 2))
-   out = 10
+   > (->float (rational 3 2))
+   out = 1.5
    ```"
   (/ (numerator y) (denominator y)))
 
@@ -99,6 +99,17 @@
     (let* [((xn xd) (normalised-rational-components x))]
       (rational (^ xn y) (^ xd y)))
     (recip (rexp x (* y -1)))))
+
+(defun rsqrt (x)
+  "The square root of rational number X.
+
+   ### Example:
+   ```cl
+   > (rsqrt (rational 1 4))
+   out = (rational 1 2)
+   ```"
+  (let* [((xn xd) (normalised-rational-components x))]
+    (rational (math/sqrt xn) (math/sqrt xd))))
 
 (define *rational-mt* :hidden
   { :__add r+
