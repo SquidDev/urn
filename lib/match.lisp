@@ -446,7 +446,7 @@
    > (handler-case
    .   (fail! \"oh no!\")
    .   [string?
-   .    (print! x)])
+   .    => (print! it)])
    oh no!
    out = nil
    ```"
