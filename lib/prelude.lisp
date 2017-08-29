@@ -182,3 +182,22 @@
    out = nil
    ```"
   (print! (apply sprintf fmt args)))
+
+(defun round (x)
+  "Round X, to the nearest integer.
+
+   ### Example:
+   ```cl
+   > (round 1.5)
+   out = 2
+   > (round 1.3)
+   out = 1
+   > (round -1.3)
+   out = -1
+   ```"
+  (let* [((i f) (math/modf x))]
+    (if (if (< x 0)
+          (<= -0.5 f)
+          (>= f 0.5))
+      (math/ceil x)
+      (math/floor x))))
