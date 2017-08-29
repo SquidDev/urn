@@ -1,3 +1,6 @@
+(import core/prelude ())
+(import data/function (cut))
+
 (defun gen-def (name ll body &extra) :hidden
   (case name
     [(hide ?x) `(defun ,x ,ll :hidden ,@extra ,@body)]
