@@ -50,6 +50,10 @@
              (let* [((start end match)
                      (string/find str "#([a-zA-Z][^:%%@]*)"))]
                (values-list (list 'implicitly-named match) end))]
+            [(string/find (string/char-at str 1) "[:%%@]") ; anonymous, but with a formatter
+             (let* [(pos (.> last-pos-ref 1))]
+                (.<! last-pos-ref 1 (+ pos 1))
+                (values-list (list 'positional pos) 0))]
             [else
               (let* [(pos (.> last-pos-ref 1))]
                 (.<! last-pos-ref 1 (+ pos 1))
@@ -194,7 +198,7 @@
     (when (> last-positional (n args))
       (error (string/format "(format %q): not given enough positional arguments (expected %d, got %d)"
                             str last-positional (n args))))
-    (debug `(let* [(,named-map { ,@named-alist })]
+    `(let* [(,named-map { ,@named-alist })]
        (format-output! ,out
                        ,(cons `.. (dolist [(frag fragments)]
-                                    (compile-format-fragment frag interpret-spec))))))))
+                                    (compile-format-fragment frag interpret-spec)))))))
