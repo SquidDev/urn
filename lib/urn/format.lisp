@@ -1,6 +1,6 @@
 (import base (defun defmacro > = when n list tonumber error /= + or ..
               else - >= values-list print unpack if apply const-val
-              type# and get-idx gensym))
+              type# and get-idx gensym for-pairs))
 (import match (case function))
 (import list (cons dolist push-cdr! nth car cdr maybe-map map))
 (import table (.> .<!))
@@ -130,13 +130,13 @@
 
    Formatting specifiers take the form `{...}`, where `...` includes
    both a _reference_ (what's to be output) and a _formatter_ (how to
-   output it).
+                                                                   output it).
 
    - If the reference starts with `#`, it is an implicit named symbol
-     (something in scope, and not passed explicitly).
+   (something in scope, and not passed explicitly).
    - If the reference starts with an alphabetic character, it is
-     _named_: something given to the [[format]] macro explicitly, as a
-     keyword argument.
+   _named_: something given to the [[format]] macro explicitly, as a
+   keyword argument.
    - If the reference starts with `$`, it is a positional argument.
 
    The formatter can either start with `:`, in which case it references
@@ -158,6 +158,7 @@
                                [((_ (positional ?d) _)) d]
                                [else nil])
                              fragments)))
+         (named-map (gensym))
          ((positionals nameds)
           (loop [(pos '())
                  (nam {}) (expecting-nam nil)
@@ -175,16 +176,23 @@
                       (.<! nam expecting-nam (car togo))
                       (push-cdr! pos (car togo)))
                     (recur pos nam nil (cdr togo))])))
+         (named-alist (let* [(arg '())]
+                        (for-pairs (k v) nameds
+                          (push-cdr! arg k)
+                          (push-cdr! arg v))
+                        arg))
          (interpret-spec
            (function
              [((positional ?k)) (nth positionals k)]
              [((implicitly-named ?k)) (str->sym k)]
-             [((named ?k)) (or (.> nameds (.. ":" k))
-                               (error (string/format "(format %q): not given value for named argument %s"
-                                                     str k)))]))]
+             [((named ?k)) (if (.> nameds (.. ":" k))
+                             `(.> ,named-map ,(.. ":" k))
+                             (error (string/format "(format %q): not given value for named argument %s"
+                                                   str k)))]))]
     (when (> last-positional (n args))
       (error (string/format "(format %q): not given enough positional arguments (expected %d, got %d)"
                             str last-positional (n args))))
-    `(format-output! ,out
-                     ,(cons `.. (dolist [(frag fragments)]
-                                  (compile-format-fragment frag interpret-spec))))))
+    `(let* [(,named-map { ,@named-alist })]
+       (format-output! ,out
+                       ,(cons `.. (dolist [(frag fragments)]
+                                    (compile-format-fragment frag interpret-spec)))))))
