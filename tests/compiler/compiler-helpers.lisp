@@ -45,7 +45,7 @@
                      :states        {}
                      :compile-state { :mappings {} }
 
-                     :loader        (lambda (name) (fail! $"Cannot load external module '${name}'")) })]
+                     :loader        (lambda (name) (format 0 "Cannot load external module {#name:string/quoted}")) })]
 
     (for-each var '("foo" "bar" "baz" "qux" "+" "-" ".." "=" ">=" "get-idx" "print")
       (scope/add! scope var "native"))

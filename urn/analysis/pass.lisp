@@ -94,7 +94,7 @@
     (timer/stop-timer! (.> options :timer) name)
 
     ;; Print out logging modification information
-    (when (.> options :track) (logger/put-verbose! (.> options :logger) (format "%s made %d changes" name (.> ptracker :changed))))
+    (when (.> options :track) (logger/put-verbose! (.> options :logger) (sprintf "%s made %d changes" name (.> ptracker :changed))))
     (when tracker (.<! tracker :changed (+ (.> tracker :changed) (.> ptracker :changed))))
 
     (changed? ptracker)))

@@ -306,7 +306,7 @@
   :hidden
   (with ((handle err) (io/open file-name "w"))
     (unless handle
-      (logger/put-error! (.> compiler :log) $"Cannot open stats file ${err}")
+      (logger/put-error! (.> compiler :log) (format true "Cannot open stats file {#err:id}"))
       (exit! 1))
 
     (with (names (keys output))
@@ -395,7 +395,7 @@
            (total-hits 0)
            (total-misses 0)]
       (unless handle
-        (logger/put-error! logger $"Cannot open report file ${err}")
+        (logger/put-error! logger (format true "Cannot open report file {#err:id}"))
         (exit! 1))
 
       (for-each path (.> args :input)
@@ -438,7 +438,7 @@
                    (is-active (.> active i))
                    (count (or (and counts (.> counts i)) 0))]
               (when (and (not is-active) (> count 0))
-                (logger/put-warning! logger $"${path}:${i} is not active but has count ${count}"))
+                (logger/put-warning! logger (format true "{#path:id}:{#i:id} is not active but has count {#count:id}")))
 
               (cond
                 [(not is-active)

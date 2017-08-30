@@ -4,7 +4,7 @@
               second third fourth fifth sixth seventh ninth tenth + - * / % ^ ! not
               .. n else) :export)
 (import base)
-(import string (format concat $) :export)
+(import string (concat $) :export)
 (import binders () :export)
 (import comparison () :export)
 (import function () :export)
@@ -19,6 +19,7 @@
 (import lua/math math :export)
 (import lua/math maths :export)
 (import match (destructuring-bind case handler-case matches? function if-match) :export)
+(import urn/format (format) :export)
 
 (define *standard-output*
   "The standard output stream."
