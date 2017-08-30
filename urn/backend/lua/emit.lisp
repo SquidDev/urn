@@ -292,10 +292,10 @@
                (if (or break (and ret (/= ret "")))
                  ;; If we have to emit a break/return statement, then all was for nought
                  (progn
-                   (w/begin-block! out $"if ${tmp} then")
+                   (w/begin-block! out (format nil "if {#tmp:id} then"))
                    (compile-block (nth node 2) out state 2 ret break)
                    (w/next-block! out "else"))
-                 (w/begin-block! out $"if not ${tmp} then")))
+                 (w/begin-block! out (format nil "if not {#tmp:id} then"))))
 
              (if (or break (and ret (/= ret "")))
                ;; If we have to emit a break/return statement, then all was for nought

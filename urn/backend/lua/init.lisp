@@ -169,7 +169,7 @@
             [(nil ?msg)
              (let* [(buffer '())
                     (lines (string/split str "\n"))
-                    (format (.. "%" (n (number->string (n lines))) "d | %s"))]
+                    (sprintf (.. "%" (n (number->string (n lines))) "d | %s"))]
                (for i 1 (n lines) 1
                  (push-cdr! buffer (string/format format i (nth lines i))))
                (fail! (.. msg ":\n" (concat buffer "\n"))))]

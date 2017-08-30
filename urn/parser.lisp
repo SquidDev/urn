@@ -356,7 +356,30 @@
                 (consume!)
                 (set! char (string/char-at str offset)))
               (if interpolate
-                (append-with! {:tag "interpolate" :value (concat buffer)} start)
+                (let [(value (concat buffer))
+                      (sections '())
+                      (len (n str))]
+                  (loop [(i 1)] []
+                    (let* [((rs re rm) (string/find value  "~%{([^%} ]+)%}" i))
+                           ((is ie im) (string/find value "%$%{([^%} ]+)%}" i))]
+                      (cond
+                        [(and rs (=> is (< rs is)))
+                         (push-cdr! sections (string/sub value i (pred rs)))
+                         (push-cdr! sections (.. "{#" rm "}"))
+                         (recur (succ re))]
+                        [is
+                         (push-cdr! sections (string/sub value i (pred is)))
+                         (push-cdr! sections (.. "{#" im ":id}"))
+                         (recur (succ ie))]
+                        [else
+                         (push-cdr! sections (string/sub value i len))])))
+
+                  (logger/put-node-warning! logger
+                    "The $ syntax is deprecated and should be replaced with format."
+                    (range start (position)) nil
+                    (range start (position)) (.. "Can be replaced with (format nil " (string/quoted (concat sections)) ")"))
+
+                  (append-with! {:tag "interpolate" :value value} start))
                 (append-with! {:tag "string" :value (concat buffer)} start)))]
           [(= char ";")
            (while (and (<= offset length) (/= (string/char-at str (succ offset)) "\n"))

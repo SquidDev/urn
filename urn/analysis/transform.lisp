@@ -205,6 +205,6 @@
       (changed! (.> (nth trackers i) :changed))
       (when (.> state :track)
         (logger/put-verbose! (.> state :logger)
-          (format "%s made %d changes"
+          (sprintf "%s made %d changes"
             (.. "[" (concat (.> (nth transformers i) :cat) " ") "] " (.> (nth transformers i) :name))
             (.> (nth trackers i) :changed)))))))

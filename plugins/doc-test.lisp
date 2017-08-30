@@ -112,7 +112,7 @@
                            (cond
                              ;; Check we didn't fail.
                              [(not ok)
-                              (_/var-error! v $"Parsing failed for ${k}: ${res}")
+                              (_/var-error! v (format true "Parsing failed for {#k}: {#res}"))
                               (.<! asserts 1 `_/test/pending)]
                              ;; Each line must have exactly one entry
                              [(/= (n res) 1)

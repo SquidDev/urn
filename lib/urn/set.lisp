@@ -92,7 +92,7 @@
   (assert-type! a set)
   (assert-type! b set)
   (unless (= (hashset-fn a) (hashset-fn b))
-    (error! $"union: ~{a} and ~{b} do not have the same hash function."))
+    (format 1 "union: {#a} and {#b} do not have the same hash function."))
   (let* [(out (make-set (hashset-fn a)))]
     (for-pairs (k v) (hashset-data a)
       (.<! (hashset-data out) k v))
@@ -111,7 +111,7 @@
   (assert-type! a set)
   (assert-type! b set)
   (unless (= (hashset-fn a) (hashset-fn b))
-    (error! $"intersection: ~{a} and ~{b} do not have the same hash function."))
+    (format 1 "intersection: {#a} and {#b} do not have the same hash function."))
   (let* [(out (make-set (hashset-fn a)))]
     (for-pairs (k v) (hashset-data a)
       (when (.> (hashset-data b) k)
@@ -141,4 +141,3 @@
 
 (defmethod (pretty set) (x)
   (.. "«hash-set: " (concat (map pretty (set->list x)) " ") "»"))
-
