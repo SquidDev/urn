@@ -34,7 +34,7 @@
   (or (= c ":")
       (= c "%")))
 
-(defun parse-format-reference (str) :hidden
+(defun parse-format-reference (str last-pos-ref) :hidden
   "Parse the formatting reference STR."
   (let* [((val end)
           (cond
@@ -49,7 +49,11 @@
             [(string/find (string/char-at str 1) "#")
              (let* [((start end match)
                      (string/find str "#([a-zA-Z][^:%%@]*)"))]
-               (values-list (list 'implicitly-named match) end))]))]
+               (values-list (list 'implicitly-named match) end))]
+            [else
+              (let* [(pos (.> last-pos-ref 1))]
+                (.<! last-pos-ref 1 (+ pos 1))
+                (values-list (list 'positional pos) 1))]))]
     (values-list val (string/sub str (+ 1 end)))))
 
 (defun display-with-sep (sep frag) :hidden
@@ -73,19 +77,20 @@
             (k (parse-format-formatter fmtr))]
        (lambda (ref)
          (list 'urn-format ref (display-with-sep (string/sub sep 2 (- (n sep) 1)) (k 'ignored)))))]
-    [(= spec "") (lambda (ref) (list 'urn-format ref `pretty))]))
+    [(= spec "") (lambda (ref) (list 'urn-format ref `display))]))
 
 (defun handle-formatting-specifier (spec last-pos) :hidden
   "Parse the entirety of the format specifier SPEC."
-  (let* [((ref spec) (parse-format-reference spec))
+  (let* [((ref spec) (parse-format-reference spec last-pos))
          ((formatter spec) (parse-format-formatter spec))]
-  (values-list (formatter ref) last-pos)))
+  (formatter ref)))
 
 (defun parse-format (str) :hidden
   "Parse the format string STR into a list of fragments."
   (let* [(cur "") ; the current character (for convenience)
          (buf "") ; a buffer
-         (last-positional 1) ; for anonymous positions
+         ; we don't have pointers, so we keep it in a table.
+         (last-positional { 1 1 }) ; for anonymous positions
          (frags '())]
     (loop [(i 1)]
       [(> i (n str))
@@ -101,10 +106,7 @@
            [(or (>= j (n str))
                 (= (string/char-at str j) "}"))
             (set! i j)
-            (let* [((frag anon-pos)
-                    (handle-formatting-specifier parsed last-positional))]
-              (when anon-pos
-                (set! last-positional anon-pos))
+            (let* [(frag (handle-formatting-specifier parsed last-positional))]
               (push-cdr! frags frag))]
            (recur (.. parsed (string/char-at str j)) (+ 1 j)))]
         [else => (set! buf (.. buf it))])
