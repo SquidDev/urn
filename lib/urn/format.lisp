@@ -183,7 +183,9 @@
                         arg))
          (interpret-spec
            (function
-             [((positional ?k)) (nth positionals k)]
+             [((positional ?k)) (or (nth positionals k)
+                                    (error (string/format "(format %q): not given positional argument %d"
+                                                          str k)))]
              [((implicitly-named ?k)) (str->sym k)]
              [((named ?k)) (if (.> nameds (.. ":" k))
                              `(.> ,named-map ,(.. ":" k))
@@ -192,7 +194,7 @@
     (when (> last-positional (n args))
       (error (string/format "(format %q): not given enough positional arguments (expected %d, got %d)"
                             str last-positional (n args))))
-    `(let* [(,named-map { ,@named-alist })]
+    (debug `(let* [(,named-map { ,@named-alist })]
        (format-output! ,out
                        ,(cons `.. (dolist [(frag fragments)]
-                                    (compile-format-fragment frag interpret-spec)))))))
+                                    (compile-format-fragment frag interpret-spec))))))))
