@@ -123,6 +123,21 @@
         (cadr pair) nil
         (get-source (cadr pair)) "Defined here"))))
 
+(defpass macro-usage (state nodes)
+  "Determines whether any macro is used."
+  :cat '("warn")
+  (visitor/visit-block nodes 1
+    (lambda (node)
+      (when (symbol? node)
+        (when (= (.> node :var :tag) "macro")
+          (logger/put-node-warning! (.> state :logger)
+            (string/format "The macro %s is not expanded" (string/quoted (.> node :contents)))
+            node
+            "This macro is used in such a way that it'll be called as a normal function
+             instead of expanding into executable code. Sometimes this may be intentional,
+             but more often than not it is the result of a misspelled variable name."
+            (get-source node) "macro used here"))))))
+
 (defun analyse (nodes state passes)
   (with (lookup {})
     (for-each pass (.> passes :normal)
@@ -134,5 +149,5 @@
 
 (defun default ()
   "Create a collection of default warnings."
-  { :normal (list documentation warning/check-order deprecated)
+  { :normal (list documentation warning/check-order deprecated macro-usage)
     :usage (list check-arity unused-vars)})
