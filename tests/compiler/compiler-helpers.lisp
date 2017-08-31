@@ -30,7 +30,7 @@
   "Create a new compilation state, with some basic variables already defined."
   (let* [(scope (builtins/create-scope))
          (compiler { :log           logger/void
-                     :timer         (timer/create (lambda ()))
+                     :timer         (timer/void)
 
                      :lib-meta      { :+       { :tag "expr" :contents '(1 " + " 2)   :count 2 :fold "l" :prec 9 :pure true :value + }
                                       :-       { :tag "expr" :contents '(1 " - " 2)   :count 2 :fold "l" :prec 9 :pure true :value - }

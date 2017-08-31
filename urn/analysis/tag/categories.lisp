@@ -87,7 +87,7 @@
                     ;; Handle all special forms
                     [(= func (.> builtins :lambda))
                      (visit-nodes lookup state node 3 true)
-                     (cat "lambda")]
+                     (cat "lambda" :prec 100)]
                     [(= func (.> builtins :cond))
                      ;; Visit all conditions inside the node. It maybe seem
                      ;; weird that we consider the condition as a statement, but
@@ -183,15 +183,15 @@
                          (with (recur { :var var :def def })
                            (visit-nodes lookup state def 3 true nil recur)
                            (unless (.> recur :tail) (error! "Expected tail recursive function from letrec"))
-                           (.<! lookup def (cat "lambda" :recur (visit-recur lookup recur))))
+                           (.<! lookup def (cat "lambda" :prec 100 :recur (visit-recur lookup recur))))
                          (visit-node lookup state def true)))
                      (cat "set!")]
                     [(= func (.> builtins :quote))
                      (visit-quote lookup node)
-                     (cat "quote")]
+                     (cat "quote" :prec 100)]
                     [(= func (.> builtins :syntax-quote))
                      (visit-syntax-quote lookup state (nth node 2) 1)
-                     (cat "syntax-quote")]
+                     (cat "syntax-quote" :prec 100)]
                     [(= func (.> builtins :unquote)) (fail! "unquote should never appear")]
                     [(= func (.> builtins :unquote-splice)) (fail! "unquote should never appear")]
                     [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
@@ -200,26 +200,29 @@
                          (with (recur { :var (.> node :def-var) :def def})
                            (visit-nodes lookup state def 3 true nil recur)
                            (.<! lookup def (if (.> recur :tail)
-                                             (cat "lambda" :recur (visit-recur lookup recur))
-                                             (cat "lambda"))))
+                                             (cat "lambda" :prec 100 :recur (visit-recur lookup recur))
+                                             (cat "lambda" :prec 100))))
                          (visit-node lookup state def true)))
                      (cat "define")]
                     [(= func (.> builtins :define-native)) (cat "define-native")]
                     [(= func (.> builtins :import)) (cat "import")]
                     [(= func (.> builtins :struct-literal))
                      (visit-nodes lookup state node 2 false)
-                     (cat "struct-literal")]
+                     (cat "struct-literal" :prec 100)]
 
-                    ;; Handle things like `("foo")`
+                    ;; Handle things like `(true)`
                     [(= func (.> builtins :true))
                      (visit-nodes lookup state node 1 false)
-                     (cat "call-literal")]
+                     (.<! lookup head :parens true)
+                     (cat "call")]
                     [(= func (.> builtins :false))
                      (visit-nodes lookup state node 1 false)
-                     (cat "call-literal")]
+                     (.<! lookup head :parens true)
+                     (cat "call")]
                     [(= func (.> builtins :nil))
                      (visit-nodes lookup state node 1 false)
-                     (cat "call-literal")]
+                     (.<! lookup head :parens true)
+                     (cat "call")]
 
                     ;; Default invocation
                     [true
@@ -298,7 +301,9 @@
                    (with (child-cat (visit-node lookup state (nth node 2) stmt test))
                      (if (.> child-cat :stmt)
                        (progn
-                         (visit-node lookup state head true)
+                         (.<! lookup head (cat "lambda" :prec 100 :parens true))
+                         (visit-node lookup state (nth head 3) true false)
+
                          ;; If we got a statement out of it, then we either need to emit
                          ;; our fancy let bindings or just a normal call.
                          (if stmt
@@ -324,7 +329,7 @@
                       (progn
                         ;; We got a statement out of it, which means we cannot emit an "and" or "or".
                         ;; Instead we'll just emit a normal call-lambda/call.
-                        (.<! lookup head (cat "lambda"))
+                        (.<! lookup head (cat "lambda" :prec 100 :parens true))
                         (visit-node lookup state (nth head 3) true test recur)
                         (if stmt
                           (cat "call-lambda" :stmt true)
@@ -347,7 +352,7 @@
                                                         (set! working (not (node-contains-var? sub var))))))))))
                                           working)))]
                         ;; Otherwise we got an expression, so we'll see what we can do.
-                        (.<! lookup head (cat "lambda"))
+                        (.<! lookup head (cat "lambda" :prec 100 :parens true))
                         (cond
                           [(and (= ty "and") (unused?))
                            (add-paren lookup (nth node 2) 2)
@@ -376,9 +381,7 @@
                          [else (visit-node lookup state (car vals) true)])))
 
                    (cat "call-lambda" :stmt true)]
-                  [(or (builtin? (car head) :quote) (builtin? (car head) :syntax-quote))
-                   (visit-nodes lookup state node 1 false)
-                   (cat "call-literal")]
+
                   [true
                     (visit-nodes lookup state node 1 false)
                     (add-paren lookup (car node) 100)
@@ -387,7 +390,8 @@
                ;; We're probably calling a constant here.
                [_
                 (visit-nodes lookup state node 1 false)
-                (cat "call-literal")]))]))
+                (.<! lookup (car node) :parens true)
+                (cat "call")]))]))
     (when (= cat nil) (fail! (.. "Node returned nil "(pretty node))))
     (.<! lookup node cat)
     cat))

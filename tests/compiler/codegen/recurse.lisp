@@ -11,9 +11,9 @@
            (set! recur (lambda ()))
            (recur))))
       "local recur
-       recur = (function()
+       recur = function()
          return nil
-       end)
+       end
        return recur()"))
 
   (will "correctly propagate breaks"

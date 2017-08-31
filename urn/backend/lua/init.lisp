@@ -11,7 +11,7 @@
 
 (defun create-state (meta) {
                              ;; [[run-pass]] options
-                             :timer      timer/void
+                             :timer      (timer/void)
 
                              ;; execute-states options
                              :count      0

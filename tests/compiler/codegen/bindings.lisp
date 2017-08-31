@@ -38,15 +38,15 @@
     (it "on their own"
       (affirm-codegen
         '((lambda (&args) 1))
-        "return (function(...)
+        "return function(...)
            local args = _pack(...) args.tag = \"list\"
            return 1
-         end)"))
+         end"))
 
     (it "at the beginning"
       (affirm-codegen
         '((lambda (&args x) 1))
-        "return (function(...)
+        "return function(...)
            local _n = _select(\"#\", ...) - 1
            local args, x
            if _n > 0 then
@@ -57,7 +57,7 @@
              x = ...
            end
            return 1
-         end)")))
+         end")))
 
   (section "will which handle bindings with variable arguments"
     (section "and a known number of values"

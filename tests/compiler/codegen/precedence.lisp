@@ -21,14 +21,56 @@
              [true true]) 1 2))
         "return (not foo)(1, 2)"))
 
+    (it "of statements"
+      (affirm-codegen
+        '((foo ((lambda () 1))))
+        "return foo((function()
+           return 1
+         end)())")
+      (affirm-codegen
+        '((((lambda (x) x) (cond [true 1])) 1 2))
+        "return (function(x)
+           return x
+         end)((function()
+           do
+             return 1
+           end
+         end)())(1, 2)")
+      (affirm-codegen
+        '((((lambda (x) (cond [x x] [true 2])) (cond [true 1])) 1 2))
+        "return (function(x)
+           return x or 2
+         end)((function()
+           do
+             return 1
+           end
+         end)())(1, 2)")
+      (affirm-codegen
+        '((((lambda (x) (cond [x 2] [true x])) (cond [true 1])) 1 2))
+        "return (function(x)
+           return x and 2
+         end)((function()
+           do
+             return 1
+           end
+         end)())(1, 2)")
+      (affirm-codegen
+        '((((lambda (x) (cond [x false] [true true])) (cond [true 1])) 1 2))
+        "return (function(x)
+           return not x
+         end)((function()
+           do
+             return 1
+           end
+         end)())(1, 2)"))
+
     (it "of quotes"
-      ;; TODO: Remove one layer of quotes
       (affirm-codegen
         '(('(1 2) 1 2))
-        "return (({tag = \"list\", n = 2, 1, 2}))(1, 2)")
+        "return ({tag = \"list\", n = 2, 1, 2})(1, 2)")
       (affirm-codegen
         '((`(1 2) 1 2))
-        "return (({tag = \"list\", n = 2, 1, 2}))(1, 2)"))
+        "return ({tag = \"list\", n = 2, 1, 2})(1, 2)"))
 
     (it "of const-struct"
       (affirm-codegen
@@ -38,15 +80,25 @@
     (it "of constants"
       (affirm-codegen*
         '((1 1 2))
-        "return (1)(1, 2)")))
+        "return (1)(1, 2)"))
 
-  (it "will correctly wrap constants"
-    (affirm-codegen
-      '((get-idx 1 2))
-      "return (1)[2]")
-    (affirm-codegen
-      '((get-idx foo 2))
-      "return foo[2]"))
+    (it "of symbols"
+      (affirm-codegen
+        '((true 1 2))
+        "return (true)(1, 2)")))
+
+  (section "will correctly indexed"
+    (it "constants"
+      (affirm-codegen
+        '((get-idx 1 2))
+        "return (1)[2]")
+      (affirm-codegen
+        '((get-idx foo 2))
+        "return foo[2]"))
+    (it "quotes"
+      (affirm-codegen
+        '((get-idx '(1 2 3) 2))
+        "return ({tag = \"list\", n = 3, 1, 2, 3})[2]")))
 
   (section "will correctly wrap nested expressions"
     (it "with nots"

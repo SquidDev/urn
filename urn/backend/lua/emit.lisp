@@ -129,7 +129,8 @@
 
            ;; Build the argument list, looking for variadic arguments.
            ;; We stop when we find one: after all, we can't emit successive args
-           (w/append! out "(function(")
+           (when (.> cat :parens) (w/append! out "("))
+           (w/append! out "function(")
            (while (and (<= i (n args)) (not variadic))
              (when (> i 1) (w/append! out ", "))
              (with (var (.> args i :var))
@@ -187,7 +188,8 @@
              (compile-block node out state 3 "return "))
            (w/unindent! out)
            (for-each arg args (pop-escape-var! (.> arg :var) state))
-           (w/append! out "end)")))]
+           (w/append! out "end")
+           (when (.> cat :parens) (w/append! out ")"))))]
 
       ["cond"
        (let [(closure (not ret))
@@ -400,14 +402,16 @@
          [(= ret "") (w/append! out "local _ = ")]
          [ret (w/append! out ret)]
          [true])
-       (w/append! out "({")
+       (when (.> cat :parens) (w/append! out "("))
+       (w/append! out "{")
        (for i 2 (n node) 2
          (when (> i 2) (w/append! out ","))
          (w/append! out "[")
          (compile-expression (nth node i) out state)
          (w/append! out "]=")
          (compile-expression (nth node (succ i)) out state))
-       (w/append! out "})")]
+       (w/append! out "}")
+       (when (.> cat :parens) (w/append! out ")"))]
 
       ["define"
        (compile-expression (nth node (n node)) out state (.. (push-escape-var! (.> node :def-var) state) " = "))]
@@ -426,30 +430,36 @@
        ;; Quotations are "pure" so we don't have to emit anything
        (unless (= ret "")
          (when ret (w/append! out ret))
-         (compile-expression (nth node 2) out state))]
+         (when (.> cat :parens) (w/append! out "("))
+         (compile-expression (nth node 2) out state)
+         (when (.> cat :parens) (w/append! out ")")))]
 
-      ["quote-const" (unless (= ret "")
-                       (when ret (w/append! out ret))
-                       (case (type node)
-                         ["string" (w/append! out (string/quoted (.> node :value)))]
-                         ["number" (w/append! out (number->string (.> node :value)))]
-                         ["symbol"
-                          (w/append! out (.. "({ tag=\"symbol\", contents=" (string/quoted (.> node :contents))))
-                          (when (.> node :var)
-                            (w/append! out (.. ", var=" (string/quoted(number->string (.> node :var))))))
-                          (w/append! out "})")]
-                         ["key" (w/append! out (.. "({tag=\"key\", value=" (string/quoted (.> node :value)) "})"))]))]
+      ["quote-const"
+       (unless (= ret "")
+         (when ret (w/append! out ret))
+         (when (.> cat :parens) (w/append! out "("))
+         (case (type node)
+           ["string" (w/append! out (string/quoted (.> node :value)))]
+           ["number" (w/append! out (number->string (.> node :value)))]
+           ["symbol"
+            (w/append! out (.. "{ tag=\"symbol\", contents=" (string/quoted (.> node :contents))))
+            (when (.> node :var)
+            (w/append! out (.. ", var=" (string/quoted(number->string (.> node :var))))))
+            (w/append! out "}")]
+           ["key"
+            (w/append! out (.. "{tag=\"key\", value=" (string/quoted (.> node :value)) "}"))])
+         (when (.> cat :parens) (w/append! out ")")))]
 
       ["quote-list"
        (cond
          [(= ret "") (w/append! out "local _ = ")]
          [ret (w/append! out ret)]
          [true])
-       (w/append! out (.. "({tag = \"list\", n = " (number->string (n node))))
+       (w/append! out (.. "{tag = \"list\", n = " (number->string (n node))))
        (for-each sub node
          (w/append! out ", ")
          (compile-expression sub out state))
-       (w/append! out "})")]
+       (w/append! out "}")]
 
       ["quote-splice"
        (unless ret (w/begin-block! out "(function()"))
@@ -484,7 +494,10 @@
           (w/line! out "return _result")
           (w/end-block! out "end)()")])]
 
-      ["syntax-quote" (compile-expression (nth node 2) out state ret)]
+      ["syntax-quote"
+       (when (.> cat :parens) (w/append! out "("))
+       (compile-expression (nth node 2) out state ret)
+       (when (.> cat :parens) (w/append! out ")"))]
       ["unquote" (compile-expression (nth node 2) out state ret)]
       ["unquote-splice" (fail! "Should never have explicit unquote-splice")]
 
@@ -652,18 +665,6 @@
          (for-each arg args
            (unless (.> state :var-skip (.> arg :var))
              (pop-escape-var! (.> arg :var) state))))]
-      ["call-literal"
-       ;; Just invoke the expression as normal
-       (when ret (w/append! out ret))
-       ;; If we're invoking false or something then we need to wrap it in parens.
-       ;; We'll just error anyway, but I can live with that.
-       (w/append! out "(")
-       (compile-expression (car node) out state)
-       (w/append! out ")(")
-       (for i 2 (n node) 1
-         (when (> i 2) (w/append! out ", "))
-         (compile-expression (nth node i) out state))
-       (w/append! out ")")]
 
       ["call"
        ;; Just invoke the expression as normal

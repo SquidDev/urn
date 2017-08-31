@@ -7,7 +7,7 @@
     (it "with `unquote`s"
       (affirm-codegen
        '(`(1 2 ,foo))
-       "return ({tag = \"list\", n = 3, 1, 2, foo})"))
+       "return {tag = \"list\", n = 3, 1, 2, foo}"))
     (it "with `unquote-splice`s"
       (affirm-codegen
        '(`(1 2 ,@foo))

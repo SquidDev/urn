@@ -40,6 +40,6 @@
 
     ((.> timer :callback) (.> instance :name) (.> instance :total) (.> instance :level))))
 
-(define void
+(defun void ()
   "An empty timer which does nothing."
   (create (lambda ())))
