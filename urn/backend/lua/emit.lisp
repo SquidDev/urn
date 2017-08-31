@@ -103,7 +103,6 @@
               (print! "Cannot find" (pretty node) (range/format-node node))))
          (cat-tag (.> cat :category))]
     (unless (.> boring-categories cat-tag) (w/push-node! out node))
-
     (case cat-tag
       ["void"
        (unless (= ret "")
@@ -454,7 +453,7 @@
 
       ["quote-splice"
        (unless ret (w/begin-block! out "(function()"))
-       (w/line! out "local _offset, _result, _temp = 0, {tag=\"list\",n=0}")
+       (w/line! out "local _offset, _result, _temp = 0, {tag=\"list\"}")
        (with (offset 0)
          (for i 1 (n node) 1
            (let* [(sub (nth node i))
@@ -487,7 +486,7 @@
 
       ["syntax-quote" (compile-expression (nth node 2) out state ret)]
       ["unquote" (compile-expression (nth node 2) out state ret)]
-      ["unquote-splice" (fail! "Should neve have explicit unquote-splice")]
+      ["unquote-splice" (fail! "Should never have explicit unquote-splice")]
 
       ["import"
        ;; Imports don't do anything at all (and should have be stripped by the optimiser)
