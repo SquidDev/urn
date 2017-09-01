@@ -13,13 +13,20 @@
       ;; Constant terms are obviously side effect free
       [(or (= tag "number") (= tag "string") (= tag "key") (= tag "symbol")) false]
       [(= tag "list")
-       (with (fst (car node))
-         ;; We simply check if we're defining a lambda/quoting something
-         ;; Everything else *may* have a side effect.
-         (if (= (type fst) "symbol")
-           (with (var (.> fst :var))
-             (and (/= var (.> builtins :lambda)) (/= var (.> builtins :quote))))
-           true))])))
+       (with (head (car node))
+         (or
+           (/= (type head) "symbol")
+           (with (var (.> head :var))
+             (cond
+               ;; If we're calling a non-builtin symbol, then assume it has a side effect.
+               [(/= (.> var :tag) "builtin") true]
+               ;; Lambdas and quotes obviously have no side-effect.
+               [(= var (.> builtins :lambda)) false]
+               [(= var (.> builtins :quote)) false]
+               ;; struct-literal has no side effect if empty.
+               [(= var (.> builtins :struct-literal)) (/= (n node) 1)]
+               ;; Otherwise, assume it'll do something
+               [else true]))))])))
 
 (defun constant? (node)
   "Checks if NODE is a constant value"

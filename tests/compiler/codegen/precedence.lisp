@@ -72,7 +72,7 @@
         '((`(1 2) 1 2))
         "return ({tag = \"list\", n = 2, 1, 2})(1, 2)"))
 
-    (it "of const-struct"
+    (it "of struct-literal"
       (affirm-codegen
         '(({ :a 1 } 1 2))
         "return ({[\"a\"]=1})(1, 2)"))

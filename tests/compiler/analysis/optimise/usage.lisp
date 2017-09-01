@@ -50,15 +50,23 @@
       (affirm-transform-optimise (list optimise/strip-args)
         '(((lambda (x) 2) 3)
           ((lambda (x y z) 2) 3 4 5) ;; Multiple arguments
+          ((lambda (x) 2) {})        ;; More complex arguments
+          ((lambda (x) 2) (lambda ()))
+          ((lambda (x) 2) '())
+          ((lambda (x) 2) { :a (foo) }) ;; Non empty const-struct
           ((lambda (x) 2) (foo)) ;; Side effect in definition
           ((lambda (x) x) 3)     ;; x is used
           ((lambda (x y z) x z) 3 4 5)) ;; Multiple arguments with some used
         '(((lambda () 2))
           ((lambda () 2))
+          ((lambda () 2))
+          ((lambda () 2))
+          ((lambda () 2))
+          ((lambda (x) 2) { :a (foo) })
           ((lambda (x) 2) (foo))
           ((lambda (x) x) 3)
           ((lambda (x z) x z) 3 5))
-        5))
+        8))
     (it "that are mutable"
       (affirm-transform-optimise (list optimise/strip-args)
         '(((lambda (x) (set! x 3) 2) 3)
