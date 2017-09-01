@@ -6,5 +6,5 @@
 (import data/lens () :export)
 
 (import math () :export)
-(import math/rational (rational rational?) :export)
+(import math/rational (rational rational? r< r<= r> r>=) :export)
 (import math/rational rational :export)

@@ -1,4 +1,5 @@
 (import core/prelude ())
+(import data/format ())
 (import data/struct ())
 
 (defun gcd (x y) :hidden
@@ -14,8 +15,14 @@
     (immutable denominator denominator "The rational's denumerator"))
   (constructor new
     (lambda (n d)
+      (unless (and (number? n)
+                   (= 0 (second (math/modf n))))
+        (format 1 "(rational {} {}): numerator must be an integer" n d))
+      (unless (and (number? d)
+                   (= 0 (second (math/modf d))))
+        (format 1 "(rational {%d} {}): denominator must be an integer" n d))
       (when (= d 0)
-        (error! (sprintf "(rational %d %d): denominator is zero" n d)))
+        (format 1 "(rational {%d} {%d}): denominator is zero" n d))
       (let* [(x (gcd n d))]
         (setmetatable
           (new (/ n x) (/ d x))
@@ -144,7 +151,7 @@
   (let* [((xn xd) (normalised-rational-components x))]
     (case xd
       [1 (tostring xn)]
-      [else (sprintf "(rational %d %d)" xn xd)])))
+      [else (format nil "(rational {%d} {%d})" xn xd)])))
 
 (defmethod (eq? rational rational) (x y)
   (let* [((xn xd) (normalised-rational-components x))
