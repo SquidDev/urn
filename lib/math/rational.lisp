@@ -39,7 +39,7 @@
    ### Example:
    ```cl
    > (->rat 3.14)
-   out = (rational 157 50)
+   out = 157/50
    > (/ 157 50)
    out = 3.14
    ```"
@@ -133,7 +133,7 @@
    ### Example:
    ```cl
    > (rsqrt (rational 1 4))
-   out = (rational 1 2)
+   out = 1/2
    ```"
   (let* [((xn xd) (normalised-rational-components x))]
     (rational (math/sqrt xn) (math/sqrt xd))))
@@ -144,20 +144,18 @@
     :__mul r*
     :__div r/
     :__pow rexp
-    :__lt r<
+    :__lt  r<
     :__lte r<= })
 
 (defmethod (pretty rational) (x)
   (let* [((xn xd) (normalised-rational-components x))]
-    (case xd
-      [1 (tostring xn)]
-      [else (format nil "(rational {%d} {%d})" xn xd)])))
+    (format nil "{%d}/{%d}" xn xd)))
 
 (defmethod (eq? rational rational) (x y)
   (let* [((xn xd) (normalised-rational-components x))
          ((yn yd) (normalised-rational-components y))]
-    (and (= xn xd)
-         (= yn yd))))
+    (and (= xn yn)
+         (= xd yd))))
 
 (defun recip (x)
   "Compute the reciprocal of rational number X"
