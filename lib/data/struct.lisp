@@ -87,15 +87,6 @@
          (hide (if (list? (car meta-clause)) (eql? (caar meta-clause) 'hide) false))
          (docs (or (cadr meta-clause) nil))
          (fields-clause-sym (gensym))
-         (nth-field (let* [(self (gensym 'self))
-                           (x (gensym 'x))
-                           (n (gensym 'n))]
-                      `(lambda (,self ,n)
-                         (.> ,self
-                             (let* [(,x (nth ,fields-clause-sym ,n))]
-                               (symbol->string (if (list? ,x)
-                                                 (cadr ,x)
-                                                 ,x)))))))
          (destructure (let* [(self (gensym 'self))]
                         `(lambda (,'_ ,self)
                            (list ,@(map (lambda (x)
@@ -107,13 +98,7 @@
     `(define ,name-sym ,@(if hide '(:hidden) '()) ,@(if docs (list docs) '())
        (let* [(,fields-clause-sym ',fields-clause)]
          (setmetatable
-           { :type-name ,(symbol->string type-name)
-             :constructor-name ,(symbol->string constructor-name)
-             :predicate-name ,(symbol->string predicate-name)
-             :test ,predicate-name
-             :constructor ,constructor-name
-             :clauses ',clauses
-             :nth-field ,nth-field }
+           { :test ,predicate-name }
            { :__call ,destructure })))))
 
 (defmacro defstruct (name &clauses)

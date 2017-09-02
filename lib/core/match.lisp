@@ -344,10 +344,9 @@
          [(eql? (cadr pattern) '->)
           (compile-pattern-bindings (caddr pattern) `(,(car pattern) ,symb))]
          [(eql? (car pattern) '$)
-          (flat-map (lambda (x k)
-                      (compile-pattern-bindings x `((get-idx ,(cadr pattern) :nth-field) ,symb ,k)))
-               (cddr pattern)
-               (range :from 1 :to (n (cddr pattern))))]
+          (let* [(sym (gensym))]
+            (cons `(,sym (,(cadr pattern) ,symb))
+                  (compile-pattern-bindings (cddr pattern) sym)))]
          [(eql? (car pattern) 'optional)
           (compile-pattern-bindings (cadr pattern) symb)]
          [(struct-pat? pattern)
