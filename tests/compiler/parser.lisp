@@ -18,7 +18,19 @@
   (cond
     [(/= (type x) (type y)) false]
     [(list? x) (and (= (n x) (n y)) (all id (map teq? x y)))]
-    [true (eq? (const-val x) (const-val y))]))
+    [true (eq? x y)]))
+
+(defmethod (pretty interpolate) (x)
+  (.. "$" (string/quoted (.> x :value))))
+
+(defmethod (eq? interpolate interpolate) (x y)
+  (= (.> x :value) (.> y :value)))
+
+(defmethod (pretty rational) (x)
+  (.. (pretty (.> x :num)) "/" (pretty (.> x :dom))))
+
+(defmethod (eq? rational rational) (x y)
+  (and (eq? (.> x :num) (.> y :num)) (eq? (.> x :dom) (.> y :dom))))
 
 (defun string->key (key) { :tag "key" :value key })
 
@@ -34,7 +46,9 @@
             (teq? '(-23)  (lex "-0.23e2"))
             (teq? '(23)   (lex "#rXXIII"))
             (teq? '(-23)  (lex "-#rXXIII"))
-            (teq? '(1666) (lex "#rMDCLXVI"))))
+            (teq? '(1666) (lex "#rMDCLXVI"))
+            (teq? (list { :tag "rational" :num 1 :dom 2 }) (lex "1/2"))
+            (teq? (list { :tag "rational" :num 1 :dom 2 }) (lex "1'/'2'"))))
 
   (it "lexes strings"
     (affirm (teq? '("foo") (lex "\"foo\""))
@@ -43,7 +57,8 @@
             (teq? '("A") (lex "\"\\x41\""))
             (teq? '("foo\nbar") (lex "\"foo\n bar\""))
             (teq? '("foo\nbar") (lex "   \"foo\n    bar\""))
-            (teq? '("foo\n   bar") (lex "   \"foo\n   bar\""))))
+            (teq? '("foo\n   bar") (lex "   \"foo\n   bar\""))
+            (teq? (list { :tag "interpolate" :value "foo"}) (lex "$\"foo\""))))
 
   (it "lexes symbols"
     (affirm (teq? (list (string->symbol "foo")) (lex "foo"))
@@ -87,6 +102,9 @@
             (teq? '("foo") (parse "\"foo\""))
             (teq? '(23 foo "foo" 23) (parse "23 foo \"foo\" 23"))
             (teq? '((23)) (parse "(23)"))))
+
+  (it "parses rationals"
+    (affirm (teq? '((rational 1 2)) (parse "1/2"))))
 
   (it "parses string interpolation"
     (affirm (teq? '(($ "foo")) (parse "$\"foo\""))))
