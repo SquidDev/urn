@@ -45,7 +45,9 @@
    ```"
   (let* [((i f) (math/modf y))
          (f' (^ 10 (- (n (tostring f)) 2)))]
-    (rational (* y f') f')))
+    (if (= 0 f) ; it's an integer, so we just /1 it
+      (rational y 1)
+      (rational (* y f') f'))))
 
 (defun ->float (y)
   "Convert the rational number Y to a floating-point number.
@@ -156,6 +158,12 @@
          ((yn yd) (normalised-rational-components y))]
     (and (= xn yn)
          (= xd yd))))
+
+(defmethod (eq? rational number) (x y)
+  (eq? x (->rat y)))
+
+(defmethod (eq? number rational) (x y)
+  (eq? (->rat x) y))
 
 (defun recip (x)
   "Compute the reciprocal of rational number X"
