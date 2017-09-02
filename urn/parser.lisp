@@ -80,8 +80,8 @@
          (range (lambda (start finish) {:start start :finish (or finish start) :lines lines :name name}))
          ;; Appends a struct to the list
          (append-with! (lambda (data start finish)
-                         (let ((start (or start (position)))
-                                (finish (or finish (position))))
+                         (let [(start (or start (position)))
+                               (finish (or finish (position)))]
                            (.<! data :range (range start finish))
                            (.<! data :contents (string/sub str (.> start :offset) (.> finish :offset)))
                            (push-cdr! out data))))
@@ -151,96 +151,136 @@
                (consume!)
                (append! "unquote-splice" start))
              (append! "unquote"))]
-          ((string/find str "^%-?%.?[#0-9]" offset)
-            (let [(start (position))
-                  (negative (= char "-"))]
-              ;; Check whether this number is negative
-              (when negative
+          [(string/find str "^%-?%.?[#0-9]" offset)
+           (let [(start (position))
+                 (negative (= char "-"))]
+             ;; Check whether this number is negative
+             (when negative
+               (consume!)
+               (set! char (string/char-at str offset)))
+
+             (cond
+               ;; Parse hexadecimal digits
+               [(and (= char "#") (= (string/lower (string/char-at str (succ offset))) "x"))
                 (consume!)
-                (set! char (string/char-at str offset)))
+                (consume!)
+                (with (res (parse-base "hexadecimal" hex-digit? 16))
+                  (when negative (set! res (- 0 res)))
+                  (append-with! { :tag "number" :value res } start))]
 
-              (with (val (cond
-                           ;; Parse hexadecimal digits
-                           [(and (= char "#") (= (string/lower (string/char-at str (succ offset))) "x"))
-                            (consume!)
-                            (consume!)
-                            (with (res (parse-base "hexadecimal" hex-digit? 16))
-                              (when negative (set! res (- 0 res)))
-                              res)]
-                           ;; Parse binary digits
-                           [(and (= char "#") (= (string/lower (string/char-at str (succ offset))) "b"))
-                            (consume!)
-                            (consume!)
-                            (with (res (parse-base "binary" bin-digit? 2))
-                              (when negative (set! res (- 0 res)))
-                              res)]
-                           ;; Parse roman digits
-                           [(and (= char "#") (= (string/lower (string/char-at str (succ offset))) "r"))
-                            (consume!)
-                            (consume!)
-                            (with (res (parse-roman))
-                              (when negative (set! res (- 0 res)))
-                              res)]
-                           ;; Other leading "#"s are illegal
-                           [(and (= char "#") (terminator? (string/lower (string/char-at str (succ offset)))))
-                            (logger/do-node-error! logger
-                              "Expected hexadecimal (#x), binary (#b), or Roman (#r) digit specifier."
-                              (range (position))
-                              "The '#' character is used for various number representations, such as binary
-                               and hexadecimal digits.
+               ;; Parse binary digits
+               [(and (= char "#") (= (string/lower (string/char-at str (succ offset))) "b"))
+                (consume!)
+                (consume!)
+                (with (res (parse-base "binary" bin-digit? 2))
+                  (when negative (set! res (- 0 res)))
+                  (append-with! { :tag "number" :value res } start))]
 
-                               If you're looking for the '#' function, this has been replaced with 'n'. We
-                               apologise for the inconvenience."
-                              (range (position)) "# must be followed by x, b or r")]
-                           [(= char "#")
-                            (consume!)
-                            (logger/do-node-error! logger
-                              "Expected hexadecimal (#x), binary (#b), or Roman (#r) digit specifier."
-                              (range (position))
-                              "The '#' character is used for various number representations, namely binary,
-                               hexadecimal and roman numbers."
-                              (range (position)) "# must be followed by x, b or r")]
-                           [true
-                            ;; Parse leading digits
-                            (while (or (between? (string/char-at str (succ offset))  "0" "9")
-                                       (= (string/char-at str (succ offset)) "'")) ; thousands separator
-                              (consume!))
+               ;; Parse roman digits
+               [(and (= char "#") (= (string/lower (string/char-at str (succ offset))) "r"))
+                (consume!)
+                (consume!)
+                (with (res (parse-roman))
+                  (when negative (set! res (- 0 res)))
+                  (append-with! { :tag "number" :value res } start))]
 
-                            ;; Consume decimal places
-                            (when (= (string/char-at str (succ offset)) ".")
-                              (consume!)
-                              (while (or (between? (string/char-at str (succ offset))  "0" "9")
-                                         (= (string/char-at str (succ offset)) "'")) ; thousands here too
-                                (consume!)))
+               ;; Other leading "#"s are illegal
+               [(and (= char "#") (terminator? (string/lower (string/char-at str (succ offset)))))
+                (logger/do-node-error! logger
+                  "Expected hexadecimal (#x), binary (#b), or Roman (#r) digit specifier."
+                  (range (position))
+                  "The '#' character is used for various number representations, such as binary
+                   and hexadecimal digits.
 
-                            ;; Consume exponent
-                            (set! char (string/char-at str (succ offset)))
-                            (when (or (= char "e") (= char "E"))
-                              (consume!)
-                              (set! char (string/char-at str (succ offset)))
+                   If you're looking for the '#' function, this has been replaced with 'n'. We
+                   apologise for the inconvenience."
+                  (range (position)) "# must be followed by x, b or r")]
+               [(= char "#")
+                (consume!)
+                (logger/do-node-error! logger
+                  "Expected hexadecimal (#x), binary (#b), or Roman (#r) digit specifier."
+                  (range (position))
+                  "The '#' character is used for various number representations, namely binary,
+                   hexadecimal and roman numbers."
+                  (range (position)) "# must be followed by x, b or r")]
 
-                              ;; Gobble positive/negative bit
-                              (when (or (= char "-") (= char "+")) (consume!))
+               [else
+                ;; Parse leading digits
+                (while (or (between? (string/char-at str (succ offset))  "0" "9")
+                           (= (string/char-at str (succ offset)) "'")) ; thousands separator
+                  (consume!))
 
-                              ;; And exponent digits
-                              (while (or (between? (string/char-at str (succ offset))  "0" "9")
-                                         (= (string/char-at str (succ offset)) "'")) ; thousands here too
-                                (consume!)))
+                (cond
+                  ;; Rational support
+                  [(= (string/char-at str (succ offset)) "/")
+                   (let* [(num-end (position))
+                          ;; We're currently sitting at the last digit of the numerator, so move to the "/"
+                          (_ (consume!))
+                          ;; And move once more to reach the start of the denominator
+                          (_ (consume!))
+                          (dom-start (position))]
 
-                            (string->number (apply .. (string/split (string/sub str (.> start :offset) offset) "'")))]))
-                (append-with! {:tag "number" :value val} start)
+                     (while (or (between? (string/char-at str (succ offset))  "0" "9")
+                                (= (string/char-at str (succ offset)) "'"))
+                       (consume!))
 
-                ;; Ensure the next character is a terminator of some sort, otherwise we'd allow things like 0x2-2
-                (set! char (string/char-at str (succ offset)))
-                (unless (terminator? char)
-                  (consume!)
+                     (let* [(dom-end (position))
+                            (num (string->number (id (string/gsub (string/sub str (.> start :offset) (.> num-end :offset)) "'" ""))))
+                            (dom (string->number (id (string/gsub (string/sub str (.> dom-start :offset) (.> dom-end :offset)) "'" ""))))]
+                       (unless num
+                         (logger/do-node-error! logger
+                           "Invalid numerator in rational literal"
+                           (range start num-end)
+                           ""
+                           (range start num-end) "There should be at least one number before the division symbol."))
+                       (unless dom
+                         (logger/do-node-error! logger
+                           "Invalid denominator in rational literal"
+                           (range dom-start dom-end)
+                           ""
+                           (range dom-start dom-end) "There should be at least one number after the division symbol."))
 
-                  (logger/do-node-error! logger
-                    (string/format "Expected digit, got %s" (if (= char "")
-                                                              "eof"
-                                                              char))
-                    (range (position)) nil
-                    (range (position)) "Illegal character here. Are you missing whitespace?")))))
+                       (append-with! { :tag "rational"
+                                       :num { :tag "number" :value num :range (range start num-end) }
+                                       :dom { :tag "number" :value dom :range (range dom-start dom-end) } } start)))]
+
+                  ;; Decimal support
+                  [else
+                   ;; Consume decimal places
+                   (when (= (string/char-at str (succ offset)) ".")
+                     (consume!)
+                     (while (or (between? (string/char-at str (succ offset))  "0" "9")
+                                (= (string/char-at str (succ offset)) "'")) ; thousands here too
+                       (consume!)))
+
+                   ;; Consume exponent
+                   (set! char (string/char-at str (succ offset)))
+                   (when (or (= char "e") (= char "E"))
+                     (consume!)
+                     (set! char (string/char-at str (succ offset)))
+
+                     ;; Gobble positive/negative bit
+                     (when (or (= char "-") (= char "+")) (consume!))
+
+                     ;; And exponent digits
+                     (while (or (between? (string/char-at str (succ offset))  "0" "9")
+                                (= (string/char-at str (succ offset)) "'")) ; thousands here too
+                       (consume!)))
+
+                   (with (res (string->number (id (string/gsub (string/sub str (.> start :offset) offset) "'" ""))))
+                     (append-with! { :tag "number" :value res } start))])])
+
+             ;; Ensure the next character is a terminator of some sort, otherwise we'd allow things like 0x2-2
+             (set! char (string/char-at str (succ offset)))
+             (unless (terminator? char)
+               (consume!)
+
+               (logger/do-node-error! logger
+                 (string/format "Expected digit, got %s" (if (= char "")
+                                                           "eof"
+                                                           char))
+                 (range (position)) nil
+                 (range (position)) "Illegal character here. Are you missing whitespace?")))]
           [(or (= char "\"") (and (= char "$") (= (string/char-at str (succ offset)) "\"")))
             (let* [(start (position))
                    (start-col (succ column))
@@ -476,6 +516,15 @@
                       2 { :tag "string"
                           :value (.> tok :value)
                           :range (.> tok :range) } })]
+          [(= tag "rational")
+           (append! { :tag "list"
+                      :n 3
+                      :range (.> tok :range)
+                      1 { :tag "symbol"
+                          :contents "rational"
+                          :range range }
+                      2 (.> tok :num)
+                      3 (.> tok :dom) })]
           [(= tag "open")
            (push!)
            (.<! head :open (.> tok :contents))
@@ -537,7 +586,7 @@
                tok nil
                (.> head :range) "block opened here"
                (.> tok :range)  "end of file here"))]
-          [true (error! (.. "Unsupported type" tag))])
+          [else (error! (.. "Unsupported type " tag))])
         (unless auto-close
           (while (.> head :auto-close)
             (when (empty? stack)
