@@ -1,6 +1,6 @@
 (import core/base (defun let* type# if car cdr list when with else and or >= = <= /=
               n get-idx for-pairs set-idx! defmacro for error gensym not len#
-              unless + progn print values-list unpack const-val))
+              unless + - progn print values-list unpack const-val))
 
 (import lua/string (format sub))
 (import lua/basic (.. getmetatable setmetatable tostring))
@@ -207,18 +207,17 @@
 (defun put! (t typs l) :hidden
   "Insert the method L (at TYPS) into the lookup table T, creating any needed
    definitions."
-  (cond
-    [(and (list? typs)
-          (= (n typs) 1))
-     (set-idx! t (car typs) l)]
-    [else
-      (let* [(x (car typs))
-             (y (cdr typs))]
-        (if (get-idx t x)
-          (put! (get-idx t x) y l)
-          (progn
-            (set-idx! t x {})
-            (put! (get-idx t x) y l))))]))
+  (let* [(len (n typs))]
+    (for i 1 (- len 1) 1
+      (let* [(x (get-idx typs i))
+             (y (get-idx t x))]
+        (unless y
+          (set! y {})
+          (set-idx! t x y))
+
+        (set! t y)))
+
+    (set-idx! t (get-idx typs len) l)))
 
 (defun eval-both (expr)
   "Evaluate EXPR at compile time and runtime."
