@@ -1,7 +1,7 @@
 (import urn/range ())
 (import urn/logger/printer ())
 
-(import extra/term (coloured))
+(import io/term (coloured))
 
 (defun create (verbosity explain time)
   "Create a console logger with VERBOSITY, displaying additional info if EXPLAIN

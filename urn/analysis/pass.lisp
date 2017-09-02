@@ -1,5 +1,3 @@
-(import lua/basic (slice))
-
 (import urn/logger logger)
 (import urn/timer timer)
 

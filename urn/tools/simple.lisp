@@ -1,4 +1,4 @@
-(import extra/argparse arg)
+(import io/argparse arg)
 (import lua/io io)
 (import lua/os os)
 

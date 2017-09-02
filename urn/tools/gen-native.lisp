@@ -1,7 +1,6 @@
-(import extra/argparse arg)
+(import io/argparse arg)
 (import lua/io io)
 (import lua/math math)
-(import string (quoted))
 
 (import urn/logger logger)
 (import urn/backend/lua/escape (escape))
@@ -10,7 +9,7 @@
   :hidden
   (if (string/find name "^[%w_][%d%w_]*$")
     (if (string? prefix) (.. prefix "." name) name)
-    (if (string? prefix) (.. prefix "[" (quoted name) "]") (.. "_ENV[" (quoted name) "]"))))
+    (if (string? prefix) (.. prefix "[" (string/quoted name) "]") (.. "_ENV[" (string/quoted name) "]"))))
 
 (defun gen-native (compiler args)
   :hidden
@@ -30,8 +29,8 @@
         (with (name (.> (nth node 2) :contents))
           (push-cdr! natives name)
 
-          (set! max-name (math/max max-name (n (quoted name))))
-          (set! max-quot (math/max max-quot (n (quoted (dot-quote prefix name)))))
+          (set! max-name (math/max max-name (n (string/quoted name))))
+          (set! max-quot (math/max max-quot (n (string/quoted (dot-quote prefix name)))))
           (set! max-pref (math/max max-pref (n (dot-quote escaped name)))))))
 
     (sort! natives)
@@ -55,8 +54,8 @@
       (self handle :write "return {\n")
       (for-each native natives
         (self handle :write (string/format format
-                              (.. (quoted native) "] =")
-                              (.. (quoted (dot-quote prefix native)) ",")
+                              (.. (string/quoted native) "] =")
+                              (.. (string/quoted (dot-quote prefix native)) ",")
                               (.. (dot-quote escaped native) ","))))
       (self handle :write "}\n")
       (self handle :close))))

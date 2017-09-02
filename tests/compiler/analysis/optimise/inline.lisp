@@ -1,5 +1,4 @@
-(import extra/test ())
-(import extra/assert ())
+(import test ())
 
 (import tests/compiler/analysis/optimise/optimise-helpers ())
 (import tests/compiler/compiler-helpers (create-compiler wrap-node))

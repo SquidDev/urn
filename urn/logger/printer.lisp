@@ -1,4 +1,4 @@
-(import extra/term (coloured))
+(import io/term (coloured))
 
 (defun print-error! (msg)
   "Print an error messaage, MSG."

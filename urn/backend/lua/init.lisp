@@ -6,7 +6,7 @@
 (import urn/timer timer)
 (import urn/traceback traceback)
 
-(import extra/assert (assert!))
+(import test/assert (assert!))
 (import lua/basic (load))
 
 (defun create-state (meta) {

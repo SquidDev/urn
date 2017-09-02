@@ -1,7 +1,7 @@
 (import urn/logger logger)
 (import urn/logger/void void)
 (import urn/range ())
-(import list l)
+(import prelude p)
 
 (define *roman-digits* :hidden
   "Valid roman numeral digits and their values"
@@ -110,10 +110,10 @@
                             (car (reduce (function
                                            [((?acc ?prev) ?n)
                                             (list ((if (< n prev) - +) acc n)
-                                                  (maths/max n prev))])
+                                                  (math/max n prev))])
                                          (list 0 0)
                                          (map (comp (cut .> *roman-digits* <>) string/upper (cut string/char-at str <>))
-                                              (l/range :from 1 :to (n str)))))))))
+                                              (p/range :from 1 :to (n str)))))))))
          (parse-base (lambda (name p base)
                        (let* [(start offset)
                               (char (string/char-at str offset))]

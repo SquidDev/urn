@@ -1,4 +1,4 @@
-(import extra/assert ())
+(import test ())
 
 (import urn/analysis/pass pass)
 (import urn/analysis/transform ())

@@ -1,6 +1,5 @@
-(import extra/assert ())
-(import extra/term (coloured))
-(import lua/basic (slice))
+(import test ())
+(import io/term (coloured))
 
 (import urn/backend/lua/emit lua)
 (import urn/backend/lua/escape lua)

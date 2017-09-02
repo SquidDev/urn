@@ -1,5 +1,4 @@
-(import extra/assert ())
-(import extra/test ())
+(import test ())
 
 (import urn/analysis/nodes ())
 

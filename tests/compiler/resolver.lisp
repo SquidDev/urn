@@ -1,8 +1,7 @@
-(import extra/assert ())
-(import extra/test ())
+(import test ())
 
-(import list)
-(import prelude)
+(import core/list list)
+(import core/prelude prelude)
 
 (describe "The resolver"
   (will "make symbols unique"

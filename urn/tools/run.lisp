@@ -1,4 +1,4 @@
-(import extra/argparse arg)
+(import io/argparse arg)
 (import lua/basic (_G load))
 (import lua/basic b)
 (import lua/debug debug)

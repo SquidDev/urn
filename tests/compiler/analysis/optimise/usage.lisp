@@ -1,4 +1,4 @@
-(import extra/test ())
+(import test ())
 (import tests/compiler/analysis/optimise/optimise-helpers ())
 
 (import urn/analysis/optimise/usage optimise)
