@@ -321,9 +321,9 @@
      `true]
     [(and (not (meta? pattern)) (symbol? pattern))
      (cond
-       [(eq? pattern 'true) `(eq? ,symb true)]
-       [(eq? pattern 'false) `(eq? ,symb false)]
-       [(eq? pattern 'nil) `(eq? ,symb nil)]
+       [(eq? pattern 'true) `(= ,symb true)]
+       [(eq? pattern 'false) `(= ,symb false)]
+       [(eq? pattern 'nil) `(= ,symb nil)]
        [(predicate? pattern) `(,pattern ,symb)]
        [else `(eq? ,symb ',pattern)])]
     [(key? pattern)
