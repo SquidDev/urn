@@ -266,6 +266,7 @@
                    (with (failed false)
                      (for-pairs (name name-node) (.> head :symbols)
                        (unless (.> module :scope :exported name)
+                         (set! failed true)
                          (logger/put-node-error! logger
                            (.. "Cannot find " name)
                            name-node nil

@@ -25,8 +25,6 @@
  list in [[defpass]]. You can then access information about the variable
  by using [[var-usage]]."
 
-(import lua/basic (slice))
-
 (define pass-arg :hidden (gensym))
 
 (defmacro defpass (name args &body)
