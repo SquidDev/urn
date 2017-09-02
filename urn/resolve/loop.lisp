@@ -1,6 +1,6 @@
 (import lua/coroutine co)
 (import lua/debug debug)
-(import extra/term term)
+(import io/term term)
 
 (import urn/backend/lua backend)
 (import urn/logger logger)

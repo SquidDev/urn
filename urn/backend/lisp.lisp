@@ -1,5 +1,4 @@
 (import urn/backend/writer writer)
-(import string (quoted))
 
 (defun estimate-length (node max)
   (with (tag (.> node :tag))
@@ -19,7 +18,7 @@
 (defun expression (node writer)
   (with (tag (.> node :tag))
     (cond
-        [(= tag "string") (writer/append! writer (quoted (.> node :value)))]
+        [(= tag "string") (writer/append! writer (string/quoted (.> node :value)))]
         [(= tag "number") (writer/append! writer (number->string (.> node :value)))]
         [(= tag "key") (writer/append! writer (.. ":" (.> node :value)))]
         [(= tag "symbol") (writer/append! writer (.> node :contents))]

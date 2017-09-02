@@ -1,6 +1,6 @@
 (import urn/resolve/builtins (builtins builtin-vars) :export)
 
-(import base (type# slice))
+(import lua/basic (type#))
 
 (defun builtin? (node name)
   "Determine whether NODE is builtin NAME."

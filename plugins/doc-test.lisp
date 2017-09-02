@@ -29,7 +29,7 @@
     expects a single line of output.
 
   - Does not handle results which span multiple lines, such as that found
-    in `extra/do`.
+    in `io/do`.
 
   - Cannot test for expressions which error."
 
@@ -37,8 +37,7 @@
 (import compiler _)
 (import urn/documentation _)
 (import urn/parser _/parser)
-(import extra/test _/test)
-(import extra/assert _/test)
+(import test _/test)
 
 (defun _/var-warning! (var msg)
   :hidden

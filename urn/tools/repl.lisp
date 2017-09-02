@@ -1,5 +1,5 @@
-(import extra/argparse arg)
-(import extra/term (coloured))
+(import io/argparse arg)
+(import io/term (coloured))
 (import lua/basic (load))
 (import lua/coroutine co)
 (import lua/debug debug)

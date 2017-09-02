@@ -1,5 +1,4 @@
-(import extra/test ())
-(import extra/assert ())
+(import test ())
 
 (import urn/documentation ())
 

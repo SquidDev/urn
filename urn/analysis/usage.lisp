@@ -1,8 +1,6 @@
 "Defines various methods for gathering and tracking definitions and
  usages of all variables in the program."
 
-(import table)
-
 (import urn/analysis/nodes (side-effect? builtins builtin? make-nil zip-args))
 (import urn/analysis/pass (defpass))
 

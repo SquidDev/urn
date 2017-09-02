@@ -2,8 +2,8 @@
 (import compiler/pass ())
 (import compiler/resolve compiler)
 
-(import extra/io io)
-(import urn/graph ())
+(import io)
+(import data/graph ())
 
 (defmethod (pretty defined) (var) (.> var :full-name))
 (defmethod (pretty native)  (var) (.> var :full-name))

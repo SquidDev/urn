@@ -17,7 +17,7 @@
 (import urn/resolve/state state)
 (import urn/timer timer)
 
-(import extra/argparse arg)
+(import io/argparse arg)
 (import lua/basic (_G))
 (import lua/os os)
 
