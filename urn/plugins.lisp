@@ -46,6 +46,7 @@
                         (with (var (.> x :var))
                               (if (string? var) (.> variables var) var)))
       :var->symbol    nodes/make-symbol
+      :builtin        (cut .> nodes/builtins <>)
       :builtin?       nodes/builtin?
       :constant?      nodes/constant?
       :node->val      nodes/urn->val

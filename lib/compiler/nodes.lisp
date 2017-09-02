@@ -35,6 +35,14 @@
 (define-native var->symbol
   "Create a new symbol referencing the given VARIABLE.")
 
+(defun fix-symbol (symbol)
+  "Convert the quasi-quoted SYMBOL into a fully resolved one."
+  (assert-type! symbol symbol)
+  (with (var (symbol->var symbol))
+    (if var
+      (var->symbol var)
+      (error! "Variable is not defined"))))
+
 (define-native builtin?
   "Determine whether the specified NODE is the given BUILTIN.
 
@@ -43,6 +51,9 @@
    > (builtin? (symbol->var `lambda) :lambda)
    out = true
    ```")
+
+(define-native builtin
+  "Get the builtin with the given NAME.")
 
 (define-native constant?
   "Determine whether the specified NODE is a constant.")

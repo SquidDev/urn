@@ -1,6 +1,7 @@
 local _compiler = _compiler or {}
 return {
 	["builtin?"] =       { tag = "var", contents = "_compiler[\"builtin?\"]",       value = _compiler["builtin?"],       },
+	["builtin"] =        { tag = "var", contents = "_compiler[\"builtin\"]",        value = _compiler["builtin"],        },
 	["constant?"] =      { tag = "var", contents = "_compiler[\"constant?\"]",      value = _compiler["constant?"],      },
 	["node->val"] =      { tag = "var", contents = "_compiler[\"node->val\"]",      value = _compiler["node->val"],      },
 	["symbol->var"] =    { tag = "var", contents = "_compiler[\"symbol->var\"]",    value = _compiler["symbol->var"],    },
