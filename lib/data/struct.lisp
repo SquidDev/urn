@@ -11,39 +11,6 @@
     [(hide ?x) (list 'hide (f x))]
     [?x (f x)]))
 
-(defun field->def (nm field) :hidden
-  (let* [(self (gensym))
-         (val (gensym))]
-    (case field
-      [(immutable ?name (optional (string? @ ?docs)))
-       (list
-         (gen-def (map-name (cut sym.. nm '- <>) name)
-                `(,self)
-                `((.> ,self ,(symbol->string name)))
-                (or docs `nil)))]
-      [(immutable ?name ?accessor (optional (string? @ ?docs)))
-       (list
-         (gen-def accessor
-                `(,self)
-                `((.> ,self ,(symbol->string name)))
-                (or docs `nil)))]
-      [(symbol? @ ?name)
-       (field->def nm (list 'immutable name))]
-      [(mutable ?name (optional (string? @ ?docs)))
-       (snoc
-         (field->def nm (list 'immutable name))
-         (gen-def (map-name (cut sym.. 'set- nm '- <> '!) name)
-                  (list self val)
-                  `((.<! ,self ,(symbol->string name) ,val))
-                  (or docs `nil)))]
-      [(mutable ?name ?getter ?setter (optional (string? @ ?docs)))
-       (snoc
-         (field->def nm (list 'immutable name getter))
-         (gen-def setter
-                  (list self val)
-                  `((.<! ,self ,(symbol->string name) ,val))
-                  (or docs `nil)))])))
-
 (defun field-name (x) :hidden
   (case x
     [(immutable ?name . _) name]
@@ -55,14 +22,48 @@
     [(hide ?x) x]
     [?x x]))
 
+(defun field->def (nm field) :hidden
+  (let* [(self (gensym))
+         (val (gensym))]
+    (case field
+      [(immutable ?name (optional (string? @ ?docs)))
+       (list
+         (gen-def (map-name (cut sym.. nm '- <>) name)
+                `(,self)
+                `((.> ,self ,(symbol->string (symb-name name))))
+                (or docs `nil)))]
+      [(immutable ?name ?accessor (optional (string? @ ?docs)))
+       (list
+         (gen-def accessor
+                `(,self)
+                `((.> ,self ,(symbol->string (symb-name name))))
+                (or docs `nil)))]
+      [(symbol? @ ?name)
+       (field->def nm (list 'immutable name))]
+      [(mutable ?name (optional (string? @ ?docs)))
+       (snoc
+         (field->def nm (list 'immutable name))
+         (gen-def (map-name (cut sym.. 'set- nm '- <> '!) name)
+                  (list self val)
+                  `((.<! ,self ,(symbol->string (symb-name name)) ,val))
+                  (or docs `nil)))]
+      [(mutable ?name ?getter ?setter (optional (string? @ ?docs)))
+       (snoc
+         (field->def nm (list 'immutable name getter))
+         (gen-def setter
+                  (list self val)
+                  `((.<! ,self ,(symbol->string (symb-name name)) ,val))
+                  (or docs `nil)))])))
+
 (defun make-constructor (docs type-name fields symbol spec) :hidden
-  (let* [(lambda-list (map field-name fields))
+  (let* [(lambda-list (map (lambda (x) (symb-name (field-name x))) fields))
          (kv-pairs (map (function
-                          [((immutable ?name . _))
+                          [((immutable (symb-name -> ?name) . _))
                            (list (symbol->string name) `(or ,name nil))]
-                          [((mutable ?name . _))
+                          [((mutable (symb-name -> ?name) . _))
                            (list (symbol->string name) `(or ,name nil))]
-                          [(?name) (list (symbol->string name) `(or ,name nil))])
+                          [((symb-name -> ?name))
+                           (list (symbol->string name) `(or ,name nil))])
                         fields))
          (name (symb-name symbol))
          (hide (and (list? symbol) (eq? (car symbol) 'hide)))]
@@ -91,9 +92,7 @@
                         `(lambda (,'_ ,self)
                            (list ,@(map (lambda (x)
                                           `(.> ,self
-                                               ,(symbol->string (if (list? x)
-                                                                  (cadr x)
-                                                                  x))))
+                                               ,(symbol->string (symb-name (field-name x)))))
                                         fields-clause)))))]
     `(define ,name-sym ,@(if hide '(:hidden) '()) ,@(if docs (list docs) '())
        (let* [(,fields-clause-sym ',fields-clause)]
@@ -155,7 +154,7 @@
                                `((and (table? ,self)
                                       (= (.> ,self :tag) ,(symbol->string name))
                                       ,@(map (lambda (x)
-                                               (let* [(x (field-name x))]
+                                               (let* [(x (symb-name (field-name x)))]
                                                  `(/= (.> ,self ,(symbol->string x)) nil)))
                                              fields))))))
       (map (lambda (x)
