@@ -2,6 +2,7 @@
 (import data/format ())
 (import data/struct ())
 (import math (gcd))
+(import math/numerics ())
 
 (defstruct (rational rational rational?)
   "A rational number, represented as a tuple of numerator and denominator."
@@ -58,75 +59,57 @@
    ```"
   (/ (numerator y) (denominator y)))
 
-(defun r+ (x y) :hidden
+(defmethod (n+ rational rational) (x y)
   (let* [((xn xd) (normalised-rational-components x))
          ((yn yd) (normalised-rational-components y))]
     (rational (+ (* xn yd) (* yn xd))
               (* xd yd))))
 
-(defun r- (x y) :hidden
+(defmethod (n- rational rational) (x y)
   (let* [((xn xd) (normalised-rational-components x))
          ((yn yd) (normalised-rational-components y))]
     (rational (- (* xn yd) (* yn xd))
               (* xd yd))))
 
-(defun r* (x y) :hidden
+(defmethod (n* rational rational) (x y)
   (let* [((xn xd) (normalised-rational-components x))
          ((yn yd) (normalised-rational-components y))]
     (rational (* xn yn) (* xd yd))))
 
-(defun r< (x y)
-  "Check if the rational number X is less than the rational number Y"
+(defmethod (n< rational rational) (x y)
   (let* [((xn xd) (normalised-rational-components x))
          ((yn yd) (normalised-rational-components y))]
     (< (* xn yd) (* yn xd))))
+(defalias (n< rational number) (n< rational rational))
+(defalias (n< number rational) (n< rational rational))
 
-(defun r<= (x y)
-  "Check if the rational number X is less than or equal to the
-   rational number Y"
+(defmethod (n<= rational rational) (x y)
   (let* [((xn xd) (normalised-rational-components x))
          ((yn yd) (normalised-rational-components y))]
     (<= (* xn yd) (* yn xd))))
+(defalias (n<= rational number) (n<= rational rational))
+(defalias (n<= number rational) (n<= rational rational))
 
-(defun r>= (x y)
-  "Check if the rational number X is greater than or equal to the
-   rational number Y"
-  (r<= y x))
-
-(defun r> (x y)
-  "Check if the rational number X is greater than the rational number Y"
-  (r< y x))
-
-(defun r/ (x y) :hidden
-  (r* x (recip y)))
-
-(defun rexp (x y) :hidden
-  (when (or (rational? y) (/= 0 (second (math/modf y))))
+(defmethod (n^ rational number) (x y)
+  (when (/= 0 (second (math/modf y)))
     (format 1 "(^ {#x} {#y}): exponent must be an integral number."))
   (if (>= y 0)
     (let* [((xn xd) (normalised-rational-components x))]
       (rational (^ xn y) (^ xd y)))
-    (recip (rexp x (* y -1)))))
+    (nrecip (n^ x (nnegate y)))))
 
-(defun rsqrt (x)
-  "The square root of rational number X.
-
-   ### Example:
-   ```cl
-   > (rsqrt (rational 1 4))
-   out = 1/2
-   ```"
+(defmethod (nsqrt rational) (x)
   (let* [((xn xd) (normalised-rational-components x))]
     (rational (math/sqrt xn) (math/sqrt xd))))
 
 (define *rational-mt* :hidden
-  { :__add r+
-    :__sub r-
-    :__mul r*
-    :__div r/
-    :__pow rexp
-    :__lt  r<
-    :__lte r<= })
+  { :__add n+
+    :__sub n-
+    :__mul n*
+    :__div n/
+    :__pow n^
+    :__lt  n<
+    :__lte n<= })
 
 (defmethod (pretty rational) (x)
   (let* [((xn xd) (normalised-rational-components x))]
@@ -137,13 +120,25 @@
          ((yn yd) (normalised-rational-components y))]
     (and (= xn yn)
          (= xd yd))))
+(defalias (eq? number rational) (eq? rational rational))
+(defalias (eq? rational number) (eq? rational rational))
 
-(defmethod (eq? rational number) (x y)
-  (eq? x (->rat y)))
-
-(defmethod (eq? number rational) (x y)
-  (eq? (->rat x) y))
-
-(defun recip (x)
-  "Compute the reciprocal of rational number X"
+(defmethod (nrecip rational) (x)
   (rational (denominator x) (numerator x)))
+
+(defmethod (nnegate rational) (x)
+  (* x -1))
+
+(defmethod (nabs rational) (x)
+  (rational (nabs (denominator x)) (nabs (numerator x))))
+
+(defmethod (nsign rational) (x)
+  (* (nsign (denominator x)) (nsign (numerator x))))
+
+(defmethod (n/ rational rational) (x y) (n* x (nrecip y)))
+
+,@(dolist [(op '(n+ n* n- n/))
+           (at '(rational number))
+           (bt '(rational number))]
+    (when (neq? at bt)
+      `(defalias (,op ,at ,bt) (,op ,'rational ,'rational))))
