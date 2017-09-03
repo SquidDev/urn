@@ -19,6 +19,9 @@
         (format 1 "(rational {%d} {}): denominator must be an integer" n d))
       (when (= d 0)
         (format 1 "(rational {%d} {%d}): denominator is zero" n d))
+      (when (< d 0)
+        (set! d (* -1 d))
+        (set! n (* -1 n)))
       (let* [(x (gcd n d))]
         (setmetatable
           (new (/ n x) (/ d x))

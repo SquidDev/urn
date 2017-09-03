@@ -220,13 +220,23 @@
                           (_ (consume!))
                           (dom-start (position))]
 
-                     (while (or (between? (string/char-at str (succ offset))  "0" "9")
+                     ;; We ensure we've got some sort of number, as we don't want to allow
+                     ;; 1/-1 or 1/.1
+                     (unless (or (between? (string/char-at str offset) "0" "9")
+                                 (= (string/char-at str offset) "'"))
+                       (logger/do-node-error! logger
+                         (format nil "Expected digit, got {$1:string/quoted}" (string/char-at str offset))
+                         (range dom-start)
+                         ""
+                         (range dom-start) ""))
+
+                     (while (or (between? (string/char-at str (succ offset)) "0" "9")
                                 (= (string/char-at str (succ offset)) "'"))
                        (consume!))
 
                      (let* [(dom-end (position))
-                            (num (string->number (id (string/gsub (string/sub str (.> start :offset) (.> num-end :offset)) "'" ""))))
-                            (dom (string->number (id (string/gsub (string/sub str (.> dom-start :offset) (.> dom-end :offset)) "'" ""))))]
+                            (num (string->number (string/gsub (string/sub str (.> start :offset) (.> num-end :offset)) "'" "") 10))
+                            (dom (string->number (string/gsub (string/sub str (.> dom-start :offset) (.> dom-end :offset)) "'" "") 10))]
                        (unless num
                          (logger/do-node-error! logger
                            "Invalid numerator in rational literal"
@@ -522,7 +532,7 @@
                       :range (.> tok :range)
                       1 { :tag "symbol"
                           :contents "rational"
-                          :range range }
+                          :range (.> tok :range) }
                       2 (.> tok :num)
                       3 (.> tok :dom) })]
           [(= tag "open")
