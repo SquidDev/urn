@@ -1,5 +1,6 @@
 (import compiler/pass ())
 (import compiler/nodes ())
+(import compiler/pattern ())
 
 (import lua/basic (set-idx!))
 
@@ -20,46 +21,80 @@
   "Merges put!s into their corresponding method."
   :cat '("opt")
   (let [(methods {})
-        (i 1)]
+        (i 1)
+        (offset 0)]
     (while (< i (n nodes))
       (with (node (nth nodes i))
-        ;; Match against (define X ... (setmetatable (struct-literal :lookup Y)))
-        (when (and (list? node) (builtin? (car node) :define)
-                   (with (def (last node))
-                     (and (list? def) (= (symbol->var (car def)) (symbol->var `setmetatable))
-                          (with (tbl (cadr def))
-                            (and (list? tbl) (= (symbol->var (car tbl)) (builtin :struct-literal))
-                                 (eq? (cadr tbl) :lookup))))))
+        ;; Built a list of defgenerics
+        (case node
+          [((matcher (define ?name ?&_ (setmetatable (struct-literal :lookup ?lookup ?&_))))
+             -> { :name ?name :lookup ?lookup })
+           (.<! methods (.> node :def-var) { :table   (cadr (last node))
+                                             :lookup  lookup
+                                             :impl    '() })]
+          [_])
 
-          (.<! methods (.> node :def-var) (cadr (last node))))
+        (case node
+          ;; Find defmethod and defalias instances
+          [(((matcher ($core/type/put! ?name (list :lookup ?&entries) ?value))
+              -> { :name ?name :entries ?entries :value ?value })
+             :when (.> methods (symbol->var name)))
 
-        (cond
-          ;; Match against (put! X (:lookup Y*) Z)
-          [(and (list? node) (symbol? (car node))
-                (= (.> (car node) :var :full-name) "core/type/put!") ;; HACK HACK HACK
-                (.> methods (symbol->var (cadr node))))
-           (let [(lookup (caddr (.> methods (symbol->var (cadr node)))))
-                 (entries (caddr node))
-                 (def (cadddr node))]
-
-             (for i 3 (pred (n entries)) 1
-               (set! lookup (get-lookup lookup (nth entries i))))
-
-             (push-cdr! lookup (last entries))
-             (push-cdr! lookup def)
-             (remove-nth! nodes i))]
+          (push-cdr! (.> methods (symbol->var name) :impl) { :entries entries :value value :node node })
+          (remove-nth! nodes i)]
 
           ;; Match against (set-idx! X :default Y)
-          [(and (list? node) (= (n node) 4)
-                (= (symbol->var (car node)) (symbol->var `set-idx!))
-                (.> methods (symbol->var (nth node 2)))
-                (eq? (nth node 3) :default))
-           (with (method (.> methods (symbol->var (nth node 2))))
-             (push-cdr! method (nth node 3))
-             (push-cdr! method (nth node 4)))
+          [(((matcher (set-idx! ?name :default ?value))
+              -> { :name ?name :value ?value })
+             :when (.> methods (symbol->var name)))
+           (push-cdr! (.> methods (symbol->var name) :impl) { :entries "default" :value value :node node })
            (remove-nth! nodes i)]
 
-          [else
-           (inc! i)])))))
+          [_ (inc! i)])))
+
+    (for i 1 (n nodes) 1
+      (when-let* [(var (.> (nth nodes i) :def-var))
+                  (method (.> methods var))]
+        (let [(lookup (.> method :lookup))
+              (wrapped nil)
+              (wrapped-var nil)]
+
+        (for-each impl (.> method :impl)
+          (destructuring-bind [{ :entries ?entries :value ?value :node ?node } impl]
+            (cond
+              ;; So if we're a lambda (and so implicitly lazy) then just merge it into the definition
+              [(or (matches? (pattern (builtin/lambda ?&_)) value)
+                   (matches? (pattern ((builtin/lambda (,'myself) (set! ,'myself (builtin/lambda ?&_)) ,'myself) nil)) value))
+               (case entries
+                 ["default"
+                  (push-cdr! (.> method :table) (nth node 3))
+                  (push-cdr! (.> method :table) value)]
+
+                 [?entries
+                  (with (sub-lookup lookup)
+                    (for i 1 (pred (n entries)) 1
+                      (set! sub-lookup (get-lookup sub-lookup (nth entries i))))
+
+                    (push-cdr! sub-lookup (last entries))
+                    (push-cdr! sub-lookup value))])]
+
+              [else
+               ;; We've got some complex expression, so we transform it to
+               ;; (let [(method <ORIGINAL>)] <EXTENSIONS> method)
+               (unless wrapped
+                 (set! wrapped-var { :tag "arg" :name (.> var :name) })
+                 (set! wrapped `(,(fix-symbol `builtin/lambda) (,(var->symbol wrapped-var)) ,(var->symbol wrapped-var)))
+                 (with (orig (nth nodes i))
+                   (.<! orig (n orig) `(,wrapped ,(last orig)))))
+
+               (visit-node (.> impl :node)
+                 (lambda (x)
+                   (when (and (symbol? x) (= (symbol->var x) var))
+                     (.<! x :var wrapped-var))))
+
+               (insert-nth! wrapped (n wrapped) (.> impl :node))])))
+
+          )))))
+
 
 ,(add-pass! fold-defgeneric)
