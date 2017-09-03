@@ -63,3 +63,11 @@
 
 (define-native val->node
   "Gets the node representation of the constant VALUE.")
+
+(define-native node-contains-var?
+  "Determine whether NODE contains a reference to the given VAR.")
+
+(define-native node-contains-vars?
+  "Determine whether NODE contains a reference to any of the given VARS.
+
+   VARS must be a struct, mapping variable names to `true`.")

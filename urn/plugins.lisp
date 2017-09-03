@@ -1,4 +1,5 @@
 (import urn/analysis/nodes nodes)
+(import urn/analysis/vars nodes)
 (import urn/analysis/optimise/fusion fusion)
 (import urn/analysis/tag/categories categories)
 (import urn/analysis/traverse traverse)
@@ -51,6 +52,8 @@
       :constant?      nodes/constant?
       :node->val      nodes/urn->val
       :val->node      nodes/val->urn
+      :node-contains-var?  nodes/node-contains-var?
+      :node-contains-vars? nodes/node-contains-vars?
 
       ;; optimise.lisp
       :fusion/add-rule! fusion/add-rule!
