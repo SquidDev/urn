@@ -16,6 +16,7 @@
 
 (defun n> (x y)  "Generalised numeric greater than." (n< y x))
 (defun n>= (x y) "Generalised numeric greater than or equal to." (n<= y x))
+(defun n= (x y)  "Generalised numeric equality." (eq? x y))
 
 ; Boilerplate instances:
 
