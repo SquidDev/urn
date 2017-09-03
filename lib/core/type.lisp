@@ -274,6 +274,11 @@
                   (set! ,'myself (lambda ,ll ,@body))
                   ,'myself))))
 
+(defmacro defalias (name other)
+  "Alias the method at NAME to the method at OTHER."
+  (eval-both `(put! ,(car name) (list :lookup ,@(map s->s (cdr name)))
+                    (deep-get ,(car other) :lookup ,@(map s->s (cdr other))))))
+
 (defgeneric eq? (x y)
   "Compare values for equality deeply.")
 
