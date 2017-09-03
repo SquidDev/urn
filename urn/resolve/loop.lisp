@@ -260,8 +260,6 @@
                        [true
                         (scope/import-verbose! scope name var node export logger)])))
 
-
-
                  (when (.> head :symbols)
                    (with (failed false)
                      (for-pairs (name name-node) (.> head :symbols)

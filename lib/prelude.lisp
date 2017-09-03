@@ -5,6 +5,7 @@
 (import data/function () :export)
 (import data/lens () :export)
 
-(import math () :export)
+(import math (even? odd? succ pred inc! dec!) :export)
+(import math :export)
 (import math/rational (rational rational? numerator denominator r< r<= r> r>=) :export)
 (import math/rational rational :export)

@@ -1,5 +1,29 @@
 (import core/prelude ())
 
+(defun gcd (x y)
+  "Compute the greatest common divisor of X and Y.
+
+   ### Example
+   ```cl
+   > (gcd 52 32)
+   out = 4
+   ```"
+  (letrec [(impl (function
+                   [(?a 0) a]
+                   [(?x ?y) (impl y (% x y))]))]
+    (impl (math/abs x) (math/abs y))))
+
+(defun lcm (x y)
+  "Compute the lowest common multiple of X and Y.
+
+   ### Example
+   ```cl
+   > (lcm 52 32)
+   out = 416
+   ```"
+  ;; The floor isn't technically needed, but forces it to be an integer under 5.3
+  (math/floor (math/abs (/ (* x y) (gcd x y)))))
+
 (defun even? (x)
   "Is X an even number?"
   (= (% x 2) 0))

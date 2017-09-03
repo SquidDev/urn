@@ -1,12 +1,7 @@
 (import core/prelude ())
 (import data/format ())
 (import data/struct ())
-
-(defun gcd (x y) :hidden
-  (letrec [(impl (function
-                   [(?a 0) a]
-                   [(?x ?y) (impl y (% x y))]))]
-    (impl (math/abs x) (math/abs y))))
+(import math (gcd))
 
 (defstruct (rational rational rational?)
   "A rational number, represented as a tuple of numerator and denominator."
