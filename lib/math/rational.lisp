@@ -29,9 +29,13 @@
           *rational-mt*)))))
 
 (defun normalised-rational-components (x) :hidden
-  (case (rational (numerator x) (denominator x))
-    [($ $rational ?n ?d)
-     (values-list n d)]))
+  (if (number? x)
+    (case (->rat x)
+      [($ $rational ?n ?d)
+       (values-list n d)])
+    (case (rational (numerator x) (denominator x))
+      [($ $rational ?n ?d)
+       (values-list n d)])))
 
 (defun ->rat (y)
   "Convert the floating-point number Y to a rational number.
@@ -59,57 +63,35 @@
    ```"
   (/ (numerator y) (denominator y)))
 
-(defgeneric r+ (x y) "Add rational numbers" :hidden)
-(defmethod (r+ rational rational) (x y)
+(defun r+ (x y) :hidden
   (let* [((xn xd) (normalised-rational-components x))
          ((yn yd) (normalised-rational-components y))]
     (rational (+ (* xn yd) (* yn xd))
               (* xd yd))))
 
-(defmethod (r+ rational number) (x y) (r+ x (->rat y)))
-(defmethod (r+ number rational) (x y) (r+ (->rat x) y))
-(defmethod (r+ number number)   (x y) (r+ (->rat x) (->rat y)))
-
-(defgeneric r- (x y) "Subtract rational numbers" :hidden)
-(defmethod (r- rational rational) (x y)
+(defun r- (x y) :hidden
   (let* [((xn xd) (normalised-rational-components x))
          ((yn yd) (normalised-rational-components y))]
     (rational (- (* xn yd) (* yn xd))
               (* xd yd))))
 
-(defmethod (r- rational number) (x y) (r- x (->rat y)))
-(defmethod (r- number rational) (x y) (r- (->rat x) y))
-(defmethod (r- number number)   (x y) (r- (->rat x) (->rat y)))
-
-(defgeneric r* (x y) "Multiply rational numbers" :hidden)
-(defmethod (r* rational rational) (x y)
+(defun r* (x y) :hidden
   (let* [((xn xd) (normalised-rational-components x))
          ((yn yd) (normalised-rational-components y))]
     (rational (* xn yn) (* xd yd))))
 
-(defmethod (r* rational number) (x y) (r* x (->rat y)))
-(defmethod (r* number rational) (x y) (r* (->rat x) y))
-(defmethod (r* number number)   (x y) (r* (->rat x) (->rat y)))
-
-(defgeneric r< (x y) "Less-than relationship between rational numbers")
-(defmethod (r< rational rational) (x y)
+(defun r< (x y)
+  "Check if the rational number X is less than the rational number Y"
   (let* [((xn xd) (normalised-rational-components x))
          ((yn yd) (normalised-rational-components y))]
     (< (* xn yd) (* yn xd))))
 
-(defmethod (r< rational number) (x y) (r< x (->rat y)))
-(defmethod (r< number rational) (x y) (r< (->rat x) y))
-(defmethod (r< number number)   (x y) (r< (->rat x) (->rat y)))
-
-(defgeneric r<= (x y) "Less-than-or-equals relationship between rational numbers")
-(defmethod (r<= rational rational) (x y)
+(defun r<= (x y)
+  "Check if the rational number X is less than or equal to the
+   rational number Y"
   (let* [((xn xd) (normalised-rational-components x))
          ((yn yd) (normalised-rational-components y))]
     (<= (* xn yd) (* yn xd))))
-
-(defmethod (r<= rational number) (x y) (r< x (->rat y)))
-(defmethod (r<= number rational) (x y) (r< (->rat x) y))
-(defmethod (r<= number number)   (x y) (r< (->rat x) (->rat y)))
 
 (defun r>= (x y)
   "Check if the rational number X is greater than or equal to the
@@ -124,6 +106,8 @@
   (r* x (recip y)))
 
 (defun rexp (x y) :hidden
+  (when (or (rational? y) (/= 0 (second (math/modf y))))
+    (format 1 "(^ {#x} {#y}): exponent must be an integral number."))
   (if (>= y 0)
     (let* [((xn xd) (normalised-rational-components x))]
       (rational (^ xn y) (^ xd y)))
