@@ -178,6 +178,9 @@
 
     (logger/put-verbose! logger (.. "Using path: " (pretty paths)))
 
+    (when (and (= (.> args :prelude) (.. directory "prelude")) (empty? (.> args :plugin)))
+      (push-cdr! (.> args :plugin) (.. directory "../plugins/fold-defgeneric.lisp")))
+
     (if (empty? (.> args :input))
       (.<! args :repl true)
       (.<! args :emit-lua true))

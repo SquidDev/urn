@@ -40,14 +40,16 @@
               -> { :name ?name :entries ?entries :value ?value })
              :when (.> methods (symbol->var name)))
 
-          (push-cdr! (.> methods (symbol->var name) :impl) { :entries entries :value value :node node })
-          (remove-nth! nodes i)]
+           (push-cdr! (.> methods (symbol->var name) :impl) { :entries entries :value value :node node })
+           (changed!)
+           (remove-nth! nodes i)]
 
           ;; Match against (set-idx! X :default Y)
           [(((matcher (set-idx! ?name :default ?value))
               -> { :name ?name :value ?value })
              :when (.> methods (symbol->var name)))
            (push-cdr! (.> methods (symbol->var name) :impl) { :entries "default" :value value :node node })
+           (changed!)
            (remove-nth! nodes i)]
 
           [_ (inc! i)])))
