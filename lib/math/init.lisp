@@ -8,10 +8,10 @@
    > (gcd 52 32)
    out = 4
    ```"
-  (letrec [(impl (function
-                   [(?a 0) a]
-                   [(?x ?y) (impl y (% x y))]))]
-    (impl (math/abs x) (math/abs y))))
+  (loop [(x (math/abs x))
+         (y (math/abs y))]
+    [(= y 0) x]
+    (recur y (% x y))))
 
 (defun lcm (x y)
   "Compute the lowest common multiple of X and Y.

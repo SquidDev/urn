@@ -27,14 +27,19 @@
           (new (/ n x) (/ d x))
           *rational-mt*)))))
 
+(defun ->rat-components (y) :hidden
+  (let* [((i f) (math/modf y))
+         (f' (^ 10 (- (n (tostring f)) 2)))]
+    (if (= 0 f) ;; it's an integer, so we just /1 i
+      (values-list y 1)
+      (let* [(n (* y f'))
+             (g (gcd n f'))]
+        (values-list (/ n g) (/ f' g))))))
+
 (defun normalised-rational-components (x) :hidden
   (if (number? x)
-    (case (->rat x)
-      [($ $rational ?n ?d)
-       (values-list n d)])
-    (case (rational (numerator x) (denominator x))
-      [($ $rational ?n ?d)
-       (values-list n d)])))
+    (->rat-components x)
+    (values-list (numerator x) (denominator x))))
 
 (defun ->rat (y)
   "Convert the floating-point number Y to a rational number.
@@ -46,11 +51,8 @@
    > (/ 157 50)
    out = 3.14
    ```"
-  (let* [((i f) (math/modf y))
-         (f' (^ 10 (- (n (tostring f)) 2)))]
-    (if (= 0 f) ; it's an integer, so we just /1 it
-      (rational y 1)
-      (rational (* y f') f'))))
+  (with ((n d) (->rat-components y))
+    (rational n d)))
 
 (defun ->float (y)
   "Convert the rational number Y to a floating-point number.
