@@ -17,16 +17,15 @@
 (defun format-definition (var)
   "Format a variable VAR, including it's kind and the position it was defined at."
   :hidden
-  (with (ty (type var))
-    (cond
-      [(= ty "builtin")
-       "Builtin term"]
-      [(= ty "macro")
-       (.. "Macro defined at " (format-range (get-source (.> var :node))))]
-      [(= ty "native")
-       (.. "Native defined at " (format-range (get-source (.> var :node))))]
-      [(= ty "defined")
-       (.. "Defined at " (format-range (get-source (.> var :node))))])))
+  (case (.> var :kind)
+    ["builtin"
+     "Builtin term"]
+    ["macro"
+     (.. "Macro defined at " (format-range (get-source (.> var :node))))]
+    ["native"
+     (.. "Native defined at " (format-range (get-source (.> var :node))))]
+    ["defined"
+     (.. "Defined at " (format-range (get-source (.> var :node))))]))
 
 (defun format-signature (name var)
   "Attempt to extract the function signature from VAR"
