@@ -24,16 +24,11 @@
   :hidden
   (builtin? node :true))
 
-(define boring-categories
-  "A lookup of all 'boring' nodes, for which we will not emit node information for."
-  { ;; Constant nodes
-    :const true :quote true
-    ;; Branch nodes
-    :not true :cond true :unless true })
 
 (define break-categories
   "A lookup of all categories which handle control flow, for which the
    'break' information must be propagated to."
+  :hidden
   { ;; Each branch needs its own break
     :cond true :unless true
     ;; Obviously this'll occur inside.
@@ -52,7 +47,7 @@
     (cond
       [(= ty "var")
        ;; Create an alias to a variable
-       (w/append! out (.> meta :contents))]
+       (w/append-with! out (.> meta :contents))]
 
       [(or (= ty "expr") (= ty "stmt"))
        ;; Generate a custom function wrapper
@@ -102,7 +97,7 @@
          (_ (unless cat
               (print! "Cannot find" (pretty node) (range/format-node node))))
          (cat-tag (.> cat :category))]
-    (unless (.> boring-categories cat-tag) (w/push-node! out node))
+    (w/push-node! out node)
     (case cat-tag
       ["void"
        (unless (= ret "")
@@ -110,19 +105,22 @@
          (w/append! out "nil"))]
       ["const"
        (unless (= ret "")
-         (when ret (w/append! out ret))
+         (when ret (w/append-with! out ret))
          (when (.> cat :parens) (w/append! out "("))
          (cond
-           [(symbol? node) (w/append! out (escape-var (.> node :var) state))]
-           [(string? node) (w/append! out (string/quoted (.> node :value)))]
-           [(number? node) (w/append! out (number->string (.> node :value)))]
-           [(key? node) (w/append! out (string/quoted (.> node :value)))] ;; TODO: Should this be a table instead? If so, can we make this more efficient?
+           [(symbol? node) (w/append-with! out (escape-var (.> node :var) state))]
+           [(string? node) (w/append-with! out (string/quoted (.> node :value)))]
+           [(number? node) (w/append-with! out (number->string (.> node :value)))]
+           [(key? node) (w/append-with! out (string/quoted (.> node :value)))] ;; TODO: Should this be a table instead? If so, can we make this more efficient?
            [true (error! (.. "Unknown type: " (type node)))])
          (when (.> cat :parens) (w/append! out ")")))]
 
       ["lambda"
        (unless (= ret "")
-         (when ret (w/append! out ret))
+         (when ret
+          (with (pos (range/get-source node))
+            (w/append! out ret (and pos (merge pos { :finish (.> pos :start) })))))
+
          (let* [(args (nth node 2))
                 (variadic nil)
                 (i 1)]
@@ -253,7 +251,8 @@
          (unless had-final
            (w/append! out "else")
            (w/indent! out) (w/line! out)
-           (w/append! out "_error(\"unmatched item\")")
+           (with (source (range/get-source node))
+             (w/append! out "_error(\"unmatched item\")" (and source (merge source { :finish (.> source :start) }))))
            (w/unindent! out) (w/line! out))
 
          ;; End each nested block
@@ -403,14 +402,18 @@
          [ret (w/append! out ret)]
          [true])
        (when (.> cat :parens) (w/append! out "("))
-       (w/append! out "{")
-       (for i 2 (n node) 2
-         (when (> i 2) (w/append! out ","))
-         (w/append! out "[")
-         (compile-expression (nth node i) out state)
-         (w/append! out "]=")
-         (compile-expression (nth node (succ i)) out state))
-       (w/append! out "}")
+       (case (n node)
+         [1
+          (w/append-with! out "{}")]
+         [?len
+          (w/append! out "{")
+          (for i 2 len 2
+            (when (> i 2) (w/append! out ","))
+            (w/append! out "[")
+            (compile-expression (nth node i) out state)
+            (w/append! out "]=")
+            (compile-expression (nth node (succ i)) out state))
+          (w/append! out "}")])
        (when (.> cat :parens) (w/append! out ")"))]
 
       ["define"
@@ -420,10 +423,10 @@
        (with (meta (.> state :meta (.> node :def-var :unique-name)))
          (if (= meta nil)
             ;; Just copy it from the library table value
-            (w/append! out (string/format "%s = _libs[%q]" (escape-var (.> node :def-var) state) (.> node :def-var :unique-name)))
+            (w/append-with! out (string/format "%s = _libs[%q]" (escape-var (.> node :def-var) state) (.> node :def-var :unique-name)))
             (progn
               ;; Generate an accessor for it.
-              (w/append! out (string/format "%s = " (escape-var (.> node :def-var) state)))
+              (w/append-with! out (string/format "%s = " (escape-var (.> node :def-var) state)))
               (compile-native out meta))))]
 
       ["quote"
@@ -439,15 +442,15 @@
          (when ret (w/append! out ret))
          (when (.> cat :parens) (w/append! out "("))
          (case (type node)
-           ["string" (w/append! out (string/quoted (.> node :value)))]
-           ["number" (w/append! out (number->string (.> node :value)))]
+           ["string" (w/append-with! out (string/quoted (.> node :value)))]
+           ["number" (w/append-with! out (number->string (.> node :value)))]
            ["symbol"
-            (w/append! out (.. "{ tag=\"symbol\", contents=" (string/quoted (.> node :contents))))
+            (w/append-with! out (.. "{ tag=\"symbol\", contents=" (string/quoted (.> node :contents))))
             (when (.> node :var)
-            (w/append! out (.. ", var=" (string/quoted(number->string (.> node :var))))))
-            (w/append! out "}")]
+            (w/append-with! out (.. ", var=" (string/quoted(number->string (.> node :var))))))
+            (w/append-with! out "}")]
            ["key"
-            (w/append! out (.. "{tag=\"key\", value=" (string/quoted (.> node :value)) "}"))])
+            (w/append-with! out (.. "{tag=\"key\", value=" (string/quoted (.> node :value)) "}"))])
          (when (.> cat :parens) (w/append! out ")")))]
 
       ["quote-list"
@@ -455,11 +458,15 @@
          [(= ret "") (w/append! out "local _ = ")]
          [ret (w/append! out ret)]
          [true])
-       (w/append! out (.. "{tag = \"list\", n = " (number->string (n node))))
-       (for-each sub node
-         (w/append! out ", ")
-         (compile-expression sub out state))
-       (w/append! out "}")]
+       (case (n node)
+         [0
+          (w/append-with! out "{tag = \"list\", n = 0}")]
+         [?len
+          (w/append! out (.. "{tag = \"list\", n = " (number->string len)))
+          (for-each sub node
+            (w/append! out ", ")
+            (compile-expression sub out state))
+          (w/append! out "}")])]
 
       ["quote-splice"
        (unless ret (w/begin-block! out "(function()"))
@@ -676,7 +683,7 @@
          (compile-expression (nth node i) out state))
        (w/append! out ")")])
 
-    (unless (.> boring-categories cat-tag) (w/pop-node! out node))))
+    (w/pop-node! out node)))
 
 (defun compile-bind (args args-start vals vals-start out state)
   "Declare a series of ARGS, bindings VALS to them."
