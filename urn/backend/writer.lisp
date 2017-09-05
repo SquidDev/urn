@@ -75,7 +75,7 @@
 (defun push-node! (writer node)
   "Push NODE onto the position stack."
   (when-with (range (get-source node))
-    (push-cdr! (.> writer :node-stack) node)
+    (push-cdr! (.> writer :node-stack) range)
     (.<! writer :active-pos range)))
 
 (defun pop-node! (writer node)
@@ -83,9 +83,9 @@
   (when-with (range (get-source node))
     (let* [(stack (.> writer :node-stack))
            (previous (last stack))]
-      (unless (= previous node) (error! "Incorrect node popped"))
+      (when (/= previous range) (error! "Incorrect node popped"))
       (pop-last! stack)
-      (.<! writer :arg-pos (last stack)))))
+      (.<! writer :active-pos (last stack)))))
 
 (defun ->string (writer)
   "Convert the writer to a string."

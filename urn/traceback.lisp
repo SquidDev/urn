@@ -82,7 +82,7 @@
       (with (range-lists {})
         (for-pairs (pos) ranges
           (let* [(file (.> pos :name))
-                 (range-list (.> range-lists :file))]
+                 (range-list (.> range-lists file))]
             (unless range-list
               (set! range-list { :n 0
                                  :min math/huge
