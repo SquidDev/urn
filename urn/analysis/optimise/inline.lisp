@@ -48,7 +48,7 @@
            (with (new-scope (scope/child (get-scope (.> (car args) :var :scope) lookup)))
              (for-each arg args
                (let* [(var (.> arg :var))
-                      (new-var (scope/add! new-scope (.> var :name) (.> var :tag) nil))]
+                      (new-var (scope/add! new-scope (.> var :name) (.> var :kind) nil))]
                  (.<! new-var :is-variadic (.> var :is-variadic))
                  (.<! lookup :vars var new-var)))))))
 
@@ -80,7 +80,7 @@
             ;; Just a normal function call with symbols. We consider these
             ;; "free".
             ;; TODO: Block recursive functions
-            [(/= (.> func :tag) "builtin")
+            [(/= (.> func :kind) "builtin")
              (score-nodes node 1 (+ cumulative (n node) 1) threshold)]
 
             ;; Now visit the core builtins. This isn't exactly an advanced herustic.

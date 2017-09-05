@@ -1,7 +1,7 @@
 (import urn/backend/writer writer)
 
 (defun estimate-length (node max)
-  (with (tag (.> node :tag))
+  (with (tag (type node))
     (cond
       [(or (= tag "string") (= tag "number") (= tag "symbol") (= tag "key"))
        (n (number->string (.> node :contents)))]
@@ -16,7 +16,7 @@
       [true (fail! (.. "Unknown tag " tag))])))
 
 (defun expression (node writer)
-  (with (tag (.> node :tag))
+  (with (tag (type node))
     (cond
         [(= tag "string") (writer/append! writer (string/quoted (.> node :value)))]
         [(= tag "number") (writer/append! writer (number->string (.> node :value)))]

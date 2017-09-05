@@ -103,7 +103,7 @@
   "Check that is LENS a valid lens, that is, has the proper tag, a
    valid getter and a valid setter."
 
-  (and (= (.> lens :tag) :lens)
+  (and (= (type lens) :lens)
        (function? (.> lens :view))
        (function? (.> lens :over))))
 
@@ -111,14 +111,14 @@
   "Check that LENS has a defined getter, along with being tagged as
    a LENS. This is essentially a relaxed version of [[lens?]] in
    regards to the setter check."
-  (and (= (.> lens :tag) :lens)
+  (and (= (type lens) :lens)
        (function? (.> lens :view))))
 
 (defun setter? (lens)
   "Check that LENS has a defined setter, along with being tagged as
    a LENS. This is essentially a relaxed version of [[lens?]] in
    regards to the getter check."
-  (and (= (.> lens :tag) :lens)
+  (and (= (type lens) :lens)
        (function? (.> lens :over))))
 
 (defun compose-inner (l1 l2) :hidden

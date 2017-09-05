@@ -49,7 +49,7 @@
       [(= (n (.> def :defs)) 1)
        (let* [(ent (car (.> def :defs)))
               (val (.> ent :value))
-              (ty  (.> ent :tag))]
+              (ty  (type ent))]
          (cond
            [(or (string? val) (number? val) (key? val)) val]
            [(and (symbol? val) (= ty "val"))
@@ -182,7 +182,7 @@
                              ;; We won't fold if the variable is redefined
                              [(/= (n (.> entry :defs)) 1) false]
                              ;; If the definition is a varaiable then we can't fold.
-                             [(= (.> (car (.> entry :defs)) :tag) "var") false]
+                             [(= (type (car (.> entry :defs))) "var") false]
                              ;; Ensure there is only one usage of this argument
                              [(/= (n (.> entry :usages)) 1) false]
                              ;; Otherwise ensure that the next argument is valid
@@ -247,7 +247,7 @@
                         ;; evaluating the side effects of this node.
                         (cond
                           ;; Visit function calls normally
-                          [(/= (.> var :tag) "builtin")
+                          [(/= (.> var :kind) "builtin")
                            (visitor/visit-list node 1 visitor)
 
                            ;; If the last argument to this function is from the parent lambda

@@ -43,7 +43,7 @@
   (if (and (list? node) (fast-all constant? node 2))
     ;; If we're invoking a function with entirely constant arguments then
     (let* [(head (car node))
-           (meta (and (symbol? head) (not (.> head :folded)) (= (.> head :var :tag) "native") (.> state :meta (.> head :var :unique-name))))]
+           (meta (and (symbol? head) (not (.> head :folded)) (= (.> head :var :kind) "native") (.> state :meta (.> head :var :unique-name))))]
       ;; Determine whether we have a native (and pure) function. If so, we'll invoke it.
       (if (and meta (.> meta :pure) (.> meta :value))
         (with (res (list (pcall (.> meta :value) (unpack (map urn->val (cdr node)) 1 (- (n node) 1)))))

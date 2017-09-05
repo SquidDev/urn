@@ -22,12 +22,12 @@
     message node nil
     (range/get-source node) ""))
 
-(defun expect-type! (log node parent type name)
-  "Expect NODE to have the given TYPE."
+(defun expect-type! (log node parent expected-type name)
+  "Expect NODE to have the given EXPECTED-TYPE."
   :hidden
-  (when (or (not node) (/= (.> node :tag) type))
+  (when (/= (type node) expected-type)
     (error-positions! log (or node parent)
-      (.. "Expected " (or name type) ", got " (if node (.> node :tag) "nothing")))))
+      (.. "Expected " (or name expected-type) ", got " (if node (type node) "nothing")))))
 
 (defun expect! (log node parent name)
   "Expect NODE to exist."
@@ -85,7 +85,7 @@
                             :contents (tostring node)
                             :var (.> builtins node) })]
     ["table"
-     (with (tag (.> node :tag))
+     (with (tag (type node))
        (if (or (= tag "symbol") (= tag "string") (= tag "number") (= tag "key") (= tag "list"))
          (with (copy {})
            ;; We've got a valid node. We'll copy it in order to avoid
@@ -167,7 +167,7 @@
 
      ;; Builtin values aren't actually variables, so it doesn't make sense to use these
      ;; in raw expressions.
-     (when (= (.> node :var :tag) "builtin")
+     (when (= (.> node :var :kind) "builtin")
        (error-positions! (.> state :logger) node "Cannot have a raw builtin."))
 
      (state/require! state (.> node :var) node)
@@ -182,7 +182,7 @@
 
           (let* [(func (.> first :var))
                  (func-state (state/require! state func first))]
-            (case (.> func :tag)
+            (case (.> func :kind)
               ["builtin"
                (cond
                  [(= func (.> builtins :lambda))

@@ -7,12 +7,12 @@
   :hidden
   (if (= level 0)
     (visit-node node nil nil lookup)
-    (with (tag (.> node :tag))
+    (with (tag (type node))
       (cond
         [(or (= tag "string") (= tag "number") (= tag "key") (= tag "symbol"))]
         [(= tag "list")
          (with (first (nth node 1))
-           (if (and first (= (.> first :tag) "symbol"))
+           (if (symbol? node)
              (cond
                [(or (= (.> first :contents) "unquote") (= (.> first :contents) "unquote-splice"))
                 (visit-quote (nth node 2) (pred level) lookup)]
@@ -60,7 +60,7 @@
           (with (func (.> head :var))
             (cond
               ;; Just a bog-standard call.
-              [(/= (.> func :tag) "builtin")
+              [(/= (.> func :kind) "builtin")
                (with (state (.> lookup func))
                  (cond
                    ;; If we have no state, then we can skip it.

@@ -200,10 +200,10 @@
           (with (head (remove-nth! queue 1))
             (logger/put-debug! logger
               (..
-                (.> head :tag) " for " (.> head :_state :stage) " at " (range/format-node (.> head :_node))
+                (type head) " for " (.> head :_state :stage) " at " (range/format-node (.> head :_node))
                 " (" (if (.> head :_state :var) (.> head :_state :var :name) "?") ")"))
 
-            (case (.> head :tag)
+            (case (type head)
               ["init"
                ;; We're in the inital state, so we just start the resolver with the
                ;; initial data
@@ -277,7 +277,7 @@
 
     (when (> (n queue) 0)
       (for-each entry queue
-        (case (.> entry :tag)
+        (case (type entry)
           ["define"
            (let* [(info nil)
                   (suggestions "")]

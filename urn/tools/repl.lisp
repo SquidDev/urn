@@ -219,7 +219,7 @@
                 [(false (table? @ ?x)) (or (.> x :tokens) '())]))
         (stack '(1))]
     (for-each tok toks
-      (case (.> tok :tag)
+      (case (type tok)
         ["open" (push-cdr! stack (+ (.> tok :range :start :column) 2))]
         ["close" (pop-last! stack)]
         [_]))
@@ -475,11 +475,11 @@
                            (when (/= start previous)
                              (io/write (coloured (colour-for "comment") (string/sub contents previous (pred start))))))
 
-                         (unless (= (.> tok :tag) "eof")
-                           (with (tag (.> tok :tag))
+                         (with (tag (type tok))
+                           (unless (= tag "eof")
                              (if (and (= tag "symbol") (.> keywords (.> tok :contents)))
                                (io/write (coloured (colour-for "keyword") (.> tok :contents)))
-                               (io/write (coloured (colour-for (.> token-mapping (.> tok :tag))) (.> tok :contents))))))
+                               (io/write (coloured (colour-for (.> token-mapping (type tok))) (.> tok :contents))))))
 
                          (set! previous (succ (.> tok :range :finish :offset)))))
                      (io/write "\n"))
@@ -552,7 +552,7 @@
                         [(true ?arg)
                          (when (/= (co/status co) "dead")
                            (set! task arg)
-                           (case (.> task :tag)
+                           (case (type task)
                              ["execute" (lua/execute-states compile-state (.> task :states) global)]
                              [?task fail! (.. "Cannot handle " task)]))]))))])))))))
 

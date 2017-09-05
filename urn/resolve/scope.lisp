@@ -49,7 +49,8 @@
   (when (.> scope :variables name) (error! (.. "Previous declaration of " (string/quoted name))))
   (when (and (= name "_") (.> scope :is-root)) (fail! "Cannot declare \"_\" as a top level definition"))
 
-  (with (var { :tag       kind
+  (with (var { :tag       "var"
+               :kind      kind
                :name      name
                :full-name (.. (.> scope :prefix) name)
                :unique-name (.. (.> scope :unique-prefix) name)

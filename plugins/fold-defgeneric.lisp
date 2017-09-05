@@ -84,7 +84,7 @@
                ;; We've got some complex expression, so we transform it to
                ;; (let [(method <ORIGINAL>)] <EXTENSIONS> method)
                (unless wrapped
-                 (set! wrapped-var { :tag "arg" :name (.> var :name) })
+                 (set! wrapped-var { :tag "var" :kind "arg" :name (.> var :name) })
                  (set! wrapped `(,(fix-symbol `builtin/lambda) (,(var->symbol wrapped-var)) ,(var->symbol wrapped-var)))
                  (with (orig (nth nodes i))
                    (.<! orig (n orig) `(,wrapped ,(last orig)))))

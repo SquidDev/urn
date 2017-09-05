@@ -67,7 +67,7 @@
        (case (.> meta :fold)
          [nil
           ;; Return the value if required.
-          (when (/= (.> meta :tag) "stmt")
+          (when (/= (type meta) "stmt")
             (w/append! out "return "))
           ;; And create the template
           (for-each entry (.> meta :contents)

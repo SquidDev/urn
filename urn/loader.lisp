@@ -42,7 +42,7 @@
 (defun read-meta (state name entry)
   "Parse a single ENTRY in the library metadata, loading the appropriate data into STATE."
   :hidden
-  (when (and (or (= (.> entry :tag) "expr") (= (.> entry :tag) "stmt")) (string? (.> entry :contents)))
+  (when (and (or (= (type entry) "expr") (= (type entry) "stmt")) (string? (.> entry :contents)))
     (let* [(buffer '())
            (str     (.> entry :contents))
            (idx     0)
@@ -66,7 +66,7 @@
       (.<! entry :contents buffer)))
 
   (when-with (fold (.> entry :fold))
-    (when (/= (.> entry :tag) "expr") (fail! (.. "Cannot have fold for non-expression " name)))
+    (when (/= (type entry) "expr") (fail! (.. "Cannot have fold for non-expression " name)))
     (when (and (/= fold "l") (/= fold "r")) (fail! (.. "Unknown fold " fold " for " name)))
     (when (/= (.> entry :count) 2) (fail! (.. "Cannot have fold for length " (.> entry :count) " for " name))))
 

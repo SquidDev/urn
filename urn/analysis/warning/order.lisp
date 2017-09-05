@@ -44,7 +44,7 @@
        (cond
          [(= first-ty "symbol")
           (let* [(func (.> first :var))
-                 (func-ty (.> func :tag))]
+                 (func-ty (.> func :kind))]
             (cond
               ;; Just a basic function call :)
               [(or (= func-ty "defined") (= func-ty "arg") (= func-ty "native") (= func-ty "macro"))

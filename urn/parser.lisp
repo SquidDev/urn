@@ -477,8 +477,8 @@
                  (set! head (last stack))
                  (pop-last! stack)))]
     (for-each tok toks
-      (let* ((tag (.> tok :tag))
-             (auto-close false))
+      (let* [(tag (type tok))
+             (auto-close false)]
 
         ;; Attempt to find mismatched indents. This both highlights formatting errors and helps find the source of
         ;; parse errors due to mismatched parentheses.

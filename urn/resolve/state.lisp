@@ -102,7 +102,7 @@
                           (cond
                             [idx
                              ;; We've already visited this node, on this current iteration.
-                             (when (= (.> state :var :tag) "macro")
+                             (when (= (.> state :var :kind) "macro")
                                (push-cdr! stack state)
 
                                (let [(states '())

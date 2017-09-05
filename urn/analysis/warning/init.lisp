@@ -29,7 +29,7 @@
                               (let* [(def-data (car (.> var :defs)))
                                      (def (.> def-data :value))]
                                 (set! ari
-                                  (if (= (.> def-data :tag) "var")
+                                  (if (= (type def-data) "var")
                                     false
                                     (cond
                                       [(symbol? def) (get-arity def)]
@@ -105,7 +105,7 @@
           (when (or ;; Non top-level definitions
                     (= (.> def :def-var) nil)
                     ;; or non-macro, exported symbols
-                    (and (/= (.> var :tag) "macro") (not (.> var :scope :exported (.> var :name)))))
+                    (and (/= (.> var :kind) "macro") (not (.> var :scope :exported (.> var :name)))))
             (push-cdr! unused (list var def))))))
 
     (sort! unused (lambda (node1 node2)
@@ -129,7 +129,7 @@
   (visitor/visit-block nodes 1
     (lambda (node)
       (when (symbol? node)
-        (when (= (.> node :var :tag) "macro")
+        (when (= (.> node :var :kind) "macro")
           (logger/put-node-warning! (.> state :logger)
             (string/format "The macro %s is not expanded" (string/quoted (.> node :contents)))
             node

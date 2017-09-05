@@ -42,12 +42,12 @@
              (lambda (node level)
                (if (= level 0)
                  (transform-node node)
-                 (with (tag (.> node :tag))
+                 (with (tag (type node))
                    (cond
                      [(or (= tag "string") (= tag "number") (= tag "key") (= tag "symbol"))]
                      [(= tag "list")
                       (with (first (nth node 1))
-                        (if (and first (= (.> first :tag) "symbol"))
+                        (if (and first (symbol? first))
                           (cond
                             [(or (= (.> first :contents) "unquote") (= (.> first :contents) "unquote-splice"))
                              (.<! node 2 (transform-quote (nth node 2) (pred level)))]
@@ -76,7 +76,7 @@
                       ["symbol"
                        (with (func (.> head :var))
                          (cond
-                           [(/= (.> func :tag) "builtin")
+                           [(/= (.> func :kind) "builtin")
                             (for i 1 (n node) 1
                               (.<! node i (transform-node (nth node i))))]
 

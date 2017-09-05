@@ -3,13 +3,13 @@
 (defun traverse-quote (node visitor level)
   (if (= level 0)
     (traverse-node node visitor)
-    (with (tag (.> node :tag))
+    (with (tag (type node))
       (cond
         [(or (= tag "string") (= tag "number") (= tag "key") (= tag "symbol"))
          node]
         [(= tag "list")
          (with (first (nth node 1))
-           (if (and first (= (.> first :tag) "symbol"))
+           (if (symbol? first)
              (cond
                [(or (= (.> first :contents) "unquote") (= (.> first :contents) "unquote-splice"))
                 (.<! node 2 (traverse-quote (nth node 2) visitor (pred level)))
@@ -28,7 +28,7 @@
         (error! (.. "Unknown tag " tag))))))
 
 (defun traverse-node (node visitor)
-  (with (tag (.> node :tag))
+  (with (tag (type node))
     (cond
       [(or (= tag "string") (= tag "number") (= tag "key") (= tag "symbol"))
        (visitor node visitor)]
@@ -38,9 +38,9 @@
          (set! first (visitor first visitor))
          (.<! node 1 first)
 
-         (if (= (.> first :tag) "symbol")
+         (if (symbol? first)
            (let* [(func (.> first :var))
-                  (funct (.> func :tag))]
+                  (funct (.> func :kind))]
              (cond
                [(or (= funct "defined") (= funct "arg") (= funct "native") (= funct "macro"))
                 (traverse-list node 1 visitor)

@@ -124,7 +124,7 @@
                        (with (func (.> head :var))
                          (cond
                            ;; "Fast track" for non-builtin symbols
-                           [(/= (.> func :tag) "builtin")
+                           [(/= (.> func :kind) "builtin")
                             (for i 1 (n node) 1 (visit-node (nth node i)))]
 
                            ;; First the simple structures, where there is no default definition.
@@ -205,7 +205,7 @@
    exported symbols and macros (as one cannot determine if they will)
    be referenced or not."
   (with (def (.> node :def-var))
-    (or (and def (or (= (.> def :tag) "macro") (.> def :scope :exported (.> def :name))))
+    (or (and def (or (= (.> def :kind) "macro") (.> def :scope :exported (.> def :name))))
         (not (list? val))
         (not (builtin? (car val) :lambda)))))
 

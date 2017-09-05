@@ -19,7 +19,7 @@
            (with (var (.> head :var))
              (cond
                ;; If we're calling a non-builtin symbol, then assume it has a side effect.
-               [(/= (.> var :tag) "builtin") true]
+               [(/= (.> var :kind) "builtin") true]
                ;; Lambdas and quotes obviously have no side-effect.
                [(= var (.> builtins :lambda)) false]
                [(= var (.> builtins :quote)) false]
@@ -99,7 +99,7 @@
         (with (func (.> head :var))
           (cond
             ;; Non-builtin functions will "always" return multiple values.
-            [(/= (.> func :tag) "builtin") false]
+            [(/= (.> func :kind) "builtin") false]
             ;; Various literals will just return a single value
             [(= func (.> builtins :lambda)) true]
             [(= func (.> builtins :struct-literal)) true]
