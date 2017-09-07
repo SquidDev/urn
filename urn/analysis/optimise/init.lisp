@@ -2,8 +2,8 @@
 
 (import urn/analysis/nodes ())
 (import urn/analysis/pass ())
+(import urn/analysis/tag/usage usage)
 (import urn/analysis/transform (transformer))
-(import urn/analysis/usage usage)
 
 (import urn/analysis/optimise/fusion opt)
 (import urn/analysis/optimise/simple opt)

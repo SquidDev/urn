@@ -1,6 +1,6 @@
 (import urn/analysis/nodes ())
 (import urn/analysis/pass ())
-(import urn/analysis/usage usage)
+(import urn/analysis/tag/usage usage)
 (import urn/analysis/visitor visitor)
 (import urn/documentation doc)
 (import urn/logger logger)

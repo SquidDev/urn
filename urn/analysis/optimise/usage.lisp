@@ -1,7 +1,7 @@
 (import urn/analysis/nodes ())
 (import urn/analysis/pass ())
+(import urn/analysis/tag/usage usage)
 (import urn/analysis/traverse traverse)
-(import urn/analysis/usage usage)
 (import urn/analysis/visitor visitor)
 
 (defun strip-defs-fast (nodes)

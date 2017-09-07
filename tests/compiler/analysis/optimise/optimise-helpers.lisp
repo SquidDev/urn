@@ -1,8 +1,8 @@
 (import test ())
 
 (import urn/analysis/pass pass)
+(import urn/analysis/tag/usage usage)
 (import urn/analysis/transform ())
-(import urn/analysis/usage usage)
 (import urn/resolve/loop resolve)
 (import tests/compiler/compiler-helpers (create-compiler wrap-node))
 

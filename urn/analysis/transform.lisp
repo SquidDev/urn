@@ -1,6 +1,6 @@
 (import urn/analysis/nodes (builtins builtin? zip-args))
 (import urn/analysis/pass ())
-(import urn/analysis/usage usage)
+(import urn/analysis/tag/usage usage)
 (import urn/logger logger)
 
 (defun transform (nodes transformers lookup)
