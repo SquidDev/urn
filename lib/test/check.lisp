@@ -14,6 +14,9 @@
 (defun random-number () :hidden
   (random (- 0 (^ 2 32)) (^ 2 32)))
 
+(defun random-natural () :hidden
+  (random 0 (^ 2 32)))
+
 (defun random-boolean () :hidden
   (= 0 (% (random-number) 2)))
 
@@ -30,14 +33,15 @@
 
 (defun random-of (type) :hidden
   (case type
-    ["string" (random-string)]
+    ["string"  (random-string)]
     ["boolean" (random-boolean)]
-    ["number" (random-number)]
-    ["symbol" (random-symbol)]
-    ["key" (random-string)]
-    ["list" (random-list)]
-    ["struct" (random-struct)]
-    ["any" (random-of (random-type))]))
+    ["number"  (random-number)]
+    ["natural" (random-natural)]
+    ["symbol"  (random-symbol)]
+    ["key"     (random-string)]
+    ["list"    (random-list)]
+    ["struct"  (random-struct)]
+    ["any"     (random-of (random-type))]))
 
 (defun random-list () :hidden
   (let* [(n (random 1 5))]
