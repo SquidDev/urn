@@ -4,6 +4,7 @@
 (defgeneric n-  (x y) "Generalised numeric subtraction.")
 (defgeneric n*  (x y) "Generalised numeric cross product.")
 (defgeneric n/  (x y) "Generalised numeric division.")
+(defgeneric n%  (x y) "Generalised numeric modulus.")
 (defgeneric n^  (x y) "Generalised numeric exponentiation.")
 (defgeneric n<  (x y) "Generalised numeric less-than comparison.")
 (defgeneric n<= (x y) "Generalised numeric less-than or equal to comparison.")
@@ -23,7 +24,7 @@
 ,@(map (lambda (x)
          `(defmethod (,(sym.. 'n x) ,'number ,'number) (,'x ,'y)
             (,x ,'x ,'y)))
-       '(+ - * / ^ < <=))
+       '(+ - * / % ^ < <=))
 
 (defmethod (nsqrt number)   (x) (math/sqrt x))
 (defmethod (nrecip number)  (x) (/ 1 x))
