@@ -93,7 +93,7 @@
 
   (let* [(prefix (.. name "-" (n (.> state :libs)) "/"))
          (lib { :name   name
-                :prefix name
+                :prefix prefix
                 :path   path })
          (contents (self lisp-handle :read "*a"))]
     (self lisp-handle :close)

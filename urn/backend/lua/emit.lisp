@@ -420,7 +420,7 @@
        (with (meta (.> state :meta (.> node :def-var :unique-name)))
          (if (= meta nil)
             ;; Just copy it from the library table value
-            (w/append! out (string/format "%s = _libs[%q]" (escape-var (.> node :def-var) state) (.> node :def-var :full-name)))
+            (w/append! out (string/format "%s = _libs[%q]" (escape-var (.> node :def-var) state) (.> node :def-var :unique-name)))
             (progn
               ;; Generate an accessor for it.
               (w/append! out (string/format "%s = " (escape-var (.> node :def-var) state)))
