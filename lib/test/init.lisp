@@ -73,6 +73,10 @@
   "Create a test whose BODY asserts NAME can happen"
   `(with (,prefix (.. ,prefix " can")) (it ,name ,@body)))
 
+(defmacro cannot (name &body)
+  "Create a test whose BODY asserts NAME cannot happen"
+  `(with (,prefix (.. ,prefix " cannot")) (it ,name ,@body)))
+
 (defmacro describe (name &body)
   "Create a group of tests, defined in BODY, which test NAME"
   `(let [(,tests-passed '())

@@ -1,6 +1,7 @@
 (import core/prelude ())
 (import data/format ())
 (import data/struct ())
+(import math ())
 (import math/numerics ())
 
 (defstruct (vector (hide make-vector) vector?)
@@ -23,6 +24,8 @@
    ```"
   (when (empty? items)
     (format 1 "(vector {#items}): cannot create a vector with a dimension of 0"))
+  (for i 1 (n items) 1
+    (when (nan? (nth items i)) (format 1 "(vector {#items}): argument {#i} is not a number")))
   (make-vector items))
 
 (defun list->vector (items)
@@ -36,6 +39,8 @@
   (assert-type! items list)
   (when (empty? items)
     (format 1 "(list->vector {#items}): cannot create a vector with a dimension of 0"))
+  (for i 1 (n items) 1
+    (when (nan? (nth items i)) (format 1 "(list->vector ({#items})): element {#i} is not a number")))
   (make-vector items))
 
 (define *vector-mt* :hidden
@@ -44,7 +49,6 @@
     :__mul n*
     :__div n/
     :__mod n%
-    :__pow n^
     :__lt  n<
     :__lte n<= })
 
@@ -54,7 +58,6 @@
   (unless (between? 1 (vector-dim vector))
     (format 1 "(vector-item {#vector} {#i}): i is out of bounds"))
   (.> (vector-items) i))
-
 
 (defmethod (pretty vector) (x)
   (.. "[" (concat (map pretty (vector-items x)) " ") "]"))
@@ -75,11 +78,29 @@
   (make-vector (map n- (vector-items x) (vector-items y))))
 
 ,@(flat-map (lambda (m)
-              `((defmethod (,m ,'vector   ,'number) (,'x ,'y) (make-vector (map (cut ,m ,'<> ,'y) (vector-items ,'x))))
-                (defmethod (,m ,'number   ,'vector) (,'x ,'y) (make-vector (map (cut ,m ,'x ,'<>) (vector-items ,'y))))
+              `((defmethod (,m ,'vector   ,'number) (,'x ,'y)
+                  (when (nan? ,'y)  (format 1 ,(.. "(" (symbol->string m) " {#x} {#y}): attempt to operate on nan")))
+                  (make-vector (map (cut ,m ,'<> ,'y) (vector-items ,'x))))
+                (defmethod (,m ,'number   ,'vector) (,'x ,'y)
+                  (when (nan? ,'x)  (format 1 ,(.. "(" (symbol->string m) " {#x} {#y}): attempt to operate on nan")))
+                  (make-vector (map (cut ,m ,'x ,'<>) (vector-items ,'y))))
                 (defalias  (,m ,'vector   ,'rational) (,m ,'vector ,'number))
                 (defalias  (,m ,'rational ,'vector)   (,m ,'number ,'vector))))
-    `(n* n/ n% n^))
+    `(n* n%))
+
+(defmethod (n/ vector number) (x y)
+  (when (nan? y)  (format 1 "(n/ {#x} {#y}): attempt to operate on nan"))
+  (when (eq? y 0) (format 1 "(n/ {#x} {#y}): attempt to divide by 0"))
+
+  (make-vector (map (cut n/ <> y) (vector-items x))))
+(defmethod (n/ number vector) (x y)
+  (when (nan? x) (format 1 "(n/ {#x} {#y}): attempt to operate on nan"))
+  (for-each item (vector-items y)
+    (when (eq? item 0) (format 1 "(n/ {#x} {#y}): attempt to divide by 0")))
+
+  (make-vector (map (cut n/ x <>) (vector-items y))))
+(defalias  (n/ vector   rational) (n/ vector number))
+(defalias  (n/ rational vector)   (n/ number vector))
 
 (defmethod (nnegate vector) (x)
   (make-vector (map nnegate (vector-items x))))

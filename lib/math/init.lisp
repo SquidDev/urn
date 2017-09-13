@@ -25,12 +25,40 @@
   (math/floor (math/abs (/ (* x y) (gcd x y)))))
 
 (defun even? (x)
-  "Is X an even number?"
+  "Is X an even number?
+
+   ### Example
+   ```cl
+   > (even? 2)
+   out = true
+   > (even? 1)
+   out = false
+   ```"
   (= (% x 2) 0))
 
 (defun odd? (x)
-  "Is X an odd number?"
+  "Is X an odd number?
+
+   ### Example
+   ```cl
+   > (odd? 1)
+   out = true
+   > (odd? 2)
+   out = false
+   ```"
   (/= (% x 2) 0))
+
+(defun nan? (x)
+  "Is X equal to NaN?
+
+   ### Example
+   ```cl
+   > (nan? (/ 0 0))
+   out = true
+   > (nan? 1)
+   out = false
+   ```"
+  (/= x x))
 
 (defun succ (x)
   "Return the successor of the number X."
