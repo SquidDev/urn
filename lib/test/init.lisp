@@ -24,6 +24,11 @@
   `(when ,quiet
      (write (coloured ,colour "\226\128\162"))))
 
+(defun format-err (x)
+  "Format an error message"
+  :hidden
+  (if (string? x) (const-val x) (pretty x)))
+
 (defmacro it (name &body)
   "Create a test NAME which executes all expressions and assertions in
    BODY"
@@ -36,7 +41,7 @@
         (marker 32))
       (lambda (,'msg)
         (marker 31)
-        (push-cdr! ,tests-failed (list (.. ,prefix " " ,name) (if ,quiet ,'msg (traceback ,'msg))))))))
+        (push-cdr! ,tests-failed (list (.. ,prefix " " ,name) (if ,quiet (format-err ,'msg) (traceback (format-err ,'msg)))))))))
 
 (defmacro pending (name &body)
   "Create a test NAME whose BODY will not be run.
