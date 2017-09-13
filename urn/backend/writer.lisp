@@ -12,18 +12,18 @@
     :active-pos   nil })
 
 
-(defun append! (writer text)
-  "Append a string to the writer"
+(defun append! (writer text position)
+  "Append a piece of TEXT to the WRITER with the given POSITION"
   (assert-type! text string)
 
   ;; Push the current position to the line mapping
-  (when-with (pos (.> writer :active-pos))
+  (when position
     (with (line (.> writer :lines (.> writer :line)))
       (unless line
         (set! line {})
         (.<! writer :lines (.> writer :line) line))
 
-      (.<! line pos true)))
+      (.<! line position true)))
 
   ;; Write the indent when required
   (when (.> writer :tabs-pending)
@@ -31,6 +31,10 @@
     (push-cdr! (.> writer :out) (string/rep "\t" (.> writer :indent))))
 
   (push-cdr! (.> writer :out) text))
+
+(defun append-with! (writer text)
+  "Append a piece of TEXT to the writer with the current POSITION"
+  (append! writer text (.> writer :active-pos)))
 
 (defun line! (writer text force)
   "Append a line to the buffer"

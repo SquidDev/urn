@@ -43,10 +43,12 @@
                      :root-scope    scope
                      :variables     {}
                      :states        {}
+                     :global        (b/setmetatable {} { :__index b/_G })
                      :compile-state { :mappings {} }
 
                      :loader        (lambda (name) (format 0 "Cannot load external module {#name:string/quoted}")) })]
 
+    (.<! scope :is-root true)
     (for-each var '("foo" "bar" "baz" "qux" "+" "-" ".." "=" ">=" "get-idx" "print")
       (scope/add! scope var "native"))
 
