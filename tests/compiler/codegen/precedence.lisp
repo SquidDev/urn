@@ -66,10 +66,10 @@
     (it "of quotes"
       (affirm-codegen
         '(('(1 2) 1 2))
-        "return ({tag = \"list\", n = 2, 1, 2})(1, 2)")
+        "return ({tag=\"list\", n=2, 1, 2})(1, 2)")
       (affirm-codegen
         '((`(1 2) 1 2))
-        "return ({tag = \"list\", n = 2, 1, 2})(1, 2)"))
+        "return ({tag=\"list\", n=2, 1, 2})(1, 2)"))
 
     (it "of struct-literal"
       (affirm-codegen
@@ -97,7 +97,7 @@
     (it "quotes"
       (affirm-codegen
         '((get-idx '(1 2 3) 2))
-        "return ({tag = \"list\", n = 3, 1, 2, 3})[2]")))
+        "return ({tag=\"list\", n=3, 1, 2, 3})[2]")))
 
   (section "will correctly wrap nested expressions"
     (it "with nots"

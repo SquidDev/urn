@@ -408,7 +408,7 @@
          [?len
           (w/append! out "{")
           (for i 2 len 2
-            (when (> i 2) (w/append! out ","))
+            (when (> i 2) (w/append! out ", "))
             (w/append! out "[")
             (compile-expression (nth node i) out state)
             (w/append! out "]=")
@@ -445,7 +445,7 @@
            ["string" (w/append-with! out (string/quoted (.> node :value)))]
            ["number" (w/append-with! out (number->string (.> node :value)))]
            ["symbol"
-            (w/append-with! out (.. "{ tag=\"symbol\", contents=" (string/quoted (.> node :contents))))
+            (w/append-with! out (.. "{tag=\"symbol\", contents=" (string/quoted (.> node :contents))))
             (when (.> node :var)
             (w/append-with! out (.. ", var=" (string/quoted(number->string (.> node :var))))))
             (w/append-with! out "}")]
@@ -460,9 +460,9 @@
          [true])
        (case (n node)
          [0
-          (w/append-with! out "{tag = \"list\", n = 0}")]
+          (w/append-with! out "{tag=\"list\", n=0}")]
          [?len
-          (w/append! out (.. "{tag = \"list\", n = " (number->string len)))
+          (w/append! out (.. "{tag=\"list\", n=" (number->string len)))
           (for-each sub node
             (w/append! out ", ")
             (compile-expression sub out state))

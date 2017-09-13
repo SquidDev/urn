@@ -57,7 +57,7 @@
     (it "of empty lists"
       (affirm-mappings
         "'()"
-        "    init.lisp:1 | return {tag = \"list\", n = 0}"))
+        "    init.lisp:1 | return {tag=\"list\", n=0}"))
 
     (it "of quotes with multiple items"
       (affirm-mappings
@@ -65,14 +65,14 @@
            1
            2
            3)"
-        "  init.lisp:2-4 | return {tag = \"list\", n = 3, 1, 2, 3}"))
+        "  init.lisp:2-4 | return {tag=\"list\", n=3, 1, 2, 3}"))
 
     (it "of syntax-quotes"
       (affirm-mappings
         "`(1 2 ,(cond
                   [foo 1]
                   [true 2]))"
-        "    init.lisp:1 | return {tag = \"list\", n = 3, 1, 2, (function()
+        "    init.lisp:1 | return {tag=\"list\", n=3, 1, 2, (function()
              init.lisp:2 |   if foo then
              init.lisp:2 |     return 1
                          |   else
@@ -89,7 +89,7 @@
       (affirm-mappings
         "{ :foo 1
            :bar 2 }"
-        "  init.lisp:1-2 | return {[\"foo\"]=1,[\"bar\"]=2}")))
+        "  init.lisp:1-2 | return {[\"foo\"]=1, [\"bar\"]=2}")))
 
   (section "for and expressions"
     (it "which span multiple lines"
@@ -261,7 +261,7 @@
          (inc x
          ))"
       "    init.lisp:1 | inc1 = function(var)
-           init.lisp:1 |   return {tag = \"list\", n = 3, { tag=\"symbol\", contents=\"set!\"}, var, {tag = \"list\", n = 3, { tag=\"symbol\", contents=\"+\"}, var, 1}}
+           init.lisp:1 |   return {tag=\"list\", n=3, {tag=\"symbol\", contents=\"set!\"}, var, {tag=\"list\", n=3, {tag=\"symbol\", contents=\"+\"}, var, 1}}
                        | end
            init.lisp:2 | return function(x)
            init.lisp:3 |   x = x + 1
