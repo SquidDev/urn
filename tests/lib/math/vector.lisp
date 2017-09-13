@@ -26,8 +26,8 @@
   (can "be divided"
     (check [(number a1) (number a2) (number a3)
             (number b)]
-      (eq? (vector (/ a1 b) (/ a2 b) (/ a3 b))
-           (n/ (vector a1 a2 a3) b))))
+      (or (= b 0) (eq? (vector (/ a1 b) (/ a2 b) (/ a3 b))
+                       (n/ (vector a1 a2 a3) b)))))
 
   (can "compute the dot product"
     (affirm (eq? 0 (dot (vector 1 0) (vector 0 1)))

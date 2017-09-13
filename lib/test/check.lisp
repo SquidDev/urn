@@ -12,10 +12,10 @@
     (concat (map random-byte (range :from 1 :to n)))))
 
 (defun random-number () :hidden
-  (random (- 0 (^ 2 32)) (^ 2 32)))
+  (random (- 0 (^ 2 24)) (^ 2 24)))
 
 (defun random-natural () :hidden
-  (random 0 (^ 2 32)))
+  (random 0 (^ 2 24)))
 
 (defun random-boolean () :hidden
   (= 0 (% (random-number) 2)))
