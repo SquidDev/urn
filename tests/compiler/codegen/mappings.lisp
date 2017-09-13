@@ -250,4 +250,22 @@
           2))"
         "    init.lisp:3 | local x1 = 2
              init.lisp:2 | x = x1 + 1")))
-)
+
+  (it "for macros"
+    (affirm-mappings
+      "(define-macro inc (lambda (var) `(,'set! ,var (,'+ ,var 1))))
+       (lambda (x)
+         (inc x)
+         (inc
+           x)
+         (inc x
+         ))"
+      "    init.lisp:1 | inc1 = function(var)
+           init.lisp:1 |   return {tag = \"list\", n = 3, { tag=\"symbol\", contents=\"set!\"}, var, {tag = \"list\", n = 3, { tag=\"symbol\", contents=\"+\"}, var, 1}}
+                       | end
+           init.lisp:2 | return function(x)
+           init.lisp:3 |   x = x + 1
+         init.lisp:4-5 |   x = x + 1
+           init.lisp:6 |   x = x + 1
+                       |   return nil
+                       | end")))

@@ -484,7 +484,7 @@
                    ;; The macro worked, we'll gather the output and continue.
                    [(true . ?replacement)
                     (for i 1 (n replacement) 1
-                      (.<! replacement i (resolve-execute-result func-state (nth replacement i) node scope state)))
+                      (.<! replacement i (resolve-execute-result func-state (nth replacement i) first scope state)))
 
                     (cond
                       [(= (n replacement) 0)
