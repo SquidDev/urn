@@ -1,8 +1,8 @@
 (import test ())
 (import math/rational r)
 
-(describe "The math library has rationals"
-  (it "which can be written as literals"
+(describe "The math library has rationals which"
+  (can "be written as literals"
     (affirm (eq? 1/2 (rational 1 2))
             (eq? 2/3 (rational 2 3))))
 

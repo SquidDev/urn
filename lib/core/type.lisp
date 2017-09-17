@@ -349,7 +349,7 @@
   (.. ":" (get-idx x :value)))
 
 (defmethod (pretty number) (x)
-  (tostring (const-val x)))
+  (format "%g" (const-val x)))
 
 (defmethod (pretty string) (x)
   (format "%q" (const-val x)))
