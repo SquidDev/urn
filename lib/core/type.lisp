@@ -194,7 +194,7 @@
                                       ")\n  "
                                       (let* [(,key (keys (get-idx ,this :lookup)))]
                                         (if (>= (n ,key) 1)
-                                          (.. "There are methods to call for "
+                                          (.. "There are methods to call for\n"
                                               (concat (map (lambda (,key)
                                                              (.. "  - " ,key))
                                                            (keys (get-idx ,this :lookup)))
@@ -364,7 +364,9 @@
   (.. "«method: (" (get-idx (getmetatable x) :name) " " (concat (get-idx (getmetatable x) :args) " ") ")»"))
 
 (defdefault pretty (x)
-  (tostring x))
+  (if (table? x)
+    ((.> pretty :lookup :table) x)
+    (tostring x)))
 
 (defmacro debug (x)
   "Print the value X, then return it unmodified."
