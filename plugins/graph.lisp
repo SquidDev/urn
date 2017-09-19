@@ -5,10 +5,7 @@
 (import io)
 (import data/graph ())
 
-(defmethod (pretty defined) (var) (.> var :full-name))
-(defmethod (pretty native)  (var) (.> var :full-name))
-(defmethod (pretty builtin) (var) (.> var :full-name))
-(defmethod (pretty macro)   (var) (.> var :full-name))
+(defmethod (pretty var)     (var) (.> var :full-name))
 
 (defpass generate-dependency-graph (state nodes)
   "Emit an out.dot file, tracking the dependencies between functions."
