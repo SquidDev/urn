@@ -1,7 +1,7 @@
 (import core/base (defmacro defun let* when if list unless gensym slice progn get-idx
               set-idx! error = /= % - + n or for for-pairs with not apply else))
 (import lua/basic (next len#) :export)
-(import core/type (key?))
+(import core/type (key? assert-type!))
 (import core/list ())
 
 (defun struct->list (tbl)
@@ -28,6 +28,21 @@
   (.<! tbl :tag "list")
   (.<! tbl :n (len# tbl))
   tbl)
+
+(defun list->struct (list)
+  "Converts a LIST to a structure, mapping an index to the element in the
+   list. Note that `nil` elements may not be mapped correctly.
+
+   ### Example
+   ```cl
+   > (list->struct '(\"foo\"))
+   out = {1 \"foo\"}
+   ```"
+  (assert-type! list list)
+  (with (out {})
+    (for i 1 (n list) 1
+      (set-idx! out i (nth list i)))
+    out))
 
 ;; Chain a series of index accesses together
 (defmacro .> (x &keys)

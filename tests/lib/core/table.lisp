@@ -32,6 +32,13 @@
         (affirm (= (nth li 1) "x")
                 (= (nth li 2) "y")
                 (= (nth li 3) "z"))))
+
+    (can "be created from a list"
+      (with (st (list->struct '("foo" 1 :bar)))
+        (affirm (eq? (.> st 1) "foo")
+                (eq? (.> st 2) 1)
+                (eq? (.> st 3) :bar))))
+
     (will "be a constant size"
       (affirm (= 0 (nkeys {}))
               (= 0 (nkeys (struct)))
