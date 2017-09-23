@@ -68,6 +68,9 @@
   (it "can be splitted"
       (affirm (eq? (split '(1 2 3 4) 3) '((1 2) (4)))
               (eq? (split '(a b c d e) 'b) '((a) (c d e)))))
+  (it "can be grouped"
+      (affirm (eq? (groups-of '(1 2 3 4 5 6) 3) '((1 2 3) (4 5 6)))
+              (eq? (groups-of '(1 2 3 4 5) 2) '((1 2) (3 4) (5)))))
   (it "exists"
       (check [(list a)] (exists? a)))
   (it "can be accumulated with a monoid"

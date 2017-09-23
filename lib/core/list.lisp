@@ -702,6 +702,24 @@
       (set! b (take-while p xs idx)))
     l))
 
+(defun groups-of (xs num)
+  "Splits the list XS into sub-lists of size NUM.
+
+   ### Example:
+   ```cl
+   > (groups-of '(1 2 3 4 5 6) 3)
+   out = ((1 2 3) (4 5 6))
+   ```"
+  (assert-type! xs list)
+  (let* [(result '())
+         (group nil)]
+    (for idx 1 (n xs) 1
+      (when (= (% idx num) 1)
+        (set! group '())
+        (push-cdr! result group))
+      (push-cdr! group (nth xs idx)))
+    result))
+
 (defun sort (xs f)
   "Sort the list XS, non-destructively, optionally using F as a
    comparator.  A sorted version of the list is returned, while the
