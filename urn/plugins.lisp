@@ -37,6 +37,8 @@
       :logger/do-node-error!    (lambda (msg node explain &lines)
                                   (logger/do-node-error!    logger msg node explain (unpack lines 1 (n lines))))
       :range/get-source    range/get-source
+      :flags               (lambda () (map id (.> compiler :flags)))
+      :flag?               (cut elem? <> (.> compiler :flags))
 
       ;; nodes.lisp
       :visit-node     visitor/visit-node
