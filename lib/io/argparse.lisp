@@ -242,6 +242,7 @@
 
   (let* [(result {})
          (pos (.> spec :pos))
+         (pos-idx 1)
          (idx 1)
          (len (n args))
          (usage! (lambda (msg) (usage-error! spec (nth args 0) msg)))
@@ -349,11 +350,13 @@
                         (inc! idx)]))]))
              (inc! i)))]
         [?any
-         (with (arg (car pos))
+         (with (arg (nth pos pos-idx))
            (if arg
-             (action arg any)
-             (usage! (.. "Unknown argument " arg))))
-         (inc! idx)]))
+             (progn
+               (dec! idx) ;; Ugly hack to start in the right place
+               (read-args (.> arg :var) arg)
+               (when (number? (.> arg :narg)) (inc! pos-idx)))
+             (usage! (.. "Unknown argument " any))))]))
 
     ;; Copy across the defaults
     (for-each arg (.> spec :opt)
