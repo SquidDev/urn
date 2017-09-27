@@ -355,7 +355,7 @@
              (progn
                (dec! idx) ;; Ugly hack to start in the right place
                (read-args (.> arg :var) arg)
-               (when (number? (.> arg :narg)) (inc! pos-idx)))
+               (unless (.> arg :many) (inc! pos-idx)))
              (usage! (.. "Unknown argument " any))))]))
 
     ;; Copy across the defaults
