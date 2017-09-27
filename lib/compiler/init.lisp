@@ -44,3 +44,9 @@
   "Get the nearest source position of NODE
 
    This will walk up NODE's tree until a non-macro node is found.")
+
+(define-native flags
+  "Get a list of all compiler flags.")
+
+(define-native flag?
+  "Determine whether the given compiler FLAG is set.")

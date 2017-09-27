@@ -153,6 +153,13 @@
     :many    true
     :action  arg/add-action)
 
+  (arg/add-argument! spec '("--flag" "-f")
+    :help    "Turn on a compiler flag, enabling or disabling a specific feature."
+    :default '()
+    :narg    1
+    :many    true
+    :action  arg/add-action)
+
   (arg/add-argument! spec '("input")
     :help    "The file(s) to load."
     :var     "FILE"
@@ -188,6 +195,7 @@
     (with (compiler { :log       logger
                       :timer     (timer/create (cut logger/put-time! logger <> <> <>))
                       :paths     paths
+                      :flags     (.> args :flag)
 
                       :lib-env   {}
                       :lib-meta  {}
