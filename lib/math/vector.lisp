@@ -48,13 +48,12 @@
     :__sub n-
     :__mul n*
     :__div n/
-    :__mod n%
-    :__lt  n<
-    :__lte n<= })
+    :__mod n% })
 
 (defun vector-item (vector i)
   "Get the I th element in the VECTOR."
   (assert-type! vector vector)
+  (assert-type! vector number)
   (unless (between? 1 (vector-dim vector))
     (format 1 "(vector-item {#vector} {#i}): i is out of bounds"))
   (.> (vector-items) i))
