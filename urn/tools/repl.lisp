@@ -567,7 +567,7 @@
       (with (library (car (loader/loader compiler input false)))
         (for-pairs (name var) (.> library :scope :exported)
           (if (.> scope :variables name)
-            (scope/import! scope (.. (.> library :name) "/" name))
+            (scope/import! scope (.. (.> library :name) "/" name) var)
             (scope/import! scope name var)))))
 
     (while running
