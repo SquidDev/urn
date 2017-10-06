@@ -9,7 +9,7 @@ former should attempt to simplify code, making it more
 performant. Warnings attempt to find potential bugs or stylistic issues
 in your code.
 
-Each pass is defined and registered with [`defpass`](lib.compiler.pass.md#defpass-name-args-body).
+Each pass is defined and registered with [`defpass`](lib.compiler.pass.md#defpass).
 
 ### State
 Every pass receives a state object. This contains various bits of
@@ -26,32 +26,32 @@ information about the current compiler. Some important fields include:
 ### Usage analysis
 Sometimes you will need to get the definitions or usages of a
 variable. Firstly you'll need to include `"usage"` in the category
-list in [`defpass`](lib.compiler.pass.md#defpass-name-args-body). You can then access information about the variable
+list in [`defpass`](lib.compiler.pass.md#defpass). You can then access information about the variable
 by using [`var-usage`](lib.compiler.pass.md#var-usage).
 
 ## `add-pass!`
-*Native defined at lib/compiler/pass.lisp:71:1*
+*Native defined at lib/compiler/pass.lisp:69:1*
 
-Register a `PASS` created with [`defpass`](lib.compiler.pass.md#defpass-name-args-body).
+Register a `PASS` created with [`defpass`](lib.compiler.pass.md#defpass).
 
-## `(changed!)`
-*Macro defined at lib/compiler/pass.lisp:74:1*
+## `changed!`
+*Macro defined at lib/compiler/pass.lisp:72:2*
 
 Mark this pass as having a side effect.
 
-## `(defpass name args &body)`
-*Macro defined at lib/compiler/pass.lisp:32:1*
+## `defpass`
+*Macro defined at lib/compiler/pass.lisp:30:2*
 
 Define a pass with the given `NAME` and `BODY` taking the specified `ARGS`.
 
-`BODY` can contain key-value pairs (like [`struct`](lib.table.md#struct-entries)) which will be set
+`BODY` can contain key-value pairs (like [`struct`](lib.core.table.md#struct)) which will be set
 as options for this pass.
 
 Inside the `BODY` you can call [`changed!`](lib.compiler.pass.md#changed-) to mark this pass as
 modifying something.
 
 ## `var-usage`
-*Native defined at lib/compiler/pass.lisp:78:1*
+*Native defined at lib/compiler/pass.lisp:76:1*
 
 Get usage information about the specified `VAR`. This returns a struct
 containing:

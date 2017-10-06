@@ -1,9 +1,9 @@
 ---
-title: urn/struct
+title: data/struct
 ---
-# urn/struct
-## `(defstruct name &clauses)`
-*Macro defined at lib/urn/struct.lisp:116:1*
+# data/struct
+## `defstruct`
+*Macro defined at lib/data/struct.lisp:103:2*
 
 Define a struct called `NAME`.
 
@@ -24,7 +24,7 @@ The first struct declaration generates a constructor called
 declaration generates a constructor called `make-something-else`
 and a predicate `is-something-else?`.
 
-The `CLAUSES` argument to [`defstruct`](lib.urn.struct.md#defstruct-name-clauses) controls the contents of the
+The `CLAUSES` argument to [`defstruct`](lib.data.struct.md#defstruct) controls the contents of the
 generated structure.
 
 The `(fields field ...)` clause defines the fields of the structure

@@ -1,15 +1,15 @@
 ---
-title: type
+title: core/type
 ---
-# type
-## `(assert-type! arg ty)`
-*Macro defined at lib/type.lisp:118:1*
+# core/type
+## `assert-type!`
+*Macro defined at lib/core/type.lisp:118:2*
 
 Assert that the argument `ARG` has type `TY`, as reported by the function
-[`type`](lib.type.md#type-val).
+[`type`](lib.core.type.md#type).
 
-## `(atom? x)`
-*Defined at lib/type.lisp:58:1*
+## `atom?`
+*Defined at lib/core/type.lisp:58:2*
 
 Check whether `X` is an atomic object, that is, one of
 - `A` boolean
@@ -19,24 +19,29 @@ Check whether `X` is an atomic object, that is, one of
 - `A` key
 - `A` function
 
-## `(between? val min max)`
-*Defined at lib/type.lisp:86:1*
+## `between?`
+*Defined at lib/core/type.lisp:86:2*
 
 Check if the numerical value `X` is between
 `MIN` and `MAX`.
 
-## `(boolean? x)`
-*Defined at lib/type.lisp:42:1*
+## `boolean?`
+*Defined at lib/core/type.lisp:42:2*
 
 Check whether `X` is a boolean.
 
-## `(debug x)`
-*Macro defined at lib/type.lisp:365:1*
+## `debug`
+*Macro defined at lib/core/type.lisp:371:2*
 
 Print the value `X`, then return it unmodified.
 
-## `(defdefault name ll &body)`
-*Macro defined at lib/type.lisp:260:1*
+## `defalias`
+*Macro defined at lib/core/type.lisp:277:2*
+
+Alias the method at `NAME` to the method at `OTHER`.
+
+## `defdefault`
+*Macro defined at lib/core/type.lisp:259:2*
 
 Add a default case to the generic method `NAME` with the arguments `LL` and the
 body `BODY`.
@@ -51,8 +56,8 @@ instantiation of the generic method `NAME`. For instance, in
 
 `myself` refers only to the default case of `my-pretty-print`
 
-## `(defgeneric name ll &attrs)`
-*Macro defined at lib/type.lisp:160:1*
+## `defgeneric`
+*Macro defined at lib/core/type.lisp:160:2*
 
 Define a generic method called `NAME` with the arguments given in `LL`,
 and the attributes given in `ATTRS`. Note that documentation _must_
@@ -69,8 +74,8 @@ out = nil
 out = "foo"
 ```
 
-## `(defmethod name ll &body)`
-*Macro defined at lib/type.lisp:228:1*
+## `defmethod`
+*Macro defined at lib/core/type.lisp:227:2*
 
 Add a case to the generic method `NAME` with the arguments `LL` and the body
 `BODY`. The types of arguments for this specialisation are given in the list
@@ -97,20 +102,20 @@ out = nil
 out = "foo"
 ```
 
-## `(empty? x)`
-*Defined at lib/type.lisp:18:1*
+## `empty?`
+*Defined at lib/core/type.lisp:18:2*
 
 Check whether `X` is the empty list or the empty string.
 
 ## `eq?`
-*Defined at lib/type.lisp:278:1*
+*Defined at lib/core/type.lisp:282:2*
 
 Compare values for equality deeply.
 
-## `(eql? x y)`
-*Defined at lib/type.lisp:104:1*
+## `eql?`
+*Defined at lib/core/type.lisp:104:2*
 
-`A` version of [`eq?`](lib.type.md#eq-) that compares the types of `X` and `Y` instead of
+`A` version of [`eq?`](lib.core.type.md#eq-) that compares the types of `X` and `Y` instead of
 just the values.
 
 ### Example:
@@ -121,73 +126,73 @@ out = true
 out = false
 ```
 
-## `(exists? x)`
-*Defined at lib/type.lisp:76:1*
+## `exists?`
+*Defined at lib/core/type.lisp:76:2*
 
 Check if `X` exists, i.e. it is not the special value `nil`.
 Note that, in Urn, `nil` is not the empty list.
 
-## `(falsey? x)`
-*Defined at lib/type.lisp:71:1*
+## `falsey?`
+*Defined at lib/core/type.lisp:71:2*
 
 Check whether `X` is falsey, that is, it is either `false` or does not
 exist.
 
-## `(function? x)`
-*Defined at lib/type.lisp:48:1*
+## `function?`
+*Defined at lib/core/type.lisp:48:2*
 
 Check whether `X` is a function.
 
-## `(key? x)`
-*Defined at lib/type.lisp:54:1*
+## `key?`
+*Defined at lib/core/type.lisp:54:2*
 
 Check whether `X` is a key.
 
-## `(list? x)`
-*Defined at lib/type.lisp:14:1*
+## `list?`
+*Defined at lib/core/type.lisp:14:2*
 
 Check whether `X` is a list.
 
-## `(neq? x y)`
-*Defined at lib/type.lisp:99:1*
+## `neq?`
+*Defined at lib/core/type.lisp:99:2*
 
 Compare `X` and `Y` for inequality deeply. `X` and `Y` are `neq?`
 if `([[eq?]] x y)` is falsey.
 
-## `(nil? x)`
-*Defined at lib/type.lisp:81:1*
+## `nil?`
+*Defined at lib/core/type.lisp:81:2*
 
 Check if `X` does not exist, i.e. it is the special value `nil`.
 Note that, in Urn, `nil` is not the empty list.
 
-## `(number? x)`
-*Defined at lib/type.lisp:32:1*
+## `number?`
+*Defined at lib/core/type.lisp:32:2*
 
 Check whether `X` is a number.
 
 ## `pretty`
-*Defined at lib/type.lisp:335:1*
+*Defined at lib/core/type.lisp:339:2*
 
 Pretty-print a value.
 
-## `(string? x)`
-*Defined at lib/type.lisp:26:1*
+## `string?`
+*Defined at lib/core/type.lisp:26:2*
 
 Check whether `X` is a string.
 
-## `(symbol? x)`
-*Defined at lib/type.lisp:38:1*
+## `symbol?`
+*Defined at lib/core/type.lisp:38:2*
 
 Check whether `X` is a symbol.
 
-## `(table? x)`
-*Defined at lib/type.lisp:9:1*
+## `table?`
+*Defined at lib/core/type.lisp:9:2*
 
 Check whether the value `X` is a table. This might be a structure,
 a list, an associative list, a quoted key, or a quoted symbol.
 
-## `(type val)`
-*Defined at lib/type.lisp:91:1*
+## `type`
+*Defined at lib/core/type.lisp:91:2*
 
 Return the type of `VAL`.
 

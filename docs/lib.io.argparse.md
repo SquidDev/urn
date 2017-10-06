@@ -1,16 +1,16 @@
 ---
-title: extra/argparse
+title: io/argparse
 ---
-# extra/argparse
+# io/argparse
 An argument parsing library.
 
 You specify the arguments for this parser, and the arg parser will
 handle parsing and documentation generation.
 
-The parser is created with [`create`](lib.extra.argparse.md#create-description) and arguments can be added with
-[`add-argument!`](lib.extra.argparse.md#add-argument-spec-names-options). Should you want the parser to handle `--help` and
-friends, you should call [`add-help!`](lib.extra.argparse.md#add-help-spec). Once the parser is 'built', you
-can parse inputs with [`parse!`](lib.extra.argparse.md#parse-spec-args)
+The parser is created with [`create`](lib.io.argparse.md#create) and arguments can be added with
+[`add-argument!`](lib.io.argparse.md#add-argument-). Should you want the parser to handle `--help` and
+friends, you should call [`add-help!`](lib.io.argparse.md#add-help-). Once the parser is 'built', you
+can parse inputs with [`parse!`](lib.io.argparse.md#parse-)
 
 ### Example
 ```cl
@@ -27,13 +27,13 @@ can parse inputs with [`parse!`](lib.extra.argparse.md#parse-spec-args)
   (parse! spec))
 ```
 
-## `(add-action arg data value)`
-*Defined at lib/extra/argparse.lisp:41:1*
+## `add-action`
+*Defined at lib/io/argparse.lisp:41:2*
 
 Append `VALUE` to the appropriate key in `DATA` for `ARG`.
 
-## `(add-argument! spec names &options)`
-*Defined at lib/extra/argparse.lisp:57:1*
+## `add-argument!`
+*Defined at lib/io/argparse.lisp:57:2*
 
 Add a new argument to `SPEC`, using the specified `NAMES`.
 
@@ -59,54 +59,54 @@ following options are valid:
  - `:all`: Whether this will consume all values, including those
    starting with `-`.
  - `:cat`: The "category" this argument belongs to. This must be one
-   added by [`add-category!`](lib.extra.argparse.md#add-category-spec-id-name-description).
+   added by [`add-category!`](lib.io.argparse.md#add-category-).
 
-## `(add-category! spec id name description)`
-*Defined at lib/extra/argparse.lisp:149:1*
+## `add-category!`
+*Defined at lib/io/argparse.lisp:149:2*
 
 Add a new category with the given `ID`, display `NAME` and an optional `DESCRIPTION`.
 
-## `(add-help! spec)`
-*Defined at lib/extra/argparse.lisp:136:1*
+## `add-help!`
+*Defined at lib/io/argparse.lisp:136:2*
 
 Add a help argument to `SPEC`.
 
 This will show the help message whenever --help or -h is used and
 then quit the program.
 
-## `(create description)`
-*Defined at lib/extra/argparse.lisp:28:1*
+## `create`
+*Defined at lib/io/argparse.lisp:28:2*
 
 Create a new argument parser
 
-## `(help! spec name)`
-*Defined at lib/extra/argparse.lisp:198:1*
+## `help!`
+*Defined at lib/io/argparse.lisp:198:2*
 
 Display the help for the argument parser as defined in `SPEC`.
 
-## `(parse! spec args)`
-*Defined at lib/extra/argparse.lisp:238:1*
+## `parse!`
+*Defined at lib/io/argparse.lisp:238:2*
 
 Parse `ARGS` using the argument parser defined in `SPEC`. Returns a
 lookup with each argument given its value.
 
-## `(set-action arg data value)`
-*Defined at lib/extra/argparse.lisp:37:1*
+## `set-action`
+*Defined at lib/io/argparse.lisp:37:2*
 
 Set the appropriate key in `DATA` for `ARG` to `VALUE`.
 
-## `(set-num-action aspec data value usage!)`
-*Defined at lib/extra/argparse.lisp:50:1*
+## `set-num-action`
+*Defined at lib/io/argparse.lisp:50:2*
 
 Set the appropriate key in `DATA` for `ARG` to `VALUE`, ensuring it is a number.
 
-## `(usage! spec name)`
-*Defined at lib/extra/argparse.lisp:167:1*
+## `usage!`
+*Defined at lib/io/argparse.lisp:167:2*
 
 Display a short usage for the argument parser as defined in `SPEC`.
 
-## `(usage-error! spec name error)`
-*Defined at lib/extra/argparse.lisp:181:1*
+## `usage-error!`
+*Defined at lib/io/argparse.lisp:181:2*
 
 Display the usage of `SPEC` and exit with an `ERROR` message.
 

@@ -2,17 +2,6 @@
 title: lua/basic
 ---
 # lua/basic
-## `(n x)`
-*Defined at lib/lua/basic.lisp:47:1*
-
-Get the length of list X
-
-## `(slice xs start finish)`
-*Defined at lib/lua/basic.lisp:55:1*
-
-Take a slice of `XS`, with all values at indexes between `START` and `FINISH` (or the last
-entry of `XS` if not specified).
-
 ## Undocumented symbols
  - `%` *Native defined at lib/lua/basic.lisp:12:1*
  - `*` *Native defined at lib/lua/basic.lisp:10:1*

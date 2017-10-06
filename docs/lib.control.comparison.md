@@ -1,11 +1,11 @@
 ---
-title: comparison
+title: control/comparison
 ---
-# comparison
+# control/comparison
 Provides macros for various comparison operators.
 
-## `(/= a b &rest)`
-*Macro defined at lib/comparison.lisp:54:1*
+## `/=`
+*Macro defined at lib/control/comparison.lisp:54:2*
 
 Check whether `A` is not equal to `B`, `B` is not equal to the first element
 in `REST`, etc...
@@ -24,8 +24,8 @@ out = true
 out = false
 ```
 
-## `(< a b &rest)`
-*Macro defined at lib/comparison.lisp:72:1*
+## `<`
+*Macro defined at lib/control/comparison.lisp:72:2*
 
 Check whether `A` is smaller than `B`, `B` is smaller than the first element
 in `REST`, and so on for all subsequent arguments.
@@ -40,8 +40,8 @@ then no subsequent arguments will be evaluated.
 out = true
 ```
 
-## `(<= a b &rest)`
-*Macro defined at lib/comparison.lisp:100:1*
+## `<=`
+*Macro defined at lib/control/comparison.lisp:100:2*
 
 Check whether `A` is smaller or equal to `B`, `B` is smaller or equal to the
 first element in `REST`, and so on for all subsequent arguments.
@@ -56,8 +56,8 @@ then no subsequent arguments will be evaluated.
 out = true
 ```
 
-## `(= a b &rest)`
-*Macro defined at lib/comparison.lisp:37:1*
+## `=`
+*Macro defined at lib/control/comparison.lisp:37:2*
 
 Check whether `A`, `B` and all items in `REST` are equal.
 
@@ -75,8 +75,8 @@ out = false
 out = true
 ```
 
-## `(> a b &rest)`
-*Macro defined at lib/comparison.lisp:86:1*
+## `>`
+*Macro defined at lib/control/comparison.lisp:86:2*
 
 Check whether `A` is larger than `B`, `B` is larger than the first element
 in `REST`, and so on for all subsequent arguments.
@@ -91,8 +91,8 @@ then no subsequent arguments will be evaluated.
 out = true
 ```
 
-## `(>= a b &rest)`
-*Macro defined at lib/comparison.lisp:114:1*
+## `>=`
+*Macro defined at lib/control/comparison.lisp:114:2*
 
 Check whether `A` is larger or equal to `B`, `B` is larger or equal to the
 first element in `REST`, and so on for all subsequent arguments.

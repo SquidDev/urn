@@ -1,11 +1,11 @@
 ---
-title: extra/check
+title: test/check
 ---
-# extra/check
+# test/check
 `A` checker for algebraic properties.
 
-## `(=:= f g x)`
-*Macro defined at lib/extra/check.lisp:137:1*
+## `=:=`
+*Macro defined at lib/test/check.lisp:141:2*
 
 Express that the functions `F` and `G` are equivalent at the point `X`.
 
@@ -16,8 +16,8 @@ Example:
 out = true
 ```
 
-## `(check bindings &props)`
-*Macro defined at lib/extra/check.lisp:52:1*
+## `check`
+*Macro defined at lib/test/check.lisp:56:2*
 
 Check a set of properties against a set of random variables 100 times.
 This can be used as a rudimentary algebraic property checker, where
@@ -41,11 +41,11 @@ The property is checked against a different set of random values every
 iteration. This library has the ability to generate random numbers,
 strings, symbols, booleans, keys and lists.
 
-## `(forall var prop)`
-*Macro defined at lib/extra/check.lisp:150:1*
+## `forall`
+*Macro defined at lib/test/check.lisp:154:2*
 
 Check that `PROP` holds across all possible points. This is a
-restricted version of [`check`](lib.extra.check.md#check-bindings-props) that does not allow specifying
+restricted version of [`check`](lib.test.check.md#check) that does not allow specifying
 several variables.
 
 `VAR` may be either a single, in which case it is interpreted as
@@ -57,8 +57,8 @@ Example:
 out = true
 ```
 
-## `(tripping f g x)`
-*Macro defined at lib/extra/check.lisp:118:1*
+## `tripping`
+*Macro defined at lib/test/check.lisp:122:2*
 
 Express that the composition of the functions `F` and `G` (in order!)
 are equivalent to the identity, on the argument `X`.

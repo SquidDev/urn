@@ -1,9 +1,9 @@
 ---
-title: extra/assert
+title: test/assert
 ---
-# extra/assert
-## `(affirm &asserts)`
-*Macro defined at lib/extra/assert.lisp:8:1*
+# test/assert
+## `affirm`
+*Macro defined at lib/test/assert.lisp:5:2*
 
 Assert each expression in `ASSERTS` evaluates to true
 
@@ -22,8 +22,8 @@ printed out.
    5
 ```
 
-## `(assert! cnd msg)`
-*Macro defined at lib/extra/assert.lisp:4:1*
+## `assert!`
+*Macro defined at lib/test/assert.lisp:1:2*
 
 Assert `CND` is true, otherwise failing with `MSG`
 

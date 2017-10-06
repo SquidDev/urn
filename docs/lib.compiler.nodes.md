@@ -5,8 +5,13 @@ title: compiler/nodes
 This library provides a series of methods for interacting with the
 internal representation of nodes.
 
+## `builtin`
+*Native defined at lib/compiler/nodes.lisp:55:1*
+
+Get the builtin with the given `NAME`.
+
 ## `builtin?`
-*Native defined at lib/compiler/nodes.lisp:38:1*
+*Native defined at lib/compiler/nodes.lisp:46:1*
 
 Determine whether the specified `NODE` is the given `BUILTIN`.
 
@@ -17,14 +22,31 @@ out = true
 ```
 
 ## `constant?`
-*Native defined at lib/compiler/nodes.lisp:47:1*
+*Native defined at lib/compiler/nodes.lisp:58:1*
 
 Determine whether the specified `NODE` is a constant.
 
+## `fix-symbol`
+*Defined at lib/compiler/nodes.lisp:38:2*
+
+Convert the quasi-quoted `SYMBOL` into a fully resolved one.
+
 ## `node->val`
-*Native defined at lib/compiler/nodes.lisp:50:1*
+*Native defined at lib/compiler/nodes.lisp:61:1*
 
 Gets the constant value of `NODE`.
+
+## `node-contains-var?`
+*Native defined at lib/compiler/nodes.lisp:67:1*
+
+Determine whether `NODE` contains a reference to the given `VAR`.
+
+## `node-contains-vars?`
+*Native defined at lib/compiler/nodes.lisp:70:1*
+
+Determine whether `NODE` contains a reference to any of the given `VARS`.
+
+`VARS` must be a struct, mapping variable names to `true`.
 
 ## `symbol->var`
 *Native defined at lib/compiler/nodes.lisp:28:1*
@@ -52,7 +74,7 @@ Traverse a list of `NODES`, starting at `IDX`, using the specified `VISITOR`.
 See [`traverse-node`](lib.compiler.nodes.md#traverse-node) for more information about the `VISITOR`.
 
 ## `val->node`
-*Native defined at lib/compiler/nodes.lisp:53:1*
+*Native defined at lib/compiler/nodes.lisp:64:1*
 
 Gets the node representation of the constant `VALUE`.
 

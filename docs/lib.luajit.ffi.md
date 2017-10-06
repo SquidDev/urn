@@ -2,6 +2,12 @@
 title: luajit/ffi
 ---
 # luajit/ffi
+## `defun-ffi`
+*Macro defined at lib/luajit/ffi.lisp:22:2*
+
+Define the external symbol `NAME` with the `C` type signature
+given by `TYPEDECL`.
+
 ## Undocumented symbols
  - `C` *Native defined at lib/luajit/ffi.lisp:19:1*
  - `abi` *Native defined at lib/luajit/ffi.lisp:9:1*

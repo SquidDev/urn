@@ -1,9 +1,9 @@
 ---
-title: extra/io
+title: io
 ---
-# extra/io
-## `(append-all! path data)`
-*Defined at lib/extra/io.lisp:104:1*
+# io
+## `append-all!`
+*Defined at lib/io/init.lisp:103:2*
 
 Appends the string `DATA` to the file at `PATH`.
 Creates a new file if it doesn't exist.
@@ -15,8 +15,8 @@ Returns true if it succeeded or false if it failed.
 out = true
 ```
 
-## `(append-bytes! path data)`
-*Defined at lib/extra/io.lisp:129:1*
+## `append-bytes!`
+*Defined at lib/io/init.lisp:128:2*
 
 Appends the bytes (list of numbers) `DATA` to the file at `PATH`.
 
@@ -29,8 +29,8 @@ or false if it failed.
 out = true
 ```
 
-## `(append-lines! path data)`
-*Defined at lib/extra/io.lisp:116:1*
+## `append-lines!`
+*Defined at lib/io/init.lisp:115:2*
 
 Appends the lines (list of strings) `DATA` to the file at `PATH`.
 
@@ -43,8 +43,8 @@ or false if it failed.
 out = true
 ```
 
-## `(read-all! path)`
-*Defined at lib/extra/io.lisp:10:1*
+## `read-all!`
+*Defined at lib/io/init.lisp:9:2*
 
 Reads the data from the file at `PATH` and returns it as a string.
 Returns nil if it failed.
@@ -55,8 +55,8 @@ Returns nil if it failed.
 out = "Hello, world!"
 ```
 
-## `(read-bytes! path)`
-*Defined at lib/extra/io.lisp:33:1*
+## `read-bytes!`
+*Defined at lib/io/init.lisp:32:2*
 
 Reads the data from the file at `PATH` and returns it as a list of bytes
 (numbers). Returns nil if it failed.
@@ -67,8 +67,8 @@ Reads the data from the file at `PATH` and returns it as a list of bytes
 out = (97 98 99)
 ```
 
-## `(read-lines! path)`
-*Defined at lib/extra/io.lisp:21:1*
+## `read-lines!`
+*Defined at lib/io/init.lisp:20:2*
 
 Reads the lines from the file at `PATH` and returns it as a list of strings.
 Returns nil if it failed.
@@ -79,8 +79,8 @@ Returns nil if it failed.
 out = ("This is the first line." "This is the second.")
 ```
 
-## `(write-all! path data)`
-*Defined at lib/extra/io.lisp:60:1*
+## `write-all!`
+*Defined at lib/io/init.lisp:59:2*
 
 Writes the string `DATA` to the file at `PATH`.
 
@@ -93,8 +93,8 @@ does. Returns true if it succeeded or false if it failed.
 out = true
 ```
 
-## `(write-bytes! path data)`
-*Defined at lib/extra/io.lisp:86:1*
+## `write-bytes!`
+*Defined at lib/io/init.lisp:85:2*
 
 Writes the bytes (list of numbers) `DATA` to the file at `PATH`.
 
@@ -107,8 +107,8 @@ does. Returns true if it succeeded or false if it failed.
 out = true
 ```
 
-## `(write-lines! path data)`
-*Defined at lib/extra/io.lisp:73:1*
+## `write-lines!`
+*Defined at lib/io/init.lisp:72:2*
 
 Writes the lines (list of strings) `DATA` to the file at `PATH`.
 

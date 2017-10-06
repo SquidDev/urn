@@ -1,7 +1,7 @@
 ---
-title: prelude
+title: core/prelude
 ---
-# prelude
+# core/prelude
 ## `$`
 *Macro defined at lib/core/string.lisp:122:2*
 
@@ -36,21 +36,6 @@ The standard input stream.
 
 The standard output stream.
 
-## `->`
-*Macro defined at lib/data/function.lisp:51:2*
-
-Chain a series of method calls together. If the list contains `<>`
-then the value is placed there, otherwise the expression is invoked
-with the previous entry as an argument.
-
-### Example
-```cl
-> (-> '(1 2 3)
-.   (map succ <>)
-.   (map (cut * <> 2) <>))
-out = (4 6 8)
-```
-
 ## `.<!`
 *Macro defined at lib/core/table.lisp:54:2*
 
@@ -77,11 +62,6 @@ out = true
 out = false
 ```
 
-## `<>`
-*Defined at lib/data/lens.lisp:138:2*
-
-Compose, left-associatively, the list of lenses given by `LENSES`.
-
 ## `=>`
 *Macro defined at lib/core/base.lisp:305:2*
 
@@ -104,21 +84,6 @@ The difference between `XS` and `YS` (non-associative.)
 out = (2)
 ```
 
-## `^.`
-*Defined at lib/data/lens.lisp:149:2*
-
-Use `LENS` to focus on a bit of `VAL`.
-
-## `^=`
-*Defined at lib/data/lens.lisp:161:2*
-
-Use `LENS` to replace a bit of `VAL` with `NEW`.
-
-## `^~`
-*Defined at lib/data/lens.lisp:155:2*
-
-Use `LENS` to apply the function `F` over a bit of `VAL`.
-
 ## `accumulate-with`
 *Defined at lib/core/list.lisp:617:2*
 
@@ -135,22 +100,6 @@ is the binary operation, and `Z` is the zero element.
 ```cl
 > (accumulate-with tonumber + 0 '(1 2 3 4 5))
 out = 15
-```
-
-## `accumulating`
-*Defined at lib/data/lens.lisp:310:2*
-
-Transform the lens `L` into a getter which folds the result using the
-function `F` and the zero element `Z`. For performance reasons, a right
-fold is performed.
-
-Example:
-```cl
-> (view (accumulating + 0 (on :bar))
-.       (list { :bar 1 }
-.             { :bar 2 }
-.             { :baz 3 } ))
-out = 3
 ```
 
 ## `all`
@@ -226,68 +175,11 @@ out = 3
 
 The arguments passed to the currently executing program
 
-## `as-is`
-*Defined at lib/data/function.lisp:120:2*
-
-Return the value `X` unchanged.
-
 ## `assert-type!`
 *Macro defined at lib/core/type.lisp:118:2*
 
 Assert that the argument `ARG` has type `TY`, as reported by the function
 [`type`](lib.core.type.md#type).
-
-## `assoc`
-*Defined at lib/data/alist.lisp:3:2*
-
-Return the value given by `KEY` in the association list `LIST`, or, in the
-case that it does not exist, the value `OR-VAL`, which can be nil.
-
-### Example:
-```cl
-> (assoc '(("foo" 1) ("bar" 2)) "foo" "?")
-out = 1
-> (assoc '(("foo" 1) ("bar" 2)) "baz" "?")
-out = "?"
-```
-
-## `assoc->struct`
-*Defined at lib/data/alist.lisp:72:2*
-
-Convert the association list `LIST` into a structure. Much like
-[`assoc`](lib.data.alist.md#assoc), in the case there are several values bound to the same key,
-the first value is chosen.
-
-### Example:
-```cl
-> (assoc->struct '(("a" 1)))
-out = {"a" 1}
-```
-
-## `assoc?`
-*Defined at lib/data/alist.lisp:22:2*
-
-Check that `KEY` is bound in the association list `LIST`.
-
-### Example:
-```cl
-> (assoc? '(("foo" 1) ("bar" 2)) "foo")
-out = true
-> (assoc? '(("foo" 1) ("bar" 2)) "baz")
-out = false
-```
-
-## `at`
-*Defined at lib/data/lens.lisp:223:2*
-
-`A` lens that focuses on the K-th element of a list. [`view`](lib.data.lens.md#view) is
-equivalent to [`.>`](lib.core.table.md#-), and [`over`](lib.data.lens.md#over) is like [`.<!`](lib.core.table.md#-).
-
-### Example:
-```cl
-> (^. '(1 2 3) (at 2))
-out = 2
-```
 
 ## `atom?`
 *Defined at lib/core/type.lisp:58:2*
@@ -315,11 +207,6 @@ Convert the boolean `X` into a string.
 *Defined at lib/core/type.lisp:42:2*
 
 Check whether `X` is a boolean.
-
-## `call`
-*Defined at lib/data/function.lisp:138:2*
-
-Index `X` with `KEY` and invoke the resulting function with `ARGS`.
 
 ## `car`
 *Defined at lib/core/list.lisp:34:2*
@@ -352,30 +239,6 @@ represented internally, this function runs in linear time.
 out = (2 3)
 ```
 
-## `comp`
-*Defined at lib/data/function.lisp:104:2*
-
-Return the pointwise composition of all functions in `FS`.
-
-### Example:
-```cl
-> ((comp succ (cut + <> 2) (cut * <> 2))
-.  2)
-out = 7
-```
-
-## `compose`
-*Defined at lib/data/function.lisp:90:2*
-
-Return the pointwise composition of functions `F` and `G`.
-
-### Example:
-```cl
-> ((compose (cut + <> 2) (cut * <> 2))
-.  2)
-out = 6
-```
-
 ## `cons`
 *Defined at lib/core/list.lisp:93:2*
 
@@ -385,21 +248,6 @@ Return a copy of the list `XSS` with the elements `XS` added to its head.
 ```cl
 > (cons 1 2 3 '(4 5 6))
 out = (1 2 3 4 5 6)
-```
-
-## `const`
-*Defined at lib/data/function.lisp:124:2*
-
-Return a function which always returns `X`. This is equivalent to the
-`K` combinator in `SK` combinator calculus.
-
-### Example
-```cl
-> (define x (const 1))
-> (x 2)
-out = 1
-> (x "const")
-out = 1
 ```
 
 ## `const-val`
@@ -422,51 +270,10 @@ Create a shallow copy of `STRUCT`.
 Convert `VALUES` into a lookup table, with each value being converted to
 a key whose corresponding value is the value's index.
 
-## `cut`
-*Macro defined at lib/data/function.lisp:8:2*
-
-Partially apply a function `FUNC`, where each `<>` is replaced by an
-argument to a function. Values are evaluated every time the resulting
-function is called.
-
-### Example
-```cl
-> (define double (cut * <> 2))
-> (double 3)
-out = 6
-```
-
-## `cute`
-*Macro defined at lib/data/function.lisp:29:2*
-
-Partially apply a function `FUNC`, where each `<>` is replaced by an
-argument to a function. Values are evaluated when this function is
-defined.
-
-### Example
-```cl
-> (define double (cute * <> 2))
-> (double 3)
-out = 6
-```
-
 ## `debug`
 *Macro defined at lib/core/type.lisp:371:2*
 
 Print the value `X`, then return it unmodified.
-
-## `dec!`
-*Macro defined at lib/math/init.lisp:83:2*
-
-Decrements the symbol `X` by 1.
-
-### Example
-```cl
-> (with (x 1)
-.   (dec! x)
-.   x)
-out = 0
-```
 
 ## `defalias`
 *Macro defined at lib/core/type.lisp:277:2*
@@ -546,11 +353,6 @@ out = "foo"
 
 Define `NAME` to be the function given by (lambda `ARGS` @`BODY`), with
 optional metadata at the start of `BODY`.
-
-## `denominator`
-*Defined at lib/math/rational.lisp:7:2*
-
-The rational's denumerator
 
 ## `destructuring-bind`
 *Macro defined at lib/core/match.lisp:386:2*
@@ -663,36 +465,6 @@ out = false
 
 Throw an error.
 
-## `even?`
-*Defined at lib/math/init.lisp:27:2*
-
-Is `X` an even number?
-
-### Example
-```cl
-> (even? 2)
-out = true
-> (even? 1)
-out = false
-```
-
-## `every`
-*Defined at lib/data/lens.lisp:326:2*
-
-`A` higher-order lens that focuses `LN` on every element of a list that
-satisfies the perdicate `X`. If `X` is a regular value, it is compared
-for equality (according to [`eql?`](lib.core.type.md#eql-)) with every list element. If it
-is a function, it is treated as the predicate.
-
-
-Example:
-```cl
-> (view (every even? it) '(1 2 3 4 5 6))
-out = (2 4 6)
-> (view (every 'x it) '(1 x 2 x 3 x 4 x))
-out = (x x x x)
-```
-
 ## `exclude`
 *Defined at lib/core/list.lisp:228:2*
 
@@ -716,18 +488,6 @@ Note that, in Urn, `nil` is not the empty list.
 
 Exit the program with the exit code `CODE`, and optionally, print the
 error message `REASON`.
-
-## `extend`
-*Defined at lib/data/alist.lisp:48:2*
-
-Extend the association list `LIST`_ by inserting `VAL`, bound to the key
-`KEY`, overriding any previous value.
-
-### Example:
-```cl
-> (extend '(("foo" 1)) "bar" 2)
-out = (("bar" 2) ("foo" 1))
-```
 
 ## `fail!`
 *Defined at lib/core/prelude.lisp:64:2*
@@ -786,22 +546,6 @@ are not lists.
 out = (1 2 3 4)
 ```
 
-## `folding`
-*Defined at lib/data/lens.lisp:294:2*
-
-Transform the (traversing) lens `L` into a getter which folds
-the result using the function `F` and the zero element `Z`. For
-performance reasons, a right fold is performed.
-
-Example:
-```cl
-> (view (folding + 0 (traversing (on :bar)))
-.       (list { :bar 1 }
-.             { :bar 2 }
-.             { :baz 3 } ))
-out = 3
-```
-
 ## `for`
 *Macro defined at lib/core/base.lisp:219:2*
 
@@ -849,38 +593,6 @@ Iterate over `TBL`, binding `VARS` for each key value pair in `BODY`.
 out = (("foo" 123))
 ```
 
-## `format`
-*Macro defined at lib/data/format.lisp:120:2*
-
-Output the string `STR` formatted against `ARGS` to the stream `OUT`. In
-the case `OUT` is nil, a string in returned; If `OUT` is true, the result
-is printed to standard output.
-
-### Formatting specifiers
-
-Formatting specifiers take the form `{...}`, where `...` includes
-both a _reference_ (what's to be output) and a _formatter_ (how to
-                                                                output it).
-
-- If the reference starts with `#`, it is an implicit named symbol
-(something in scope, and not passed explicitly).
-- If the reference starts with an alphabetic character, it is
-_named_: something given to the [`format`](lib.data.format.md#format) macro explicitly, as a
-keyword argument.
-- If the reference starts with `$`, it is a positional argument.
-
-The formatter can either start with `:`, in which case it references
-an Urn symbol, or start with `%`, in which case it is a string.format
-format sequence.
-
-### Examples
-```cl
-> (format nil "{#pretty:pretty} is {what}" :what 'pretty)
-out = "«method: (pretty x)» is pretty"
-> (format nil "0x{foo%x}" :foo 123)
-out = "0x7b"
-```
-
 ## `function`
 *Macro defined at lib/core/match.lisp:464:2*
 
@@ -896,21 +608,6 @@ Check whether `X` is a function.
 *Defined at lib/core/base.lisp:203:1*
 
 Create a unique symbol, suitable for using in macros
-
-## `getter`
-*Defined at lib/data/lens.lisp:88:2*
-
-Define a getting lens using `VIEW` as the accessor.
-
-Lenses built with [`getter`](lib.data.lens.md#getter) can be composed (with [`<>`](lib.data.lens.md#-)) or used
-to focus on a value (with [`view`](lib.data.lens.md#view)).
-
-## `getter?`
-*Defined at lib/data/lens.lisp:110:2*
-
-Check that `LENS` has a defined getter, along with being tagged as
-a `LENS`. This is essentially a relaxed version of [`lens?`](lib.data.lens.md#lens-) in
-regards to the setter check.
 
 ## `groups-of`
 *Defined at lib/core/list.lisp:705:2*
@@ -944,23 +641,6 @@ oh no!
 out = nil
 ```
 
-## `head`
-*Defined at lib/data/lens.lisp:201:1*
-
-`A` lens equivalent to [`car`](lib.core.list.md#car), which [`view`](lib.data.lens.md#view)s and applies [`over`](lib.data.lens.md#over)
-the first element of a list.
-
-### Example:
-```cl
-> (^. '(1 2 3) head)
-out = 1
-```
-
-## `id`
-*Defined at lib/data/function.lisp:116:2*
-
-Return the value `X` unmodified.
-
 ## `if`
 *Macro defined at lib/core/base.lisp:162:2*
 
@@ -981,19 +661,6 @@ evaluating `E`.
 
 [`if-match`](lib.core.match.md#if-match) is to [`case`](lib.core.match.md#case) what [`if`](lib.core.base.md#if) is to `cond`.
 
-## `inc!`
-*Macro defined at lib/math/init.lisp:71:2*
-
-Increments the symbol `X` by 1.
-
-### Example
-```cl
-> (with (x 1)
-.   (inc! x)
-.   x)
-out = 2
-```
-
 ## `init`
 *Defined at lib/core/list.lisp:379:2*
 
@@ -1004,32 +671,6 @@ This is the dual of `LAST`.
 ```cl
 > (init (range :from 1 :to 10))
 out = (1 2 3 4 5 6 7 8 9)
-```
-
-## `insert`
-*Defined at lib/data/alist.lisp:37:2*
-
-Extend the association list `ALIST` by inserting `VAL`, bound to the key
-`KEY`.
-
-### Example:
-```cl
-> (insert '(("foo" 1)) "bar" 2)
-out = (("foo" 1) ("bar" 2))
-```
-
-## `insert!`
-*Defined at lib/data/alist.lisp:59:2*
-
-Extend the association list `ALIST` in place by inserting `VAL`, bound to
-the key `KEY`.
-
-### Example:
-```cl
-> (define x '(("foo" 1)))
-> (insert! x "bar" 2)
-> x
-out = (("foo" 1) ("bar" 2))
 ```
 
 ## `insert-nth!`
@@ -1044,29 +685,6 @@ Mutate the list `LI`, inserting `VAL` at `IDX`.
 > list
 out = (1 5 2 3)
 ``` 
-
-## `invokable?`
-*Defined at lib/data/function.lisp:72:2*
-
-Test if the expression `X` makes sense as something that can be applied
-to a set of arguments.
-
-### Example
-```cl
-> (invokable? invokable?)
-out = true
-> (invokable? nil)
-out = false
-> (invokable? (setmetatable {} { :__call (lambda (x) (print! "hello")) }))
-out = true
-```
-
-## `it`
-*Defined at lib/data/lens.lisp:191:1*
-
-The simplest lens, not focusing on any subcomponent. In the case of [`over`](lib.data.lens.md#over),
-if the value being focused on is a list, the function is mapped over every
-element of the list.
 
 ## `iter-pairs`
 *Defined at lib/core/table.lisp:119:2*
@@ -1094,22 +712,6 @@ Counterintutively, this function runs in constant time.
 > (last (range :from 1 :to 100))
 out = 100
 ```
-
-## `lens`
-*Defined at lib/data/lens.lisp:75:2*
-
-Define a lens using `VIEW` and `OVER` as the getter and the replacer
-functions, respectively.
-
-Lenses built with [`lens`](lib.data.lens.md#lens) can be composed (with [`<>`](lib.data.lens.md#-)), used
-to focus on a value (with [`view`](lib.data.lens.md#view)), and replace that value
-(with [`set`](lib.data.lens.md#set) or [`over`](lib.data.lens.md#over))
-
-## `lens?`
-*Defined at lib/data/lens.lisp:102:2*
-
-Check that is `LENS` a valid lens, that is, has the proper tag, a
-valid getter and a valid setter.
 
 ## `let`
 *Macro defined at lib/core/binders.lisp:55:2*
@@ -1239,118 +841,6 @@ Test if the value `X` matches the pattern `PT`.
 Note that, since this does not bind anything, all metavariables may be
 replaced by `_` with no loss of meaning.
 
-## `math/dec!`
-*Macro defined at lib/math/init.lisp:83:2*
-
-Decrements the symbol `X` by 1.
-
-### Example
-```cl
-> (with (x 1)
-.   (dec! x)
-.   x)
-out = 0
-```
-
-## `math/even?`
-*Defined at lib/math/init.lisp:27:2*
-
-Is `X` an even number?
-
-### Example
-```cl
-> (even? 2)
-out = true
-> (even? 1)
-out = false
-```
-
-## `math/gcd`
-*Defined at lib/math/init.lisp:3:2*
-
-Compute the greatest common divisor of `X` and `Y`.
-
-### Example
-```cl
-> (gcd 52 32)
-out = 4
-```
-
-## `math/inc!`
-*Macro defined at lib/math/init.lisp:71:2*
-
-Increments the symbol `X` by 1.
-
-### Example
-```cl
-> (with (x 1)
-.   (inc! x)
-.   x)
-out = 2
-```
-
-## `math/lcm`
-*Defined at lib/math/init.lisp:16:2*
-
-Compute the lowest common multiple of `X` and `Y`.
-
-### Example
-```cl
-> (lcm 52 32)
-out = 416
-```
-
-## `math/nan?`
-*Defined at lib/math/init.lisp:51:2*
-
-Is `X` equal to NaN?
-
-### Example
-```cl
-> (nan? (/ 0 0))
-out = true
-> (nan? 1)
-out = false
-```
-
-## `math/odd?`
-*Defined at lib/math/init.lisp:39:2*
-
-Is `X` an odd number?
-
-### Example
-```cl
-> (odd? 1)
-out = true
-> (odd? 2)
-out = false
-```
-
-## `math/pred`
-*Defined at lib/math/init.lisp:67:2*
-
-Return the predecessor of the number `X`.
-
-## `math/round`
-*Defined at lib/math/init.lisp:96:2*
-
-Round `X`, to the nearest integer.
-
-### Example:
-```cl
-> (round 1.5)
-out = 2
-> (round 1.3)
-out = 1
-> (round -1.3)
-out = -1
-```
-
-## `math/succ`
-*Defined at lib/math/init.lisp:63:2*
-
-Return the successor of the number `X`.
-
 ## `maybe-map`
 *Defined at lib/core/list.lisp:158:2*
 
@@ -1377,66 +867,6 @@ Merge all tables in `STRUCTS` together into a new table.
 
 Get the length of list X
 
-## `n%`
-*Defined at lib/math/numerics.lisp:7:2*
-
-Generalised numeric modulus.
-
-## `n*`
-*Defined at lib/math/numerics.lisp:5:2*
-
-Generalised numeric cross product.
-
-## `n+`
-*Defined at lib/math/numerics.lisp:3:2*
-
-Generalised numeric addition.
-
-## `n-`
-*Defined at lib/math/numerics.lisp:4:2*
-
-Generalised numeric subtraction.
-
-## `n/`
-*Defined at lib/math/numerics.lisp:6:2*
-
-Generalised numeric division.
-
-## `n<`
-*Defined at lib/math/numerics.lisp:9:2*
-
-Generalised numeric less-than comparison.
-
-## `n<=`
-*Defined at lib/math/numerics.lisp:10:2*
-
-Generalised numeric less-than or equal to comparison.
-
-## `n=`
-*Defined at lib/math/numerics.lisp:20:2*
-
-Generalised numeric equality.
-
-## `n>`
-*Defined at lib/math/numerics.lisp:18:2*
-
-Generalised numeric greater than.
-
-## `n>=`
-*Defined at lib/math/numerics.lisp:19:2*
-
-Generalised numeric greater than or equal to.
-
-## `n^`
-*Defined at lib/math/numerics.lisp:8:2*
-
-Generalised numeric exponentiation.
-
-## `nabs`
-*Defined at lib/math/numerics.lisp:16:2*
-
-Generalised numeric absolute value.
-
 ## `neq?`
 *Defined at lib/core/type.lisp:99:2*
 
@@ -1453,11 +883,6 @@ Note that, in Urn, `nil` is not the empty list.
 *Defined at lib/core/table.lisp:113:2*
 
 Return the number of keys in the structure `ST`.
-
-## `nnegate`
-*Defined at lib/math/numerics.lisp:14:2*
-
-Generalised numeric negation.
 
 ## `none`
 *Defined at lib/core/list.lisp:259:2*
@@ -1481,21 +906,6 @@ Compute the logical negation of the expression `EXPR`.
 .   (not (= a 1)))
 out = false
 ```
-
-## `nrecip`
-*Defined at lib/math/numerics.lisp:13:2*
-
-Generalised numeric reciprocal.
-
-## `nsign`
-*Defined at lib/math/numerics.lisp:15:2*
-
-Generalised numeric sign number. (-1 for negative numbers, 1 otherwise)
-
-## `nsqrt`
-*Defined at lib/math/numerics.lisp:12:2*
-
-Generalised numeric square root.
 
 ## `nth`
 *Defined at lib/core/list.lisp:391:2*
@@ -1542,52 +952,6 @@ Convert the number `X` into a string.
 
 Check whether `X` is a number.
 
-## `numerator`
-*Defined at lib/math/rational.lisp:7:2*
-
-The rational's numerator
-
-## `odd?`
-*Defined at lib/math/init.lisp:39:2*
-
-Is `X` an odd number?
-
-### Example
-```cl
-> (odd? 1)
-out = true
-> (odd? 2)
-out = false
-```
-
-## `on`
-*Defined at lib/data/lens.lisp:244:2*
-
-`A` lens that focuses on the element of a structure that is at the key
-`K`.
-
-### Example:
-```cl
-> (^. { :foo "bar" } (on :foo))
-out = "bar"
-```
-
-## `on!`
-*Defined at lib/data/lens.lisp:262:2*
-
-`A` lens that focuses (**and mutates**) the element of a structure
-that is at the key `K`.
-
-### Example:
-```cl
-> (define foo { :value 1 })
-out = {"value" 1}
-> (^= foo (on! :value) 5)
-out = {"value" 5}
-> foo
-out = {"value" 5}
-```
-
 ## `or`
 *Macro defined at lib/core/base.lisp:287:2*
 
@@ -1605,16 +969,6 @@ out = 1
 > (or (> 3 1) (< 3 1))
 out = true
 ```
-
-## `over`
-*Defined at lib/data/lens.lisp:169:2*
-
-Flipped synonym for [`^~`](lib.data.lens.md#-)
-
-## `overl!`
-*Macro defined at lib/data/lens.lisp:183:2*
-
-Mutate `VAL` by applying to a bit of it the function `F`, using `LENS`.
 
 ## `partition`
 *Defined at lib/core/list.lisp:198:2*
@@ -1642,11 +996,6 @@ out = 3
 > list
 out = (1 2)
 ``` 
-
-## `pred`
-*Defined at lib/math/init.lisp:67:2*
-
-Return the predecessor of the number `X`.
 
 ## `pretty`
 *Defined at lib/core/type.lisp:339:2*
@@ -1749,50 +1098,6 @@ out = (1 2 3 4 5 6 7 8 9 10)
 out = (1 3 5 7 9)
 ```
 
-## `rational`
-*Defined at lib/math/rational.lisp:7:2*
-
-`A` rational number, represented as a tuple of numerator and denominator.
-
-## `rational/->float`
-*Defined at lib/math/rational.lisp:57:2*
-
-Convert the rational number `Y` to a floating-point number.
-
-### Example:
-```cl
-> (->float (rational 3 2))
-out = 1.5
-```
-
-## `rational/->rat`
-*Defined at lib/math/rational.lisp:44:2*
-
-Convert the floating-point number `Y` to a rational number.
-
-### Example:
-```cl
-> (->rat 3.14)
-out = 157/50
-> (/ 157 50)
-out = 3.14
-```
-
-## `rational/denominator`
-*Defined at lib/math/rational.lisp:7:2*
-
-The rational's denumerator
-
-## `rational/numerator`
-*Defined at lib/math/rational.lisp:7:2*
-
-The rational's numerator
-
-## `rational/rational`
-*Defined at lib/math/rational.lisp:7:2*
-
-`A` rational number, represented as a tuple of numerator and denominator.
-
 ## `reduce`
 *Defined at lib/core/list.lisp:103:2*
 
@@ -1837,47 +1142,11 @@ Reverse the list `XS`, using the accumulator `ACC`.
 out = (10 9 8 7 6 5 4 3 2 1)
 ```
 
-## `self`
-*Defined at lib/data/function.lisp:142:2*
-
-Index `X` with `KEY` and invoke the resulting function with `X` and `ARGS`.
-
-## `set`
-*Defined at lib/data/lens.lisp:173:2*
-
-Flipped synonym for [`^=`](lib.data.lens.md#-)
-
-## `setl!`
-*Macro defined at lib/data/lens.lisp:177:2*
-
-Mutate `VAL` by replacing a bit of it with `NEW`, using `LENS`.
-
-## `setter`
-*Defined at lib/data/lens.lisp:95:2*
-
-Define a setting lens using `VIEW` as the accessor.
-
-Lenses built with [`setter`](lib.data.lens.md#setter) can be composed (with [`<>`](lib.data.lens.md#-)) or used
-to replace a value (with [`over`](lib.data.lens.md#over) or [`set`](lib.data.lens.md#set)).
-
-## `setter?`
-*Defined at lib/data/lens.lisp:117:2*
-
-Check that `LENS` has a defined setter, along with being tagged as
-a `LENS`. This is essentially a relaxed version of [`lens?`](lib.data.lens.md#lens-) in
-regards to the getter check.
-
 ## `slice`
 *Defined at lib/core/base.lisp:22:1*
 
 Take a slice of `XS`, with all values at indexes between `START` and `FINISH` (or the last
 entry of `XS` if not specified).
-
-## `slot?`
-*Defined at lib/data/function.lisp:3:2*
-
-Test whether `SYMB` is a slot. For this, it must be a symbol, whose
-contents are `<>`.
 
 ## `snoc`
 *Defined at lib/core/list.lisp:81:2*
@@ -2081,19 +1350,6 @@ you must instead invoke it like
 out = {"foo" "bar"}
 ```
 
-## `struct->assoc`
-*Defined at lib/data/alist.lisp:92:2*
-
-Convert the structure `TBL` into an association list. Note that
-`(eq? x (struct->assoc (assoc->struct x)))` is not guaranteed,
-because duplicate elements will be removed.
-
-### Example
-```cl
-> (struct->assoc { :a 1 })
-out = (("a" 1))
-```
-
 ## `struct->list`
 *Defined at lib/core/table.lisp:7:2*
 
@@ -2117,11 +1373,6 @@ its argument.
 > (struct->list! { 1 "foo" 2 "bar" })
 out = ("foo" "bar")
 ```
-
-## `succ`
-*Defined at lib/math/init.lisp:63:2*
-
-Return the successor of the number `X`.
 
 ## `sum`
 *Defined at lib/core/list.lisp:636:2*
@@ -2154,18 +1405,6 @@ Check whether `X` is a symbol.
 
 Check whether the value `X` is a table. This might be a structure,
 a list, an associative list, a quoted key, or a quoted symbol.
-
-## `tail`
-*Defined at lib/data/lens.lisp:212:1*
-
-`A` lens equivalent to [`cdr`](lib.core.list.md#cdr), which [`view`](lib.data.lens.md#view)s and applies [`over`](lib.data.lens.md#over)
-to all but the first element of a list.
-
-### Example:
-```cl
-> (^. '(1 2 3) tail)
-out = (2 3)
-```
 
 ## `take`
 *Defined at lib/core/list.lisp:61:2*
@@ -2206,17 +1445,6 @@ An alias for [`map`](lib.core.list.md#map) with the arguments `XS` and `F` flipp
 ```cl
 > (traverse '(1 2 3) succ)
 out = (2 3 4)
-```
-
-## `traversing`
-*Defined at lib/data/lens.lisp:281:2*
-
-`A` lens which maps the lens `L` over every element of a given list.
-
-Example:
-```cl
-> (view (traversing (at 3)) '((1 2 3) (4 5 6)))
-out = (3 6)
 ```
 
 ## `type`
@@ -2284,11 +1512,6 @@ Return multiple values, one per element in `XS`.
 1   2   3
 out = nil
 ```
-
-## `view`
-*Defined at lib/data/lens.lisp:165:2*
-
-Flipped synonym for [`^.`](lib.data.lens.md#-)
 
 ## `when`
 *Macro defined at lib/core/base.lisp:172:2*
@@ -2496,9 +1719,6 @@ Bind the single variable `VAR`, then evaluate `BODY`.
  - `next` *Native defined at lib/lua/basic.lisp:29:1*
  - `ninth` *Defined at lib/core/base.lisp:465:1*
  - `pcall` *Native defined at lib/lua/basic.lisp:31:1*
- - `rational/$rational` *Defined at lib/math/rational.lisp:7:2*
- - `rational/rational?` *Defined at lib/math/rational.lisp:7:2*
- - `rational?` *Defined at lib/math/rational.lisp:7:2*
  - `require` *Native defined at lib/lua/basic.lisp:39:1*
  - `second` *Defined at lib/core/base.lisp:465:1*
  - `setmetatable` *Native defined at lib/lua/basic.lisp:41:1*

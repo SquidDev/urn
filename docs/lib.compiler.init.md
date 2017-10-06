@@ -5,6 +5,16 @@ title: compiler
 The compiler plugin infrastructure provides a way of modifying how the
 compiler processes code.
 
+## `flag?`
+*Native defined at lib/compiler/init.lisp:51:1*
+
+Determine whether the given compiler `FLAG` is set.
+
+## `flags`
+*Native defined at lib/compiler/init.lisp:48:1*
+
+Get a list of all compiler flags.
+
 ## `logger/do-node-error!`
 *Native defined at lib/compiler/init.lisp:34:1*
 

@@ -1,9 +1,9 @@
 ---
-title: string
+title: core/string
 ---
-# string
-## `($ str)`
-*Macro defined at lib/string.lisp:122:1*
+# core/string
+## `$`
+*Macro defined at lib/core/string.lisp:122:2*
 
 Perform interpolation (variable substitution) on the string `STR`.
 
@@ -11,7 +11,7 @@ The string is a sequence of arbitrary characters which may contain an
 unquote, of the form `~{foo}` or `${foo}`, where foo is a variable
 name.
 
-The `~{x}` form will format the value using [`pretty`](lib.type.md#pretty), ensuring it is
+The `~{x}` form will format the value using [`pretty`](lib.core.type.md#pretty), ensuring it is
 readable. `${x}` requires that `x` is a string, simply splicing the
 value in directly.
 
@@ -21,8 +21,8 @@ value in directly.
 out = "1 = 1"
 ```
 
-## `(char-at xs x)`
-*Defined at lib/string.lisp:10:1*
+## `char-at`
+*Defined at lib/core/string.lisp:10:2*
 
 Index the string `XS`, returning the character at position `X`.
 
@@ -32,8 +32,8 @@ Index the string `XS`, returning the character at position `X`.
 out = "f"
 ```
 
-## `(ends-with? str suffix)`
-*Defined at lib/string.lisp:104:1*
+## `ends-with?`
+*Defined at lib/core/string.lisp:104:2*
 
 Determine whether `STR` ends with `SUFFIX`.
 
@@ -44,7 +44,7 @@ out = true
 ```
 
 ## `quoted`
-*Defined at lib/string.lisp:75:1*
+*Defined at lib/core/string.lisp:75:1*
 
 Quote the string `STR` so it is suitable for printing.
 
@@ -54,8 +54,8 @@ Quote the string `STR` so it is suitable for printing.
 out = "\"\\n\""
 ```
 
-## `(split text pattern limit)`
-*Defined at lib/string.lisp:20:1*
+## `split`
+*Defined at lib/core/string.lisp:20:2*
 
 Split the string given by `TEXT` in at most `LIMIT` components, which are
 delineated by the Lua pattern `PATTERN`.
@@ -71,8 +71,8 @@ out = ("foo" "bar" "baz")
 out = ("foo" "bar-baz")
 ```
 
-## `(starts-with? str prefix)`
-*Defined at lib/string.lisp:94:1*
+## `starts-with?`
+*Defined at lib/core/string.lisp:94:2*
 
 Determine whether `STR` starts with `PREFIX`.
 
@@ -82,8 +82,8 @@ Determine whether `STR` starts with `PREFIX`.
 out = true
 ```
 
-## `(trim str)`
-*Defined at lib/string.lisp:64:1*
+## `trim`
+*Defined at lib/core/string.lisp:64:2*
 
 Remove whitespace from both sides of `STR`.
 

@@ -1,9 +1,9 @@
 ---
-title: function
+title: data/function
 ---
-# function
-## `(-> x &funcs)`
-*Macro defined at lib/function.lisp:59:1*
+# data/function
+## `->`
+*Macro defined at lib/data/function.lisp:51:2*
 
 Chain a series of method calls together. If the list contains `<>`
 then the value is placed there, otherwise the expression is invoked
@@ -17,8 +17,18 @@ with the previous entry as an argument.
 out = (4 6 8)
 ```
 
-## `(comp &fs)`
-*Defined at lib/function.lisp:112:1*
+## `as-is`
+*Defined at lib/data/function.lisp:120:2*
+
+Return the value `X` unchanged.
+
+## `call`
+*Defined at lib/data/function.lisp:138:2*
+
+Index `X` with `KEY` and invoke the resulting function with `ARGS`.
+
+## `comp`
+*Defined at lib/data/function.lisp:104:2*
 
 Return the pointwise composition of all functions in `FS`.
 
@@ -29,8 +39,8 @@ Return the pointwise composition of all functions in `FS`.
 out = 7
 ```
 
-## `(compose f g)`
-*Defined at lib/function.lisp:98:1*
+## `compose`
+*Defined at lib/data/function.lisp:90:2*
 
 Return the pointwise composition of functions `F` and `G`.
 
@@ -41,8 +51,23 @@ Return the pointwise composition of functions `F` and `G`.
 out = 6
 ```
 
-## `(cut &func)`
-*Macro defined at lib/function.lisp:16:1*
+## `const`
+*Defined at lib/data/function.lisp:124:2*
+
+Return a function which always returns `X`. This is equivalent to the
+`K` combinator in `SK` combinator calculus.
+
+### Example
+```cl
+> (define x (const 1))
+> (x 2)
+out = 1
+> (x "const")
+out = 1
+```
+
+## `cut`
+*Macro defined at lib/data/function.lisp:8:2*
 
 Partially apply a function `FUNC`, where each `<>` is replaced by an
 argument to a function. Values are evaluated every time the resulting
@@ -55,8 +80,8 @@ function is called.
 out = 6
 ```
 
-## `(cute &func)`
-*Macro defined at lib/function.lisp:37:1*
+## `cute`
+*Macro defined at lib/data/function.lisp:29:2*
 
 Partially apply a function `FUNC`, where each `<>` is replaced by an
 argument to a function. Values are evaluated when this function is
@@ -69,8 +94,13 @@ defined.
 out = 6
 ```
 
-## `(invokable? x)`
-*Defined at lib/function.lisp:80:1*
+## `id`
+*Defined at lib/data/function.lisp:116:2*
+
+Return the value `X` unmodified.
+
+## `invokable?`
+*Defined at lib/data/function.lisp:72:2*
 
 Test if the expression `X` makes sense as something that can be applied
 to a set of arguments.
@@ -85,8 +115,13 @@ out = false
 out = true
 ```
 
-## `(slot? symb)`
-*Defined at lib/function.lisp:11:1*
+## `self`
+*Defined at lib/data/function.lisp:142:2*
+
+Index `X` with `KEY` and invoke the resulting function with `X` and `ARGS`.
+
+## `slot?`
+*Defined at lib/data/function.lisp:3:2*
 
 Test whether `SYMB` is a slot. For this, it must be a symbol, whose
 contents are `<>`.
