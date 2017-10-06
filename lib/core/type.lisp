@@ -365,7 +365,7 @@
 
 (defdefault pretty (x)
   (if (table? x)
-    ((deep-get pretty :lookup :table) x)
+    ((get-idx (get-idx pretty :lookup) :table) x)
     (tostring x)))
 
 (defmacro debug (x)

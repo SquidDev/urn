@@ -4,7 +4,7 @@ if not table.unpack then table.unpack = unpack end
 local load = load if _VERSION:find("5.1") then load = function(x, n, _, env) local f, e = loadstring(x, n) if not f then return f, e end if env then setfenv(f, env) end return f end end
 local _select, _unpack, _pack, _error = select, table.unpack, table.pack, error
 local _libs = {}
-local getIdx1, _3d_1, n1, nth1, _2b_1, setIdx_21_1, _2e2e_1, _3c3d_1, type1, append_21_1, car1, error1, _2f3d_1, builtins1, pushCdr_21_1, _2d_1, sub1, line_21_1, self2, _3e_1, format1, list1, _3e3d_1, pretty1, print1, next1, getSource1, compileExpression1, builtin_3f_1, concat1, empty_3f_1, _3c_1, doNodeError_21_2, gsub1, quoted1, cadr1, addArgument_21_1, exit_21_1, string_3f_1, tostring1, find1, succ1, _5e7e_1, on_21_1, removeNth_21_1, visitNode1, coloured1, tonumber1, type_23_1, last1, unpack1, visitBlock1, pushEscapeVar_21_1, visitNodes1, visitNode3, getVar1, doNodeError_21_1, resolveNode1, getenv1, usage_21_1, open1, constVal1, escapeVar1, map2, addParen1, apply1, slice1, number_3f_1, sort1, arg1, compileBlock1, putNodeWarning_21_1, runPass1, split1, pcall1, between_3f_1, expectType_21_1, unmangleIdent1, eq_3f_1, formatOutput_21_1, get1, scoreNodes1, len_23_1, symbol_2d3e_string1, expect_21_1, visitNode4, lower1, match1, makeNil1, popLast_21_1, getmetatable1, formatNode1, any1, sethook1, _2f_1, visitNode2, write1, lex1, traverseNode1, endBlock_21_1
+local getIdx1, _3d_1, n1, nth1, _2b_1, setIdx_21_1, _2e2e_1, _3c3d_1, type1, append_21_1, car1, error1, _2f3d_1, builtins1, pushCdr_21_1, _2d_1, sub1, line_21_1, _3e_1, format1, self2, list1, _3e3d_1, pretty1, print1, next1, getSource1, compileExpression1, builtin_3f_1, concat1, empty_3f_1, _3c_1, doNodeError_21_2, gsub1, quoted1, cadr1, addArgument_21_1, exit_21_1, string_3f_1, find1, tostring1, succ1, on_21_1, _5e7e_1, removeNth_21_1, coloured1, visitNode1, type_23_1, tonumber1, last1, unpack1, visitBlock1, pushEscapeVar_21_1, getVar1, visitNode3, visitNodes1, doNodeError_21_1, resolveNode1, usage_21_1, map2, constVal1, getenv1, open1, escapeVar1, addParen1, number_3f_1, slice1, apply1, sort1, arg1, compileBlock1, putNodeWarning_21_1, unmangleIdent1, between_3f_1, expectType_21_1, runPass1, split1, pcall1, eq_3f_1, formatOutput_21_1, get1, symbol_2d3e_string1, scoreNodes1, len_23_1, lower1, visitNode4, getmetatable1, match1, any1, makeNil1, expect_21_1, popLast_21_1, formatNode1, sethook1, write1, endBlock_21_1, xpcall1, get_21_1, sentinel1, visitNode2
 local _ENV = setmetatable({}, {__index=ENV or (getfenv and getfenv()) or _G}) if setfenv then setfenv(0, _ENV) end
 _3d_1 = function(v1, v2) return v1 == v2 end
 _2f3d_1 = function(v1, v2) return v1 ~= v2 end
@@ -283,7 +283,7 @@ end}, {["__call"]=function(tempThis, x, y)
 	else
 		error1("No matching method to call for (" .. concat1(list1("eq?", type1(x), type1(y)), " ") .. ")\n  " .. (function()
 			if n1((keys1(tempThis["lookup"]))) >= 1 then
-				return "There are methods to call for " .. concat1(map1(function(tempKey)
+				return "There are methods to call for\n" .. concat1(map1(function(tempKey)
 					return "  - " .. tempKey
 				end, keys1(tempThis["lookup"])), "\n")
 			else
@@ -333,7 +333,7 @@ end, ["symbol"]=function(x)
 end, ["key"]=function(x)
 	return ":" .. x["value"]
 end, ["number"]=function(x)
-	return tostring1(constVal1(x))
+	return format1("%g", constVal1(x))
 end, ["string"]=function(x)
 	return format1("%q", constVal1(x))
 end, ["table"]=function(x)
@@ -356,7 +356,11 @@ end, ["rational"]=function(x)
 	local xn, xd = normalisedRationalComponents1(x)
 	return formatOutput_21_1(nil, "" .. format1("%d", xn) .. "/" .. format1("%d", xd))
 end}, ["tag"]="multimethod", ["default"]=function(x)
-	return tostring1(x)
+	if type_23_1(x) == "table" then
+		return pretty1["lookup"]["table"](x)
+	else
+		return tostring1(x)
+	end
 end}, {["__call"]=function(tempThis, x)
 	local tempMethod
 	local temp = tempThis["lookup"]
@@ -371,7 +375,7 @@ end}, {["__call"]=function(tempThis, x)
 	else
 		error1("No matching method to call for (" .. concat1(list1("pretty", type1(x)), " ") .. ")\n  " .. (function()
 			if n1((keys1(tempThis["lookup"]))) >= 1 then
-				return "There are methods to call for " .. concat1(map1(function(tempKey)
+				return "There are methods to call for\n" .. concat1(map1(function(tempKey)
 					return "  - " .. tempKey
 				end, keys1(tempThis["lookup"])), "\n")
 			else
@@ -1213,7 +1217,7 @@ parse_21_1 = function(spec, args)
 	if not args then
 		args = arg1
 	end
-	local result, pos, idx, len, usage_21_ = {}, spec["pos"], 1, n1(args), function(msg)
+	local result, pos, posIdx, idx, len, usage_21_ = {}, spec["pos"], 1, 1, n1(args), function(msg)
 		usage_21_1(spec, (nth1(args, 0)))
 		print1(msg)
 		return exit_21_1(1)
@@ -1388,16 +1392,19 @@ parse_21_1 = function(spec, args)
 						i = i + 1
 					end
 				else
-					local arg = car1(pos)
+					local arg = nth1(pos, posIdx)
 					if arg then
-						arg["action"](arg, result, temp, usage_21_)
+						idx = idx - 1
+						readArgs(arg["var"], arg)
+						if not arg["many"] then
+							posIdx = posIdx + 1
+						end
 					else
-						local msg = "Unknown argument " .. arg
+						local msg = "Unknown argument " .. temp
 						usage_21_1(spec, (nth1(args, 0)))
 						print1(msg)
 						exit_21_1(1)
 					end
-					idx = idx + 1
 				end
 			end
 		end
@@ -9275,7 +9282,7 @@ repl1 = function(compiler, args)
 		local temp4, var = next1(temp3)
 		while temp4 ~= nil do
 			if scope["variables"][temp4] then
-				import_21_1(scope, library["name"] .. "/" .. temp4)
+				import_21_1(scope, library["name"] .. "/" .. temp4, var)
 			else
 				import_21_1(scope, temp4, var)
 			end
@@ -10194,7 +10201,11 @@ createPluginState1 = function(compiler)
 	end, ["logger/do-node-error!"]=function(msg, node, explain, ...)
 		local lines = _pack(...) lines.tag = "list"
 		return doNodeError_21_1(logger, msg, node, explain, unpack1(lines, 1, n1(lines)))
-	end, ["range/get-source"]=getSource1, ["visit-node"]=visitNode1, ["visit-nodes"]=visitBlock1, ["traverse-nodes"]=traverseNode1, ["traverse-nodes"]=traverseList1, ["symbol->var"]=function(x)
+	end, ["range/get-source"]=getSource1, ["flags"]=function()
+		return map2(id1, compiler["flags"])
+	end, ["flag?"]=function(temp)
+		return elem_3f_1(temp, compiler["flags"])
+	end, ["visit-node"]=visitNode1, ["visit-nodes"]=visitBlock1, ["traverse-nodes"]=traverseNode1, ["traverse-nodes"]=traverseList1, ["symbol->var"]=function(x)
 		local var = x["var"]
 		if string_3f_1(var) then
 			return variables[var]
@@ -10395,6 +10406,7 @@ addArgument_21_1(spec, {tag="list", n=2, "--wrapper", "-w"}, "help", "A wrapper 
 	end
 end)
 addArgument_21_1(spec, {tag="list", n=1, "--plugin"}, "help", "Specify a compiler plugin to load.", "var", "FILE", "default", {tag="list", n=0}, "narg", 1, "many", true, "action", addAction1)
+addArgument_21_1(spec, {tag="list", n=2, "--flag", "-f"}, "help", "Turn on a compiler flag, enabling or disabling a specific feature.", "default", {tag="list", n=0}, "narg", 1, "many", true, "action", addAction1)
 addArgument_21_1(spec, {tag="list", n=1, "input"}, "help", "The file(s) to load.", "var", "FILE", "narg", "*")
 local temp = n1(tasks)
 local temp1 = 1
@@ -10430,7 +10442,7 @@ else
 end
 local compiler = {["log"]=logger, ["timer"]={["callback"]=function(temp, temp1, temp2)
 	return self2(logger, "put-time!", temp, temp1, temp2)
-end, ["timers"]={}}, ["paths"]=paths, ["lib-env"]={}, ["lib-meta"]={}, ["libs"]={tag="list", n=0}, ["lib-cache"]={}, ["lib-names"]={}, ["warning"]=default2(), ["optimise"]=default1(), ["root-scope"]=rootScope1, ["variables"]={}, ["states"]={}, ["out"]={tag="list", n=0}}
+end, ["timers"]={}}, ["paths"]=paths, ["flags"]=args["flag"], ["lib-env"]={}, ["lib-meta"]={}, ["libs"]={tag="list", n=0}, ["lib-cache"]={}, ["lib-names"]={}, ["warning"]=default2(), ["optimise"]=default1(), ["root-scope"]=rootScope1, ["variables"]={}, ["states"]={}, ["out"]={tag="list", n=0}}
 compiler["compile-state"] = createState1(compiler["lib-meta"])
 compiler["loader"] = function(name)
 	return loader1(compiler, name, true)
