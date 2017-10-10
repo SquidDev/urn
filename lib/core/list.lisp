@@ -21,7 +21,7 @@
    thing."
 
 (import core/base (defun defmacro when unless let* set-idx!  get-idx for gensym -or
-                   slice /= % else print error tostring  -and unpack if n + - >= > =
+                   slice /= mod else print error tostring  -and unpack if n + - >= > =
                    not with apply and progn .. * while <= < or values-list first list
                    second))
 
@@ -583,7 +583,7 @@
    out = (1 3 5 7 9)
    ```"
   (let* [(x (let* [(out {})]
-              (when (= (% (n args) 2) 1)
+              (when (= (mod (n args) 2) 1)
                 (error "Expected an even number of arguments to range" 2))
               (for i 1 (n args) 2
                 (set-idx! out (get-idx args i) (get-idx args (+ i 1))))
@@ -661,7 +661,7 @@
    ### Example:
    ```cl
    > (define list '(2 2 4 3 9 8 4 6))
-   > (define p (lambda (x) (= (% x 2) 0)))
+   > (define p (lambda (x) (= (mod x 2) 0)))
    > (filter p list)
    out = (2 2 4 8 4 6)
    > (take-while p list 1)
@@ -714,7 +714,7 @@
   (let* [(result '())
          (group nil)]
     (for idx 1 (n xs) 1
-      (when (= (% idx num) 1)
+      (when (= (mod idx num) 1)
         (set! group '())
         (push-cdr! result group))
       (push-cdr! group (nth xs idx)))

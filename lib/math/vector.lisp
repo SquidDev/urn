@@ -48,7 +48,7 @@
     :__sub n-
     :__mul n*
     :__div n/
-    :__mod n% })
+    :__mod nmod })
 
 (defun vector-item (vector i)
   "Get the I th element in the VECTOR."
@@ -85,7 +85,7 @@
                   (make-vector (map (cut ,m ,'x ,'<>) (vector-items ,'y))))
                 (defalias  (,m ,'vector   ,'rational) (,m ,'vector ,'number))
                 (defalias  (,m ,'rational ,'vector)   (,m ,'number ,'vector))))
-    `(n* n%))
+    `(n* nmod))
 
 (defmethod (n/ vector number) (x y)
   (when (nan? y)  (format 1 "(n/ {#x} {#y}): attempt to operate on nan"))

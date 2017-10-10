@@ -11,7 +11,7 @@
   (loop [(x (math/abs x))
          (y (math/abs y))]
     [(= y 0) x]
-    (recur y (% x y))))
+    (recur y (mod x y))))
 
 (defun lcm (x y)
   "Compute the lowest common multiple of X and Y.
@@ -34,7 +34,7 @@
    > (even? 1)
    out = false
    ```"
-  (= (% x 2) 0))
+  (= (mod x 2) 0))
 
 (defun odd? (x)
   "Is X an odd number?
@@ -46,7 +46,7 @@
    > (odd? 2)
    out = false
    ```"
-  (/= (% x 2) 0))
+  (/= (mod x 2) 0))
 
 (defun nan? (x)
   "Is X equal to NaN?

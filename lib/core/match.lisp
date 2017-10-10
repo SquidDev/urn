@@ -165,7 +165,7 @@
 (import lua/basic (pcall))
 (import lua/math (max))
 (import core/base (defun defmacro if get-idx and gensym error for set-idx!
-                  quasiquote list or slice concat apply /= n = not - + / * >= <= % ..
+                  quasiquote list or slice concat apply /= n = not - + / * >= <= mod ..
                   else))
 (import core/type ())
 (import core/list (car caddr cadr cdr cddr append for-each map filter
@@ -215,7 +215,7 @@
 
 (defun struct-pat? (x) :hidden
   (and (eql? (car x) 'struct-literal)
-       (= (% (n (cdr x)) 2) 0)))
+       (= (mod (n (cdr x)) 2) 0)))
 
 (defun assert-linearity! (pat seen) :hidden
   (cond

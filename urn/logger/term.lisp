@@ -54,7 +54,7 @@
    ```"
   :hidden
   (when (empty? entries) (error! "Positions cannot be empty"))
-  (when (/= (% (n entries) 2) 0) (error! (.. "Positions must be a multiple of 2, is " (n entries))))
+  (when (/= (mod (n entries) 2) 0) (error! (.. "Positions must be a multiple of 2, is " (n entries))))
 
   (let* ((previous -1)
          (file (.> (nth entries 1) :name))
