@@ -4,7 +4,7 @@
 (import lua/string string)
 (import lua/table (concat))
 (import lua/os os)
-(randomseed (^ (os/time) (os/clock)))
+(randomseed (expt (os/time) (os/clock)))
 
 (defun random-string () :hidden
   (let* [(n (random 1 255))
@@ -12,10 +12,10 @@
     (concat (map random-byte (range :from 1 :to n)))))
 
 (defun random-number () :hidden
-  (random (- 0 (^ 2 24)) (^ 2 24)))
+  (random (- 0 (expt 2 24)) (expt 2 24)))
 
 (defun random-natural () :hidden
-  (random 0 (^ 2 24)))
+  (random 0 (expt 2 24)))
 
 (defun random-boolean () :hidden
   (= 0 (mod (random-number) 2)))

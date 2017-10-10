@@ -8,7 +8,7 @@
        (will "exist"
              (affirm (= true (exists? 1))
                      (= true (exists? 2))
-                     (= true (exists? (^ 2 40)))))
+                     (= true (exists? (expt 2 40)))))
        (will-not "be a list"
                  (affirm (= false (list? 1))))
        (will-not "be a string"

@@ -29,7 +29,7 @@
 
 (defun ->rat-components (y) :hidden
   (let* [((i f) (math/modf y))
-         (f' (^ 10 (- (n (tostring f)) 2)))]
+         (f' (expt 10 (- (n (tostring f)) 2)))]
     (if (= 0 f) ;; it's an integer, so we just /1 i
       (values-list y 1)
       (let* [(n (* y f'))
@@ -95,13 +95,13 @@
 (defalias (n<= rational number) (n<= rational rational))
 (defalias (n<= number rational) (n<= rational rational))
 
-(defmethod (n^ rational number) (x y)
+(defmethod (nexpt rational number) (x y)
   (when (/= 0 (second (math/modf y)))
-    (format 1 "(^ {#x} {#y}): exponent must be an integral number."))
+    (format 1 "(expt {#x} {#y}): exponent must be an integral number."))
   (if (>= y 0)
     (let* [((xn xd) (normalised-rational-components x))]
-      (rational (^ xn y) (^ xd y)))
-    (nrecip (n^ x (nnegate y)))))
+      (rational (expt xn y) (expt xd y)))
+    (nrecip (nexpt x (nnegate y)))))
 
 (defmethod (nsqrt rational) (x)
   (let* [((xn xd) (normalised-rational-components x))]
@@ -112,7 +112,7 @@
     :__sub n-
     :__mul n*
     :__div n/
-    :__pow n^
+    :__pow nexpt
     :__lt  n<
     :__lte n<= })
 

@@ -164,6 +164,6 @@
       (if (math/rational/rational? i) (math/rational/->float i) i)
       (if (math/rational/rational? r) (math/rational/->float r) r))))
 
-(defmethod (n^ complex number) (z y)
+(defmethod (nexpt complex number) (z y)
   (with ((mag ang) (->polar z))
-    (polar-> (n^ mag y) (n* ang y))))
+    (polar-> (nexpt mag y) (n* ang y))))

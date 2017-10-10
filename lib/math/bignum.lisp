@@ -2,7 +2,7 @@
 
 (define num-tag   :hidden "bignum")
 (define part-bits :hidden 24)
-(define part-max  :hidden (^ 2 part-bits))
+(define part-max  :hidden (expt 2 part-bits))
 
 (defun trim! (a) :hidden
   (with (parts (.> a :parts))
@@ -94,7 +94,7 @@
                  (r (copy a))]
             (for i 1 (n b-parts) 1
               (for j 0 (- part-bits 1) 1
-                (when (= (mod (floor (/ (nth b-parts i) (^ 2 j))) 2) 1)
+                (when (= (mod (floor (/ (nth b-parts i) (expt 2 j))) 2) 1)
                   (set! val (add val r)))
                 (shl! r 1)))
             val)]))
@@ -175,7 +175,7 @@
         (with (new-val (/ (nth a-parts j) 2))
           (.<! a-parts j (floor new-val))
           (when (and (/= (mod new-val 1) 0) (/= j 1)) ; carry
-            (.<! a-parts (- j 1) (+ (nth a-parts (- j 1)) (^ 2 (- part-bits 1)))))))))
+            (.<! a-parts (- j 1) (+ (nth a-parts (- j 1)) (expt 2 (- part-bits 1)))))))))
   (trim! a))
 
 (defun shr (a b)
@@ -189,7 +189,7 @@
   (if (or (< bit 1) (> bit (* (n (.> a :parts)) part-bits)))
     0
     (mod (floor (/ (nth (.> a :parts) (+ (floor (/ (- bit 1) part-bits)) 1))
-                 (^ 2 (mod (- bit 1) part-bits)))) 2)))
+                 (expt 2 (mod (- bit 1) part-bits)))) 2)))
 
 (defun length (a)
   "Returns the amount of numerical bits needed to contain A."
@@ -228,11 +228,11 @@
                 ["d" (let* [(vald (absolute a))
                             (mult (new 1))
                             (parts '())
-                            (step-digits (floor (/ (log (^ 2 part-bits)) (log 10))))
-                            (step-exp (^ 10 step-digits))
+                            (step-digits (floor (/ (log (expt 2 part-bits)) (log 10))))
+                            (step-exp (expt 10 step-digits))
                             (step-format (.. "%" (string/format "%02u" step-digits) "u"))
-                            (step (new (^ 10 step-digits)))]
-                       (for i 1 (+ (ceil (/ (log (^ 2 (* (n (.> a :parts)) part-bits))) (log step-exp))) 1) 1
+                            (step (new (expt 10 step-digits)))]
+                       (for i 1 (+ (ceil (/ (log (expt 2 (* (n (.> a :parts)) part-bits))) (log step-exp))) 1) 1
                          (push-cdr! parts (string/format step-format (or (car (.> (mod vald step) :parts)) 0)))
                          (set! vald (/ vald step)))
                        (string/concat (reverse parts)))]))]
@@ -336,7 +336,7 @@
                 (num-parts (+ (floor (/ (log n) (log 2) part-bits)) 1))]
            (.<! val :sign (< a 0))
            (for i 0 (- num-parts 1) 1
-             (push-cdr! parts (floor (mod (/ n (^ part-max i)) part-max))))))]
+             (push-cdr! parts (floor (mod (/ n (expt part-max i)) part-max))))))]
       [else (error! (.. "string, number or nothing expected, got " (type a) "."))])
     (trim! val)
     val))

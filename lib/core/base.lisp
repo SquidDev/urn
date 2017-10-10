@@ -1,5 +1,5 @@
 (import lua/basic (get-idx set-idx! getmetatable setmetatable type# print pcall xpcall
-                   tostring tonumber require error len# = /= < <= > >= + - * / mod ^
+                   tostring tonumber require error len# = /= < <= > >= + - * / mod expt
                    ..) :export)
 (import lua/basic ())
 (import lua/string string)

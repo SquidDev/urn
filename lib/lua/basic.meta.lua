@@ -10,11 +10,11 @@ return {
 	['-']  = { tag = "expr", contents = "${1} - ${2}",  count = 2, pure = true, fold = "l", prec = 9  },
 	['*']  = { tag = "expr", contents = "${1} * ${2}",  count = 2, pure = true, fold = "l", prec = 10 },
 	['/']  = { tag = "expr", contents = "${1} / ${2}",  count = 2, pure = true, fold = "l", prec = 10 },
-	['^']  = { tag = "expr", contents = "${1} ^ ${2}",  count = 2, pure = true, fold = "l", prec = 12 },
 	['..'] = { tag = "expr", contents = "${1} .. ${2}", count = 2, pure = true, fold = "r", prec = 8  },
 
-	['len#'] = { tag = "expr", contents = "#${1}",      count = 1, pure = true,             prec = 11 },
+	['len#'] = { tag = "expr", contents = "#${1}",        count = 1, pure = true,             prec = 11 },
 	['mod']  = { tag = "expr", contents = "${1} % ${2}",  count = 2, pure = true, fold = "l", prec = 10 },
+	['expt'] = { tag = "expr", contents = "${1} ^ ${2}",  count = 2, pure = true, fold = "l", prec = 12 },
 
 	['get-idx']  = { tag = "expr", contents = "${1}[${2}]",        count = 2, precs = { tag = "list", n = 2, 100, 0    } },
 	['set-idx!'] = { tag = "stmt", contents = "${1}[${2}] = ${3}", count = 3, precs = { tag = "list", n = 3, 100, 0, 0 } },

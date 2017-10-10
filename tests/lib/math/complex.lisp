@@ -50,8 +50,8 @@
             (eq? (complex 2/3 1)      (n/ (complex 2 3) 3/1))
             (eq? (complex 0.3 -0.9) (n/ 3 (complex 1 3)))))
 
-  (can "be exponented"
-    (affirm (req? (complex 0 2) (n^ (complex 1 1) 2))))
+  (can "be raised to some power"
+    (affirm (req? (complex 0 2) (nexpt (complex 1 1) 2))))
 
   (can "be conjugated"
     (check [(number a) (number b)]
