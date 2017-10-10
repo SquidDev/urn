@@ -128,7 +128,7 @@
     (assert-type! xs list)
     (let* [(accum z)]
       (for i start (n xs) 1
-        (set! accum (f accum (nth xs i))))
+           (set! accum (f accum (nth xs i))))
       accum)))
 
 (defun map (fn &xss)
@@ -145,8 +145,8 @@
   (let* [(ns (let* [(out '())]
                     (for i 1 (n xss) 1
                       (if (not (list? (nth xss i)))
-                        (error (.. "not a list: " (pretty (nth xss i))
-                                   " (it's a " (type (nth xss i)) ")"))
+                        (error (.. "that's no list! " (pretty (nth xss i))
+                                   " (it's a " (type (nth xss i)) "!)"))
                         true)
                       (push-cdr! out (n (nth xss i))))
                     out))
@@ -171,8 +171,8 @@
   (let* [(lengths (let* [(out '())]
                     (for i 1 (n xss) 1
                       (if (not (list? (nth xss i)))
-                        (error (.. "not a list: " (pretty (nth xss i))
-                                   " (it's a " (type (nth xss i)) ")"))
+                        (error (.. "that's no list! " (pretty (nth xss i))
+                                   " (it's a " (type (nth xss i)) "!)"))
                         true)
                       (push-cdr! out (n (nth xss i))))
                     out))
