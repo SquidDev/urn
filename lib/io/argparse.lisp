@@ -82,7 +82,7 @@
       added by [[add-category!]]."
   (assert-type! names list)
   (when (empty? names) (error! "Names list is empty"))
-  (unless (= (% (n options) 2) 0) (error! "Options list should be a multiple of two"))
+  (unless (= (mod (n options) 2) 0) (error! "Options list should be a multiple of two"))
 
   (with (result { :names   names
                   :action  nil

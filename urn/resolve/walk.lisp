@@ -457,7 +457,7 @@
                     node)]
 
                  [(= func (.> builtins :struct-literal))
-                  (when (/= (% (n node) 2) 1)
+                  (when (/= (mod (n node) 2) 1)
                     (error-positions! (.> state :logger) node (.. "Expected an even number of arguments, got " (pred (n node)))))
                   (resolve-list node 2 scope state)]
 

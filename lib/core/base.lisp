@@ -1,5 +1,5 @@
 (import lua/basic (get-idx set-idx! getmetatable setmetatable type# print pcall xpcall
-                   tostring tonumber require error len# = /= < <= > >= + - * / % ^
+                   tostring tonumber require error len# = /= < <= > >= + - * / mod ^
                    ..) :export)
 (import lua/basic ())
 (import lua/string string)
@@ -196,9 +196,6 @@
    out = false
    ```"
   (if expr false true))
-
-(defun ! (expr) :deprecated "Use [[not]] instead."
-  (not expr))
 
 (define gensym
   "Create a unique symbol, suitable for using in macros"

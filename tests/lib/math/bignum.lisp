@@ -18,7 +18,7 @@
   (it "can be divided"
     (affirm (= (/ (bignum/new 42) (bignum/new 4)) (bignum/new 10))))
   (it "can have a remainder of a division"
-    (affirm (= (% (bignum/new 42) (bignum/new 4)) (bignum/new 2))))
+    (affirm (= (mod (bignum/new 42) (bignum/new 4)) (bignum/new 2))))
   (it "can be expontentiated"
     (affirm (= (^ (bignum/new 10) (bignum/new 10)) (* (bignum/new 100000) (bignum/new 100000)))))
   (it "can be converted to a string in different bases"

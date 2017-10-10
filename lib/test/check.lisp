@@ -18,7 +18,7 @@
   (random 0 (^ 2 24)))
 
 (defun random-boolean () :hidden
-  (= 0 (% (random-number) 2)))
+  (= 0 (mod (random-number) 2)))
 
 (defun random-symbol () :hidden
   { :tag "symbol" :contents (random-string) })

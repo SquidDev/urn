@@ -9,7 +9,7 @@
 (define-native -)
 (define-native *)
 (define-native /)
-(define-native %)
+(define-native mod)
 (define-native ^)
 (define-native ..)
 

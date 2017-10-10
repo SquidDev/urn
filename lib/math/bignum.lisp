@@ -49,7 +49,7 @@
               (push-cdr! val-parts 0))
             (for i 1 max-parts 1
               (with (new-part (+ (or (nth a-parts i) 0) (or (nth b-parts i) 0) (nth val-parts i)))
-                (.<! val-parts i (% new-part part-max))
+                (.<! val-parts i (mod new-part part-max))
                 (when (>= new-part part-max) ; carry
                   (.<! val-parts (+ i 1) 1))))
             (trim! val)
@@ -73,7 +73,7 @@
               (push-cdr! val-parts 0))
             (for i 1 max-parts 1
               (with (new-part (- (or (nth a-parts i) 0) (or (nth b-parts i) 0) (nth val-parts i)))
-                (.<! val-parts i (% new-part part-max))
+                (.<! val-parts i (mod new-part part-max))
                 (when (< new-part 0) ; carry
                   (.<! val-parts (+ i 1) 1))))
             (trim! val)
@@ -94,7 +94,7 @@
                  (r (copy a))]
             (for i 1 (n b-parts) 1
               (for j 0 (- part-bits 1) 1
-                (when (= (% (floor (/ (nth b-parts i) (^ 2 j))) 2) 1)
+                (when (= (mod (floor (/ (nth b-parts i) (^ 2 j))) 2) 1)
                   (set! val (add val r)))
                 (shl! r 1)))
             val)]))
@@ -155,7 +155,7 @@
     (for i 1 b 1
       (for j (n a-parts) 1 -1
         (with (new-val (* (nth a-parts j) 2))
-          (.<! a-parts j (% new-val part-max))
+          (.<! a-parts j (mod new-val part-max))
           (when (>= new-val part-max) ; carry
             (if (= j (n a-parts))
               (push-cdr! a-parts 1)
@@ -174,7 +174,7 @@
       (for j 1 (n a-parts) 1
         (with (new-val (/ (nth a-parts j) 2))
           (.<! a-parts j (floor new-val))
-          (when (and (/= (% new-val 1) 0) (/= j 1)) ; carry
+          (when (and (/= (mod new-val 1) 0) (/= j 1)) ; carry
             (.<! a-parts (- j 1) (+ (nth a-parts (- j 1)) (^ 2 (- part-bits 1)))))))))
   (trim! a))
 
@@ -188,8 +188,8 @@
   "Returns the value of the bit (0 or 1) of A at position BIT. The BIT index starts at 1."
   (if (or (< bit 1) (> bit (* (n (.> a :parts)) part-bits)))
     0
-    (% (floor (/ (nth (.> a :parts) (+ (floor (/ (- bit 1) part-bits)) 1))
-                 (^ 2 (% (- bit 1) part-bits)))) 2)))
+    (mod (floor (/ (nth (.> a :parts) (+ (floor (/ (- bit 1) part-bits)) 1))
+                 (^ 2 (mod (- bit 1) part-bits)))) 2)))
 
 (defun length (a)
   "Returns the amount of numerical bits needed to contain A."
@@ -233,7 +233,7 @@
                             (step-format (.. "%" (string/format "%02u" step-digits) "u"))
                             (step (new (^ 10 step-digits)))]
                        (for i 1 (+ (ceil (/ (log (^ 2 (* (n (.> a :parts)) part-bits))) (log step-exp))) 1) 1
-                         (push-cdr! parts (string/format step-format (or (car (.> (% vald step) :parts)) 0)))
+                         (push-cdr! parts (string/format step-format (or (car (.> (mod vald step) :parts)) 0)))
                          (set! vald (/ vald step)))
                        (string/concat (reverse parts)))]))]
     (while (= (string/char-at str 1) "0")
@@ -336,7 +336,7 @@
                 (num-parts (+ (floor (/ (log n) (log 2) part-bits)) 1))]
            (.<! val :sign (< a 0))
            (for i 0 (- num-parts 1) 1
-             (push-cdr! parts (floor (% (/ n (^ part-max i)) part-max))))))]
+             (push-cdr! parts (floor (mod (/ n (^ part-max i)) part-max))))))]
       [else (error! (.. "string, number or nothing expected, got " (type a) "."))])
     (trim! val)
     val))

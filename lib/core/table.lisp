@@ -1,5 +1,5 @@
 (import core/base (defmacro defun let* when if list unless gensym slice progn get-idx
-              set-idx! error = /= % - + n or for for-pairs with not apply else))
+              set-idx! error = /= mod - + n or for for-pairs with not apply else))
 (import lua/basic (next len#) :export)
 (import core/type (key? assert-type!))
 (import core/list ())
@@ -76,7 +76,7 @@
    > (struct :foo \"bar\")
    out = {\"foo\" \"bar\"}
    ```"
-  (when (= (% (n entries) 2) 1)
+  (when (= (mod (n entries) 2) 1)
     (error "Expected an even number of arguments to struct" 2))
   (with (out {})
     (for i 1 (n entries) 2
@@ -91,7 +91,7 @@
 
    Note, if you know your values at compile time, it is more performant
    to use a struct literal."
-  (when (= (% (n entries) 2) 1)
+  (when (= (mod (n entries) 2) 1)
     (error "Expected an even number of arguments to struct" 2))
   (with (out {})
     (for i 1 (n entries) 2
