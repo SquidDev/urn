@@ -15,6 +15,9 @@
     :setup (lambda (spec)
              (arg/add-argument! spec '("--emit-lua")
                :help   "Emit a Lua file."
+               :narg   "?"
+               :var    "OUTPUT"
+               :value  true
                :cat    "out")
              (arg/add-argument! spec '("--shebang")
                :help    "Set the executable to use for the shebang."
@@ -31,7 +34,10 @@
                (exit! 1))
 
              (let* [(out (lua/file compiler (.> args :shebang)))
-                    ((handle error) (io/open (.. (.> args :output) ".lua") "w"))]
+                    (name (if (string? (.> args :emit-lua))
+                            (.> args :emit-lua)
+                            (.. (.> args :output) ".lua")))
+                    ((handle error) (io/open name "w"))]
                (unless handle
                  (logger/put-error! (.> compiler :log) (sprintf "Cannot open %q (%s)" (.. (.> args :output) ".lua") error))
                  (exit! 1))
@@ -47,6 +53,9 @@
     :setup (lambda (spec)
              (arg/add-argument! spec '("--emit-lisp")
                :help "Emit a Lisp file."
+               :narg "?"
+               :var  "OUTPUT"
+               :value false
                :cat  "out"))
     :pred  (lambda (args) (.> args :emit-lisp))
     :run   (lambda (compiler args)
@@ -54,9 +63,12 @@
                (logger/put-error! (.> compiler :log) "No inputs to compile.")
                (exit! 1))
 
-             (with (writer (writer/create))
+             (let [(writer (writer/create))
+                   (name (if (string? (.> args :emit-lisp))
+                           (.> args :emit-lisp)
+                           (.. (.> args :output) ".lisp")))]
                (lisp/block (.> compiler :out) writer)
-               (with ((handle error) (io/open (.. (.> args :output) ".lisp") "w"))
+               (with ((handle error) (io/open name "w"))
                  (unless handle
                    (logger/put-error! (.> compiler :log) (sprintf "Cannot open %q (%s)" (.. (.> args :output) ".lisp") error))
                    (exit! 1))

@@ -188,9 +188,12 @@
     (when (and (= (.> args :prelude) (.. directory "prelude")) (empty? (.> args :plugin)))
       (push-cdr! (.> args :plugin) (.. directory "../plugins/fold-defgeneric.lisp")))
 
-    (if (empty? (.> args :input))
-      (.<! args :repl true)
-      (.<! args :emit-lua true))
+    (cond
+      [(empty? (.> args :input))
+       (.<! args :repl true)]
+      [(= (.> args :emit-lua) nil)
+       (.<! args :emit-lua true)]
+      [else])
 
     (with (compiler { :log       logger
                       :timer     (timer/create (cut logger/put-time! logger <> <> <>))
