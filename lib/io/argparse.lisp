@@ -349,7 +349,7 @@
                         (set! i (succ s))
                         (inc! idx)]))]))
              (inc! i)))]
-        [?any
+        [_
          (with (arg (nth pos pos-idx))
            (if arg
              (progn
