@@ -90,6 +90,15 @@
      (when (and ,@(cars vars)) ,@body))
     ,@(map make-let-binding vars)))
 
+(defmacro if-let (vars then else)
+  "Evaluate THEN or ELSE, depending on the truthiness of all variables
+   bound (as per [[let]]) in VARS."
+  `((lambda ,(cars vars)
+      (if (and ,@(cars vars))
+        ,then
+        ,else))
+    ,@(map make-let-binding vars)))
+
 (defmacro when-let* (vars &body)
   "Bind each pair of `(name value)` of VARS, checking if the value is
    truthy before binding the next, and finally evaluating BODY. As with
