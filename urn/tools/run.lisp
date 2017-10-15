@@ -498,7 +498,9 @@
   (let* [(out (lua/file compiler false))
          (lines (traceback/generate-mappings (.> out :lines)))
          (logger (.> compiler :log))
-         (name (.. (or (.> args :output) "out") ".lua"))]
+         (name (if (string? (.> args :emit-lua))
+                 (.> args :emit-lua)
+                 (.. (.> args :output) ".lua")))]
     (case (list (load (w/->string out) (.. "=" name)))
       [(nil ?msg)
        (logger/put-error! logger "Cannot load compiled source.")

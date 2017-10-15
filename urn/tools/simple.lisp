@@ -39,7 +39,7 @@
                             (.. (.> args :output) ".lua")))
                     ((handle error) (io/open name "w"))]
                (unless handle
-                 (logger/put-error! (.> compiler :log) (sprintf "Cannot open %q (%s)" (.. (.> args :output) ".lua") error))
+                 (logger/put-error! (.> compiler :log) (sprintf "Cannot open %q (%s)" name error))
                  (exit! 1))
                (self handle :write (writer/->string out))
                (self handle :close)
