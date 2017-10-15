@@ -4,7 +4,7 @@ if not table.unpack then table.unpack = unpack end
 local load = load if _VERSION:find("5.1") then load = function(x, n, _, env) local f, e = loadstring(x, n) if not f then return f, e end if env then setfenv(f, env) end return f end end
 local _select, _unpack, _pack, _error = select, table.unpack, table.pack, error
 local _libs = {}
-local getIdx1, _3d_1, n1, nth1, _2b_1, setIdx_21_1, _2e2e_1, _3c3d_1, type1, append_21_1, car1, error1, _2f3d_1, builtins1, pushCdr_21_1, _2d_1, sub1, line_21_1, _3e_1, format1, self2, list1, _3e3d_1, pretty1, print1, next1, getSource1, compileExpression1, builtin_3f_1, concat1, empty_3f_1, _3c_1, doNodeError_21_2, gsub1, quoted1, cadr1, addArgument_21_1, exit_21_1, string_3f_1, find1, tostring1, succ1, on_21_1, _5e7e_1, removeNth_21_1, coloured1, visitNode1, type_23_1, tonumber1, last1, unpack1, visitBlock1, pushEscapeVar_21_1, getVar1, visitNode3, visitNodes1, doNodeError_21_1, resolveNode1, usage_21_1, map2, constVal1, getenv1, open1, escapeVar1, addParen1, number_3f_1, slice1, apply1, sort1, arg1, compileBlock1, putNodeWarning_21_1, unmangleIdent1, between_3f_1, expectType_21_1, runPass1, split1, pcall1, eq_3f_1, formatOutput_21_1, get1, symbol_2d3e_string1, scoreNodes1, len_23_1, lower1, visitNode4, getmetatable1, match1, any1, makeNil1, expect_21_1, popLast_21_1, formatNode1, sethook1, write1, endBlock_21_1, xpcall1, get_21_1, sentinel1, visitNode2
+local getIdx1, _3d_1, n1, nth1, _2b_1, setIdx_21_1, _2e2e_1, _3c3d_1, type1, append_21_1, car1, error1, _2f3d_1, builtins1, pushCdr_21_1, _2d_1, sub1, line_21_1, _3e_1, format1, self2, list1, _3e3d_1, pretty1, print1, next1, getSource1, compileExpression1, builtin_3f_1, concat1, empty_3f_1, _3c_1, doNodeError_21_2, gsub1, string_3f_1, quoted1, addArgument_21_1, cadr1, exit_21_1, find1, tostring1, succ1, on_21_1, _5e7e_1, removeNth_21_1, coloured1, visitNode1, type_23_1, tonumber1, last1, unpack1, visitBlock1, pushEscapeVar_21_1, getVar1, visitNode3, visitNodes1, doNodeError_21_1, resolveNode1, usage_21_1, map2, constVal1, getenv1, open1, escapeVar1, addParen1, number_3f_1, slice1, apply1, sort1, arg1, compileBlock1, putNodeWarning_21_1, unmangleIdent1, between_3f_1, expectType_21_1, runPass1, split1, pcall1, eq_3f_1, formatOutput_21_1, get1, symbol_2d3e_string1, scoreNodes1, len_23_1, lower1, visitNode4, getmetatable1, match1, any1, makeNil1, expect_21_1, popLast_21_1, formatNode1, sethook1, write1, endBlock_21_1, xpcall1, get_21_1, sentinel1, visitNode2
 local _ENV = setmetatable({}, {__index=ENV or (getfenv and getfenv()) or _G}) if setfenv then setfenv(0, _ENV) end
 _3d_1 = function(v1, v2) return v1 == v2 end
 _2f3d_1 = function(v1, v2) return v1 ~= v2 end
@@ -16,8 +16,8 @@ _2b_1 = function(...) local t = ... for i = 2, _select('#', ...) do t = t + _sel
 _2d_1 = function(...) local t = ... for i = 2, _select('#', ...) do t = t - _select(i, ...) end return t end
 _2a_1 = function(...) local t = ... for i = 2, _select('#', ...) do t = t * _select(i, ...) end return t end
 _2f_1 = function(...) local t = ... for i = 2, _select('#', ...) do t = t / _select(i, ...) end return t end
-_25_1 = function(...) local t = ... for i = 2, _select('#', ...) do t = t % _select(i, ...) end return t end
-_5e_1 = function(...) local t = ... for i = 2, _select('#', ...) do t = t ^ _select(i, ...) end return t end
+mod1 = function(...) local t = ... for i = 2, _select('#', ...) do t = t % _select(i, ...) end return t end
+expt1 = function(...) local t = ... for i = 2, _select('#', ...) do t = t ^ _select(i, ...) end return t end
 _2e2e_1 = function(...) local n = _select('#', ...) local t = _select(n, ...) for i = n - 1, 1, -1 do t = _select(i, ...) .. t end return t end
 _5f_G1 = _G
 arg_23_1 = arg or {...}
@@ -440,7 +440,7 @@ map2 = function(fn, ...)
 	local temp1 = 1
 	while temp1 <= temp do
 		if not (type1((nth1(xss, temp1))) == "list") then
-			error1("not a list: " .. pretty1(nth1(xss, temp1)) .. " (it's a " .. type1(nth1(xss, temp1)) .. ")")
+			error1("that's no list! " .. pretty1(nth1(xss, temp1)) .. " (it's a " .. type1(nth1(xss, temp1)) .. "!)")
 		end
 		pushCdr_21_1(out, n1(nth1(xss, temp1)))
 		temp1 = temp1 + 1
@@ -6809,7 +6809,7 @@ native1 = function(meta, global)
 	end
 end
 emitLua1 = {["name"]="emit-lua", ["setup"]=function(spec)
-	addArgument_21_1(spec, {tag="list", n=1, "--emit-lua"}, "help", "Emit a Lua file.", "cat", "out")
+	addArgument_21_1(spec, {tag="list", n=1, "--emit-lua"}, "help", "Emit a Lua file.", "narg", "?", "var", "OUTPUT", "value", true, "cat", "out")
 	addArgument_21_1(spec, {tag="list", n=1, "--shebang"}, "help", "Set the executable to use for the shebang.", "cat", "out", "value", arg1[-1] or (arg1[0] or "lua"), "narg", "?")
 	return addArgument_21_1(spec, {tag="list", n=1, "--chmod"}, "help", "Run chmod +x on the resulting file", "cat", "out")
 end, ["pred"]=function(args)
@@ -6819,7 +6819,14 @@ end, ["run"]=function(compiler, args)
 		self2(compiler["log"], "put-error!", "No inputs to compile.")
 		exit_21_1(1)
 	end
-	local out, handle, error = file1(compiler, args["shebang"]), open1(args["output"] .. ".lua", "w")
+	local out = file1(compiler, args["shebang"])
+	local name
+	if string_3f_1(args["emit-lua"]) then
+		name = args["emit-lua"]
+	else
+		name = args["output"] .. ".lua"
+	end
+	local handle, error = open1(name, "w")
 	if not handle then
 		self2(compiler["log"], "put-error!", (sprintf1("Cannot open %q (%s)", args["output"] .. ".lua", error)))
 		exit_21_1(1)
@@ -6827,13 +6834,13 @@ end, ["run"]=function(compiler, args)
 	self2(handle, "write", concat1(out["out"]))
 	self2(handle, "close")
 	if args["chmod"] then
-		return execute1("chmod +x " .. quoted1(args["output"] .. ".lua"))
+		return execute1("chmod +x " .. quoted1(name))
 	else
 		return nil
 	end
 end}
 emitLisp1 = {["name"]="emit-lisp", ["setup"]=function(spec)
-	return addArgument_21_1(spec, {tag="list", n=1, "--emit-lisp"}, "help", "Emit a Lisp file.", "cat", "out")
+	return addArgument_21_1(spec, {tag="list", n=1, "--emit-lisp"}, "help", "Emit a Lisp file.", "narg", "?", "var", "OUTPUT", "value", false, "cat", "out")
 end, ["pred"]=function(args)
 	return args["emit-lisp"]
 end, ["run"]=function(compiler, args)
@@ -6842,8 +6849,14 @@ end, ["run"]=function(compiler, args)
 		exit_21_1(1)
 	end
 	local writer = {["out"]={tag="list", n=0}, ["indent"]=0, ["tabs-pending"]=false, ["line"]=1, ["lines"]={}, ["node-stack"]={tag="list", n=0}, ["active-pos"]=nil}
+	local name
+	if string_3f_1(args["emit-lisp"]) then
+		name = args["emit-lisp"]
+	else
+		name = args["output"] .. ".lisp"
+	end
 	block1(compiler["out"], writer)
-	local handle, error = open1(args["output"] .. ".lisp", "w")
+	local handle, error = open1(name, "w")
 	if not handle then
 		self2(compiler["log"], "put-error!", (sprintf1("Cannot open %q (%s)", args["output"] .. ".lisp", error)))
 		exit_21_1(1)
@@ -10437,7 +10450,7 @@ if args["prelude"] == directory .. "prelude" and empty_3f_1(args["plugin"]) then
 end
 if empty_3f_1(args["input"]) then
 	args["repl"] = true
-else
+elseif not args["emit-lua"] then
 	args["emit-lua"] = true
 end
 local compiler = {["log"]=logger, ["timer"]={["callback"]=function(temp, temp1, temp2)

@@ -46,7 +46,7 @@
 
                (when (.> args :chmod)
                  ;; string/quoted is not "correct" for escaping names but it is "good enough".
-                 (os/execute (.. "chmod +x " (string/quoted (.. (.> args :output) ".lua"))))))) })
+                 (os/execute (.. "chmod +x " (string/quoted name)))))) })
 
 (define emit-lisp
   { :name  "emit-lisp"
