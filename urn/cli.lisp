@@ -191,7 +191,7 @@
     (cond
       [(empty? (.> args :input))
        (.<! args :repl true)]
-      [(= (.> args :emit-lua) nil)
+      [(not (.> args :emit-lua))
        (.<! args :emit-lua true)]
       [else])
 
