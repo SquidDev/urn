@@ -10,7 +10,7 @@
 (defun make-vars (x) :hidden
   (if (list? x) x (list x)))
 
-(defun make-test (x) :hidden
+(defun make-var (x) :hidden
   (if (list? x) (car x) x))
 
 (defun make-binding (xs) :hidden
@@ -90,15 +90,6 @@
      (when (and ,@(cars vars)) ,@body))
     ,@(map make-let-binding vars)))
 
-(defmacro if-let (vars then else)
-  "Evaluate THEN or ELSE, depending on the truthiness of all variables
-   bound (as per [[let]]) in VARS."
-  `((lambda ,(cars vars)
-      (if (and ,@(cars vars))
-        ,then
-        ,else))
-    ,@(map make-let-binding vars)))
-
 (defmacro when-let* (vars &body)
   "Bind each pair of `(name value)` of VARS, checking if the value is
    truthy before binding the next, and finally evaluating BODY. As with
@@ -120,7 +111,7 @@
     [(empty? vars) `((lambda () ,@body))]
     [else `((lambda ,(make-vars (caar vars))
               (cond
-                [,(make-test (caar vars)) (when-let* ,(cdr vars) ,@body)]
+                [,(make-var (caar vars)) (when-let* ,(cdr vars) ,@body)]
                 [else nil]))
             ,(make-binding (cdar vars)))]))
 
@@ -138,7 +129,42 @@
 
    When `bar` has an index `baz`, it will be bound to `foo` and
    printed. If not, the print statement will not be executed."
-  `((lambda ,(make-vars (car var)) (when ,(make-test (car var)) ,@body)) ,(cadr var)))
+  `((lambda ,(make-vars (car var)) (when ,(make-var (car var)) ,@body)) ,(cadr var)))
+
+(defmacro if-let (vars then else)
+  "Evaluate THEN or ELSE, depending on the truthiness of all variables
+   bound (as per [[let]]) in VARS.
+
+   ### Example
+   ```cl
+   > (if-let [(a 1)
+   .          (b false)]
+   .   b
+   .   a)
+   out = 1
+   ```"
+  `((lambda ,(cars vars)
+      (if (and ,@(cars vars))
+        ,then
+        ,else))
+    ,@(map make-let-binding vars)))
+
+(defmacro if-with (var then else)
+  "Bind the pair VAR of the form `(name value)`, evaluating THEN if the
+   value is truthy or ELSE if not.
+
+   ### Example
+   ```cl
+   > (if-with ((a b c) (values-list false 1 2))
+   .   a
+   .   (+ b c))
+   out = 3
+   ```"
+  `((lambda ,(make-vars (car var))
+      (if ,(make-var (car var))
+        ,then
+        ,else))
+     ,(cadr var)))
 
 (defun make-setting (var) :hidden
   (if (= (n var) 2)
