@@ -129,13 +129,18 @@
 ; this is a not-invented-here version of .> from table
 ; we can't use that because table depends on type
 
-(defmacro deep-get (x &keys) :hidden
-  (let* [(var (gensym))
-         (res var)]
-    (for i (n keys) 1 -1
-      (set! res `(with (,var (get-idx ,var ,(get-idx keys i)))
-                   (if ,var ,res nil))))
-    `(with (,var ,x) ,res)))
+(defmacro deep-get (x f &keys) :hidden
+  ; Silly optimisation: the first key isn't guarded against
+  ; Even sillier: one-key gets aren't guarded either
+  ; Even sillier: Instead of resolving to guarded
+  (let* [(res `(get-idx ,x ,f))]
+    (cond
+      [(= (n keys) 1)
+       `(get-idx ,res ,(car keys))]
+      [else
+        (for i 1 (- (n keys) 1) 1
+          (set! res `(or (get-idx ,res ,(get-idx keys i)) {})))
+        `(get-idx ,res ,(get-idx keys (n keys)))])))
 
 ; this is a bad version of map
 (defun map (f x) :hidden
@@ -181,25 +186,16 @@
          { :lookup {}
            :tag :multimethod }
          { :__call (lambda (,this ,@ll)
-                     (let* [(,method (deep-get ,this :lookup ,@(map (lambda (x)
-                                                                      `(type ,x)) ll)))]
+                     (let* [(,method (or (deep-get ,this :lookup ,@(map (lambda (x)
+                                                                      `(type ,x)) ll))
+                                         (get-idx ,this :default)))]
                        (unless ,method
-                         (if (get-idx ,this :default)
-                           (set! ,method (get-idx ,this :default))
-                           (error (.. "No matching method to call for ("
-                                      (concat (list
-                                                ,(s->s name)
-                                                ,@(map (lambda (x) `(type ,x)) ll))
-                                              " ")
-                                      ")\n  "
-                                      (let* [(,key (keys (get-idx ,this :lookup)))]
-                                        (if (>= (n ,key) 1)
-                                          (.. "There are methods to call for\n"
-                                              (concat (map (lambda (,key)
-                                                             (.. "  - " ,key))
-                                                           (keys (get-idx ,this :lookup)))
-                                                      "\n"))
-                                          "There are no methods to call."))))))
+                         (error (.. "No matching method to call for ("
+                                    (concat (list
+                                              ,(s->s name)
+                                              ,@(map (lambda (x) `(type ,x)) ll))
+                                            " ")
+                                    ")")))
                        (,method ,@ll)))
            :name ,(s->s name)
            :args (list ,@(map s->s ll)) }))))
