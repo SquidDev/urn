@@ -70,6 +70,16 @@
             (.. " :by " (+ (.> range :cursor) (.> range :inc)))
             ""))) ; }}}
 
+(defun unfold (f z) ; {{{
+  { :tag "iterator.unfold" :f f :z z })
+
+(defmethod (next iterator.unfold) (x)
+  (destructuring-bind [{ :f ?f :z ?z } x]
+    (let* [((newv news) (f z))]
+      (values-list newv
+                   (if news { :tag "iterator.unfold" :f f :z news }
+                     nil))))) ; }}}
+
 ;;; }}}
 
 ;;; Transformations {{{
