@@ -120,10 +120,7 @@
 (defmethod (pretty iterator.filter) (x) "«filter iterator»") ; }}}
 
 (defun take (n iter) ; {{{
-  "Return the first N elements produced by the iterator ITER. Note that
-   this may have surprising behaviour with e.g. [[filter]] and
-   [[collapse]]: as `take` will not skip `nil`s, collapsing the result of
-   `take` may not nescessarily be N elements long."
+  "Return the first N elements produced by the iterator ITER."
   { :tag "iterator.take" :n n :i iter })
 
 (defmethod (next iterator.take) (x)
@@ -131,7 +128,9 @@
     (if (= n 0) nil
       (let* [((val iter) (next iter))]
         (if (= iter nil) nil
-          (values-list val { :tag "iterator.take" :n (- n 1) :i iter })))))) ; }}}
+          (values-list val { :tag "iterator.take" :n (if (= val nil)
+                                                       n (- n 1))
+                                                  :i iter })))))) ; }}}
 
 (defun drop (n iter) ; {{{
   { :tag "iterator.drop" :n n :i iter })
