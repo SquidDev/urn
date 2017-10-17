@@ -60,12 +60,12 @@
 
 (defun replace-definition! (state var old-value new-kind new-value)
   "Replace OLD-VALUE with NEW-VALUE in the definition list of VAR."
-  (let* [(var-meta (.> state :usage-vars var))
-         (defs (.> var-meta :defs))]
-    (for-each def defs
-      (when (= (.> def :value) old-value)
-        (.<! def :tag   new-kind)
-        (.<! def :value new-value)))))
+  (with (var-meta (.> state :usage-vars var))
+    (when var-meta
+      (for-each def (.> var-meta :defs)
+        (when (= (.> def :value) old-value)
+          (.<! def :tag   new-kind)
+          (.<! def :value new-value))))))
 
 (defun populate-definitions (state nodes visit?)
   (unless visit? (set! visit? (lambda() true)))
