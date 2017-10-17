@@ -171,7 +171,7 @@
     [(= iter nil) val]
     (let* [((newv newi)
             (next iter))]
-      (recur (if newv
+      (recur (if (/= newv nil)
                (f val newv)
                val)
              newi)))) ; }}}
@@ -183,6 +183,26 @@
 (defun prod (iter)
   "Return the product of all elements produced by ITER."
   (fold * 1 iter)) ; }}}
+
+(defun any (p iter) ; {{{
+  "Check for the existence of an element produced by the iterator ITER
+   that matches the predicate P."
+  (loop [(iter iter)]
+    [(= iter nil) false]
+    (let* [((newv newi)
+            (next iter))]
+      (if (and newv (p newv))
+        true (recur newi)))))
+
+(defun none (p iter) ; {{{
+  "Check that no elements produced by the iterator ITER match the
+   predicate P."
+  (loop [(iter iter)]
+    [(= iter nil) true]
+    (let* [((newv newi)
+            (next iter))]
+      (if (and newv (p newv))
+        false (recur newi))))) ; }}}
 
 ;;; }}}
 
