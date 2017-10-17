@@ -4,7 +4,7 @@
 
 (import lua/string (format sub))
 (import lua/basic (.. getmetatable setmetatable tostring))
-(import lua/table (concat))
+(import lua/table (concat remove))
 
 (defun table? (x)
   "Check whether the value X is a table. This might be a structure,
@@ -179,26 +179,39 @@
    ```"
   (let* [(this (gensym 'this))
          (key (gensym 'key))
-         (method (gensym 'method))]
+         (method (gensym 'method))
+         (delegate `(lambda (,@ll)
+                      (let* [(,method (or (deep-get ,this :lookup ,@(map (lambda (x)
+                                                                           `(type ,x)) ll))
+                                          (get-idx ,this :default)))]
+                        (unless ,method
+                          (error (.. "No matching method to call for ("
+                                     (concat (list ,(s->s name)
+                                                   ,@(map (lambda (x) `(type ,x)) ll))
+                                             " ")
+                                     ")")))
+                        (,method ,@ll))))]
+
+    (for i (- (n attrs) 1) 1 -1
+      (with (elem (get-idx attrs i))
+        (when (and (key? elem) (= (get-idx elem :value) "delegate"))
+          (set! delegate `(with (,'myself ,delegate)
+                            ,(get-idx attrs (+ i 1))))
+          (remove attrs i)
+          (remove attrs i)
+          (set-idx! attrs :n (- (get-idx attrs :n) 2)))))
+
     `(define ,name
        ,@attrs
-       (setmetatable
-         { :lookup {}
-           :tag :multimethod }
-         { :__call (lambda (,this ,@ll)
-                     (let* [(,method (or (deep-get ,this :lookup ,@(map (lambda (x)
-                                                                      `(type ,x)) ll))
-                                         (get-idx ,this :default)))]
-                       (unless ,method
-                         (error (.. "No matching method to call for ("
-                                    (concat (list
-                                              ,(s->s name)
-                                              ,@(map (lambda (x) `(type ,x)) ll))
-                                            " ")
-                                    ")")))
-                       (,method ,@ll)))
-           :name ,(s->s name)
-           :args (list ,@(map s->s ll)) }))))
+       (with (,this { :lookup {}
+                      :tag :multimethod })
+         (setmetatable
+           ,this
+           { :__call (with (,'myself ,delegate)
+                       (lambda (,this ,@ll)
+                         (,'myself ,@ll)))
+             :name ,(s->s name)
+             :args (list ,@(map s->s ll)) })))))
 
 (defun put! (t typs l) :hidden
   "Insert the method L (at TYPS) into the lookup table T, creating any needed
@@ -276,7 +289,11 @@
                     (deep-get ,(car other) :lookup ,@(map s->s (cdr other))))))
 
 (defgeneric eq? (x y)
-  "Compare values for equality deeply.")
+  "Compare values for equality deeply."
+  :delegate (lambda (x y)
+              (if (= x y)
+                true
+                (myself x y))))
 
 (defmethod (eq? list list) (x y)
   (if (/= (n x) (n y))
@@ -314,23 +331,6 @@
 (defmethod (eq? string string) (x y) (= (const-val x) (const-val y)))
 
 (defdefault eq? (x y) false)
-
-; HACK HACK HACK
-; We need the fast case of `eq?` to be _really_ fast, so here we override the
-; lookup function. By hand.
-
-,(let* [(original (get-idx (getmetatable eq?) :__call))]
-   (set-idx! (getmetatable eq?) :__call (lambda (self x y)
-                                          (if (= x y)
-                                            true
-                                            (original self x y)))))
-
-(let* [(original (get-idx (getmetatable eq?) :__call))]
-  (set-idx! (getmetatable eq?) :__call (lambda (self x y)
-                                         (if (= x y)
-                                           true
-                                           (original self x y)))))
-
 
 (defgeneric pretty (x)
   "Pretty-print a value.")

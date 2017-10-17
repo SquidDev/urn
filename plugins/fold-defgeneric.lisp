@@ -27,7 +27,7 @@
       (with (node (nth nodes i))
         ;; Built a list of defgenerics
         (case node
-          [((matcher (define ?name ?&_ (setmetatable (struct-literal :lookup ?lookup ?&_))))
+          [((matcher (define ?name ?&_ ((builtin/lambda (?var) (setmetatable ?var)) (struct-literal :lookup ?lookup ?&_))))
              -> { :name ?name :lookup ?lookup })
            (.<! methods (.> node :def-var) { :table   (cadr (last node))
                                              :lookup  lookup
