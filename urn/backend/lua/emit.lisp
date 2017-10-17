@@ -662,16 +662,23 @@
 
       ["call-lambda"
        ;; If we have a direction invokation of a function then inline it
-       (when (= ret nil)
-         (print! (pretty node) " marked as call-lambda for " ret))
-       (let* [(head (car node))
-              (args (nth head 2))]
+       (with (empty (= ret nil))
+         (when empty
+           (set! ret "return ")
+           (w/begin-block! out "(function()"))
 
-         (compile-bind args 1 node 2 out state)
-         (compile-block head out state 3 ret break)
-         (for-each arg args
-           (unless (.> state :var-skip (.> arg :var))
-             (pop-escape-var! (.> arg :var) state))))]
+         (let* [(head (car node))
+                (args (nth head 2))]
+
+           (compile-bind args 1 node 2 out state)
+           (compile-block head out state 3 ret break)
+           (for-each arg args
+             (unless (.> state :var-skip (.> arg :var))
+               (pop-escape-var! (.> arg :var) state))))
+
+         (when empty
+           (w/unindent! out)
+           (w/append! out "end)()")))]
 
       ["call"
        ;; Just invoke the expression as normal

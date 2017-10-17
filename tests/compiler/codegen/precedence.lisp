@@ -28,40 +28,40 @@
          end)())")
       (affirm-codegen
         '((((lambda (x) x) (cond [true 1])) 1 2))
-        "return (function(x)
-           return x
-         end)((function()
+        "return (function()
+           local x
            do
-             return 1
+             x = 1
            end
-         end)())(1, 2)")
+           return x
+         end)()(1, 2)")
       (affirm-codegen
         '((((lambda (x) (cond [x x] [true 2])) (cond [true 1])) 1 2))
-        "return (function(x)
-           return x or 2
-         end)((function()
+        "return (function()
+           local x
            do
-             return 1
+             x = 1
            end
-         end)())(1, 2)")
+           return x or 2
+         end)()(1, 2)")
       (affirm-codegen
         '((((lambda (x) (cond [x 2] [true x])) (cond [true 1])) 1 2))
-        "return (function(x)
-           return x and 2
-         end)((function()
+        "return (function()
+           local x
            do
-             return 1
+             x = 1
            end
-         end)())(1, 2)")
+           return x and 2
+         end)()(1, 2)")
       (affirm-codegen
         '((((lambda (x) (cond [x false] [true true])) (cond [true 1])) 1 2))
-        "return (function(x)
-           return not x
-         end)((function()
+        "return (function()
+           local x
            do
-             return 1
+             x = 1
            end
-         end)())(1, 2)"))
+           return not x
+         end)()(1, 2)"))
 
     (it "of quotes"
       (affirm-codegen

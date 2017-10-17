@@ -306,9 +306,7 @@
 
                          ;; If we got a statement out of it, then we either need to emit
                          ;; our fancy let bindings or just a normal call.
-                         (if stmt
-                           (cat "call-lambda" :stmt true)
-                           (cat "call")))
+                         (cat "call-lambda" :stmt stmt))
                        (cat "wrap-value")))]
 
                   [(and
@@ -331,9 +329,7 @@
                         ;; Instead we'll just emit a normal call-lambda/call.
                         (.<! lookup head (cat "lambda" :prec 100 :parens true))
                         (visit-node lookup state (nth head 3) true test recur)
-                        (if stmt
-                          (cat "call-lambda" :stmt true)
-                          (cat "call")))
+                        (cat "call-lambda" :stmt stmt))
                       (let* [(res (.> (visit-node lookup state (nth head 3) true test recur)))
                              (ty (.> res :category))
                              (unused? (lambda ()
@@ -360,10 +356,9 @@
                           [(and (= ty "or") (unused?))
                            (add-paren lookup (nth node 2) 1)
                            (cat "or-lambda" :prec 1 :kind (.> res :kind))]
-                          [stmt (cat "call-lambda" :stmt true)]
-                          [true (cat "call")]))))]
+                          [else (cat "call-lambda" :stmt stmt)]))))]
 
-                  [(and stmt (builtin? (car head) :lambda))
+                  [(builtin? (car head) :lambda)
                    ;; Visit the lambda body
                    (visit-nodes lookup state head 3 true test recur)
 
@@ -380,7 +375,7 @@
                          ;; Otherwise it's a simple binding, so we can emit it as a statement.
                          [else (visit-node lookup state (car vals) true)])))
 
-                   (cat "call-lambda" :stmt true)]
+                   (cat "call-lambda" :stmt stmt)]
 
                   [true
                     (visit-nodes lookup state node 1 false)
