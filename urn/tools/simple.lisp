@@ -55,7 +55,7 @@
                :help "Emit a Lisp file."
                :narg "?"
                :var  "OUTPUT"
-               :value false
+               :value true
                :cat  "out"))
     :pred  (lambda (args) (.> args :emit-lisp))
     :run   (lambda (compiler args)
