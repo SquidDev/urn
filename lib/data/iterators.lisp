@@ -54,22 +54,18 @@
          (st (or (.> ags :from) 1))
          (ed (or (.> ags :to) math/huge))
          (inc (- (or (.> ags :by) (+ 1 st)) st))]
-    { :tag "inclusive-range" :cursor st :end ed :inc inc :tst (if (>= st ed) >= <=) })) ; }}}
+    { :tag "inclusive-range" :cursor st :end ed :inc inc :tst (if (>= st ed) >= <=) }))
 
-(defmethod (next inclusive-range) (range) ; {{{
-  (destructuring-bind [{ :cursor ?c
-                         :end ?e
-                         :inc ?i
-                         :tst ?t}
-                       range]
+(defmethod (next inclusive-range) (range)
+  (destructuring-bind [{ :cursor ?c :end ?e :inc ?i :tst ?t} range]
     (if (t c e)
       (values-list c { :tag "inclusive-range" :cursor (+ c i) :end e :inc i :tst t })
-      nil))) ; }}}
+      nil)))
 
-(defmethod (pretty inclusive-range) (range) ; {{{
+(defmethod (pretty inclusive-range) (range)
   (format nil "(range :from {} :to {}{})"
           (.> range :cursor)
-          (- (.> range :end) 1)
+          (.> range :end)
           (if (/= (.> range :inc) 1)
             (.. " :by " (+ (.> range :cursor) (.> range :inc)))
             ""))) ; }}}
@@ -77,22 +73,6 @@
 ;;; }}}
 
 ;;; Transformations {{{
-
-(defun map (fun iter) ; {{{
-  "Return an iterator that applies FUN to every non-nil value produced
-   by ITER."
-  { :tag "iterator.map" :fun fun :backing iter }) ; }}}
-
-(defmethod (next iterator.map) (x) ; {{{
-  (destructuring-bind [{ :fun ?fun
-                         :backing ?iter }
-                       x]
-    (let* [((val iter) (next iter))]
-      (if (not iter)
-        nil
-        (values-list (fun val) { :tag "iterator.map" :fun fun :backing iter })))))
-
-(defmethod (pretty iterator.map) (x) "«map iterator»") ; }}}
 
 (defmacro do* (vars &body) ; {{{
   "Run BODY through all elements produced by the iterators in VARS. Note
@@ -110,6 +90,54 @@
              (let* [(,(caar vars) ,val)]
                (do* ,(cdr vars) ,@body)))
            (,'recur (next ,iter))))))) ; }}}
+
+(defun map (fun iter) ; {{{
+  "Return an iterator that applies FUN to every non-nil value produced
+   by ITER."
+  { :tag "iterator.map" :f fun :i iter })
+
+(defmethod (next iterator.map) (x)
+  (destructuring-bind [{ :f ?fun :i ?iter } x]
+    (let* [((val iter) (next iter))]
+      (if (= iter nil)
+        nil
+        (values-list (fun val) { :tag "iterator.map" :f fun :i iter })))))
+
+(defmethod (pretty iterator.map) (x) "«map iterator»") ; }}}
+
+(defun filter (pred iter) ; {{{
+  "Return an iterator that yields only the elements of ITER for which
+   PRED is truthy"
+  { :tag "iterator.filter" :p pred :i iter })
+
+(defmethod (next iterator.filter) (x)
+  (destructuring-bind [{ :p ?pred :i ?iter } x]
+    (let* [((val iter) (next iter))]
+      (if (= iter nil)
+        nil
+        (values-list (if (pred val) val nil) { :tag "iterator.filter" :p pred :i iter })))))
+
+(defmethod (pretty iterator.filter) (x) "«filter iterator»") ; }}}
+
+(defun take (n iter) ; {{{
+  { :tag "iterator.take" :n n :i iter })
+
+(defmethod (next iterator.take) (x)
+  (destructuring-bind [{ :n ?n :i ?iter } x]
+    (if (= n 0) nil
+      (let* [((val iter) (next iter))]
+        (if (= iter nil) nil
+          (values-list val { :tag "iterator.take" :n (- n 1) :i iter })))))) ; }}}
+
+(defun drop (n iter) ; {{{
+  { :tag "iterator.drop" :n n :i iter })
+
+(defmethod (next iterator.drop) (x)
+  (destructuring-bind [{ :n ?n :i ?iter } x]
+    (let* [((val iter) (next iter))]
+      (if (= iter nil) nil
+        (if (= n 0) (values-list val iter)
+          (values-list nil { :tag "iterator.drop" :n (- n 1) :i iter })))))) ; }}}
 
 ;;; }}}
 
@@ -144,6 +172,14 @@
                (f val newv)
                val)
              newi)))) ; }}}
+
+(defun sum (iter) ; {{{
+  "Return the sum of all elements produced by ITER."
+  (fold + 0 iter))
+
+(defun prod (iter)
+  "Return the product of all elements produced by ITER."
+  (fold * 1 iter)) ; }}}
 
 ;;; }}}
 
