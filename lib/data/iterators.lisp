@@ -142,6 +142,20 @@
                                                        n (- n 1))
                                                   :i iter })))))) ; }}}
 
+(defun take-while (p iter) ; {{{
+  "Return the first n elements returned by ITER, stopping at the first
+   element that doesn't match the predicate P."
+  { :tag "iterator.take-while" :p p :i iter })
+
+(defmethod (next iterator.take-while) (x)
+  (destructuring-bind [{ :p ?p :i ?iter } x]
+    (if (= n 0) nil
+      (let* [((val iter) (next iter))]
+        (if (= iter nil) nil
+          (values-list (if (p val) val nil)
+                       (if (not (p val)) nil
+                         { :tag "iterator.take-while" :p p :i iter }))))))) ; }}}
+
 (defun drop (n iter) ; {{{
   { :tag "iterator.drop" :n n :i iter })
 
@@ -213,6 +227,10 @@
             (next iter))]
       (if (and newv (p newv))
         false (recur newi))))) ; }}}
+
+(defun dump-iterator (iter)
+  (do* [(v iter)]
+    (format true "{}" v)))
 
 ;;; }}}
 
