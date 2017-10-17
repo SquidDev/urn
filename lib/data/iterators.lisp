@@ -120,6 +120,10 @@
 (defmethod (pretty iterator.filter) (x) "«filter iterator»") ; }}}
 
 (defun take (n iter) ; {{{
+  "Return the first N elements produced by the iterator ITER. Note that
+   this may have surprising behaviour with e.g. [[filter]] and
+   [[collapse]]: as `take` will not skip `nil`s, collapsing the result of
+   `take` may not nescessarily be N elements long."
   { :tag "iterator.take" :n n :i iter })
 
 (defmethod (next iterator.take) (x)
