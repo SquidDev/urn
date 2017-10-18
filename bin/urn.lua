@@ -4,7 +4,7 @@ if not table.unpack then table.unpack = unpack end
 local load = load if _VERSION:find("5.1") then load = function(x, n, _, env) local f, e = loadstring(x, n) if not f then return f, e end if env then setfenv(f, env) end return f end end
 local _select, _unpack, _pack, _error = select, table.unpack, table.pack, error
 local _libs = {}
-local getIdx1, _3d_1, n1, nth1, _2b_1, setIdx_21_1, _2e2e_1, _3c3d_1, type1, append_21_1, car1, error1, _2f3d_1, builtins1, pushCdr_21_1, _2d_1, sub1, line_21_1, _3e_1, format1, self2, list1, _3e3d_1, pretty1, print1, next1, getSource1, compileExpression1, builtin_3f_1, concat1, empty_3f_1, _3c_1, doNodeError_21_2, gsub1, string_3f_1, quoted1, addArgument_21_1, cadr1, exit_21_1, find1, tostring1, succ1, on_21_1, _5e7e_1, removeNth_21_1, coloured1, visitNode1, type_23_1, tonumber1, last1, unpack1, visitBlock1, pushEscapeVar_21_1, getVar1, visitNode3, visitNodes1, doNodeError_21_1, resolveNode1, usage_21_1, map2, constVal1, getenv1, open1, escapeVar1, addParen1, number_3f_1, slice1, apply1, sort1, arg1, compileBlock1, putNodeWarning_21_1, unmangleIdent1, between_3f_1, expectType_21_1, runPass1, split1, pcall1, eq_3f_1, formatOutput_21_1, get1, symbol_2d3e_string1, scoreNodes1, len_23_1, lower1, visitNode4, getmetatable1, match1, any1, makeNil1, expect_21_1, popLast_21_1, formatNode1, sethook1, write1, endBlock_21_1, xpcall1, get_21_1, sentinel1, visitNode2
+local getIdx1, _3d_1, n1, nth1, _2b_1, setIdx_21_1, _2e2e_1, _3c3d_1, type1, append_21_1, car1, error1, _2f3d_1, builtins1, pushCdr_21_1, _2d_1, sub1, line_21_1, format1, self2, _3e_1, list1, _3e3d_1, pretty1, print1, next1, getSource1, compileExpression1, builtin_3f_1, concat1, empty_3f_1, _3c_1, doNodeError_21_2, gsub1, string_3f_1, quoted1, addArgument_21_1, cadr1, exit_21_1, find1, tostring1, succ1, _5e7e_1, on_21_1, removeNth_21_1, visitNode1, coloured1, type_23_1, tonumber1, last1, visitBlock1, unpack1, pushEscapeVar_21_1, doNodeError_21_1, visitNodes1, getVar1, visitNode3, open1, constVal1, map2, resolveNode1, usage_21_1, getenv1, addParen1, escapeVar1, number_3f_1, apply1, slice1, sort1, compileBlock1, arg1, putNodeWarning_21_1, pcall1, split1, expectType_21_1, runPass1, between_3f_1, unmangleIdent1, formatOutput_21_1, get1, symbol_2d3e_string1, any1, len_23_1, scoreNodes1, makeNil1, visitNode4, popLast_21_1, formatNode1, expect_21_1, eq_3f_1, match1, sethook1, lower1, endBlock_21_1, write1, _2f_1, visitNode2, void1, matcher2, traverseNode1
 local _ENV = setmetatable({}, {__index=ENV or (getfenv and getfenv()) or _G}) if setfenv then setfenv(0, _ENV) end
 _3d_1 = function(v1, v2) return v1 == v2 end
 _2f3d_1 = function(v1, v2) return v1 ~= v2 end
@@ -189,17 +189,6 @@ map1 = function(f, x)
 	out["n"] = n1(x)
 	return out
 end
-keys1 = function(x)
-	local out, n = {tag="list", n=0}, 0
-	local temp, _5f_ = next1(x)
-	while temp ~= nil do
-		n = 1 + n
-		out[n] = temp
-		temp, _5f_ = next1(x, temp)
-	end
-	out["n"] = n
-	return out
-end
 put_21_1 = function(t, typs, l)
 	local len = n1(typs)
 	local temp = len - 1
@@ -217,7 +206,8 @@ put_21_1 = function(t, typs, l)
 	t[typs[len]] = l
 	return nil
 end
-local eq_3f_ = setmetatable1({["lookup"]={["list"]={["list"]=function(x, y)
+local eq_3f_
+local tempThis = {["lookup"]={["list"]={["list"]=function(x, y)
 	if n1(x) ~= n1(y) then
 		return false
 	else
@@ -264,69 +254,31 @@ end}, ["rational"]={["rational"]=function(x, y)
 	return xn == yn and xd == yd
 end}}, ["tag"]="multimethod", ["default"]=function(x, y)
 	return false
-end}, {["__call"]=function(tempThis, x, y)
-	local tempMethod
-	local temp = tempThis["lookup"]
-	if temp then
-		local temp1 = temp[type1(x)]
-		if temp1 then
-			tempMethod = temp1[type1(y)] or nil
-		else
-			tempMethod = nil
+end}
+eq_3f_ = setmetatable1(tempThis, {["__call"]=(function()
+	local myself
+	local myself1 = function(x, y)
+		local tempMethod = (tempThis["lookup"][type1(x)] or {})[type1(y)] or tempThis["default"]
+		if not tempMethod then
+			error1("No matching method to call for (" .. concat1(list1("eq?", type1(x), type1(y)), " ") .. ")")
 		end
-	else
-		tempMethod = nil
+		return tempMethod(x, y)
 	end
-	if tempMethod then
-	elseif tempThis["default"] then
-		tempMethod = tempThis["default"]
-	else
-		error1("No matching method to call for (" .. concat1(list1("eq?", type1(x), type1(y)), " ") .. ")\n  " .. (function()
-			if n1((keys1(tempThis["lookup"]))) >= 1 then
-				return "There are methods to call for\n" .. concat1(map1(function(tempKey)
-					return "  - " .. tempKey
-				end, keys1(tempThis["lookup"])), "\n")
-			else
-				return "There are no methods to call."
-			end
-		end)())
-	end
-	return tempMethod(x, y)
-end, ["name"]="eq?", ["args"]=list1("x", "y")})
-put_21_1(eq_3f_, list1("lookup", "number", "rational"), (function(temp)
-	if temp then
-		local temp1 = temp["rational"]
-		if temp1 then
-			return temp1["rational"] or nil
+	myself = function(x, y)
+		if x == y then
+			return true
 		else
-			return nil
+			return myself1(x, y)
 		end
-	else
-		return nil
 	end
-end)(eq_3f_["lookup"]))
-put_21_1(eq_3f_, list1("lookup", "rational", "number"), (function(temp)
-	if temp then
-		local temp1 = temp["rational"]
-		if temp1 then
-			return temp1["rational"] or nil
-		else
-			return nil
-		end
-	else
-		return nil
+	return function(tempThis1, x, y)
+		return myself(x, y)
 	end
-end)(eq_3f_["lookup"]))
+end)(), ["name"]="eq?", ["args"]=list1("x", "y")})
+put_21_1(eq_3f_, list1("lookup", "number", "rational"), (eq_3f_["lookup"]["rational"] or {})["rational"])
+put_21_1(eq_3f_, list1("lookup", "rational", "number"), (eq_3f_["lookup"]["rational"] or {})["rational"])
 eq_3f_1 = eq_3f_
-local original = getmetatable1(eq_3f_1)["__call"]
-getmetatable1(eq_3f_1)["__call"] = function(self, x, y)
-	if x == y then
-		return true
-	else
-		return original(self, x, y)
-	end
-end
-pretty1 = setmetatable1({["lookup"]={["list"]=function(xs)
+local tempThis = {["lookup"]={["list"]=function(xs)
 	return "(" .. concat1(map1(pretty1, xs), " ") .. ")"
 end, ["symbol"]=function(x)
 	return x["contents"]
@@ -361,30 +313,19 @@ end}, ["tag"]="multimethod", ["default"]=function(x)
 	else
 		return tostring1(x)
 	end
-end}, {["__call"]=function(tempThis, x)
-	local tempMethod
-	local temp = tempThis["lookup"]
-	if temp then
-		tempMethod = temp[type1(x)] or nil
-	else
-		tempMethod = nil
+end}
+pretty1 = setmetatable1(tempThis, {["__call"]=(function()
+	local myself = function(x)
+		local tempMethod = tempThis["lookup"][type1(x)] or tempThis["default"]
+		if not tempMethod then
+			error1("No matching method to call for (" .. concat1(list1("pretty", type1(x)), " ") .. ")")
+		end
+		return tempMethod(x)
 	end
-	if tempMethod then
-	elseif tempThis["default"] then
-		tempMethod = tempThis["default"]
-	else
-		error1("No matching method to call for (" .. concat1(list1("pretty", type1(x)), " ") .. ")\n  " .. (function()
-			if n1((keys1(tempThis["lookup"]))) >= 1 then
-				return "There are methods to call for\n" .. concat1(map1(function(tempKey)
-					return "  - " .. tempKey
-				end, keys1(tempThis["lookup"])), "\n")
-			else
-				return "There are no methods to call."
-			end
-		end)())
+	return function(tempThis1, x)
+		return myself(x)
 	end
-	return tempMethod(x)
-end, ["name"]="pretty", ["args"]=list1("x")})
+end)(), ["name"]="pretty", ["args"]=list1("x")})
 abs1 = math.abs
 huge1 = math.huge
 max1 = math.max
@@ -732,7 +673,7 @@ merge1 = function(...)
 	end
 	return out
 end
-keys2 = function(st)
+keys1 = function(st)
 	local out = {tag="list", n=0}
 	local temp, _5f_ = next1(st)
 	while temp ~= nil do
@@ -1400,7 +1341,7 @@ parse_21_1 = function(spec, args)
 							posIdx = posIdx + 1
 						end
 					else
-						local msg = "Unknown argument " .. temp
+						local msg = "Unknown argument " .. any1
 						usage_21_1(spec, (nth1(args, 0)))
 						print1(msg)
 						exit_21_1(1)
@@ -1433,15 +1374,18 @@ parse_21_1 = function(spec, args)
 end
 formatRange1 = function(range)
 	if range["finish"] then
-		return format1("%s:[%s .. %s]", range["name"], (function(pos)
+		return format1("%s:[%s .. %s]", range["name"], (function()
+			local pos = range["start"]
 			return pos["line"] .. ":" .. pos["column"]
-		end)(range["start"]), (function(pos)
+		end)(), (function()
+			local pos = range["finish"]
 			return pos["line"] .. ":" .. pos["column"]
-		end)(range["finish"]))
+		end)())
 	else
-		return format1("%s:[%s]", range["name"], (function(pos)
+		return format1("%s:[%s]", range["name"], (function()
+			local pos = range["start"]
 			return pos["line"] .. ":" .. pos["column"]
-		end)(range["start"]))
+		end)())
 	end
 end
 formatNode1 = function(node)
@@ -1711,9 +1655,10 @@ end
 makeProgn1 = function(body)
 	return {tag="list", n=1, (function()
 		local _offset, _result, _temp = 0, {tag="list"}
-		_result[1 + _offset] = (function(var)
+		_result[1 + _offset] = (function()
+			local var = builtins1["lambda"]
 			return {["tag"]="symbol", ["contents"]=var["name"], ["var"]=var}
-		end)(builtins1["lambda"])
+		end)()
 		_result[2 + _offset] = {tag="list", n=0}
 		_temp = body
 		for _c = 1, _temp.n do _result[2 + _c + _offset] = _temp[_c] end
@@ -1945,18 +1890,23 @@ addDefinition_21_1 = function(state, var, node, kind, value)
 	return pushCdr_21_1(getVar1(state, var)["defs"], {["tag"]=kind, ["node"]=node, ["value"]=value})
 end
 replaceDefinition_21_1 = function(state, var, oldValue, newKind, newValue)
-	local defs = state["usage-vars"][var]["defs"]
-	local temp = n1(defs)
-	local temp1 = 1
-	while temp1 <= temp do
-		local def = defs[temp1]
-		if def["value"] == oldValue then
-			def["tag"] = newKind
-			def["value"] = newValue
+	local varMeta = state["usage-vars"][var]
+	if varMeta then
+		local temp = varMeta["defs"]
+		local temp1 = n1(temp)
+		local temp2 = 1
+		while temp2 <= temp1 do
+			local def = temp[temp2]
+			if def["value"] == oldValue then
+				def["tag"] = newKind
+				def["value"] = newValue
+			end
+			temp2 = temp2 + 1
 		end
-		temp1 = temp1 + 1
+		return nil
+	else
+		return nil
 	end
-	return nil
 end
 populateDefinitions1 = function(state, nodes, visit_3f_)
 	if not visit_3f_ then
@@ -2970,9 +2920,10 @@ condFold1 = {["name"]="cond-fold", ["help"]="Simplify all `cond` nodes, removing
 				elseif temp1 == true then
 					if not builtin_3f_1(car1(elem), "true") then
 						temp["changed"] = temp["changed"] + 1
-						elem[1] = (function(var)
+						elem[1] = (function()
+							local var = builtins1["true"]
 							return {["tag"]="symbol", ["contents"]=var["name"], ["var"]=var}
-						end)(builtins1["true"])
+						end)()
 					end
 					final = true
 					i = i + 1
@@ -3437,9 +3388,10 @@ expressionFold1 = {["name"]="expression-fold", ["help"]="Folds basic variable ac
 					local i = argMap[var]
 					if i then
 						if wrapMap[i] then
-							return {tag="list", n=2, {tag="list", n=3, (function(var1)
+							return {tag="list", n=2, {tag="list", n=3, (function()
+								local var1 = builtins1["lambda"]
 								return {["tag"]="symbol", ["contents"]=var1["name"], ["var"]=var1}
-							end)(builtins1["lambda"]), {tag="list", n=1, {["tag"]="symbol", ["contents"]=var["name"], ["var"]=var}}, {["tag"]="symbol", ["contents"]=var["name"], ["var"]=var}}, nth1(root, i + 1)}
+							end)(), {tag="list", n=1, {["tag"]="symbol", ["contents"]=var["name"], ["var"]=var}}, {["tag"]="symbol", ["contents"]=var["name"], ["var"]=var}}, nth1(root, i + 1)}
 						else
 							return nth1(root, i + 1) or makeNil1()
 						end
@@ -4543,11 +4495,7 @@ visitNode3 = function(lookup, state, node, stmt, test, recur)
 				if visitNode3(lookup, state, nth1(node, 2), stmt, test)["stmt"] then
 					lookup[head] = {["category"]="lambda", ["prec"]=100, ["parens"]=true}
 					visitNode3(lookup, state, nth1(head, 3), true, false)
-					if stmt then
-						cat = {["category"]="call-lambda", ["stmt"]=true}
-					else
-						cat = {["category"]="call"}
-					end
+					cat = {["category"]="call-lambda", ["stmt"]=stmt}
 				else
 					cat = {["category"]="wrap-value"}
 				end
@@ -4575,11 +4523,7 @@ visitNode3 = function(lookup, state, node, stmt, test, recur)
 					if visitNode3(lookup, state, nth1(node, 2), stmt, test)["stmt"] then
 						lookup[head] = {["category"]="lambda", ["prec"]=100, ["parens"]=true}
 						visitNode3(lookup, state, nth1(head, 3), true, test, recur)
-						if stmt then
-							cat = {["category"]="call-lambda", ["stmt"]=true}
-						else
-							cat = {["category"]="call"}
-						end
+						cat = {["category"]="call-lambda", ["stmt"]=stmt}
 					else
 						local res = visitNode3(lookup, state, nth1(head, 3), true, test, recur)
 						local ty, unused_3f_ = res["category"], function()
@@ -4612,13 +4556,11 @@ visitNode3 = function(lookup, state, node, stmt, test, recur)
 						elseif ty == "or" and unused_3f_() then
 							addParen1(lookup, nth1(node, 2), 1)
 							cat = {["category"]="or-lambda", ["prec"]=1, ["kind"]=res["kind"]}
-						elseif stmt then
-							cat = {["category"]="call-lambda", ["stmt"]=true}
 						else
-							cat = {["category"]="call"}
+							cat = {["category"]="call-lambda", ["stmt"]=stmt}
 						end
 					end
-				elseif stmt and builtin_3f_1(car1(head), "lambda") then
+				elseif builtin_3f_1(car1(head), "lambda") then
 					visitNodes1(lookup, state, head, 3, true, test, recur)
 					local temp2 = zipArgs1(cadr1(head), 1, node, 2)
 					local temp3 = n1(temp2)
@@ -4639,7 +4581,7 @@ visitNode3 = function(lookup, state, node, stmt, test, recur)
 						end
 						temp4 = temp4 + 1
 					end
-					cat = {["category"]="call-lambda", ["stmt"]=true}
+					cat = {["category"]="call-lambda", ["stmt"]=stmt}
 				else
 					visitNodes1(lookup, state, node, 1, false)
 					addParen1(lookup, car1(node), 100)
@@ -5034,11 +4976,13 @@ escape1 = function(name)
 		local temp1 = 1
 		while temp1 <= temp do
 			local char = sub1(name, temp1, temp1)
-			if char == "-" and (find1((function(x)
+			if char == "-" and (find1((function()
+				local x = temp1 - 1
 				return sub1(name, x, x)
-			end)(temp1 - 1), "[%a%d']") and find1((function(x)
+			end)(), "[%a%d']") and find1((function()
+				local x = temp1 + 1
 				return sub1(name, x, x)
-			end)(temp1 + 1), "[%a%d']")) then
+			end)(), "[%a%d']")) then
 				upper = true
 			elseif find1(char, "[^%w%d]") then
 				char = format1("%02x", (byte1(char)))
@@ -5921,8 +5865,11 @@ compileExpression1 = function(node, out, state, ret, _ebreak)
 		compileExpression1(nth1(node, 2), out, state)
 		append_21_1(out, ")")
 	elseif catTag == "call-lambda" then
-		if ret == nil then
-			print1(pretty1(node), " marked as call-lambda for ", ret)
+		local empty = ret == nil
+		if empty then
+			ret = "return "
+			line_21_1(out, "(function()")
+			_5e7e_1(out, on_21_1("indent"), succ1)
 		end
 		local head = car1(node)
 		local args = nth1(head, 2)
@@ -5936,6 +5883,10 @@ compileExpression1 = function(node, out, state, ret, _ebreak)
 				popEscapeVar_21_1(arg["var"], state)
 			end
 			temp1 = temp1 + 1
+		end
+		if empty then
+			out["indent"] = out["indent"] - 1
+			append_21_1(out, "end)()")
 		end
 	elseif catTag == "call" then
 		if ret then
@@ -6828,7 +6779,7 @@ end, ["run"]=function(compiler, args)
 	end
 	local handle, error = open1(name, "w")
 	if not handle then
-		self2(compiler["log"], "put-error!", (sprintf1("Cannot open %q (%s)", args["output"] .. ".lua", error)))
+		self2(compiler["log"], "put-error!", (sprintf1("Cannot open %q (%s)", name, error)))
 		exit_21_1(1)
 	end
 	self2(handle, "write", concat1(out["out"]))
@@ -6840,7 +6791,7 @@ end, ["run"]=function(compiler, args)
 	end
 end}
 emitLisp1 = {["name"]="emit-lisp", ["setup"]=function(spec)
-	return addArgument_21_1(spec, {tag="list", n=1, "--emit-lisp"}, "help", "Emit a Lisp file.", "narg", "?", "var", "OUTPUT", "value", false, "cat", "out")
+	return addArgument_21_1(spec, {tag="list", n=1, "--emit-lisp"}, "help", "Emit a Lisp file.", "narg", "?", "var", "OUTPUT", "value", true, "cat", "out")
 end, ["pred"]=function(args)
 	return args["emit-lisp"]
 end, ["run"]=function(compiler, args)
@@ -6904,9 +6855,10 @@ end, ["pred"]=function()
 	return true
 end, ["run"]=passRun1(optimise1, "optimise")}
 formatRange2 = function(range)
-	return format1("%s:%s", range["name"], (function(pos)
+	return format1("%s:%s", range["name"], (function()
+		local pos = range["start"]
 		return pos["line"] .. ":" .. pos["column"]
-	end)(range["start"]))
+	end)())
 end
 sortVars_21_1 = function(list)
 	sort1(list, function(a, b)
@@ -7101,9 +7053,10 @@ lex1 = function(logger, str, name, cont)
 	str = gsub1(str, "\13\n?", "\n")
 	local lines, line, column, offset, length, out = split1(str, "\n"), 1, 1, 1, n1(str), {tag="list", n=0}
 	local consume_21_, range = function()
-		if (function(xs, x)
+		if (function()
+			local xs, x = str, offset
 			return sub1(xs, x, x)
-		end)(str, offset) == "\n" then
+		end)() == "\n" then
 			line = line + 1
 			column = 1
 		else
@@ -7217,9 +7170,10 @@ lex1 = function(logger, str, name, cont)
 		elseif char == "~" then
 			appendWith_21_({["tag"]="quasiquote"}, nil, nil)
 		elseif char == "," then
-			if (function(xs, x)
+			if (function()
+				local xs, x = str, offset + 1
 				return sub1(xs, x, x)
-			end)(str, offset + 1) == "@" then
+			end)() == "@" then
 				local start = {["line"]=line, ["column"]=column, ["offset"]=offset}
 				consume_21_()
 				appendWith_21_({["tag"]="unquote-splice"}, start, nil)
@@ -7233,9 +7187,10 @@ lex1 = function(logger, str, name, cont)
 				local xs, x = str, offset
 				char = sub1(xs, x, x)
 			end
-			if char == "#" and lower1((function(xs, x)
+			if char == "#" and lower1((function()
+				local xs, x = str, offset + 1
 				return sub1(xs, x, x)
-			end)(str, offset + 1)) == "x" then
+			end)()) == "x" then
 				consume_21_()
 				consume_21_()
 				local res = parseBase("hexadecimal", hexDigit_3f_1, 16)
@@ -7243,9 +7198,10 @@ lex1 = function(logger, str, name, cont)
 					res = 0 - res
 				end
 				appendWith_21_({["tag"]="number", ["value"]=res}, start)
-			elseif char == "#" and lower1((function(xs, x)
+			elseif char == "#" and lower1((function()
+				local xs, x = str, offset + 1
 				return sub1(xs, x, x)
-			end)(str, offset + 1)) == "b" then
+			end)()) == "b" then
 				consume_21_()
 				consume_21_()
 				local res = parseBase("binary", binDigit_3f_1, 2)
@@ -7253,9 +7209,10 @@ lex1 = function(logger, str, name, cont)
 					res = 0 - res
 				end
 				appendWith_21_({["tag"]="number", ["value"]=res}, start)
-			elseif char == "#" and lower1((function(xs, x)
+			elseif char == "#" and lower1((function()
+				local xs, x = str, offset + 1
 				return sub1(xs, x, x)
-			end)(str, offset + 1)) == "r" then
+			end)()) == "r" then
 				consume_21_()
 				consume_21_()
 				local res = parseRoman()
@@ -7263,39 +7220,48 @@ lex1 = function(logger, str, name, cont)
 					res = 0 - res
 				end
 				appendWith_21_({["tag"]="number", ["value"]=res}, start)
-			elseif char == "#" and terminator_3f_1(lower1((function(xs, x)
+			elseif char == "#" and terminator_3f_1(lower1((function()
+				local xs, x = str, offset + 1
 				return sub1(xs, x, x)
-			end)(str, offset + 1))) then
+			end)())) then
 				doNodeError_21_1(logger, "Expected hexadecimal (#x), binary (#b), or Roman (#r) digit specifier.", range({["line"]=line, ["column"]=column, ["offset"]=offset}), "The '#' character is used for various number representations, such as binary\nand hexadecimal digits.\n\nIf you're looking for the '#' function, this has been replaced with 'n'. We\napologise for the inconvenience.", range({["line"]=line, ["column"]=column, ["offset"]=offset}), "# must be followed by x, b or r")
 			elseif char == "#" then
 				consume_21_()
 				doNodeError_21_1(logger, "Expected hexadecimal (#x), binary (#b), or Roman (#r) digit specifier.", range({["line"]=line, ["column"]=column, ["offset"]=offset}), "The '#' character is used for various number representations, namely binary,\nhexadecimal and roman numbers.", range({["line"]=line, ["column"]=column, ["offset"]=offset}), "# must be followed by x, b or r")
 			else
-				while between_3f_1((function(xs, x)
+				while between_3f_1((function()
+					local xs, x = str, offset + 1
 					return sub1(xs, x, x)
-				end)(str, offset + 1), "0", "9") or (function(xs, x)
+				end)(), "0", "9") or (function()
+					local xs, x = str, offset + 1
 					return sub1(xs, x, x)
-				end)(str, offset + 1) == "'" do
+				end)() == "'" do
 					consume_21_()
 				end
-				if (function(xs, x)
+				if (function()
+					local xs, x = str, offset + 1
 					return sub1(xs, x, x)
-				end)(str, offset + 1) == "/" then
+				end)() == "/" then
 					local numEnd, _5f_, _5f_1, domStart = {["line"]=line, ["column"]=column, ["offset"]=offset}, consume_21_(), consume_21_(), {["line"]=line, ["column"]=column, ["offset"]=offset}
-					if not (between_3f_1((function(xs, x)
+					if not (between_3f_1((function()
+						local xs, x = str, offset
 						return sub1(xs, x, x)
-					end)(str, offset), "0", "9") or (function(xs, x)
+					end)(), "0", "9") or (function()
+						local xs, x = str, offset
 						return sub1(xs, x, x)
-					end)(str, offset) == "'") then
-						doNodeError_21_1(logger, formatOutput_21_1(nil, "Expected digit, got " .. quoted1((function(xs, x)
+					end)() == "'") then
+						doNodeError_21_1(logger, formatOutput_21_1(nil, "Expected digit, got " .. quoted1((function()
+							local xs, x = str, offset
 							return sub1(xs, x, x)
-						end)(str, offset))), range(domStart), "", range(domStart), "")
+						end)())), range(domStart), "", range(domStart), "")
 					end
-					while between_3f_1((function(xs, x)
+					while between_3f_1((function()
+						local xs, x = str, offset + 1
 						return sub1(xs, x, x)
-					end)(str, offset + 1), "0", "9") or (function(xs, x)
+					end)(), "0", "9") or (function()
+						local xs, x = str, offset + 1
 						return sub1(xs, x, x)
-					end)(str, offset + 1) == "'" do
+					end)() == "'" do
 						consume_21_()
 					end
 					local domEnd, num = {["line"]=line, ["column"]=column, ["offset"]=offset}, tonumber1(gsub1(sub1(str, start["offset"], numEnd["offset"]), "'", ""), 10)
@@ -7308,15 +7274,18 @@ lex1 = function(logger, str, name, cont)
 					end
 					appendWith_21_({["tag"]="rational", ["num"]={["tag"]="number", ["value"]=num, ["range"]=range(start, numEnd)}, ["dom"]={["tag"]="number", ["value"]=dom, ["range"]=range(domStart, domEnd)}}, start)
 				else
-					if (function(xs, x)
+					if (function()
+						local xs, x = str, offset + 1
 						return sub1(xs, x, x)
-					end)(str, offset + 1) == "." then
+					end)() == "." then
 						consume_21_()
-						while between_3f_1((function(xs, x)
+						while between_3f_1((function()
+							local xs, x = str, offset + 1
 							return sub1(xs, x, x)
-						end)(str, offset + 1), "0", "9") or (function(xs, x)
+						end)(), "0", "9") or (function()
+							local xs, x = str, offset + 1
 							return sub1(xs, x, x)
-						end)(str, offset + 1) == "'" do
+						end)() == "'" do
 							consume_21_()
 						end
 					end
@@ -7329,11 +7298,13 @@ lex1 = function(logger, str, name, cont)
 						if char == "-" or char == "+" then
 							consume_21_()
 						end
-						while between_3f_1((function(xs, x)
+						while between_3f_1((function()
+							local xs, x = str, offset + 1
 							return sub1(xs, x, x)
-						end)(str, offset + 1), "0", "9") or (function(xs, x)
+						end)(), "0", "9") or (function()
+							local xs, x = str, offset + 1
 							return sub1(xs, x, x)
-						end)(str, offset + 1) == "'" do
+						end)() == "'" do
 							consume_21_()
 						end
 					end
@@ -7352,9 +7323,10 @@ lex1 = function(logger, str, name, cont)
 					end
 				end)()), range({["line"]=line, ["column"]=column, ["offset"]=offset}), nil, range({["line"]=line, ["column"]=column, ["offset"]=offset}), "Illegal character here. Are you missing whitespace?")
 			end
-		elseif char == "\"" or char == "$" and (function(xs, x)
+		elseif char == "\"" or char == "$" and (function()
+			local xs, x = str, offset + 1
 			return sub1(xs, x, x)
-		end)(str, offset + 1) == "\"" then
+		end)() == "\"" then
 			local start, startCol, buffer, interpolate = {["line"]=line, ["column"]=column, ["offset"]=offset}, column + 1, {tag="list", n=0}, char == "$"
 			if interpolate then
 				consume_21_()
@@ -7415,16 +7387,19 @@ lex1 = function(logger, str, name, cont)
 						if char == "x" or char == "X" then
 							consume_21_()
 							local start2 = offset
-							if not hexDigit_3f_1((function(xs, x)
+							if not hexDigit_3f_1((function()
+								local xs, x = str, offset
 								return sub1(xs, x, x)
-							end)(str, offset)) then
-								digitError_21_1(logger, range({["line"]=line, ["column"]=column, ["offset"]=offset}), "hexadecimal", (function(xs, x)
+							end)()) then
+								digitError_21_1(logger, range({["line"]=line, ["column"]=column, ["offset"]=offset}), "hexadecimal", (function()
+									local xs, x = str, offset
 									return sub1(xs, x, x)
-								end)(str, offset))
+								end)())
 							end
-							if hexDigit_3f_1((function(xs, x)
+							if hexDigit_3f_1((function()
+								local xs, x = str, offset + 1
 								return sub1(xs, x, x)
-							end)(str, offset + 1)) then
+							end)()) then
 								consume_21_()
 							end
 							val = tonumber1(sub1(str, start2, offset), 16)
@@ -7481,9 +7456,10 @@ lex1 = function(logger, str, name, cont)
 				appendWith_21_({["tag"]="string", ["value"]=concat1(buffer)}, start)
 			end
 		elseif char == ";" then
-			while offset <= length and (function(xs, x)
+			while offset <= length and (function()
+				local xs, x = str, offset + 1
 				return sub1(xs, x, x)
-			end)(str, offset + 1) ~= "\n" do
+			end)() ~= "\n" do
 				consume_21_()
 			end
 		else
@@ -8043,7 +8019,8 @@ resolveNode1 = function(node, scope, state, root, many)
 							expectType_21_1(state["logger"], nth1(node, 3), node, "symbol", "alias name of import list")
 						end
 						maxLength_21_1(state["logger"], node, exportIdx, "import")
-						yield1({["tag"]="import", ["module"]=nth1(node, 2)["contents"], ["as"]=as, ["symbols"]=symbols, ["export"]=(function(export)
+						yield1({["tag"]="import", ["module"]=nth1(node, 2)["contents"], ["as"]=as, ["symbols"]=symbols, ["export"]=(function()
+							local export = nth1(node, exportIdx)
 							if export then
 								expectType_21_1(state["logger"], export, node, "key", "import modifier")
 								if export["value"] == "export" then
@@ -8054,7 +8031,7 @@ resolveNode1 = function(node, scope, state, root, many)
 							else
 								return export
 							end
-						end)(nth1(node, exportIdx)), ["scope"]=scope})
+						end)(), ["scope"]=scope})
 						return node
 					elseif func == builtins1["struct-literal"] then
 						if n1(node) % 2 ~= 1 then
@@ -9694,7 +9671,7 @@ writeStats_21_1 = function(compiler, fileName, output)
 		self2(compiler["log"], "put-error!", (formatOutput_21_1(nil, "Cannot open stats file " .. err)))
 		exit_21_1(1)
 	end
-	local names = keys2(output)
+	local names = keys1(output)
 	sort1(names, nil)
 	local temp = n1(names)
 	local temp1 = 1
@@ -9922,7 +9899,13 @@ runLua1 = function(compiler, args)
 		exit_21_1(1)
 	end
 	local out = file1(compiler, false)
-	local lines, logger, name = generateMappings1(out["lines"]), compiler["log"], (args["output"] or "out") .. ".lua"
+	local lines, logger = generateMappings1(out["lines"]), compiler["log"]
+	local name
+	if string_3f_1(args["emit-lua"]) then
+		name = args["emit-lua"]
+	else
+		name = args["output"] .. ".lua"
+	end
 	local temp = list1(load1(concat1(out["out"]), "=" .. name))
 	if type1(temp) == "list" and (n1(temp) >= 2 and (n1(temp) <= 2 and (nth1(temp, 1) == nil and true))) then
 		local msg = nth1(temp, 2)
