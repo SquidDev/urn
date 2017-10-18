@@ -28,7 +28,7 @@
 (import core/base b)
 (import lua/table)
 (import lua/string)
-(import core/type (nil? list? empty? assert-type! exists? falsey? eq? neq? type pretty))
+(import core/type (nil? list? empty? assert-type! exists? falsey? eq? neq? type pretty debug))
 (import lua/math (min max huge))
 
 (defun car (x)
@@ -415,8 +415,8 @@
       (push-cdr! out (nth (nth xss i) idx)))
     out))
 
-(defun push-cdr! (xs val)
-  "Mutate the list XS, adding VAL to its end.
+(defun push-cdr! (xs &vals)
+  "Mutate the list XS, adding VALS to its end.
 
    ### Example:
    ```cl
@@ -427,9 +427,11 @@
    out = (1 2 3 4)
    ```"
   (assert-type! xs list)
-  (let* [(len (+ (n xs) 1))]
+  (let* [(nxs (n xs))
+         (len (+ nxs (n vals)))]
     (set-idx! xs "n" len)
-    (set-idx! xs len val)
+    (for i 1 (n vals) 1
+      (set-idx! xs (+ nxs i) (get-idx vals i)))
     xs))
 
 (defun pop-last! (xs)
