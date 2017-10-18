@@ -9,14 +9,17 @@
  strings, numbers, keys and symbols.
 
  Note that the `true`, `false` and `nil` symbols will match against their
- *values*, whilst other symbols will match against a symbol object.
+ *values*, whilst other symbols will match against a symbol object. Note
+ that using a quoted symbol will match against a list instead. For
+ instance, `'x` will expand to a match against `(quote x)`.
 
  ### Example
  ```cl
  > (with (x 1)
  .   (case x
  .     [1 \"Is 1!\"]
- .     [2 \"Is 2!\"]))
+ .     [x \"Is symbol 'x'!\"]
+ .     [nil \"Is nil :/\"]))
  \"Is 1!\"
  ```
 
@@ -142,14 +145,14 @@
  .    \"Create a function which matches its input against PTRN, returning
  .      `nil` or a list of captured groups.\"
  .    (lambda (str)
- .      (case (string/match str ptrn)
+ .      (case (list (string/match str ptrn))
  .        [(nil) nil]
  .        [?x x])))
 
  > (with (x \"0x23\")
  .   (case x
  .     [((matcher \"0x(%d+)\") -> ?x) x]))
- \"23\"
+ (\"23\")
  ```
 
  You can see the view pattern in use on the last line: we create the view
