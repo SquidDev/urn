@@ -54,4 +54,5 @@
                      opt/variable-fold
                      opt/strip-args
                      opt/lambda-fold
+                     opt/lower-lambda
                      opt/expression-fold) })

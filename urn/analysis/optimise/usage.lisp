@@ -421,3 +421,66 @@
                   false)]
                [_]))]
           [_])))))
+
+(defpass lower-lambda (state node lookup)
+  "Pushes lambda definitions into child nodes, bringing them closer to
+   their use point."
+  :cat '("opt" "usage" "transform-post-bind")
+
+  (let* [(lam (car node))
+         (lam-args (nth lam 2))
+         (arg-offset 1)
+         (val-offset 2)
+         (removed {})]
+    (for-each zipped (zip-args lam-args 1 node 2)
+      (let* [(args (car zipped))
+             (vals (cadr zipped))]
+        (if (and
+              ;; If we've only got one argument and value
+              (= (n args) 1) (= (n vals) 1) (/= (car vals) nil)
+              ;; And the value is a lambda
+              (list? (car vals)) (builtin? (caar vals) :lambda)
+              ;; And we're only used once
+              (= (n (.> (usage/get-var lookup (.> (car args) :var)) :usages)) 1))
+
+          (let [(var (.> (car args) :var))
+                (val (car vals))
+                (users 0)
+                (found nil)]
+
+            ;; So we've found a potential candidate, but we need to do some additional
+            ;; checks and filtering.
+            ;; Firstly, we need to ensure the node that uses this lambda is calling it
+            ;; (and so can be inlined).
+            ;; Additionally, we must ensure that this variable is only used once.
+            ;; Technically the usage information should ensure this, but sadly it isn't
+            ;; guaranteed to be accurate.
+            (visitor/visit-block lam 3
+              (lambda (child)
+                (cond
+                  ;; We've found a call to our variable so set the upvalue.
+                  [(and (list? child) (symbol? (car child)) (= (.> (car child) :var) var))
+                   (set! found child)]
+                  ;; We've found a usage of our variable, so increment the usage count.
+                  [(and (symbol? child) (= (.> child :var) var))
+                   (inc! users)]
+                  [else])
+                ;; A small optimisation: stop if we've got more than one user.
+                (<= users 1)
+                nil))
+
+            (if (and found (= users 1))
+              (progn
+                ;; We've got just one usage, replace it!
+                (changed!)
+                (.<! found 1 val)
+                (remove-nth! lam-args arg-offset)
+                (remove-nth! node val-offset))
+              (progn
+                ;; We're skipping this, more onto the next one
+                (set! arg-offset (+ arg-offset (n args)))
+                (set! val-offset (+ arg-offset (n vals))))))
+          (progn
+            ;; Otherwise we're skipping, so move onto the next set of arguments
+            (set! arg-offset (+ arg-offset (n args)))
+            (set! val-offset (+ arg-offset (n vals)))))))))

@@ -305,4 +305,24 @@
         '(((lambda (x) (set! x 0)
              ((cond
                 [(cond [x x] [true x]) true])))))
+        0)))
+
+  (section "will push lambdas down"
+    (it "when they are used once in a call"
+      (affirm-transform-optimise (list optimise/lower-lambda)
+        '(((lambda (x)
+             (x 1))
+            (lambda (y) (+ y 1))))
+        '(((lambda ()
+             ((lambda (y) (+ y 1)) 1))))
+        1))
+
+    (it "unless they are used multiple times"
+      (affirm-transform-optimise (list optimise/lower-lambda)
+        '(((lambda (x)
+             (x 1) x)
+            (lambda (y) (+ y 1))))
+        '(((lambda (x)
+             (x 1) x)
+            (lambda (y) (+ y 1))))
         0))))
