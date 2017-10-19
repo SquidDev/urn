@@ -13,7 +13,7 @@
 
 (defun extract-signature (var)
   "Attempt to extract the function signature from VAR"
-  (with (ty (type var))
+  (with (ty (.> var :kind))
     (cond
       [(or (= ty "macro") (= ty "defined"))
        (let* [(root (.> var :node))

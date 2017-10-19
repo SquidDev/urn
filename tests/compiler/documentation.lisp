@@ -1,6 +1,8 @@
 (import test ())
 
 (import urn/documentation ())
+(import urn/resolve/loop resolve)
+(import tests/compiler/compiler-helpers ())
 
 (defun teq? (a b)
   "Determine whether tokens A and B are equal."
@@ -16,6 +18,19 @@
   "Create a new token with the given KIND, CONTENTS and WHOLE."
   :hidden
   { :kind kind :contents contents :whole whole })
+
+(defun affirm-signature (node expected)
+  "Affirm the signature of NODE is EXPECTED."
+  :hidden
+  (let* [(compiler (create-compiler))
+         (resolved (resolve/compile
+                     compiler
+                     (wrap-node (list node))
+                     (.> compiler :root-scope)
+                     "init.lisp"))
+         (var (.> (car resolved) :def-var))]
+
+    (affirm (eq? expected (extract-signature var)))))
 
 (describe "The Urn compiler handles documentation"
   (section "which can parse docstrings"
@@ -51,4 +66,25 @@
 
     (it "with links to other code"
       (affirm (teq? (parse-docstring "[[foo]]")
-                    (list (tok "link" "foo" "[[foo]]")))))))
+                    (list (tok "link" "foo" "[[foo]]"))))))
+
+  (section "can extract signatures"
+    (it "for constant definitions"
+      (affirm-signature
+        '(define x 1)
+        nil))
+
+    (it "for lambda definitions"
+      (affirm-signature
+        '(define x (lambda (a b c)))
+        '(a b c)))
+
+    (it "for macros"
+      (affirm-signature
+        '(define-macro x (lambda (a b c)))
+        '(a b c)))
+
+    (it "for native definitions"
+      (affirm-signature
+        '(define-native x)
+        nil))))
