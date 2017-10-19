@@ -18,7 +18,7 @@
     (exit! 1))
 
   (let* [(prefix (.> args :gen-native))
-         (lib (.> compiler :lib-cache (string/gsub (last (.> args :input)) "%.lisp$" "")))
+         (lib (.> compiler :lib-cache (last (.> args :input))))
          (escaped (if (string? prefix) (escape (last (string/split (.> lib :name) "/"))) nil))
          (max-name 0)
          (max-quot 0)

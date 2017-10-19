@@ -219,7 +219,7 @@
       (.<! compiler :compile-state (lua/create-state (.> compiler :lib-meta)))
 
       ;; Set the loader
-      (.<! compiler :loader (lambda (name) (loader/loader compiler name true)))
+      (.<! compiler :loader (cut loader/named-loader compiler <>))
 
       ;; Add globals
       (.<! compiler :global (setmetatable
@@ -233,7 +233,7 @@
 
       (timer/start-timer! (.> compiler :timer) "loading")
       (with (do-load! (lambda (name)
-                        (case (list (xpcall (lambda () (loader/loader compiler name false)) error/traceback))
+                        (case (list (xpcall (lambda () (loader/path-loader compiler name)) error/traceback))
                           ;; Could not resolve any nodes, so just do a pure exit
                           [(false error/resolver-error?) (exit! 1)]
                           ;; Some unknown crash, so fail with that.

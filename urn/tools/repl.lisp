@@ -564,7 +564,7 @@
 
     ;; Import all specified modules if possible
     (for-each input (.> args :input)
-      (with (library (car (loader/loader compiler input false)))
+      (with (library (car (loader/path-loader compiler input)))
         (for-pairs (name var) (.> library :scope :exported)
           (if (.> scope :variables name)
             (scope/import! scope (.. (.> library :name) "/" name) var)

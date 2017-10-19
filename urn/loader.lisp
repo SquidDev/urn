@@ -27,7 +27,9 @@
   "Attempt to open NAME with the various extensions."
   :hidden
   (loop [(i 1)] [(> i (n lisp-extensions))]
-    (or (io/open (.. name (nth lisp-extensions i)) "r") (recur (succ i)))))
+    (if-with (handle (io/open (.. name (nth lisp-extensions i)) "r"))
+      (values-list handle (.. name (nth lisp-extensions i)))
+      (recur (succ i)))))
 
 (defun simplify-path (path paths)
   "Simplify PATH, attempting to reduce it to a named module inside PATHS."
@@ -38,6 +40,15 @@
         (when (and sub (< (n sub) (n current)))
           (set! current sub))))
     current))
+
+(defun strip-extension (path)
+  "Strip file extensions from PATH."
+  (loop [(i 1)]
+    [(> i (n lisp-extensions)) path]
+    (with (suffix (nth lisp-extensions i))
+      (if (string/ends-with? path suffix)
+        (string/sub path 1 (- -1 (n suffix)))
+        (recur (succ i))))))
 
 (defun read-meta (state name entry)
   "Parse a single ENTRY in the library metadata, loading the appropriate data into STATE."
@@ -159,68 +170,82 @@
     (logger/put-verbose! (.> state :log) (.. "Loaded " path " into " name))
     lib))
 
-(defun path-locator (state name)
-  "Searches through the the paths in the compiler STATE, trying to locate a package with NAME.
-
-   If found then it will return the library data, otherwise `nil` and the list of paths searched."
-  :hidden
-  (letrec [(searched '())
-           (paths (.> state :paths))
-           (searcher (lambda (i)
-                       (if (> i (n paths))
-                         (list nil (.. "Cannot find " (string/quoted name) ".\nLooked in " (concat searched ", ")))
-                         ;; For every path, check if we've looked at this already and use it, otherwise
-                         ;; look it up on the filesystem and parse everything.
-                         (let* [(path (string/gsub (nth paths i) "%?" name))
-                                (cached (.> state :lib-cache path))]
-                           (push-cdr! searched path)
-                           (cond
-                             [(= cached nil)
-                              (with (handle (try-handle path))
-                                (if handle
-                                  (progn
-                                    ;; We set this to true to ensure we don't get loops
-                                    (.<! state :lib-cache path true)
-                                    (.<! state :lib-names name true)
-                                    ;; And then we actually load everything
-                                    (with (lib (read-library state (simplify-path path paths) path handle))
-                                      (.<! state :lib-cache path lib)
-                                      (.<! state :lib-names name lib)
-                                      (list lib)))
-                                  (searcher (+ i 1))))]
-                             [(= cached true) (list nil (.. "Already loading " name))]
-                             [true (list cached)])))))]
-    (searcher 1)))
-
-
-(defun loader (state name should-resolve)
+(defun named-loader (state name)
   "Attempt to load NAME using the given compile STATE.
 
-   If SHOULD-RESOLVE is true then we will search the compile path."
-  (if should-resolve
-    (with (cached (.> state :lib-names name))
-      (cond
-        [(= cached nil) (path-locator state name)]
-        [(= cached true) (list nil (.. "Already loading " name))]
-        [true (list cached)]))
-    (with (path name)
-      ;; Attempt to strip various file extensions
-      (loop [(i 1)] [(> i (n lisp-extensions))]
-        (with (suffix (nth lisp-extensions i))
-          (if (string/ends-with? path suffix)
-            (set! name (string/sub name 1 (- -1 (n suffix))))
-            (recur (succ i)))))
+   This will search the compiler's load path for a module with the
+   appropriate name."
+  (with (cached (.> state :lib-names name))
+    (cond
+      [(= cached nil)
+       (.<! state :lib-names name true)
 
-      (case (.> state :lib-cache path)
-        [nil
-         (with (handle (if (= name path) (try-handle name) (io/open path "r")))
-           (if handle
-             (progn
-               ;; Ensure we don't get loops
-               (.<! state :lib-cache name true)
-               (with (lib (read-library state (simplify-path name (.> state :paths)) name handle))
-                 (.<! state :lib-cache name lib)
-                 (list lib)))
-             (list nil (.. "Cannot find " (string/quoted path)))))]
-        [true (list nil (.. "Already loading " name))]
-        [?cached (list cached)]))))
+       (let [(searched '())
+             (paths (.> state :paths))]
+
+         (loop [(i 1)]
+           [(> i (n paths))
+            (list nil (.. "Cannot find " (string/quoted name) ".\nLooked in " (concat searched ", ")))]
+
+           ;; For every path, check if we've looked at this already and use it, otherwise
+           ;; look it up on the filesystem and parse everything.
+           (with (path (string/gsub (nth paths i) "%?" name))
+             (case (path-loader state path)
+               ;; If we've found the library then return
+               [(?lib)
+                (.<! state :lib-names name lib)
+                (list lib)]
+               ;; If we've got an error then propagate it
+               [(false ?msg)
+                (list false msg)]
+               ;; Otherwise look at the next path
+               [(nil _)
+                (push-cdr! searched path)
+                (recur (succ i))]))))]
+      [(= cached true)
+       (list false (.. "Already loading " (string/quoted name)))]
+      [true (list cached)])))
+
+(defun path-loader (state path)
+  "Attempt to load PATH using the given compiler state.
+
+   This will require an exact file name, optionally adding a file
+   extension if needed."
+
+  ;; First attempt to load from the main cache.
+  (case (.> state :lib-cache path)
+    [nil
+     ;; The library doesn't exist, let's try to find it.
+     (let* [(name (strip-extension path))
+            (full-path path)
+            (handle nil)]
+
+       ;; If we've not got a file extension then try to find an appropriate handle
+       (if (= name path)
+         (when-with ((handle' path') (try-handle path))
+           (set! handle handle')
+           (set! full-path path'))
+         (set! handle (io/open path "r")))
+
+       (case (.> state :lib-cache full-path)
+         [nil
+          (if handle
+            (progn
+              ;; Ensure we don't get loops
+              (.<! state :lib-cache path true)
+              (.<! state :lib-cache full-path true)
+              (with (lib (read-library state (simplify-path name (.> state :paths)) name handle))
+                (.<! state :lib-cache path lib)
+                (.<! state :lib-cache full-path lib)
+                (list lib)))
+            (list nil (.. "Cannot find " (string/quoted path))))]
+         [true
+          (when handle (self handle :close))
+          (list false (.. "Already loading " (string/quoted full-path)))]
+         [?cached
+          (when handle (self handle :close))
+          (list cached)]))]
+
+    [true
+     (list false (.. "Already loading " (string/quoted path)))]
+    [?cached (list cached)]))

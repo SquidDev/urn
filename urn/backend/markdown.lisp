@@ -1,8 +1,9 @@
 (import urn/backend/writer writer)
 (import urn/documentation doc)
+(import urn/loader (strip-extension))
 (import urn/range (get-source format-position))
-(import urn/resolve/scope scope)
 (import urn/resolve/builtins (builtins))
+(import urn/resolve/scope scope)
 
 (defun format-range (range)
   "Format a range."
@@ -57,7 +58,7 @@
              (let* [(loc (-> (.> ovar :node)
                              get-source
                              (.> <> :name)
-                             (string/gsub <> "%.lisp$" "")
+                             strip-extension
                              (string/gsub <> "/" ".")))
                     (sig (doc/extract-signature ovar))
                     (hash (cond
