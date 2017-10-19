@@ -3,6 +3,7 @@
 
 (import urn/backend/markdown markdown)
 (import urn/backend/writer writer)
+(import urn/loader (strip-extension))
 (import urn/logger logger)
 
 (defun docs (compiler args)
@@ -11,13 +12,11 @@
     (exit! 1))
 
   (for-each path (.> args :input)
-    (when (= (string/sub path -5) ".lisp") (set! path (string/sub path 1 -6)))
-
     (let* [(lib (.> compiler :lib-cache path))
            (writer (writer/create))]
       (markdown/exported writer (.> lib :name) (.> lib :docs) (.> lib :scope :exported) (.> lib :scope))
 
-      (with (handle (io/open (.. (.> args :docs) "/" (string/gsub path "/" ".") ".md") "w"))
+      (with (handle (io/open (.. (.> args :docs) "/" (string/gsub (strip-extension path) "/" ".") ".md") "w"))
         (self handle :write (writer/->string writer))
         (self handle :close)))))
 

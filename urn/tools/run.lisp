@@ -403,7 +403,7 @@
         (self handle :write path "\n")
         (self handle :write (string/rep "=" 78) "\n")
 
-        (let* [(lib (.> compiler :lib-cache (string/gsub path "%.lisp$" "")))
+        (let* [(lib (.> compiler :lib-cache path))
                (lines (string/split (.> lib :lisp) "\n"))
                (n-lines (n lines))
                (counts (.> stats path))
