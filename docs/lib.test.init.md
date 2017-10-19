@@ -2,7 +2,7 @@
 title: test
 ---
 # test
-## `=:=`
+## `(=:= f g x)`
 *Macro defined at lib/test/check.lisp:141:2*
 
 Express that the functions `F` and `G` are equivalent at the point `X`.
@@ -14,7 +14,7 @@ Example:
 out = true
 ```
 
-## `affirm`
+## `(affirm &asserts)`
 *Macro defined at lib/test/assert.lisp:5:2*
 
 Assert each expression in `ASSERTS` evaluates to true
@@ -34,22 +34,22 @@ printed out.
    5
 ```
 
-## `assert!`
+## `(assert! cnd msg)`
 *Macro defined at lib/test/assert.lisp:1:2*
 
 Assert `CND` is true, otherwise failing with `MSG`
 
-## `can`
+## `(can name &body)`
 *Macro defined at lib/test/init.lisp:77:2*
 
 Create a test whose `BODY` asserts `NAME` can happen
 
-## `cannot`
+## `(cannot name &body)`
 *Macro defined at lib/test/init.lisp:81:2*
 
 Create a test whose `BODY` asserts `NAME` cannot happen
 
-## `check`
+## `(check bindings &props)`
 *Macro defined at lib/test/check.lisp:56:2*
 
 Check a set of properties against a set of random variables 100 times.
@@ -74,16 +74,16 @@ The property is checked against a different set of random values every
 iteration. This library has the ability to generate random numbers,
 strings, symbols, booleans, keys and lists.
 
-## `describe`
+## `(describe name &body)`
 *Macro defined at lib/test/init.lisp:85:2*
 
 Create a group of tests, defined in `BODY`, which test `NAME`
 
-## `forall`
+## `(forall var prop)`
 *Macro defined at lib/test/check.lisp:154:2*
 
 Check that `PROP` holds across all possible points. This is a
-restricted version of [`check`](lib.test.check.md#check) that does not allow specifying
+restricted version of [`check`](lib.test.check.md#check-bindings-props) that does not allow specifying
 several variables.
 
 `VAR` may be either a single, in which case it is interpreted as
@@ -95,24 +95,24 @@ Example:
 out = true
 ```
 
-## `is`
+## `(is name &body)`
 *Macro defined at lib/test/init.lisp:73:2*
 
 Create a test whose `BODY` asserts `NAME` is true
 
-## `it`
+## `(it name &body)`
 *Macro defined at lib/test/init.lisp:32:2*
 
 Create a test `NAME` which executes all expressions and assertions in
 `BODY`
 
-## `may`
+## `(may name &body)`
 *Macro defined at lib/test/init.lisp:60:2*
 
 Create a group of tests defined in `BODY` whose names take the form
 `<prefix> may NAME, and <test_name>`
 
-## `pending`
+## `(pending name &body)`
 *Macro defined at lib/test/init.lisp:46:2*
 
 Create a test `NAME` whose `BODY` will not be run.
@@ -120,13 +120,13 @@ Create a test `NAME` whose `BODY` will not be run.
 This is primarily designed for assertions you know will fail and need
 to be fixed, or features which have not been implemented yet
 
-## `section`
+## `(section name &body)`
 *Macro defined at lib/test/init.lisp:55:2*
 
 Create a group of tests defined in `BODY` whose names take the form
 `<prefix> NAME <test_name>`
 
-## `tripping`
+## `(tripping f g x)`
 *Macro defined at lib/test/check.lisp:122:2*
 
 Express that the composition of the functions `F` and `G` (in order!)
@@ -144,12 +144,12 @@ Example:
 out = true
 ```
 
-## `will`
+## `(will name &body)`
 *Macro defined at lib/test/init.lisp:65:2*
 
 Create a test whose `BODY` asserts `NAME` will happen
 
-## `will-not`
+## `(will-not name &body)`
 *Macro defined at lib/test/init.lisp:69:2*
 
 Create a test whose `BODY` asserts `NAME` will not happen

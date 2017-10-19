@@ -2,13 +2,13 @@
 title: core/type
 ---
 # core/type
-## `assert-type!`
+## `(assert-type! arg ty)`
 *Macro defined at lib/core/type.lisp:118:2*
 
 Assert that the argument `ARG` has type `TY`, as reported by the function
-[`type`](lib.core.type.md#type).
+[`type`](lib.core.type.md#type-val).
 
-## `atom?`
+## `(atom? x)`
 *Defined at lib/core/type.lisp:58:2*
 
 Check whether `X` is an atomic object, that is, one of
@@ -19,29 +19,29 @@ Check whether `X` is an atomic object, that is, one of
 - `A` key
 - `A` function
 
-## `between?`
+## `(between? val min max)`
 *Defined at lib/core/type.lisp:86:2*
 
 Check if the numerical value `X` is between
 `MIN` and `MAX`.
 
-## `boolean?`
+## `(boolean? x)`
 *Defined at lib/core/type.lisp:42:2*
 
 Check whether `X` is a boolean.
 
-## `debug`
-*Macro defined at lib/core/type.lisp:371:2*
+## `(debug x)`
+*Macro defined at lib/core/type.lisp:367:2*
 
 Print the value `X`, then return it unmodified.
 
-## `defalias`
-*Macro defined at lib/core/type.lisp:277:2*
+## `(defalias name other)`
+*Macro defined at lib/core/type.lisp:286:2*
 
 Alias the method at `NAME` to the method at `OTHER`.
 
-## `defdefault`
-*Macro defined at lib/core/type.lisp:259:2*
+## `(defdefault name ll &body)`
+*Macro defined at lib/core/type.lisp:268:2*
 
 Add a default case to the generic method `NAME` with the arguments `LL` and the
 body `BODY`.
@@ -56,8 +56,8 @@ instantiation of the generic method `NAME`. For instance, in
 
 `myself` refers only to the default case of `my-pretty-print`
 
-## `defgeneric`
-*Macro defined at lib/core/type.lisp:160:2*
+## `(defgeneric name ll &attrs)`
+*Macro defined at lib/core/type.lisp:165:2*
 
 Define a generic method called `NAME` with the arguments given in `LL`,
 and the attributes given in `ATTRS`. Note that documentation _must_
@@ -74,8 +74,8 @@ out = nil
 out = "foo"
 ```
 
-## `defmethod`
-*Macro defined at lib/core/type.lisp:227:2*
+## `(defmethod name ll &body)`
+*Macro defined at lib/core/type.lisp:236:2*
 
 Add a case to the generic method `NAME` with the arguments `LL` and the body
 `BODY`. The types of arguments for this specialisation are given in the list
@@ -102,17 +102,17 @@ out = nil
 out = "foo"
 ```
 
-## `empty?`
+## `(empty? x)`
 *Defined at lib/core/type.lisp:18:2*
 
 Check whether `X` is the empty list or the empty string.
 
 ## `eq?`
-*Defined at lib/core/type.lisp:282:2*
+*Defined at lib/core/type.lisp:291:2*
 
 Compare values for equality deeply.
 
-## `eql?`
+## `(eql? x y)`
 *Defined at lib/core/type.lisp:104:2*
 
 `A` version of [`eq?`](lib.core.type.md#eq-) that compares the types of `X` and `Y` instead of
@@ -126,72 +126,72 @@ out = true
 out = false
 ```
 
-## `exists?`
+## `(exists? x)`
 *Defined at lib/core/type.lisp:76:2*
 
 Check if `X` exists, i.e. it is not the special value `nil`.
 Note that, in Urn, `nil` is not the empty list.
 
-## `falsey?`
+## `(falsey? x)`
 *Defined at lib/core/type.lisp:71:2*
 
 Check whether `X` is falsey, that is, it is either `false` or does not
 exist.
 
-## `function?`
+## `(function? x)`
 *Defined at lib/core/type.lisp:48:2*
 
 Check whether `X` is a function.
 
-## `key?`
+## `(key? x)`
 *Defined at lib/core/type.lisp:54:2*
 
 Check whether `X` is a key.
 
-## `list?`
+## `(list? x)`
 *Defined at lib/core/type.lisp:14:2*
 
 Check whether `X` is a list.
 
-## `neq?`
+## `(neq? x y)`
 *Defined at lib/core/type.lisp:99:2*
 
 Compare `X` and `Y` for inequality deeply. `X` and `Y` are `neq?`
 if `([[eq?]] x y)` is falsey.
 
-## `nil?`
+## `(nil? x)`
 *Defined at lib/core/type.lisp:81:2*
 
 Check if `X` does not exist, i.e. it is the special value `nil`.
 Note that, in Urn, `nil` is not the empty list.
 
-## `number?`
+## `(number? x)`
 *Defined at lib/core/type.lisp:32:2*
 
 Check whether `X` is a number.
 
 ## `pretty`
-*Defined at lib/core/type.lisp:339:2*
+*Defined at lib/core/type.lisp:335:2*
 
 Pretty-print a value.
 
-## `string?`
+## `(string? x)`
 *Defined at lib/core/type.lisp:26:2*
 
 Check whether `X` is a string.
 
-## `symbol?`
+## `(symbol? x)`
 *Defined at lib/core/type.lisp:38:2*
 
 Check whether `X` is a symbol.
 
-## `table?`
+## `(table? x)`
 *Defined at lib/core/type.lisp:9:2*
 
 Check whether the value `X` is a table. This might be a structure,
 a list, an associative list, a quoted key, or a quoted symbol.
 
-## `type`
+## `(type val)`
 *Defined at lib/core/type.lisp:91:2*
 
 Return the type of `VAL`.

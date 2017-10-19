@@ -7,7 +7,7 @@ title: compiler/optimise
 
 Register a new fusion rule.
 
-## `fusion/defrule`
+## `(fusion/defrule from to)`
 *Macro defined at lib/compiler/optimise.lisp:5:2*
 
 Define a rewrite rule which maps `FROM` to `TO`.

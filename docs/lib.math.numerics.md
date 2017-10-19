@@ -2,11 +2,6 @@
 title: math/numerics
 ---
 # math/numerics
-## `n%`
-*Defined at lib/math/numerics.lisp:7:2*
-
-Generalised numeric modulus.
-
 ## `n*`
 *Defined at lib/math/numerics.lisp:5:2*
 
@@ -37,30 +32,35 @@ Generalised numeric less-than comparison.
 
 Generalised numeric less-than or equal to comparison.
 
-## `n=`
+## `(n= x y)`
 *Defined at lib/math/numerics.lisp:20:2*
 
 Generalised numeric equality.
 
-## `n>`
+## `(n> x y)`
 *Defined at lib/math/numerics.lisp:18:2*
 
 Generalised numeric greater than.
 
-## `n>=`
+## `(n>= x y)`
 *Defined at lib/math/numerics.lisp:19:2*
 
 Generalised numeric greater than or equal to.
-
-## `n^`
-*Defined at lib/math/numerics.lisp:8:2*
-
-Generalised numeric exponentiation.
 
 ## `nabs`
 *Defined at lib/math/numerics.lisp:16:2*
 
 Generalised numeric absolute value.
+
+## `nexpt`
+*Defined at lib/math/numerics.lisp:8:2*
+
+Generalised numeric exponentiation.
+
+## `nmod`
+*Defined at lib/math/numerics.lisp:7:2*
+
+Generalised numeric modulus.
 
 ## `nnegate`
 *Defined at lib/math/numerics.lisp:14:2*

@@ -26,7 +26,7 @@ out = true
 
 Determine whether the specified `NODE` is a constant.
 
-## `fix-symbol`
+## `(fix-symbol symbol)`
 *Defined at lib/compiler/nodes.lisp:38:2*
 
 Convert the quasi-quoted `SYMBOL` into a fully resolved one.

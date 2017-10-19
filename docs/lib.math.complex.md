@@ -2,10 +2,10 @@
 title: math/complex
 ---
 # math/complex
-## `->polar`
+## `(->polar z)`
 *Defined at lib/math/complex.lisp:103:2*
 
-Get the [`magnitude`](lib.math.complex.md#magnitude) and [`angle`](lib.math.complex.md#angle) of complex number `Z`.
+Get the [`magnitude`](lib.math.complex.md#magnitude-z) and [`angle`](lib.math.complex.md#angle-z) of complex number `Z`.
 
 ### Example
 ```cl
@@ -15,13 +15,13 @@ out = 5
 out = 45
  ```
 
-## `angle`
+## `(angle z)`
 *Defined at lib/math/complex.lisp:149:2*
 
 Get the angle of complex number `Z`.
 
-If you need the [`magnitude`](lib.math.complex.md#magnitude) as well, one should probably use
-[`->polar`](lib.math.complex.md#-polar).
+If you need the [`magnitude`](lib.math.complex.md#magnitude-z) as well, one should probably use
+[`->polar`](lib.math.complex.md#-polar-z).
 
 ### Example
 ```cl
@@ -32,10 +32,10 @@ out = 45
 ## `complex`
 *Defined at lib/math/complex.lisp:16:2*
 
-Represents a complex number, formed of a [`real`](lib.math.complex.md#real) and [`imaginary`](lib.math.complex.md#imaginary)
+Represents a complex number, formed of a [`real`](lib.math.complex.md#real-r-) and [`imaginary`](lib.math.complex.md#imaginary-r-)
 part.
 
-## `conjugate`
+## `(conjugate z)`
 *Defined at lib/math/complex.lisp:91:2*
 
 Get the complex conjugate of `Z`.
@@ -46,18 +46,18 @@ Get the complex conjugate of `Z`.
 out = 1-2i
 ```
 
-## `imaginary`
+## `(imaginary r_1192)`
 *Defined at lib/math/complex.lisp:16:2*
 
 The imaginary part of this [`complex`](lib.math.complex.md#complex) number.
 
-## `magnitude`
+## `(magnitude z)`
 *Defined at lib/math/complex.lisp:135:2*
 
 Get the magnitude of complex number `Z`.
 
-If you need the [`angle`](lib.math.complex.md#angle) as well, one should probably use
-[`->polar`](lib.math.complex.md#-polar).
+If you need the [`angle`](lib.math.complex.md#angle-z) as well, one should probably use
+[`->polar`](lib.math.complex.md#-polar-z).
 
 ### Example
 ```cl
@@ -65,7 +65,7 @@ If you need the [`angle`](lib.math.complex.md#angle) as well, one should probabl
 out = 5
 ```
 
-## `polar->`
+## `(polar-> magnitude angle)`
 *Defined at lib/math/complex.lisp:122:2*
 
 Create a complex number from the given `MAGNITUDE` and `ANGLE`.
@@ -76,11 +76,11 @@ Create a complex number from the given `MAGNITUDE` and `ANGLE`.
 out = 1+1i
 ```
 
-## `real`
+## `(real r_1190)`
 *Defined at lib/math/complex.lisp:16:2*
 
 The real part of this [`complex`](lib.math.complex.md#complex) number.
 
 ## Undocumented symbols
  - `$complex` *Defined at lib/math/complex.lisp:16:2*
- - `complex?` *Defined at lib/math/complex.lisp:16:2*
+ - `(complex? r_1189)` *Defined at lib/math/complex.lisp:16:2*

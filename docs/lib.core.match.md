@@ -9,25 +9,28 @@ well as binding multiple values.
 
 ## Literal patterns
 `A` literal pattern matches only if the scrutinee (what's being matched)
-compares [`eql?`](lib.core.type.md#eql-) to the literal. One can use any Urn atom here:
+compares [`eql?`](lib.core.type.md#eql-x-y) to the literal. One can use any Urn atom here:
 strings, numbers, keys and symbols.
 
 Note that the `true`, `false` and `nil` symbols will match against their
-*values*, whilst other symbols will match against a symbol object.
+*values*, whilst other symbols will match against a symbol object. Note
+that using a quoted symbol will match against a list instead. For
+instance, `'x` will expand to a match against `(quote x)`.
 
 ### Example
 ```cl
 > (with (x 1)
 .   (case x
 .     [1 "Is 1!"]
-.     [2 "Is 2!"]))
+.     [x "Is symbol 'x'!"]
+.     [nil "Is nil :/"]))
 "Is 1!"
 ```
 
 ### Wildcards and captures
 If one does not require a value to take a particular form, you can use a
 wildcard (`_` or `else`). This will match anything, discarding its value. This
-is often useful as the last expression in a [`case`](lib.core.match.md#case), where you need to
+is often useful as the last expression in a [`case`](lib.core.match.md#case-val-pts), where you need to
 handle any remaining forms.
 
 If you wish to use this value, you should use a capture, or
@@ -146,55 +149,55 @@ value against a pattern.
 .    "Create a function which matches its input against PTRN, returning
 .      `nil` or a list of captured groups."
 .    (lambda (str)
-.      (case (string/match str ptrn)
+.      (case (list (string/match str ptrn))
 .        [(nil) nil]
 .        [?x x])))
 
 > (with (x "0x23")
 .   (case x
 .     [((matcher "0x(%d+)") -> ?x) x]))
-"23"
+("23")
 ```
 
 You can see the view pattern in use on the last line: we create the view
 with `(matcher "0x(%d+)")`, apply it to `x` and then match the
 returned value (`("23")`) against the `?x` pattern.
 
-### The [`case`](lib.core.match.md#case) expression
+### The [`case`](lib.core.match.md#case-val-pts) expression
 
 Bodies in case may be either of the form `[pattern exps]` or
 `[pattern => exps]`. In the latter case, the form matched against is
 bound, in its entirety, to the variable `it`.
 
-## `case`
-*Macro defined at lib/core/match.lisp:403:2*
+## `(case val &pts)`
+*Macro defined at lib/core/match.lisp:406:2*
 
 Match a single value against a series of patterns, evaluating the
 first body that matches, much like `cond`.
 
-## `destructuring-bind`
-*Macro defined at lib/core/match.lisp:386:2*
+## `(destructuring-bind pt &body)`
+*Macro defined at lib/core/match.lisp:389:2*
 
 Match a single pattern against a single value, then evaluate the `BODY`.
 
 The pattern is given as `(car PT)` and the value as `(cadr PT)`.  If
 the pattern does not match, an error is thrown.
 
-## `function`
-*Macro defined at lib/core/match.lisp:464:2*
+## `(function &arms)`
+*Macro defined at lib/core/match.lisp:467:2*
 
 Create a lambda which matches its arguments against the patterns
 defined in `ARMS`.
 
-## `handler-case`
-*Macro defined at lib/core/match.lisp:434:2*
+## `(handler-case x &body)`
+*Macro defined at lib/core/match.lisp:437:2*
 
 Evaluate the form `X`, and if an error happened, match the series
 of `(?pattern . ?body)` arms given in `BODY` against the value of
 the error, executing the first that succeeeds.
 
 In the case that `X` does not throw an error, the value of that
-expression is returned by [`handler-case`](lib.core.match.md#handler-case).
+expression is returned by [`handler-case`](lib.core.match.md#handler-case-x-body).
 
 ### Example:
 
@@ -207,17 +210,17 @@ oh no!
 out = nil
 ```
 
-## `if-match`
-*Macro defined at lib/core/match.lisp:479:2*
+## `(if-match cs t e)`
+*Macro defined at lib/core/match.lisp:482:2*
 
 Matches a pattern against a value defined in `CS`, evaluating `T` with the
 captured variables in scope if the pattern succeeded, otherwise
 evaluating `E`.
 
-[`if-match`](lib.core.match.md#if-match) is to [`case`](lib.core.match.md#case) what [`if`](lib.core.base.md#if) is to `cond`.
+[`if-match`](lib.core.match.md#if-match-cs-t-e) is to [`case`](lib.core.match.md#case-val-pts) what [`if`](lib.core.base.md#if-c-t-b) is to `cond`.
 
-## `matches?`
-*Macro defined at lib/core/match.lisp:424:2*
+## `(matches? pt x)`
+*Macro defined at lib/core/match.lisp:427:2*
 
 Test if the value `X` matches the pattern `PT`.
 

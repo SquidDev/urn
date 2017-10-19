@@ -3,7 +3,6 @@ title: lua/basic
 ---
 # lua/basic
 ## Undocumented symbols
- - `%` *Native defined at lib/lua/basic.lisp:12:1*
  - `*` *Native defined at lib/lua/basic.lisp:10:1*
  - `+` *Native defined at lib/lua/basic.lisp:8:1*
  - `-` *Native defined at lib/lua/basic.lisp:9:1*
@@ -15,7 +14,6 @@ title: lua/basic
  - `=` *Native defined at lib/lua/basic.lisp:1:1*
  - `>` *Native defined at lib/lua/basic.lisp:5:1*
  - `>=` *Native defined at lib/lua/basic.lisp:6:1*
- - `^` *Native defined at lib/lua/basic.lisp:13:1*
  - `_ENV` *Native defined at lib/lua/basic.lisp:17:1*
  - `_G` *Native defined at lib/lua/basic.lisp:16:1*
  - `arg#` *Native defined at lib/lua/basic.lisp:18:1*
@@ -23,12 +21,14 @@ title: lua/basic
  - `collectgarbage` *Native defined at lib/lua/basic.lisp:22:1*
  - `dofile` *Native defined at lib/lua/basic.lisp:23:1*
  - `error` *Native defined at lib/lua/basic.lisp:24:1*
+ - `expt` *Native defined at lib/lua/basic.lisp:13:1*
  - `get-idx` *Native defined at lib/lua/basic.lisp:34:1*
  - `getmetatable` *Native defined at lib/lua/basic.lisp:25:1*
  - `ipairs` *Native defined at lib/lua/basic.lisp:26:1*
  - `len#` *Native defined at lib/lua/basic.lisp:19:1*
  - `load` *Native defined at lib/lua/basic.lisp:27:1*
  - `loadfile` *Native defined at lib/lua/basic.lisp:28:1*
+ - `mod` *Native defined at lib/lua/basic.lisp:12:1*
  - `next` *Native defined at lib/lua/basic.lisp:29:1*
  - `pairs` *Native defined at lib/lua/basic.lisp:30:1*
  - `pcall` *Native defined at lib/lua/basic.lisp:31:1*

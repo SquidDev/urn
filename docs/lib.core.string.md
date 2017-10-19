@@ -2,7 +2,7 @@
 title: core/string
 ---
 # core/string
-## `$`
+## `($ str)`
 *Macro defined at lib/core/string.lisp:122:2*
 
 Perform interpolation (variable substitution) on the string `STR`.
@@ -21,7 +21,7 @@ value in directly.
 out = "1 = 1"
 ```
 
-## `char-at`
+## `(char-at xs x)`
 *Defined at lib/core/string.lisp:10:2*
 
 Index the string `XS`, returning the character at position `X`.
@@ -32,7 +32,7 @@ Index the string `XS`, returning the character at position `X`.
 out = "f"
 ```
 
-## `ends-with?`
+## `(ends-with? str suffix)`
 *Defined at lib/core/string.lisp:104:2*
 
 Determine whether `STR` ends with `SUFFIX`.
@@ -54,7 +54,7 @@ Quote the string `STR` so it is suitable for printing.
 out = "\"\\n\""
 ```
 
-## `split`
+## `(split text pattern limit)`
 *Defined at lib/core/string.lisp:20:2*
 
 Split the string given by `TEXT` in at most `LIMIT` components, which are
@@ -71,7 +71,7 @@ out = ("foo" "bar" "baz")
 out = ("foo" "bar-baz")
 ```
 
-## `starts-with?`
+## `(starts-with? str prefix)`
 *Defined at lib/core/string.lisp:94:2*
 
 Determine whether `STR` starts with `PREFIX`.
@@ -82,7 +82,7 @@ Determine whether `STR` starts with `PREFIX`.
 out = true
 ```
 
-## `trim`
+## `(trim str)`
 *Defined at lib/core/string.lisp:64:2*
 
 Remove whitespace from both sides of `STR`.

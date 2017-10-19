@@ -2,7 +2,7 @@
 title: data/function
 ---
 # data/function
-## `->`
+## `(-> x &funcs)`
 *Macro defined at lib/data/function.lisp:51:2*
 
 Chain a series of method calls together. If the list contains `<>`
@@ -17,17 +17,17 @@ with the previous entry as an argument.
 out = (4 6 8)
 ```
 
-## `as-is`
+## `(as-is x)`
 *Defined at lib/data/function.lisp:120:2*
 
 Return the value `X` unchanged.
 
-## `call`
+## `(call x key &args)`
 *Defined at lib/data/function.lisp:138:2*
 
 Index `X` with `KEY` and invoke the resulting function with `ARGS`.
 
-## `comp`
+## `(comp &fs)`
 *Defined at lib/data/function.lisp:104:2*
 
 Return the pointwise composition of all functions in `FS`.
@@ -39,7 +39,7 @@ Return the pointwise composition of all functions in `FS`.
 out = 7
 ```
 
-## `compose`
+## `(compose f g)`
 *Defined at lib/data/function.lisp:90:2*
 
 Return the pointwise composition of functions `F` and `G`.
@@ -51,7 +51,7 @@ Return the pointwise composition of functions `F` and `G`.
 out = 6
 ```
 
-## `const`
+## `(const x)`
 *Defined at lib/data/function.lisp:124:2*
 
 Return a function which always returns `X`. This is equivalent to the
@@ -66,7 +66,7 @@ out = 1
 out = 1
 ```
 
-## `cut`
+## `(cut &func)`
 *Macro defined at lib/data/function.lisp:8:2*
 
 Partially apply a function `FUNC`, where each `<>` is replaced by an
@@ -80,7 +80,7 @@ function is called.
 out = 6
 ```
 
-## `cute`
+## `(cute &func)`
 *Macro defined at lib/data/function.lisp:29:2*
 
 Partially apply a function `FUNC`, where each `<>` is replaced by an
@@ -94,12 +94,12 @@ defined.
 out = 6
 ```
 
-## `id`
+## `(id x)`
 *Defined at lib/data/function.lisp:116:2*
 
 Return the value `X` unmodified.
 
-## `invokable?`
+## `(invokable? x)`
 *Defined at lib/data/function.lisp:72:2*
 
 Test if the expression `X` makes sense as something that can be applied
@@ -115,12 +115,12 @@ out = false
 out = true
 ```
 
-## `self`
+## `(self x key &args)`
 *Defined at lib/data/function.lisp:142:2*
 
 Index `X` with `KEY` and invoke the resulting function with `X` and `ARGS`.
 
-## `slot?`
+## `(slot? symb)`
 *Defined at lib/data/function.lisp:3:2*
 
 Test whether `SYMB` is a slot. For this, it must be a symbol, whose

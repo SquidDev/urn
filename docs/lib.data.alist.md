@@ -2,7 +2,7 @@
 title: data/alist
 ---
 # data/alist
-## `assoc`
+## `(assoc list key or-val)`
 *Defined at lib/data/alist.lisp:3:2*
 
 Return the value given by `KEY` in the association list `LIST`, or, in the
@@ -16,11 +16,11 @@ out = 1
 out = "?"
 ```
 
-## `assoc->struct`
+## `(assoc->struct list)`
 *Defined at lib/data/alist.lisp:72:2*
 
 Convert the association list `LIST` into a structure. Much like
-[`assoc`](lib.data.alist.md#assoc), in the case there are several values bound to the same key,
+[`assoc`](lib.data.alist.md#assoc-list-key-or-val), in the case there are several values bound to the same key,
 the first value is chosen.
 
 ### Example:
@@ -29,7 +29,7 @@ the first value is chosen.
 out = {"a" 1}
 ```
 
-## `assoc?`
+## `(assoc? list key)`
 *Defined at lib/data/alist.lisp:22:2*
 
 Check that `KEY` is bound in the association list `LIST`.
@@ -42,7 +42,7 @@ out = true
 out = false
 ```
 
-## `extend`
+## `(extend ls key val)`
 *Defined at lib/data/alist.lisp:48:2*
 
 Extend the association list `LIST`_ by inserting `VAL`, bound to the key
@@ -54,7 +54,7 @@ Extend the association list `LIST`_ by inserting `VAL`, bound to the key
 out = (("bar" 2) ("foo" 1))
 ```
 
-## `insert`
+## `(insert alist key val)`
 *Defined at lib/data/alist.lisp:37:2*
 
 Extend the association list `ALIST` by inserting `VAL`, bound to the key
@@ -66,7 +66,7 @@ Extend the association list `ALIST` by inserting `VAL`, bound to the key
 out = (("foo" 1) ("bar" 2))
 ```
 
-## `insert!`
+## `(insert! alist key val)`
 *Defined at lib/data/alist.lisp:59:2*
 
 Extend the association list `ALIST` in place by inserting `VAL`, bound to
@@ -80,7 +80,7 @@ the key `KEY`.
 out = (("foo" 1) ("bar" 2))
 ```
 
-## `struct->assoc`
+## `(struct->assoc tbl)`
 *Defined at lib/data/alist.lisp:92:2*
 
 Convert the structure `TBL` into an association list. Note that

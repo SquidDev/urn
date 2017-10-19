@@ -2,7 +2,7 @@
 title: luajit/ffi
 ---
 # luajit/ffi
-## `defun-ffi`
+## `(defun-ffi name typedecl)`
 *Macro defined at lib/luajit/ffi.lisp:22:2*
 
 Define the external symbol `NAME` with the `C` type signature

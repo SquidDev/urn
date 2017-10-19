@@ -2,7 +2,7 @@
 title: math/matrix
 ---
 # math/matrix
-## `echelon`
+## `(echelon matrix)`
 *Defined at lib/math/matrix.lisp:128:2*
 
 Reduce the given `MATRIX` to row echelon form.
@@ -15,12 +15,12 @@ Reduce the given `MATRIX` to row echelon form.
 out = [1 1.25 1.5 // 0 1 2]
 ```
 
-## `height`
+## `(height r_1380)`
 *Defined at lib/math/matrix.lisp:6:2*
 
 The height of this matrix.
 
-## `identity`
+## `(identity dim)`
 *Defined at lib/math/matrix.lisp:32:2*
 
 Create the identity matrix with the given `DIM`.
@@ -31,7 +31,7 @@ Create the identity matrix with the given `DIM`.
 out = [1 0 // 0 1]
 ```
 
-## `invert`
+## `(invert matrix)`
 *Defined at lib/math/matrix.lisp:206:2*
 
 Invert the provided `MATRIX`.
@@ -44,7 +44,7 @@ Invert the provided `MATRIX`.
 out = [-2 1 // 1.5 -0.5]
 ```
 
-## `matrix`
+## `(matrix width height &items)`
 *Defined at lib/math/matrix.lisp:13:2*
 
 Create a new matrix with the given `WIDTH` and `HEIGHT`.
@@ -57,7 +57,7 @@ Create a new matrix with the given `WIDTH` and `HEIGHT`.
 out = [1 2 // 3 4]
 ```
 
-## `matrix-item`
+## `(matrix-item matrix y x)`
 *Defined at lib/math/matrix.lisp:48:2*
 
 Get the item in the provided `MATRIX` at `Y` `X`.
@@ -71,7 +71,7 @@ Get the item in the provided `MATRIX` at `Y` `X`.
 out = 3
 ```
 
-## `reduced-echelon`
+## `(reduced-echelon matrix)`
 *Defined at lib/math/matrix.lisp:179:2*
 
 Reduce the given `MATRIX` to reduced row echelon form.
@@ -84,11 +84,11 @@ Reduce the given `MATRIX` to reduced row echelon form.
 out = [1 1.25 1.5 // 0 1 2]
 ```
 
-## `width`
+## `(width r_1378)`
 *Defined at lib/math/matrix.lisp:6:2*
 
 The width of this matrix.
 
 ## Undocumented symbols
  - `$matrix` *Defined at lib/math/matrix.lisp:6:2*
- - `matrix?` *Defined at lib/math/matrix.lisp:6:2*
+ - `(matrix? r_1377)` *Defined at lib/math/matrix.lisp:6:2*

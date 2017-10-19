@@ -2,7 +2,7 @@
 title: io
 ---
 # io
-## `append-all!`
+## `(append-all! path data)`
 *Defined at lib/io/init.lisp:103:2*
 
 Appends the string `DATA` to the file at `PATH`.
@@ -15,7 +15,7 @@ Returns true if it succeeded or false if it failed.
 out = true
 ```
 
-## `append-bytes!`
+## `(append-bytes! path data)`
 *Defined at lib/io/init.lisp:128:2*
 
 Appends the bytes (list of numbers) `DATA` to the file at `PATH`.
@@ -29,7 +29,7 @@ or false if it failed.
 out = true
 ```
 
-## `append-lines!`
+## `(append-lines! path data)`
 *Defined at lib/io/init.lisp:115:2*
 
 Appends the lines (list of strings) `DATA` to the file at `PATH`.
@@ -43,7 +43,7 @@ or false if it failed.
 out = true
 ```
 
-## `read-all!`
+## `(read-all! path)`
 *Defined at lib/io/init.lisp:9:2*
 
 Reads the data from the file at `PATH` and returns it as a string.
@@ -55,7 +55,7 @@ Returns nil if it failed.
 out = "Hello, world!"
 ```
 
-## `read-bytes!`
+## `(read-bytes! path)`
 *Defined at lib/io/init.lisp:32:2*
 
 Reads the data from the file at `PATH` and returns it as a list of bytes
@@ -67,7 +67,7 @@ Reads the data from the file at `PATH` and returns it as a list of bytes
 out = (97 98 99)
 ```
 
-## `read-lines!`
+## `(read-lines! path)`
 *Defined at lib/io/init.lisp:20:2*
 
 Reads the lines from the file at `PATH` and returns it as a list of strings.
@@ -79,7 +79,7 @@ Returns nil if it failed.
 out = ("This is the first line." "This is the second.")
 ```
 
-## `write-all!`
+## `(write-all! path data)`
 *Defined at lib/io/init.lisp:59:2*
 
 Writes the string `DATA` to the file at `PATH`.
@@ -93,7 +93,7 @@ does. Returns true if it succeeded or false if it failed.
 out = true
 ```
 
-## `write-bytes!`
+## `(write-bytes! path data)`
 *Defined at lib/io/init.lisp:85:2*
 
 Writes the bytes (list of numbers) `DATA` to the file at `PATH`.
@@ -107,7 +107,7 @@ does. Returns true if it succeeded or false if it failed.
 out = true
 ```
 
-## `write-lines!`
+## `(write-lines! path data)`
 *Defined at lib/io/init.lisp:72:2*
 
 Writes the lines (list of strings) `DATA` to the file at `PATH`.

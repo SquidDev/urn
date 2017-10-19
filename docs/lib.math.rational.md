@@ -2,7 +2,7 @@
 title: math/rational
 ---
 # math/rational
-## `->float`
+## `(->float y)`
 *Defined at lib/math/rational.lisp:57:2*
 
 Convert the rational number `Y` to a floating-point number.
@@ -13,7 +13,7 @@ Convert the rational number `Y` to a floating-point number.
 out = 1.5
 ```
 
-## `->rat`
+## `(->rat y)`
 *Defined at lib/math/rational.lisp:44:2*
 
 Convert the floating-point number `Y` to a rational number.
@@ -26,12 +26,12 @@ out = 157/50
 out = 3.14
 ```
 
-## `denominator`
+## `(denominator r_1271)`
 *Defined at lib/math/rational.lisp:7:2*
 
 The rational's denumerator
 
-## `numerator`
+## `(numerator r_1269)`
 *Defined at lib/math/rational.lisp:7:2*
 
 The rational's numerator
@@ -43,4 +43,4 @@ The rational's numerator
 
 ## Undocumented symbols
  - `$rational` *Defined at lib/math/rational.lisp:7:2*
- - `rational?` *Defined at lib/math/rational.lisp:7:2*
+ - `(rational? r_1268)` *Defined at lib/math/rational.lisp:7:2*

@@ -17,7 +17,7 @@ Get the node currently being resolved.
 
 Get the scope of the node currently being resolved.
 
-## `reify`
+## `(reify x)`
 *Defined at lib/compiler/resolve.lisp:49:2*
 
 Return the definition of the _symbol_ (not variable) `X`, returning

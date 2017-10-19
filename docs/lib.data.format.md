@@ -2,7 +2,7 @@
 title: data/format
 ---
 # data/format
-## `format`
+## `(format out str &args)`
 *Macro defined at lib/data/format.lisp:120:2*
 
 Output the string `STR` formatted against `ARGS` to the stream `OUT`. In
@@ -18,7 +18,7 @@ both a _reference_ (what's to be output) and a _formatter_ (how to
 - If the reference starts with `#`, it is an implicit named symbol
 (something in scope, and not passed explicitly).
 - If the reference starts with an alphabetic character, it is
-_named_: something given to the [`format`](lib.data.format.md#format) macro explicitly, as a
+_named_: something given to the [`format`](lib.data.format.md#format-out-str-args) macro explicitly, as a
 keyword argument.
 - If the reference starts with `$`, it is a positional argument.
 

@@ -2,11 +2,40 @@
 title: core/binders
 ---
 # core/binders
-## `let`
+## `(if-let vars then else)`
+*Macro defined at lib/core/binders.lisp:134:2*
+
+Evaluate `THEN` or `ELSE`, depending on the truthiness of all variables
+bound (as per [`let`](lib.core.binders.md#let-vars-body)) in `VARS`.
+
+### Example
+```cl
+> (if-let [(a 1)
+.          (b false)]
+.   b
+.   a)
+out = 1
+```
+
+## `(if-with var then else)`
+*Macro defined at lib/core/binders.lisp:152:2*
+
+Bind the pair `VAR` of the form `(name value)`, evaluating `THEN` if the
+value is truthy or `ELSE` if not.
+
+### Example
+```cl
+> (if-with ((a b c) (values-list false 1 2))
+.   a
+.   (+ b c))
+out = 3
+```
+
+## `(let vars &body)`
 *Macro defined at lib/core/binders.lisp:55:2*
 
 Bind several variables (given in `VARS`), then evaluate `BODY`.
-In contrast to [`let*`](lib.core.binders.md#let-), variables bound with [`let`](lib.core.binders.md#let) can not refer
+In contrast to [`let*`](lib.core.binders.md#let-vars-body), variables bound with [`let`](lib.core.binders.md#let-vars-body) can not refer
 to each other.
 
 ### Example
@@ -17,11 +46,11 @@ to each other.
 out = 3
 ```
 
-## `let*`
+## `(let* vars &body)`
 *Macro defined at lib/core/binders.lisp:30:2*
 
 Bind several variables (given in `VARS`), then evaluate `BODY`.
-Variables bound with [`let*`](lib.core.binders.md#let-) can refer to variables bound
+Variables bound with [`let*`](lib.core.binders.md#let-vars-body) can refer to variables bound
 previously, as they are evaluated in order.
 
 ### Example
@@ -32,8 +61,8 @@ previously, as they are evaluated in order.
 out = 2
 ```
 
-## `letrec`
-*Macro defined at lib/core/binders.lisp:142:2*
+## `(letrec vars &body)`
+*Macro defined at lib/core/binders.lisp:177:2*
 
 Bind several variables (given in `VARS`), which may be recursive.
 
@@ -49,8 +78,8 @@ Bind several variables (given in `VARS`), which may be recursive.
 out = true
 ```
 
-## `loop`
-*Macro defined at lib/core/binders.lisp:190:2*
+## `(loop vs test &body)`
+*Macro defined at lib/core/binders.lisp:225:2*
 
 `A` general iteration helper.
 
@@ -80,8 +109,8 @@ in `VS` and reiterates.
 out = (3 2 1)
 ```
 
-## `use`
-*Macro defined at lib/core/binders.lisp:166:2*
+## `(use var &body)`
+*Macro defined at lib/core/binders.lisp:201:2*
 
 Bind each variable in `VAR`, checking for truthyness between bindings,
 execute `BODY`, then run a finaliser for all the variables bound by
@@ -102,10 +131,10 @@ Hello, world!
 out = true
 ```
 
-## `when-let`
+## `(when-let vars &body)`
 *Macro defined at lib/core/binders.lisp:71:2*
 
-Bind `VARS`, as with [`let`](lib.core.binders.md#let), and check they are all truthy before
+Bind `VARS`, as with [`let`](lib.core.binders.md#let-vars-body), and check they are all truthy before
 evaluating `BODY`.
 
 ```cl
@@ -123,12 +152,12 @@ out = 3
 ```
 does.
 
-## `when-let*`
+## `(when-let* vars &body)`
 *Macro defined at lib/core/binders.lisp:93:2*
 
 Bind each pair of `(name value)` of `VARS`, checking if the value is
 truthy before binding the next, and finally evaluating `BODY`. As with
-[`let*`](lib.core.binders.md#let-), bindings inside [`when-let*`](lib.core.binders.md#when-let-) can refer to previously bound
+[`let*`](lib.core.binders.md#let-vars-body), bindings inside [`when-let*`](lib.core.binders.md#when-let-vars-body) can refer to previously bound
 names.
 
 ### Example
@@ -143,7 +172,7 @@ out = nil
 Since `1` is truthy, it is evaluated and bound to `foo`, however,
 since `nil` is falsey, evaluation does not continue.
 
-## `when-with`
+## `(when-with var &body)`
 *Macro defined at lib/core/binders.lisp:118:2*
 
 Bind the `PAIR` var of the form `(name value)`, only evaluating `BODY` if
@@ -160,7 +189,7 @@ out = nil
 When `bar` has an index `baz`, it will be bound to `foo` and
 printed. If not, the print statement will not be executed.
 
-## `with`
+## `(with var &body)`
 *Macro defined at lib/core/binders.lisp:51:2*
 
 Bind the single variable `VAR`, then evaluate `BODY`.

@@ -2,7 +2,7 @@
 title: math
 ---
 # math
-## `dec!`
+## `(dec! x)`
 *Macro defined at lib/math/init.lisp:83:2*
 
 Decrements the symbol `X` by 1.
@@ -15,7 +15,7 @@ Decrements the symbol `X` by 1.
 out = 0
 ```
 
-## `even?`
+## `(even? x)`
 *Defined at lib/math/init.lisp:27:2*
 
 Is `X` an even number?
@@ -28,7 +28,7 @@ out = true
 out = false
 ```
 
-## `gcd`
+## `(gcd x y)`
 *Defined at lib/math/init.lisp:3:2*
 
 Compute the greatest common divisor of `X` and `Y`.
@@ -39,7 +39,7 @@ Compute the greatest common divisor of `X` and `Y`.
 out = 4
 ```
 
-## `inc!`
+## `(inc! x)`
 *Macro defined at lib/math/init.lisp:71:2*
 
 Increments the symbol `X` by 1.
@@ -52,7 +52,7 @@ Increments the symbol `X` by 1.
 out = 2
 ```
 
-## `lcm`
+## `(lcm x y)`
 *Defined at lib/math/init.lisp:16:2*
 
 Compute the lowest common multiple of `X` and `Y`.
@@ -63,7 +63,7 @@ Compute the lowest common multiple of `X` and `Y`.
 out = 416
 ```
 
-## `nan?`
+## `(nan? x)`
 *Defined at lib/math/init.lisp:51:2*
 
 Is `X` equal to NaN?
@@ -76,7 +76,7 @@ out = true
 out = false
 ```
 
-## `odd?`
+## `(odd? x)`
 *Defined at lib/math/init.lisp:39:2*
 
 Is `X` an odd number?
@@ -89,12 +89,12 @@ out = true
 out = false
 ```
 
-## `pred`
+## `(pred x)`
 *Defined at lib/math/init.lisp:67:2*
 
 Return the predecessor of the number `X`.
 
-## `round`
+## `(round x)`
 *Defined at lib/math/init.lisp:96:2*
 
 Round `X`, to the nearest integer.
@@ -109,7 +109,7 @@ out = 1
 out = -1
 ```
 
-## `succ`
+## `(succ x)`
 *Defined at lib/math/init.lisp:63:2*
 
 Return the successor of the number `X`.
