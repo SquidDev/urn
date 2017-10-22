@@ -15,11 +15,11 @@
 (import urn/resolve/state state)
 (import urn/traceback traceback)
 
-(defun error-positions! (log node message)
+(defun error-positions! (log node message extra)
   "Fail resolution at NODE with the given MESSAGE."
   :hidden
   (error/do-node-error! log
-    message node nil
+    message node extra
     (range/get-source node) ""))
 
 (defun expect-type! (log node parent expected-type name)
@@ -66,6 +66,10 @@
                   (set! message (.> (nth node (succ i)) :value))
                   (inc! i))
                 (.<! var :deprecated message))]
+             ["mutable"
+              (unless (.> var :const)
+                (error-positions! log child (.. "This definition has is already mutable")))
+              (.<! var :const false)]
              [_ (error-positions! log child (.. "Unexpected modifier '" (pretty child) "'"))])]
           [?ty (error-positions! log child (.. "Unexpected node of type " ty ", have you got too many values"))]))
 
@@ -242,7 +246,11 @@
                     (.<! node 2 :var var)
 
                     (when (.> var :const)
-                      (error-positions! (.> state :logger) node (.. "Cannot rebind constant " (.> var :name)))))
+                      (error-positions! (.> state :logger) node
+                        (string/format "Cannot rebind immutable definition '%s'" (.> (nth node 2) :contents))
+                        (string/format "Top level definitions are immutable by default. If you want
+                                        to redefine '%s', add the `:mutable` modifier to its definition."
+                                       (.> (nth node 2) :contents)))))
 
                   (.<! node 3 (resolve-node (nth node 3) scope state))
                   node]

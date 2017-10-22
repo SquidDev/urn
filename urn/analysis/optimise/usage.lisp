@@ -15,13 +15,19 @@
 
     (let* [(visited {})
            (queue '())
-           (visitor (lambda (node)
-                      (when (symbol? node)
-                        (let* [(var (.> node :var))
-                               (def (.> defs var))]
-                        (when (and def (not (.> visited var)))
-                          (.<! visited var true)
-                          (push-cdr! queue def))))))]
+           (visitor (lambda (node visitor)
+                      (case (type node)
+                        ["symbol"
+                         (let* [(var (.> node :var))
+                                (def (.> defs var))]
+                           (when (and def (not (.> visited var)))
+                             (.<! visited var true)
+                             (push-cdr! queue def)))]
+                        ["list"
+                         ;; Consider set! as also visiting the node
+                         (when (builtin? (car node) :set!)
+                           (visitor (cadr node)))]
+                        [_])))]
 
       (for-each node nodes
         (unless (.> node :def-var)
@@ -59,17 +65,42 @@
            [true sym]))]
       [true nil])))
 
+(defun remove-references (vars nodes start)
+  "Remove all references to the given VARS in NODES.
+
+   This replaces every `(set! a X)` with `(progn X nil)` and any other
+   reference with `nil`."
+  :hidden
+  (unless (empty-struct? vars)
+    (traverse/traverse-list nodes start
+      (lambda (node)
+        (case (type node)
+          ["symbol"
+           (if (.> vars (.> node :var)) (make-nil) node)]
+          ["list"
+           (if (and (builtin? (car node) :set!) (.> vars (.> (nth node 2) :var)))
+             (with (val (nth node 3))
+               (if (side-effect? val)
+                 ;; We have to avoid returning this value.
+                 (make-progn (list val (make-nil)))
+                 (make-nil)))
+             node)]
+          [_ node])))))
+
 (defpass strip-defs (state nodes lookup)
   "Strip all unused top level definitions."
   :cat '("opt" "usage")
+  (with (removed {})
+    (for i (n nodes) 1 -1
+      (with (node (nth nodes i))
+        (when (and (.> node :def-var) (not (.> (usage/get-var lookup (.> node :def-var)) :active)))
+          (if (= i (n nodes))
+            (.<! nodes i (make-nil))
+            (remove-nth! nodes i))
+          (.<! removed (.> node :def-var) true)
+          (changed!))))
 
-  (for i (n nodes) 1 -1
-    (with (node (nth nodes i))
-      (when (and (.> node :def-var) (not (.> (usage/get-var lookup (.> node :def-var)) :active)))
-        (if (= i (n nodes))
-          (.<! nodes i (make-nil))
-          (remove-nth! nodes i))
-        (changed!)))))
+    (remove-references removed nodes 1)))
 
 (defpass strip-args (state node lookup)
   "Strip all unused, pure arguments in directly called lambdas."
@@ -103,17 +134,7 @@
 
             (for-each val vals (remove-nth! node val-offset))))))
 
-    ;; We convert every set! into a progn with the value and `nil`.
-    (unless (empty-struct? removed)
-      (traverse/traverse-list lam 3
-        (lambda (node)
-          (if (and (list? node) (builtin? (car node) :set!) (.> removed (.> (nth node 2) :var)))
-            (with (val (nth node 3))
-              (if (side-effect? val)
-                ;; We have to avoid returning this value.
-                (make-progn (list val (make-nil)))
-                (make-nil)))
-            node))))))
+    (remove-references removed lam 3)))
 
 (defpass variable-fold (state node lookup)
   "Folds constant variable accesses"

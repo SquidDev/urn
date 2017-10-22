@@ -18,6 +18,13 @@
         '((define x (lambda() y))
           (define y (lambda() x)))
         '(nil)
+        0))
+    (it "unless there is potential for mutation"
+      (affirm-optimise (lambda (tracker options nodes) (optimise/strip-defs-fast nodes))
+        '((define x :mutable 1)
+          (lambda () (set! x 1)))
+        '((define x :mutable 1)
+          (lambda () (set! x 1)))
         0)))
 
   (section "will strip unused definitions on the top level"
@@ -36,13 +43,16 @@
         '(nil)
         2))
     (it "that are used in unused lambdas"
-      ;; TODO: I'm not entirely sure about this test - this does result in invalid
-      ;; code after all. If we merge optimise/strip-defs and optimise/strip args then
-      ;; I think we'd be OK.
       (affirm-usage-optimise optimise/strip-defs
         '((define x (lambda() 1))
           ((lambda (x)) (lambda () (x))))
-        '(((lambda (x)) (lambda () (x))))
+        '(((lambda (x)) (lambda () (nil))))
+        1))
+    (it "that are mutable"
+      (affirm-usage-optimise optimise/strip-defs
+        '((define x :mutable 1)
+          (lambda () (set! x 1)))
+        '((lambda () nil))
         1)))
 
   (section "will strip unused arguments"
@@ -120,6 +130,16 @@
           1)
         3))
 
+    (it "defined in the top level, unless they are mutated"
+      (affirm-transform-optimise (list optimise/variable-fold)
+        '((define a :mutable 1)
+          (set! a 2)
+          a)
+        '((define a :mutable 1)
+          (set! a 2)
+          a)
+        0))
+
     (it "defined in let bindings"
       (affirm-transform-optimise (list optimise/variable-fold)
         '((define-native a)
@@ -136,7 +156,17 @@
              ((lambda (y) y) x))))
         '(((lambda (x)
              ((lambda (y) nil) nil))))
-        2)))
+        2))
+
+    (it "defined in let bindings, unless they are mutated"
+      (affirm-transform-optimise (list optimise/variable-fold)
+        '(((lambda (a)
+             (set! a 1)
+             a) 2))
+        '(((lambda (a)
+             (set! a 1)
+             a) 2))
+        0)))
 
   (section "will fold basic variable access in expressions"
     (it "for simple expressions"
