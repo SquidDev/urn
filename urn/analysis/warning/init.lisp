@@ -138,6 +138,25 @@
              but more often than not it is the result of a misspelled variable name."
             (get-source node) "macro used here"))))))
 
+(defpass mutable-definitions (state nodes lookup)
+  "Determines whether any macro is used."
+  :cat '("warn" "usage")
+  (for-each node nodes
+    (when-with (var (.> node :def-var))
+      (with (info (usage/get-var lookup var))
+        (when (and
+                ;; Only warn if the variable is only mutable
+                (not (.> var :const))
+                (= (n (.> info :defs)) 1)
+                ;; If the variable is exported then we can't really warn about it.
+                (/= (.> var :scope :exported (.> var :name)) var))
+          (logger/put-node-warning! (.> state :logger)
+            (string/format "%s is never mutated" (string/quoted (.> var :name)))
+            node
+            "This definition is explicitly marked as :mutable, but is
+             never mutated. Consider removing the annotation."
+            (get-source node) "variable defined here"))))))
+
 (defun analyse (nodes state passes)
   (with (lookup {})
     (for-each pass (.> passes :normal)
@@ -150,4 +169,4 @@
 (defun default ()
   "Create a collection of default warnings."
   { :normal (list documentation warning/check-order deprecated macro-usage)
-    :usage (list check-arity unused-vars)})
+    :usage (list check-arity unused-vars mutable-definitions)})
