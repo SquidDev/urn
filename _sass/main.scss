@@ -209,3 +209,35 @@ img {
 		}
 	}
 }
+
+.container .content ul.sym-toc {
+	list-style: none;
+	padding: 1em 0px;
+
+	li {
+		display: inline-block;
+		padding: 0px;
+	}
+}
+
+table.sym-table {
+	border-spacing: 5px 10px;
+	border-collapse: inherit;
+
+	th, strong {
+		color: $sepia01;
+	}
+
+	th {
+		font-size: 1.2em;
+		padding-bottom: 8px
+	}
+
+	strong {
+		font-size: 1.6em;
+		padding-top: 16px;
+		padding-bottom: 4px;
+	}
+
+	a { font-weight: normal }
+}
