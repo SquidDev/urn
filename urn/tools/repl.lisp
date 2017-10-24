@@ -358,9 +358,7 @@
                (let* [(sig (docs/extract-signature var))
                       (name (.> var :full-name))]
                  (when sig
-                   (with (buffer (list name))
-                     (for-each arg sig (push-cdr! buffer (.> arg :contents)))
-                     (set! name (.. "(" (concat buffer " ") ")"))))
+                   (set! name (.. "(" (concat (cons name sig) " ") ")")))
                  (print! (coloured 96 name))
 
                  (if (.> var :doc)

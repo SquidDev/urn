@@ -79,18 +79,29 @@
     (it "for lambda definitions"
       (affirm-signature
         '(define x (lambda (a b c)))
-        '(a b c)))
+        '("a" "b" "c")))
 
     (it "for macros"
       (affirm-signature
         '(define-macro x (lambda (a b c)))
-        '(a b c)))
+        '("a" "b" "c")))
 
     (it "for native definitions"
       (affirm-signature
         '(define-native x)
-        nil)))
+        nil))
 
+    (it "for definitions with variadic arguments"
+      (affirm-signature
+        '(define x (lambda (a b &c)))
+        '("a" "b" "&c")))
+
+    (it "for definitions with custom names"
+      (affirm-signature
+        ~(define x (lambda (,{ :tag "symbol"
+                               :display-name "a"
+                               :contents "r_1" })))
+        '("a"))))
 
   (section "can extract a summary"
     (affirm (teq?

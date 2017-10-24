@@ -34,12 +34,9 @@
   "Attempt to extract the function signature from VAR"
   :hidden
   (with (sig (doc/extract-signature var))
-    (cond
-      [(= sig nil) name]
-      [(empty? sig)
-       (.. "(" name ")")]
-      [true
-        (.. "(" name " " (concat (map (on :contents) sig) " ") ")")])))
+    (if (= sig nil)
+      name
+      (.. "(" (concat (cons name sig) " ") ")"))))
 
 (defun format-link (name var title)
   "Produce a link to VAR with the given NAME and TITLE."

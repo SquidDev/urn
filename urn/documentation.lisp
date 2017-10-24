@@ -27,7 +27,8 @@
        (let* [(root (.> var :node))
               (node (nth root (n root)))]
          (if (and (list? node) (symbol? (car node)) (= (.> (car node) :var) (.> builtins :lambda)))
-           (nth node 2)
+           ;; Prefer the display name to the actual name.
+           (map (lambda (sym) (or (.> sym :display-name) (.> sym :contents))) (nth node 2))
            nil))]
       (true nil))))
 
