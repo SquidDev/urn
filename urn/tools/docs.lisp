@@ -18,7 +18,14 @@
 
       (with (handle (io/open (.. (.> args :docs) "/" (string/gsub (strip-extension path) "/" ".") ".md") "w"))
         (self handle :write (writer/->string writer))
-        (self handle :close)))))
+        (self handle :close))))
+
+  (with (writer (writer/create))
+    (markdown/index writer (map (cut .> compiler :lib-cache <>) (.> args :input)))
+
+    (with (handle (io/open (.. (.> args :docs) "/index.md") "w"))
+      (self handle :write (writer/->string writer))
+      (self handle :close))))
 
 (define task
   { :name "docs"
