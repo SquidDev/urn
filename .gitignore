@@ -2,3 +2,4 @@ out*
 luacov.*
 /docs_tmp
 /_site
+/rock

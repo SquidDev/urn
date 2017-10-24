@@ -1,8 +1,8 @@
-(import urn/tools/simple    simple)
-(import urn/tools/docs      docs)
-(import urn/tools/repl      repl)
-(import urn/tools/run       run)
+(import urn/tools/docs       docs)
 (import urn/tools/gen-native gen-native)
+(import urn/tools/repl       repl)
+(import urn/tools/run        run)
+(import urn/tools/simple     simple)
 
 (import urn/analysis/optimise optimise)
 (import urn/analysis/warning warning)
@@ -11,6 +11,7 @@
 (import urn/loader loader)
 (import urn/logger logger)
 (import urn/logger/term term)
+(import urn/luarocks luarocks)
 (import urn/plugins plugins)
 (import urn/resolve/builtins builtins)
 (import urn/resolve/scope scope)
@@ -39,10 +40,11 @@
   path)
 
 (let* [(spec (arg/create "The compiler and REPL for the Urn programming language."))
-       (directory (with (dir (os/getenv "URN_STDLIB"))
+       ;; Attempt to derive the directory the compiler lives in
+       (directory (with (dir (os/getenv "URN_ROOT"))
                     (if dir
                       (normalise-path dir true)
-                      ;; If we haven't got an URN_STDLIB variable then try to work it out from the current file
+                      ;; If we haven't got an URN_ROOT variable then try to work it out from the current file
                       (with (path (.> arg 0))
                         ;; Strip the possible file names
                         (set! path (cond
@@ -53,13 +55,24 @@
                                      ;; X/* -> X
                                      [else (string/gsub path "[^/\\]*$" "")]))
                         ;; Normalise the path, append the library directory
-                        (.. (normalise-path path true) "lib/")))))
+                        (normalise-path path true)))))
+
+       ;; Determine whether we should use urn-lib or lib directories.
+       (lib-name (with (handle (io/open (.. directory "urn-lib/prelude.lisp")))
+                   (cond
+                     [handle
+                      (self handle :close)
+                      "urn-lib"]
+                     [else "lib"])))
+
+       ;; Build a list of search paths from this information
        (paths (list
                 "?"
                 "?/init"
-                (.. directory "?")
-                (.. directory "?/init")))
+                (.. directory lib-name "/?")
+                (.. directory lib-name "/?/init")))
 
+       ;; Build a list of tasks to run
        (tasks (list
                 ;; Must be done before any processing of the tree
                 run/coverage-report
@@ -79,6 +92,9 @@
   (arg/add-category! spec "out" "Output"
     "Customise what is emitted, as well as where and how it is generated.")
 
+  (arg/add-category! spec "path" "Input paths"
+    "Locations used to configure where libraries are loaded from.")
+
   (arg/add-argument! spec '("--explain" "-e")
     :help    "Explain error messages in more detail.")
 
@@ -96,6 +112,7 @@
 
   (arg/add-argument! spec '("--include" "-i")
     :help    "Add an additional argument to the include path."
+    :cat     "path"
     :many    true
     :narg    1
     :default '()
@@ -103,8 +120,13 @@
 
   (arg/add-argument! spec '("--prelude" "-p")
     :help    "A custom prelude path to use."
+    :cat     "path"
     :narg    1
-    :default (.. directory "prelude"))
+    :default (.. directory lib-name "/prelude"))
+
+  (arg/add-argument! spec '("--include-rocks" "-R")
+    :help    "Include all installed LuaRocks on the search path."
+    :cat     "path")
 
   (arg/add-argument! spec '("--output" "--out" "-o")
     :help    "The destination to output to."
@@ -183,10 +205,14 @@
          (push-cdr! paths (.. path "?"))
          (push-cdr! paths (.. path "?/init"))]))
 
+    ;; Include LuaRocks modules
+    (when (.> args :include-rocks)
+      (luarocks/include-rocks logger paths))
+
     (logger/put-verbose! logger (.. "Using path: " (pretty paths)))
 
-    (when (and (= (.> args :prelude) (.. directory "prelude")) (empty? (.> args :plugin)))
-      (push-cdr! (.> args :plugin) (.. directory "../plugins/fold-defgeneric.lisp")))
+    (when (and (= (.> args :prelude) (.. directory lib-name "/prelude")) (empty? (.> args :plugin)))
+      (push-cdr! (.> args :plugin) (.. directory "plugins/fold-defgeneric.lisp")))
 
     (cond
       [(empty? (.> args :input))
