@@ -15,7 +15,7 @@ Reduce the given `MATRIX` to row echelon form.
 out = [1 1.25 1.5 // 0 1 2]
 ```
 
-## `(height r_1380)`
+## `(height r_1304)`
 *Defined at lib/math/matrix.lisp:6:2*
 
 The height of this matrix.
@@ -84,11 +84,11 @@ Reduce the given `MATRIX` to reduced row echelon form.
 out = [1 1.25 1.5 // 0 1 2]
 ```
 
-## `(width r_1378)`
+## `(width r_1302)`
 *Defined at lib/math/matrix.lisp:6:2*
 
 The width of this matrix.
 
 ## Undocumented symbols
  - `$matrix` *Defined at lib/math/matrix.lisp:6:2*
- - `(matrix? r_1377)` *Defined at lib/math/matrix.lisp:6:2*
+ - `(matrix? r_1301)` *Defined at lib/math/matrix.lisp:6:2*

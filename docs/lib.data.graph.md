@@ -151,7 +151,7 @@ out = nil
 ## Undocumented symbols
  - `$graph` *Defined at lib/data/graph.lisp:8:2*
  - `$vertex` *Defined at lib/data/graph.lisp:16:2*
- - `(graph-vertex-lookup r_2002)` *Defined at lib/data/graph.lisp:8:2*
- - `(graph-vertices r_2000)` *Defined at lib/data/graph.lisp:8:2*
- - `(graph? r_1999)` *Defined at lib/data/graph.lisp:8:2*
- - `(vertex? r_2006)` *Defined at lib/data/graph.lisp:16:2*
+ - `(graph-vertex-lookup r_1499)` *Defined at lib/data/graph.lisp:8:2*
+ - `(graph-vertices r_1497)` *Defined at lib/data/graph.lisp:8:2*
+ - `(graph? r_1496)` *Defined at lib/data/graph.lisp:8:2*
+ - `(vertex? r_1503)` *Defined at lib/data/graph.lisp:16:2*
