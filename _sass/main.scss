@@ -220,11 +220,12 @@ img {
 	}
 }
 
+// Let's be honest here, this a massive set of hacks. But hacks which work!
 table.sym-table {
 	border-spacing: 5px 10px;
 	border-collapse: inherit;
 
-	th, strong {
+	th, strong[id^="sym-"] {
 		color: $sepia01;
 	}
 
@@ -233,11 +234,13 @@ table.sym-table {
 		padding-bottom: 8px
 	}
 
-	strong {
+	strong[id^="sym-"] {
 		font-size: 1.6em;
 		padding-top: 16px;
 		padding-bottom: 4px;
 	}
 
-	a { font-weight: normal }
+	tbody td:nth-child(3) a {
+		font-weight: normal
+	}
 }
