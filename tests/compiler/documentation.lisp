@@ -54,7 +54,9 @@
               (teq? (parse-docstring "before `code block` after")
                     (list (tok "text" "before ")
                           (tok "mono" "code block" "`code block`")
-                          (tok "text" " after")))))
+                          (tok "text" " after")))
+              (teq? (parse-docstring "`multiline\ncode block`")
+                    (list (tok "text" "`multiline\ncode block`")))))
 
     (it "with bold and italic"
       (affirm (teq? (parse-docstring "**foo**")
@@ -87,4 +89,30 @@
     (it "for native definitions"
       (affirm-signature
         '(define-native x)
-        nil))))
+        nil)))
+
+
+  (section "can extract a summary"
+    (affirm (teq?
+              (extract-summary
+                (parse-docstring
+                  "This is a summary of my complex module. It has lots and lots of methods"))
+              (list (tok "text" "This is a summary of my complex module.")))
+            (teq?
+              (extract-summary
+                (parse-docstring
+                  "This is a summary of my complex module
+
+                   It has lots and lots of methods"))
+              (list (tok "text" "This is a summary of my complex module")))
+            (teq?
+              (extract-summary
+                (parse-docstring
+                  "This is a summary of my complex module"))
+              (list (tok "text" "This is a summary of my complex module")))
+            (teq?
+              (extract-summary
+                (parse-docstring
+                  "This is a summary of my complex **module. And some more**"))
+              (list (tok "text" "This is a summary of my complex ")
+                    (tok "bold" "**module.**"))))))
