@@ -3,9 +3,9 @@
 (import io/term term)
 
 (import urn/backend/lua backend)
+(import urn/error error)
 (import urn/logger logger)
 (import urn/range range)
-(import urn/resolve/error error)
 (import urn/resolve/scope scope)
 (import urn/resolve/state state)
 (import urn/resolve/walk resolve)

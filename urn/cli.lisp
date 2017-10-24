@@ -7,12 +7,12 @@
 (import urn/analysis/optimise optimise)
 (import urn/analysis/warning warning)
 (import urn/backend/lua lua)
+(import urn/error error)
 (import urn/loader loader)
 (import urn/logger logger)
 (import urn/logger/term term)
 (import urn/plugins plugins)
 (import urn/resolve/builtins builtins)
-(import urn/resolve/error error)
 (import urn/resolve/scope scope)
 (import urn/resolve/state state)
 (import urn/timer timer)
@@ -235,7 +235,7 @@
       (with (do-load! (lambda (name)
                         (case (list (xpcall (lambda () (loader/path-loader compiler name)) error/traceback))
                           ;; Could not resolve any nodes, so just do a pure exit
-                          [(false error/resolver-error?) (exit! 1)]
+                          [(false error/compiler-error?) (exit! 1)]
                           ;; Some unknown crash, so fail with that.
                           [(false ?error-message)  (fail! error-message)]
                           ;; Module not found

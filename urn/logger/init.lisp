@@ -45,5 +45,6 @@
    explain can be provided, along with a series of LINES. These LINES are split
    into pairs of elements with the first designating it's position and the
    second a descriptive piece of text."
+  :deprecated "Use error/do-node-error! instead"
   (self logger :put-node-error! msg node explain lines)
   (fail! (or (string/match msg "^([^\n]+)\n") msg)))

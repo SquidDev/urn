@@ -9,13 +9,13 @@
 (import urn/backend/lua lua)
 (import urn/backend/writer writer)
 (import urn/documentation docs)
+(import urn/error (compiler-error?))
 (import urn/loader loader)
 (import urn/logger logger)
 (import urn/logger)
 (import urn/logger/void void)
 (import urn/parser parser)
 (import urn/range range)
-(import urn/resolve/error (resolver-error?))
 (import urn/resolve/loop (compile))
 (import urn/resolve/scope scope)
 (import urn/resolve/state state)
@@ -594,7 +594,7 @@
                    ;; Clear active node/scope
                    (.<! compiler :active-node nil)
                    (.<! compiler :active-scope nil)
-                   (unless (or (car res) (resolver-error? (cadr res)))
+                   (unless (or (car res) (compiler-error? (cadr res)))
                      (logger/put-error! logger (cadr res))))]))])))))
 
 (defun exec (compiler)
@@ -602,7 +602,7 @@
          (scope (.> compiler :root-scope))
          (logger (.> compiler :log))
          (res (list (pcall exec-string compiler scope data)))]
-    (unless (or (car res) (resolver-error? (cadr res)))
+    (unless (or (car res) (compiler-error? (cadr res)))
       (logger/put-error! logger (cadr res)))
     (os/exit 0)))
 

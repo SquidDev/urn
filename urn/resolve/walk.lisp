@@ -10,7 +10,7 @@
 
 (import urn/range range)
 (import urn/resolve/builtins (builtins))
-(import urn/resolve/error error)
+(import urn/error error)
 (import urn/resolve/scope scope)
 (import urn/resolve/state state)
 (import urn/traceback traceback)

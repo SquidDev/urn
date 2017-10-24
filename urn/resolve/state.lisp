@@ -14,8 +14,8 @@
  this node to be executed and build, detecting cycles in building (say
  two macros each require the other in order to be expanded)."
 
+(import urn/error error)
 (import urn/range range)
-(import urn/resolve/error error)
 
 (import lua/coroutine co)
 

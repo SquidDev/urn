@@ -1,5 +1,5 @@
+(import urn/error error)
 (import urn/range range)
-(import urn/resolve/error error)
 
 (import lua/coroutine co)
 

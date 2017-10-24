@@ -1,3 +1,4 @@
+(import urn/error error)
 (import urn/logger logger)
 (import urn/logger/void void)
 (import urn/range ())
@@ -36,7 +37,7 @@
 (defun digit-error! (logger pos name char)
   "Generate an error at POS where a NAME digit was expected and CHAR received instead"
   :hidden
-  (logger/do-node-error! logger
+  (error/do-node-error! logger
     (string/format "Expected %s digit, got %s" name (if (= char "")
                                                       "eof"
                                                       (string/quoted char)))
@@ -44,13 +45,13 @@
     pos "Invalid digit here"))
 
 (defun eof-error! (context tokens logger msg node explain &lines)
-  "A variation of [[logger/do-node-error!]], used when we've reached the
+  "A variation of [[error/do-node-error!]], used when we've reached the
    end of the file. If CONTEXT is truthy, then a \"resumable\" error will
    be thrown instead."
   :hidden
   (if context
     (fail! { :msg msg :context context :tokens tokens })
-    (logger/do-node-error! logger msg node explain (unpack lines 1 (n lines)))))
+    (error/do-node-error! logger msg node explain (unpack lines 1 (n lines)))))
 
 (defun lex (logger str name cont)
   "Lex STR from a file called NAME, returning a series of tokens. If CONT
@@ -186,7 +187,7 @@
 
                ;; Other leading "#"s are illegal
                [(and (= char "#") (terminator? (string/lower (string/char-at str (succ offset)))))
-                (logger/do-node-error! logger
+                (error/do-node-error! logger
                   "Expected hexadecimal (#x), binary (#b), or Roman (#r) digit specifier."
                   (range (position))
                   "The '#' character is used for various number representations, such as binary
@@ -197,7 +198,7 @@
                   (range (position)) "# must be followed by x, b or r")]
                [(= char "#")
                 (consume!)
-                (logger/do-node-error! logger
+                (error/do-node-error! logger
                   "Expected hexadecimal (#x), binary (#b), or Roman (#r) digit specifier."
                   (range (position))
                   "The '#' character is used for various number representations, namely binary,
@@ -224,7 +225,7 @@
                      ;; 1/-1 or 1/.1
                      (unless (or (between? (string/char-at str offset) "0" "9")
                                  (= (string/char-at str offset) "'"))
-                       (logger/do-node-error! logger
+                       (error/do-node-error! logger
                          (format nil "Expected digit, got {$1:string/quoted}" (string/char-at str offset))
                          (range dom-start)
                          ""
@@ -238,13 +239,13 @@
                             (num (string->number (string/gsub (string/sub str (.> start :offset) (.> num-end :offset)) "'" "") 10))
                             (dom (string->number (string/gsub (string/sub str (.> dom-start :offset) (.> dom-end :offset)) "'" "") 10))]
                        (unless num
-                         (logger/do-node-error! logger
+                         (error/do-node-error! logger
                            "Invalid numerator in rational literal"
                            (range start num-end)
                            ""
                            (range start num-end) "There should be at least one number before the division symbol."))
                        (unless dom
-                         (logger/do-node-error! logger
+                         (error/do-node-error! logger
                            "Invalid denominator in rational literal"
                            (range dom-start dom-end)
                            ""
@@ -285,7 +286,7 @@
              (unless (terminator? char)
                (consume!)
 
-               (logger/do-node-error! logger
+               (error/do-node-error! logger
                  (string/format "Expected digit, got %s" (if (= char "")
                                                            "eof"
                                                            char))
@@ -384,7 +385,7 @@
                                      (string->number (string/sub str (.> start :offset) offset)))))]
 
                         (when (>= val 256)
-                          (logger/do-node-error! logger
+                          (error/do-node-error! logger
                             "Invalid escape code"
                             (range start) nil
                             (range start (position)) (.. "Must be between 0 and 255, is " val)))
@@ -396,7 +397,7 @@
                         (range (position)) nil
                         (range (position)) "end of file here")]
                      [true
-                       (logger/do-node-error! logger
+                       (error/do-node-error! logger
                          "Illegal escape character"
                          (range (position)) nil
                          (range (position)) "Unknown escape character")])]
@@ -556,20 +557,20 @@
            (cond
              [(empty? stack)
               ;; Unmatched closing bracket.
-              (logger/do-node-error! logger
+              (error/do-node-error! logger
                 (string/format "'%s' without matching '%s'" (.> tok :contents) (.> tok :open))
                 tok nil
                 (get-source tok) "")]
              [(.> head :auto-close)
               ;; Attempting to close a quote
-              (logger/do-node-error! logger
+              (error/do-node-error! logger
                 (string/format "'%s' without matching '%s' inside quote" (.> tok :contents) (.> tok :open))
                 tok nil
                 (.> head :range) "quote opened here"
                 (.> tok :range)  "attempting to close here")]
              [(/= (.> head :close) (.> tok :contents))
               ;; Mismatched brackets
-              (logger/do-node-error! logger
+              (error/do-node-error! logger
                 (string/format "Expected '%s', got '%s'" (.> head :close) (.> tok :contents))
                 tok nil
                 (.> head :range) (string/format "block opened with '%s'" (.> head :open))
@@ -600,7 +601,7 @@
         (unless auto-close
           (while (.> head :auto-close)
             (when (empty? stack)
-              (logger/do-node-error! logger
+              (error/do-node-error! logger
                 (string/format "'%s' without matching '%s'" (.> tok :contents) (.> tok :open))
                 tok nil
                 (get-source tok) ""))
