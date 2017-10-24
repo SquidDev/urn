@@ -201,17 +201,25 @@
   "Create a unique symbol, suitable for using in macros"
   (with (counter 0)
     (lambda (name)
-      (cond
-        [(if (= (type# name) "table")
-            (= (get-idx name :tag) "symbol")
-            false)
-         (set! name (.. "-" (get-idx name :contents)))]
-        [name (set! name (.. "-" name))]
-        [else (set! name "")])
-      (set! counter (+ counter 1))
-      { :tag "symbol"
-        :display-name (.. "temp" name)
-        :contents (string/format "r_%d%s" counter name) })))
+      (with (display "temp")
+        (cond
+          ;; Allow using the symbol as a display name
+          [(if (= (type# name) "table")
+             (= (get-idx name :tag) "symbol")
+             false)
+           (set! display (get-idx name :contents))
+           (set! name (.. "-" (get-idx name :contents)))]
+          ;; Otherwise assume we're a string
+          [name
+           (set! display (.. "" name))
+           (set! name (.. "-" name))]
+          ;; If nil, then set as empty.
+          [else (set! name "")])
+
+        (set! counter (+ counter 1))
+        { :tag "symbol"
+          :display-name display
+          :contents (string/format "r_%d%s" counter name) }))))
 
 (defmacro for (ctr start end step &body)
   "Iterate BODY, with the counter CTR bound to START, being incremented

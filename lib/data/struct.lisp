@@ -23,8 +23,8 @@
     [?x x]))
 
 (defun field->def (nm field) :hidden
-  (let* [(self (gensym))
-         (val (gensym))]
+  (let* [(self (gensym nm))
+         (val (gensym (symb-name (field-name field))))]
     (case field
       [(immutable ?name (optional (string? @ ?docs)))
        (list
@@ -149,7 +149,7 @@
     (let* [(work '())]
       (push-cdr! work (make-constructor docs name fields
                                         constr constructor))
-      (push-cdr! work (let* [(self (gensym))]
+      (push-cdr! work (let* [(self (gensym name))]
                         (gen-def pred (list self)
                                `((and (table? ,self)
                                       (= (.> ,self :tag) ,(symbol->string name))
