@@ -198,7 +198,34 @@
                [true x]))
             foo))
         "local x = foo
-         return x and bar(x)")))
+         return x and bar(x)"))
+
+    (pending "with nested directly called lambdas"
+      (affirm-codegen
+        '((cond
+            [(cond
+               [foo
+                (cond
+                  [bar ((lambda (x)
+                          (cond
+                            [x (baz x)]
+                            [true x])) bar)]
+                  [true false])]
+               [true false])
+             1]
+            [true 2]))
+        "local temp
+         if foo and bar then
+           local x = bar
+           temp = x and baz(x)
+         else
+           temp = false
+         end
+         if temp then
+           return 1
+         else
+           return 2
+         end")))
 
   (section "will emit or expressions"
     (it "which are simple"
