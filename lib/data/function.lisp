@@ -2,7 +2,15 @@
 
 (defun slot? (symb)
   "Test whether SYMB is a slot. For this, it must be a symbol, whose
-   contents are `<>`."
+   contents are `<>`.
+
+   ### Example
+   ```cl
+   > (slot? '<>)
+   out = true
+   > (slot? 'not-a-slot)
+   out = false
+   ```"
   (and (symbol? symb) (= (.> symb "contents") "<>")))
 
 (defmacro cut (&func)
@@ -114,11 +122,23 @@
 
 
 (defun id (x)
-  "Return the value X unmodified."
+  "Return the value X unmodified.
+
+   ### Example
+   ```cl
+   > (map id '(1 2 3))
+   out = (1 2 3)
+   ```"
   x)
 
 (defun as-is (x)
-  "Return the value X unchanged."
+  "Return the value X unchanged.
+
+   ### Example
+   ```cl
+   > (map as-is '(1 2 3))
+   out = (1 2 3)
+   ```"
   x)
 
 (defun const (x)
@@ -136,9 +156,25 @@
   (lambda () x))
 
 (defun call (x key &args)
-  "Index X with KEY and invoke the resulting function with ARGS."
+  "Index X with KEY and invoke the resulting function with ARGS.
+
+   ### Example
+   ```cl
+   > (define tbl { :add + })
+   > (call tbl :add 1 2 3)
+   out = 6
+   ```"
   (apply (.> x key) args))
 
 (defun self (x key &args)
-  "Index X with KEY and invoke the resulting function with X and ARGS."
+  "Index X with KEY and invoke the resulting function with X and ARGS.
+
+   ### Example
+   ```cl
+   > (define tbl { :get (lambda (self key) (.> self key))
+   .               :x 1
+   .               :y 2 })
+   > (self tbl :get :x)
+   out = 1
+   ```"
   (apply (.> x key) x args))
