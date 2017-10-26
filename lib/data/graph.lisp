@@ -4,12 +4,13 @@
  super-vertices, and other nifty features."
 
 (import data/struct ())
+(import data/format ())
 
 (defstruct graph
   "Create a new, empty graph."
   (fields
-    (immutable vertices)
-    (immutable vertex-lookup))
+    (immutable (hide vertices))
+    (immutable (hide vertex-lookup)))
   (constructor new
     (lambda () (new '() {}))))
 
@@ -44,8 +45,10 @@
 (defun add-vertex! (graph value)
   "Create a vertex with the corresponding VALUE and add it to the GRAPH."
   (assert-type! graph graph)
+  (when (= value nil)
+    (format 1 "(add-vertex! {#graph} {#value}): vertex value cannot be nil"))
   (when (.> graph :vertex-lookup value)
-    (error! "value is already in this graph"))
+    (format 1 "(add-vertex! {#graph} {#value}): value already has a corresponding vertex"))
 
   (with (vertex (make-vertex value graph {} {}))
     (push-cdr! (graph-vertices graph) vertex)
@@ -66,7 +69,7 @@
   (assert-type! to   vertex)
 
   (when (/= (vertex-graph from) (vertex-graph to))
-    (error! "These nodes are on different graphs"))
+    (format 1 "(add-edge! {#from} {#to}): vertex value cannot be nil"))
 
   (.<! (vertex-out-edges from) to   true)
   (.<! (vertex-in-edges  to)   from true)
@@ -202,6 +205,7 @@
    «vertex: \"c\"»
    out = nil
    ```"
+  (assert-type! root vertex)
   (with (visited {})
     (loop [(node root)] []
       (unless (.> visited node)
@@ -238,6 +242,7 @@
    «vertex: \"a\"»
    out = nil
    ```"
+  (assert-type! root vertex)
   (with (visited {})
     (loop [(node root)] []
       (unless (.> visited node)
@@ -254,8 +259,31 @@
    cyclic graphs.
 
    This returns two objects: a lookup of vertex to its immediate dominator,
-   and a DAG with edges from dominators to their immediate children."
+   and a DAG with edges from dominators to their immediate children.
 
+   ### Example:
+   ```cl
+   > (define g (make-graph))
+   > (define doms
+   .   (let [(a (add-vertex! g :a))
+   .         (b (add-vertex! g :b))
+   .         (c (add-vertex! g :c))
+   .         (d (add-vertex! g :d))]
+   .     (add-edge! a b)
+   .     (add-edge! a c)
+   .     (add-edge! b c)
+   .     (add-edge! c b)
+   .     (add-edge! b d)
+   .
+   .     (dominators a)))
+   > (.> doms (get-vertex g :b))
+   out = «vertex: \"a\"»
+   > (.> doms (get-vertex g :c))
+   out = «vertex: \"a\"»
+   > (.> doms (get-vertex g :d))
+   out = «vertex: \"b\"»
+   ```"
+  (assert-type! root vertex)
   (let* [(vertices '())
          (dominators {})
          (dom-graph  (make-graph))]
