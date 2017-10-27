@@ -4,11 +4,13 @@ Urn is a new language developed by SquidDev, and demhydraz. Urn is a Lisp dialec
 compiles to Lua.
 
 ## What?
- - A minimal Lisp implementation, with full support for compile time code execution and macros.
+ - A minimal¹ Lisp implementation, with full support for compile time code execution and macros.
  - Support for Lua 5.1, 5.2 and 5.3. Should also work with LuaJIT.
  - Lisp-1 scoping rules (functions and data share the same namespace).
  - Influenced by a whole range of Lisp implementations, including Common Lisp and Clojure.
  - Produces standalone, optimised Lua files: no dependencies on a standard library.
+
+¹: Minimalism is an implementation detail.
 
 ## Features
 ### Pattern matching
