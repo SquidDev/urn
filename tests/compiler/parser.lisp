@@ -35,6 +35,9 @@
 (defun string->key (key) { :tag "key" :value key })
 
 (describe "The parser"
+  (it "lexes whitespace"
+    (affirm (teq? '() (lex "  \n \t \f \v"))))
+
   (it "lexes numbers"
     (affirm (teq? '( 23)  (lex "23"))
             (teq? '(-23)  (lex "-23"))
@@ -86,12 +89,16 @@
     (affirm (eq? '("open" "open" "open-struct") (map type (lex "( [ {")))
             (eq? '("close" "close" "close") (map type (lex ") ] }")))))
 
-  (it "stops symbols on lists"
+  (it "stops symbols"
     (affirm (teq? 'foo-bar (car (lex "foo-bar)")))
             (teq? 'foo-bar (car (lex "foo-bar]")))
             (teq? 'foo-bar (car (lex "foo-bar}")))
             (teq? 'foo-bar (car (lex "foo-bar ")))
-            (teq? 'foo-bar (car (lex "foo-bar\n")))))
+            (teq? 'foo-bar (car (lex "foo-bar\n")))
+            (teq? 'foo-bar (car (lex "foo-bar\t")))
+            (teq? 'foo-bar (car (lex "foo-bar\f")))
+            (teq? 'foo-bar (car (lex "foo-bar\v")))
+            (teq? 'foo-bar (car (lex "foo-bar;")))))
 
   (it "lexes handles comments"
     (affirm (teq? '() (lex "; foo bar"))

@@ -32,7 +32,9 @@
 (defun terminator? (char)
   "Determines whether CHAR is a terminator of a block"
   :hidden
-  (or (= char "\n") (= char " ") (= char "\t") (= char ";") (= char "(") (= char ")") (= char "[") (= char "]") (= char "{") (= char "}") (= char "")))
+  (or (= char "\n") (= char " ") (= char "\t") (= char ";")
+      (= char "(") (= char ")") (= char "[") (= char "]") (= char "{") (= char "}")
+      (= char "\v") (= char "\f") (= char "")))
 
 (defun digit-error! (logger pos name char)
   "Generate an error at POS where a NAME digit was expected and CHAR received instead"
@@ -136,7 +138,7 @@
     (while (<= offset length)
       (with (char (string/char-at str offset))
         (cond
-          [(or (= char "\n") (= char "\t") (= char " "))]
+          [(or (= char "\n") (= char "\t") (= char " ") (= char "\v") (= char "\f"))]
           [(= char "(") (append-with! {:tag "open" :close ")"})]
           [(= char ")") (append-with! {:tag "close" :open "("})]
           [(= char "[") (append-with! {:tag "open" :close "]"})]
