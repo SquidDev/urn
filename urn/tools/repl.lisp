@@ -31,6 +31,13 @@
                   (os/getenv "USERPROFILE") (os/getenv "HOMEDRIVE") (os/getenv "HOMEPATH"))))
     (if home (.. home "/.urn_history") ".urn_history")))
 
+(defun read-dumb (prompt)
+  "Write prompt and read string directly from stdin."
+  :hidden
+  (io/write prompt)
+  (io/flush)
+  (io/read "*l"))
+
 (define read-line!
   "Read a line with the given PROMPT. Provides an INITIAL string and a
    function to COMPLETE partial strings if supported."
@@ -179,11 +186,7 @@
                         res)))
                   nil)))
 
-            (lambda ()
-              (lambda (prompt initial complete)
-                (io/write prompt)
-                (io/flush)
-                (io/read "*l")))))]
+            (lambda () read-dumb)))]
 
     (lambda (prompt initial complete)
       (unless read
@@ -558,7 +561,10 @@
   (let* [(scope (.> compiler :root-scope))
          (logger (.> compiler :log))
          (buffer "")
-         (running true)]
+         (running true)
+         (read! (if (.> args :read-dumb)
+                  read-dumb
+                  read-line!))]
 
     ;; Import all specified modules if possible
     (for-each input (.> args :input)
@@ -569,7 +575,7 @@
             (scope/import! scope name var)))))
 
     (while running
-      (with (line (read-line!
+      (with (line (read!
                     (coloured 92 (if (empty? buffer) "> " ". "))
                     (get-indent buffer)
                     (lambda (x) (get-complete (.. buffer x) scope))))
@@ -610,7 +616,9 @@
   { :name  "repl"
     :setup (lambda (spec)
              (arg/add-argument! spec '("--repl")
-               :help "Start an interactive session."))
+               :help "Start an interactive session.")
+             (arg/add-argument! spec '("--read-dumb")
+               :help "Disable fancy readline input."))
     :pred  (lambda (args) (.> args :repl))
     :run  repl })
 
