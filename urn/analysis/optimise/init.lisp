@@ -17,8 +17,12 @@
     (for-each pass (.> passes :normal)
       (run-pass pass state tracker nodes lookup))
 
-    (run-pass usage/tag-usage state tracker nodes lookup)
-    (run-pass transformer state tracker nodes lookup (.> passes :transform))
+    (unless (and (empty? (.> passes :transform)) (empty? (.> passes :usage)))
+      (run-pass usage/tag-usage state tracker nodes lookup))
+
+    (unless (empty? (.> passes :transform))
+      (run-pass transformer state tracker nodes lookup (.> passes :transform)))
+
     (for-each pass (.> passes :usage)
       (run-pass pass state tracker nodes lookup))
 

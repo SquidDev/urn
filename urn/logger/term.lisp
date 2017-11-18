@@ -61,7 +61,7 @@
          (max-line (reduce (lambda (max node)
                             (if (string? node) max (math/max max (.> node :start :line))))
                      0 entries))
-         (code (.. (coloured 92 (.. " %" (n (number->string max-line)) "s \xe2\x94\x82")) " %s")))
+         (code (.. (coloured "32;1" (.. " %" (n (number->string max-line)) "s \xe2\x94\x82")) " %s")))
     (for i 1 (n entries) 2
       (let ((position (.> entries i))
             (message (.> entries (succ i))))
@@ -70,10 +70,10 @@
           ;; If we're in a different file then print the new file name
           [(/= file (.> position :name))
            (set! file (.> position :name))
-           (print! (coloured 95 (.. " " file)))]
+           (print! (coloured "35;1" (.. " " file)))]
           ;; If we've got a gap in the lines then print a ...
           [(and (/= previous -1) (> (math/abs (- (.> position :start :line) previous)) 2))
-           (print! (coloured 92 " ..."))]
+           (print! (coloured "32;1" " ..."))]
           [true])
         (set! previous (.> position :start :line))
 
@@ -103,7 +103,7 @@
     (while node
       (with (formatted (format-node node))
         (cond
-          [(= previous nil) (print! (coloured 96 (.. "  => " formatted)))]
+          [(= previous nil) (print! (coloured "36;1" (.. "  => " formatted)))]
           [(/= previous formatted) (print! (.. "  in " formatted))]
           [true nil])
 

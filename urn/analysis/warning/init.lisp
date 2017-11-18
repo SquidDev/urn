@@ -162,7 +162,9 @@
     (for-each pass (.> passes :normal)
       (run-pass pass state nil nodes lookup))
 
-    (run-pass usage/tag-usage state nil nodes lookup usage/visit-eager-exported?)
+    (unless (empty? (.> passes :usage))
+      (run-pass usage/tag-usage state nil nodes lookup usage/visit-eager-exported?))
+
     (for-each pass (.> passes :usage)
       (run-pass pass state nil nodes lookup))))
 
