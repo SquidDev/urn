@@ -105,7 +105,7 @@
            (w/line! out))
 
          ;; Create a magic metatable which avoids polluting the global output.
-         (w/line! out "local _ENV = setmetatable({}, {__index=ENV or (getfenv and getfenv()) or _G}) if setfenv then setfenv(0, _ENV) end")]))
+         (w/line! out "local _ENV = setmetatable({}, {__index=_ENV or (getfenv and getfenv()) or _G}) if setfenv then setfenv(0, _ENV) end")]))
 
     (block (.> compiler :out) out state 1 "return ")
     out))

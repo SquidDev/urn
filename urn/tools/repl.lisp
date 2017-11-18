@@ -45,6 +45,12 @@
   (let [(read nil)
         (providers
           (list
+            ;; Provider with a hypothetical "urn.readline" package, injected by external providers
+            ;; Just expects a function of the same form as `read`: (prompt initial complete)
+            (lambda ()
+              (with ((rl-ok readline) (pcall require "urn.readline"))
+                (if rl-ok readline nil)))
+
             ;; Provider using LuaJIT's FFI and readline library
             (lambda ()
               (with ((ffi-ok ffi) (pcall require "ffi"))
@@ -279,20 +285,20 @@
   (if (assoc? repl-colour-scheme (string->symbol elem))
     (const-val (assoc repl-colour-scheme (string->symbol elem)))
     (case elem
-      ["text" 0]
-      ["arg" 36]
-      ["mono" 97]
-      ["bold" 1]
-      ["italic" 3]
-      ["link" 94]
+      ["text"   "0"]
+      ["arg"    "36"]
+      ["mono"   "1;37"]
+      ["bold"   "1"]
+      ["italic" "3"]
+      ["link"   "1;34"]
 
-      ["comment"  90]
-      ["string"   32]
-      ["number"   0]
-      ["key"      36]
-      ["symbol"   0]
-      ["keyword"  35]
-      ["operator" 0])))
+      ["comment"  "1;30"]
+      ["string"   "32"]
+      ["number"   "0"]
+      ["key"      "36"]
+      ["symbol"   "0"]
+      ["keyword"  "35"]
+      ["operator" "0"])))
 
 (define token-mapping :hidden
   "Mapping of token names to their corresponding definition in [[colour-for]]"
@@ -362,7 +368,7 @@
                       (name (.> var :full-name))]
                  (when sig
                    (set! name (.. "(" (concat (cons name sig) " ") ")")))
-                 (print! (coloured 96 name))
+                 (print! (coloured "36;1" name))
 
                  (if (.> var :doc)
                    (print-docs! (.> var :doc))
@@ -377,14 +383,14 @@
                [(= mod nil)
                 (logger/put-error! logger (.. "Cannot find '" name "'"))]
                [true
-                (print! (coloured 96 (.> mod :name)))
+                (print! (coloured "36;1" (.> mod :name)))
                 (print! (.. "Located at " (.> mod :path)))
 
                 (when (.> mod :docs)
                   (print-docs! (.> mod :docs))
                   (print!))
 
-                (print! (coloured 92 "Exported symbols"))
+                (print! (coloured "32;1" "Exported symbols"))
                 (with (vars '())
                   (for-pairs (name) (.> mod :scope :exported) (push-cdr! vars name))
                   (sort! vars)
@@ -425,12 +431,12 @@
              (logger/put-error! logger "No results")
              (progn
                (when (not (empty? name-results))
-                 (print! (coloured 92 "Search by function name:"))
+                 (print! (coloured "32;1" "Search by function name:"))
                  (if (> (n name-results) 20)
                    (print! (.. (concat (take name-results 20) "  ") "  ..."))
                    (print! (concat name-results "  "))))
                (when (not (empty? docs-results))
-                 (print! (coloured 92 "Search by function docs:"))
+                 (print! (coloured "32;1" "Search by function docs:"))
                  (if (> (n docs-results) 20)
                    (print! (.. (concat (take docs-results 20) "  ") "  ..."))
                    (print! (concat docs-results "  ")))))))
@@ -525,7 +531,7 @@
                      (with (pretty-val (state/get! (.> compiler :states pretty-var)))
                        (set! pretty-fun pretty-val)))
 
-                   (print! (.. "out = " (coloured 96 (pretty-fun lvl)))))
+                   (print! (.. "out = " (coloured "36;1" (pretty-fun lvl)))))
 
                  (.<! global (lua/push-escape-var! (scope/add! scope "out" "defined" lvl)
                                                    compile-state) lvl))
@@ -576,7 +582,7 @@
 
     (while running
       (with (line (read!
-                    (coloured 92 (if (empty? buffer) "> " ". "))
+                    (coloured "32;1" (if (empty? buffer) "> " ". "))
                     (get-indent buffer)
                     (lambda (x) (get-complete (.. buffer x) scope))))
         (cond
