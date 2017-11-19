@@ -1,6 +1,13 @@
+(import core/base (defmacro not with gensym and progn error lambda let*
+                   unless for if = list or > n when - ..))
+(import core/list (map push-cdr! nth))
+(import core/type (list? symbol? pretty))
+(import lua/string string)
+(import lua/table (concat))
+
 (defmacro assert! (cnd msg)
   "Assert CND is true, otherwise failing with MSG"
-  `(unless ,cnd (error! ,msg 0)))
+  `(unless ,cnd (error ,msg 0)))
 
 (defmacro affirm (&asserts)
   "Assert each expression in ASSERTS evaluates to true
@@ -20,9 +27,9 @@
       5
    ```"
   `(progn
-     ,@( map
+     ,@(map
          (lambda (expr)
-           (let [(bindings '())
+           (let* [(bindings '())
                  (nodes '())
                  (lens '())
                  (emit '())
@@ -53,12 +60,12 @@
              (for i (n expr) 1 -1
                (when (nth emit i)
                   (with (buffer '("\n "))
-                    (for j 1 (pred i) 1
+                    (for j 1 (- i 1) 1
                       (push-cdr! buffer (if (nth emit j) "|" " "))
                       (push-cdr! buffer (string/rep " " (nth lens j))))
                     (push-cdr! out (concat buffer))
                     (push-cdr! out `(pretty ,(nth nodes i))))))
-             `(let (,@bindings)
+             `(let* (,@bindings)
                 (unless ,nodes
-                  (error! (.. ,@out))))))
+                  (error (.. ,@out))))))
          asserts )))

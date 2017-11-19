@@ -10,3 +10,5 @@
 (import math/rational (rational rational? numerator denominator) :export)
 (import math/rational rational :export)
 (import math/numerics () :export)
+
+(import test/assert (affirm) :export)
