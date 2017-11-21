@@ -463,7 +463,7 @@
             (,ok (car ,val))]
        (if ,ok
          (unpack ,val 2 (n ,val))
-         (,error-handler ,val)))))
+         (,error-handler (cadr ,val))))))
 
 (defmacro function (&arms)
   "Create a lambda which matches its arguments against the patterns
