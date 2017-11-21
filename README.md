@@ -14,19 +14,53 @@ compiles to Lua.
 
 ## Features
 ### Pattern matching
-![](https://squiddev.github.io/urn/images/example-case.png)
+<pre style="color:#ffffff;background-color:#2e3436;">
+<span style="color:#8ae234;">&gt; </span>(case &#39;(&quot;x&quot; (foo 2 3))
+<span style="color:#8ae234;">. </span>  [(string?  @ ?x) (.. &quot;Got a string &quot; x)]
+<span style="color:#8ae234;">. </span>  [(&quot;x&quot; (foo . ?x)) (.. &quot;Got some remaining values &quot; (pretty x))])
+out = <span style="color:#ff9d3a;">&quot;Got some remaining values (2 3)&quot;</span>
+</pre>
 
 ### Various looping constructs
-![](https://squiddev.github.io/urn/images/example-loop.png)
+<pre style="color:#ffffff;background-color:#2e3436;">
+<span style="color:#8ae234;">&gt; </span>(loop [(o &#39;())
+<span style="color:#8ae234;">. </span>       (l &#39;(1 2 3))]
+<span style="color:#8ae234;">. </span>  [(empty? l) o]
+<span style="color:#8ae234;">. </span>  (recur (cons (car l) o) (cdr l)))
+out = <span style="color:#ff9d3a;">(3 2 1)</span>
+</pre>
 
 ### Powerful assertion and testing framework
-![](https://squiddev.github.io/urn/images/example-assert.png)
+<pre style="color:#ffffff;background-color:#2e3436;">
+<span style="color:#8ae234;">&gt; </span>(import test ())
+out = <span style="color:#ff9d3a;">nil</span>
+<span style="color:#8ae234;">&gt; </span>(affirm (eq? &#39;(&quot;foo&quot; &quot;bar&quot; &quot;&quot;)
+<span style="color:#8ae234;">. </span>             (string/split &quot;foo-bar&quot; &quot;-&quot;)))
+<span style="color:#cc0000;">[ERROR] &lt;stdin&gt;:1 (compile#111{split,temp}:46): Assertion failed</span>
+(eq? (quote (&quot;foo&quot; &quot;bar&quot; &quot;&quot;)) (string/split &quot;foo-bar&quot; &quot;-&quot;))
+     |                        |
+     |                        (&quot;foo&quot; &quot;bar&quot;)
+     (&quot;foo&quot; &quot;bar&quot; &quot;&quot;)
+</pre>
 
 ### First-class support for Lua tables
-![](https://squiddev.github.io/urn/images/example-struct.png)
+<pre style="color:#ffffff;background-color:#2e3436;">
+<span style="color:#8ae234;">&gt; </span>{ :foo 1
+<span style="color:#8ae234;">. </span>  :bar 2 }
+out = <span style="color:#ff9d3a;">{&quot;bar&quot; 2 &quot;foo&quot; 1}</span>
+</pre>
 
 ### Friendly error messages
-![](https://squiddev.github.io/urn/images/example-error.png)
+<pre style="color:#ffffff;background-color:#2e3436;">
+<span style="color:#8ae234;">&gt; </span>(]
+<span style="color:#cc0000;">[ERROR] Expected &#39;)&#39;, got &#39;]&#39;</span>
+<span style="color:#ff9d3a;">  =&gt; &lt;stdin&gt;:[1:2 .. 1:2] (&quot;]&quot;)</span>
+<span style="color:#8ae234;"> 1 │</span> (]
+<span style="color:#8ae234;">   │</span> ^... block opened with &#39;(&#39;
+<span style="color:#8ae234;"> 1 │</span> (]
+<span style="color:#8ae234;">   │</span>  ^ &#39;]&#39; used here
+<span style="color:#8ae234;">&gt; </span>
+</pre>
 
 ## Getting started
 We have a [getting started guide](https://squiddev.github.io/urn/tutorial/01-introduction.html) to help you get set up. Or
