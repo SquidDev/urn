@@ -20,6 +20,7 @@
 
 (import io/argparse arg)
 (import lua/basic (_G))
+(import lua/debug debug)
 (import lua/os os)
 
 (defun normalise-path (path trailing)
@@ -41,11 +42,14 @@
 
 (let* [(spec (arg/create "The compiler and REPL for the Urn programming language."))
        ;; Attempt to derive the directory the compiler lives in
-       (directory (with (dir (os/getenv "URN_ROOT"))
+       (directory (with (dir (and os/getenv (os/getenv "URN_ROOT")))
                     (if dir
                       (normalise-path dir true)
                       ;; If we haven't got an URN_ROOT variable then try to work it out from the current file
-                      (with (path (.> arg 0))
+                      (with (path (or
+                                    (.> arg 0) ;; Use the file given on the command line
+                                    (and debug/getinfo (string/gsub (.> (debug/getinfo 1 "S") :short_src) "^@", ""))
+                                    "urn"))
                         ;; Strip the possible file names
                         (set! path (cond
                                      ;; X/urn/cli.lisp -> X
