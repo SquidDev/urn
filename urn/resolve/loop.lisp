@@ -112,7 +112,7 @@
 
     (when name (set! name (.. "[resolve] " name)))
 
-    (with ((hook hook-mask hook-count) (and debug/gethook (debug/gethook)))
+    (with ((hook hook-mask hook-count) (if debug/gethook (debug/gethook) nil))
       ;; Create the initial resolver states
       (for i 1 (n nodes) 1
         (let [(node (nth nodes i))
