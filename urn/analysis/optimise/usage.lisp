@@ -1,4 +1,5 @@
 (import urn/analysis/nodes ())
+(import urn/analysis/vars ())
 (import urn/analysis/pass ())
 (import urn/analysis/tag/usage usage)
 (import urn/analysis/traverse traverse)
@@ -443,9 +444,54 @@
                [_]))]
           [_])))))
 
-(defpass lower-lambda (state node lookup)
-  "Pushes lambda definitions into child nodes, bringing them closer to
-   their use point."
+(defun deferrable? (lookup node)
+  "Determines whether evaluation of the given NODE can be deferred until
+   later."
+  :hidden
+  (with (deferrable true)
+    (visitor/visit-node node
+      (lambda (node)
+        (case (type node)
+          ;; Constants obviously can do whatever
+          ["string"]
+          ["number"]
+          ["key"]
+
+          ;; If we're a symbol, then we can only defer execution if
+          ;; the variable is immutable
+          ["symbol"
+           (with (info (usage/get-var lookup (.> node :var)))
+             (when (> (n (.> info :defs)) 1)
+               (set! deferrable false)))
+           deferrable]
+
+          ["list"
+           (case (type (car node))
+             ["symbol"
+              (with (var (.> (car node) :var))
+                (cond
+                  ;; Lambdas are obviously deferrable, but we shouldn't
+                  ;; visit the body
+                  [(= var (.> builtins :lambda)) false]
+                  ;; Visit these as normal
+                  [(= var (.> builtins :quote)) deferrable]
+                  [(= var (.> builtins :quasi-quote)) deferrable]
+                  [(= var (.> builtins :struct-literal)) deferrable]
+                  [(= var (.> builtins :cond))]
+                  ;; Everything else cannot be deferred
+                  [else
+                   (set! deferrable false)
+                   false]))]
+             ;; Otherwise we're calling a list of a constant, so just give up.
+             [_
+              (set! deferrable false)
+              false])])))
+
+    deferrable))
+
+(defpass lower-value (state node lookup)
+  "Pushes various values into child nodes, bringing them closer to the
+   place they are used"
   :cat '("opt" "usage" "transform-post-bind")
 
   (let* [(lam (car node))
@@ -455,53 +501,131 @@
          (removed {})]
     (for-each zipped (zip-args lam-args 1 node 2)
       (let* [(args (car zipped))
-             (vals (cadr zipped))]
-        (if (and
-              ;; If we've only got one argument and value
-              (= (n args) 1) (= (n vals) 1) (/= (car vals) nil)
-              ;; And the value is a lambda
-              (list? (car vals)) (builtin? (caar vals) :lambda)
-              ;; And we're only used once
-              (= (n (.> (usage/get-var lookup (.> (car args) :var)) :usages)) 1))
+             (vals (cadr zipped))
+             (handled false)]
 
-          (let [(var (.> (car args) :var))
-                (val (car vals))
-                (users 0)
-                (found nil)]
+        ;; We're only interested if there's only one non-variadic argument and only
+        ;; one value.
+        (when (and (= (n args) 1) (not (.> (car args) :is-variadic))
+                   (= (n vals) 1) (/= (car vals) nil))
+          (let* [(var (.> (car args) :var))
+                 (val (car vals))]
 
-            ;; So we've found a potential candidate, but we need to do some additional
-            ;; checks and filtering.
-            ;; Firstly, we need to ensure the node that uses this lambda is calling it
-            ;; (and so can be inlined).
-            ;; Additionally, we must ensure that this variable is only used once.
-            ;; Technically the usage information should ensure this, but sadly it isn't
-            ;; guaranteed to be accurate.
-            (visitor/visit-block lam 3
-              (lambda (child)
-                (cond
-                  ;; We've found a call to our variable so set the upvalue.
-                  [(and (list? child) (symbol? (car child)) (= (.> (car child) :var) var))
-                   (set! found child)]
-                  ;; We've found a usage of our variable, so increment the usage count.
-                  [(and (symbol? child) (= (.> child :var) var))
-                   (inc! users)]
-                  [else])
-                ;; A small optimisation: stop if we've got more than one user.
-                (<= users 1)
-                nil))
+            ;; Attempt to inline lambdas which are only used once (and that usage is a call).
+            (when (and (not handled)
+                       ;; If we're a lambda
+                       (list? val) (builtin? (car val) :lambda)
+                       ;; And we're only used once
+                       (= (n (.> (usage/get-var lookup var)  :usages)) 1))
+            (let [(users 0)
+                  (found nil)]
+              ;; So we've found a potential candidate, but we need to do some additional
+              ;; checks and filtering.
+              ;; Firstly, we need to ensure the node that uses this lambda is calling it
+              ;; (and so can be inlined).
+              ;; Additionally, we must ensure that this variable is only used once.
+              ;; Technically the usage information should ensure this, but sadly it isn't
+              ;; guaranteed to be accurate.
+              (visitor/visit-block lam 3
+                (lambda (child)
+                  (cond
+                    ;; We've found a call to our variable so set the upvalue.
+                    [(and (list? child) (symbol? (car child)) (= (.> (car child) :var) var))
+                     (set! found child)]
+                    ;; We've found a usage of our variable, so increment the usage count.
+                    [(and (symbol? child) (= (.> child :var) var))
+                     (inc! users)]
+                    [else])
+                  ;; A small optimisation: stop if we've got more than one user.
+                  (<= users 1)
+                  nil))
 
-            (if (and found (= users 1))
-              (progn
+              (when (and found (= users 1))
                 ;; We've got just one usage, replace it!
                 (changed!)
+                (set! handled true)
+
                 (.<! found 1 val)
                 (remove-nth! lam-args arg-offset)
-                (remove-nth! node val-offset))
-              (progn
-                ;; We're skipping this, more onto the next one
-                (set! arg-offset (+ arg-offset (n args)))
-                (set! val-offset (+ arg-offset (n vals))))))
-          (progn
-            ;; Otherwise we're skipping, so move onto the next set of arguments
-            (set! arg-offset (+ arg-offset (n args)))
-            (set! val-offset (+ arg-offset (n vals)))))))))
+                (remove-nth! node val-offset))))
+
+            ;; If we're some value which can be lazily created then we
+            ;; can potentially lower this into a child condition.
+            ;; We skip "atoms" as they will be lowered in other, more efficient, passes.
+            (when (and (not handled) (not (atom? val)) (deferrable? lookup val))
+              ;; Walk down the tree trying to find a position we can push down our node.
+              (loop [(cur lam)
+                     (start 3)
+                     (best nil)]
+                []
+
+                ;; Determine whether the variable is only referenced in one child node,
+                ;; if so return its index.
+                (let* [(found (loop [(i start)
+                                     (found nil)]
+                                [(> i (n cur)) found]
+
+                                (with (curi (nth cur i))
+                                  (cond
+                                    ;; If we don't contain the node then just skip onto the next one.
+                                    [(not (node-contains-var? curi var)) (recur (succ i) found)]
+                                    ;; If we've already found a node that contains it then exit.
+                                    [found nil]
+                                    ;; Otherwise, let's mark this node as containing it and continue.
+                                    [else (recur (succ i) curi)]))))
+
+                       (cond-found (and
+                                     ;; We're a condition
+                                     (list? found) (builtin? (car found) :cond)
+                                     ;; Attempt to find a branch where only that body references it.
+                                     (loop [(i 2)
+                                            (block nil)]
+                                       [(> i (n found)) block]
+                                       (with (branch (nth found i))
+                                         (cond
+                                           ;; If the test references the variable then abort
+                                           [(node-contains-var? (car branch) var) nil]
+                                           ;; If we don't reference it then continue.
+                                           [(not (fast-any (cut node-contains-var? <> var) branch 2))
+                                            (recur (succ i) block)]
+                                           ;; If we've already found then abort.
+                                           [block nil]
+                                           ;; Otherwise mark this node and continue
+                                           [else
+                                            (recur (succ i) branch)])))))]
+
+                  ;; We've potentially found the next node to continue to, so let's attempt to walk down the tree.
+                  (cond
+                    [cond-found
+                     ;; We found a new condition. Onwards!
+                     (recur cond-found 2 cond-found)]
+                    ;; We found a new condition. Onwards!
+                    [(and
+                       ;; We found a distinct node which is a directly called lambda
+                       (list? found) (list? (car found)) (builtin? (caar found) :lambda)
+                       ;; And we don't appear in any of the arguments
+                       (fast-all (lambda (x) (not (node-contains-var? x var))) (car found) 3))
+                     ;; Then we're OK to propagate into this node.
+                     (recur (car found) 3 best)]
+
+                    ;; So there's nothing else we can do: let's find our last successful node
+                    ;; and push it there.
+                    [best
+                     (changed!)
+                     (set! handled true)
+
+                     (with (new-body `(,(make-symbol (.> builtins :lambda)) (,(car args))))
+                       (for i 2 (n best) 1
+                         (push-cdr! new-body (remove-nth! best 2)))
+
+                       (push-cdr! best (list new-body val)))
+
+                     (remove-nth! lam-args arg-offset)
+                     (remove-nth! node val-offset)]
+
+                    [else]))))))
+
+        (unless handled
+          ;; Otherwise we're skipping, so move onto the next set of arguments
+          (set! arg-offset (+ arg-offset (n args)))
+          (set! val-offset (+ arg-offset (n vals))))))))
