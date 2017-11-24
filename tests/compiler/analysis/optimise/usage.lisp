@@ -337,9 +337,9 @@
                 [(cond [x x] [true x]) true])))))
         0)))
 
-  (section "will push lambdas down"
-    (it "when they are used once in a call"
-      (affirm-transform-optimise (list optimise/lower-lambda)
+  (section "will push values down"
+    (it "when they are lambdas used once in a call"
+      (affirm-transform-optimise (list optimise/lower-value)
         '(((lambda (x)
              (x 1))
             (lambda (y) (+ y 1))))
@@ -348,11 +348,76 @@
         1))
 
     (it "unless they are used multiple times"
-      (affirm-transform-optimise (list optimise/lower-lambda)
+      (affirm-transform-optimise (list optimise/lower-value)
         '(((lambda (x)
              (x 1) x)
             (lambda (y) (+ y 1))))
         '(((lambda (x)
              (x 1) x)
             (lambda (y) (+ y 1))))
+        0))
+
+    (it "will push lambdas inside conditions"
+      (affirm-transform-optimise (list optimise/lower-value)
+        '(((lambda (x)
+             (cond
+               [1 1]
+               [2 (x x)]))
+            (lambda (y) (+ y 1))))
+        '(((lambda ()
+             (cond
+               [1 1]
+               [2 ((lambda (x)
+                     (x x))
+                    (lambda (y) (+ y 1)))]))))
+        1))
+
+
+    (it "will push values into conditions through bindings"
+      (affirm-transform-optimise (list optimise/lower-value)
+        '(((lambda (x)
+             (cond
+               [1 1]
+               [2 ((lambda (z) (z x x)) 1)]))
+            { :x 1 :y + }))
+        '(((lambda ()
+             (cond
+               [1 1]
+               [2 ((lambda (x)
+                     ((lambda (z) (z x x)) 1))
+                    { :x 1 :y + })]))))
+        1))
+
+    (it "unless they are used in multiple branches"
+      (affirm-transform-optimise (list optimise/lower-value)
+        '(((lambda (x)
+             (cond
+               [1 x]
+               [2 (x x)]))
+            { :x 1 :y + }))
+        '(((lambda (x)
+             (cond
+               [1 x]
+               [2 (x x)]))
+            { :x 1 :y + }))
+        0))
+
+    (it "unless they are not deferrable"
+      (affirm-transform-optimise (list optimise/lower-value)
+        '(((lambda (a)
+             (set! a 2)
+
+             ((lambda (x)
+                (cond
+                  [1 1]
+                  [2 (x x)]))
+               { :x a }))))
+        '(((lambda (a)
+             (set! a 2)
+
+             ((lambda (x)
+                (cond
+                  [1 1]
+                  [2 (x x)]))
+               { :x a }))))
         0))))
