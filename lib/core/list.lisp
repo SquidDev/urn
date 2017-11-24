@@ -676,14 +676,12 @@
   (let* [(l '())
          (ln (n xs))
          (x (nth xs idx))]
-    (if (nil? x)
-      '()
-      (progn
-        (while (and (<= idx ln) (p x))
-          (push-cdr! l x)
-          (set! idx (+ idx 1))
-          (set! x (nth xs idx)))
-        l))))
+    (unless (nil? x)
+      (while (and (<= idx ln) (p x))
+        (push-cdr! l x)
+        (set! idx (+ idx 1))
+        (set! x (nth xs idx))))
+    l))
 
 (defun split (xs y)
   "Splits a list into sub-lists by the separator Y.
