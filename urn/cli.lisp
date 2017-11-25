@@ -54,6 +54,7 @@
                         (set! path (cond
                                      ;; X/urn/cli.lisp -> X
                                      [(string/find path "urn[/\\]cli%.lisp$") (string/gsub path "urn[/\\]cli%.lisp$" "")]
+                                     [(string/find path "urn[/\\]cli$") (string/gsub path "urn[/\\]cli$" "")]
                                      ;; X/bin/* -> X
                                      [(string/find path "bin[/\\][^/\\]*$")   (string/gsub path "bin[/\\][^/\\]*$" "")]
                                      ;; X/* -> X

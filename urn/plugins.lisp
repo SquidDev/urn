@@ -7,6 +7,7 @@
 (import urn/analysis/visitor visitor)
 (import urn/backend/lua/emit lua)
 (import urn/backend/writer writer)
+(import urn/error error)
 (import urn/logger logger)
 (import urn/range range)
 (import urn/resolve/scope scope)
@@ -35,7 +36,7 @@
       :logger/put-node-warning! (lambda (msg node explain &lines)
                                   (logger/put-node-warning! logger msg node explain (unpack lines 1 (n lines))))
       :logger/do-node-error!    (lambda (msg node explain &lines)
-                                  (logger/do-node-error!    logger msg node explain (unpack lines 1 (n lines))))
+                                  (error/do-node-error!    logger msg node explain (unpack lines 1 (n lines))))
       :range/get-source    range/get-source
       :flags               (lambda () (map id (.> compiler :flags)))
       :flag?               (cut elem? <> (.> compiler :flags))
