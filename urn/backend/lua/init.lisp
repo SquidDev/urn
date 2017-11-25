@@ -99,9 +99,9 @@
            (sort! vars (lambda (x y) (> (.> counts x) (.> counts y))))
 
            (w/append! out "local ")
-           (for i 1 100 1
-             (when (> i 1) (w/append! out ", "))
-             (w/append! out (escape-var (nth vars i) state)))
+           (with (main-vars (map (cut escape-var <> state) (take vars 100)))
+             (sort! main-vars)
+             (w/append! out (concat main-vars ", ")))
            (w/line! out))
 
          ;; Create a magic metatable which avoids polluting the global output.

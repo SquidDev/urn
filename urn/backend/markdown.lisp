@@ -50,7 +50,7 @@
          (hash (cond
                  [(= sig nil) (.> var :name)]
                  [(empty? sig) (.> var :name)]
-                 [true (.. name " " (concat (map (on :contents) sig) " "))]))
+                 [true (.. name " " (concat sig " "))]))
          (titleq (if title
                    (.. " \"" title "\"")
                    ""))]
