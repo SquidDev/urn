@@ -15,7 +15,7 @@ out = true
 ```
 
 ## `(affirm &asserts)`
-*Macro defined at lib/test/assert.lisp:5:2*
+*Macro defined at lib/test/assert.lisp:12:2*
 
 Assert each expression in `ASSERTS` evaluates to true
 
@@ -35,7 +35,7 @@ printed out.
 ```
 
 ## `(assert! cnd msg)`
-*Macro defined at lib/test/assert.lisp:1:2*
+*Macro defined at lib/test/assert.lisp:8:2*
 
 Assert `CND` is true, otherwise failing with `MSG`
 

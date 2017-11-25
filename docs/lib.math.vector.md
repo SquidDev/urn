@@ -91,7 +91,7 @@ Create a new vector from several values.
 out = [1 2 3]
 ```
 
-## `(vector-dim r_984)`
+## `(vector-dim vector)`
 *Defined at lib/math/vector.lisp:7:2*
 
 The dimension of this vector.
@@ -103,4 +103,4 @@ Get the `I` th element in the `VECTOR`.
 
 ## Undocumented symbols
  - `$vector` *Defined at lib/math/vector.lisp:7:2*
- - `(vector? r_983)` *Defined at lib/math/vector.lisp:7:2*
+ - `(vector? vector)` *Defined at lib/math/vector.lisp:7:2*

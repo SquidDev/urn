@@ -47,7 +47,7 @@ Set the value at `KEYS` in the structure `X` to `VALUE`.
 Index the structure `X` with the sequence of accesses given by `KEYS`.
 
 ## `(<=> p q)`
-*Macro defined at lib/core/base.lisp:312:2*
+*Macro defined at lib/core/base.lisp:320:2*
 
 Bidirectional implication. `(<=> a b)` means that `(=> a b)` and
 `(=> b a)` both hold.
@@ -63,7 +63,7 @@ out = false
 ```
 
 ## `(=> p q)`
-*Macro defined at lib/core/base.lisp:302:2*
+*Macro defined at lib/core/base.lisp:310:2*
 
 Logical implication. `(=> a b)` is equivalent to `(or (not a) b)`.
 
@@ -116,7 +116,7 @@ out = false
 ```
 
 ## `(and a b &rest)`
-*Macro defined at lib/core/base.lisp:266:2*
+*Macro defined at lib/core/base.lisp:274:2*
 
 Return the logical and of values `A` and `B`, and, if present, the
 logical and of all the values in `REST`.
@@ -157,7 +157,7 @@ out = (1 2 3 4)
 ``` 
 
 ## `(apply f &xss xs)`
-*Defined at lib/core/base.lisp:430:2*
+*Defined at lib/core/base.lisp:438:2*
 
 Apply the function `F` using `XS` as the argument list, with `XSS` as
 arguments before `XS` is spliced.
@@ -171,7 +171,7 @@ out = 3
 ```
 
 ## `arg`
-*Defined at lib/core/base.lisp:371:1*
+*Defined at lib/core/base.lisp:379:1*
 
 The arguments passed to the currently executing program
 
@@ -251,7 +251,7 @@ out = (1 2 3 4 5 6)
 ```
 
 ## `(const-val val)`
-*Defined at lib/core/base.lisp:383:2*
+*Defined at lib/core/base.lisp:391:2*
 
 Get the actual value of `VAL`, an argument to a macro.
 
@@ -547,7 +547,7 @@ out = (1 2 3 4)
 ```
 
 ## `(for ctr start end step &body)`
-*Macro defined at lib/core/base.lisp:216:2*
+*Macro defined at lib/core/base.lisp:224:2*
 
 Iterate `BODY`, with the counter `CTR` bound to `START`, being incremented
 by `STEP` every iteration until `CTR` is outside of the range given by
@@ -579,7 +579,7 @@ out = nil
 ```
 
 ## `(for-pairs vars tbl &body)`
-*Macro defined at lib/core/base.lisp:344:2*
+*Macro defined at lib/core/base.lisp:352:2*
 
 Iterate over `TBL`, binding `VARS` for each key value pair in `BODY`.
 
@@ -594,7 +594,7 @@ out = (("foo" 123))
 ```
 
 ## `(function &arms)`
-*Macro defined at lib/core/match.lisp:467:2*
+*Macro defined at lib/core/match.lisp:468:2*
 
 Create a lambda which matches its arguments against the patterns
 defined in `ARMS`.
@@ -610,7 +610,7 @@ Check whether `X` is a function.
 Create a unique symbol, suitable for using in macros
 
 ## `(groups-of xs num)`
-*Defined at lib/core/list.lisp:707:2*
+*Defined at lib/core/list.lisp:705:2*
 
 Splits the list `XS` into sub-lists of size `NUM`.
 
@@ -668,7 +668,7 @@ out = 1
 ```
 
 ## `(if-match cs t e)`
-*Macro defined at lib/core/match.lisp:482:2*
+*Macro defined at lib/core/match.lisp:483:2*
 
 Matches a pattern against a value defined in `CS`, evaluating `T` with the
 captured variables in scope if the pattern succeeded, otherwise
@@ -982,7 +982,7 @@ Convert the number `X` into a string.
 Check whether `X` is a number.
 
 ## `(or a b &rest)`
-*Macro defined at lib/core/base.lisp:284:2*
+*Macro defined at lib/core/base.lisp:292:2*
 
 Return the logical or of values `A` and `B`, and, if present, the
 logical or of all the values in `REST`.
@@ -1100,7 +1100,7 @@ out = (1 2 3 4)
 ```
 
 ## `(quasiquote val)`
-*Macro defined at lib/core/base.lisp:416:2*
+*Macro defined at lib/core/base.lisp:424:2*
 
 Quote `VAL`, but replacing all `unquote` and `unquote-splice` with their actual value.
 
@@ -1191,7 +1191,7 @@ out = (1 2 3 4 5 6)
 ``` 
 
 ## `(sort xs f)`
-*Defined at lib/core/list.lisp:725:2*
+*Defined at lib/core/list.lisp:723:2*
 
 Sort the list `XS`, non-destructively, optionally using `F` as a
 comparator.  `A` sorted version of the list is returned, while the
@@ -1208,7 +1208,7 @@ out = (9 5 7 2 1)
 ```
 
 ## `(sort! xs f)`
-*Defined at lib/core/list.lisp:743:2*
+*Defined at lib/core/list.lisp:741:2*
 
 Sort the list `XS` in place, optionally using `F` as a comparator.
 
@@ -1222,7 +1222,7 @@ out = (1 2 5 7 9)
 ```
 
 ## `(split xs y)`
-*Defined at lib/core/list.lisp:688:2*
+*Defined at lib/core/list.lisp:686:2*
 
 Splits a list into sub-lists by the separator `Y`.
 
@@ -1531,7 +1531,7 @@ out = true
 Return the values in the structure `ST`.
 
 ## `(values-list &xs)`
-*Macro defined at lib/core/base.lisp:444:2*
+*Macro defined at lib/core/base.lisp:452:2*
 
 Return multiple values, one per element in `XS`.
 
@@ -1606,7 +1606,7 @@ When `bar` has an index `baz`, it will be bound to `foo` and
 printed. If not, the print statement will not be executed.
 
 ## `(while check &body)`
-*Macro defined at lib/core/base.lisp:243:2*
+*Macro defined at lib/core/base.lisp:251:2*
 
 Iterate `BODY` while the expression `CHECK` evaluates to `true`.
 
@@ -1635,69 +1635,69 @@ Bind the single variable `VAR`, then evaluate `BODY`.
  - `=` *Native defined at lib/lua/basic.lisp:1:1*
  - `>` *Native defined at lib/lua/basic.lisp:5:1*
  - `>=` *Native defined at lib/lua/basic.lisp:6:1*
- - `(caaaar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caaaars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caaadr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caaadrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caaar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caaars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caadar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caadars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caaddr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caaddrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caadr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caadrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cadaar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cadaars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cadadr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cadadrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cadar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cadars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caddar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caddars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cadddr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cadddrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caddr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caddrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cadr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cadrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdaaar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdaaars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdaadr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdaadrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdaar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdaars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdadar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdadars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdaddr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdaddrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdadr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdadrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cddaar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cddaars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cddadr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cddadrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cddar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cddars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdddar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdddars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cddddr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cddddrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdddr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdddrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cddr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cddrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdrs xs)` *Defined at lib/core/list.lisp:758:1*
+ - `(caaaar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caaaars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caaadr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caaadrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caaar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caaars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caadar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caadars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caaddr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caaddrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caadr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caadrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cadaar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cadaars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cadadr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cadadrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cadar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cadars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caddar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caddars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cadddr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cadddrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caddr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caddrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cadr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cadrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdaaar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdaaars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdaadr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdaadrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdaar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdaars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdadar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdadars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdaddr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdaddrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdadr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdadrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cddaar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cddaars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cddadr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cddadrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cddar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cddars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdddar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdddars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cddddr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cddddrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdddr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdddrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cddr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cddrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdrs xs)` *Defined at lib/core/list.lisp:756:1*
  - `concat` *Native defined at lib/lua/table.lisp:1:1*
  - `expt` *Native defined at lib/lua/basic.lisp:13:1*
- - `(fifth &rest)` *Defined at lib/core/base.lisp:462:1*
- - `(first &rest)` *Defined at lib/core/base.lisp:462:1*
- - `(fourth &rest)` *Defined at lib/core/base.lisp:462:1*
+ - `(fifth &rest)` *Defined at lib/core/base.lisp:470:1*
+ - `(first &rest)` *Defined at lib/core/base.lisp:470:1*
+ - `(fourth &rest)` *Defined at lib/core/base.lisp:470:1*
  - `getmetatable` *Native defined at lib/lua/basic.lisp:25:1*
  - `io/close` *Native defined at lib/lua/io.lisp:1:1*
  - `io/flush` *Native defined at lib/lua/io.lisp:2:1*
@@ -1745,13 +1745,13 @@ Bind the single variable `VAR`, then evaluate `BODY`.
  - `math/ult` *Native defined at lib/lua/math.lisp:28:1*
  - `mod` *Native defined at lib/lua/basic.lisp:12:1*
  - `next` *Native defined at lib/lua/basic.lisp:29:1*
- - `(ninth &rest)` *Defined at lib/core/base.lisp:462:1*
+ - `(ninth &rest)` *Defined at lib/core/base.lisp:470:1*
  - `pcall` *Native defined at lib/lua/basic.lisp:31:1*
  - `require` *Native defined at lib/lua/basic.lisp:39:1*
- - `(second &rest)` *Defined at lib/core/base.lisp:462:1*
+ - `(second &rest)` *Defined at lib/core/base.lisp:470:1*
  - `setmetatable` *Native defined at lib/lua/basic.lisp:41:1*
- - `(seventh &rest)` *Defined at lib/core/base.lisp:462:1*
- - `(sixth &rest)` *Defined at lib/core/base.lisp:462:1*
+ - `(seventh &rest)` *Defined at lib/core/base.lisp:470:1*
+ - `(sixth &rest)` *Defined at lib/core/base.lisp:470:1*
  - `string/byte` *Native defined at lib/lua/string.lisp:1:1*
  - `string/char` *Native defined at lib/lua/string.lisp:2:1*
  - `string/concat` *Native defined at lib/lua/table.lisp:1:1*
@@ -1766,8 +1766,8 @@ Bind the single variable `VAR`, then evaluate `BODY`.
  - `string/reverse` *Native defined at lib/lua/string.lisp:11:1*
  - `string/sub` *Native defined at lib/lua/string.lisp:12:1*
  - `string/upper` *Native defined at lib/lua/string.lisp:13:1*
- - `(tenth &rest)` *Defined at lib/core/base.lisp:462:1*
- - `(third &rest)` *Defined at lib/core/base.lisp:462:1*
+ - `(tenth &rest)` *Defined at lib/core/base.lisp:470:1*
+ - `(third &rest)` *Defined at lib/core/base.lisp:470:1*
  - `tonumber` *Native defined at lib/lua/basic.lisp:42:1*
  - `tostring` *Native defined at lib/lua/basic.lisp:43:1*
  - `unpack` *Native defined at lib/lua/table.lisp:7:1*

@@ -184,7 +184,7 @@ The pattern is given as `(car PT)` and the value as `(cadr PT)`.  If
 the pattern does not match, an error is thrown.
 
 ## `(function &arms)`
-*Macro defined at lib/core/match.lisp:467:2*
+*Macro defined at lib/core/match.lisp:468:2*
 
 Create a lambda which matches its arguments against the patterns
 defined in `ARMS`.
@@ -211,7 +211,7 @@ out = nil
 ```
 
 ## `(if-match cs t e)`
-*Macro defined at lib/core/match.lisp:482:2*
+*Macro defined at lib/core/match.lisp:483:2*
 
 Matches a pattern against a value defined in `CS`, evaluating `T` with the
 captured variables in scope if the pattern succeeded, otherwise

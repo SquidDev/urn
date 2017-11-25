@@ -8,17 +8,17 @@ This provides basic algorithms for working with graphs, support for
 super-vertices, and other nifty features.
 
 ## `(add-edge! from to)`
-*Defined at lib/data/graph.lisp:63:2*
+*Defined at lib/data/graph.lisp:66:2*
 
 Add an edge `FROM` one vertex `TO` another.
 
 ## `(add-vertex! graph value)`
-*Defined at lib/data/graph.lisp:44:2*
+*Defined at lib/data/graph.lisp:45:2*
 
 Create a vertex with the corresponding `VALUE` and add it to the `GRAPH`.
 
 ## `(condensation in-graph)`
-*Defined at lib/data/graph.lisp:142:2*
+*Defined at lib/data/graph.lisp:145:2*
 
 Compute the condensation of an input graph, `IN-GRAPH`, replacing all strongly connected
 components with a super vertex.
@@ -37,7 +37,7 @@ out = «graph: "c" ("b" "a")»
 ```
 
 ## `(dominators root)`
-*Defined at lib/data/graph.lisp:248:2*
+*Defined at lib/data/graph.lisp:253:2*
 
 Build the dominators from nodes descended from `ROOT`.
 
@@ -49,24 +49,47 @@ cyclic graphs.
 This returns two objects: a lookup of vertex to its immediate dominator,
 and a `DAG` with edges from dominators to their immediate children.
 
+### Example:
+```cl
+> (define g (make-graph))
+> (define doms
+.   (let [(a (add-vertex! g :a))
+.         (b (add-vertex! g :b))
+.         (c (add-vertex! g :c))
+.         (d (add-vertex! g :d))]
+.     (add-edge! a b)
+.     (add-edge! a c)
+.     (add-edge! b c)
+.     (add-edge! c b)
+.     (add-edge! b d)
+.
+.     (dominators a)))
+> (.> doms (get-vertex g :b))
+out = «vertex: "a"»
+> (.> doms (get-vertex g :c))
+out = «vertex: "a"»
+> (.> doms (get-vertex g :d))
+out = «vertex: "b"»
+```
+
 ## `(get-vertex graph value)`
-*Defined at lib/data/graph.lisp:55:2*
+*Defined at lib/data/graph.lisp:58:2*
 
 Get the corresponding vertex for this `VALUE` from the given `GRAPH`.
 
 ## `(graph->dot graph name)`
-*Defined at lib/data/graph.lisp:27:2*
+*Defined at lib/data/graph.lisp:28:2*
 
 Convert `GRAPH` to a string in the `DOT` format, suitable for consumption
 with GraphViz.
 
 ## `make-graph`
-*Defined at lib/data/graph.lisp:8:2*
+*Defined at lib/data/graph.lisp:9:2*
 
 Create a new, empty graph.
 
 ## `(strongly-connected-components graph)`
-*Defined at lib/data/graph.lisp:75:2*
+*Defined at lib/data/graph.lisp:78:2*
 
 Find all strong components from a `GRAPH`.
 
@@ -87,7 +110,7 @@ out = ((«vertex: "c"») («vertex: "b"» «vertex: "a"»))
 ```
 
 ## `(traverse-postorder root visitor)`
-*Defined at lib/data/graph.lisp:213:2*
+*Defined at lib/data/graph.lisp:217:2*
 
 Visit a graph using postorder traversal starting at `ROOT`, calling
 `VISITOR` for each vertex.
@@ -118,7 +141,7 @@ out = nil
 ```
 
 ## `(traverse-preorder root visitor)`
-*Defined at lib/data/graph.lisp:177:2*
+*Defined at lib/data/graph.lisp:180:2*
 
 Visit a graph using preorder traversal starting at `ROOT`, calling
 `VISITOR` for each vertex.
@@ -149,9 +172,7 @@ out = nil
 ```
 
 ## Undocumented symbols
- - `$graph` *Defined at lib/data/graph.lisp:8:2*
- - `$vertex` *Defined at lib/data/graph.lisp:16:2*
- - `(graph-vertex-lookup r_1499)` *Defined at lib/data/graph.lisp:8:2*
- - `(graph-vertices r_1497)` *Defined at lib/data/graph.lisp:8:2*
- - `(graph? r_1496)` *Defined at lib/data/graph.lisp:8:2*
- - `(vertex? r_1503)` *Defined at lib/data/graph.lisp:16:2*
+ - `$graph` *Defined at lib/data/graph.lisp:9:2*
+ - `$vertex` *Defined at lib/data/graph.lisp:17:2*
+ - `(graph? graph)` *Defined at lib/data/graph.lisp:9:2*
+ - `(vertex? vertex)` *Defined at lib/data/graph.lisp:17:2*

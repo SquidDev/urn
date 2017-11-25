@@ -26,12 +26,12 @@ out = 157/50
 out = 3.14
 ```
 
-## `(denominator r_676)`
+## `(denominator rational)`
 *Defined at lib/math/rational.lisp:7:2*
 
 The rational's denumerator
 
-## `(numerator r_674)`
+## `(numerator rational)`
 *Defined at lib/math/rational.lisp:7:2*
 
 The rational's numerator
@@ -43,4 +43,4 @@ The rational's numerator
 
 ## Undocumented symbols
  - `$rational` *Defined at lib/math/rational.lisp:7:2*
- - `(rational? r_673)` *Defined at lib/math/rational.lisp:7:2*
+ - `(rational? rational)` *Defined at lib/math/rational.lisp:7:2*

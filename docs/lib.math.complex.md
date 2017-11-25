@@ -32,7 +32,7 @@ out = 45
 ## `complex`
 *Defined at lib/math/complex.lisp:16:2*
 
-Represents a complex number, formed of a [`real`](lib.math.complex.md#real-r-) and [`imaginary`](lib.math.complex.md#imaginary-r-)
+Represents a complex number, formed of a [`real`](lib.math.complex.md#real-complex) and [`imaginary`](lib.math.complex.md#imaginary-complex)
 part.
 
 ## `(conjugate z)`
@@ -46,7 +46,7 @@ Get the complex conjugate of `Z`.
 out = 1-2i
 ```
 
-## `(imaginary r_1188)`
+## `(imaginary complex)`
 *Defined at lib/math/complex.lisp:16:2*
 
 The imaginary part of this [`complex`](lib.math.complex.md#complex) number.
@@ -76,11 +76,11 @@ Create a complex number from the given `MAGNITUDE` and `ANGLE`.
 out = 1+1i
 ```
 
-## `(real r_1186)`
+## `(real complex)`
 *Defined at lib/math/complex.lisp:16:2*
 
 The real part of this [`complex`](lib.math.complex.md#complex) number.
 
 ## Undocumented symbols
  - `$complex` *Defined at lib/math/complex.lisp:16:2*
- - `(complex? r_1185)` *Defined at lib/math/complex.lisp:16:2*
+ - `(complex? complex)` *Defined at lib/math/complex.lisp:16:2*

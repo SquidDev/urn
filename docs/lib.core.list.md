@@ -246,7 +246,7 @@ out = nil
 ```
 
 ## `(groups-of xs num)`
-*Defined at lib/core/list.lisp:707:2*
+*Defined at lib/core/list.lisp:705:2*
 
 Splits the list `XS` into sub-lists of size `NUM`.
 
@@ -504,7 +504,7 @@ out = (1 2 3 4 5 6)
 ``` 
 
 ## `(sort xs f)`
-*Defined at lib/core/list.lisp:725:2*
+*Defined at lib/core/list.lisp:723:2*
 
 Sort the list `XS`, non-destructively, optionally using `F` as a
 comparator.  `A` sorted version of the list is returned, while the
@@ -521,7 +521,7 @@ out = (9 5 7 2 1)
 ```
 
 ## `(sort! xs f)`
-*Defined at lib/core/list.lisp:743:2*
+*Defined at lib/core/list.lisp:741:2*
 
 Sort the list `XS` in place, optionally using `F` as a comparator.
 
@@ -535,7 +535,7 @@ out = (1 2 5 7 9)
 ```
 
 ## `(split xs y)`
-*Defined at lib/core/list.lisp:688:2*
+*Defined at lib/core/list.lisp:686:2*
 
 Splits a list into sub-lists by the separator `Y`.
 
@@ -609,61 +609,61 @@ out = (1 2 3 4 5)
 ```
 
 ## Undocumented symbols
- - `(caaaar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caaaars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caaadr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caaadrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caaar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caaars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caadar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caadars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caaddr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caaddrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caadr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caadrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cadaar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cadaars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cadadr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cadadrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cadar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cadars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caddar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caddars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cadddr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cadddrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caddr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(caddrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cadr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cadrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdaaar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdaaars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdaadr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdaadrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdaar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdaars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdadar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdadars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdaddr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdaddrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdadr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdadrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cddaar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cddaars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cddadr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cddadrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cddar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cddars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdddar xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdddars xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cddddr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cddddrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdddr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdddrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cddr xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cddrs xs)` *Defined at lib/core/list.lisp:758:1*
- - `(cdrs xs)` *Defined at lib/core/list.lisp:758:1*
+ - `(caaaar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caaaars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caaadr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caaadrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caaar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caaars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caadar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caadars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caaddr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caaddrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caadr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caadrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cadaar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cadaars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cadadr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cadadrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cadar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cadars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caddar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caddars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cadddr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cadddrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caddr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(caddrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cadr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cadrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdaaar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdaaars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdaadr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdaadrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdaar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdaars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdadar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdadars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdaddr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdaddrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdadr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdadrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cddaar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cddaars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cddadr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cddadrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cddar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cddars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdddar xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdddars xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cddddr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cddddrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdddr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdddrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cddr xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cddrs xs)` *Defined at lib/core/list.lisp:756:1*
+ - `(cdrs xs)` *Defined at lib/core/list.lisp:756:1*
