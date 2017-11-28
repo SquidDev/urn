@@ -188,16 +188,6 @@
 
 ;; Lenses (for lists and structures)
 
-(define it
-  "The simplest lens, not focusing on any subcomponent. In the case of [[over]],
-   if the value being focused on is a list, the function is mapped over every
-   element of the list."
-  (lens (lambda (x) x)
-        (lambda (f x)
-          (if (list? x)
-            (map f x)
-            (f x)))))
-
 (define head
   "A lens equivalent to [[car]], which [[view]]s and applies [[over]]
    the first element of a list.
