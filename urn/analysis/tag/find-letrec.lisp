@@ -120,6 +120,7 @@
               [(= func (.> builtins :define-native))] ;; Nothing needs doing here
               [(= func (.> builtins :import))] ;; Nothing needs doing here
               [(= func (.> builtins :struct-literal)) (visit-nodes node 2 nil lookup)]
+              [(= func (.> builtins :arg-splice)) (visit-node (nth node 2) nil nil lookup)]
               [true (fail! (.. "Unknown builtin for variable " (.> func :name)))]))]
          ["list"
           (with (first (car node))

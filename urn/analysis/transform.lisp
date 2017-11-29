@@ -125,6 +125,8 @@
                            [(= func (.> builtins :struct-literal))
                             (for i 1 (n node) 1
                               (.<! node i (transform-node (nth node i))))]
+                           [(= func (.> builtins :arg-splice))
+                            (.<! node 2 (transform-node (nth node 2)))]
                            [else (fail! (.. "Unknown variable " (.> func :name)))]))]
                       ["list"
                        (if (builtin? (car head) :lambda)

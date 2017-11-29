@@ -295,7 +295,8 @@
                           [(= var (.> builtins :import))]
                           ;; Visit basic builtins normally
                           [(= var (.> builtins :syntax-quote)) (visitor/visit-quote (nth node 2) visitor 1)]
-                          [(= var (.> builtins :struct-literal)) (visitor/visit-list node 2 visitor)])
+                          [(= var (.> builtins :struct-literal)) (visitor/visit-list node 2 visitor)]
+                          [(= var (.> builtins :arg-splice)) (visitor/visit-node (nth node 2) visitor)])
 
                         (cond
                           ;; We've got all the arguments so everything should be OK.
@@ -477,6 +478,7 @@
                   [(= var (.> builtins :quote)) deferrable]
                   [(= var (.> builtins :quasi-quote)) deferrable]
                   [(= var (.> builtins :struct-literal)) deferrable]
+                  [(= var (.> builtins :arg-splice)) deferrable]
                   [(= var (.> builtins :cond))]
                   ;; Everything else cannot be deferred
                   [else

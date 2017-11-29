@@ -209,6 +209,9 @@
                     [(= func (.> builtins :struct-literal))
                      (visit-nodes lookup state node 2 false)
                      (cat "struct-literal" :prec 100)]
+                    [(= func (.> builtins :arg-splice))
+                     (visit-node lookup state (nth node 2) false)
+                     (cat "arg-splice")]
 
                     ;; Handle things like `(true)`
                     [(= func (.> builtins :true))

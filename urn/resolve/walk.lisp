@@ -469,6 +469,12 @@
                     (error-positions! (.> state :logger) node (.. "Expected an even number of arguments, got " (pred (n node)))))
                   (resolve-list node 2 scope state)]
 
+                 [(= func (.> builtins :arg-splice))
+                  (expect!     (.> state :logger) (nth node 2) node "value")
+                  (max-length! (.> state :logger) node 2 "arg-splice")
+                  (resolve-node (nth node 2) scope state)
+                  node]
+
                  [true
                   (error-internal! (.> state :logger) node (.. "Unknown builtin " (if func (.> func :name) "?")))])]
 

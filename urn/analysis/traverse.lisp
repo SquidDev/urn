@@ -74,6 +74,9 @@
                [(= func (.> builtins :struct-literal))
                 (traverse-list node 2 visitor)
                 (visitor node visitor)]
+               [(= func (.> builtins :arg-splice))
+                (.<! node 2 (traverse-node (nth node 2) visitor))
+                (visitor node visitor)]
                [true
                  (fail! (.. "Unknown kind " funct " for variable " (.> func :name)))]))
            (progn

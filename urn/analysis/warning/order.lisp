@@ -65,6 +65,7 @@
               [(= func (.> builtins :struct-literal)) (visit-list defined logger node 2)]
               [(= func (.> builtins :syntax-quote))
                (visit-quote defined logger (nth node 2) 1)]
+              [(= func (.> builtins :arg-splice)) (visit-node defined logger (nth node 2))]
 
               [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
                (visit-node defined logger (nth node (n node)) true)

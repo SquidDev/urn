@@ -116,7 +116,13 @@
              (score-node (nth node 2) (+ cumulative 10) threshold)]
 
             [(= func (.> builtins :struct-literal))
-             (score-nodes node 2 (+ cumulative (/ (pred (n node)) 2) 3) threshold)]))]
+             (score-nodes node 2 (+ cumulative (/ (pred (n node)) 2) 3) threshold)]
+
+            [(= func (.> builtins :arg-splice))
+             (with (expr (nth node 2))
+               (if (and (symbol? expr) (.> expr :var :is-variadic))
+                 (score-node expr cumulative threshold)
+                 (score-node expr (+ cumulative 1) threshold)))]))]
 
        ["list"
         (if (builtin? (caar node) :lambda)

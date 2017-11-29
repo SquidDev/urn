@@ -53,7 +53,8 @@
                  [(= func (.> builtins :define-native))] ;; Nothing needs doing here
                  [(= func (.> builtins :import))] ;; Nothing needs doing here
                  [(= func (.> builtins :struct-literal)) (visit-list node 2 visitor)]
-                 [true
+                 [(= func (.> builtins :arg-splice)) (visit-node (nth node 2) visitor)]
+                 [else
                    (fail! (.. "Unknown kind " funct " for variable " (.> func :name)))]))
              (visit-block node 1 visitor)))]
         [true (error! (.. "Unknown tag " tag))]))))

@@ -16,7 +16,7 @@
   {})
 
 (for-each symbol '("define" "define-macro" "define-native"
-                   "lambda" "set!" "cond" "import" "struct-literal"
+                   "lambda" "set!" "cond" "import" "struct-literal" "arg-splice"
                    "quote" "syntax-quote" "unquote" "unquote-splice")
   (with (var (scope/add! root-scope symbol "builtin" nil))
     (scope/import! root-scope (.. "builtin/" symbol) var true)

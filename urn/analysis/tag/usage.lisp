@@ -159,6 +159,7 @@
                            [(= func (.> builtins :import))]
                            [(= func (.> builtins :struct-literal))
                             (for i 2 (n node) 1 (visit-node (nth node i)))]
+                           [(= func (.> builtins :arg-splice)) (visit-node (nth node 2))]
 
                            [else (fail! (.. "Unhandled variable " (.> func :name)))]))]
                       ["list"
