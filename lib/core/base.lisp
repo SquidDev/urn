@@ -447,7 +447,7 @@
    out = 3
    ```"
   (let* [(args `(,@xss ,@xs))]
-    (f (unpack args 1 (n args)))))
+    (f (arg-splice args))))
 
 (defmacro values-list (&xs)
   "Return multiple values, one per element in XS.
@@ -458,14 +458,12 @@
    1   2   3
    out = nil
    ```"
-  `(unpack (list ,@(let* [(out '())] ; god
-                     (for i 1 (n xs) 1
-                          (set-idx! out i `((lambda (,'x) ,'x) ; wake me up
-                                           ,(get-idx xs i)))) ; (wake me up inside)
-                     (set-idx! out :n (n xs))
-                     out))
-           1 ,(n xs)))
-
+  `(arg-splice (list ,@(let* [(out '())] ; god
+                         (for i 1 (n xs) 1
+                           (set-idx! out i `((lambda (,'x) ,'x) ; wake me up
+                                              ,(get-idx xs i)))) ; (wake me up inside)
+                         (set-idx! out :n (n xs))
+                         out))))
 
 ,@(let* [(out '())
          (ns '(first second third

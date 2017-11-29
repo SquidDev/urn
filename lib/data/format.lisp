@@ -1,5 +1,6 @@
-(import core/prelude ())
 (import core/base (type#))
+(import core/prelude ())
+(import data/function (self))
 
 (defun display (x) :hidden
   (cond
@@ -18,9 +19,6 @@
     [else (self out :write buf)]))
 
 (defun str->sym (x) :hidden { :tag "symbol" :contents x })
-
-(defun self (x key &args) :hidden
-  ((.> x key) x (unpack args 1 (n args))))
 
 (defun name-terminator-char? (c) :hidden
   (or (= c ":")
