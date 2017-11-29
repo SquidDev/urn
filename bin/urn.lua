@@ -4,7 +4,7 @@ if not table.unpack then table.unpack = unpack end
 local load = load if _VERSION:find("5.1") then load = function(x, n, _, env) local f, e = loadstring(x, n) if not f then return f, e end if env then setfenv(f, env) end return f end end
 local _select, _unpack, _pack, _error = select, table.unpack, table.pack, error
 local _libs = {}
-local _2b_1, _2d_1, _2e2e_1, _2f3d_1, _2f_1, _3c3d_1, _3c_1, _3d_1, _3e3d_1, _3e_1, _5e7e_1, addArgument_21_1, addParen1, any1, append_21_1, apply1, arg1, between_3f_1, builtin_3f_1, builtins1, cadr1, car1, child1, coloured1, compileBlock1, compileExpression1, concat1, constVal1, doNodeError_21_1, empty_3f_1, eq_3f_1, error1, escapeVar1, exit_21_1, expectType_21_1, expect_21_1, find1, format1, formatNode1, formatOutput_21_1, get1, getIdx1, getSource1, getVar1, getenv1, getinfo1, gsub1, last1, len_23_1, line_21_1, list1, lower1, makeNil1, map2, match1, matcher1, matcher2, min1, n1, next1, nth1, number_3f_1, on_21_1, open1, pcall1, popLast_21_1, pretty1, print1, pushCdr_21_1, pushEscapeVar_21_1, putNodeWarning_21_1, quoted1, removeNth_21_1, rep1, require1, resolveNode1, runPass1, scoreNodes1, self2, setIdx_21_1, sethook1, slice1, sort1, split1, string_3f_1, sub1, succ1, symbol_2d3e_string1, tonumber1, tostring1, type1, type_23_1, unmangleIdent1, unpack1, usage_21_1, visitBlock1, visitNode1, visitNode2, visitNode3, visitNodes1
+local _2b_1, _2d_1, _2e2e_1, _2f3d_1, _2f_1, _3c3d_1, _3c_1, _3d_1, _3e3d_1, _3e_1, _5e7e_1, addArgument_21_1, addParen1, any1, append_21_1, apply1, arg1, between_3f_1, builtin_3f_1, builtins1, cadr1, call1, car1, child1, coloured1, compileBlock1, compileExpression1, concat1, constVal1, doNodeError_21_1, empty_3f_1, eq_3f_1, error1, escapeVar1, exit_21_1, expectType_21_1, expect_21_1, find1, format1, formatNode1, formatOutput_21_1, get1, getIdx1, getSource1, getVar1, getenv1, getinfo1, gsub1, last1, len_23_1, line_21_1, list1, lower1, makeNil1, map2, match1, matcher2, min1, n1, next1, nth1, number_3f_1, on_21_1, open1, pcall1, popLast_21_1, pretty1, print1, pushCdr_21_1, pushEscapeVar_21_1, putNodeWarning_21_1, quoted1, removeNth_21_1, rep1, require1, resolveNode1, runPass1, scoreNodes1, self2, setIdx_21_1, sethook1, slice1, sort1, split1, string_3f_1, sub1, succ1, symbol_2d3e_string1, tonumber1, tostring1, type1, type_23_1, unmangleIdent1, unpack1, usage_21_1, visitBlock1, visitNode1, visitNode2, visitNode3, visitNodes1
 local _ENV = setmetatable({}, {__index=_ENV or (getfenv and getfenv()) or _G}) if setfenv then setfenv(0, _ENV) end
 _3d_1 = function(v1, v2) return v1 == v2 end
 _2f3d_1 = function(v1, v2) return v1 ~= v2 end
@@ -7365,7 +7365,7 @@ execString1 = function(compiler, scope, string)
 	end
 end
 repl1 = function(compiler, args)
-	local scope, logger, buffer, running = compiler["root-scope"], compiler["log"], "", true
+	local scope, logger, buffer, running = child1(compiler["root-scope"]), compiler["log"], "", true
 	local read_21_
 	if args["read-dumb"] then
 		read_21_ = readDumb1

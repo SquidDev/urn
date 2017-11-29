@@ -564,7 +564,7 @@
                              [?task fail! (.. "Cannot handle " task)]))]))))])))))))
 
 (defun repl (compiler args)
-  (let* [(scope (.> compiler :root-scope))
+  (let* [(scope (scope/child (.> compiler :root-scope)))
          (logger (.> compiler :log))
          (buffer "")
          (running true)
