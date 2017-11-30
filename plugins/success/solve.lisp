@@ -113,7 +113,7 @@
   (assert-type! solution solution)
   (assert-type! svar solution-var)
   (let* [(existing (solution-var-upper svar))
-         (bounded (intersection-of existing ty))
+         (bounded (intersection-of (list existing ty)))
          (changed (neq? existing bounded))]
 
     (when changed
@@ -165,6 +165,16 @@
      (for i 1 (n argl) 1
        (constrain! solution (nth argr i) (nth argl i)))]
 
+    ;; x <: a & b <=> x <: a, x <: b
+    [(?left (intersection ?rtypes ?rvars))
+     (for-each ty rtypes (constrain! solution left ty))
+     (for-pairs (tv ) rvars (constrain! solution left tv))]
+
+    ;; a | b <: x <=> a <: x, b <: x
+    [((union ?rtypes ?rvars) ?right)
+     (for-each ty rtypes (constrain! solution ty right))
+     (for-pairs (tv ) rvars (constrain! solution tv right))]
+
     [else
      (format 1 "Failed to convert {#left} to {#right}")]))
 
@@ -184,16 +194,30 @@
   (case ty
     [tyvar?
      (subst solution (solution-var-upper (lookup-var solution ty)))]
+
     [(-> ?args ?ret)
      (list '->
            (map (cut subst solution <>) args)
            (subst solution ret))]
+
+    [(union ?tys ?tvs)
+     (with (res '())
+       (for-each ty tys (push-cdr! res (subst solution ty)))
+       (for-pairs (tv _) tvs (push-cdr! res (subst solution tv)))
+       (union-of res))]
+
+    [(intersection ?tys ?tvs)
+     (with (res '())
+       (for-each ty tys (push-cdr! res (subst solution ty)))
+       (for-pairs (tv _) tvs (push-cdr! res (subst solution tv)))
+       (intersection-of res))]
+
     [_ ty]))
 
-;; (defun test-func (f x y)
-;;   (+ (f x) (f y)))
-(defun test-func (f x)
-  (f x))
+(defun test-func (f x y)
+  (+ (f x) (f y)))
+;; (defun test-func (f x)
+;;   (f x))
 
 ,(let* [(def (last (reify `test-func)))
         (state (infer-state))
@@ -206,6 +230,7 @@
 
      (apply-constraint! solution cons)
      (print! (pretty solution))
+     (debug ty)
      (debug (subst solution ty))
 
      nil))

@@ -7,6 +7,9 @@
   - Type variables (a, b, c, ...)
   - Functions ((a, b, c) -> d, ...)
   - Unions (a | b | c, ...)
+  - Intersections (a & b & c, ...). Note that this is mainly an
+    intermediate representation which will be removed once types are
+    finalised.
 
  The following subtyping rules apply:
 
@@ -66,33 +69,99 @@
 
 (defun union-of (types)
   "Create a union of TYPES."
-  (let* [(out '(union))]
-    (loop [(types types)
-           (i 1)
-           (len (n types))]
-      [(> i len) (if (= (n out) 2) (cadr out) out)]
-      (case (nth types i)
-        ;; If we're any then that will mask anything else
-        [any 'any]
-        ;; If we're another union then push to our list and continue
-        [(union . ?rest)
-         (recur (append types rest) (succ i) (+ len (n rest)))]
-        [?ty
-         (loop [(j (n out))]
-           [(< j 2) (push-cdr! out ty)]
-           (with (other (nth out j))
-             (cond
-               ;; If this is a subtype of us then overwrite that
-               [(subtype? other ty) (.<! out j ty)]
-               ;; If we're a subtype of them then skip
-               [(subtype? ty other)]
-               ;; Otherwise continue
-               [else (recur (pred j))])))
-         (recur types (succ i) len)]))))
+  (assert-type! types list)
+  (let* [(primary '())
+         (tyvars {})
+         (has-any false)]
 
-(defun intersection-of (a b)
+    ;; First build our primary list of types and type variables, flattening
+    ;; unions where appropriate.
+    (for-each type types
+      (case type
+        [tyvar? (.<! tyvars type true)]
+        [(union ?tys ?tvs)
+         (for-each ty tys
+           (when (eq? ty 'any) (set! has-any true))
+           (push-cdr! primary ty))
+         (for-each tv tvs (.<! tyvars type true))]
+        [?ty
+         (when (eq? ty 'any) (set! has-any true))
+         (push-cdr! primary ty)]))
+
+    (cond
+      ;; If we've got some any then just skip everything and return. We
+      ;; don't even need to care about type variables as they'll be
+      ;; overshadowed.
+      [has-any 'any]
+      [else
+       (loop [(i 1)] [(> i (n primary))]
+         (for j (n primary) 1 -1
+           (when (and (/= i j) (subtype? (nth primary j) (nth primary i)))
+             ;; If it's a subtype then remove it
+             (remove-nth! primary j)
+             ;; If this appeared before us then shift our counter back by 1.
+             (when (< j i) (dec! i))))
+         (recur (succ i)))
+
+       (cond
+         [(or (> (n primary) 1) (not (empty-struct? tyvars)))
+          ~(union ,primary ,tyvars)]
+         [(= (n primary) 1) (car primary)]
+         [else 'none])])))
+
+(defun intersection-of (types)
   "Create the intersection of two types. Namely create a type which is a
    subtype of both."
+  (assert-type! types list)
+  (let [(main 'any)
+        (primary '())
+        (tyvars {})]
+
+    ;; First build our primary list of types and type variables, flattening
+    ;; intersections where appropriate.
+    (for-each type types
+      (case type
+        [tyvar? (.<! tyvars type true)]
+        [(intersection ?tys ?tvs)
+         (for-each ty tys
+           (with (isect (atom-intersection main ty))
+             (if (/= isect nil)
+               (set! main isect)
+               (push-cdr! primary ty))))
+         (for-each tv tvs (.<! tyvars type true))]
+        [?ty
+         (with (isect (atom-intersection main ty))
+           (if (/= isect nil)
+             (set! main isect)
+             (push-cdr! primary ty)))]))
+
+    (cond
+      ;; If main is 'none then give up here: nothing we do will be able
+      ;; to change it.
+      [(eq? main 'none) main]
+      ;; Otherwise attempt to filter types a little. The main
+      ;; intersecting will have to be done another time.
+      [else
+       (push-cdr! primary main)
+       (loop [(i 1)] [(> i (n primary))]
+         (for j (n primary) 1 -1
+           (when (and (/= i j) (subtype? (nth primary i) (nth primary j)))
+             ;; If we're a subtype then remove it
+             (remove-nth! primary j)
+             ;; If this appeared before us then shift our counter back by 1.
+             (when (< j i) (dec! i))))
+         (recur (succ i)))
+
+       (cond
+         [(or (> (n primary) 1) (not (empty-struct? tyvars)))
+          ~(intersection ,primary ,tyvars)]
+         [(= (n primary) 1) (car primary)]
+         [else 'any])])))
+
+(defun atom-intersection (a b)
+  "Attempts to intersect A and B, returning `false` if the types are too
+   complex."
+  :hidden
   (case (list a b)
     ;; Basic cases
     [((?a ?b) :when (eq? a b)) a]
@@ -102,17 +171,15 @@
     [(number? number) a]   [(number number?) b]
     [(string? string) a]   [(string string?) b]
     [(boolean? boolean) a] [(boolean boolean?) b]
-    ;; Cannot handle type variables, error
-    [(tyvar? _) (format 1 "(intersection-of {#a} {#b}): cannot intersect tyvar")]
-    [(_ tyvar?) (format 1 "(intersection-of {#a} {#b}): cannot intersect tyvar")]
+    ;; Catches things like string & number, 1 & 2
+    [(atom? atom?) 'none]
+    ;; One cannot intersect atoms with functions
+    [(atom? (-> _ _)) 'none] [((-> _ _) atom?) 'none]
+    ;; TODO: intersect unions with no variables, functions, etc...
+    ;; Just give up on everything else.
+    [else
+     nil]))
 
-    ;; TODO: Union, list, structs
-    ;; Functions
-    [((-> ?arga ?reta) (-> ?argb ?retb))
-     (list '->
-           (map (lambda (a b) (union-of (list a b))) arga argb)
-           (intersection-of reta retb))]
-    [_ 'none]))
 
 (define empty-constraint
   "A constraint which enforces nothing."
