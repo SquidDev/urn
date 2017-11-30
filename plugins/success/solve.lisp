@@ -16,9 +16,6 @@
   (constructor new
     (lambda () (new {}))))
 
-(defmethod (pretty solution) (sol)
-  (.. "{ " (concat (map pretty (values (solution-vars sol))) "\n  ") " }"))
-
 (defstruct (solution-var solution-var solution-var?)
   (fields
     (immutable (hide var)
@@ -37,13 +34,37 @@
   (constructor new
     (lambda (var) (new var 'none {} 'any {}))))
 
+(defun pretty-bounds (type vars)
+  "Display a constraint with the given TYPE and VARS."
+  :hidden
+  (string/format "%s[%s]"
+                 (pretty-ty type)
+                 (concat (sort! (map (compose pretty solution-var-var) (keys vars))) " ")))
+
 (defmethod (pretty solution-var) (var)
-  (string/format "%s[%s] <: %s <: %s[%s]"
-                 (pretty (solution-var-lower var))
-                 (concat (map (compose pretty solution-var-var) (keys (solution-var-lower-vars var))) " ")
+  (string/format "%s <: %s <: %s"
+                 (pretty-bounds (solution-var-lower var) (solution-var-lower-vars var))
                  (pretty (solution-var-var var))
-                 (pretty (solution-var-upper var))
-                 (concat (map (compose pretty solution-var-var) (keys (solution-var-upper-vars var))) " ")))
+                 (pretty-bounds (solution-var-upper var) (solution-var-upper-vars var))))
+
+(defmethod (pretty solution) (sol)
+  (let* [(vars (-> (values (solution-vars sol))
+                   (map (lambda (var)
+                          (list (pretty-bounds (solution-var-lower var) (solution-var-lower-vars var))
+                                (pretty (solution-var-var var))
+                                (pretty-bounds (solution-var-upper var) (solution-var-upper-vars var))))
+                        <>)
+                   (sort! <> (lambda (a b) (< (cadr a) (cadr b))))))
+         (format (.. "%40s <: %-20s <: %-40s"))]
+
+    ;; Attempt to centre text
+    (for-each var vars
+      (with (name (cadr var))
+        (.<! var 2 (.. (string/rep " " (math/max 0 (math/floor (* (- 20 (n name)) 0.5)))) name))))
+
+    (.. "{ "
+        (concat (map (lambda (x) (string/format format (car x) (cadr x) (caddr x))) vars) "\n  ")
+        " }")))
 
 (defun define-var! (solution var)
   "Add a new tyvar to a SOLUTION set."
@@ -159,7 +180,7 @@
 
     [((-> ?argl ?retl) (-> ?argr ?retr))
      (when (> (n argl) (n argr))
-       (format 1 "Failed to convert {#left} to {#right}: more arguments required than accepted."))
+       (format 1 "Failed to convert {#left:pretty-ty} to {#right:pretty-ty}: more arguments required than accepted."))
 
      (constrain! solution retl retr)
      (for i 1 (n argl) 1
@@ -176,7 +197,7 @@
      (for-pairs (tv ) rvars (constrain! solution tv right))]
 
     [else
-     (format 1 "Failed to convert {#left} to {#right}")]))
+     (format 1 "Failed to convert {#left:pretty-ty} to {#right:pretty-ty}")]))
 
 (defun apply-constraint! (solution constraint)
   (assert-type! solution solution)
@@ -222,15 +243,18 @@
 ,(let* [(def (last (reify `test-func)))
         (state (infer-state))
         (solution (solution))]
+   ;; A hack to ensure some variables are loaded correctly.
+   (progn
+     solution-var-lower solution-var-upper solution-var-lower-vars solution-var-upper-vars
+     pretty-bounds)
+
    (add-ty! state (symbol->var `+) '(-> (number number) number))
 
    (with ((ty cons) (infer-expr state def))
-     (debug ty)
-     (debug cons)
-
      (apply-constraint! solution cons)
      (print! (pretty solution))
-     (debug ty)
-     (debug (subst solution ty))
+     (print!)
+     (format true "    ty  = {ty:pretty-ty}" :ty ty)
+     (format true "Sol[ty] = {ty:pretty-ty}" :ty (subst solution ty))
 
      nil))

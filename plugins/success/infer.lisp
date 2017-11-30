@@ -86,7 +86,7 @@
               [(= func (builtin :lambda))
                ;;           { a1 -> t1, ..., an -> tn } |- e: te, C
                ;; ------------------------------------------------------------
-               ;; (lambda (a1, ..., an) e): t, (t = (t1, ... tn) -> te when C)
+               ;; (lambda (a1, ..., an) e): (t1, ... tn) -> te, C
                (let* [(args (nth node 2))
                       (arg-tys '())
                       (child-state (infer-state state))
@@ -171,7 +171,7 @@
     (with-type state node ret-fresh
       (and-constraints
         ~((= ,fn-ty (-> ,arg-fresh ,fn-fresh))
-           (<= ,ret-fresh ,fn-fresh)
+           (<= ,fn-fresh ,ret-fresh)
            ,@(map (cut list '<= <> <>) arg-tys arg-fresh)
            ,fn-constraints
            ,@arg-constraints)))))

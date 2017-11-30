@@ -180,6 +180,34 @@
     [else
      nil]))
 
+(defun pretty-ty (type precedence)
+  "Format the provided TYPE."
+  (if (= precedence nil)
+    (set! precedence 100)
+    (assert-type! precedence number))
+
+  (case type
+    [atom? (pretty type)]
+    [tyvar? (pretty type)]
+
+    [(-> ?args ?ret)
+     (string/format "%s(%s) -> %s%s"
+                    (if (<= precedence 1) "(" "")
+                    (concat (map (cut pretty-ty <> 1) args) " ")
+                    (pretty-ty ret 1)
+                    (if (<= precedence 1) ")" ""))]
+
+    [(union ?tys ?vars)
+     (string/format "%s%s%s"
+                    (if (<= precedence 2) "(" "")
+                    (concat (map (cut pretty-ty <> 2) (append tys (keys vars))) " | ")
+                    (if (<= precedence 2) ")" ""))]
+
+    [(intersection ?tys ?vars)
+     (string/format "%s%s%s"
+                    (if (<= precedence 2) "(" "")
+                    (concat (map (cut pretty-ty <> 2) (append tys (keys vars))) " & ")
+                    (if (<= precedence 2) ")" ""))]))
 
 (define empty-constraint
   "A constraint which enforces nothing."
@@ -194,7 +222,7 @@
         ;; Skip things equal to the empty constraint
         [(= constraint empty-constraint)]
         ;; Flatten ands
-        [(and (list? constraint) (eq? car 'and))
+        [(and (list? constraint) (eq? (car constraint) 'and))
          (for i 2 (n constraint) 1 (push-cdr! out (nth constraint i)))]
         ;; Otherwise just append it to the list
         [else
