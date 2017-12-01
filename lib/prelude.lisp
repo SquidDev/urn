@@ -3,7 +3,7 @@
 (import data/alist () :export)
 (import data/format () :export)
 (import data/function () :export)
-(import data/lens () :export)
+(import control/setq () :export)
 
 (import math (even? odd? succ pred inc! dec!) :export)
 (import math :export)
