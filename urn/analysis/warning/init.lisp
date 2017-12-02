@@ -4,7 +4,7 @@
 (import urn/analysis/visitor visitor)
 (import urn/documentation doc)
 (import urn/logger logger)
-(import urn/range (get-source))
+(import urn/range (get-source range<))
 (import urn/resolve/scope scope)
 
 (import urn/analysis/warning/order warning)
@@ -109,13 +109,7 @@
             (push-cdr! unused (list var def))))))
 
     (sort! unused (lambda (node1 node2)
-                    (let [(source1 (get-source (cadr node1)))
-                          (source2 (get-source (cadr node2)))]
-                      (if (= (.> source1 :name) (.> source2 :name))
-                        (if (= (.> source1 :start :line) (.> source2 :start :line))
-                          (< (.> source1 :start :column) (.> source2 :start :column))
-                          (< (.> source1 :start :line) (.> source2 :start :line)))
-                        (< (.> source1 :name) (.> source2 :name)) ))))
+                    (range< (get-source (cadr node1)) (get-source (cadr node2)))))
 
     (for-each pair unused
       (logger/put-node-warning! (.> state :logger)

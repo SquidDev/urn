@@ -38,12 +38,13 @@
   (when explain (print-explain! (.> logger :explain) explain))
   (put-lines! true lines))
 
-(defun put-lines! (range entries)
-  "Put a series of lines from various ranges to standard output. RANGE controls whether
-   the whole range is selected, or just the first character.
+(defun put-lines! (ranges entries)
+  "Put a series of lines from various ranges to standard output. RANGES
+   controls whether the whole range is selected, or just the first
+   character.
 
-   ENTRIES is a list composed of pairs of elements, the first designating its position,
-   the second a descriptive piece of text
+   ENTRIES is a list composed of pairs of elements, the first designating
+   its position, the second a descriptive piece of text
 
    Example:
    ```
@@ -57,41 +58,41 @@
   (when (/= (mod (n entries) 2) 0) (error! (.. "Positions must be a multiple of 2, is " (n entries))))
 
   (let* ((previous -1)
-         (file (.> (nth entries 1) :name))
-         (max-line (reduce (lambda (max node)
-                            (if (string? node) max (math/max max (.> node :start :line))))
+         (file (range-name (nth entries 1)))
+         (max-line (reduce (lambda (max range)
+                            (if (string? range) max (math/max max (pos-line (range-start range)))))
                      0 entries))
          (code (.. (coloured "32;1" (.. " %" (n (number->string max-line)) "s \xe2\x94\x82")) " %s")))
     (for i 1 (n entries) 2
-      (let ((position (.> entries i))
+      (let ((range (.> entries i))
             (message (.> entries (succ i))))
 
         (cond
           ;; If we're in a different file then print the new file name
-          [(/= file (.> position :name))
-           (set! file (.> position :name))
+          [(/= file (range-name range))
+           (set! file (range-name range))
            (print! (coloured "35;1" (.. " " file)))]
           ;; If we've got a gap in the lines then print a ...
-          [(and (/= previous -1) (> (math/abs (- (.> position :start :line) previous)) 2))
+          [(and (/= previous -1) (> (math/abs (- (pos-line (range-start range)) previous)) 2))
            (print! (coloured "32;1" " ..."))]
           [true])
-        (set! previous (.> position :start :line))
+        (set! previous (pos-line (range-start range)))
 
         ; Write the current line
         (print! (string/format code
-          (number->string (.> position :start :line))
-          (.> position :lines (.> position :start :line))))
+                              (number->string (pos-line (range-start range)))
+                              (nth (range-lines range) (pos-line (range-start range)))))
 
         ; Write a pointer to the current line
         (with (pointer
           (cond
-            [(not range) "^"]
-            [(and (.> position :finish) (= (.> position :start :line) (.> position :finish :line)))
-             (string/rep "^" (succ (- (.> position :finish :column) (.> position :start :column))))]
+            [(not ranges) "^"]
+            [(and (range-finish range) (= (pos-line (range-start range)) (pos-line (range-finish range))))
+             (string/rep "^" (succ (- (pos-column (range-finish range)) (pos-column (range-start range)))))]
             [true "^..."]))
 
           (print! (string/format code "" (..
-            (string/rep " " (- (.> position :start :column) 1))
+            (string/rep " " (- (pos-column (range-start range)) 1))
             pointer
             " "
             message))))))))

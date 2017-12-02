@@ -78,15 +78,15 @@
                        (inc! column))
                      (inc! offset)))
           ;; Generates a table with the current position
-         (position (lambda () {:line line :column column :offset offset}))
+         (position (lambda () (mk-position offset line column)))
          ;; Generates a table with a particular range
-         (range (lambda (start finish) {:start start :finish (or finish start) :lines lines :name name}))
+         (range (lambda (start finish) (mk-range name start (or finish start) lines)))
          ;; Appends a struct to the list
          (append-with! (lambda (data start finish)
                          (let [(start (or start (position)))
                                (finish (or finish (position)))]
                            (.<! data :range (range start finish))
-                           (.<! data :contents (string/sub str (.> start :offset) (.> finish :offset)))
+                           (.<! data :contents (string/sub str (pos-offset start) (pos-offset finish)))
                            (push-cdr! out data))))
          ;; Appends a token to the list
          (append! (lambda (tag start finish)
@@ -238,8 +238,8 @@
                        (consume!))
 
                      (let* [(dom-end (position))
-                            (num (string->number (string/gsub (string/sub str (.> start :offset) (.> num-end :offset)) "'" "") 10))
-                            (dom (string->number (string/gsub (string/sub str (.> dom-start :offset) (.> dom-end :offset)) "'" "") 10))]
+                            (num (string->number (string/gsub (string/sub str (pos-offset start) (pos-offset num-end)) "'" "") 10))
+                            (dom (string->number (string/gsub (string/sub str (pos-offset dom-start) (pos-offset dom-end)) "'" "") 10))]
                        (unless num
                          (error/do-node-error! logger
                            "Invalid numerator in rational literal"
@@ -280,7 +280,7 @@
                                 (= (string/char-at str (succ offset)) "'")) ; thousands here too
                        (consume!)))
 
-                   (with (res (string->number (id (string/gsub (string/sub str (.> start :offset) offset) "'" ""))))
+                   (with (res (string->number (id (string/gsub (string/sub str (pos-offset start) offset) "'" ""))))
                      (append-with! { :tag "number" :value res } start))])])
 
              ;; Ensure the next character is a terminator of some sort, otherwise we'd allow things like 0x2-2
@@ -384,7 +384,7 @@
                                        (set! char (string/char-at str (succ offset)))
                                        (inc! ctr))
 
-                                     (string->number (string/sub str (.> start :offset) offset)))))]
+                                     (string->number (string/sub str (pos-offset start) offset)))))]
 
                         (when (>= val 256)
                           (error/do-node-error! logger
@@ -446,7 +446,7 @@
                 (set! char (string/char-at str (succ offset))))
 
               (if key
-                (append-with! {:tag "key" :value (string/sub str (succ (.> start :offset)) offset)} start)
+                (append-with! {:tag "key" :value (string/sub str (succ (pos-offset start)) offset)} start)
                 (append! "symbol" start)))])
         (consume!)))
     (append! "eof")
@@ -494,14 +494,17 @@
           ;;  - Missing range on head due to top level. In this case we just allow whatever.
           ;;  - Nested parentheses on the same line (such as (foo (+ 2 3))). Obviously we want to ignore these as the
           ;;    indent will be different.
-          (when (and (/= tag "eof") (/= tag "close") (if (.> head :range) (/= (.> tok-pos :start :line) (.> head :range :start :line)) true))
+          (when (and (/= tag "eof") (/= tag "close")
+                     (if (.> head :range)
+                       (/= (pos-line (range-start tok-pos)) (pos-line (range-start (.> head :range))))
+                       true))
             (if previous
               (with (prev-pos (.> previous :range))
-                (when (/= (.> tok-pos :start :line) (.> prev-pos :start :line))
+                (when (/= (pos-line (range-start tok-pos)) (pos-line (range-start prev-pos)))
                   ;; We're on a different line so update the previous node to be this one.
                   (.<! head :last-node tok)
                   ;; Then ensure we're on the same column
-                  (when (/= (.> tok-pos :start :column) (.> prev-pos :start :column))
+                  (when (/= (pos-column (range-start tok-pos)) (pos-column (range-start prev-pos)))
                     (logger/put-node-warning! logger
                       "Different indent compared with previous expressions."
                       tok
@@ -522,10 +525,7 @@
                       :range (.> tok :range)
                       1 { :tag "symbol"
                           :contents "$"
-                          :range { :start  (.> tok :range :start)
-                                   :finish (.> tok :range :start)
-                                   :name   (.> tok :range :name)
-                                   :lines  (.> tok :range :lines) } }
+                          :range (range-of-start (.> tok :range)) }
                       2 { :tag "string"
                           :value (.> tok :value)
                           :range (.> tok :range) } })]
@@ -542,16 +542,12 @@
            (push!)
            (.<! head :open (.> tok :contents))
            (.<! head :close (.> tok :close))
-           (.<! head :range { :start (.> tok :range :start)
-                              :name  (.> tok :range :name)
-                              :lines (.> tok :range :lines) })]
+           (.<! head :range (.> tok :range))]
           [(= tag "open-struct")
            (push!)
            (.<! head :open (.> tok :contents))
            (.<! head :close (.> tok :close))
-           (.<! head :range { :start (.> tok :range :start)
-                              :name  (.> tok :range :name)
-                              :lines (.> tok :range :lines) })
+           (.<! head :range (.> tok :range))
            (append! { :tag      "symbol"
                       :contents "struct-literal"
                       :range    (.> head :range) })]
@@ -579,13 +575,11 @@
                 (.> tok :range) (string/format "'%s' used here" (.> tok :contents)))]
              [true
                ;; All OK!
-               (.<! head :range :finish (.> tok :range :finish))
+               (.<! head :range (range-of-span (.> head :range) (.> tok :range)))
                (pop!)])]
           [(or (= tag "quote") (= tag "unquote") (= tag "syntax-quote") (= tag "unquote-splice") (= tag "quasiquote"))
            (push!)
-           (.<! head :range { :start (.> tok :range :start)
-                              :name  (.> tok :range :name)
-                              :lines (.> tok :range :lines) })
+           (.<! head :range (.> tok :range))
            (append! { :tag      "symbol"
                       :contents tag
                       :range    (.> tok :range) })
@@ -607,7 +601,7 @@
                 (string/format "'%s' without matching '%s'" (.> tok :contents) (.> tok :open))
                 tok nil
                 (get-source tok) ""))
-            (.<! head :range :finish (.> tok :range :finish))
+            (.<! head :range (range-of-span (.> head :range) (.> tok :range)))
             (pop!)))))
     head))
 

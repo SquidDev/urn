@@ -2,6 +2,7 @@
 (import urn/timer timer)
 (import urn/resolve/builtins builtins)
 (import urn/resolve/scope scope)
+(import urn/range ())
 
 (import lua/basic (type#))
 (import lua/basic b)
@@ -9,10 +10,10 @@
 (define start-range
   "The default range for all objects"
   :hidden
-  { :name  "init.lisp"
-    :lines  '(";; Empty")
-    :start  { :line 1 :column 1 }
-    :finish { :line 1 :column 1 } })
+  (mk-range "init.lisp"
+            (mk-position 1 1 1)
+            (mk-position 1 1 1)
+            '(";; Empty")))
 
 (defun wrap-node (node)
   "Wraps a NODE, converting it into something usable for resolution."

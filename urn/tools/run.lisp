@@ -9,7 +9,7 @@
 (import urn/backend/lua lua)
 (import urn/backend/writer w)
 (import urn/logger logger)
-(import urn/range range)
+(import urn/range ())
 (import urn/traceback traceback)
 
 (defun profile-calls (fn mappings)
@@ -428,9 +428,9 @@
                            (not (builtin? (car head) :lambda))]
                           [else true])))
 
-                (with (source (range/get-source node))
-                  (when (= (.> source :name) path)
-                    (for i (.> source :start :line) (.> source :finish :line) 1
+                (with (source (get-source node))
+                  (when (= (range-name source) path)
+                    (for i (pos-line (range-start source)) (pos-line (range-finish source)) 1
                       (.<! active i true)))))))
 
           (for i 1 n-lines 1

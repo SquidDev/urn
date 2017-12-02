@@ -59,11 +59,11 @@
   (let* [(lambda-list (map (lambda (x) (symb-name (field-name x))) fields))
          (kv-pairs (map (function
                           [((immutable (symb-name -> ?name) . _))
-                           (list (symbol->string name) `(or ,name nil))]
+                           (list (symbol->string name) name)]
                           [((mutable (symb-name -> ?name) . _))
-                           (list (symbol->string name) `(or ,name nil))]
+                           (list (symbol->string name) name)]
                           [((symb-name -> ?name))
-                           (list (symbol->string name) `(or ,name nil))])
+                           (list (symbol->string name) name)])
                         fields))
          (name (symb-name symbol))
          (hide (and (list? symbol) (eq? (car symbol) 'hide)))]

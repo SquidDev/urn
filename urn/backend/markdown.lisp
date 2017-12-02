@@ -1,7 +1,7 @@
 (import urn/backend/writer writer)
 (import urn/documentation doc)
 (import urn/loader (strip-extension))
-(import urn/range (get-source format-position))
+(import urn/range (get-source format-position range-name range-start))
 (import urn/resolve/builtins (builtins))
 (import urn/resolve/scope scope)
 
@@ -10,7 +10,7 @@
 (defun format-range (range)
   "Format a range."
   :hidden
-  (string/format "%s:%s" (.> range :name) (format-position (.> range :start))))
+  (string/format "%s:%s" (range-name range) (format-position (range-start range))))
 
 (defun sort-vars! (list)
   "Sort a list of variables"
@@ -43,7 +43,7 @@
   :hidden
   (let* [(loc (-> (.> var :node)
                   get-source
-                  (.> <> :name)
+                  range-name
                   strip-extension
                   (string/gsub <> "/" ".")))
          (sig (doc/extract-signature var))
@@ -203,8 +203,8 @@
               (write-docstring out (doc/extract-summary (doc/parse-docstring doc))))
             (writer/append! out "|")
 
-            (let [(name (if defined (.> defined :name) (.> range :name)))
-                  (path (string/gsub (strip-extension (if defined (.> defined :path) (.> range :name))) "/" "."))]
+            (let [(name (if defined (.> defined :name) (range-name range)))
+                  (path (string/gsub (strip-extension (if defined (.> defined :path) (range-name range))) "/" "."))]
               (if (empty? (.> info :exported))
                 (writer/append! out (string/format "[%s](%s.md)" name path))
                 (writer/append! out (string/format "[%s](%s.md \"Also exported from %s\")" name path

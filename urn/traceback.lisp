@@ -1,5 +1,7 @@
 (import lua/debug debug)
 
+(import urn/range ())
+
 (defun traceback (msg)
   "An alternative for [[debug/traceback]] which correctly remaps the error."
   (unless (string? msg) (set! msg (pretty msg)))
@@ -81,7 +83,7 @@
       ;; This could probably be improved by narrowing down the range too.
       (with (range-lists {})
         (for-pairs (pos) ranges
-          (let* [(file (.> pos :name))
+          (let* [(file (range-name pos))
                  (range-list (.> range-lists file))]
             (unless range-list
               (set! range-list { :n 0
@@ -89,7 +91,7 @@
                                  :max (- 0 math/huge) })
               (.<! range-lists file range-list))
 
-            (for i (.> pos :start :line) (.> pos :finish :line) 1
+            (for i (pos-line (range-start pos)) (pos-line (range-finish pos)) 1
               (unless (.> range-list i)
                 (.<! range-list :n (succ (.> range-list :n)))
                 (.<! range-list i true)

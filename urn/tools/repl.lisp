@@ -15,7 +15,7 @@
 (import urn/logger)
 (import urn/logger/void void)
 (import urn/parser parser)
-(import urn/range range)
+(import urn/range ())
 (import urn/resolve/loop (compile))
 (import urn/resolve/scope scope)
 (import urn/resolve/state state)
@@ -229,7 +229,7 @@
         (stack '(1))]
     (for-each tok toks
       (case (type tok)
-        ["open" (push-cdr! stack (+ (.> tok :range :start :column) 2))]
+        ["open" (push-cdr! stack (+ (pos-column (range-start (.> tok :range))) 2))]
         ["close" (pop-last! stack)]
         [_]))
     (string/rep " " (pred (last stack)))))
@@ -250,7 +250,7 @@
                 ;; If there was no previous token, then start anew.
                 [(= last nil) ""]
                 ;; If the previous token finished before the cursor, then start anew.
-                [(< (.> last :range :finish :offset) (n str)) ""]
+                [(< (pos-offset (range-finish (.> last :range))) (n str)) ""]
                 ;; If the previous token was a symbo, then finish completing it.
                 [(symbol? last) (symbol->string last)]
                 ;; Otherwise don't complete it.
@@ -463,22 +463,22 @@
            (with (var (scope/get scope name))
              (if (/= var nil)
                (let* [(node (.> var :node))
-                      (range (and node (range/get-source node)))]
+                      (range (and node (get-source node)))]
                  (if (/= range nil)
-                   (let* [(lines (.> range :lines))
-                          (start (.> range :start))
-                          (finish (.> range :finish))
+                   (let* [(lines (range-lines range))
+                          (start (range-start range))
+                          (finish (range-finish range))
                           (buffer '())]
 
-                     (for i (.> start :line) (.> finish :line) 1
+                     (for i (pos-line start) (pos-line finish) 1
                        (push-cdr! buffer (string/sub (.> lines i)
-                                                     (if (= i (.> start  :line)) (.> start  :column) 1)
-                                                     (if (= i (.> finish :line)) (.> finish :column) -1))))
+                                                     (if (= i (pos-line start))  (pos-column start)   1)
+                                                     (if (= i (pos-line finish)) (pos-column finish) -1))))
 
                      (let* [(contents (concat buffer "\n"))
                             (previous 0)]
                        (for-each tok (parser/lex void/void contents "stdin")
-                         (with (start (.> tok :range :start  :offset))
+                         (with (start (pos-offset (range-start (.> tok :range))))
                            (when (/= start previous)
                              (io/write (coloured (colour-for "comment") (string/sub contents previous (pred start))))))
 
@@ -488,7 +488,7 @@
                                (io/write (coloured (colour-for "keyword") (.> tok :contents)))
                                (io/write (coloured (colour-for (.> token-mapping (type tok))) (.> tok :contents))))))
 
-                         (set! previous (succ (.> tok :range :finish :offset)))))
+                         (set! previous (succ (pos-offset (range-finish (.> tok :range)))))))
                      (io/write "\n"))
 
                    (logger/put-error! logger (.. "Cannot extract source code for " (string/quoted name)))))

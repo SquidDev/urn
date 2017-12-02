@@ -119,7 +119,7 @@
        (unless (= ret "")
          (when ret
           (with (pos (range/get-source node))
-            (w/append! out ret (and pos (merge pos { :finish (.> pos :start) })))))
+            (w/append! out ret (and pos (range/range-of-start pos)))))
 
          (let* [(args (nth node 2))
                 (variadic nil)
@@ -252,7 +252,7 @@
            (w/append! out "else")
            (w/indent! out) (w/line! out)
            (with (source (range/get-source node))
-             (w/append! out "_error(\"unmatched item\")" (and source (merge source { :finish (.> source :start) }))))
+             (w/append! out "_error(\"unmatched item\")" (and source (range/range-of-start source))))
            (w/unindent! out) (w/line! out))
 
          ;; End each nested block
