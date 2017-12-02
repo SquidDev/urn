@@ -27,3 +27,9 @@ script:
 
 after_success:
   - if [ -n "$URN_COVERAGE" ]; then make LUA=lua gen_coverage > /dev/null && bash <(curl -s https://codecov.io/bash); fi
+
+notifications:
+  email:
+    on_success: never
+    on_failure: change
+  irc: "chat.freenode.net#urn"
