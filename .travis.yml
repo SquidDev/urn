@@ -32,4 +32,8 @@ notifications:
   email:
     on_success: never
     on_failure: change
-  irc: "chat.freenode.net#urn"
+  irc:
+    channels:
+      - "chat.freenode.net#urn"
+    use_notice: true
+    skip_join: true
