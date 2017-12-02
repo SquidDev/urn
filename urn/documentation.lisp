@@ -1,4 +1,4 @@
-(import urn/resolve/builtins (builtins))
+(import urn/analysis/nodes (builtin?))
 
 (define tokens
   "The primary tokens for the documentation string"
@@ -19,18 +19,38 @@
     :bold   2
     :bolid  3 })
 
-(defun extract-signature (var)
+(defun extract-signature (var history)
   "Attempt to extract the function signature from VAR"
   (with (ty (.> var :kind))
     (cond
+      ;; If we've already attempted to index this variable then give up
+      [(and history (.> history var)) nil]
+      ;; If we're a macro or normal definition then we can look it up
       [(or (= ty "macro") (= ty "defined"))
-       (let* [(root (.> var :node))
-              (node (nth root (n root)))]
-         (if (and (list? node) (symbol? (car node)) (= (.> (car node) :var) (.> builtins :lambda)))
-           ;; Prefer the display name to the actual name.
-           (map (lambda (sym) (or (.> sym :display-name) (.> sym :contents))) (nth node 2))
-           nil))]
-      (true nil))))
+       (if-with (root (.> var :node))
+         ;; Start at (define ... X)
+         (loop [(node (nth root (n root)))]
+           [(not node) nil]
+           (cond
+             ;; If we're a symbol then look up that signature instead
+             [(symbol? node)
+              (unless history (set! history {}))
+              (.<! history var true)
+              (extract-signature (.> node :var) history)]
+
+             ;; If we're a lambda then return the definition
+             [(and (list? node) (builtin? (car node) :lambda))
+              ;; Prefer the display name to the actual name.
+              (map (lambda (sym) (or (.> sym :display-name) (.> sym :contents))) (nth node 2))]
+
+             ;; If we're a binding then return the last node
+             [(and (list? node) (list? (car node)) (builtin? (caar node) :lambda) (>= (n (car node)) 3))
+              (recur (last (car node)))]
+
+             [else nil]))
+         nil)]
+
+      [else nil])))
 
 (defun parse-docstring (str)
   "Tokenise STR into a series of tokens
