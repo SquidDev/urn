@@ -9,6 +9,7 @@
 (import urn/backend/lua lua)
 (import urn/error error)
 (import urn/loader loader)
+(import urn/library library)
 (import urn/logger logger)
 (import urn/logger/term term)
 (import urn/luarocks luarocks)
@@ -278,7 +279,7 @@
         ;; Load the prelude and setup the environment
         (with (lib (do-load! (.> args :prelude)))
           (.<! compiler :root-scope (scope/child (.> compiler :root-scope)))
-          (for-pairs (name var) (.> lib :scope :exported)
+          (for-pairs (name var) (.> (library/library-scope lib) :exported)
             (scope/import! (.> compiler :root-scope) name var)))
 
         ;; And load remaining files

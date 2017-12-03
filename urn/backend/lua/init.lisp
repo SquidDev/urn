@@ -2,6 +2,7 @@
 (import urn/backend/lua/emit ())
 (import urn/backend/lua/escape (push-escape-var! escape-var) :export)
 (import urn/backend/writer w)
+(import urn/library ())
 (import urn/resolve/state state)
 (import urn/timer timer)
 (import urn/traceback traceback)
@@ -42,8 +43,8 @@
 
     ;; Emit all native libraries
     (for-each lib (.> compiler :libs)
-      (let* [(prefix (string/quoted (.> lib :prefix)))
-             (native (.> lib :native))]
+      (let* [(prefix (string/quoted (.. (library-unique-name lib) "/")))
+             (native (library-lua-contents lib))]
         (when native
           (w/line! out "local _temp = (function()")
           (for-each line (string/split native "\n")
@@ -186,13 +187,17 @@
                     (when (.> state :var)
                       (.<! global escaped res))))])]))))))
 
-(defun native (meta global)
+(defun get-native (meta)
   "Convert a native META definition into a function."
-  (with (out (w/create))
-    (prelude out)
-    (w/append! out "return ")
-    (compile-native out meta)
+  (unless (.> meta :has-value)
+    (with (out (w/create))
+      (prelude out)
+      (w/append! out "return ")
+      (compile-native out meta)
 
-    (case (list (load (w/->string out) (.. "=" (.> meta :name)) "t" global))
-      [(nil ?msg) (fail! (.. "Cannot compile meta " (.> meta :name) ":\n" msg))]
-      [(?fun) (fun)])))
+      (.<! meta :has-value true)
+      (when-let* [(fun (load (w/->string out) (.. "=" (.> meta :name))))
+                  ((ok res) (pcall fun))]
+        (.<! meta :value res))))
+
+  (.> meta :value))

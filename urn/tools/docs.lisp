@@ -3,6 +3,7 @@
 
 (import urn/backend/markdown markdown)
 (import urn/backend/writer writer)
+(import urn/library ())
 (import urn/loader (strip-extension))
 (import urn/logger logger)
 
@@ -14,7 +15,7 @@
   (for-each path (.> args :input)
     (let* [(lib (.> compiler :lib-cache path))
            (writer (writer/create))]
-      (markdown/exported writer (.> lib :name) (.> lib :docs) (.> lib :scope :exported) (.> lib :scope))
+      (markdown/exported writer (library-name lib) (library-docs lib) (.> (library-scope lib) :exported) (library-scope lib))
 
       (with (handle (io/open (.. (.> args :docs) "/" (string/gsub (strip-extension path) "/" ".") ".md") "w"))
         (self handle :write (writer/->string writer))

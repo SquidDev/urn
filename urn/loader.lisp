@@ -1,9 +1,11 @@
-(import lua/io io)
+(import data/struct ())
 (import lua/basic (load))
+(import lua/io io)
 
-(import urn/backend/lua lua)
+(import urn/library ())
 (import urn/logger logger)
 (import urn/parser parser)
+(import urn/range range)
 (import urn/resolve/loop (compile))
 (import urn/resolve/scope scope)
 (import urn/timer timer)
@@ -82,17 +84,18 @@
     (when (/= (.> entry :count) 2) (fail! (.. "Cannot have fold for length " (.> entry :count) " for " name))))
 
   (.<! entry :name name)
-  (cond
-    [(= (.> entry :value) nil)
-     (with (value (.> state :lib-env name))
-       (when (= value nil)
-         (case (list (pcall lua/native entry (.> state :global)))
-           [(true . ?res) (set! value (car res))]
-           [(false _)])
-         (.<! state :lib-env name value))
-       (.<! entry :value value))]
-    [(/= (.> state :lib-env name) nil) (fail! (.. "Duplicate value for " name ": in native and meta file"))]
-    [true (.<! state :lib-env name (.> entry :value))])
+  (let [(lib-value (.> state :lib-env name))
+        (met-value (.> entry :value))]
+    (cond
+      [(and (/= lib-value nil) (/= met-value nil))
+       (fail! (.. "Duplicate value for " name ": in native and meta file"))]
+      [(/= lib-value nil)
+       (.<! entry :has-value true)
+       (.<! entry :value lib-value)]
+      [(/= met-value nil)
+       (.<! entry :has-value true)
+       (.<! state :lib-env name met-value)]
+      [else]))
 
   (.<! state :lib-meta name entry)
   entry)
@@ -102,27 +105,23 @@
   :hidden
   (logger/put-verbose! (.> state :log) (.. "Loading " path " into " name))
 
-  (let* [(prefix (.. name "-" (n (.> state :libs)) "/"))
-         (lib { :name   name
-                :prefix prefix
-                :path   path })
+  (let* [(unique-name (.. name "-" (n (.> state :libs))))
+         (lib (library-of name unique-name path (.> state :root-scope)))
          (contents (self lisp-handle :read "*a"))]
     (self lisp-handle :close)
-
-    (.<! lib :lisp contents)
 
     ;; Attempt to load the native file
     (when-with (handle (io/open (.. path ".lib.lua") "r"))
       (with (contents (self handle :read "*a"))
         (self handle :close)
-        (.<! lib :native contents)
+        (set-library-lua-contents! lib contents)
 
         (case (list (load contents (.. "@" name)))
           [(nil ?msg) (fail! msg)]
           [(?fun)
            (with (res (fun))
              (if (table? res)
-               (for-pairs (k v) res (.<! state :lib-env (.. prefix k) v))
+               (for-pairs (k v) res (.<! state :lib-env (.. unique-name "/" k) v))
                (fail! (.. path ".lib.lua returned a non-table value"))))])))
 
     ;; Attempt to load the meta info
@@ -134,37 +133,33 @@
           [(?fun)
            (with (res (fun))
              (if (table? res)
-               (for-pairs (k v) res (read-meta state (.. prefix k) v))
+               (for-pairs (k v) res (read-meta state (.. unique-name "/" k) v))
                (fail! (.. path ".meta.lua returned a non-table value"))))])))
 
     (timer/start-timer! (.> state :timer) (.. "[parse] " path) 2)
 
     ;; And parse all the things!
-    (let* [(lexed (parser/lex (.> state :log) contents (.. path ".lisp")))
-           (parsed (parser/parse (.> state :log) lexed))
-           (scope (scope/child (.> state :root-scope)))]
-      (.<! scope :is-root true)
-      (.<! scope :prefix (.. name "/"))
-      (.<! scope :unique-prefix prefix)
-      (.<! lib :scope scope)
+    (let* [((lexed range) (parser/lex (.> state :log) contents (.. path ".lisp")))
+           (parsed (parser/parse (.> state :log) lexed))]
 
       (timer/stop-timer! (.> state :timer) (.. "[parse] " path))
 
       (with (compiled (compile
                         state
                         parsed
-                        scope
+                        (library-scope lib)
                         path))
 
         (push-cdr! (.> state :libs) lib)
 
         ;; Extract documentation from the root node
         (when (string? (car compiled))
-          (.<! lib :docs (const-val (car compiled)))
+          (set-library-docs! lib (const-val (car compiled)))
           (remove-nth! compiled 1))
 
         ;; Append on to the complete output
-        (.<! lib :out compiled)
+        (set-library-lisp-lines! lib (range/range-lines range))
+        (set-library-nodes! lib compiled)
         (for-each node compiled (push-cdr! (.> state :out) node))))
 
     (logger/put-verbose! (.> state :log) (.. "Loaded " path " into " name))

@@ -3,6 +3,7 @@
 (import urn/analysis/traverse traverse)
 (import urn/analysis/vars ())
 (import urn/analysis/visitor visitor)
+(import urn/backend/lua lua)
 (import urn/logger logger)
 (import urn/range (get-source))
 
@@ -45,7 +46,7 @@
     (let* [(head (car node))
            (meta (and (symbol? head) (not (.> head :folded)) (= (.> head :var :kind) "native") (.> state :meta (.> head :var :unique-name))))]
       ;; Determine whether we have a native (and pure) function. If so, we'll invoke it.
-      (if (and meta (.> meta :pure) (.> meta :value))
+      (if (and meta (.> meta :pure) (function? (lua/get-native meta)))
         (with (res (list (pcall (.> meta :value) (unpack (map urn->val (cdr node)) 1 (- (n node) 1)))))
           (if (car res)
             (with (val (nth res 2))

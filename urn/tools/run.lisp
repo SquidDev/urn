@@ -8,6 +8,7 @@
 (import urn/analysis/visitor visitor)
 (import urn/backend/lua lua)
 (import urn/backend/writer w)
+(import urn/library library)
 (import urn/logger logger)
 (import urn/range ())
 (import urn/traceback traceback)
@@ -404,13 +405,13 @@
         (self handle :write (string/rep "=" 78) "\n")
 
         (let* [(lib (.> compiler :lib-cache path))
-               (lines (string/split (.> lib :lisp) "\n"))
+               (lines (library/library-lisp-lines lib))
                (n-lines (n lines))
                (counts (.> stats path))
                (active {})
                (hits 0)
                (misses 0)]
-          (visitor/visit-block (.> lib :out) 1
+          (visitor/visit-block (library/library-nodes lib) 1
             (lambda (node)
               (when (or (not (list? node)) ;; Non-list nodes are always interesting
                       (with (head (car node))

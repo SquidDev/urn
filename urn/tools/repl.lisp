@@ -10,9 +10,9 @@
 (import urn/backend/writer writer)
 (import urn/documentation docs)
 (import urn/error (compiler-error?))
+(import urn/library library)
 (import urn/loader loader)
 (import urn/logger logger)
-(import urn/logger)
 (import urn/logger/void void)
 (import urn/parser parser)
 (import urn/range ())
@@ -224,7 +224,7 @@
    This simply lexes the string and counts the opening and closing parens."
   :hidden
   (let [(toks (case (list (pcall parser/lex void/void str "<stdin>" true))
-                [(true ?x) x]
+                [(true ?x _) x]
                 [(false (table? @ ?x)) (or (.> x :tokens) '())]))
         (stack '(1))]
     (for-each tok toks
@@ -242,7 +242,7 @@
   :hidden
   ;; TODO: If the string is one line and starts with ':', can we complete commands?
   (case (list (pcall parser/lex void/void str "<stdin>" true))
-    [(true ?toks)
+    [(true ?toks _)
      ;; Get the penultimate token (the last one will be an eof).
      (let* [(last (nth toks (pred (n toks))))
             (contents
@@ -383,16 +383,16 @@
                [(= mod nil)
                 (logger/put-error! logger (.. "Cannot find '" name "'"))]
                [true
-                (print! (coloured "36;1" (.> mod :name)))
-                (print! (.. "Located at " (.> mod :path)))
+                (print! (coloured "36;1" (library/library-name mod)))
+                (print! (.. "Located at " (library/library-path mod)))
 
-                (when (.> mod :docs)
-                  (print-docs! (.> mod :docs))
+                (when-with (docs (library/library-docs mod))
+                  (print-docs! docs)
                   (print!))
 
                 (print! (coloured "32;1" "Exported symbols"))
                 (with (vars '())
-                  (for-pairs (name) (.> mod :scope :exported) (push-cdr! vars name))
+                  (for-pairs (name) (.> (library/library-scope mod) :exported) (push-cdr! vars name))
                   (sort! vars)
                   (print! (concat vars "  ")))]))
            (logger/put-error! logger ":module <variable>")))]

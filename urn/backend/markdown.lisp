@@ -1,5 +1,6 @@
 (import urn/backend/writer writer)
 (import urn/documentation doc)
+(import urn/library ())
 (import urn/loader (strip-extension))
 (import urn/range (get-source format-position range-name range-start))
 (import urn/resolve/builtins (builtins))
@@ -138,7 +139,7 @@
         (letters {})]
 
     (for-each lib libraries
-      (for-pairs (name var) (.> lib :scope :exported)
+      (for-pairs (name var) (.> (library-scope lib) :exported)
         (with (info (.> variables var))
           (unless info
             ;; We've not seen this variable before so set up the info
@@ -158,7 +159,7 @@
                 (push-cdr! lookup info))))
 
           ;; Determine whether this scope defines it or exports it
-          (if (= (.> var :scope) (.> lib :scope))
+          (if (= (.> var :scope) (library-scope lib))
             (.<! info :defined lib)
             (push-cdr! (.> info :exported) (list name lib))))))
 
@@ -203,8 +204,8 @@
               (write-docstring out (doc/extract-summary (doc/parse-docstring doc))))
             (writer/append! out "|")
 
-            (let [(name (if defined (.> defined :name) (range-name range)))
-                  (path (string/gsub (strip-extension (if defined (.> defined :path) (range-name range))) "/" "."))]
+            (let [(name (if defined (library-name defined) (range-name range)))
+                  (path (string/gsub (strip-extension (if defined (library-path defined) (range-name range))) "/" "."))]
               (if (empty? (.> info :exported))
                 (writer/append! out (string/format "[%s](%s.md)" name path))
                 (writer/append! out (string/format "[%s](%s.md \"Also exported from %s\")" name path

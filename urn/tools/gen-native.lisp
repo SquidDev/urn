@@ -3,6 +3,7 @@
 (import lua/math math)
 
 (import urn/logger logger)
+(import urn/library ())
 (import urn/backend/lua/escape (escape))
 
 (defun dot-quote (prefix name)
@@ -19,12 +20,12 @@
 
   (let* [(prefix (.> args :gen-native))
          (lib (.> compiler :lib-cache (last (.> args :input))))
-         (escaped (if (string? prefix) (escape (last (string/split (.> lib :name) "/"))) nil))
+         (escaped (if (string? prefix) (escape (last (string/split (library-name lib) "/"))) nil))
          (max-name 0)
          (max-quot 0)
          (max-pref 0)
          (natives '())]
-    (for-each node (.> lib :out)
+    (for-each node (library-nodes lib)
       (when (and (list? node) (symbol? (car node)) (= (.> (car node) :contents) "define-native"))
         (with (name (.> (nth node 2) :contents))
           (push-cdr! natives name)
@@ -35,7 +36,7 @@
 
     (sort! natives)
 
-    (let* [(handle (io/open (.. (.> lib :path) ".meta.lua") "w"))
+    (let* [(handle (io/open (.. (library-path lib) ".meta.lua") "w"))
            (format (..
                      "\t[%-"
                      (number->string (+ max-name 3))
@@ -45,7 +46,7 @@
                      (number->string (succ max-pref))
                      "s },\n"))]
       (unless handle
-        (logger/put-error! (.> compiler :log) (.. "Cannot write to " (.> lib :path) ".meta.lua"))
+        (logger/put-error! (.> compiler :log) (.. "Cannot write to " (library-path lib) ".meta.lua"))
         (exit! 1))
 
       (when (string? prefix)

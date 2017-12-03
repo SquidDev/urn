@@ -450,7 +450,7 @@
                 (append! "symbol" start)))])
         (consume!)))
     (append! "eof")
-    out))
+    (values-list out (range (mk-position 1 1) (position)))))
 
 (defun parse (logger toks cont)
   "Parse tokens TOKS, the result of [[lex]]. If CONT is true, then
@@ -607,4 +607,4 @@
 
 (defun read (x path)
   "Combination of [[lex]] and [[parse]]"
-  (parse void/void (lex void/void x (or path ""))))
+  (parse void/void (lex void/void x (or path "") nil) nil))

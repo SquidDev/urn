@@ -33,12 +33,12 @@
          (compiler { :log           logger/void
                      :timer         (timer/void)
 
-                     :lib-meta      { :+       { :tag "expr" :contents '(1 " + " 2)   :count 2 :fold "l" :prec 9 :pure true :value + }
-                                      :-       { :tag "expr" :contents '(1 " - " 2)   :count 2 :fold "l" :prec 9 :pure true :value - }
-                                      :..      { :tag "expr" :contents '(1 " .. " 2)  :count 2 :fold "r" :prec 8 :pure true :value .. }
-                                      :=       { :tag "expr" :contents '(1 " == " 2)  :count 2           :prec 3 :pure true :value b/= }
-                                      :>=      { :tag "expr" :contents '(1 " >= " 2)  :count 2           :prec 3 :pure true :value b/>= }
-                                      :get-idx { :tag "expr" :contents '(1 "[" 2 "]") :count 2 :precs '(100 0) :value (cut .> <> <>) }
+                     :lib-meta      { :+       { :tag "expr" :contents '(1 " + " 2)   :count 2 :fold "l" :prec 9 :pure true }
+                                      :-       { :tag "expr" :contents '(1 " - " 2)   :count 2 :fold "l" :prec 9 :pure true }
+                                      :..      { :tag "expr" :contents '(1 " .. " 2)  :count 2 :fold "r" :prec 8 :pure true }
+                                      :=       { :tag "expr" :contents '(1 " == " 2)  :count 2           :prec 3 :pure true }
+                                      :>=      { :tag "expr" :contents '(1 " >= " 2)  :count 2           :prec 3 :pure true }
+                                      :get-idx { :tag "expr" :contents '(1 "[" 2 "]") :count 2 :precs '(100 0) }
                                       :print   { :tag "var"  :contents "print" } }
 
                      :root-scope    scope
@@ -52,6 +52,9 @@
     (.<! scope :is-root true)
     (for-each var '("foo" "bar" "baz" "qux" "+" "-" ".." "=" ">=" "get-idx" "print")
       (scope/add! scope var "native"))
+
+    (for-pairs (name meta) (.> compiler :lib-meta)
+      (.<! meta :name name))
 
     (for-pairs (_ var) (.> scope :parent :variables) (.<! compiler :variables (tostring var) var))
     (for-pairs (_ var) (.> scope :variables) (.<! compiler :variables (tostring var) var))

@@ -4,6 +4,7 @@
 
 (import urn/backend/lua backend)
 (import urn/error error)
+(import urn/library library)
 (import urn/logger logger)
 (import urn/range range)
 (import urn/resolve/scope scope)
@@ -249,7 +250,7 @@
                  (let* [(export (.> head :export))
                         (scope (.> head :scope))
                         (node (.> head :_node))]
-                   (for-pairs (name var) (.> module :scope :exported)
+                   (for-pairs (name var) (.> (library/library-scope module) :exported)
                      (cond
                        [(.> head :as)
                         (scope/import-verbose! scope (.. (.> head :as) "/" name)
@@ -263,7 +264,7 @@
                  (when (.> head :symbols)
                    (with (failed false)
                      (for-pairs (name name-node) (.> head :symbols)
-                       (unless (.> module :scope :exported name)
+                       (unless (.> (library/library-scope module) :exported name)
                          (set! failed true)
                          (logger/put-node-error! logger
                            (.. "Cannot find " name)
