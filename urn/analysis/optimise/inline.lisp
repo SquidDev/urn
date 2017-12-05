@@ -33,8 +33,8 @@
             (new-var (get-var old-var lookup))]
 
        ;; Adjust the var's node if needed
-       (when (and (/= old-var new-var) (= (.> old-var :node) node))
-         (.<! new-var :node copy))
+       (when (and (/= old-var new-var) (= (scope/var-node old-var) node))
+         (.<! new-var :node copy)) ;; TODO: Use a setter/handle this in the constructor
 
        ;; And correct the node's var
        (.<! copy :var new-var)
@@ -45,11 +45,11 @@
      (when (builtin? (car node) :lambda)
        (with (args (cadr node))
          (unless (empty? args)
-           (with (new-scope (scope/child (get-scope (.> (car args) :var :scope) lookup)))
+           (with (new-scope (scope/child (get-scope (scope/var-scope (.> (car args) :var)) lookup)))
              (for-each arg args
                (let* [(var (.> arg :var))
-                      (new-var (scope/add! new-scope (.> var :name) (.> var :kind) nil))]
-                 (.<! new-var :is-variadic (.> var :is-variadic))
+                      (new-var (scope/add! new-scope (scope/var-name var) (scope/var-kind var) nil))]
+                 (scope/set-var-variadic! new-var (scope/var-variadic? var)) ;; TODO: Use the actual setter/improvement copying
                  (.<! lookup :vars var new-var)))))))
 
      ;; And copy this node
@@ -80,7 +80,7 @@
             ;; Just a normal function call with symbols. We consider these
             ;; "free".
             ;; TODO: Block recursive functions
-            [(/= (.> func :kind) "builtin")
+            [(/= (scope/var-kind func) "builtin")
              (score-nodes node 1 (+ cumulative (n node) 1) threshold)]
 
             ;; Now visit the core builtins. This isn't exactly an advanced herustic.
@@ -148,7 +148,7 @@
       ;; We have a lambda. We avoid inlining if we have a varargs somewhere.
       (set! score 0)
       (for-each arg (nth node 2)
-        (when (.> arg :var :is-variadic) (set! score false)))
+        (when (scope/var-variadic? (.> arg :var)) (set! score false)))
 
       ;; If we have no varargs, then let's inline this function.
       (when score (set! score (score-nodes node 3 score threshold)))
@@ -184,6 +184,6 @@
                   ;; We can! Inline the node, and updat the function call with the new node.
                   (with (copy (copy-node val { :scopes {}
                                                :vars   {}
-                                               :root   (.> func :scope) }))
+                                               :root   (scope/var-scope func) }))
                     (.<! node 1 copy)
                     (changed!)))))))))))

@@ -6,6 +6,7 @@
 (import urn/library ())
 (import urn/loader (strip-extension))
 (import urn/logger logger)
+(import urn/resolve/scope scope)
 
 (defun docs (compiler args)
   (when (empty? (.> args :input))
@@ -15,7 +16,8 @@
   (for-each path (.> args :input)
     (let* [(lib (.> compiler :lib-cache path))
            (writer (writer/create))]
-      (markdown/exported writer (library-name lib) (library-docs lib) (.> (library-scope lib) :exported) (library-scope lib))
+      (markdown/exported writer (library-name lib) (library-docs lib)
+                                (scope/scope-exported (library-scope lib)) (library-scope lib))
 
       (with (handle (io/open (.. (.> args :docs) "/" (string/gsub (strip-extension path) "/" ".") ".md") "w"))
         (self handle :write (writer/->string writer))

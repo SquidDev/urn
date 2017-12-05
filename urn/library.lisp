@@ -33,9 +33,8 @@
 
   (constructor new
     (lambda (name unique-name path parent-scope)
-      (with (scope (scope/child parent-scope))
-        (.<! scope :is-root true)
-        (.<! scope :prefix (.. name "/"))
-        (.<! scope :unique-prefix (.. unique-name "/"))
+      (with (scope (scope/child parent-scope "top-level"))
+        (scope/set-scope-prefix! scope (.. name "/"))
+        (scope/set-scope-unique-prefix! scope (.. unique-name "/"))
 
         (new name unique-name path scope nil nil nil)))))

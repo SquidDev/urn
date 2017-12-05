@@ -1,5 +1,6 @@
 (import urn/analysis/nodes ())
 (import urn/analysis/pass ())
+(import urn/resolve/scope scope)
 
 (defun visit-quote (node level lookup)
   "Visit a `syntax-quote`d NODE at the given LEVEL - where 1 is a single level of nesting,
@@ -60,7 +61,7 @@
           (with (func (.> head :var))
             (cond
               ;; Just a bog-standard call.
-              [(/= (.> func :kind) "builtin")
+              [(/= (scope/var-kind func) "builtin")
                (with (state (.> lookup func))
                  (cond
                    ;; If we have no state, then we can skip it.

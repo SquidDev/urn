@@ -263,11 +263,11 @@
            (loop
              [(scope scope)]
              [(= scope nil)]
-             (for-pairs (name _) (.> scope :variables)
+             (for-pairs (name _) (scope/scope-variables scope)
                (when (and (string/starts-with? name contents) (not (.> visited name)))
                  (.<! visited name true)
                  (push-cdr! vars (string/sub name (succ (n contents))))))
-             (recur (.> scope :parent)))
+             (recur (scope/scope-parent scope)))
            (sort! vars)
            vars)
          '()))]
@@ -361,17 +361,17 @@
       [(or (= command "doc") (= command "d"))
        (with (name (nth args 2))
          (if name
-           (with (var (scope/get scope name))
+           (with (var (scope/lookup scope name))
              (if (= var nil)
                (logger/put-error! logger (.. "Cannot find '" name "'"))
                (let* [(sig (docs/extract-signature var))
-                      (name (.> var :full-name))]
+                      (name (scope/var-full-name var))]
                  (when sig
                    (set! name (.. "(" (concat (cons name sig) " ") ")")))
                  (print! (coloured "36;1" name))
 
-                 (if (.> var :doc)
-                   (print-docs! (.> var :doc))
+                 (if-with (docs (scope/var-doc var))
+                   (print-docs! docs)
                    (logger/put-error! logger (.. "No documentation for '" name "'"))))))
            (logger/put-error! logger ":doc <variable>")))]
 
@@ -392,7 +392,7 @@
 
                 (print! (coloured "32;1" "Exported symbols"))
                 (with (vars '())
-                  (for-pairs (name) (.> (library/library-scope mod) :exported) (push-cdr! vars name))
+                  (for-pairs (name) (scope/scope-exported (library/library-scope mod)) (push-cdr! vars name))
                   (sort! vars)
                   (print! (concat vars "  ")))]))
            (logger/put-error! logger ":module <variable>")))]
@@ -406,11 +406,11 @@
                 (vars-set {})
                 (current scope)]
            (while current
-             (for-pairs (name var) (.> current :variables)
+             (for-pairs (name var) (scope/scope-variables current)
                (unless (.> vars-set name)
                  (push-cdr! vars name)
                  (.<! vars-set name true)))
-             (set! current (.> current :parent)))
+             (set! current (scope/scope-parent current)))
 
            (for-each var vars
              ;; search by function name
@@ -418,8 +418,8 @@
                (when (string/find var keyword)
                  (push-cdr! name-results var)))
              ;; search by function docs
-             (when-let* [(doc-var (scope/get scope var))
-                         (temp-docs (.> doc-var :doc))
+             (when-let* [(doc-var (scope/lookup scope var))
+                         (temp-docs (scope/var-doc doc-var))
                          (docs (string/lower temp-docs))
                          (keywords-found 0)]
                (for-each keyword keywords
@@ -447,11 +447,11 @@
               (vars-set {})
               (current scope)]
          (while current
-           (for-pairs (name var) (.> current :variables)
+           (for-pairs (name var) (scope/scope-variables current)
              (unless (.> vars-set name)
                (push-cdr! vars name)
                (.<! vars-set name true)))
-           (set! current (.> current :parent)))
+           (set! current (scope/scope-parent current)))
 
          (sort! vars)
 
@@ -460,9 +460,9 @@
       [(or (= command "view") (= command "v"))
        (with (name (nth args 2))
          (if name
-           (with (var (scope/get scope name))
+           (with (var (scope/lookup scope name))
              (if (/= var nil)
-               (let* [(node (.> var :node))
+               (let* [(node (scope/var-node var))
                       (range (and node (get-source node)))]
                  (if (/= range nil)
                    (let* [(lines (range-lines range))
@@ -527,7 +527,7 @@
               [(= (co/status exec) "dead")
                (let* [(lvl (state/get! (last state)))]
                  (with (pretty-fun pretty)
-                   (when-with (pretty-var (scope/get scope "pretty"))
+                   (when-with (pretty-var (scope/lookup scope "pretty"))
                      (with (pretty-val (state/get! (.> compiler :states pretty-var)))
                        (set! pretty-fun pretty-val)))
 
@@ -564,7 +564,7 @@
                              [?task fail! (.. "Cannot handle " task)]))]))))])))))))
 
 (defun repl (compiler args)
-  (let* [(scope (scope/child (.> compiler :root-scope)))
+  (let* [(scope (scope/child (.> compiler :root-scope) "top-level"))
          (logger (.> compiler :log))
          (buffer "")
          (running true)
@@ -575,9 +575,9 @@
     ;; Import all specified modules if possible
     (for-each input (.> args :input)
       (with (library (car (loader/path-loader compiler input)))
-        (for-pairs (name var) (.> library :scope :exported)
-          (if (.> scope :variables name)
-            (scope/import! scope (.. (.> library :name) "/" name) var)
+        (for-pairs (name var) (scope/scope-exported (library/library-scope library))
+          (if (scope/get scope name)
+            (scope/import! scope (.. (scope/var-name library) "/" name) var)
             (scope/import! scope name var)))))
 
     (while running
@@ -599,8 +599,7 @@
                  (set! buffer data)]
                 [true
                  (set! buffer "")
-                 (set! scope (scope/child scope))
-                 (.<! scope :is-root true)
+                 (set! scope (scope/child scope "top-level"))
 
                  (with (res (list (pcall exec-string compiler scope data)))
                    ;; Clear active node/scope

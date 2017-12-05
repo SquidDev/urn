@@ -1,35 +1,134 @@
+(import lua/coroutine co)
+(import data/struct ())
+
 (import urn/error error)
 (import urn/range range)
 
-(import lua/coroutine co)
+(defstruct (scope child scope?)
+  "Create a new scope with the given PARENT, specifying the KIND of
+   scope."
+  (fields
+    (immutable parent
+      "The parent scope. This is used to lookup symbols not found in this
+       scope.")
 
-(defun child (parent)
-  "Create a new scope using PARENT as the base."
-  { :parent    parent ;; The parent scope
-    :variables {} ;; Lookup of named variables
-    :exported  {} ;; Lookup of exported variables. For a given key in exported, variables will have the same value.
-    :prefix (if parent (.> parent :prefix) "")
-    :unique-prefix (if parent (.> parent :unique-prefix) "")})
+    (immutable kind
+      "The kind of scope this is. It is either 'top-level', 'normal' or
+       'builtin'.")
+
+    (immutable variables
+      "The variables within this scope")
+
+    (immutable exported
+      "The exported variables within this scope.")
+
+    (mutable prefix
+      "A prefix used on all variables within this scope.")
+
+    (mutable unique-prefix
+      "A unique prefix used on all variables within this scope."))
+
+  (constructor new
+    (lambda (parent kind)
+      (when (/= parent nil) (assert-type! parent scope))
+      (cond
+        [(= kind nil) (set! kind "normal")]
+        [(or (= kind "normal") (= kind "top-level") (= kind "builtin"))]
+        [else (format 1 "Unknown scope kind {#kind}")])
+
+      (new
+        parent kind {} {}
+        (if parent (scope-prefix parent) "")
+        (if parent (scope-unique-prefix parent) "")))))
+
+(defun scope-top-level? (scope)
+  "Whether this is a top level SCOPE."
+  (= (scope-kind scope) "top-level"))
+
+(defun scope-builtin? (scope)
+  "Whether this is a scope which stores builtin variables."
+  (= (scope-kind scope) "builtin"))
+
+(defstruct (var var var?)
+  (fields
+    (immutable name
+      "The name of this variable")
+
+    (immutable kind
+      "The kind of this variable. This is either a top level definition
+       ('defined', 'native', 'macro'), a function argument ('arg') or a
+       builtin ('builtin').")
+
+    (immutable scope
+      "The scope associated with this variable")
+
+    (immutable full-name
+      "The current name prefixed with [[scope-prefix]].")
+
+    (immutable unique-name
+      "The current name prefixed with [[scope-unique-prefix]].")
+
+    (immutable node
+      "The node associated with this variable, should only be `nil` for
+       builtins.")
+
+    (mutable const var-const? set-var-const!
+      "Whether this variable is immutable. This defaults to true for
+       top-level definitions and false for function arguments.")
+
+    (mutable is-variadic var-variadic? set-var-variadic!
+      "Whether this variable is an argument which accepts multiple
+       values.")
+
+    (mutable doc
+      "The documentation string for this variable")
+
+    (mutable display-name
+      "A name used when displaying this variable, such as in generated
+       code.")
+
+    (mutable deprecated
+      "Determines if this variable is deprecated. Will either be a string
+       storing a warning message, or `true` if no message was provided."))
+
+  (constructor new
+    (lambda (name kind scope node)
+      (assert-type! name string)
+      (assert-type! kind string)
+      (assert-type! scope scope)
+
+      (new name kind scope
+           (.. (scope-prefix scope) name)
+           (.. (scope-unique-prefix scope) name)
+           node
+           (/= kind "arg")
+           false nil nil false))))
 
 (defun get (scope name)
-  "Lookup NAME in the given scope."
+  "Get variable with the given NAME in the given SCOPE, not looking in
+   parent scopes."
+  (.> (scope-variables scope) name))
+
+(defun get-exported (scope name)
+  "Get exported variable with the given NAME in the given SCOPE, not
+   looking in parent scopes."
+  (.> (scope-exported scope) name))
+
+(defun lookup (scope name)
+  "Lookup NAME in the given SCOPE or any of the parent scopes."
   (if scope
-    (with (var (.> scope :variables name))
-      (if var
-        var
-        (get (.> scope :parent) name)))
+    (or (get scope name)
+        (lookup (scope-parent scope) name))
     nil))
 
-(defun get-always! (scope name user)
-  "Lookup NAME in SCOPE, yielding if it cannot be found. USER is the node
-   which requires this variable."
-  (with (var (get scope name))
-    (if var
-      var
+(defun lookup-always! (scope name user)
+  "Lookup NAME in the given SCOPE or any of the parent scopes, yielding
+   if it cannot be found. USER is the node which requires this variable."
+  (or (lookup scope name)
       (co/yield { :tag   "define"
                   :name  name
                   :node  user
-                  :scope scope }))))
+                  :scope scope })))
 
 (define kinds
   "All valid kinds a variable can have."
@@ -43,39 +142,36 @@
 (defun add! (scope name kind node)
   "Define variable NAME in SCOPE with the given KIND. This variable can
    optionally be defined by the given NODE."
+  (assert-type! scope scope)
   (assert-type! name string)
   (assert-type! kind string)
-  (unless (.> kinds kind) (error! (.. "Unknown kind " (string/quoted kind))))
-  (when (.> scope :variables name) (error! (.. "Previous declaration of " (string/quoted name))))
-  (when (and (= name "_") (.> scope :is-root)) (fail! "Cannot declare \"_\" as a top level definition"))
 
-  (with (var { :tag       "var"
-               :kind      kind
-               :name      name
-               :full-name (.. (.> scope :prefix) name)
-               :unique-name (.. (.> scope :unique-prefix) name)
-               :scope     scope
-               :const     (/= kind "arg")
-               :node      node })
+  (unless (.> kinds kind) (format 1 "Unknown kind {#kind}"))
+  (when (get scope name) (format 1 "Previous declaration of {#name}"))
+  (when (and (= name "_") (scope-top-level? scope)) (fail! "Cannot declare \"_\" as a top level definition"))
+
+  (with (var (var name kind scope node))
     (unless (= name "_")
-      (.<! scope :variables name var)
-      (.<! scope :exported name var))
+      (.<! (scope-variables scope) name var)
+      (.<! (scope-exported scope) name var))
     var))
 
 (defun add-verbose! (scope name kind node logger)
   "Define variable NAME in SCOPE with the given KIND. This variable can
    optionally be defined by the given NODE. If this variable is already`
    deined then it will error, printing the issue to the given LOGGER."
+  (assert-type! scope scope)
   (assert-type! name string)
   (assert-type! kind string)
-  (unless (.> kinds kind) (error! (.. "Unknown kind " (string/quoted kind))))
-  (when-with (previous (.> scope :variables name))
+
+  (unless (.> kinds kind) (format 1 "Unknown kind {#kind}"))
+  (when-with (previous (get scope name))
     (error/do-node-error! logger (.. "Previous declaration of " (string/quoted name))
       node nil
       (range/get-source node) "new definition here"
-      (range/get-source (.> previous :node)) "old definition here"))
+      (range/get-source (var-node previous)) "old definition here"))
 
-  (when (and (= name "_") (.> scope :is-root))
+  (when (and (= name "_") (scope-top-level? scope))
     (error/do-node-error! logger "Cannot declare \"_\" as a top level definition"
       node nil
       (range/get-source node) "declared here"))
@@ -85,12 +181,15 @@
 (defun import! (scope name var export)
   "Import the variable VAR into SCOPE using the given NAME. If EXPORT is
    true, then the variable will also be exported under the given name."
-  (unless var (fail! "var is nil"))
-  (when (and (.> scope :variables name) (/= (.> scope :variables name) var))
-    (fail! (.. "Previous declaration of " name)))
+  (assert-type! scope scope)
+  (assert-type! name string)
+  (assert-type! var var)
 
-  (.<! scope :variables name var)
-  (when export  (.<! scope :exported name var))
+  (when (and (get scope name) (/= (get scope name) var))
+    (format 1 "Previous declaration of {#name}"))
+
+  (.<! (scope-variables scope) name var)
+  (when export (.<! (scope-exported scope) name var))
 
   var)
 
@@ -100,13 +199,16 @@
    NAME is already defiined in this scope, then a message will be printed
    to LOGGER and an error thrown. NODE represents the statement which
    resulted in this variable being imported."
-  (unless var (fail! "var is nil"))
-  (when (and (.> scope :variables name) (/= (.> scope :variables name) var))
+  (assert-type! scope scope)
+  (assert-type! name string)
+  (assert-type! var var)
+
+  (when (and (get scope name) (/= (get scope name) var))
     (error/do-node-error! logger
       (.. "Previous declaration of " name)
       node nil
       (range/get-source node) "imported here"
-      (range/get-source (.> var :node)) "new definition here"
-      (range/get-source (.> scope :variables name :node)) "old definition here"))
+      (range/get-source (var-node var)) "new definition here"
+      (range/get-source (var-node (get scope name))) "old definition here"))
 
   (import! scope name var export))

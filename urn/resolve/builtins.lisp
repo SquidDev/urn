@@ -2,9 +2,7 @@
 
 (define root-scope
   "The root scope containing all builtin-ins."
-  (with (scope (scope/child))
-    (.<! scope :builtin true)
-    scope))
+  (scope/child nil "builtin"))
 
 (define builtins
   "All builtin variables, including special forms and `true`, `false` and
@@ -28,6 +26,7 @@
     (.<! builtin-vars var true)
     (.<! builtins symbol var)))
 
-(defun create-scope ()
-  "Create a new scope with [[root-scope]] as the parent."
-  (scope/child root-scope))
+(defun create-scope (kind)
+  "Create a new scope with [[root-scope]] as the parent and the specified
+   KIND."
+  (scope/child root-scope kind))

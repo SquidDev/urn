@@ -35,7 +35,7 @@
                                       [(symbol? def) (get-arity def)]
                                       [(and (list? def) (symbol? (car def)) (= (.> (car def) :var) (.> builtins :lambda)))
                                        (with (args (nth def 2))
-                                             (if (any (lambda (x) (.> x :var :is-variadic)) args)
+                                             (if (any (lambda (x) (scope/var-variadic? (.> x :var))) args)
                                                false
                                                (n args)))]
                                       (true false))))
@@ -63,10 +63,10 @@
       (visitor/visit-node node (lambda (node)
                                  (when (symbol? node)
                                    (with (var (.> node :var))
-                                     (when (and (/= var def-var) (.> var :deprecated))
+                                     (when (and (/= var def-var) (scope/var-deprecated var))
                                        (logger/put-node-warning! (.> state :logger)
-                                         (if (string? (.> var :deprecated))
-                                           (string/format "%s is deprecated: %s" (.> node :contents) (.> var :deprecated))
+                                         (if (string? (scope/var-deprecated var))
+                                           (string/format "%s is deprecated: %s" (.> node :contents) (scope/var-deprecated var))
                                            (string/format "%s is deprecated." (.> node :contents)))
                                          node nil
                                          (get-source node) "")))))))))
@@ -78,7 +78,7 @@
           (lambda (node var doc kind)
             (for-each tok (doc/parse-docstring doc)
               (when (= (.> tok :kind) "link")
-                (with (var (scope/get (.> var :scope) (.> tok :contents)))
+                (with (var (scope/lookup (scope/var-scope var) (.> tok :contents)))
                   (unless var
                     (logger/put-node-warning! (.> state :logger)
                       (string/format "%s is not defined." (string/quoted (.> tok :contents)))
@@ -86,8 +86,8 @@
                       (get-source node) (string/format "Referenced in %s." kind))))))))
     (for-each node nodes
       (when-with (var (.> node :def-var))
-        (when (string? (.> var :doc))        (validate node var (.> var :doc)         "docstring"))
-        (when (string? (.> var :deprecated)) (validate node var (.> var :deprecated) "deprecation message"))))))
+        (when (string? (scope/var-doc var))        (validate node var (scope/var-doc var)         "docstring"))
+        (when (string? (scope/var-deprecated var)) (validate node var (scope/var-deprecated var) "deprecation message"))))))
 
 (defpass unused-vars (state _ lookup)
   "Ensure all non-exported NODES are used."
@@ -98,14 +98,14 @@
       (unless (or
                 ;; Ignore variables which are visited or obviously temporary ones
                 (> (n (.> entry :usages)) 0) (> (n (.> entry :soft)) 0)
-                (= (.> var :name) "_") (/= (.> var :display-name) nil)
+                (= (scope/var-name var) "_") (/= (scope/var-display-name var) nil)
                 ;; Ignore places where we have no definition. These are probably builtin-ins.
                 (empty? (.> entry :defs)))
         (with (def (.> (car (.> entry :defs)) :node))
           (when (or ;; Non top-level definitions
                     (= (.> def :def-var) nil)
                     ;; or non-macro, exported symbols
-                    (and (/= (.> var :kind) "macro") (not (.> var :scope :exported (.> var :name)))))
+                    (and (/= (scope/var-kind var) "macro") (not (scope/get-exported (scope/var-scope var) (scope/var-name var)))))
             (push-cdr! unused (list var def))))))
 
     (sort! unused (lambda (node1 node2)
@@ -113,7 +113,7 @@
 
     (for-each pair unused
       (logger/put-node-warning! (.> state :logger)
-        (string/format "%s is not used." (string/quoted (.> (car pair) :name)))
+        (string/format "%s is not used." (string/quoted (scope/var-name (car pair))))
         (cadr pair) nil
         (get-source (cadr pair)) "Defined here"))))
 
@@ -123,7 +123,7 @@
   (visitor/visit-block nodes 1
     (lambda (node)
       (when (symbol? node)
-        (when (= (.> node :var :kind) "macro")
+        (when (= (scope/var-kind (.> node :var)) "macro")
           (logger/put-node-warning! (.> state :logger)
             (string/format "The macro %s is not expanded" (string/quoted (.> node :contents)))
             node
@@ -140,12 +140,12 @@
       (with (info (usage/get-var lookup var))
         (when (and
                 ;; Only warn if the variable is only mutable
-                (not (.> var :const))
+                (not (scope/var-const? var))
                 (= (n (.> info :defs)) 1)
                 ;; If the variable is exported then we can't really warn about it.
-                (/= (.> var :scope :exported (.> var :name)) var))
+                (/= (scope/get-exported (scope/var-scope var) (scope/var-name var)) var))
           (logger/put-node-warning! (.> state :logger)
-            (string/format "%s is never mutated" (string/quoted (.> var :name)))
+            (string/format "%s is never mutated" (string/quoted (scope/var-name var)))
             node
             "This definition is explicitly marked as :mutable, but is
              never mutated. Consider removing the annotation."

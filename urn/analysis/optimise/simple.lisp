@@ -6,6 +6,7 @@
 (import urn/backend/lua lua)
 (import urn/logger logger)
 (import urn/range (get-source))
+(import urn/resolve/scope scope)
 
 (defpass strip-import (state nodes start)
   "Strip all import expressions in NODES"
@@ -44,7 +45,9 @@
   (if (and (list? node) (fast-all constant? node 2))
     ;; If we're invoking a function with entirely constant arguments then
     (let* [(head (car node))
-           (meta (and (symbol? head) (not (.> head :folded)) (= (.> head :var :kind) "native") (.> state :meta (.> head :var :unique-name))))]
+           (meta (and (symbol? head)
+                      (not (.> head :folded))
+                      (= (scope/var-kind (.> head :var)) "native") (.> state :meta (scope/var-unique-name (.> head :var)))))]
       ;; Determine whether we have a native (and pure) function. If so, we'll invoke it.
       (if (and meta (.> meta :pure) (function? (lua/get-native meta)))
         (with (res (list (pcall (.> meta :value) (unpack (map urn->val (cdr node)) 1 (- (n node) 1)))))

@@ -2,6 +2,7 @@
 (import urn/analysis/pass ())
 (import urn/analysis/tag/usage usage)
 (import urn/logger logger)
+(import urn/resolve/scope scope)
 
 (defun transform (nodes transformers lookup)
   "Transform a list of NODES using the given TRANSFORMERS.
@@ -76,7 +77,7 @@
                       ["symbol"
                        (with (func (.> head :var))
                          (cond
-                           [(/= (.> func :kind) "builtin")
+                           [(/= (scope/var-kind func) "builtin")
                             (for i 1 (n node) 1
                               (.<! node i (transform-node (nth node i))))]
 
@@ -125,7 +126,7 @@
                            [(= func (.> builtins :struct-literal))
                             (for i 1 (n node) 1
                               (.<! node i (transform-node (nth node i))))]
-                           [else (fail! (.. "Unknown variable " (.> func :name)))]))]
+                           [else (fail! (.. "Unknown variable " (scope/var-name func)))]))]
                       ["list"
                        (if (builtin? (car head) :lambda)
                          (progn
@@ -135,7 +136,7 @@
                              (for-each zipped (zip-args (nth head 2) 1 node 2)
                                (let [(args (car zipped))
                                      (vals (cadr zipped))]
-                                 (if (and (= (n args) 1) (= (n vals) 1) (not (.> (car args) :var :is-variadic)))
+                                 (if (and (= (n args) 1) (= (n vals) 1) (not (scope/var-variadic? (.> (car args) :var))))
                                    ;; If we've just got one argument and one value then we'll have defined it,
                                    ;; so it can be replaced.
                                    (let* [(old (car vals))

@@ -1,4 +1,5 @@
 (import urn/resolve/builtins (builtins))
+(import urn/resolve/scope scope)
 
 (defun traverse-quote (node visitor level)
   (if (= level 0)
@@ -40,7 +41,7 @@
 
          (if (symbol? first)
            (let* [(func (.> first :var))
-                  (funct (.> func :kind))]
+                  (funct (scope/var-kind func))]
              (cond
                [(or (= funct "defined") (= funct "arg") (= funct "native") (= funct "macro"))
                 (traverse-list node 1 visitor)
@@ -75,7 +76,7 @@
                 (traverse-list node 2 visitor)
                 (visitor node visitor)]
                [true
-                 (fail! (.. "Unknown kind " funct " for variable " (.> func :name)))]))
+                 (fail! (.. "Unknown kind " funct " for variable " (scope/var-name func)))]))
            (progn
              (traverse-list node 1 visitor)
              (visitor node visitor))))]

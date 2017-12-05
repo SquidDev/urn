@@ -6,6 +6,7 @@
 (import urn/error error)
 (import urn/library library)
 (import urn/logger logger)
+(import urn/logger/helpers logger)
 (import urn/range range)
 (import urn/resolve/scope scope)
 (import urn/resolve/state state)
@@ -201,8 +202,8 @@
           (with (head (remove-nth! queue 1))
             (logger/put-debug! logger
               (..
-                (type head) " for " (.> head :_state :stage) " at " (range/format-node (.> head :_node))
-                " (" (if (.> head :_state :var) (.> head :_state :var :name) "?") ")"))
+                (type head) " for " (.> head :_state :stage) " at " (logger/format-node (.> head :_node))
+                " (" (if (.> head :_state :var) (scope/var-name (.> head :_state :var)) "?") ")"))
 
             (case (type head)
               ["init"
@@ -226,7 +227,7 @@
                  (resume head)
                  (progn
                    (logger/put-debug! logger (.. "  Awaiting building of node "
-                                               (if (.> head :state :var) (.> head :state :var :name) "?")))
+                                               (if (.> head :state :var) (scope/var-name (.> head :state :var)) "?")))
 
                    (inc! skipped)
                    (push-cdr! queue head)))]
@@ -250,7 +251,7 @@
                  (let* [(export (.> head :export))
                         (scope (.> head :scope))
                         (node (.> head :_node))]
-                   (for-pairs (name var) (.> (library/library-scope module) :exported)
+                   (for-pairs (name var) (scope/scope-exported (library/library-scope module))
                      (cond
                        [(.> head :as)
                         (scope/import-verbose! scope (.. (.> head :as) "/" name)
@@ -264,7 +265,7 @@
                  (when (.> head :symbols)
                    (with (failed false)
                      (for-pairs (name name-node) (.> head :symbols)
-                       (unless (.> (library/library-scope module) :exported name)
+                       (unless (scope/get-exported (library/library-scope module) name)
                          (set! failed true)
                          (logger/put-node-error! logger
                            (.. "Cannot find " name)
@@ -307,7 +308,7 @@
                              (push-cdr! var-dis name)
                              (.<! distances name dis))))))
 
-                   (set! scope (.> scope :parent)))
+                   (set! scope (scope/scope-parent scope)))
 
                  (sort! vars)
                  (sort! var-dis (lambda (a b) (< (.> distances a) (.> distances b))))
@@ -334,8 +335,8 @@
                  (node (.> entry :state :node))]
              (logger/put-error! logger (.. "Could not build "
                                          (cond
-                                           [var (.> var :name)]
-                                           [node (range/format-node node)]
+                                           [var (scope/var-name var)]
+                                           [node (logger/format-node node)]
                                            [true "unknown node"]))))]))
 
       (error/resolver-error!))

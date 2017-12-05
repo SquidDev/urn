@@ -21,15 +21,15 @@
 (defun format-definition (var)
   "Format a variable VAR, including it's kind and the position it was defined at."
   :hidden
-  (case (.> var :kind)
+  (case (scope/var-kind var)
     ["builtin"
      "Builtin term"]
     ["macro"
-     (.. "Macro defined at " (format-range (get-source (.> var :node))))]
+     (.. "Macro defined at " (format-range (get-source (scope/var-node var))))]
     ["native"
-     (.. "Native defined at " (format-range (get-source (.> var :node))))]
+     (.. "Native defined at " (format-range (get-source (scope/var-node var))))]
     ["defined"
-     (.. "Defined at " (format-range (get-source (.> var :node))))]))
+     (.. "Defined at " (format-range (get-source (scope/var-node var))))]))
 
 (defun format-signature (name var)
   "Attempt to extract the function signature from VAR"
@@ -42,15 +42,15 @@
 (defun format-link (name var title)
   "Produce a link to VAR with the given NAME and TITLE."
   :hidden
-  (let* [(loc (-> (.> var :node)
+  (let* [(loc (-> (scope/var-node var)
                   get-source
                   range-name
                   strip-extension
                   (string/gsub <> "/" ".")))
          (sig (doc/extract-signature var))
          (hash (cond
-                 [(= sig nil) (.> var :name)]
-                 [(empty? sig) (.> var :name)]
+                 [(= sig nil) (scope/var-name var)]
+                 [(empty? sig) (scope/var-name var)]
                  [true (.. name " " (concat sig " "))]))
          (titleq (if title
                    (.. " \"" title "\"")
@@ -77,8 +77,8 @@
                                              (string/gsub <> "^```(%S+)[^\n]*" "```%1")))]
         [(= ty "link")
          (let* [(name (.> tok :contents))
-                (ovar (scope/get scope name))]
-           (if (and ovar (.> ovar :node))
+                (ovar (scope/lookup scope name))]
+           (if (and ovar (scope/var-node ovar))
              (writer/append! out (format-link name ovar))
              (writer/append! out (string/format "`%s`" name))))]))))
 
@@ -88,7 +88,7 @@
          (undocumented '())]
     (iter-pairs vars (lambda (name var)
                        (push-cdr!
-                         (if (.> var :doc) documented undocumented)
+                         (if (scope/var-doc var) documented undocumented)
                          (list name var))))
 
     (sort-vars! documented)
@@ -112,17 +112,17 @@
         (writer/line! out (.. "*" (format-definition var) "*"))
         (writer/line! out "" true)
 
-        (when (.> var :deprecated)
+        (when (scope/var-deprecated var)
           (cond
-            [(string? (.> var :deprecated))
+            [(string? (scope/var-deprecated var))
              (writer/append! out (string/format ">**Warning:** %s is deprecated: " name))
-             (write-docstring out (doc/parse-docstring (.> var :deprecated)) (.> var :scope))]
+             (write-docstring out (doc/parse-docstring (scope/var-deprecated var)) (scope/var-scope var))]
             [else
              (writer/append! out (string/format ">**Warning:** %s is deprecated." name))])
           (writer/line! out)
           (writer/line! out "" true))
 
-        (write-docstring out (doc/parse-docstring (.> var :doc)) (.> var :scope))
+        (write-docstring out (doc/parse-docstring (scope/var-doc var)) (scope/var-scope var))
         (writer/line! out)
         (writer/line! out "" true)))
 
@@ -139,7 +139,7 @@
         (letters {})]
 
     (for-each lib libraries
-      (for-pairs (name var) (.> (library-scope lib) :exported)
+      (for-pairs (name var) (scope/scope-exported (library-scope lib))
         (with (info (.> variables var))
           (unless info
             ;; We've not seen this variable before so set up the info
@@ -149,7 +149,7 @@
             (.<! variables var info)
 
             ;; Push it to the appropriate category
-            (with (letter (string/lower (string/char-at (.> var :name) 1)))
+            (with (letter (string/lower (string/char-at (scope/var-name var) 1)))
               (unless (between? letter "a" "z") (set! letter "$"))
               (with (lookup (.> letters letter))
                 (unless lookup
@@ -159,14 +159,14 @@
                 (push-cdr! lookup info))))
 
           ;; Determine whether this scope defines it or exports it
-          (if (= (.> var :scope) (library-scope lib))
+          (if (= (scope/var-scope var) (library-scope lib))
             (.<! info :defined lib)
             (push-cdr! (.> info :exported) (list name lib))))))
 
     (with (letter-list (struct->assoc letters))
       (sort! letter-list (lambda (a b) (< (car a) (car b))))
       (for-each letter letter-list
-        (sort! (cadr letter) (lambda (a b) (< (.> a :var :name) (.> b :var :name)))))
+        (sort! (cadr letter) (lambda (a b) (< (scope/var-name (.> a :var)) (scope/var-name (.> b :var))))))
 
       (writer/line! out "---")
       (writer/line! out (.. "title: Symbol index"))
@@ -194,12 +194,12 @@
         (for-each info (cadr letter)
           (let* [(var (.> info :var))
                  (defined (.> info :defined))
-                 (range (get-source (.> var :node)))]
+                 (range (get-source (scope/var-node var)))]
 
             (writer/append! out "| |")
-            (writer/append! out (format-link (.> var :name) var (format-definition var)))
+            (writer/append! out (format-link (scope/var-name var) var (format-definition var)))
 
-            (when-with (doc (.> var :doc))
+            (when-with (doc (scope/var-doc var))
               (writer/append! out ": ")
               (write-docstring out (doc/extract-summary (doc/parse-docstring doc))))
             (writer/append! out "|")
@@ -209,6 +209,6 @@
               (if (empty? (.> info :exported))
                 (writer/append! out (string/format "[%s](%s.md)" name path))
                 (writer/append! out (string/format "[%s](%s.md \"Also exported from %s\")" name path
-                                                   (concat (sort (nub (map (lambda (x) (.> (cadr x) :name)) (.> info :exported)))) ", ")))))
+                                                   (concat (sort (nub (map (lambda (x) (library-name (cadr x))) (.> info :exported)))) ", ")))))
 
             (writer/line! out "|")))))))

@@ -99,11 +99,11 @@
       :active-scope   active-scope
       :active-node    active-node
       :active-module  (lambda ()
-                        (letrec [(get (scp)
-                                      (if (.> scp :is-root)
-                                        scp
-                                        (get (.> scp :parent))))]
-                          (get (active-scope))))
+                        (loop [(scp (active-scope))] []
+                          (cond
+                            [(not scp) nil]
+                            [(scope/scope-top-level? scp) scp]
+                            [else (recur (scope/scope-parent scp))])))
       :scope-vars     (lambda (scp)
                         (if (not scp)
                           (.> (active-scope) :variables)
@@ -112,12 +112,12 @@
                         (assert-type! symb symbol)
                         (when (= (active-node) nil) (error! "Not currently resolving"))
                         (unless scope (set! scope (active-scope)))
-                        (scope/get-always! scope (symbol->string symb) (active-node)))
+                        (scope/lookup-always! scope (symbol->string symb) (active-node)))
       :try-var-lookup (lambda (symb scope)
                         (assert-type! symb symbol)
                         (when (= (active-node) nil) (error! "Not currently resolving"))
                         (unless scope (set! scope (active-scope)))
-                        (scope/get scope (symbol->string symb)))
+                        (scope/lookup scope (symbol->string symb)))
       :var-definition (lambda (var)
                         (when (= (active-node) nil) (error! "Not currently resolving"))
                         (when-with (state (.> states var))
@@ -129,4 +129,4 @@
                         (when (= (active-node) nil) (error! "Not currently resolving"))
                         (when-with (state (.> states var))
                           (state/get! state)))
-      :var-docstring (lambda (var) (.> var :doc)) }))
+      :var-docstring scope/var-doc }))

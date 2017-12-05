@@ -16,6 +16,7 @@
 
 (import urn/error error)
 (import urn/range range)
+(import urn/resolve/scope scope)
 
 (import lua/coroutine co)
 
@@ -46,7 +47,7 @@
   (unless user (error! "user is nil"))
 
   ;; If we're using a top level definition then add a dependency on it.
-  (if (.> var :scope :is-root)
+  (if (scope/scope-top-level? (scope/var-scope var))
     (with (other (.> state :compiler :states var))
       (when (and other (not (.> state :required-set other)))
         (.<! state :required-set other user)
@@ -58,7 +59,7 @@
   "Mark STATE as defining the given VAR."
   ;; General sanity checks
   (when (/= (.> state :stage) "parsed") (error! (.. "Cannot add definition when in stage "(.> state :stage))))
-  (when (/= (.> var :scope) (.> state :scope)) (error! "Defining variable in different scope"))
+  (when (/= (scope/var-scope var) (.> state :scope)) (error! "Defining variable in different scope"))
   (when (.> state :var) (error! "Cannot redeclare variable for given state"))
 
   ;; Store the variable for convenient access elsewhere.
@@ -102,7 +103,7 @@
                           (cond
                             [idx
                              ;; We've already visited this node, on this current iteration.
-                             (when (= (.> state :var :kind) "macro")
+                             (when (= (scope/var-kind (.> state :var)) "macro")
                                (push-cdr! stack state)
 
                                (let [(states '())
@@ -111,13 +112,13 @@
                                  (for i idx (n stack) 1
                                    (let [(current (nth stack i))
                                          (previous (nth stack (pred i)))]
-                                     (push-cdr! states (.> current :var :name))
+                                     (push-cdr! states (scope/var-name (.> current :var)))
                                      (when previous
                                        (with (user (.> previous :required-set current))
                                          (unless first-node (set! first-node user))
 
                                          (push-cdr! nodes (range/get-source user))
-                                         (push-cdr! nodes (.. (.> current :var :name) " used in " (.> previous :var :name)))))))
+                                         (push-cdr! nodes (.. (scope/var-name (.> current :var)) " used in " (scope/var-name (.> previous :var))))))))
 
                                  (error/do-node-error! (.> state :logger)
                                    (.. "Loop in macros " (concat states " -> "))
@@ -156,5 +157,5 @@
 (defun name (state)
   "Get a pretty name for this STATE."
   (if (.> state :var)
-    (.. "macro " (string/quoted (.> state :var :name)))
+    (.. "macro " (string/quoted (scope/var-name (.> state :var))))
     "unquote"))

@@ -55,21 +55,21 @@
         (case (type child)
           ["nil" (expect! log child node "variable metadata")]
           ["string"
-           (when (.> var :doc) (error-positions! log child "Multiple doc strings in definition"))
-           (.<! var :doc (.> child :value))]
+           (when (scope/var-doc var) (error-positions! log child "Multiple doc strings in definition"))
+           (scope/set-var-doc! var (.> child :value))]
           ["key"
            (case (.> child :value)
-             ["hidden" (.<! var :scope :exported (.> var :name) nil)]
+             ["hidden" (.<! (scope/scope-exported (scope/var-scope var)) (scope/var-name var) nil)]
              ["deprecated"
               (with (message true)
                 (when (and (< i finish) (string? (nth node (succ i))))
                   (set! message (.> (nth node (succ i)) :value))
                   (inc! i))
-                (.<! var :deprecated message))]
+                (scope/set-var-deprecated! var message))]
              ["mutable"
-              (unless (.> var :const)
+              (unless (scope/var-const? var)
                 (error-positions! log child (.. "This definition has is already mutable")))
-              (.<! var :const false)]
+              (scope/set-var-const! var false)]
              [_ (error-positions! log child (.. "Unexpected modifier '" (pretty child) "'"))])]
           [?ty (error-positions! log child (.. "Unexpected node of type " ty ", have you got too many values"))]))
 
@@ -131,11 +131,12 @@
       ["key" node]
       ["symbol"
        (unless (.> node :var)
-         (.<! node :var (scope/get-always! scope (.> node :contents) node))
+         (.<! node :var (scope/lookup-always! scope (.> node :contents) node))
 
          ;; TODO: Allow syntax-quoting symbols in parent scope when unquoting.
-         (unless (or (.> node :var :scope :is-root) (.> node :var :scope :builtin))
-           (error-positions! (.> state :logger) node (.. "Cannot use non-top level definition '" (.> node :var :name) "' in syntax-quote"))))
+         (unless (or (scope/scope-top-level? (scope/var-scope (.> node :var)))
+                     (scope/scope-builtin?  (scope/var-scope (.> node :var))))
+           (error-positions! (.> state :logger) node (.. "Cannot use non-top level definition '" (scope/var-name (.> node :var)) "' in syntax-quote"))))
 
        node]
       ["list"
@@ -167,11 +168,11 @@
     ["key" node]
     ["symbol"
      (unless (.> node :var)
-       (.<! node :var (scope/get-always! scope (.> node :contents) node)))
+       (.<! node :var (scope/lookup-always! scope (.> node :contents) node)))
 
      ;; Builtin values aren't actually variables, so it doesn't make sense to use these
      ;; in raw expressions.
-     (when (= (.> node :var :kind) "builtin")
+     (when (= (scope/var-kind (.> node :var)) "builtin")
        (error-positions! (.> state :logger) node "Cannot have a raw builtin."))
 
      (state/require! state (.> node :var) node)
@@ -182,11 +183,11 @@
          ["symbol"
           ;; First we want to resolve the node
           (unless (.> first :var)
-            (.<! first :var (scope/get-always! scope (.> first :contents) first)))
+            (.<! first :var (scope/lookup-always! scope (.> first :contents) first)))
 
           (let* [(func (.> first :var))
                  (func-state (state/require! state func first))]
-            (case (.> func :kind)
+            (case (scope/var-kind func)
               ["builtin"
                (cond
                  [(= func (.> builtins :lambda))
@@ -219,9 +220,9 @@
                              (set! has-variadic true)]))
 
                         (with (var (scope/add-verbose! child-scope name "arg" arg (.> state :logger)))
-                          (.<! var :display-name (.> arg :display-name))
-                          (.<! arg :var var)
-                          (.<! var :is-variadic is-var))))
+                          (scope/set-var-display-name! var (.> arg :display-name))
+                          (scope/set-var-variadic! var is-var)
+                          (.<! arg :var var))))
 
                     (resolve-block node 3 child-scope state))]
 
@@ -241,11 +242,11 @@
                   (expect!      (.> state :logger) (nth node 3) node "value")
                   (max-length!  (.> state :logger) node 3 "set!")
 
-                  (with (var (scope/get-always! scope (.> (nth node 2) :contents) (nth node 2)))
+                  (with (var (scope/lookup-always! scope (.> (nth node 2) :contents) (nth node 2)))
                     (state/require! state var (nth node 2))
                     (.<! node 2 :var var)
 
-                    (when (.> var :const)
+                    (when (scope/var-const? var)
                       (error-positions! (.> state :logger) node
                         (string/format "Cannot rebind immutable definition '%s'" (.> (nth node 2) :contents))
                         (string/format "Top level definitions are immutable by default. If you want
@@ -373,7 +374,7 @@
                   (expect!      (.> state :logger) (nth node 3) node "value")
 
                   (with (var (scope/add-verbose! scope (.> (nth node 2) :contents) "defined" node (.> state :logger)))
-                    (.<! var :display-name (.> (nth node 2) :display-name))
+                    (scope/set-var-display-name! var (.> (nth node 2) :display-name))
                     (state/define! state var)
                     (.<! node :def-var var)
 
@@ -388,7 +389,7 @@
                   (expect!      (.> state :logger) (nth node 3) node "value")
 
                   (with (var (scope/add-verbose! scope (.> (nth node 2) :contents) "macro" node (.> state :logger)))
-                    (.<! var :display-name (.> (nth node 2) :display-name))
+                    (scope/set-var-display-name! var (.> (nth node 2) :display-name))
                     (state/define! state var)
                     (.<! node :def-var var)
 
@@ -402,7 +403,7 @@
 
                   (expect-type! (.> state :logger) (nth node 2) node "symbol" "name")
                   (with (var (scope/add-verbose! scope (.> (nth node 2) :contents) "native" node (.> state :logger)))
-                    (.<! var :display-name (.> (nth node 2) :display-name))
+                    (scope/set-var-display-name! var (.> (nth node 2) :display-name))
                     (state/define! state var)
                     (.<! node :def-var var)
 
@@ -470,7 +471,7 @@
                   (resolve-list node 2 scope state)]
 
                  [true
-                  (error-internal! (.> state :logger) node (.. "Unknown builtin " (if func (.> func :name) "?")))])]
+                  (error-internal! (.> state :logger) node (.. "Unknown builtin " (if func (scope/var-name func) "?")))])]
 
               ["macro"
                (unless func-state (error-internal! (.> state :logger) first "Macro is not defined correctly"))

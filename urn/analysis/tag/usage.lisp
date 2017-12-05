@@ -3,6 +3,7 @@
 
 (import urn/analysis/nodes (side-effect? builtins builtin? make-nil zip-args))
 (import urn/analysis/pass (defpass))
+(import urn/resolve/scope scope)
 
 (defun setup-state! (state)
   "Setup the given STATE ready for usage information"
@@ -123,7 +124,7 @@
                        (with (func (.> head :var))
                          (cond
                            ;; "Fast track" for non-builtin symbols
-                           [(/= (.> func :kind) "builtin")
+                           [(/= (scope/var-kind func) "builtin")
                             (for i 1 (n node) 1 (visit-node (nth node i)))]
 
                            ;; First the simple structures, where there is no default definition.
@@ -160,7 +161,7 @@
                            [(= func (.> builtins :struct-literal))
                             (for i 2 (n node) 1 (visit-node (nth node i)))]
 
-                           [else (fail! (.. "Unhandled variable " (.> func :name)))]))]
+                           [else (fail! (.. "Unhandled variable " (scope/var-name func)))]))]
                       ["list"
                        (if (builtin? (car head) :lambda)
                          ;; Inline arguments to a directly called lambda
@@ -168,7 +169,7 @@
                            (for-each zipped (zip-args (cadar node) 1 node 2)
                              (let [(args (car zipped))
                                    (vals (cadr zipped))]
-                               (if (and (= (n args) 1) (<= (n vals) 1) (not (.> (car args) :var :is-variadic)))
+                               (if (and (= (n args) 1) (<= (n vals) 1) (not (scope/var-variadic? (.> (car args) :var))))
                                  ;; If we've just got one argument and one value then lazily visit these
                                  ;; values. Technically this lazy visiting could happen for all arguments,
                                  ;; but this system is easier.
@@ -204,7 +205,8 @@
    exported symbols and macros (as one cannot determine if they will)
    be referenced or not."
   (with (def (.> node :def-var))
-    (or (and def (or (= (.> def :kind) "macro") (.> def :scope :exported (.> def :name))))
+    (or (and def (or (= (scope/var-kind def) "macro")
+                        (scope/get-exported (scope/var-scope def) (scope/var-name def))))
         (not (list? val))
         (not (builtin? (car val) :lambda)))))
 

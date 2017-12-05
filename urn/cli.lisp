@@ -279,7 +279,7 @@
         ;; Load the prelude and setup the environment
         (with (lib (do-load! (.> args :prelude)))
           (.<! compiler :root-scope (scope/child (.> compiler :root-scope)))
-          (for-pairs (name var) (.> (library/library-scope lib) :exported)
+          (for-pairs (name var) (scope/scope-exported (library/library-scope lib))
             (scope/import! (.> compiler :root-scope) name var)))
 
         ;; And load remaining files

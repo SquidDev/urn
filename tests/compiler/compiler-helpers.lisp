@@ -29,7 +29,7 @@
 
 (defun create-compiler ()
   "Create a new compilation state, with some basic variables already defined."
-  (let* [(scope (builtins/create-scope))
+  (let* [(scope (builtins/create-scope "top-level"))
          (compiler { :log           logger/void
                      :timer         (timer/void)
 
@@ -49,14 +49,13 @@
 
                      :loader        (lambda (name) (format 0 "Cannot load external module {#name:string/quoted}")) })]
 
-    (.<! scope :is-root true)
     (for-each var '("foo" "bar" "baz" "qux" "+" "-" ".." "=" ">=" "get-idx" "print")
       (scope/add! scope var "native"))
 
     (for-pairs (name meta) (.> compiler :lib-meta)
       (.<! meta :name name))
 
-    (for-pairs (_ var) (.> scope :parent :variables) (.<! compiler :variables (tostring var) var))
-    (for-pairs (_ var) (.> scope :variables) (.<! compiler :variables (tostring var) var))
+    (for-pairs (_ var) (scope/scope-variables (scope/scope-parent scope)) (.<! compiler :variables (tostring var) var))
+    (for-pairs (_ var) (scope/scope-variables scope) (.<! compiler :variables (tostring var) var))
 
     compiler))

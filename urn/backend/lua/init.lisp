@@ -3,6 +3,7 @@
 (import urn/backend/lua/escape (push-escape-var! escape-var) :export)
 (import urn/backend/writer w)
 (import urn/library ())
+(import urn/resolve/scope scope)
 (import urn/resolve/state state)
 (import urn/timer timer)
 (import urn/traceback traceback)
@@ -126,7 +127,7 @@
           (assert! (.> state :node) (.. "State is in " (.> state :stage) " instead"))
           (let* [(var (or (.> state :var) { :name "temp" }))
                  (escaped (push-escape-var! var back-state true))
-                 (name (.> var :name))]
+                 (name (scope/var-name var))]
             (push-cdr! state-list state)
             (push-cdr! export-list (.. escaped " = " escaped))
             (push-cdr! name-list name)

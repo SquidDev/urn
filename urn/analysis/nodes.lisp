@@ -1,4 +1,5 @@
 (import urn/resolve/builtins (builtins builtin-vars) :export)
+(import urn/resolve/scope scope)
 
 (import lua/basic (type#))
 
@@ -19,7 +20,7 @@
            (with (var (.> head :var))
              (cond
                ;; If we're calling a non-builtin symbol, then assume it has a side effect.
-               [(/= (.> var :kind) "builtin") true]
+               [(/= (scope/var-kind var) "builtin") true]
                ;; Lambdas and quotes obviously have no side-effect.
                [(= var (.> builtins :lambda)) false]
                [(= var (.> builtins :quote)) false]
@@ -69,7 +70,7 @@
 (defun make-symbol (var)
   "Make a symbol referencing VAR."
   { :tag "symbol"
-    :contents (.> var :name)
+    :contents (scope/var-name var)
     :var var })
 
 (defun symbol->var (state symb)
@@ -88,7 +89,7 @@
   (and (list? node)
     (with (lam (car node))
       (and (list? lam) (builtin? (car lam) :lambda)
-        (all (lambda (x) (not (.> x :var :is-variadic))) (nth lam 2))))))
+        (all (lambda (x) (not (scope/var-variadic? (.> x :var)))) (nth lam 2))))))
 
 (defun single-return? (node)
   "Whether this NODE will return a single value."
@@ -99,7 +100,7 @@
         (with (func (.> head :var))
           (cond
             ;; Non-builtin functions will "always" return multiple values.
-            [(/= (.> func :kind) "builtin") false]
+            [(/= (scope/var-kind func) "builtin") false]
             ;; Various literals will just return a single value
             [(= func (.> builtins :lambda)) true]
             [(= func (.> builtins :struct-literal)) true]
@@ -160,7 +161,7 @@
            (push-cdr! res (list (list arg) '()))
            (recur (succ ai) vi)]
 
-          [(.> arg :var :is-variadic)
+          [(scope/var-variadic? (.> arg :var))
            (if (single-return? (nth vals vn))
              ;; We know how many values will be passed, so merge them
              ;; all in and continue.

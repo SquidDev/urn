@@ -62,6 +62,7 @@
        [genvar?
         (let* [(name (symbol->string x))
                (sym (.> syms name))]
+          ;; TODO: Fix this up so we have actual scopes and everything.
           (unless sym
             (set! sym { :tag "symbol"
                         :name name

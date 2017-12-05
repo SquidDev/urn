@@ -4,6 +4,7 @@
 (import urn/analysis/tag/usage usage)
 (import urn/analysis/traverse traverse)
 (import urn/analysis/visitor visitor)
+(import urn/resolve/scope scope)
 
 (defun strip-defs-fast (nodes)
   "A simplistic version of [[strip-defs]] which only works on top level definitions."
@@ -200,7 +201,7 @@
                                 (entry (usage/get-var lookup var))]
                            (cond
                              ;; We can't really fold variadic arguments
-                             [(.> var :is-variadic) false]
+                             [(scope/var-variadic? var) false]
                              ;; We won't fold if the variable is redefined
                              [(/= (n (.> entry :defs)) 1) false]
                              ;; If the definition is a varaiable then we can't fold.
@@ -269,7 +270,7 @@
                         ;; evaluating the side effects of this node.
                         (cond
                           ;; Visit function calls normally
-                          [(/= (.> var :kind) "builtin")
+                          [(/= (scope/var-kind var) "builtin")
                            (visitor/visit-list node 1 visitor)
 
                            ;; If the last argument to this function is from the parent lambda
@@ -506,7 +507,7 @@
 
         ;; We're only interested if there's only one non-variadic argument and only
         ;; one value.
-        (when (and (= (n args) 1) (not (.> (car args) :is-variadic))
+        (when (and (= (n args) 1) (not (scope/var-variadic? (car args)))
                    (= (n vals) 1) (/= (car vals) nil))
           (let* [(var (.> (car args) :var))
                  (val (car vals))]

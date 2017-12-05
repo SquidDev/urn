@@ -1,5 +1,7 @@
 (import urn/analysis/nodes (builtins builtin-vars))
+(import urn/logger/helpers (format-node))
 (import urn/range range)
+(import urn/resolve/scope scope)
 
 (define keywords
   "A set of all builtin Lua variables"
@@ -55,7 +57,7 @@
 
    If FORCE-NUM is given then the variable will always be mangled with a number."
   (or (.> state :var-lookup var)
-    (let* [(esc (escape (or (.> var :display-name) (.> var :name))))
+    (let* [(esc (escape (or (scope/var-display-name var) (scope/var-name var))))
            (existing (.> state :var-cache esc))]
       (when (or force-num existing)
         (let* [(ctr 1)
@@ -76,14 +78,16 @@
 (defun pop-escape-var! (var state)
   "Remove an escaped form of variable VAR."
   (with (esc (.> state :var-lookup var))
-    (unless esc (fail! (.. (.> var :name) " has not been escaped (when popping).")))
+    (unless esc (fail! (.. (scope/var-name var) " has not been escaped (when popping).")))
     (.<! state :var-cache esc nil)
     (.<! state :var-lookup var nil)))
 
 (defun escape-var (var state)
   "Escape a variable VAR, which has already been escaped."
   (if (.> builtin-vars var)
-    (.> var :name)
+    (scope/var-name var)
     (with (esc (.> state :var-lookup var))
-      (unless esc (fail! (.. (.> var :name) " has not been escaped (at " (if (.> var :node) (range/format-node (.> var :node)) "?") ")")))
+      (unless esc (format 1 "{:id} hs not been escaped (at {:id})"
+                            (scope/var-name var)
+                            (if (scope/var-node var) (format-node (scope/var-node var)) "?")))
       esc)))

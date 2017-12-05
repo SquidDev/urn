@@ -3,6 +3,7 @@
 (import urn/analysis/vars ())
 (import urn/analysis/visitor visitor)
 (import urn/range range)
+(import urn/resolve/scope scope)
 
 (defmacro cat (category &args)
   "Create a CATEGORY data set, using ARGS as additional parameters to [[struct]]."
@@ -228,7 +229,7 @@
                     [true
                      ;; As we're invoking a known symbol here, we can do some fancy stuff. In this case, we just
                      ;; "inline" anything defined in library meta data (such as arithmetic operators).
-                     (let* [(meta (and (= (.> func :kind) "native") (.> state :meta (.> func :unique-name))))
+                     (let* [(meta (and (= (scope/var-kind func) "native") (.> state :meta (scope/var-unique-name func))))
                             (meta-ty (type meta))]
                        ;; Obviously metadata only exists for native expressions. We can only emit it if
                        ;; we're in the right context (statements cannot be emitted when we require an expression) and
@@ -268,7 +269,7 @@
                                  (recur (.> lookup lam :recur))]
 
                             (unless recur
-                              (print! "Cannot find recursion for " (.> func :name)))
+                              (print! "Cannot find recursion for " (scope/var-name func)))
 
                             (for-each zip (zip-args (cadr lam) 1 node 2)
                               (let [(args (car zip))
@@ -277,7 +278,7 @@
                                   [(= (n vals) 0)]
                                   ;; If we're binding multiple values or we're going to pack it,
                                   ;; then we'll have to emit an expression
-                                  [(or (> (n vals) 1) (.> (car args) :is-variadic))
+                                  [(or (> (n vals) 1) (scope/var-variadic? (car args)))
                                    (for-each val vals (visit-node lookup state val false))]
                                   ;; Otherwise it's a simple binding, so we can emit it as a statement.
                                   [else (visit-node lookup state (car vals) true)])))
@@ -370,7 +371,7 @@
                          [(= (n vals) 0)]
                          ;; If we're binding multiple values or we're going to pack it,
                          ;; then we'll have to emit an expression
-                         [(or (> (n vals) 1) (.> (car args) :is-variadic))
+                         [(or (> (n vals) 1) (scope/var-variadic? (car args)))
                           (for-each val vals (visit-node lookup state val false))]
                          ;; Otherwise it's a simple binding, so we can emit it as a statement.
                          [else (visit-node lookup state (car vals) true)])))

@@ -31,7 +31,7 @@
 
     ["symbol"
      ;; TODO: Check this is defined
-     (when (and (.> (.> node :var) :scope :is-root) (not (.> defined (.> node :var))))
+     (when (and (scope/scope-top-level? (scope/var-scope (.> node :var))) (not (.> defined (.> node :var))))
        (logger/put-node-warning! logger
          (.. (.> node :contents) " has not been defined yet") node
          "This symbol is not defined until later in the program, but is accessed here.
@@ -44,7 +44,7 @@
        (cond
          [(= first-ty "symbol")
           (let* [(func (.> first :var))
-                 (func-ty (.> func :kind))]
+                 (func-ty (scope/var-kind func))]
             (cond
               ;; Just a basic function call :)
               [(or (= func-ty "defined") (= func-ty "arg") (= func-ty "native") (= func-ty "macro"))

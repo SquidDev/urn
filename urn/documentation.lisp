@@ -1,4 +1,5 @@
 (import urn/analysis/nodes (builtin?))
+(import urn/resolve/scope scope)
 
 (define tokens
   "The primary tokens for the documentation string"
@@ -21,13 +22,13 @@
 
 (defun extract-signature (var history)
   "Attempt to extract the function signature from VAR"
-  (with (ty (.> var :kind))
+  (with (ty (scope/var-kind var))
     (cond
       ;; If we've already attempted to index this variable then give up
       [(and history (.> history var)) nil]
       ;; If we're a macro or normal definition then we can look it up
       [(or (= ty "macro") (= ty "defined"))
-       (if-with (root (.> var :node))
+       (if-with (root (scope/var-node var))
          ;; Start at (define ... X)
          (loop [(node (nth root (n root)))]
            [(not node) nil]

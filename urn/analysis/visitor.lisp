@@ -1,4 +1,5 @@
 (import urn/resolve/builtins (builtins))
+(import urn/resolve/scope scope)
 
 (defun visit-quote (node visitor level)
   (if (= level 0)
@@ -30,7 +31,7 @@
          (with (first (nth node 1))
            (if (symbol? first)
              (let* [(func (.> first :var))
-                    (funct (.> func :kind))]
+                    (funct (scope/var-kind func))]
                (cond
                  [(or (= funct "defined") (= funct "arg") (= funct "native") (= funct "macro"))
                   (visit-block node 1 visitor)]
@@ -54,7 +55,7 @@
                  [(= func (.> builtins :import))] ;; Nothing needs doing here
                  [(= func (.> builtins :struct-literal)) (visit-list node 2 visitor)]
                  [true
-                   (fail! (.. "Unknown kind " funct " for variable " (.> func :name)))]))
+                   (fail! (.. "Unknown kind " funct " for variable " (scope/var-name func)))]))
              (visit-block node 1 visitor)))]
         [true (error! (.. "Unknown tag " tag))]))))
 

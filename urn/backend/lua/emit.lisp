@@ -4,7 +4,9 @@
 (import urn/analysis/tag/find-letrec find-letrec)
 (import urn/backend/lua/escape ())
 (import urn/backend/writer w)
+(import urn/logger/helpers logger)
 (import urn/range range)
+(import urn/resolve/scope scope)
 
 (defun create-pass-state (state)
   "Create a state for using in analysis passes and emitting."
@@ -95,7 +97,7 @@
   (let* [(cat-lookup (.> state :cat-lookup))
          (cat (.> cat-lookup node))
          (_ (unless cat
-              (print! "Cannot find" (pretty node) (range/format-node node))))
+              (print! "Cannot find" (pretty node) (logger/format-node node))))
          (cat-tag (.> cat :category))]
     (w/push-node! out node)
     (case cat-tag
@@ -132,7 +134,7 @@
            (while (and (<= i (n args)) (not variadic))
              (when (> i 1) (w/append! out ", "))
              (with (var (.> args i :var))
-               (if (.> var :is-variadic)
+               (if (scope/var-variadic? var)
                  (progn
                    (w/append! out "...")
                    (set! variadic i))
@@ -420,14 +422,16 @@
        (compile-expression (nth node (n node)) out state (.. (push-escape-var! (.> node :def-var) state) " = "))]
 
       ["define-native"
-       (with (meta (.> state :meta (.> node :def-var :unique-name)))
+       (with (meta (.> state :meta (scope/var-unique-name (.> node :def-var))))
          (if (= meta nil)
-            ;; Just copy it from the library table value
-            (w/append-with! out (string/format "%s = _libs[%q]" (escape-var (.> node :def-var) state) (.> node :def-var :unique-name)))
-            (progn
-              ;; Generate an accessor for it.
-              (w/append-with! out (string/format "%s = " (escape-var (.> node :def-var) state)))
-              (compile-native out meta))))]
+           ;; Just copy it from the library table value
+           (w/append-with! out (string/format "%s = _libs[%q]"
+                                              (escape-var (.> node :def-var) state)
+                                              (scope/var-unique-name (.> node :def-var))))
+           (progn
+             ;; Generate an accessor for it.
+             (w/append-with! out (string/format "%s = " (escape-var (.> node :def-var) state)))
+             (compile-native out meta))))]
 
       ["quote"
        ;; Quotations are "pure" so we don't have to emit anything
@@ -476,7 +480,7 @@
            (let* [(sub (nth node i))
                   (cat (.> state :cat-lookup sub))]
              (unless cat
-               (print! "Cannot find" (pretty sub) (range/format-node sub)))
+               (print! "Cannot find" (pretty sub) (logger/format-node sub)))
 
              (if (= (.> cat :category) "unquote-splice")
                (progn
@@ -601,7 +605,7 @@
              (with (offset 1)
                (for i 1 (n args) 1
                  (with (var (.> args i :var))
-                   (if (.> var :is-variadic)
+                   (if (scope/var-variadic? var)
                      ;; If we're variadic then create a list of each sub expression
                      (with (count (- (n node) (n args)))
                        (when (< count 0) (set! count 0))
@@ -622,7 +626,7 @@
                         (done false)]
                    (for i 1 (n args) 1
                      (with (var (.> args i :var))
-                       (if (.> var :is-variadic)
+                       (if (scope/var-variadic? var)
                          ;; If we're variadic then create a list of each sub expression
                          (with (count (- (n node) (n args)))
                            (when (< count 0) (set! count 0))
@@ -713,15 +717,15 @@
 
           ;; If we're variadic then emit all the complicated binding.
           ;; Note we use the same check later on in the program.
-          [(or (.> (car args) :var :is-variadic)
-               (and (> (n args) 1) (any (cut .> <> :var :is-variadic) args)))
+          [(or (scope/var-variadic? (.> (car args) :var))
+               (and (> (n args) 1) (any (lambda (x) (scope/var-variadic? (.> x :var))) args)))
 
            (cond
              ;; We've got multiple arguments. This is going to be tricky.
              [(> (n args) 1)
               ;; Keep track of the variable portion.
               (let* [(var-idx (loop [(i 1)]
-                                [(.> (nth args i) :var :is-variadic) i]
+                                [(scope/var-variadic? (.> (nth args i) :var)) i]
                                 (recur (succ i))))
                      (var-esc (push-escape-var! (.> (nth args var-idx) :var) state))
                      (nargs (n args))]
@@ -828,8 +832,8 @@
                    [(empty? args) (set! working false)]
                    ;; Variadic arguments are handled elsewhere as they are rather
                    ;; complicated to work with
-                   [(or (.> (car args) :var :is-variadic)
-                        (and (> (n args) 1) (any (cut .> <> :var :is-variadic) args)))
+                   [(or (scope/var-variadic? (.> (car args) :var))
+                    (and (> (n args) 1) (any (lambda (x) (scope/var-variadic? (.> x :var))) args)))
                     (set! working false)]
                    ;; We've got a statement, so we'll have to handle that elsewhere.
                    [(and (= (n vals) 1) (.> cat-lookup (car vals) :stmt)) (set! working false)]
