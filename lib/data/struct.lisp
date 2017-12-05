@@ -1,5 +1,7 @@
 (import core/prelude ())
 (import data/function (cut))
+(import compiler (flag?))
+(import data/format (format))
 
 (defun gen-def (name ll body &extra) :hidden
   (case name
@@ -22,6 +24,13 @@
     [(hide ?x) x]
     [?x x]))
 
+(defun maybe-check (field tp value)
+  (if (flag? "strict-structs")
+    `(when (/= (type ,value) ,(symbol->string tp))
+       (format 1 "{}: value '{}' is not of type {}"
+               ',(symb-name field) ,value ',tp))
+    `nil))
+
 (defun field->def (nm field) :hidden
   (let* [(self (gensym nm))
          (val (gensym (symb-name (field-name field))))]
@@ -30,13 +39,15 @@
        (list
          (gen-def (map-name (cut sym.. nm '- <>) name)
                 `(,self)
-                `((.> ,self ,(symbol->string (symb-name name))))
+                `(,(maybe-check (map-name (cut sym.. nm '- <>) name) nm self)
+                  (.> ,self ,(symbol->string (symb-name name))))
                 (or docs `nil)))]
       [(immutable ?name ?accessor (optional (string? @ ?docs)))
        (list
          (gen-def accessor
                 `(,self)
-                `((.> ,self ,(symbol->string (symb-name name))))
+                `(,(maybe-check accessor nm self)
+                  (.> ,self ,(symbol->string (symb-name name))))
                 (or docs `nil)))]
       [(symbol? @ ?name)
        (field->def nm (list 'immutable name))]
@@ -45,14 +56,17 @@
          (field->def nm (list 'immutable name))
          (gen-def (map-name (cut sym.. 'set- nm '- <> '!) name)
                   (list self val)
-                  `((.<! ,self ,(symbol->string (symb-name name)) ,val))
+                  `(,(maybe-check (map-name (cut sym.. 'set- nm '- <> '!) name)
+                                  nm self)
+                    (.<! ,self ,(symbol->string (symb-name name)) ,val))
                   (or docs `nil)))]
       [(mutable ?name ?getter ?setter (optional (string? @ ?docs)))
        (snoc
          (field->def nm (list 'immutable name getter))
          (gen-def setter
                   (list self val)
-                  `((.<! ,self ,(symbol->string (symb-name name)) ,val))
+                  `(,(maybe-check setter nm self)
+                    (.<! ,self ,(symbol->string (symb-name name)) ,val))
                   (or docs `nil)))])))
 
 (defun make-constructor (docs type-name fields symbol spec) :hidden
