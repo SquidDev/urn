@@ -507,7 +507,7 @@
 
         ;; We're only interested if there's only one non-variadic argument and only
         ;; one value.
-        (when (and (= (n args) 1) (not (scope/var-variadic? (car args)))
+        (when (and (= (n args) 1) (not (scope/var-variadic? (.> (car args) :var)))
                    (= (n vals) 1) (/= (car vals) nil))
           (let* [(var (.> (car args) :var))
                  (val (car vals))]

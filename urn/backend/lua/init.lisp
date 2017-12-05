@@ -125,7 +125,7 @@
       (with (state (nth states i))
         (unless (= (.> state :stage) "executed")
           (assert! (.> state :node) (.. "State is in " (.> state :stage) " instead"))
-          (let* [(var (or (.> state :var) { :name "temp" }))
+          (let* [(var (or (.> state :var) (scope/temp-var "temp" (.> state :node))))
                  (escaped (push-escape-var! var back-state true))
                  (name (scope/var-name var))]
             (push-cdr! state-list state)

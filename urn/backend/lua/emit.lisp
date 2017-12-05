@@ -229,7 +229,7 @@
                     (w/indent! out)
                     (w/line! out)
                     (inc! ends))
-                  (let* [(var { :name "temp" })
+                  (let* [(var (scope/temp-var "temp" node))
                          (tmp (push-escape-var! var state))]
                     (w/line! out (.. "local " tmp))
                     (compile-expression case out state (.. tmp " = "))
@@ -284,7 +284,7 @@
              ;; If we're not the first condition then we also have to indent everything once.
              ;; A further enhancement would be to detect or and and patterns and convert them
              ;; to the relevant expression.
-             (let* [(var { :name "temp" })
+             (let* [(var (scope/temp-var "temp" node))
                     (tmp (push-escape-var! var state))]
                (w/line! out (.. "local " tmp))
                (compile-expression test out state (.. tmp " = "))

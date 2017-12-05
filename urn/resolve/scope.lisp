@@ -104,6 +104,9 @@
            (/= kind "arg")
            false nil nil false))))
 
+(defmethod (pretty var) (var)
+  (.. "«var : " (var-name var) "»"))
+
 (defun get (scope name)
   "Get variable with the given NAME in the given SCOPE, not looking in
    parent scopes."
@@ -129,6 +132,16 @@
                   :name  name
                   :node  user
                   :scope scope })))
+
+(define *temp-scope*
+  "A scope for all temporary variables"
+  :hidden
+  (child))
+
+(defun temp-var (name node)
+  "Create a temporary variable with an optional NAME and associated
+   NODE."
+  (var (or name "temp") "arg" *temp-scope* node))
 
 (define kinds
   "All valid kinds a variable can have."

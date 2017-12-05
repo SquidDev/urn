@@ -1,16 +1,20 @@
 (import test ())
 
 (import urn/analysis/nodes ())
+(import urn/resolve/scope scope)
 
 (defun affirm-zip (args vals exp)
-  ;; Add variables for each argument
-  (for-each arg args
-    (.<! arg :var { :is-variadic (string/starts-with? (symbol->string arg) "&") }))
+  (with (scope (scope/child))
+    ;; Add variables for each argument
+    (for-each arg args
+      (with (var (scope/add! scope (symbol->string arg) "arg" arg))
+        (scope/set-var-variadic! var (string/starts-with? (symbol->string arg) "&"))
+        (.<! arg :var var))))
 
   ;; Add variables for each value
   (loop [(val vals)] []
     (case (type val)
-      ["symbol" (.<! val :var { :tag "defined" })]
+      ["symbol" (.<! val :var (scope/temp-var))]
       ["list" (for-each elem val (recur elem))]
       [_]))
 

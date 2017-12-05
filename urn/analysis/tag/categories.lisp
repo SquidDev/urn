@@ -278,7 +278,7 @@
                                   [(= (n vals) 0)]
                                   ;; If we're binding multiple values or we're going to pack it,
                                   ;; then we'll have to emit an expression
-                                  [(or (> (n vals) 1) (scope/var-variadic? (car args)))
+                                  [(or (> (n vals) 1) (scope/var-variadic? (.> (car args) :var)))
                                    (for-each val vals (visit-node lookup state val false))]
                                   ;; Otherwise it's a simple binding, so we can emit it as a statement.
                                   [else (visit-node lookup state (car vals) true)])))
@@ -371,7 +371,7 @@
                          [(= (n vals) 0)]
                          ;; If we're binding multiple values or we're going to pack it,
                          ;; then we'll have to emit an expression
-                         [(or (> (n vals) 1) (scope/var-variadic? (car args)))
+                         [(or (> (n vals) 1) (scope/var-variadic? (.> (car args) :var)))
                           (for-each val vals (visit-node lookup state val false))]
                          ;; Otherwise it's a simple binding, so we can emit it as a statement.
                          [else (visit-node lookup state (car vals) true)])))
