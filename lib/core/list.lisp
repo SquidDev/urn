@@ -43,20 +43,90 @@
   (assert-type! x list)
   (b/car x))
 
+
+(define slicing-view
+  "Return a mutable reference to the list LIST, with indexing offset
+   (positively) by OFFSET. Mutation in the original list is reflected in
+   the view, and updates to the view are reflected in the original. In
+   this, a sliced view resembles an (offset) pointer. Note that trying
+   to access a key that doesn't make sense in a list (e.g., not its
+   `:tag`, its `:n`, or a numerical index) will blow up with an arithmetic
+   error.
+
+   **Note** that the behaviour of a sliced view when the underlying list
+   changes length may be confusing: accessing elements will still work,
+   but the reported length of the slice will be off. Furthermore, If the
+   original list shrinks, the view will maintain its length, but will
+   have an adequate number of `nil`s at the end.
+
+   ```cl
+   > (define foo '(1 2 3 4 5))
+   out = (1 2 3 4 5)
+   > (define foo-view (cdr foo))
+   out = (2 3 4 5)
+   > (remove-nth! foo 5)
+   out = 5
+   > foo-view
+   out = (2 3 4 nil)
+   ```
+
+   Also **note** that functions that modify a list in-place, like
+   `insert-nth!', `remove-nth!`, `pop-last!` and `push-cdr!` will not
+   modify the view *or* the original list.
+
+   ```cl :no-test
+   > (define bar '(1 2 3 4 5))
+   out = (1 2 3 4 5)
+   > (define bar-view (cdr bar))
+   out = (2 3 4 5)
+   > (remove-nth! bar-view 4)
+   out = nil
+   > bar
+   out = (1 2 3 4 5)
+   ```
+
+   ### Example:
+   ```cl
+   > (define baz '(1 2 3))
+   out = (1 2 3)
+   > (slicing-view baz 1)
+   out = (2 3)
+   > (.<! (slicing-view baz 1) 1 5)
+   out = nil
+   > baz
+   out = (1 5 3)
+   ```"
+  (let* [(ref-mt { :__index (lambda (t k)
+                              (get-idx (get-idx t :parent) (+ k (get-idx t :offset))))
+                   :__newindex (lambda (t k v)
+                                 (set-idx! (get-idx t :parent) (+ k (get-idx t :offset)) v)) })]
+    (lambda (list offset)
+      (cond
+        [(<= (n list) offset) '()]
+        [(and (get-idx list :parent)
+              (get-idx list :offset))
+         (b/setmetatable { :parent (get-idx list :parent)
+                           :offset (+ (get-idx list :offset) offset)
+                           :n (- (n list) offset)
+                           :tag (type list) }
+                         ref-mt)]
+        [else (b/setmetatable { :parent list
+                                :offset offset
+                                :n (- (n list) offset)
+                                :tag (type list) }
+                              ref-mt)]))))
+
 (defun cdr (x)
-  "Return the list X without the first element present. In the case that
-   X is nil, the empty list is returned. Due to the way lists are
-   represented internally, this function runs in linear time.
+  "Return a reference the list X without the first element present. In
+   the case that X is nil, the empty list is returned. Note that
+   mutating the reference will not mutate the
 
    ### Example:
    ```cl
    > (cdr '(1 2 3))
    out = (2 3)
    ```"
-  (assert-type! x list)
-  (if (empty? x)
-    '()
-    (b/cdr x)))
+  (slicing-view x 1))
 
 (defun take (xs n)
   "Take the first N elements of the list XS.
@@ -760,7 +830,7 @@
          (generate nil)]
     (set! generate (lambda (name stack do-idx idx depth)
                      (when (> (n name) 1)
-                       (with (head (if do-idx `(get-idx ,'xs ,idx) `(slice ,'xs ,(+ idx 1))))
+                       (with (head (if do-idx `(get-idx ,'xs ,idx) `(slicing-view ,'xs ,idx)))
                          (push-cdr! out `(define ,(symb (.. "c" name "r"))
                                            (lambda (,'xs)
                                              (assert-type! ,'xs ,'list)
