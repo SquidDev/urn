@@ -42,4 +42,35 @@
       '((foo) ((cond [foo foo] [true bar])) 1)
       "foo();
        (foo or bar)()
-       return 1")))
+       return 1"))
+
+  (section "setters in"
+    (it "arguments"
+      (affirm-codegen
+        '((lambda (x)
+            (foo (set! x 1))))
+        "return function(x)
+           return foo((function()
+             x = 1
+           end)())
+         end"))
+
+    (it "functions"
+      (affirm-codegen
+        '((lambda (x)
+            ((set! x 1) 1)))
+        "return function(x)
+           return (function()
+             x = 1
+           end)()(1)
+         end"))
+
+    (it "arguments"
+      (affirm-codegen
+        '((lambda (x)
+            (set! x (set! x 1))))
+        "return function(x)
+           x = 1
+           x = nil
+           return nil
+         end"))))

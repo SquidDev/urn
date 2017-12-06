@@ -186,7 +186,7 @@
                            (unless (.> recur :tail) (error! "Expected tail recursive function from letrec"))
                            (.<! lookup def (cat "lambda" :prec 100 :recur (visit-recur lookup recur))))
                          (visit-node lookup state def true)))
-                     (cat "set!")]
+                     (cat "set!" :stmt true)]
                     [(= func (.> builtins :quote))
                      (visit-quote lookup node)
                      (cat "quote" :prec 100)]

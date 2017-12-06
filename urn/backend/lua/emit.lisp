@@ -392,11 +392,25 @@
        (when (.> cat :parens) (w/append! out ")"))]
 
       ["set!"
+       ;; If we're in an expression context wrap in a lambda
+       (unless ret
+         (w/begin-block! out "(function()"))
+
        (compile-expression (nth node 3) out state (.. (escape-var (.> node 2 :var) state) " = "))
-       (when (and ret (/= ret ""))
-         (w/line! out)
-         (w/append! out ret)
-         (w/append! out "nil"))]
+
+       (cond
+         [(not ret)
+          ;; If we're in an expression, unwrap our lambda
+          (w/line! out)
+          (w/unindent! out)
+          (w/append! out "end)()")]
+         [(= ret "")]
+         [else
+          ;; Otherwise we're setting in a setter/return
+          (w/line! out)
+          (w/append! out ret)
+          (w/append! out "nil")])
+      ]
 
       ["struct-literal"
        (cond
