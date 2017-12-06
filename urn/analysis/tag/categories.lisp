@@ -446,7 +446,26 @@
 
 (defun visit-recur (lookup recur)
   "Attempts to categorise a recursive context."
-  (with (lam (.> recur :def))
+  (let* [(lam (.> recur :def))
+         (all-captured {})
+         (arg-captured {})
+         (rec-boundary (lambda (node)
+                         (if (and (list? node) (builtin? (car node) :lambda))
+                           (with (cat (.> lookup node))
+                             (if (and cat (.> cat :recur))
+                               false
+                               true))
+                           false)))]
+
+    ;; First attempt to determine which loop variables are captured
+    (for i 3 (n lam) 1
+      (node-captured (nth lam i) all-captured rec-boundary))
+
+    (for-each arg (cadr lam)
+      (when (.> all-captured (.> arg :var))
+        (.<! arg-captured (.> arg :var) (scope/temp-var (scope/var-name (.> arg :var))))))
+    (.<! recur :captured arg-captured)
+
     (cond
       [(and
          ;; Check the lambda only has one expression

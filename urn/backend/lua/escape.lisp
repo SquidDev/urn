@@ -82,6 +82,16 @@
     (.<! state :var-cache esc nil)
     (.<! state :var-lookup var nil)))
 
+(defun rename-escape-var! (from to state)
+  "Pop the definition of FROM and use it to define TO."
+  (with (esc (.> state :var-lookup from))
+    (unless esc (fail! (.. (scope/var-name from) " has not been escaped (when renaming).")))
+    (when (.> state :var-lookup to)
+      (fail! (.. (scope/var-name to) " already has a name (when renaming).")))
+
+    (.<! state :var-lookup from nil)
+    (.<! state :var-lookup to esc)))
+
 (defun escape-var (var state)
   "Escape a variable VAR, which has already been escaped."
   (if (.> builtin-vars var)

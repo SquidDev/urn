@@ -610,7 +610,8 @@
          (print! (.. (pretty node) " Got a different break then defined for.\n  Expected: "  (pretty (.> cat :recur :def))
                                                                            "\n       Got: "  (pretty (.> break :def)))))
 
-       (with (args (nth (.> cat :recur :def) 2))
+       (let* [(args (nth (.> cat :recur :def) 2))
+              (mapping (.> cat :recur :captured))]
          (if (> (n args) 0)
            ;; If we have some arguments, then set all of them in one go
            (let [(pack-name nil)
@@ -624,12 +625,12 @@
                      (with (count (- (n node) (n args)))
                        (when (< count 0) (set! count 0))
                        (if done (w/append! out ", ") (set! done true))
-                       (w/append! out (escape-var var state))
+                       (w/append! out (escape-var (map-var mapping var) state))
                        (set! offset count))
                      (with (expr (nth node (+ i offset)))
                        (when (or (not (symbol? expr)) (/= (.> expr :var) var))
                          (if done (w/append! out ", ") (set! done true))
-                         (w/append! out (escape-var var state))))))))
+                         (w/append! out (escape-var (map-var mapping var) state))))))))
 
              (if done
                ;; If we had variables, then bind them
@@ -646,7 +647,7 @@
                            (when (< count 0) (set! count 0))
                            (if done (w/append! out ", ") (set! done true))
                            (when (compile-pack node out state i count)
-                             (set! pack-name (escape-var var state)))
+                             (set! pack-name (escape-var (map-var mapping var) state)))
                            (set! offset count))
                          (with (expr (nth node (+ i offset)))
                            (when (and expr (or (not (symbol? expr)) (/= (.> expr :var) var)))
@@ -939,7 +940,11 @@
        (w/append! out "while ")
        (compile-expression (car (nth node 2)) out state)
        (w/begin-block! out " do")
+
+       (compile-recur-push recur out state)
        (compile-block (nth node 2) out state 2 ret break)
+       (compile-recur-pop recur state)
+
        (w/end-block! out "end")
        (compile-block (nth node 3) out state 2 ret))]
     ["while-not"
@@ -947,13 +952,58 @@
        (w/append! out "while not (")
        (compile-expression (car (nth node 2)) out state)
        (w/begin-block! out ") do")
+
+       (compile-recur-push recur out state)
        (compile-block (nth node 3) out state 2 ret break)
+       (compile-recur-pop recur state)
+
        (w/end-block! out "end")
        (compile-block (nth node 2) out state 2 ret))]
     ["forever"
      (w/begin-block! out "while true do")
+
+     (compile-recur-push recur out state)
      (compile-block (.> recur :def) out state 3 ret break)
+     (compile-recur-pop recur state)
+
      (w/end-block! out "end")]))
+
+(defun compile-recur-push (recur out state)
+  "Compile the header for recursive variables in OUT."
+  :hidden
+  (with (mappings (.> recur :captured))
+    (unless (empty-struct? mappings)
+      (w/append! out "local ")
+
+      (with (first true)
+        (for-pairs (from to) mappings
+          (if first (set! first false) (w/append! out ", "))
+
+          (rename-escape-var! from to state)
+          (w/append! out (push-escape-var! from state))))
+
+      (w/append! out " = ")
+
+      (with (first true)
+        (for-pairs (from to) mappings
+          (if first (set! first false) (w/append! out ", "))
+
+          (w/append! out (escape-var to state))))
+
+      (w/line! out))))
+
+(defun compile-recur-pop (recur state)
+  "Rename all mapped variables in RECUR."
+  :hidden
+  (for-pairs (from to) (.> recur :captured)
+    (pop-escape-var! from state)
+    (rename-escape-var! to from state)))
+
+(defun map-var (mapping var)
+  "Lookup a variable VAR in the provided MAPPING, returning the original
+   if not found."
+  :hidden
+  (or (and mapping (.> mapping var)) var))
 
 (defun compile-block (nodes out state start ret break)
   "Compile a block of expressions."

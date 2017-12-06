@@ -55,6 +55,97 @@
        while true do
        end"))
 
+  (section "handle variables being captured"
+    (it "in set! bindings"
+      (affirm-codegen
+        '(((lambda (recur)
+             (set! recur (lambda (x)
+                           (foo (lambda () x))
+                           (recur (+ x 1))))
+             (recur 1))))
+        "local x = 1
+         while true do
+           local x1 = x
+           foo(function()
+             return x1
+           end)
+           x = x1 + 1
+         end"))
+
+    (it "with loop termination"
+      (affirm-codegen
+        '(((lambda (recur)
+             (set! recur (lambda (x)
+                           (cond
+                             [(bar x)
+                              (foo (lambda () x))
+                              (recur (+ x 1))]
+                             [true (foo x)])))
+             (recur 1))))
+        "local x = 1
+         while bar(x) do
+           local x1 = x
+           foo(function()
+             return x1
+           end)
+           x = x1 + 1
+         end
+         return foo(x)"))
+
+    (it "in define bindings"
+      (affirm-codegen
+        '((define recur (lambda (x)
+                          (foo (lambda () x))
+                          (recur (+ x 1)))))
+        "recur = function(x)
+           while true do
+             local x1 = x
+             foo(function()
+               return x1
+             end)
+             x = x1 + 1
+           end
+         end"))
+
+    (it "unless they are not captured in a binding"
+      (affirm-codegen
+        '(((lambda (f)
+             (set! f (lambda (x)
+                       ((lambda (a)
+                          (cond
+                            [a a]
+                            [true (f (+ x 1))]))
+                         (foo x))))
+             (f 1))))
+        "local x = 1
+         while true do
+           local a = foo(x)
+           if a then
+             return a
+           else
+             x = x + 1
+           end
+         end"))
+
+    (it "unless they are captured in a nested loop"
+      (affirm-codegen
+        '(((lambda (f)
+             (set! f (lambda (x)
+                       ((lambda (g)
+                          (set! g (lambda ()
+                                    (foo x)
+                                    (g)))
+                          (g)))
+                       (f 1)))
+             (f 1))))
+        "local x = 1
+         while true do
+           while true do
+             foo(x)
+           end
+           x = 1
+         end")))
+
   (section "will generate common patterns"
     (section "such as 'while x do'"
       (it "in return contexts"
