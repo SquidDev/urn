@@ -1,5 +1,6 @@
 (import urn/analysis/nodes ())
 (import urn/analysis/pass ())
+(import urn/analysis/tag/find-letrec rec)
 (import urn/analysis/vars ())
 (import urn/analysis/visitor visitor)
 (import urn/range range)
@@ -21,7 +22,7 @@
 (defun recur-direct? (state var)
   "Determine whether the recursive call to VAR can be called directly."
   (with (rec (.> state :rec-lookup var))
-    (and rec (= (.> rec :var) 0) (= (.> rec :direct) 1))))
+    (and rec (= (rec/rec-func-var rec) 0) (= (rec/rec-func-direct rec) 1))))
 
 (defun var-excluded? (state var)
   "Determine whether we will exclude all bindings for VAR."
@@ -265,7 +266,7 @@
                           ;; We're the only invocation of a recursive function, so we can inline
                           ;; it in the codegen.
                           (let* [(rec (.> state :rec-lookup func))
-                                 (lam (.> rec :lambda))
+                                 (lam (rec/rec-func-lambda rec))
                                  (recur (.> lookup lam :recur))]
 
                             (unless recur
@@ -283,7 +284,7 @@
                                   ;; Otherwise it's a simple binding, so we can emit it as a statement.
                                   [else (visit-node lookup state (car vals) true)])))
 
-                            (.<! lookup (.> rec :set!) (cat "void"))
+                            (.<! lookup (rec/rec-func-setter rec) (cat "void"))
                             (.<! state :var-skip func true)
                             (cat "call-recur" :recur recur))]
                          [true

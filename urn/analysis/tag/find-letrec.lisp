@@ -1,6 +1,46 @@
+(import data/struct ())
+
 (import urn/analysis/nodes ())
 (import urn/analysis/pass ())
 (import urn/resolve/scope scope)
+
+(defstruct (rec-func (hide rec-func) rec-func?)
+  (fields
+    (immutable parent
+      "The parent lambda which declared this recursive function.")
+
+    (mutable setter rec-func-setter (hide set-rec-func-setter!)
+      "The node which sets this recursive function.")
+
+    (mutable lambda rec-func-lambda (hide set-rec-func-lambda!)
+      "The main lambda this variable corresponds to.")
+
+    (mutable recur rec-func-recur (hide set-rec-func-recur!)
+      "Counts how often this variable is called in a tail-recursive
+       context.")
+
+    (mutable direct rec-func-direct (hide set-rec-func-direct!)
+      "Counts how often this variable is called in the parent lambda.")
+
+    (mutable var rec-func-var (hide set-rec-func-var!)
+      "Counts how often this variable is used in some other context, be
+       that a non-tail-recursive call or as a variable."))
+
+  (constructor new
+    (lambda (parent)
+      (new parent nil nil 0 0 0))))
+
+(defun inc-rec-func-recur! (func)
+  :hidden
+  (set-rec-func-recur! func (succ (rec-func-recur func))))
+
+(defun inc-rec-func-direct! (func)
+  :hidden
+  (set-rec-func-direct! func (succ (rec-func-direct func))))
+
+(defun inc-rec-func-var! (func)
+  :hidden
+  (set-rec-func-var! func (succ (rec-func-var func))))
 
 (defun visit-quote (node level lookup)
   "Visit a `syntax-quote`d NODE at the given LEVEL - where 1 is a single level of nesting,
@@ -27,20 +67,7 @@
 (defun visit-node (node parents active lookup)
   "VISIT NODE with the current LOOKUP state and variables.
 
-   LOOKUP is a mapping of variables to a struct with the following keys:
-
-   - `:recur` Counts how often this variable is used in a tail recursive
-     context.
-
-   - `:direct` Is a call which occurs in the defining lambda (or a direct
-     child) after the variable has been set.
-
-   - `:var` Counts how often this variable is used in some other context
-     - be that a non-tail-recursive call or as a variable.
-
-   - `:lambda` The actual lambda this variable corresponds to.
-
-   - `:set!` The node which set this letrec.
+   LOOKUP is a mapping of variables to [[rec-func]]s.
 
    If we finish visiting a lambda without the `:recur` flag being set, or
    if the definition is ever rebound, then we remove it from LOOKUP."
@@ -51,8 +78,8 @@
     ["key"]
     ["symbol"
      ;; We'd have caught a call, so this must be a normal variable usage.
-     (when-with (state (.> lookup (.> node :var)))
-       (over! (.> state :var) succ))]
+     (when-with (func (.> lookup (.> node :var)))
+       (inc-rec-func-var! func))]
 
     ["list"
      (with (head (car node))
@@ -62,45 +89,46 @@
             (cond
               ;; Just a bog-standard call.
               [(/= (scope/var-kind func) "builtin")
-               (with (state (.> lookup func))
+               (with (func (.> lookup func))
                  (cond
-                   ;; If we have no state, then we can skip it.
-                   [(not state)]
+                   ;; If we have no recursive function, then we can skip it.
+                   [(not func)]
                    ;; If this is the active one, then increment the recursive count.
-                   [(= active state)
-                    (over! (.> state :recur) succ)]
+                   [(= active func)
+                    (inc-rec-func-recur! func)]
                    ;; If we're in the function which defines this variable and the lambda has been set
                    ;; then consider this a "direct" call.
-                   [(and parents (.> parents (.> state :parent)))
-                    (over! (.> state :direct) succ)]
+                   [(and parents (.> parents (rec-func-parent func)))
+                    (inc-rec-func-direct! func)]
                    ;; Otherwise increment the current mode.
-                   [true (over! (.> state :var) succ)]))
+                   [true
+                    (inc-rec-func-var! func)]))
 
                ;; And visit the remaining arguments.
                (visit-nodes node 2 nil lookup)]
 
               ;; While we're technically visiting a block, we don't want to preserve the
-              ;; recursive state.
+              ;; recursive function.
               [(= func (.> builtins :lambda)) (visit-block node 3 nil nil lookup)]
 
               [(= func (.> builtins :set!))
                (let* [(var (.> (nth node 2) :var))
-                      (state (.> lookup var))
+                      (func (.> lookup var))
                       (val (nth node 3))]
                  ;; We attempt to determine whether this set! invalidates a letrec candidate or
                  ;; forms one.
                  (if (and
-                       state
-                       (= (.> state :lambda) nil) ;; Ensure we haven't already got a function
-                       parents (.> parents (.> state :parent)) ;; And we're setting in the parent lambda.
+                       func
+                       (= (rec-func-lambda func) nil) ;; Ensure we haven't already got a function
+                       parents (.> parents (rec-func-parent func)) ;; And we're setting in the parent lambda.
                        (list? val) (builtin? (car val) :lambda)) ;; And we're a lambda
                    (progn
                      ;; Set the lambda variable and visit it.
-                     (.<! state :lambda val)
-                     (.<! state :set! node)
-                     (visit-block val 3 nil state lookup)
+                     (set-rec-func-lambda! func val)
+                     (set-rec-func-setter! func node)
+                     (visit-block val 3 nil func lookup)
                      ;; If it doesn't recur, then remove it from the lookup
-                     (when (= (.> state :recur) 0) (.<! lookup var nil)))
+                     (when (= (rec-func-recur func) 0) (.<! lookup var nil)))
                    (progn
                      ;; Otherwise clear everything and visit the node normally.
                      (.<! lookup var nil)
@@ -125,7 +153,7 @@
          ["list"
           (with (first (car node))
             (if (and (list? first) (builtin? (car first) :lambda))
-              ;; If we're a directly called lambda then we can preserve the "active" state and "parents".
+              ;; If we're a directly called lambda then we can preserve the "active" function and "parents".
               (progn
                 ;; We loop over each argument with no value (either nil or empty) and push it to the
                 ;; recursion tracker.
@@ -133,12 +161,7 @@
                   (for i 1 (n args) 1
                     (with (val (nth node (succ i)))
                       (when (or (= val nil) (builtin? val :nil))
-                        (.<! lookup (.> (nth args i) :var) { :recur   0
-                                                             :var     0
-                                                             :direct  0
-                                                             :parent  node
-                                                             :set!    nil
-                                                             :lambda  nil })))))
+                        (.<! lookup (.> (nth args i) :var) (rec-func node))))))
 
                 ;; Visit body with parents
                 (if parents
