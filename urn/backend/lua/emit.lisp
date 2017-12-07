@@ -26,6 +26,10 @@
   :hidden
   (builtin? node :true))
 
+(defun sym-variadic? (sym)
+  "Determine whether a symbol variable is variadic."
+  :hidden
+  (scope/var-variadic? (.> sym :var)))
 
 (define break-categories
   "A lookup of all categories which handle control flow, for which the
@@ -610,68 +614,107 @@
          (print! (.. (pretty node) " Got a different break then defined for.\n  Expected: "  (pretty (.> cat :recur :def))
                                                                            "\n       Got: "  (pretty (.> break :def)))))
 
-       (let* [(args (nth (.> cat :recur :def) 2))
-              (mapping (.> cat :recur :captured))]
-         (if (> (n args) 0)
-           ;; If we have some arguments, then set all of them in one go
-           (let [(pack-name nil)
-                 (done false)]
-             ;; First emit a series of variables we're going to set
-             (with (offset 1)
-               (for i 1 (n args) 1
-                 (with (var (.> args i :var))
-                   (if (scope/var-variadic? var)
-                     ;; If we're variadic then create a list of each sub expression
-                     (with (count (- (n node) (n args)))
-                       (when (< count 0) (set! count 0))
-                       (if done (w/append! out ", ") (set! done true))
-                       (w/append! out (escape-var (map-var mapping var) state))
-                       (set! offset count))
-                     (with (expr (nth node (+ i offset)))
-                       (when (or (not (symbol? expr)) (/= (.> expr :var) var))
-                         (if done (w/append! out ", ") (set! done true))
-                         (w/append! out (escape-var (map-var mapping var) state))))))))
+       (let* [(zipped (zip-args (cadr (.> cat :recur :def)) 1 node 2))
+              (mapping (.> cat :recur :captured))
+              (pack-args nil)]
 
-             (if done
-               ;; If we had variables, then bind them
-               (progn
-                 (w/append! out " = ")
+         (for i (n zipped) 1 -1
+           (let* [(zip (nth zipped i))
+                  (args (car zip))
+                  (vals (cadr zip))]
+             ;; Strip all "pointless" bindings: namely ones which do not change the variable
+             (cond
+               [(and (= (n args) 1) (= (n vals) 1)
+                     (symbol? (car vals)) (= (.> (car args) :var) (.> (car vals) :var))
+                     (= (.> mapping (.> (car vals) :var)) nil))
+                (remove-nth! zipped i)]
 
-                 (let* [(offset 1)
-                        (done false)]
-                   (for i 1 (n args) 1
-                     (with (var (.> args i :var))
-                       (if (scope/var-variadic? var)
-                         ;; If we're variadic then create a list of each sub expression
-                         (with (count (- (n node) (n args)))
-                           (when (< count 0) (set! count 0))
-                           (if done (w/append! out ", ") (set! done true))
-                           (when (compile-pack node out state i count)
-                             (set! pack-name (escape-var (map-var mapping var) state)))
-                           (set! offset count))
-                         (with (expr (nth node (+ i offset)))
-                           (when (and expr (or (not (symbol? expr)) (/= (.> expr :var) var)))
-                             (if done (w/append! out ", ") (set! done true))
-                             (compile-expression (nth node (+ i offset)) out state))))))
+               [(any sym-variadic? args)
+                (set! pack-args args)]
 
-                   ;; Emit all arguments which haven't been used anywhere
-                   (for i (+ (n args) (+ offset 1)) (n node) 1
-                     (when (> i 1) (w/append! out ", "))
-                     (compile-expression (nth node i) out state))))
+               [else])))
 
-               ;; Otherwise, just emit each value
-               (for i 2 (n node) 1
-                 (when (> i 1) (w/line! out))
-                 (compile-expression (nth node i) out state "")))
+         (cond
+           ;; If we've nothing to bind then emit as normal
+           [(empty? zipped)]
 
-             (w/line! out)
-             (when pack-name (w/line! (.. pack-name ".tag = \"list\""))))
+           ;; If we've got a single node which binds no variables then just emit each expression
+           [(and (= (n zipped) 1) (empty? (caar zipped)))
+            (for-each val (cadar zipped)
+              (compile-expression val out state "")
+              (w/line! out))]
 
-           ;; Otherwise just emit each expression in turn.
-           (for i 1 (n node) 1
-             (when (> i 1) (w/append! out ", "))
-             (compile-expression (nth node i) out state "")
-             (w/line! out))))]
+           [else
+            ;; If we've got to pack some arguments, pre-declare the variable.
+            ;; However, if there are no other arguments we can merge them together.
+            (when (and pack-args (> (n pack-args) 1))
+              (if (= (n zipped) 1)
+                (w/append! out "local ")
+                (w/line! out "local _p")))
+
+            (with (first true)
+              (for-each zip zipped
+                (with (args (car zip))
+                  (if (and (= args pack-args) (> (n args) 1))
+                    (progn
+                      (if first (set! first false) (w/append! out ", "))
+                      (w/append! out "_p"))
+                    (for-each arg (car zip)
+                      (if first (set! first false) (w/append! out ", "))
+                      (w/append! out (escape-var (map-var mapping (.> arg :var)) state)))))))
+
+            (w/append! out " = ")
+
+            (let [(first true)
+                  (pack-zip nil)]
+              (for-each zip zipped
+                (if first (set! first false) (w/append! out ", "))
+
+                (let [(args (car zip))
+                      (vals (cadr zip))]
+                  (cond
+                    [(any sym-variadic? args)
+                     (set! pack-zip zip)
+                     (w/append! out "_pack(")
+                     (for i 1 (n vals) 1
+                       (when (> i 1) (w/append! out ", "))
+                       (compile-expression (nth vals i) out state))
+                     (w/append! out ")")]
+
+                    [(empty? vals)
+                     (w/append! out "nil")]
+
+                    [else
+                     (for i 1 (n vals) 1
+                       (when (> i 1) (w/append! out ", "))
+                       (compile-expression (nth vals i) out state))])))
+
+              (w/line! out)
+
+              (cond
+                [(= pack-zip nil)]
+
+                [(= (n (car pack-zip)) 1)
+                 (w/append! out (escape-var (map-var mapping (.> (caar pack-zip) :var)) state))
+                 (w/append! out ".tag = \"list\"")
+                 (w/line! out)]
+
+                [else
+                 (let* [(args (car pack-zip))
+                        (var-idx (find-index sym-variadic? args))]
+                   ;; Set all arguments before the variadic point
+                   (when (> var-idx 1)
+                     (for i 1 (pred var-idx) 1
+                       (when (> i 1) (w/append! out ", "))
+                       (w/append! out (escape-var (map-var mapping (.> (nth args i):var)) state)))
+
+                     (w/append! out " = ")
+                     (for i 1 (pred var-idx) 1
+                       (when (> i 1) (w/append! out ", "))
+                       (w/append! out (string/format "_p[%d]" i)))
+                     (w/line! out)))
+
+                 (compile-bind-variadic out (car pack-zip) (cadr pack-zip) state mapping)]))]))]
 
       ["wrap-value"
        (when ret (w/append! out ret))
@@ -732,74 +775,36 @@
 
           ;; If we're variadic then emit all the complicated binding.
           ;; Note we use the same check later on in the program.
-          [(or (scope/var-variadic? (.> (car args) :var))
-               (and (> (n args) 1) (any (lambda (x) (scope/var-variadic? (.> x :var))) args)))
+          [(or (sym-variadic? (car args))
+               (and (> (n args) 1) (any sym-variadic? args)))
 
            (cond
              ;; We've got multiple arguments. This is going to be tricky.
              [(> (n args) 1)
-              ;; Keep track of the variable portion.
-              (let* [(var-idx (loop [(i 1)]
-                                [(scope/var-variadic? (.> (nth args i) :var)) i]
-                                (recur (succ i))))
-                     (var-esc (push-escape-var! (.> (nth args var-idx) :var) state))
-                     (nargs (n args))]
+              ;; Pack all the arguments together
+              (w/append! out "local _p = _pack(")
+              (for i 1 (n vals) 1
+                (when (> i 1) (w/append! out ", "))
+                (compile-expression (nth vals i) out state))
+              (w/append! out ")")
+              (w/line! out)
 
-                ;; Pack all the arguments together
-                (w/append! out "local _p = _pack(")
-                (for i 1 (n vals) 1
-                  (when (> i 1) (w/append! out ", "))
-                  (compile-expression (nth vals i) out state))
-                (w/append! out ")")
-                (w/line! out)
-                (w/line! out "local _n = _p.n")
+              ;; Now declare these variables
+              (w/append! out "local ")
+              (for i 1 (n args) 1
+                (when (> i 1) (w/append! out ", "))
+                (w/append! out (push-escape-var! (.> (nth args i) :var) state)))
 
-                ;; Now declare these variables
-                (w/append! out "local ")
-                (for i 1 nargs 1
-                  (when (> i 1) (w/append! out ", "))
-                  (w/append! out (push-escape-var! (.> (nth args i) :var) state)))
-
+              (with (var-idx (find-index sym-variadic? args))
                 (when (> var-idx 1)
                   (w/append! out " = ")
                   ;; Set all arguments before the variadic point
                   (for i 1 (pred var-idx) 1
                     (when (> i 1) (w/append! out ", "))
-                    (w/append! out (string/format "_p[%d]" i))))
-                (w/line! out)
+                    (w/append! out (string/format "_p[%d]" i)))))
+              (w/line! out)
 
-                ;; If we've enough values, then copy them across
-                (w/begin-block! out (string/format "if _n > %d then" (pred nargs)))
-                (w/line! out (string/format "%s = {tag=\"list\",n=_n-%d}" var-esc (pred nargs)))
-                (w/line! out (string/format "for i = %d, _n-%d do %s[i-%d]=_p[i] end"
-                               var-idx (- nargs var-idx) var-esc (pred var-idx)))
-
-                ;; And bind the remaining arguments to values after the variadic ones.
-                (when (< var-idx nargs)
-                  (for i (succ var-idx) nargs 1
-                    (when (> i (succ var-idx)) (w/append! out ", "))
-                    (w/append! out (escape-var (.> (nth args i) :var) state)))
-                  (w/append! out " = ")
-                  (for i (succ var-idx) nargs 1
-                    (when (> i (succ var-idx)) (w/append! out ", "))
-                    (w/append! out (string/format "_p[_n-%d]" (- nargs i))))
-                  (w/line! out))
-
-                ;; We have insufficient values, so make the varargs empty and bind
-                ;; all remaining arguments to values after the fixed ones.
-                (w/next-block! out "else")
-                (w/line! out (string/format "%s = {tag=\"list\",n=0}" var-esc))
-
-                (when (< var-idx nargs)
-                  (for i (succ var-idx) nargs 1
-                    (when (> i (succ var-idx)) (w/append! out ", "))
-                    (w/append! out (escape-var (.> (nth args i) :var) state)))
-                  (w/append! out " = ")
-                  (for i (succ var-idx) nargs 1
-                    (when (> i (succ var-idx)) (w/append! out ", "))
-                    (w/append! out (string/format "_p[%d]" (pred i))))
-                  (w/line! out))
-                (w/end-block! out "end"))]
+              (compile-bind-variadic out args vals state)]
 
              ;; We have a fixed number of arguments & values, thus we know the length
              ;; in advance and so can emit a simple list
@@ -847,8 +852,8 @@
                    [(empty? args) (set! working false)]
                    ;; Variadic arguments are handled elsewhere as they are rather
                    ;; complicated to work with
-                   [(or (scope/var-variadic? (.> (car args) :var))
-                    (and (> (n args) 1) (any (lambda (x) (scope/var-variadic? (.> x :var))) args)))
+                   [(or (sym-variadic? (car args))
+                        (and (> (n args) 1) (any sym-variadic? args)))
                     (set! working false)]
                    ;; We've got a statement, so we'll have to handle that elsewhere.
                    [(and (= (n vals) 1) (.> cat-lookup (car vals) :stmt)) (set! working false)]
@@ -906,31 +911,50 @@
                  (set! zipped-i (pred zipped-lim)))))]))
       (inc! zipped-i))))
 
-(defun compile-pack (node out state start count)
-  "Compile the code required to pack a set of arguments into a list.
-   This will pack elements START to START + COUNT in NODE into a list stored
-   in NAME."
-  :hidden
-  (if (or (<= count 0) (atom? (nth node (+ start count))))
-    (progn
-      ;; Emit each expression into the list.
-      ;; A future enhancement might be to check if these are statements and, if so, push it
-      (w/append! out "{tag=\"list\", n=")
-      (w/append! out (number->string count))
+(defun compile-bind-variadic (out args vals state mapping)
+  "Compile a set of variadic ARGS and VALS.
 
-      (for j 1 count 1
-        (w/append! out ", ")
-        (compile-expression (nth node (+ start j)) out state))
-      (w/append! out "}")
-      false)
-    (progn
-      ;; Emit each element into a call of table.pack
-      (w/append! out " _pack(")
-      (for j 1 count 1
-        (when (> j 1) (w/append! out ", "))
-        (compile-expression (nth node (+ start j)) out state))
-      (w/append! out ")")
-      true)))
+   Note that this will not emit bindings for variables before the
+   variadic: one should that that oneself."
+  :hidden
+  (let* [(var-idx (find-index sym-variadic? args))
+         (var-esc (escape-var (map-var mapping (.> (nth args var-idx) :var)) state))
+         (nargs (n args))]
+
+    (w/line! out "local _n = _p.n")
+
+    ;; If we've enough values, then copy them across
+    (w/begin-block! out (string/format "if _n > %d then" (pred nargs)))
+    (w/line! out (string/format "%s = {tag=\"list\", n=_n-%d}" var-esc (pred nargs)))
+    (w/line! out (string/format "for i=%d, _n-%d do %s[i-%d]=_p[i] end"
+                                var-idx (- nargs var-idx) var-esc (pred var-idx)))
+
+    ;; And bind the remaining arguments to values after the variadic ones.
+    (when (< var-idx nargs)
+      (for i (succ var-idx) nargs 1
+        (when (> i (succ var-idx)) (w/append! out ", "))
+        (w/append! out (escape-var (map-var mapping (.> (nth args i) :var)) state)))
+      (w/append! out " = ")
+      (for i (succ var-idx) nargs 1
+        (when (> i (succ var-idx)) (w/append! out ", "))
+        (w/append! out (string/format "_p[_n-%d]" (- nargs i))))
+      (w/line! out))
+
+    ;; We have insufficient values, so make the varargs empty and bind
+    ;; all remaining arguments to values after the fixed ones.
+    (w/next-block! out "else")
+    (w/line! out (string/format "%s = {tag=\"list\", n=0}" var-esc))
+
+    (when (< var-idx nargs)
+      (for i (succ var-idx) nargs 1
+        (when (> i (succ var-idx)) (w/append! out ", "))
+        (w/append! out (escape-var (map-var mapping (.> (nth args i) :var)) state)))
+      (w/append! out " = ")
+      (for i (succ var-idx) nargs 1
+        (when (> i (succ var-idx)) (w/append! out ", "))
+        (w/append! out (string/format "_p[%d]" (pred i))))
+      (w/line! out))
+    (w/end-block! out "end")))
 
 (defun compile-recur (recur out state ret break)
   "Compile a recursive lambda."
@@ -971,12 +995,12 @@
 (defun compile-recur-push (recur out state)
   "Compile the header for recursive variables in OUT."
   :hidden
-  (with (mappings (.> recur :captured))
-    (unless (empty-struct? mappings)
+  (with (mapping (.> recur :captured))
+    (unless (empty-struct? mapping)
       (w/append! out "local ")
 
       (with (first true)
-        (for-pairs (from to) mappings
+        (for-pairs (from to) mapping
           (if first (set! first false) (w/append! out ", "))
 
           (rename-escape-var! from to state)
@@ -985,7 +1009,7 @@
       (w/append! out " = ")
 
       (with (first true)
-        (for-pairs (from to) mappings
+        (for-pairs (from to) mapping
           (if first (set! first false) (w/append! out ", "))
 
           (w/append! out (escape-var to state))))
