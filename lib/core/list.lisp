@@ -411,6 +411,42 @@
   (assert-type! xs list)
   (any (lambda (y) (eq? x y)) xs))
 
+(defun find-index (p xs)
+  "Finds the first index in XS where the item matches the predicate
+   P. Returns `nil` if no such item exists.
+
+   ### Example:
+   ```cl
+   > (find-index even? '(3 4 5))
+   out = 2
+   > (find-index even? '(1 3 5))
+   out = nil
+   ```"
+  (assert-type! p function)
+  (assert-type! xs list)
+  (let* [(len (n xs))
+         (fun nil)]
+    (set! fun (lambda (i)
+                (cond
+                  [(> i len) nil]
+                  [(p (nth xs i)) i]
+                  [else (fun (+ i 1))])))
+    (fun 1)))
+
+(defun element-index (x xs)
+  "Finds the first index in XS where the item matches X. Returns `nil` if
+   no such item exists.
+
+   ### Example:
+   ```cl
+   > (element-index 4 '(3 4 5))
+   out = 2
+   > (element-index 2 '(1 3 5))
+   out = nil
+   ```"
+  (assert-type! xs list)
+  (find-index (lambda (y) (eq? x y)) xs))
+
 (defun prune (xs)
   "Remove values matching the predicates [[empty?]] or [[nil?]] from
    the list XS.
