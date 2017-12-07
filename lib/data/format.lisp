@@ -15,12 +15,9 @@
     [(= out true) (print! buf)]
     [(number? out) (error! buf out)]
     [(function? out) (out buf)]
-    [else (self out :write buf)]))
+    [else ((.> out :write) out buf)]))
 
 (defun str->sym (x) :hidden { :tag "symbol" :contents x })
-
-(defun self (x key &args) :hidden
-  ((.> x key) x (unpack args 1 (n args))))
 
 (defun name-terminator-char? (c) :hidden
   (or (= c ":")

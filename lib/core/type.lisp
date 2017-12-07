@@ -1,6 +1,6 @@
 (import core/base (defun let* type# if car cdr list when with else and or >= = <= /=
               n get-idx for-pairs set-idx! defmacro for error gensym not len#
-              unless + - progn print values-list unpack const-val))
+              unless + - progn print values-list const-val))
 
 (import lua/string (format sub))
 (import lua/basic (.. getmetatable setmetatable tostring))
