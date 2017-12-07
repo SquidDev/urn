@@ -46,14 +46,78 @@
          y = y + 1
        end"))
 
-  (will "handle no variables being bound"
-    (affirm-codegen
-      '(((lambda (recur)
-           (set! recur (lambda (x) (recur x)))
-           (recur 1))))
-      "local x = 1
-       while true do
-       end"))
+  (section "will generate the correct bindings when"
+    (it "no variables are changed"
+      (affirm-codegen
+        '(((lambda (recur)
+             (set! recur (lambda (x) (recur x)))
+             (recur 1))))
+        "local x = 1
+         while true do
+         end"))
+
+    (it "no variables are bound"
+      (affirm-codegen
+        '(((lambda (recur)
+             (set! recur (lambda (x) (recur)))
+             (recur 1))))
+        "local x = 1
+         while true do
+           x = nil
+         end"))
+
+    (it "the correct number of args are used"
+      (affirm-codegen
+        '(((lambda (recur)
+             (set! recur (lambda (x y) (recur 1 2)))
+             (recur))))
+        "local x, y
+         while true do
+           x, y = 1, 2
+         end")
+
+      (affirm-codegen
+        '(((lambda (recur)
+             (set! recur (lambda (x &y) (recur 1 2 3)))
+             (recur))))
+        "local x
+         local y = {tag=\"list\", n=0}
+         while true do
+           x, y = 1, _pack(2, 3)
+           y.tag = \"list\"
+         end"))
+
+    (it "with extra arguments"
+      (affirm-codegen
+        '(((lambda (recur)
+             (set! recur (lambda (a b) (recur 1 2 3)))
+             (recur))))
+        "local a, b
+         while true do
+           a, b = 1, 2, 3
+         end"))
+
+    (it "with unknown values"
+      (affirm-codegen
+        '(((lambda (recur)
+             (set! recur (lambda (a &b c) (recur (foo))))
+             (recur))))
+        "local a
+         local b = {tag=\"list\", n=0}
+         local c
+         while true do
+           local _p = _pack(foo())
+           a = _p[1]
+           local _n = _p.n
+           if _n > 2 then
+             b = {tag=\"list\", n=_n-2}
+             for i=2, _n-1 do b[i-1]=_p[i] end
+             c = _p[_n-0]
+           else
+             b = {tag=\"list\", n=0}
+             c = _p[2]
+           end
+         end")))
 
   (section "handle variables being captured"
     (it "in set! bindings"

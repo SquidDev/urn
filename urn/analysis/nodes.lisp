@@ -137,10 +137,8 @@
    list of arguments, the second value is a list of values. Several
    observations can be made about these pairs:
 
-    - If there are multiple values, then the first argument is variadic.
-    - If the first argument is variadic, then there is only one.
-    - If there are multiple arguments, then this is the last element. Note that
-      any of these arguments may be variadic, except from the first one."
+    - If there are multiple values, then there is some variadic argument.
+    - If there are multiple arguments, then this is the last element."
   (let* [(res '())
          (an (n args))
          (vn (n vals))]
