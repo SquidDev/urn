@@ -63,27 +63,29 @@
 (defun _/build-vars (libs)
   :hidden
   (let* [(top-level '())
-         (tests `(_/test/describe "The stdlib"))]
+         (tests `(_/test/describe "The stdlib"))
+         (vars (_/scope-vars))]
 
-    (for-pairs (k v) (_/scope-vars)
-      (when (and (not (string/starts-with? k "_/")) (or (empty? libs)
-                                                      (any (lambda (x)
-                                                             (string/starts-with? (.> v :full-name) (.. x "/")))
-                                                        libs)))
-        (with (docs (-> (or (_/var-docstring v) "")
-                      _/parse-docstring
-                      (filter (lambda (x) (and (= (.> x :kind) "mono")
+    (for-each name (sort! (keys vars))
+      (when (and (not (string/starts-with? name "_/")) (or (empty? libs)
+                                                         (any (lambda (x)
+                                                                (string/starts-with? (.> (.> vars name) :full-name) (.. x "/")))
+                                                           libs)))
+        (let* [(var (.> vars name))
+               (docs (-> (or (_/var-docstring var) "")
+                         _/parse-docstring
+                         (filter (lambda (x) (and (= (.> x :kind) "mono")
                                                (string/starts-with? (.> x :whole) "```")
                                                (not (string/find (.> x :whole) "^```[^\n]*:no%-test[^\n]*\n")))) <>)
-                      (map (cut .> <> :contents) <>)))
+                         (map (cut .> <> :contents) <>)))]
           (for-each entry docs
             (let [(lines (string/split entry "\n"))
-                  (asserts `(_/test/it ,(.. "has tests for " (.> v :full-name))))]
+                  (asserts `(_/test/it ,(.. "has tests for " (.> var :full-name))))]
               (push-cdr! tests asserts)
               (cond
                 ;; Just do a couple of sanity checks on the code
                 [(empty? lines)
-                 (_/var-warning! v "This example is empty.")
+                 (_/var-warning! var "This example is empty.")
                  (.<! asserts 1 `_/test/pending)]
                 ;; Everything is OK so let's build a list
                 [true
@@ -93,7 +95,7 @@
                      [(> i (n lines))]
                      (if (/= (string/char-at (nth lines i) 1) ">")
                        (progn
-                         (_/var-warning! v (.. "Expected line beginning with '>', got " (string/quoted (nth lines i))))
+                         (_/var-warning! var (.. "Expected line beginning with '>', got " (string/quoted (nth lines i))))
                          (.<! asserts 1 `_/test/pending))
                        (with (buffer (list (string/sub (nth lines i) 2)))
                          (inc! i)
@@ -111,16 +113,16 @@
                            (cond
                              ;; Check we didn't fail.
                              [(not ok)
-                              (_/var-error! v (format true "Parsing failed for {#k}: {#res}"))
+                              (_/var-error! var (format true "Parsing failed for {#name}: {#res}"))
                               (.<! asserts 1 `_/test/pending)]
                              ;; Each line must have exactly one entry
                              [(/= (n res) 1)
-                              (_/var-warning! v (.. "Expected exactly one node, got " (n res)))
+                              (_/var-warning! var (.. "Expected exactly one node, got " (n res)))
                               (.<! asserts 1 `_/test/pending)
                               (set! ok false)]
                              ;; Do a primitive check for top level definitions, ensuring they are pushed to the head.
                              [(and (list? (car res)) (elem? (caar res) '(define define-macro defun defmacro defgeneric)))
-                              (with (renamed (string->symbol (.. k "/" (symbol->string (cadar res)))))
+                              (with (renamed (string->symbol (.. name "/" (symbol->string (cadar res)))))
                                 (.<! subst (symbol->string (cadar res)) renamed)
                                 (push-cdr! top-level (_/subst (car res) subst))
                                 (set! res renamed))]
@@ -140,7 +142,7 @@
                                  (cond
                                    ;; If we're the last line, then we expect some sort of result
                                    [(not line)
-                                    (_/var-warning! v "Expected result, got nothing")
+                                    (_/var-warning! var "Expected result, got nothing")
                                     (.<! asserts 1 `_/test/pending)]
 
                                    ;; If we've got no result and we're not the last entry then just push the expression
@@ -151,7 +153,7 @@
                                         (push-cdr! asserts res)
                                         (recur))
                                       (progn
-                                        (_/var-warning! v (.. "Expected result to start with \"out = \", got " (pretty line)))
+                                        (_/var-warning! var (.. "Expected result to start with \"out = \", got " (pretty line)))
                                         (.<! asserts 1 `_/test/pending)))]
 
                                    ;; Otherwise, let's push our affirmation and continue
