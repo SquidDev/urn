@@ -142,7 +142,7 @@
                        (.<! compiler :active-scope (.> action :_active-scope))
                        (.<! compiler :active-node  (.> action :_active-node))
 
-                       (destructuring-bind [(?status ?result) (list (co/resume (.> action :_co) (unpack args 1 (n args))))]
+                       (destructuring-bind [(?status ?result) (list (co/resume (.> action :_co) (splice args)))]
                          (cond
                            [(not status) (fail! result)]
                            [(= (co/status (.> action :_co)) "dead")
@@ -344,6 +344,4 @@
 
     (when name (timer/stop-timer! timer name))
 
-    (unpack (list
-              (map (cut .> <> :node) states)
-              states))))
+    (values-list (map (cut .> <> :node) states) states)))

@@ -32,11 +32,11 @@
       :logger/put-verbose! (cut logger/put-verbose! logger <>)
       :logger/put-debug!   (cut logger/put-debug!   logger <>)
       :logger/put-node-error!   (lambda (msg node explain &lines)
-                                  (logger/put-node-error!   logger msg node explain (unpack lines 1 (n lines))))
+                                  (logger/put-node-error!   logger msg node explain (splice lines)))
       :logger/put-node-warning! (lambda (msg node explain &lines)
-                                  (logger/put-node-warning! logger msg node explain (unpack lines 1 (n lines))))
+                                  (logger/put-node-warning! logger msg node explain (splice lines)))
       :logger/do-node-error!    (lambda (msg node explain &lines)
-                                  (error/do-node-error!    logger msg node explain (unpack lines 1 (n lines))))
+                                  (error/do-node-error!    logger msg node explain (splice lines)))
       :range/get-source    range/get-source
       :flags               (lambda () (map id (.> compiler :flags)))
       :flag?               (cut elem? <> (.> compiler :flags))
@@ -76,7 +76,7 @@
                             (lambda (&args)
                               (case (list (xpcall (lambda () (apply func args)) traceback/traceback))
                                 [(false ?msg) (fail! (traceback/remap-traceback (.> compiler :compile-state :mappings) msg))]
-                                [(true . ?rest) (unpack rest 1 (n rest))]))))
+                                [(true . ?rest) (splice rest)]))))
 
                         (with (cats (.> pass :cat))
                           (cond

@@ -89,7 +89,7 @@
                               (apply abort-to-prompt
                                      'escape-continuation rest))))
                     (lambda (_ &rest)
-                      (unpack `(,@(car rest)) 1 (n (car rest))))))
+                      (splice (car rest)))))
 
 (defmacro let-escape-continuation (k &body)
   "Bind K within BODY to an escape continuation.

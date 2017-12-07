@@ -169,7 +169,7 @@
 (import lua/math (max))
 (import core/base (defun defmacro if get-idx and gensym error for set-idx!
                   quasiquote list or slice concat apply /= n = not - + / * >= <= mod ..
-                  else unpack))
+                  else splice))
 (import core/type ())
 (import core/list (car caddr cadr cdr cddr append for-each map filter
                    push-cdr! range snoc nth last elem? flat-map cons))
@@ -462,7 +462,7 @@
     `(let* [(,val (list (pcall (lambda () ,x))))
             (,ok (car ,val))]
        (if ,ok
-         (unpack ,val 2 (n ,val))
+         (splice (cdr ,val))
          (,error-handler (cadr ,val))))))
 
 (defmacro function (&arms)

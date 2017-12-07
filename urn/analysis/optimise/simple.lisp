@@ -50,7 +50,7 @@
                       (= (scope/var-kind (.> head :var)) "native") (.> state :meta (scope/var-unique-name (.> head :var)))))]
       ;; Determine whether we have a native (and pure) function. If so, we'll invoke it.
       (if (and meta (.> meta :pure) (function? (lua/get-native meta)))
-        (with (res (list (pcall (.> meta :value) (unpack (map urn->val (cdr node)) 1 (- (n node) 1)))))
+        (with (res (list (pcall (.> meta :value) (splice (map urn->val (cdr node))))))
           (if (car res)
             (with (val (nth res 2))
               (if (or (/= (n res) 2) (and (number? val) (or (/= (cadr (list (math/modf val))) 0) (= (math/abs val) math/huge))))

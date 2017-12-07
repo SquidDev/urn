@@ -53,7 +53,7 @@
   :hidden
   (if context
     (fail! { :msg msg :context context :tokens tokens })
-    (error/do-node-error! logger msg node explain (unpack lines 1 (n lines)))))
+    (apply error/do-node-error! logger msg node explain lines)))
 
 (defun lex (logger str name cont)
   "Lex STR from a file called NAME, returning a series of tokens. If CONT

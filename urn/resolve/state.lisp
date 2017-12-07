@@ -123,7 +123,7 @@
                                  (error/do-node-error! (.> state :logger)
                                    (.. "Loop in macros " (concat states " -> "))
                                    first-node nil
-                                   (unpack nodes 1 (n nodes)))))]
+                                   (splice nodes))))]
 
                             ;; This node has already been executed so we don't need to worry about it.
                             [(= (.> state :stage) "executed")]

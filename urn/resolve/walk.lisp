@@ -485,7 +485,7 @@
                  (.<! state :compiler :active-node  node)
 
                  ;; Execute the macro
-                 (case (list (xpcall (lambda () (builder (unpack node 2 (n node)))) traceback/traceback))
+                 (case (list (xpcall (lambda () (apply builder (cdr node))) traceback/traceback))
                    ;; The macro failed so remap the traceback and error
                    [(false ?msg)
                     (error-positions! (.> state :logger) first (traceback/remap-traceback (.> state :mappings) msg))]

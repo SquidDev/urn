@@ -88,7 +88,7 @@
         (name (.. "[" (concat (.> pass :cat) " ") "] " (.> pass :name)))]
 
     (timer/start-timer! (.> options :timer) name 2)
-    ((.> pass :run) ptracker options (unpack args 1 (n args)))
+    ((.> pass :run) ptracker options (splice args))
     (timer/stop-timer! (.> options :timer) name)
 
     ;; Print out logging modification information

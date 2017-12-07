@@ -3,7 +3,7 @@
                    ..) :export)
 (import lua/basic ())
 (import lua/string string)
-(import lua/table (unpack concat) :export)
+(import lua/table (concat) :export)
 (import lua/table table)
 
 (define else
@@ -435,6 +435,13 @@
    ```"
   (list `syntax-quote (quasiquote# val)))
 
+(defun splice (xs)
+  "Unpack a list of arguments, returning all elements in XS."
+  (with (parent (get-idx xs :parent))
+    (if parent
+      (table/unpack parent (+ (get-idx xs :offset) 1) (+ (get-idx xs :n) (get-idx xs :offset)))
+      (table/unpack xs 1 (get-idx xs :n)))))
+
 (defun apply (f &xss xs)
   "Apply the function F using XS as the argument list, with XSS as
    arguments before XS is spliced.
@@ -446,8 +453,7 @@
    > (apply + 1 '(2))
    out = 3
    ```"
-  (let* [(args `(,@xss ,@xs))]
-    (f (unpack args 1 (n args)))))
+  (f (splice `(,@xss ,@xs))))
 
 (defmacro values-list (&xs)
   "Return multiple values, one per element in XS.
@@ -458,14 +464,12 @@
    1   2   3
    out = nil
    ```"
-  `(unpack (list ,@(let* [(out '())] ; god
+  `(splice (list ,@(let* [(out '())] ; god
                      (for i 1 (n xs) 1
-                          (set-idx! out i `((lambda (,'x) ,'x) ; wake me up
-                                           ,(get-idx xs i)))) ; (wake me up inside)
+                       (set-idx! out i `((lambda (,'x) ,'x) ; wake me up
+                                          ,(get-idx xs i)))) ; (wake me up inside)
                      (set-idx! out :n (n xs))
-                     out))
-           1 ,(n xs)))
-
+                     out))))
 
 ,@(let* [(out '())
          (ns '(first second third

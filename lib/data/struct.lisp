@@ -177,4 +177,4 @@
       (push-cdr! work (make-meta-decl name (symb-name constr) (symb-name pred) ; names
                                       clauses ; clauses
                                       meta fields)) ; clauses we use
-      (unpack work 1 (n work)))))
+      (splice work))))
