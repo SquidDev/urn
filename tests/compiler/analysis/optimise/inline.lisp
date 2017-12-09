@@ -34,7 +34,35 @@
           (not (foo foo foo (lambda()) (bar))))
         '((define not (lambda (x) (cond [x false] [true true])))
           ((lambda (x) (cond [x false] [true true])) (foo foo foo (lambda()) (bar))))
-        1)))
+        1))
+
+    (it "which will inline `nth`"
+      (affirm-usage-optimise inline
+        '((define nth (lambda (xs idx)
+                        (cond
+                          [(>= idx 0) (get-idx xs idx)]
+                          [true (get-idx xs (+ (get-idx xs :n) 1 idx))])))
+          (nth foo 2))
+        '((define nth (lambda (xs idx)
+                        (cond
+                          [(>= idx 0) (get-idx xs idx)]
+                          [true (get-idx xs (+ (get-idx xs :n) 1 idx))])))
+          ((lambda (xs idx) (get-idx xs 2)) foo 2))
+        1))
+
+    (it "which will not inline `nth` when not possible"
+      (affirm-usage-optimise inline
+        '((define nth (lambda (xs idx)
+                        (cond
+                          [(>= idx 0) (get-idx xs idx)]
+                          [true (get-idx xs (+ (get-idx xs :n) 1 idx))])))
+          (nth foo bar))
+        '((define nth (lambda (xs idx)
+                        (cond
+                          [(>= idx 0) (get-idx xs idx)]
+                          [true (get-idx xs (+ (get-idx xs :n) 1 idx))])))
+          (nth foo bar))
+        0)))
 
   (section "which can score"
     (it "simple expressions"

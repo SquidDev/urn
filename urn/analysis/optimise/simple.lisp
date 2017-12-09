@@ -30,6 +30,20 @@
         (remove-nth! nodes i)
         (changed!)))))
 
+(defun extract-const-func (state node)
+  "Extract the constant function from the given symbol NODE, returning a
+   function or `nil`."
+  :hidden
+  (if (symbol? node)
+    (let* [(var (.> node :var))
+           (meta (and (= (scope/var-kind var) "native")
+                      (.> state :meta (scope/var-unique-name var))))]
+      (if (and meta (.> meta :pure))
+        (with (res (lua/get-native meta))
+          (if (function? res) res nil))
+        nil))
+    nil))
+
 (defpass constant-fold (state node)
   "A primitive constant folder
 
@@ -42,15 +56,22 @@
       accurately handle this.
     - If this doesn't return exactly one value then we will stop. This might be a future enhancement."
   :cat '("opt" "transform-post")
+  :inline-val  (lambda (state node) (constant? node))
+  :inline-body (lambda (state node args)
+                 (and (list? node)
+                      (not (.> (car node) :folded))
+                      (fast-all (lambda (node)
+                                  (or (and (symbol? node) (.> args (.> node :var)))
+                                      (constant? node))) node 2)
+                      (/= (extract-const-func state (car node)) nil)))
+
   (if (and (list? node) (fast-all constant? node 2))
     ;; If we're invoking a function with entirely constant arguments then
     (let* [(head (car node))
-           (meta (and (symbol? head)
-                      (not (.> head :folded))
-                      (= (scope/var-kind (.> head :var)) "native") (.> state :meta (scope/var-unique-name (.> head :var)))))]
+           (value (and (not (.> head :folded)) (extract-const-func state head)))]
       ;; Determine whether we have a native (and pure) function. If so, we'll invoke it.
-      (if (and meta (.> meta :pure) (function? (lua/get-native meta)))
-        (with (res (list (pcall (.> meta :value) (splice (map urn->val (cdr node))))))
+      (if value
+        (with (res (list (pcall value (splice (map urn->val (cdr node))))))
           (if (car res)
             (with (val (nth res 2))
               (if (or (/= (n res) 2) (and (number? val) (or (/= (cadr (list (math/modf val))) 0) (= (math/abs val) math/huge))))

@@ -1,8 +1,12 @@
 (import urn/analysis/nodes ())
 (import urn/analysis/pass ())
 (import urn/analysis/tag/usage usage)
+(import urn/analysis/transform (transformer))
 (import urn/analysis/visitor visitor)
 (import urn/resolve/scope scope)
+
+(import urn/analysis/optimise/simple opt)
+(import urn/analysis/optimise/usage opt)
 
 (defun get-scope (scope lookup)
   "Gets SCOPE, copying it if is is a child, otherwise reusing it."
@@ -23,9 +27,9 @@
   "Copy NODE, including all variables and scopes."
   :hidden
   (case (type node)
-    ["string" (copy-of node)]
-    ["key" (copy-of node)]
-    ["number" (copy-of node)]
+    ["string" node]
+    ["key" node]
+    ["number" node]
     ["symbol"
      ;; Manually copy the variable to point to our new version
      (let* [(copy (copy-of node))
@@ -58,6 +62,13 @@
          (.<! res i (copy-node (nth res i) lookup)))
        res)]))
 
+(defun copy-node-from (node var)
+  "Copy NODE belonging to the given VAR."
+  :hidden
+  (copy-node node { :scopes {}
+                    :vars   {}
+                    :root   (scope/var-scope var) }))
+
 (defun score-node (node cumulative threshold)
   "Attempt to score NODE, determining whether it can be inlined or not.
    We pass the CUMULATIVE score of each nodes through the system,
@@ -83,7 +94,7 @@
             [(/= (scope/var-kind func) "builtin")
              (score-nodes node 1 (+ cumulative (n node) 1) threshold)]
 
-            ;; Now visit the core builtins. This isn't exactly an advanced herustic.
+            ;; Now visit the core builtins. This isn't exactly an advanced heuristic.
 
             [(= func (.> builtins :lambda))
              (score-nodes node 3 (+ cumulative 10) threshold)]
@@ -132,7 +143,8 @@
 (defun score-nodes (nodes start cumulative threshold)
   "Score the lambda NODES, starting from START and adding to SUM.
 
-   This is slightly different to a folr as it will exit if [[score-node]] returns `false`."
+   This is slightly different to a folr as it will exit if [[score-node]]
+   returns `false`."
   (with (len (n nodes))
     (loop [(i start)] [(> i len)]
       (when (<= cumulative threshold)
@@ -140,50 +152,140 @@
         (recur (succ i)))))
   cumulative)
 
-(defun get-score (lookup node)
-  "Get the score for NODE, using LOOKUP as a cache."
+(define pre-threshold
+  "The maximum score a function can have in order for inlining to be
+   considered."
   :hidden
-  (with (score (.> lookup node))
-    (when (= score nil)
-      ;; We have a lambda. We avoid inlining if we have a varargs somewhere.
-      (set! score 0)
-      (for-each arg (nth node 2)
-        (when (scope/var-variadic? (.> arg :var)) (set! score false)))
+  50)
 
-      ;; If we have no varargs, then let's inline this function.
-      (when score (set! score (score-nodes node 3 score threshold)))
-
-      (.<! lookup node score))
-
-    (if score score math/huge)))
-
-(define threshold
-  "The maximum score a function can have in order for inlining to be applied."
+(define post-threshold
+  "The maximum score a function can have in order for inlining to be
+   applied."
   :hidden
   20)
+
+(defun get-score (state lookup node matchers)
+  "Get the score for a given NODE.
+
+   This will return `false` if the node should not be considered for
+   inlining, or the computed score if it should be. Note the score will
+   always be between 0 and [[pre-threshold]]."
+  :hidden
+  (with (score (.> lookup node))
+    (cond
+      ;; If we've found something in the cache then use that.
+      [(/= score nil) score]
+
+      ;; We avoid inlining the definition if we have a varargs somewhere.
+      ;; This is mostly because the code required to generate this is
+      ;; jolly tricky.
+      [(any (lambda (arg) (scope/var-variadic? (.> arg :var))) (cadr node))
+       (.<! lookup node false)
+       false]
+
+      ;; This is a good candidate: let's score the node and attempt to
+      ;; inline things.
+      [else
+       (let* [(score (score-nodes node 3 0 pre-threshold))
+              (adj-score
+                (cond
+                  ;; If we're within the post-threshold then we can always inline
+                  [(< score post-threshold) score]
+
+                  ;; If we're within the pre-threshold then let's determine whether
+                  ;; one of the arguments is suitable for inlining.
+                  [(< score pre-threshold)
+                   (let* [(matches false)
+                          (args {})]
+                     (for-each arg (nth node 2) (.<! args (.> arg :var) arg))
+
+                     (visitor/visit-block node 3
+                       (lambda (node)
+                         (cond
+                           ;; If we've already got a node that matches then abort visiting
+                           [matches false]
+                           ;; If this node matches then mark and finish
+                           [(any (cut <> state node args) matchers)
+                            (set! matches true)
+                            false]
+                           ;; Else continue
+                           [else true])))
+
+                     (and matches score))]
+
+                  ;; Otherwise just give up
+                  [else false]))]
+
+         (.<! lookup node adj-score)
+         adj-score)])))
 
 (defpass inline (state nodes usage)
   "Inline simple functions."
   :cat '("opt" "usage")
   :level 2
-  (with (score-lookup {})
+  (let* [(score-lookup {})
+         ;; TODO: Gather this list by filtering enabled nodes with an `:inline` tag.
+         (passes (list opt/constant-fold
+                       opt/cond-fold
+                       opt/progn-fold-expr
+                       opt/progn-fold-block
+                       opt/variable-fold
+                       opt/strip-args
+                       opt/lambda-fold
+                       opt/expression-fold))
+         (body-matchers (maybe-map (cut .> <> :inline-body) passes))
+         (val-matchers (maybe-map (cut .> <> :inline-val) passes))]
+
     (visitor/visit-block nodes 1
       (lambda (node)
-        ;; Only work on function calls on symbols
+        ;; Only work on function calls on symbols...
         (when (and (list? node) (symbol? (car node)))
           (let* [(func (.> (car node) :var))
                  (def (usage/get-var usage func))]
-            ;; If we've only got one definition then we'll look at that
+            ;; which only have one definition...
             (when (= (n (.> def :defs)) 1)
-              (let* [(ent (car (.> def :defs)))
-                     (val (.> ent :value))]
-                ;; For all lambda definitions, determine whether we can actually inline it.
-                (when (and
-                      (list? val) (builtin? (car val) :lambda)
-                      (<= (get-score score-lookup val) threshold))
-                  ;; We can! Inline the node, and updat the function call with the new node.
-                  (with (copy (copy-node val { :scopes {}
-                                               :vars   {}
-                                               :root   (scope/var-scope func) }))
-                    (.<! node 1 copy)
-                    (changed!)))))))))))
+              (with (val (.> (car (.> def :defs)) :value))
+                ;; and are lambdas.
+                (when (and (list? val) (builtin? (car val) :lambda))
+                  (with (score (get-score state score-lookup val body-matchers))
+                    (cond
+                      ;; Score is false, so cannot do anything
+                      [(= score false)]
+
+                      ;; Score is less than post threshold so do no additional checks
+                      [(< score post-threshold)
+                       (.<! node 1 (copy-node-from val func))
+                       (changed!)]
+
+                      ;; If any of the arguments looks like a good candidate then let's do
+                      ;; some further speculation
+                      [(fast-any (lambda (node) (any (cut <> state node) val-matchers)) node 2)
+                       (let* [(copy (copy-node-from val func))
+                              (copy-state {})
+                              (copy-list (list copy))]
+                         ;; We create a copy of the existing usage definition, to
+                         ;; avoid mutating the current ones.
+                         (run-pass usage/tag-usage state (create-tracker) copy-list copy-state)
+                         ;; Now update the definitions of each node with the function argument
+                         (for-each zipped (zip-args (cadr copy) 1 node 2)
+                           (let [(args (car zipped))
+                                 (vals (cadr zipped))]
+                             (when (and (= (n args) 1) (<= (n vals) 1) (not (scope/var-variadic? (.> (car args) :var))))
+                               ;; If we've just got one argument and one value then lazily visit these
+                               ;; values. Technically this lazy visiting could happen for all arguments,
+                               ;; but this system is easier.
+                               (let [(var (.> (car args) :var))
+                                     (val (or (car vals) (make-nil)))]
+                                 (usage/replace-definition! copy-state var var "val" val)))))
+
+                         (run-pass transformer state (create-tracker) copy-list copy-state passes)
+
+                         (with (copy-res (case (n copy-list)
+                                           [0 (make-nil)]
+                                           [1 (car copy-list)]
+                                           [_ (make-progn copy-list)]))
+                           (when (<= (score-nodes copy-res 1 0 post-threshold) post-threshold)
+                             (.<! node 1 copy)
+                             (changed!))))]
+
+                      [else])))))))))))
