@@ -81,42 +81,85 @@
       (.<! (hashset-data out) (hash v) v))
     out))
 
-(defun union (a b)
-  "The set of values that occur in either A or B.
+(defun union (&sets)
+  "The set of values that occur in any set in the SETS.
 
    ### Example:
    ```cl
    > (union (set-of 1 2 3) (set-of 4 5 6))
    out = «hash-set: 1 2 3 4 5 6»
+   > (union (set-of 1 2) (set-of 2 3) (set-of 3 4))
+   out = «hash-set: 1 2 3 4»
    ```"
-  (assert-type! a set)
-  (assert-type! b set)
-  (unless (= (hashset-fn a) (hashset-fn b))
-    (format 1 "union: {#a} and {#b} do not have the same hash function."))
-  (let* [(out (make-set (hashset-fn a)))]
-    (for-pairs (k v) (hashset-data a)
-      (.<! (hashset-data out) k v))
-    (for-pairs (k v) (hashset-data b)
-      (.<! (hashset-data out) k v))
+  (when (empty? sets)
+    (format 1 "(union): can't take the union of no sets"))
+  (let* [(out (make-set (hashset-fn (car sets))))
+         (fn (hashset-fn (car sets)))]
+    (do [(set sets)]
+      (assert-type! set set)
+      (unless (= (hashset-fn set) fn)
+        (format 1 "(union {@( )}): set '{}' does not have same hash function as the other sets" sets set))
+      (for-pairs (k v) (hashset-data set)
+        (insert! out v)))
     out))
 
-(defun intersection (a b)
-  "The set of values that occur in both A and B.
+(defun intersection (&sets)
+  "The set of values that occur in all the SETS.
 
    ### Example:
    ```cl
    > (intersection (set-of 1 2 3) (set-of 3 4 5))
    out = «hash-set: 3»
+   > (intersection (set-of 1 2 3) (set-of 3 4 5) (set-of 7 8 9))
+   out = «hash-set: »
    ```"
-  (assert-type! a set)
-  (assert-type! b set)
-  (unless (= (hashset-fn a) (hashset-fn b))
-    (format 1 "intersection: {#a} and {#b} do not have the same hash function."))
-  (let* [(out (make-set (hashset-fn a)))]
-    (for-pairs (k v) (hashset-data a)
-      (when (.> (hashset-data b) k)
-        (.<! (hashset-data out) k v)))
+  (letrec [(pairwise-intersection (lambda (a b)
+             (assert-type! a set)
+             (assert-type! b set)
+             (unless (= (hashset-fn a) (hashset-fn b))
+               (format 1 "(intersection {}): {#a} and {#b} do not have the same hash function." sets))
+             (let* [(out (make-set (hashset-fn a)))]
+               (for-pairs (k v) (hashset-data a)
+                 (when (.> (hashset-data b) k)
+                   (.<! (hashset-data out) k v)))
+               out)))
+           (inter (lambda (&sets)
+                    (case sets
+                      [(?x) x]
+                      [(?x ?y) (pairwise-intersection x y)]
+                      [(?x ?y . ?xs) (apply inter (pairwise-intersection x y) xs)])))]
+    (map (lambda (x)
+           (unless (set? x)
+             (format 1 "(intersection {}): '{}' is not a set" sets x)))
+         sets)
+    (apply inter sets)))
+
+(defun cardinality (set)
+  "Return the number of elements in SET.
+
+   ### Example:
+   ```cl
+   > (cardinality (set-of 1 2 3))
+   out = 3
+   > (cardinality (set-of 1 1 2))
+   out = 2
+   ```"
+  (let* [(out 0)]
+    (for-pairs (_ _) (hashset-data set)
+      (inc! out))
     out))
+
+(defun disjoint? (&sets)
+  "Is the intersection of SETS empty?
+
+   ### Example:
+   ```cl
+   > (disjoint? (set-of 1 2 3) (set-of 3 4 5))
+   out = false
+   > (disjoint? (set-of 1 2 3) (set-of 4 5 6))
+   out = true
+   ```"
+  (= (cardinality (apply intersection sets)) 0))
 
 (defun set-of (&values)
   "Create the set containing VALUES with the default hash function.
