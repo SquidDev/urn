@@ -23,7 +23,7 @@
 (import core/base (defun defmacro when unless let* set-idx!  get-idx for gensym -or
                    slice /= mod else print error tostring  -and if n + - >= > =
                    not with apply and progn .. * while <= < or values-list first list
-                   second))
+                   second for-pairs))
 
 (import core/base b)
 (import lua/table)
@@ -367,15 +367,23 @@
           [else])))
     out))
 
-(defun union (xs ys)
-  "Set-like union of XS and YS.
+(defun union (&xss)
+  "Set-like union of all the lists in XSS. Note that this function does
+   not preserve the lists' orders.
 
    ### Example:
    ```cl
    > (union '(1 2 3 4) '(1 2 3 4 5))
    out = (1 2 3 4 5)
    ```"
-  (nub (append xs ys)))
+  (let* [(set {})
+        (out '())]
+    (do [(xs xss)
+         (x xs)]
+      (set-idx! set x x))
+    (for-pairs (k v) set
+      (push-cdr! out v))
+    out))
 
 (defun all (p xs)
   "Test if all elements of XS match the predicate P.
