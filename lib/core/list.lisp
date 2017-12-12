@@ -378,9 +378,11 @@
    ```"
   (let* [(set {})
         (out '())]
-    (do [(xs xss)
-         (x xs)]
-      (set-idx! set x x))
+    (do [(xs xss)]
+      (if (list? xs)
+        (do [(x xs)]
+          (set-idx! set x x))
+        (set-idx! set xs xs)))
     (for-pairs (k v) set
       (push-cdr! out v))
     out))
