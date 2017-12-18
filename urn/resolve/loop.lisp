@@ -6,7 +6,7 @@
 (import urn/error error)
 (import urn/library library)
 (import urn/logger logger)
-(import urn/logger/helpers logger)
+(import urn/logger/format format)
 (import urn/range range)
 (import urn/resolve/scope scope)
 (import urn/resolve/state state)
@@ -201,9 +201,11 @@
         (while (and (> (n queue) 0) (<= skipped (n queue)))
           (with (head (remove-nth! queue 1))
             (logger/put-debug! logger
-              (..
-                (type head) " for " (.> head :_state :stage) " at " (logger/format-node (.> head :_node))
-                " (" (if (.> head :_state :var) (scope/var-name (.> head :_state :var)) "?") ")"))
+              (format nil "{} for {} at {} ({})"
+                (type head)
+                (.> head :_state :stage)
+                (format/format-node (.> head :_node))
+                (if (.> head :_state :var) (scope/var-name (.> head :_state :var)) "?")))
 
             (case (type head)
               ["init"
@@ -336,7 +338,7 @@
              (logger/put-error! logger (.. "Could not build "
                                          (cond
                                            [var (scope/var-name var)]
-                                           [node (logger/format-node node)]
+                                           [node (format/format-node node)]
                                            [true "unknown node"]))))]))
 
       (error/resolver-error!))

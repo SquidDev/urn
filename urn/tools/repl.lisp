@@ -229,7 +229,7 @@
         (stack '(1))]
     (for-each tok toks
       (case (type tok)
-        ["open" (push-cdr! stack (+ (pos-column (range-start (.> tok :range))) 2))]
+        ["open" (push-cdr! stack (+ (pos-column (range-start (.> tok :source))) 2))]
         ["close" (pop-last! stack)]
         [_]))
     (string/rep " " (pred (last stack)))))
@@ -250,7 +250,7 @@
                 ;; If there was no previous token, then start anew.
                 [(= last nil) ""]
                 ;; If the previous token finished before the cursor, then start anew.
-                [(< (pos-offset (range-finish (.> last :range))) (n str)) ""]
+                [(< (pos-offset (range-finish (.> last :source))) (n str)) ""]
                 ;; If the previous token was a symbo, then finish completing it.
                 [(symbol? last) (symbol->string last)]
                 ;; Otherwise don't complete it.
@@ -478,7 +478,7 @@
                      (let* [(contents (concat buffer "\n"))
                             (previous 0)]
                        (for-each tok (parser/lex void/void contents "stdin")
-                         (with (start (pos-offset (range-start (.> tok :range))))
+                         (with (start (pos-offset (range-start (.> tok :source))))
                            (when (/= start previous)
                              (io/write (coloured (colour-for "comment") (string/sub contents previous (pred start))))))
 
@@ -488,7 +488,7 @@
                                (io/write (coloured (colour-for "keyword") (.> tok :contents)))
                                (io/write (coloured (colour-for (.> token-mapping (type tok))) (.> tok :contents))))))
 
-                         (set! previous (succ (pos-offset (range-finish (.> tok :range)))))))
+                         (set! previous (succ (pos-offset (range-finish (.> tok :source)))))))
                      (io/write "\n"))
 
                    (logger/put-error! logger (.. "Cannot extract source code for " (string/quoted name)))))

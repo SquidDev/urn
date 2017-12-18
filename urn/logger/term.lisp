@@ -1,6 +1,6 @@
-(import urn/range ())
-(import urn/logger/helpers ())
+(import urn/logger/format (format-source))
 (import urn/logger/printer ())
+(import urn/range ())
 
 (import io/term (coloured))
 
@@ -99,15 +99,16 @@
             message))))))))
 
 (defun put-trace! (node)
-  "Put a trace of the positions of NODE and all its parents, using the output of [[format-node]]"
+  "Put a trace of the positions of NODE and all its parents."
   :hidden
-  (with (previous nil)
-    (while node
-      (with (formatted (format-node node))
-        (cond
-          [(= previous nil) (print! (coloured "36;1" (.. "  => " formatted)))]
-          [(/= previous formatted) (print! (.. "  in " formatted))]
-          [true nil])
+  (loop [(source (.> node :source))
+         (previous nil)]
+    []
+    (with (formatted (format-source source))
+      (cond
+        [(= previous nil) (print! (coloured "36;1" (.. "  => " formatted)))]
+        [(/= previous formatted) (print! (.. "  in " formatted))]
+        [true nil])
 
-        (set! previous formatted)
-        (set! node (.> node :parent))))))
+      (when (node-source? source)
+        (recur (node-source-parent source) formatted)))))

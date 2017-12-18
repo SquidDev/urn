@@ -8,9 +8,10 @@
 (import lua/basic (type#))
 (import lua/coroutine co)
 
+(import urn/error error)
+(import urn/logger/format format)
 (import urn/range range)
 (import urn/resolve/builtins (builtin))
-(import urn/error error)
 (import urn/resolve/scope scope)
 (import urn/resolve/state state)
 (import urn/traceback traceback)
@@ -75,9 +76,9 @@
 
       (inc! i))))
 
-(defun resolve-execute-result (owner node parent scope state)
-  "Resolve the result of a macro or unquote, binding the parent node and
-   marking the macro which generated it.
+(defun resolve-execute-result (source node scope state)
+  "Resolve the result of a macro or unquote, binding the range and
+   generating macro.
 
    Also will correctly re-associate syntax-quoted variables with their
    original definition."
@@ -96,17 +97,17 @@
            ;; having the same node appearing in multiple macro expansions.
            (for-pairs (k v) node (.<! copy k v))
            (set! node copy))
-         (error-positions! (.> state :logger) parent (.. "Invalid node of type " (type node) " from " (state/name owner)))))]
-    [_ (error-positions! (.> state :logger) parent (.. "Invalid node of type " (type node) " from " (state/name owner)))])
+         (error-positions! (.> state :logger) { :source source } ;; TODO: This is an ugly hack, just pass the source
+           (.. "Invalid node of type " (type node) " from " (format/format-node-source-name source)))))]
+    [_ (error-positions! (.> state :logger) { :source source }
+         (.. "Invalid node of type " (type node) " from " (format/format-node-source-name source)))])
 
-  (unless (or (.> node :range) (.> node :parent))
-    (.<! node :owner owner)
-    (.<! node :parent parent))
+  (unless (.> node :source) (.<! node :source source))
 
   (case (type node)
     ["list"
      (for i 1 (n node) 1
-       (.<! node i (resolve-execute-result owner (nth node i) node scope state)))]
+       (.<! node i (resolve-execute-result source (nth node i) scope state)))]
     ["symbol"
      (when (string? (.> node :var))
        (with (var (.> state :compiler :variables (.> node :var)))
@@ -283,7 +284,7 @@
                         ;; node.
                         (state/built! child-state
                           { :tag "list" :n 3
-                            :range (.> built :range) :owner (.> built :owner) :parent node
+                            :source (.> built :source)
                             1 { :tag "symbol" :contents "lambda" :var (builtin :lambda) }
                             2 '()
                             3 built })
@@ -312,8 +313,9 @@
                                            :contents "nil"
                                            :var (builtin :nil) })))
 
-                    (for i 1 (n result) 1
-                      (.<! result i (resolve-execute-result (nth states i) (nth result i) node scope state)))
+                    (with (source (range/mk-node-source nil (.> node :source) (range/get-source node)))
+                      (for i 1 (n result) 1
+                        (.<! result i (resolve-execute-result source (nth result i) scope state))))
 
                     (cond
                       [(= (n result) 1) (resolve-node (car result) scope state root many)]
@@ -332,7 +334,7 @@
                     ;; any errors with this node.
                     (state/built! child-state
                       { :tag "list" :n 3
-                        :range (.> built :range) :owner (.> built :owner) :parent node
+                        :source (.> built :source)
                         1 { :tag "symbol" :contents "lambda" :var (builtin :lambda) }
                         2 '()
                         3 built })
@@ -355,8 +357,9 @@
                                                   :contents "nil"
                                                   :var (builtin :nil) })))
 
-                           (for i 1 (n result) 1
-                             (.<! result i (resolve-execute-result child-state (nth result i) node scope state)))
+                           (with (source (range/mk-node-source nil (.> node :source) (range/get-source node)))
+                             (for i 1 (n result) 1
+                               (.<! result i (resolve-execute-result source (nth result i) scope state))))
 
                            (cond
                              [(= (n result) 1)
@@ -492,8 +495,9 @@
 
                    ;; The macro worked, we'll gather the output and continue.
                    [(true . ?replacement)
-                    (for i 1 (n replacement) 1
-                      (.<! replacement i (resolve-execute-result func-state (nth replacement i) first scope state)))
+                    (with (source (range/mk-node-source func (.> first :source) (range/get-source node)))
+                      (for i 1 (n replacement) 1
+                        (.<! replacement i (resolve-execute-result source (nth replacement i) scope state))))
 
                     (cond
                       [(= (n replacement) 0)
