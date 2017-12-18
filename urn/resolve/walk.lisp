@@ -9,7 +9,7 @@
 (import lua/coroutine co)
 
 (import urn/range range)
-(import urn/resolve/builtins (builtins))
+(import urn/resolve/builtins (builtin))
 (import urn/error error)
 (import urn/resolve/scope scope)
 (import urn/resolve/state state)
@@ -87,7 +87,7 @@
     ["number" (set! node { :tag "number" :value node })]
     ["boolean" (set! node { :tag "symbol"
                             :contents (tostring node)
-                            :var (.> builtins node) })]
+                            :var (builtin (bool->string node)) })]
     ["table"
      (with (tag (type node))
        (if (or (= tag "symbol") (= tag "string") (= tag "number") (= tag "key") (= tag "list"))
@@ -145,9 +145,9 @@
 
          (when (symbol? first)
            (cond
-             [(= (.> first :var) (.> builtins :unquote)) (dec! level)]
-             [(= (.> first :var) (.> builtins :unquote-splice)) (dec! level)]
-             [(= (.> first :var) (.> builtins :syntax-quote)) (inc! level)]
+             [(= (.> first :var) (builtin :unquote)) (dec! level)]
+             [(= (.> first :var) (builtin :unquote-splice)) (dec! level)]
+             [(= (.> first :var) (builtin :syntax-quote)) (inc! level)]
              [true])))
 
        (for i 2 (n node) 1
@@ -190,7 +190,7 @@
             (case (scope/var-kind func)
               ["builtin"
                (cond
-                 [(= func (.> builtins :lambda))
+                 [(= func (builtin :lambda))
                   (expect-type! (.> state :logger) (nth node 2) node "list" "argument list")
 
                   (let [(child-scope (scope/child scope))
@@ -226,7 +226,7 @@
 
                     (resolve-block node 3 child-scope state))]
 
-                 [(= func (.> builtins :cond))
+                 [(= func (builtin :cond))
                   (for i 2 (n node) 1
                     (with (case (nth node i))
                       (expect-type! (.> state :logger) case node "list" "case expression")
@@ -237,7 +237,7 @@
 
                   node]
 
-                 [(= func (.> builtins :set!))
+                 [(= func (builtin :set!))
                   (expect-type! (.> state :logger) (nth node 2) node "symbol")
                   (expect!      (.> state :logger) (nth node 3) node "value")
                   (max-length!  (.> state :logger) node 3 "set!")
@@ -256,20 +256,20 @@
                   (.<! node 3 (resolve-node (nth node 3) scope state))
                   node]
 
-                 [(= func (.> builtins :quote))
+                 [(= func (builtin :quote))
                   (expect!     (.> state :logger) (nth node 2) node "value")
                   (max-length! (.> state :logger) node 2 "quote")
 
                   node]
 
-                 [(= func (.> builtins :syntax-quote))
+                 [(= func (builtin :syntax-quote))
                   (expect!     (.> state :logger) (nth node 2) node "value")
                   (max-length! (.> state :logger) node 2 "syntax-quote")
 
                   (.<! node 2 (resolve-quote (nth node 2) scope state 1))
                   node]
 
-                 [(= func (.> builtins :unquote))
+                 [(= func (builtin :unquote))
                   (expect! (.> state :logger) (nth node 2) node "value")
 
                   (let [(result '())
@@ -284,7 +284,7 @@
                         (state/built! child-state
                           { :tag "list" :n 3
                             :range (.> built :range) :owner (.> built :owner) :parent node
-                            1 { :tag "symbol" :contents "lambda" :var (.> builtins :lambda) }
+                            1 { :tag "symbol" :contents "lambda" :var (builtin :lambda) }
                             2 '()
                             3 built })
 
@@ -310,7 +310,7 @@
                     (when (or (= (n result) 0) (and (= (n result) 1) (= (car result) nil)))
                       (set! result (list { :tag "symbol"
                                            :contents "nil"
-                                           :var (.> builtins :nil) })))
+                                           :var (builtin :nil) })))
 
                     (for i 1 (n result) 1
                       (.<! result i (resolve-execute-result (nth states i) (nth result i) node scope state)))
@@ -322,7 +322,7 @@
                        result]
                       [true
                        (error-positions! (.> state :logger) node "Multiple values returned in a non block context")]))]
-                 [(= func (.> builtins :unquote-splice))
+                 [(= func (builtin :unquote-splice))
                   (max-length! (.> state :logger) node 2 "unquote-splice")
 
                   (let* [(child-state (state/create scope (.> state :compiler)))
@@ -333,7 +333,7 @@
                     (state/built! child-state
                       { :tag "list" :n 3
                         :range (.> built :range) :owner (.> built :owner) :parent node
-                        1 { :tag "symbol" :contents "lambda" :var (.> builtins :lambda) }
+                        1 { :tag "symbol" :contents "lambda" :var (builtin :lambda) }
                         2 '()
                         3 built })
 
@@ -353,7 +353,7 @@
                            (when (= (n result) 0)
                              (set! result (list { :tag "symbol"
                                                   :contents "nil"
-                                                  :var (.> builtins :nil) })))
+                                                  :var (builtin :nil) })))
 
                            (for i 1 (n result) 1
                              (.<! result i (resolve-execute-result child-state (nth result i) node scope state)))
@@ -367,7 +367,7 @@
                              [true
                               (error-positions! (.> state :logger) node "Multiple values returned in a non-block context")]))])))]
 
-                 [(= func (.> builtins :define))
+                 [(= func (builtin :define))
                   (unless root
                     (error-positions! (.> state :logger) first "define can only be used on the top level"))
                   (expect-type! (.> state :logger) (nth node 2) node "symbol" "name")
@@ -382,7 +382,7 @@
                     (.<! node (n node) (resolve-node (nth node (n node)) scope state))
                     node)]
 
-                 [(= func (.> builtins :define-macro))
+                 [(= func (builtin :define-macro))
                   (unless root
                     (error-positions! (.> state :logger) first "define-macro can only be used on the top level"))
                   (expect-type! (.> state :logger) (nth node 2) node "symbol" "name")
@@ -397,7 +397,7 @@
                     (.<! node (n node) (resolve-node (nth node (n node)) scope state))
                     node)]
 
-                 [(= func (.> builtins :define-native))
+                 [(= func (builtin :define-native))
                   (unless root
                     (error-positions! (.> state :logger) first "define-native can only be used on the top level"))
 
@@ -410,7 +410,7 @@
                     (handle-metadata (.> state :logger) node var 3 (n node))
                     node)]
 
-                 [(= func (.> builtins :import))
+                 [(= func (builtin :import))
                   (expect-type! (.> state :logger) (nth node 2) node "symbol" "module name")
 
                   (let [(as nil)
@@ -465,7 +465,7 @@
                                 :scope   scope })
                     node)]
 
-                 [(= func (.> builtins :struct-literal))
+                 [(= func (builtin :struct-literal))
                   (when (/= (mod (n node) 2) 1)
                     (error-positions! (.> state :logger) node (.. "Expected an even number of arguments, got " (pred (n node)))))
                   (resolve-list node 2 scope state)]

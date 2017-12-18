@@ -1,4 +1,4 @@
-(import urn/analysis/nodes (builtin? builtins))
+(import urn/analysis/nodes (builtin? builtin))
 (import urn/analysis/pass ())
 (import urn/logger logger)
 (import urn/range range)
@@ -52,32 +52,32 @@
 
               ;; _Technically_ lambdas are lazy, but for now let's be eagar with
               ;; our warnings.
-              [(= func (.> builtins :lambda))
+              [(= func (builtin :lambda))
                (unless last (visit-block defined logger node 3))]
                ;; Each branch is a block
-              [(= func (.> builtins :cond))
+              [(= func (builtin :cond))
                (for i 2 (n node) 1
                  (with (case (nth node i))
                    (visit-node defined logger (nth case 1))
                    (visit-block defined logger case 2 last)))]
 
-              [(= func (.> builtins :set!)) (visit-node defined logger (nth node 3))]
-              [(= func (.> builtins :struct-literal)) (visit-list defined logger node 2)]
-              [(= func (.> builtins :syntax-quote))
+              [(= func (builtin :set!)) (visit-node defined logger (nth node 3))]
+              [(= func (builtin :struct-literal)) (visit-list defined logger node 2)]
+              [(= func (builtin :syntax-quote))
                (visit-quote defined logger (nth node 2) 1)]
 
-              [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
+              [(or (= func (builtin :define)) (= func (builtin :define-macro)))
                (visit-node defined logger (nth node (n node)) true)
                (.<! defined (.> node :def-var) true)]
 
-              [(= func (.> builtins :define-native))
+              [(= func (builtin :define-native))
                (.<! defined (.> node :def-var) true)]
 
               ;; Basic nodes which don't need any special handling
-              [(= func (.> builtins :quote))]
-              [(= func (.> builtins :import))]
+              [(= func (builtin :quote))]
+              [(= func (builtin :import))]
               ;; Nodes which shouldn't appear anywhere.
-              [(or (= func (.> builtins :unquote)) (= func (.> builtins :unquote-splice)))
+              [(or (= func (builtin :unquote)) (= func (builtin :unquote-splice)))
                (fail! "unquote/unquote-splice should never appear here")]
 
               [else (fail! (.. "Unknown kind " func-ty " for variable " (.> func :name)))]))]

@@ -33,7 +33,7 @@
                                     false
                                     (cond
                                       [(symbol? def) (get-arity def)]
-                                      [(and (list? def) (symbol? (car def)) (= (.> (car def) :var) (.> builtins :lambda)))
+                                      [(and (list? def) (symbol? (car def)) (= (.> (car def) :var) (builtin :lambda)))
                                        (with (args (nth def 2))
                                              (if (any (lambda (x) (scope/var-variadic? (.> x :var))) args)
                                                false

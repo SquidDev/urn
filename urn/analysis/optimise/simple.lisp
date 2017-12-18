@@ -96,7 +96,7 @@
               [true
                (unless (builtin? (car elem) :true)
                  (changed!)
-                 (.<! elem 1 (make-symbol (.> builtins :true))))
+                 (.<! elem 1 (make-symbol (builtin :true))))
                (set! final true)
                (inc! i)]
               [nil

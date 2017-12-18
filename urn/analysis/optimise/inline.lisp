@@ -85,10 +85,10 @@
 
             ;; Now visit the core builtins. This isn't exactly an advanced herustic.
 
-            [(= func (.> builtins :lambda))
+            [(= func (builtin :lambda))
              (score-nodes node 3 (+ cumulative 10) threshold)]
 
-            [(= func (.> builtins :cond))
+            [(= func (builtin :cond))
              (set! cumulative (+ cumulative 3)) ;; Base cost of 3
              (with (len (n node))
                (loop [(i 2)] [(> i len)]
@@ -98,24 +98,24 @@
                    (recur (succ i)))))
              cumulative]
 
-            [(= func (.> builtins :set!))
+            [(= func (builtin :set!))
              (score-node (nth node 3) (+ cumulative 5) threshold)]
 
             ;; As constants are free, "technically" this is all going to be free
             ;; too.
-            [(= func (.> builtins :quote))
+            [(= func (builtin :quote))
              (if (list? (nth node 2)) (+ cumulative (n node)) cumulative)]
-            [(= func (.> builtins :import)) cumulative]
+            [(= func (builtin :import)) cumulative]
 
             ;; TODO: Actually walk this and remove the below handlers
-            [(= func (.> builtins :syntax-quote))
+            [(= func (builtin :syntax-quote))
              (score-node (nth node 2) (+ cumulative 3) threshold)]
-            [(= func (.> builtins :unquote))
+            [(= func (builtin :unquote))
              (score-node (nth node 2) cumulative threshold)]
-            [(= func (.> builtins :unquote-splice))
+            [(= func (builtin :unquote-splice))
              (score-node (nth node 2) (+ cumulative 10) threshold)]
 
-            [(= func (.> builtins :struct-literal))
+            [(= func (builtin :struct-literal))
              (score-nodes node 2 (+ cumulative (/ (pred (n node)) 2) 3) threshold)]))]
 
        ["list"

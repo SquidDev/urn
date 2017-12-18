@@ -4,7 +4,7 @@
 (import lua/debug debug)
 (import lua/os os)
 
-(import urn/analysis/nodes (builtins builtin?))
+(import urn/analysis/nodes (builtin builtin?))
 (import urn/analysis/visitor visitor)
 (import urn/backend/lua lua)
 (import urn/backend/writer w)
@@ -421,8 +421,8 @@
                            (with (var (.> head :var))
                              ;; Otherwise, check the symbol isn't one of these simple side-effect-free builtins.
                              (and
-                               (/= var (.> builtins :lambda)) (/= var (.> builtins :cond)) (/= var (.> builtins :import))
-                               (/= var (.> builtins :define)) (/= var (.> builtins :define-macro)) (/= var (.> builtins :define-native))))]
+                               (/= var (builtin :lambda)) (/= var (builtin :cond)) (/= var (builtin :import))
+                               (/= var (builtin :define)) (/= var (builtin :define-macro)) (/= var (builtin :define-native))))]
 
                           ["list"
                            ;; Don't emit directly-called lambdas.
