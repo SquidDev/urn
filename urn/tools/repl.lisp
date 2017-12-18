@@ -463,7 +463,7 @@
            (with (var (scope/lookup scope name))
              (if (/= var nil)
                (let* [(node (scope/var-node var))
-                      (range (and node (get-source node)))]
+                      (range (and node (get-full-source node)))]
                  (if (/= range nil)
                    (let* [(lines (range-lines range))
                           (start (range-start range))

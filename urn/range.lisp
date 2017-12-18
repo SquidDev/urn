@@ -78,3 +78,7 @@
 (defun get-source (node)
   "Get the nearest source position of NODE"
   (source-range (.> node :source)))
+
+(defun get-full-source (node)
+  "Get the full range of this NODE."
+  (source-full-range (.> node :source)))
