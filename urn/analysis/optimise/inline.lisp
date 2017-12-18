@@ -167,23 +167,30 @@
   :cat '("opt" "usage")
   :level 2
   (with (score-lookup {})
-    (visitor/visit-block nodes 1
-      (lambda (node)
-        ;; Only work on function calls on symbols
-        (when (and (list? node) (symbol? (car node)))
-          (let* [(func (.> (car node) :var))
-                 (def (usage/get-var usage func))]
-            ;; If we've only got one definition then we'll look at that
-            (when (= (n (.> def :defs)) 1)
-              (let* [(ent (car (.> def :defs)))
-                     (val (.> ent :value))]
-                ;; For all lambda definitions, determine whether we can actually inline it.
-                (when (and
-                      (list? val) (builtin? (car val) :lambda)
-                      (<= (get-score score-lookup val) threshold))
-                  ;; We can! Inline the node, and updat the function call with the new node.
-                  (with (copy (copy-node val { :scopes {}
-                                               :vars   {}
-                                               :root   (scope/var-scope func) }))
-                    (.<! node 1 copy)
-                    (changed!)))))))))))
+    (for-each root nodes
+      (visitor/visit-node root
+        (lambda (node)
+          ;; Only work on function calls on symbols
+          (when (and (list? node) (symbol? (car node)))
+            (let* [(func (.> (car node) :var))
+                   (def (usage/get-var usage func))]
+              ;; If we're not in the current function and we've only got one
+              ;; definition then we'll look at that.
+              (when (and (/= func (.> root :def-var))
+                         (= (n (.> def :defs)) 1))
+                (let* [(ent (car (.> def :defs)))
+                       (val (.> ent :value))]
+                  ;; For all lambda definitions, determine whether we can actually inline it.
+                  (when (and
+                        (list? val) (builtin? (car val) :lambda)
+                        (<= (get-score score-lookup val) threshold))
+                    ;; We can! Inline the node, and updat the function call with the new node.
+                    (with (copy (copy-node val { :scopes {}
+                                                 :vars   {}
+                                                 :root   (scope/var-scope func) }))
+                      (.<! node 1 copy)
+                      (changed!)))))))))
+
+      ;; Clear the score of the node we've just left
+      (when-with (var (.> root :def-var))
+        (.<! score-lookup var nil)))))
