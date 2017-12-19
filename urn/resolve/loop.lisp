@@ -247,7 +247,7 @@
                  (unless module
                    (error/do-node-error! logger
                      (nth result 2)
-                     (.> head :_node) nil
+                     (range/get-top-source (.> head :_node)) nil
                      (range/get-source (.> head :_node)) ""))
 
                  (let* [(export (.> head :export))
@@ -271,7 +271,7 @@
                          (set! failed true)
                          (logger/put-node-error! logger
                            (.. "Cannot find " name)
-                           name-node nil
+                           (range/get-top-source name-node) nil
                            (range/get-source (.> head :_node)) "Importing here"
                            (range/get-source (.> name-node)) "Required here")))
 
@@ -330,7 +330,7 @@
 
              (logger/put-node-error! logger
                (.. "Cannot find variable '" (.> entry :name) "'" suggestions)
-               (or (.> entry :node) (.> entry :_node)) info
+               (range/get-top-source (or (.> entry :node) (.> entry :_node))) info
                (range/get-source (or (.> entry :node) (.> entry :_node))) ""))]
           ["build"
            (let [(var (.> entry :state :var))

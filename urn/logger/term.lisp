@@ -27,15 +27,15 @@
 
 (defun put-time! (logger name time level) :hidden (print-time! (.> logger :time) name time level))
 
-(defun put-node-error! (logger msg node explain lines)
+(defun put-node-error! (logger msg source explain lines)
   (print-error! msg)
-  (put-trace! node)
+  (put-trace! source)
   (when explain (print-explain! (.> logger :explain) explain))
   (put-lines! true lines))
 
-(defun put-node-warning! (logger msg node explain lines)
+(defun put-node-warning! (logger msg source explain lines)
   (print-warning! msg)
-  (put-trace! node)
+  (put-trace! source)
   (when explain (print-explain! (.> logger :explain) explain))
   (put-lines! true lines))
 
@@ -98,10 +98,10 @@
             " "
             message))))))))
 
-(defun put-trace! (node)
-  "Put a trace of the positions of NODE and all its parents."
+(defun put-trace! (source)
+  "Put a trace of the positions of this SOURCE and all its parents."
   :hidden
-  (loop [(source (.> node :source))
+  (loop [(source source)
          (previous nil)]
     []
     (with (formatted (format-source source))

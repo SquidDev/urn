@@ -75,6 +75,10 @@
     ["range" source]
     ["nil" nil]))
 
+(defun get-top-source (node)
+  "Get the top source for the given NODE."
+  (.> node :source))
+
 (defun get-source (node)
   "Get the nearest source position of NODE"
   (source-range (.> node :source)))

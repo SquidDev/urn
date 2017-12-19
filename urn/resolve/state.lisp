@@ -122,7 +122,7 @@
 
                                  (error/do-node-error! (.> state :logger)
                                    (.. "Loop in macros " (concat states " -> "))
-                                   first-node nil
+                                   (range/get-top-source first-node) nil
                                    (splice nodes))))]
 
                             ;; This node has already been executed so we don't need to worry about it.

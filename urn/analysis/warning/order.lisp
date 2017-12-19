@@ -33,7 +33,7 @@
      ;; TODO: Check this is defined
      (when (and (scope/scope-top-level? (scope/var-scope (.> node :var))) (not (.> defined (.> node :var))))
        (logger/put-node-warning! logger
-         (.. (.> node :contents) " has not been defined yet") node
+         (.. (.> node :contents) " has not been defined yet") (range/get-top-source node)
          "This symbol is not defined until later in the program, but is accessed here.
           Consequently, it's value may be undefined when executing the program."
          (range/get-source node) ""))]

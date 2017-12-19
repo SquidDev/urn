@@ -46,14 +46,14 @@
     pos nil
     pos "Invalid digit here"))
 
-(defun eof-error! (context tokens logger msg node explain &lines)
+(defun eof-error! (context tokens logger msg source explain &lines)
   "A variation of [[error/do-node-error!]], used when we've reached the
    end of the file. If CONTEXT is truthy, then a \"resumable\" error will
    be thrown instead."
   :hidden
   (if context
     (fail! { :msg msg :context context :tokens tokens })
-    (apply error/do-node-error! logger msg node explain lines)))
+    (apply error/do-node-error! logger msg source explain lines)))
 
 (defun lex (logger str name cont)
   "Lex STR from a file called NAME, returning a series of tokens. If CONT
@@ -507,7 +507,7 @@
                   (when (/= (pos-column (range-start tok-pos)) (pos-column (range-start prev-pos)))
                     (logger/put-node-warning! logger
                       "Different indent compared with previous expressions."
-                      tok
+                      (.> tok :source)
                       "You should try to maintain consistent indentation across a program,
                        try to ensure all expressions are lined up.
                        If this looks OK to you, check you're not missing a closing ')'."
@@ -557,20 +557,20 @@
               ;; Unmatched closing bracket.
               (error/do-node-error! logger
                 (string/format "'%s' without matching '%s'" (.> tok :contents) (.> tok :open))
-                tok nil
+                (.> tok :source) nil
                 (get-source tok) "")]
              [(.> head :auto-close)
               ;; Attempting to close a quote
               (error/do-node-error! logger
                 (string/format "'%s' without matching '%s' inside quote" (.> tok :contents) (.> tok :open))
-                tok nil
+                (.> tok :source) nil
                 (.> head :source) "quote opened here"
                 (.> tok :source)  "attempting to close here")]
              [(/= (.> head :close) (.> tok :contents))
               ;; Mismatched brackets
               (error/do-node-error! logger
                 (string/format "Expected '%s', got '%s'" (.> head :close) (.> tok :contents))
-                tok nil
+                (.> tok :source) nil
                 (.> head :source) (string/format "block opened with '%s'" (.> head :open))
                 (.> tok :source) (string/format "'%s' used here" (.> tok :contents)))]
              [true
@@ -590,7 +590,7 @@
            (when (/= 0 (n stack))
              (eof-error! (and cont "list") toks logger
                (string/format "Expected '%s', got 'eof'" (.> head :close))
-               tok nil
+               (.> tok :source) nil
                (.> head :source) "block opened here"
                (.> tok :source)  "end of file here"))]
           [else (error! (.. "Unsupported type " tag))])
@@ -599,7 +599,7 @@
             (when (empty? stack)
               (error/do-node-error! logger
                 (string/format "'%s' without matching '%s'" (.> tok :contents) (.> tok :open))
-                tok nil
+                (.> tok :source) nil
                 (get-source tok) ""))
             (.<! head :source (range-of-span (.> head :source) (.> tok :source)))
             (pop!)))))

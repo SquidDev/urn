@@ -5,7 +5,7 @@
 (import urn/analysis/visitor visitor)
 (import urn/backend/lua lua)
 (import urn/logger logger)
-(import urn/range (get-source))
+(import urn/range (get-source get-top-source))
 (import urn/resolve/scope scope)
 
 (defpass strip-import (state nodes start)
@@ -70,7 +70,7 @@
               ;; Print a warning message
               (logger/put-node-warning! (.> state :logger)
                 "Cannot execute constant expression"
-                node nil
+                (get-top-source node) nil
                 (get-source node) (.. "Executed " (pretty node) ", failed with: " (nth res 2)))
               node)))
         node))

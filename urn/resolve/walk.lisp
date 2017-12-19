@@ -20,7 +20,7 @@
   "Fail resolution at NODE with the given MESSAGE."
   :hidden
   (error/do-node-error! log
-    message node extra
+    message (range/get-top-source node) extra
     (range/get-source node) ""))
 
 (defun expect-type! (log node parent expected-type name)
@@ -97,10 +97,18 @@
            ;; having the same node appearing in multiple macro expansions.
            (for-pairs (k v) node (.<! copy k v))
            (set! node copy))
-         (error-positions! (.> state :logger) { :source source } ;; TODO: This is an ugly hack, just pass the source
-           (.. "Invalid node of type " (type node) " from " (format/format-node-source-name source)))))]
-    [_ (error-positions! (.> state :logger) { :source source }
-         (.. "Invalid node of type " (type node) " from " (format/format-node-source-name source)))])
+         (error/do-node-error! (.> state :logger)
+           (format nil "Invalid node of type {} from {}"
+             (type node)
+             (format/format-node-source-name source))
+           source nil
+           (range/source-range source) "")))]
+    [_ (error/do-node-error! (.> state :logger)
+         (format nil "Invalid node of type {} from {}"
+           (type node)
+           (format/format-node-source-name source))
+         source nil
+         (range/source-range source) "")])
 
   (unless (.> node :source) (.<! node :source source))
 
