@@ -1,6 +1,8 @@
 "This library provides a series of methods for interacting with the
  internal representation of nodes."
 
+(import core/prelude ())
+
 (define-native visit-node
   "Visit NODE with VISITOR.
 

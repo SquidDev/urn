@@ -1,3 +1,5 @@
+(import core/prelude ())
+
 (define-native active-node
   "Get the node currently being resolved.")
 
@@ -8,7 +10,11 @@
   "Get the module of the node currently being resolved.")
 
 (define-native scope-vars
-  "Return the variables present in the given SCOPE, using the
+  "Fetch the variables present in the given SCOPE, using the
+   [[active-scope]] if none is given.")
+
+(define-native scope-exported
+  "Fetch the variables exported in the given SCOPE, using the
    [[active-scope]] if none is given.")
 
 (define-native var-lookup
