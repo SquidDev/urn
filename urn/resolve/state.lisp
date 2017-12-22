@@ -19,69 +19,92 @@
 (import urn/resolve/scope scope)
 
 (import lua/coroutine co)
+(import data/struct ())
 
-(defun create (scope compiler)
-  "Create a new node state under the current STATE, using the given
-   COMPILER instance."
-  (unless scope (error! "scope cannot be nil"))
-  (unless compiler (error! "compiler cannot be nil"))
+(defstruct (resolve-state create resolve-state?)
+  (fields
+    (immutable scope rs-scope
+      "The scope this top level definition lives under.")
+    (immutable compiler rs-compiler
+      "The main compiler instance.")
+    (immutable required (hide rs-required)
+      "Ordered list of all required variables.")
+    (immutable required-set (hide rs-required-set)
+      "Set of all required variables.")
+    (mutable stage rs-stage (hide set-rs-stage!)
+      "The current stage we are in. Transitions from parsed → built → executed.")
+    (mutable var rs-var (hide set-rs-var!)
+      "The variable this node defines.")
+    (mutable node rs-node (hide set-rs-node!)
+      "The final node for this entry. Set when building/resolution has
+       finished.")
+    (mutable value (hide rs-value) (hide set-rs-value!)
+      "The actual value of this node. Set when this node is executed."))
 
-  { :scope scope ;; The scope this top level definition lives under
-    :compiler compiler ;; The main compiler instance
-    :logger (.> compiler :log) ;; The logger instance
-    :mappings (.> compiler :compile-state :mappings) ;; TODO: Remove me.
-    :required '() ;; List and set of all required vriables
-    :required-set {}
-    :stage "parsed" ;; The current stage we are in. Transitions from parsed -> built -> executed.
-    :var nil ;; The variable this node defines.
-    :node nil ;; The final node for this entry. Set when building/resolution has finished.
-    :value nil ;; The actual value of this node. Set when this node is executed.
-  })
+  (constructor new
+    (lambda (scope compiler)
+      (assert-type! scope scope)
+      (when (= compiler nil) (error! "compiler cannot be nil"))
+
+      (new
+        scope
+        compiler
+        '() {}
+        "parsed"
+        nil nil nil))))
+
+(defun rs-logger (state)
+  "The main logger instance for the STATE's compiler."
+  (.> (rs-compiler state) :log))
+
+(defun rs-mappings (state)
+  "Line mapping lookup for the STATE's compiler."
+  (.> (rs-compiler state) :compile-state :mappings))
 
 (defun require! (state var user)
   "Mark STATE as requiring the given VAR. USER is the node which
    triggered this requirement."
   ;; General sanity checks
-  (when (/= (.> state :stage) "parsed") (error! (.. "Cannot add requirement when in stage "(.> state :stage))))
+  (when (/= (rs-stage state) "parsed") (error! (.. "Cannot add requirement when in stage "(rs-stage state))))
   (unless var (error! "var is nil"))
   (unless user (error! "user is nil"))
 
   ;; If we're using a top level definition then add a dependency on it.
   (if (scope/scope-top-level? (scope/var-scope var))
-    (with (other (.> state :compiler :states var))
-      (when (and other (not (.> state :required-set other)))
-        (.<! state :required-set other user)
-        (push-cdr! (.> state :required) other))
+    (with (other (.> (rs-compiler state) :states var))
+      (when (and other (not (.> (rs-required-set state) other)))
+        (.<! (rs-required-set state) other user)
+        (push-cdr! (rs-required state) other))
       other)
     nil))
 
 (defun define! (state var)
   "Mark STATE as defining the given VAR."
   ;; General sanity checks
-  (when (/= (.> state :stage) "parsed") (error! (.. "Cannot add definition when in stage "(.> state :stage))))
-  (when (/= (scope/var-scope var) (.> state :scope)) (error! "Defining variable in different scope"))
-  (when (.> state :var) (error! "Cannot redeclare variable for given state"))
+  (when (/= (rs-stage state) "parsed") (error! (.. "Cannot add definition when in stage "(rs-stage state))))
+  (when (/= (scope/var-scope var) (rs-scope state)) (error! "Defining variable in different scope"))
+  (when (rs-var state) (error! "Cannot redeclare variable for given state"))
 
   ;; Store the variable for convenient access elsewhere.
-  (.<! state :var var)
-  (.<! state :compiler :states var state)
-  (.<! state :compiler :variables (tostring var) var))
+  (set-rs-var! state var)
+  (.<! (rs-compiler state) :states var state)
+  (.<! (rs-compiler state) :variables (tostring var) var))
 
 (defun built! (state node)
   "Mark this STATE as built, setting the resolved NODE."
   (unless node (error! "node cannot be nil"))
-  (when (/= (.> state :stage) "parsed") (error! (.. "Cannot transition from "(.> state :stage) " to built")))
-  (when (/= (.> node :def-var) (.> state :var)) (error! "Variables are different"))
+  (when (/= (rs-stage state) "parsed") (error! (.. "Cannot transition from " (rs-stage state) " to built")))
+  (when (/= (.> node :def-var) (rs-var state)) (error! "Variables are different"))
 
-  (.<! state :node node)
-  (.<! state :stage "built"))
+  (set-rs-node! state node)
+  (set-rs-stage! state "built"))
 
 (defun executed! (state value)
   "Mark this STATE as executed, setting the executed VALUE."
-  (when (/= (.> state :stage) "built") (error! (.. "Cannot transition from "(.> state :stage) " to executed")))
+  (when (/= (rs-stage state) "built") (error! (.. "Cannot transition from "(rs-stage state) " to executed")))
 
-  (.<! state :value value)
-  (.<! state :stage "executed"))
+  (set-rs-value! state value)
+  (set-rs-stage! state "executed"))
 
 (defun get! (state)
   "Attempt to get the compiled value of STATE. If this has already been
@@ -89,8 +112,8 @@
    dependencies, scan for macro-dependency loops and execute all required
    states."
 
-  (if (= (.> state :stage) "executed")
-    (.> state :value)
+  (if (= (rs-stage state) "executed")
+    (rs-value state)
 
     (let [(required '())
           (required-set {})]
@@ -103,7 +126,7 @@
                           (cond
                             [idx
                              ;; We've already visited this node, on this current iteration.
-                             (when (= (scope/var-kind (.> state :var)) "macro")
+                             (when (= (scope/var-kind (rs-var state)) "macro")
                                (push-cdr! stack state)
 
                                (let [(states '())
@@ -112,21 +135,21 @@
                                  (for i idx (n stack) 1
                                    (let [(current (nth stack i))
                                          (previous (nth stack (pred i)))]
-                                     (push-cdr! states (scope/var-name (.> current :var)))
+                                     (push-cdr! states (scope/var-name (rs-var current)))
                                      (when previous
-                                       (with (user (.> previous :required-set current))
+                                       (with (user (.> (rs-required-set previous) current))
                                          (unless first-node (set! first-node user))
 
                                          (push-cdr! nodes (range/get-source user))
-                                         (push-cdr! nodes (.. (scope/var-name (.> current :var)) " used in " (scope/var-name (.> previous :var))))))))
+                                         (push-cdr! nodes (.. (scope/var-name (rs-var current)) " used in " (scope/var-name (rs-var previous))))))))
 
-                                 (error/do-node-error! (.> state :logger)
+                                 (error/do-node-error! (rs-logger state)
                                    (.. "Loop in macros " (concat states " -> "))
                                    (range/get-top-source first-node) nil
                                    (splice nodes))))]
 
                             ;; This node has already been executed so we don't need to worry about it.
-                            [(= (.> state :stage) "executed")]
+                            [(= (rs-stage state) "executed")]
                             [true
                              (push-cdr! stack state)
                              (.<! stack-hash state (n stack))
@@ -136,14 +159,14 @@
                                (push-cdr! required state))
 
                              (with (visited {})
-                               (for-each inner (.> state :required)
+                               (for-each inner (rs-required state)
                                  (.<! visited inner true)
                                  (visit inner stack stack-hash))
 
-                               (when (= (.> state :stage) "parsed")
+                               (when (= (rs-stage state) "parsed")
                                  (co/yield { :tag "build" :state state }))
 
-                               (for-each inner (.> state :required)
+                               (for-each inner (rs-required state)
                                  (unless (.> visited inner)
                                    (visit inner stack stack-hash)))
 
@@ -152,10 +175,10 @@
         (visit state '() {}))
 
       (co/yield { :tag "execute" :states required })
-      (.> state :value))))
+      (rs-value state))))
 
 (defun name (state)
   "Get a pretty name for this STATE."
-  (if (.> state :var)
-    (.. "macro " (string/quoted (scope/var-name (.> state :var))))
+  (if (rs-var state)
+    (.. "macro " (string/quoted (scope/var-name (rs-var state))))
     "unquote"))

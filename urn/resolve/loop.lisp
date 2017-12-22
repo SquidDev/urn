@@ -203,9 +203,9 @@
             (logger/put-debug! logger
               (format nil "{} for {} at {} ({})"
                 (type head)
-                (.> head :_state :stage)
+                (state/rs-stage (.> head :_state))
                 (format/format-node (.> head :_node))
-                (if (.> head :_state :var) (scope/var-name (.> head :_state :var)) "?")))
+                (if (state/rs-var (.> head :_state)) (scope/var-name (state/rs-var (.> head :_state))) "?")))
 
             (case (type head)
               ["init"
@@ -225,11 +225,11 @@
               ["build"
                ;; We're waiting another node to finish being resolved.
                ;; If it has then we resume, otherwise we requeue.
-               (if (/= (.> head :state :stage) "parsed")
+               (if (/= (state/rs-stage (.> head :state)) "parsed")
                  (resume head)
                  (progn
                    (logger/put-debug! logger (.. "  Awaiting building of node "
-                                               (if (.> head :state :var) (scope/var-name (.> head :state :var)) "?")))
+                                               (if (state/rs-var (.> head :state)) (scope/var-name (state/rs-var (.> head :state))) "?")))
 
                    (inc! skipped)
                    (push-cdr! queue head)))]
@@ -333,8 +333,8 @@
                (range/get-top-source (or (.> entry :node) (.> entry :_node))) info
                (range/get-source (or (.> entry :node) (.> entry :_node))) ""))]
           ["build"
-           (let [(var (.> entry :state :var))
-                 (node (.> entry :state :node))]
+           (let [(var (state/rs-var (.> entry :state)))
+                 (node (state/rs-node (.> entry :state)))]
              (logger/put-error! logger (.. "Could not build "
                                          (cond
                                            [var (scope/var-name var)]
@@ -346,4 +346,4 @@
 
     (when name (timer/stop-timer! timer name))
 
-    (values-list (map (cut .> <> :node) states) states)))
+    (values-list (map state/rs-node states) states)))

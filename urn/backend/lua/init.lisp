@@ -123,9 +123,9 @@
 
     (for i (n states) 1 -1
       (with (state (nth states i))
-        (unless (= (.> state :stage) "executed")
-          (assert! (.> state :node) (.. "State is in " (.> state :stage) " instead"))
-          (let* [(var (or (.> state :var) (scope/temp-var "temp" (.> state :node))))
+        (unless (= (state/rs-stage state) "executed")
+          (assert! (state/rs-node state) (.. "State is in " (state/rs-stage state) " instead"))
+          (let* [(var (or (state/rs-var state) (scope/temp-var "temp" (state/rs-node state))))
                  (escaped (push-escape-var! var back-state true))
                  (name (scope/var-name var))]
             (push-cdr! state-list state)
@@ -152,11 +152,11 @@
         (for i 1 (n state-list) 1
           (with (state (nth state-list i))
             (expression
-              (.> state :node) out back-state
+              (state/rs-node state) out back-state
 
               ;; If we don't have a variable then we'll assign this to the
               ;; temp variable. Otherwise it will be emitted in the main backend
-              (if (.> state :var)
+              (if (state/rs-var state)
                 ""
                 (..(nth escape-list i) "= ")))
             (w/line! out)))

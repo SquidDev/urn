@@ -543,8 +543,8 @@
                        (task nil)]
 
                   (while (and run (/= (co/status co) "dead"))
-                    (.<! compiler :active-node (.> latest :node))
-                    (.<! compiler :active-scope (.> latest :scope))
+                    (.<! compiler :active-node (state/rs-node latest))
+                    (.<! compiler :active-scope (state/rs-scope latest))
 
                     (with (res (if task
                                  (list (co/resume co))

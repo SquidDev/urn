@@ -97,13 +97,13 @@
            ;; having the same node appearing in multiple macro expansions.
            (for-pairs (k v) node (.<! copy k v))
            (set! node copy))
-         (error/do-node-error! (.> state :logger)
+         (error/do-node-error! (state/rs-logger state)
            (format nil "Invalid node of type {} from {}"
              (type node)
              (format/format-node-source-name source))
            source nil
            (range/source-range source) "")))]
-    [_ (error/do-node-error! (.> state :logger)
+    [_ (error/do-node-error! (state/rs-logger state)
          (format nil "Invalid node of type {} from {}"
            (type node)
            (format/format-node-source-name source))
@@ -120,7 +120,7 @@
      (when (string? (.> node :var))
        (with (var (.> state :compiler :variables (.> node :var)))
          (unless var
-           (error-positions! (.> state :logger) node (.. "Invalid variable key " (string/quoted (.> node :var)) " for " (pretty node))))
+           (error-positions! (state/rs-logger state) node (.. "Invalid variable key " (string/quoted (.> node :var)) " for " (pretty node))))
          (.<! node :var var)))]
     [_])
 
@@ -145,7 +145,7 @@
          ;; TODO: Allow syntax-quoting symbols in parent scope when unquoting.
          (unless (or (scope/scope-top-level? (scope/var-scope (.> node :var)))
                      (scope/scope-builtin?  (scope/var-scope (.> node :var))))
-           (error-positions! (.> state :logger) node (.. "Cannot use non-top level definition '" (scope/var-name (.> node :var)) "' in syntax-quote"))))
+           (error-positions! (state/rs-logger state) node (.. "Cannot use non-top level definition '" (scope/var-name (.> node :var)) "' in syntax-quote"))))
 
        node]
       ["list"
@@ -182,7 +182,7 @@
      ;; Builtin values aren't actually variables, so it doesn't make sense to use these
      ;; in raw expressions.
      (when (= (scope/var-kind (.> node :var)) "builtin")
-       (error-positions! (.> state :logger) node "Cannot have a raw builtin."))
+       (error-positions! (state/rs-logger state) node "Cannot have a raw builtin."))
 
      (state/require! state (.> node :var) node)
      node]
@@ -200,7 +200,7 @@
               ["builtin"
                (cond
                  [(= func (builtin :lambda))
-                  (expect-type! (.> state :logger) (nth node 2) node "list" "argument list")
+                  (expect-type! (state/rs-logger state) (nth node 2) node "list" "argument list")
 
                   (let [(child-scope (scope/child scope))
                         (args (nth node 2))
@@ -208,16 +208,16 @@
 
                     ;; Walk the argument list, verifying they are all symbols, declaring their arguments, etc...
                     (for i 1 (n args) 1
-                      (expect-type! (.> state :logger) (nth args i) args "symbol" "argument")
+                      (expect-type! (state/rs-logger state) (nth args i) args "symbol" "argument")
                       (let* [(arg (nth args i))
                              (name (.> arg :contents))
                              (is-var (= (string/char-at name 1) "&"))]
                         (when is-var
                           (cond
-                            [has-variadic (error-positions! (.> state :logger) args "Cannot have multiple variadic arguments")]
+                            [has-variadic (error-positions! (state/rs-logger state) args "Cannot have multiple variadic arguments")]
                             [(= (n name) 1)
                              ;; We've just got a "&". This doesn't make sense so we'll error.
-                             (error-positions! (.> state :logger) arg
+                             (error-positions! (state/rs-logger state) arg
                                (if (< i (n args))
                                  (with (next-arg (nth args (succ i)))
                                    (if (and (symbol? args) (/= (string/char-at (.> next-arg :contents) 1) "&"))
@@ -228,7 +228,7 @@
                              (set! name (string/sub name 2))
                              (set! has-variadic true)]))
 
-                        (with (var (scope/add-verbose! child-scope name "arg" arg (.> state :logger)))
+                        (with (var (scope/add-verbose! child-scope name "arg" arg (state/rs-logger state)))
                           (scope/set-var-display-name! var (.> arg :display-name))
                           (scope/set-var-variadic! var is-var)
                           (.<! arg :var var))))
@@ -238,8 +238,8 @@
                  [(= func (builtin :cond))
                   (for i 2 (n node) 1
                     (with (case (nth node i))
-                      (expect-type! (.> state :logger) case node "list" "case expression")
-                      (expect! (.> state :logger) (car case) case "condition")
+                      (expect-type! (state/rs-logger state) case node "list" "case expression")
+                      (expect! (state/rs-logger state) (car case) case "condition")
 
                       (.<! case 1 (resolve-node (car case) scope state))
                       (resolve-block case 2 scope state)))
@@ -247,16 +247,16 @@
                   node]
 
                  [(= func (builtin :set!))
-                  (expect-type! (.> state :logger) (nth node 2) node "symbol")
-                  (expect!      (.> state :logger) (nth node 3) node "value")
-                  (max-length!  (.> state :logger) node 3 "set!")
+                  (expect-type! (state/rs-logger state) (nth node 2) node "symbol")
+                  (expect!      (state/rs-logger state) (nth node 3) node "value")
+                  (max-length!  (state/rs-logger state) node 3 "set!")
 
                   (with (var (scope/lookup-always! scope (.> (nth node 2) :contents) (nth node 2)))
                     (state/require! state var (nth node 2))
                     (.<! node 2 :var var)
 
                     (when (scope/var-const? var)
-                      (error-positions! (.> state :logger) node
+                      (error-positions! (state/rs-logger state) node
                         (string/format "Cannot rebind immutable definition '%s'" (.> (nth node 2) :contents))
                         (string/format "Top level definitions are immutable by default. If you want
                                         to redefine '%s', add the `:mutable` modifier to its definition."
@@ -266,26 +266,26 @@
                   node]
 
                  [(= func (builtin :quote))
-                  (expect!     (.> state :logger) (nth node 2) node "value")
-                  (max-length! (.> state :logger) node 2 "quote")
+                  (expect!     (state/rs-logger state) (nth node 2) node "value")
+                  (max-length! (state/rs-logger state) node 2 "quote")
 
                   node]
 
                  [(= func (builtin :syntax-quote))
-                  (expect!     (.> state :logger) (nth node 2) node "value")
-                  (max-length! (.> state :logger) node 2 "syntax-quote")
+                  (expect!     (state/rs-logger state) (nth node 2) node "value")
+                  (max-length! (state/rs-logger state) node 2 "syntax-quote")
 
                   (.<! node 2 (resolve-quote (nth node 2) scope state 1))
                   node]
 
                  [(= func (builtin :unquote))
-                  (expect! (.> state :logger) (nth node 2) node "value")
+                  (expect! (state/rs-logger state) (nth node 2) node "value")
 
                   (let [(result '())
                         (states '())]
 
                     (for i 2 (n node) 1
-                      (let* [(child-state (state/create scope (.> state :compiler)))
+                      (let* [(child-state (state/create scope (state/rs-compiler state)))
                              (built (resolve-node (nth node i) scope child-state))]
 
                         ;; We wrap the child state in a lambda so we can assign errors to a specific
@@ -299,12 +299,12 @@
 
                         (with (func (state/get! child-state))
                           ;; Setup the compiler state before executing.
-                          (.<! state :compiler :active-scope scope)
-                          (.<! state :compiler :active-node  built)
+                          (.<! (state/rs-compiler state) :active-scope scope)
+                          (.<! (state/rs-compiler state) :active-node  built)
 
                           (case (list (xpcall func traceback/traceback))
                             [(false ?msg)
-                             (error-positions! (.> state :logger) node (traceback/remap-traceback (.> state :mappings) msg))]
+                             (error-positions! (state/rs-logger state) node (traceback/remap-traceback (state/rs-mappings state) msg))]
                             [(true . ?replacement)
                              (cond
                                [(= i (n node))
@@ -314,7 +314,7 @@
                                [(= (n replacement) 1)
                                 (push-cdr! result (car replacement))
                                 (push-cdr! states child-state)]
-                               [true (error-positions! (.> state :logger) (nth node i) (.. "Expected one value, got " (n replacement)))])]))))
+                               [true (error-positions! (state/rs-logger state) (nth node i) (.. "Expected one value, got " (n replacement)))])]))))
 
                     (when (or (= (n result) 0) (and (= (n result) 1) (= (car result) nil)))
                       (set! result (list { :tag "symbol"
@@ -331,11 +331,11 @@
                        (.<! result :tag "many")
                        result]
                       [true
-                       (error-positions! (.> state :logger) node "Multiple values returned in a non block context")]))]
+                       (error-positions! (state/rs-logger state) node "Multiple values returned in a non block context")]))]
                  [(= func (builtin :unquote-splice))
-                  (max-length! (.> state :logger) node 2 "unquote-splice")
+                  (max-length! (state/rs-logger state) node 2 "unquote-splice")
 
-                  (let* [(child-state (state/create scope (.> state :compiler)))
+                  (let* [(child-state (state/create scope (state/rs-compiler state)))
                          (built (resolve-node (nth node 2) scope child-state))]
 
                     ;; We wrap the node in a lambda in order to correctly associate
@@ -349,16 +349,16 @@
 
                     (with (func (state/get! child-state))
                       ;; Setup the compiler state before executing.
-                      (.<! state :compiler :active-scope scope)
-                      (.<! state :compiler :active-node  built)
+                      (.<! (state/rs-compiler state) :active-scope scope)
+                      (.<! (state/rs-compiler state) :active-node  built)
 
                       (case (list (xpcall func traceback/traceback))
                         [(false ?msg)
-                         (error-positions! (.> state :logger) node (traceback/remap-traceback (.> state :mappings) msg))]
+                         (error-positions! (state/rs-logger state) node (traceback/remap-traceback (state/rs-mappings state) msg))]
                         [(true . ?replacement)
                          (with (result (car replacement))
                            (unless (list? result)
-                             (error-positions! (.> state :logger) node (.. "Expected list from unquote-splice, got '" (type result) "'")))
+                             (error-positions! (state/rs-logger state) node (.. "Expected list from unquote-splice, got '" (type result) "'")))
 
                            (when (= (n result) 0)
                              (set! result (list { :tag "symbol"
@@ -376,53 +376,53 @@
                               (.<! result :tag "many")
                               result]
                              [true
-                              (error-positions! (.> state :logger) node "Multiple values returned in a non-block context")]))])))]
+                              (error-positions! (state/rs-logger state) node "Multiple values returned in a non-block context")]))])))]
 
                  [(= func (builtin :define))
                   (unless root
-                    (error-positions! (.> state :logger) first "define can only be used on the top level"))
-                  (expect-type! (.> state :logger) (nth node 2) node "symbol" "name")
-                  (expect!      (.> state :logger) (nth node 3) node "value")
+                    (error-positions! (state/rs-logger state) first "define can only be used on the top level"))
+                  (expect-type! (state/rs-logger state) (nth node 2) node "symbol" "name")
+                  (expect!      (state/rs-logger state) (nth node 3) node "value")
 
-                  (with (var (scope/add-verbose! scope (.> (nth node 2) :contents) "defined" node (.> state :logger)))
+                  (with (var (scope/add-verbose! scope (.> (nth node 2) :contents) "defined" node (state/rs-logger state)))
                     (scope/set-var-display-name! var (.> (nth node 2) :display-name))
                     (state/define! state var)
                     (.<! node :def-var var)
 
-                    (handle-metadata (.> state :logger) node var 3 (pred (n node)))
+                    (handle-metadata (state/rs-logger state) node var 3 (pred (n node)))
                     (.<! node (n node) (resolve-node (nth node (n node)) scope state))
                     node)]
 
                  [(= func (builtin :define-macro))
                   (unless root
-                    (error-positions! (.> state :logger) first "define-macro can only be used on the top level"))
-                  (expect-type! (.> state :logger) (nth node 2) node "symbol" "name")
-                  (expect!      (.> state :logger) (nth node 3) node "value")
+                    (error-positions! (state/rs-logger state) first "define-macro can only be used on the top level"))
+                  (expect-type! (state/rs-logger state) (nth node 2) node "symbol" "name")
+                  (expect!      (state/rs-logger state) (nth node 3) node "value")
 
-                  (with (var (scope/add-verbose! scope (.> (nth node 2) :contents) "macro" node (.> state :logger)))
+                  (with (var (scope/add-verbose! scope (.> (nth node 2) :contents) "macro" node (state/rs-logger state)))
                     (scope/set-var-display-name! var (.> (nth node 2) :display-name))
                     (state/define! state var)
                     (.<! node :def-var var)
 
-                    (handle-metadata (.> state :logger) node var 3 (pred (n node)))
+                    (handle-metadata (state/rs-logger state) node var 3 (pred (n node)))
                     (.<! node (n node) (resolve-node (nth node (n node)) scope state))
                     node)]
 
                  [(= func (builtin :define-native))
                   (unless root
-                    (error-positions! (.> state :logger) first "define-native can only be used on the top level"))
+                    (error-positions! (state/rs-logger state) first "define-native can only be used on the top level"))
 
-                  (expect-type! (.> state :logger) (nth node 2) node "symbol" "name")
-                  (with (var (scope/add-verbose! scope (.> (nth node 2) :contents) "native" node (.> state :logger)))
+                  (expect-type! (state/rs-logger state) (nth node 2) node "symbol" "name")
+                  (with (var (scope/add-verbose! scope (.> (nth node 2) :contents) "native" node (state/rs-logger state)))
                     (scope/set-var-display-name! var (.> (nth node 2) :display-name))
                     (state/define! state var)
                     (.<! node :def-var var)
 
-                    (handle-metadata (.> state :logger) node var 3 (n node))
+                    (handle-metadata (state/rs-logger state) node var 3 (n node))
                     node)]
 
                  [(= func (builtin :import))
-                  (expect-type! (.> state :logger) (nth node 2) node "symbol" "module name")
+                  (expect-type! (state/rs-logger state) (nth node 2) node "symbol" "module name")
 
                   (let [(as nil)
                         (symbols nil)
@@ -445,7 +445,7 @@
                          (progn
                            (set! symbols {})
                            (for-each entry qualifier
-                             (expect-type! (.> state :logger) entry qualifier "symbol")
+                             (expect-type! (state/rs-logger state) entry qualifier "symbol")
                              (.<! symbols (.> entry :contents) entry))))]
                       ["nil"
                        ;; (import x)
@@ -459,47 +459,47 @@
 
                        (set! as (.> (nth node 2) :contents))
                        (set! symbols nil)]
-                      [_ (expect-type! (.> state :logger) (nth node 3) node "symbol" "alias name of import list")])
+                      [_ (expect-type! (state/rs-logger state) (nth node 3) node "symbol" "alias name of import list")])
 
 
-                    (max-length! (.> state :logger) node export-idx "import")
+                    (max-length! (state/rs-logger state) node export-idx "import")
                     (co/yield { :tag     "import"
                                 :module  (.> (nth node 2) :contents)
                                 :as      as
                                 :symbols symbols
                                 :export  (with (export (nth node export-idx))
                                            (and export (progn
-                                                         (expect-type! (.> state :logger) export node "key" "import modifier")
+                                                         (expect-type! (state/rs-logger state) export node "key" "import modifier")
                                                          (case (.> export :value)
                                                            ["export" true]
-                                                           [_ (error-positions! (.> state :logger) export "unknown import modifier")]))))
+                                                           [_ (error-positions! (state/rs-logger state) export "unknown import modifier")]))))
                                 :scope   scope })
                     node)]
 
                  [(= func (builtin :struct-literal))
                   (when (/= (mod (n node) 2) 1)
-                    (error-positions! (.> state :logger) node (.. "Expected an even number of arguments, got " (pred (n node)))))
+                    (error-positions! (state/rs-logger state) node (.. "Expected an even number of arguments, got " (pred (n node)))))
                   (resolve-list node 2 scope state)]
 
                  [true
-                  (error-internal! (.> state :logger) node (.. "Unknown builtin " (if func (scope/var-name func) "?")))])]
+                  (error-internal! (state/rs-logger state) node (.. "Unknown builtin " (if func (scope/var-name func) "?")))])]
 
               ["macro"
-               (unless func-state (error-internal! (.> state :logger) first "Macro is not defined correctly"))
+               (unless func-state (error-internal! (state/rs-logger state) first "Macro is not defined correctly"))
 
                (with (builder (state/get! func-state))
                  (when (/= (type builder) "function")
-                   (error-positions! (.> state :logger) first (.. "Macro is of type " (type builder))))
+                   (error-positions! (state/rs-logger state) first (.. "Macro is of type " (type builder))))
 
                  ;; Set up the active scope and node
-                 (.<! state :compiler :active-scope scope)
-                 (.<! state :compiler :active-node  node)
+                 (.<! (state/rs-compiler state) :active-scope scope)
+                 (.<! (state/rs-compiler state) :active-node  node)
 
                  ;; Execute the macro
                  (case (list (xpcall (lambda () (apply builder (cdr node))) traceback/traceback))
                    ;; The macro failed so remap the traceback and error
                    [(false ?msg)
-                    (error-positions! (.> state :logger) first (traceback/remap-traceback (.> state :mappings) msg))]
+                    (error-positions! (state/rs-logger state) first (traceback/remap-traceback (state/rs-mappings state) msg))]
 
                    ;; The macro worked, we'll gather the output and continue.
                    [(true . ?replacement)
@@ -509,20 +509,20 @@
 
                     (cond
                       [(= (n replacement) 0)
-                       (error-positions! (.> state :logger) node (.. "Expected some value from " (state/name func-state) ", got nothing"))]
+                       (error-positions! (state/rs-logger state) node (.. "Expected some value from " (state/name func-state) ", got nothing"))]
                       [(= (n replacement) 1) (resolve-node (car replacement) scope state root many)]
                       [many
                        (.<! replacement :tag "many")
                        replacement]
                       [true
-                       (error-positions! (.> state :logger) node "Multiple values returned in a non-block context.")])]))]
+                       (error-positions! (state/rs-logger state) node "Multiple values returned in a non-block context.")])]))]
 
 
               ;; We're defined/arg/native so just resolve as normal
               [_ (resolve-list node 1 scope state)]))]
          ["list"
           (resolve-list node 1 scope state)]
-         [?ty (error-positions! (.> state :logger) (or first node) (.. "Cannot invoke a non-function type '" ty "'"))]))]))
+         [?ty (error-positions! (state/rs-logger state) (or first node) (.. "Cannot invoke a non-function type '" ty "'"))]))]))
 
 (defun resolve-list (nodes start scope state)
   "Resolve NODES in the given SCOPE and STATE, starting from START"
