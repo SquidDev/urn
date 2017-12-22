@@ -111,6 +111,54 @@
    ```"
   (= (sub str (- 0 (len# suffix))) suffix))
 
+(defun string->bytes (str)
+  "Convert a string to a list of character bytes.
+
+   ### Example:
+   ```cl
+   > (string->bytes \"Hello\")
+   out = (72 101 108 108 111)
+   ```"
+  (let* [(len (len# str))
+         (out { :tag "list" :n len })]
+    ;; Note this implementation isn't idiomatic Urn, but is more efficient.
+    ;; It's a core library so it's not too big a deal.
+    (for i 1 len 1 (set-idx! out i (byte str i)))
+    out))
+
+(defun string->chars (str)
+  "Convert a string to a list of characters.
+
+   ### Example:
+   ```cl
+   > (string->chars \"Hello\")
+   out = (\"H\" \"e\" \"l\" \"l\" \"o\")
+   ```"
+  (let* [(len (len# str))
+         (out { :tag "list" :n len })]
+    (for i 1 len 1 (set-idx! out i (char-at str i)))
+    out))
+
+(defun bytes->string (bytes)
+  "Convert a list of BYTES to a string.
+
+   ### Example:
+   ```cl
+   > (bytes->string '(72 101 108 108 111))
+   out = \"Hello\"
+   ```"
+  (concat (list/map char bytes)))
+
+(defun chars->string (chars)
+  "Convert a list of CHARS to a string.
+
+   ### Example:
+   ```cl
+   > (chars->string '(\"H\" \"e\" \"l\" \"l\" \"o\"))
+   out = \"Hello\"
+   ```"
+  (concat chars "" 1 (n chars)))
+
 (defun display (x) :hidden
   (cond
     [(= (type# x) "string") x]

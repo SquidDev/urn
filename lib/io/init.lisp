@@ -38,14 +38,7 @@
    > (read-bytes! \"tests/data/abc.txt\")
    out = (97 98 99)
    ```"
-  (when-with (data (read-all-mode! path true))
-    (letrec [(string->bytes (str idx)
-               (if (> idx (n str))
-                 `()
-                 (cons (string/byte str idx)
-                       (string->bytes str (+ idx 1)))))]
-      (string->bytes data 1 `()))))
-
+  (string/string->bytes (read-all-mode! path true)))
 
 (defun write-all-mode! (path append binary data) :hidden
   (with (handle (open path (.. (if append "a" "w") (if binary "b" ""))))
@@ -93,12 +86,7 @@
    > (write-bytes! \"tests/data/abc_.txt\" `(97 98 99))
    out = true
    ```"
-  (letrec [(bytes->string (bytes idx)
-             (if (> idx (n bytes))
-               `()
-               (cons (string/char (nth bytes idx))
-                     (bytes->string bytes (+ idx 1)))))]
-    (write-all-mode! path false true (concat (bytes->string data 1)))))
+  (write-all-mode! path false true (string/bytes->string data)))
 
 (defun append-all! (path data)
   "Appends the string DATA to the file at PATH.
@@ -136,9 +124,4 @@
    > (append-bytes! \"tests/data/abc_.txt\" `(100 101 102))
    out = true
    ```"
-  (letrec [(bytes->string (bytes idx)
-             (if (> idx (n bytes))
-               `()
-               (cons (string/char (nth bytes idx))
-                     (bytes->string bytes (+ idx 1)))))]
-    (write-all-mode! path true true (concat (bytes->string data 1)))))
+  (write-all-mode! path true true (string/bytes->string data)))
