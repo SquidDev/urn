@@ -42,12 +42,25 @@
 
 (defun write-all-mode! (path append binary data) :hidden
   (with (handle (open path (.. (if append "a" "w") (if binary "b" ""))))
-    (if handle
-      (progn
-        (self handle :write data)
-        (self handle :close)
-        true)
-      false)))
+    (cond
+      [handle
+       (self handle :write data)
+       (self handle :close)
+       true]
+      [else false])))
+
+(defun write-all-bytes-mode! (path append data) :hidden
+  (with (handle (open path (if append "ab" "wb")))
+    (cond
+      [handle
+       ;; Appending each byte at a time ends up being faster than generating
+       ;; a string and appending it.
+       (with (write (.> handle :write))
+         (for-each byte data
+           (write handle (string/char byte))))
+       (self handle :close)
+       true]
+      [else false])))
 
 (defun write-all! (path data)
   "Writes the string DATA to the file at PATH.
@@ -86,7 +99,7 @@
    > (write-bytes! \"tests/data/abc_.txt\" `(97 98 99))
    out = true
    ```"
-  (write-all-mode! path false true (string/bytes->string data)))
+  (write-all-bytes-mode! path false data))
 
 (defun append-all! (path data)
   "Appends the string DATA to the file at PATH.
@@ -124,4 +137,4 @@
    > (append-bytes! \"tests/data/abc_.txt\" `(100 101 102))
    out = true
    ```"
-  (write-all-mode! path true true (string/bytes->string data)))
+  (write-all-bytes-mode! path true data))
