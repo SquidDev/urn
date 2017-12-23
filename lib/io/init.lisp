@@ -116,7 +116,7 @@
 (defun append-bytes! (path data)
   "Appends the bytes (list of numbers) DATA to the file at PATH.
 
-   Rreates a new file if it doesn't exist. Returns true if it succeeded
+   Creates a new file if it doesn't exist. Returns true if it succeeded
    or false if it failed.
 
    ### Example

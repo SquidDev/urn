@@ -8,7 +8,7 @@
   "A rational number, represented as a tuple of numerator and denominator."
   (fields
     (immutable numerator numerator "The rational's numerator")
-    (immutable denominator denominator "The rational's denumerator"))
+    (immutable denominator denominator "The rational's denominator"))
   (constructor new
     (lambda (n d)
       (unless (and (number? n)
