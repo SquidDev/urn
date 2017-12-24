@@ -104,10 +104,14 @@
                             [(not scp) nil]
                             [(scope/scope-top-level? scp) scp]
                             [else (recur (scope/scope-parent scp))])))
-      :scope-vars     (lambda (scp)
-                        (if (not scp)
-                          (.> (active-scope) :variables)
-                          (.> scp :variables)))
+      :scope-vars     (lambda (scope)
+                        (unless scope (set! scope (active-scope)))
+                        (assert-type! scope scope)
+                        (scope/scope-variables scope))
+      :scope-exported (lambda (scope)
+                        (unless scope (set! scope (active-scope)))
+                        (assert-type! scope scope)
+                        (scope/scope-exported scope))
       :var-lookup     (lambda (symb scope)
                         (assert-type! symb symbol)
                         (when (= (active-node) nil) (error! "Not currently resolving"))
