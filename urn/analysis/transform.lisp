@@ -1,4 +1,4 @@
-(import urn/analysis/nodes (builtins builtin? zip-args))
+(import urn/analysis/nodes (builtin builtin? zip-args))
 (import urn/analysis/pass ())
 (import urn/analysis/tag/usage usage)
 (import urn/logger logger)
@@ -81,13 +81,13 @@
                             (for i 1 (n node) 1
                               (.<! node i (transform-node (nth node i))))]
 
-                           [(= func (.> builtins :lambda))
+                           [(= func (builtin :lambda))
                             (for-each visitor pre-block (visitor node 3))
                             (for i 3 (n node) 1
                               (.<! node i (transform-node (nth node i))))
                             (for-each visitor post-block (visitor node 3))]
 
-                           [(= func (.> builtins :cond))
+                           [(= func (builtin :cond))
                             (for i 2 (n node) 1
                               (with (branch (nth node i))
                                 (.<! branch 1 (transform-node (nth branch 1)))
@@ -99,21 +99,21 @@
 
                            ;; When iterating over set!, make sure to replace the definition with the
                            ;; new one. As this is an expensive operation, we only do this if changed.
-                           [(= func (.> builtins :set!))
+                           [(= func (builtin :set!))
                             (let* [(old (nth node 3))
                                    (new (transform-node old))]
                               (when (/= old new)
                                 (usage/replace-definition! lookup (.> (nth node 2) :var) old "val" new)
                                 (.<! node 3 new)))]
 
-                           [(= func (.> builtins :quote))]
+                           [(= func (builtin :quote))]
 
-                           [(= func (.> builtins :syntax-quote)) (.<! node 2 (transform-quote (nth node 2) 1))]
+                           [(= func (builtin :syntax-quote)) (.<! node 2 (transform-quote (nth node 2) 1))]
 
-                           [(or (= func (.> builtins :unquote)) (= func (.> builtins :unquote-splice)))
+                           [(or (= func (builtin :unquote)) (= func (builtin :unquote-splice)))
                             (fail! "unquote/unquote-splice should never appear head")]
 
-                           [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
+                           [(or (= func (builtin :define)) (= func (builtin :define-macro)))
                             (let* [(len (n node))
                                    (old (nth node len))
                                    (new (transform-node old))]
@@ -121,9 +121,9 @@
                                 (usage/replace-definition! lookup (.> node :def-var) old "val" new)
                                 (.<! node len new)))]
 
-                           [(= func (.> builtins :define-native))]
-                           [(= func (.> builtins :import))]
-                           [(= func (.> builtins :struct-literal))
+                           [(= func (builtin :define-native))]
+                           [(= func (builtin :import))]
+                           [(= func (builtin :struct-literal))
                             (for i 1 (n node) 1
                               (.<! node i (transform-node (nth node i))))]
                            [else (fail! (.. "Unknown variable " (scope/var-name func)))]))]

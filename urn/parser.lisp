@@ -46,14 +46,14 @@
     pos nil
     pos "Invalid digit here"))
 
-(defun eof-error! (context tokens logger msg node explain &lines)
+(defun eof-error! (context tokens logger msg source explain &lines)
   "A variation of [[error/do-node-error!]], used when we've reached the
    end of the file. If CONTEXT is truthy, then a \"resumable\" error will
    be thrown instead."
   :hidden
   (if context
     (fail! { :msg msg :context context :tokens tokens })
-    (apply error/do-node-error! logger msg node explain lines)))
+    (apply error/do-node-error! logger msg source explain lines)))
 
 (defun lex (logger str name cont)
   "Lex STR from a file called NAME, returning a series of tokens. If CONT
@@ -85,7 +85,7 @@
          (append-with! (lambda (data start finish)
                          (let [(start (or start (position)))
                                (finish (or finish (position)))]
-                           (.<! data :range (range start finish))
+                           (.<! data :source (range start finish))
                            (.<! data :contents (string/sub str (pos-offset start) (pos-offset finish)))
                            (push-cdr! out data))))
          ;; Appends a token to the list
@@ -254,8 +254,8 @@
                            (range dom-start dom-end) "There should be at least one number after the division symbol."))
 
                        (append-with! { :tag "rational"
-                                       :num { :tag "number" :value num :range (range start num-end) }
-                                       :dom { :tag "number" :value dom :range (range dom-start dom-end) } } start)))]
+                                       :num { :tag "number" :value num :source (range start num-end) }
+                                       :dom { :tag "number" :value dom :source (range dom-start dom-end) } } start)))]
 
                   ;; Decimal support
                   [else
@@ -487,7 +487,7 @@
         ;; parse errors due to mismatched parentheses.
         ;; To do this we store a reference to the first node on the previous line and check if the indent is different.
         (let [(previous (.> head :last-node))
-              (tok-pos (.> tok :range))]
+              (tok-pos (.> tok :source))]
           ;; This catches a couple of trivial cases:
           ;;  - Closing parentheses. As lisp doesn't use C style indentation for brackets, the closing one will be on a
           ;;    different line.
@@ -495,11 +495,11 @@
           ;;  - Nested parentheses on the same line (such as (foo (+ 2 3))). Obviously we want to ignore these as the
           ;;    indent will be different.
           (when (and (/= tag "eof") (/= tag "close")
-                     (if (.> head :range)
-                       (/= (pos-line (range-start tok-pos)) (pos-line (range-start (.> head :range))))
+                     (if (.> head :source)
+                       (/= (pos-line (range-start tok-pos)) (pos-line (range-start (.> head :source))))
                        true))
             (if previous
-              (with (prev-pos (.> previous :range))
+              (with (prev-pos (.> previous :source))
                 (when (/= (pos-line (range-start tok-pos)) (pos-line (range-start prev-pos)))
                   ;; We're on a different line so update the previous node to be this one.
                   (.<! head :last-node tok)
@@ -507,7 +507,7 @@
                   (when (/= (pos-column (range-start tok-pos)) (pos-column (range-start prev-pos)))
                     (logger/put-node-warning! logger
                       "Different indent compared with previous expressions."
-                      tok
+                      (.> tok :source)
                       "You should try to maintain consistent indentation across a program,
                        try to ensure all expressions are lined up.
                        If this looks OK to you, check you're not missing a closing ')'."
@@ -522,67 +522,67 @@
           [(= tag "interpolate")
            (append! { :tag "list"
                       :n 2
-                      :range (.> tok :range)
+                      :source (.> tok :source)
                       1 { :tag "symbol"
                           :contents "$"
-                          :range (range-of-start (.> tok :range)) }
+                          :source (range-of-start (.> tok :source)) }
                       2 { :tag "string"
                           :value (.> tok :value)
-                          :range (.> tok :range) } })]
+                          :source (.> tok :source) } })]
           [(= tag "rational")
            (append! { :tag "list"
                       :n 3
-                      :range (.> tok :range)
+                      :source (.> tok :source)
                       1 { :tag "symbol"
                           :contents "rational"
-                          :range (.> tok :range) }
+                          :source (.> tok :source) }
                       2 (.> tok :num)
                       3 (.> tok :dom) })]
           [(= tag "open")
            (push!)
            (.<! head :open (.> tok :contents))
            (.<! head :close (.> tok :close))
-           (.<! head :range (.> tok :range))]
+           (.<! head :source (.> tok :source))]
           [(= tag "open-struct")
            (push!)
            (.<! head :open (.> tok :contents))
            (.<! head :close (.> tok :close))
-           (.<! head :range (.> tok :range))
+           (.<! head :source (.> tok :source))
            (append! { :tag      "symbol"
                       :contents "struct-literal"
-                      :range    (.> head :range) })]
+                      :source    (.> head :source) })]
           [(= tag "close")
            (cond
              [(empty? stack)
               ;; Unmatched closing bracket.
               (error/do-node-error! logger
                 (string/format "'%s' without matching '%s'" (.> tok :contents) (.> tok :open))
-                tok nil
+                (.> tok :source) nil
                 (get-source tok) "")]
              [(.> head :auto-close)
               ;; Attempting to close a quote
               (error/do-node-error! logger
                 (string/format "'%s' without matching '%s' inside quote" (.> tok :contents) (.> tok :open))
-                tok nil
-                (.> head :range) "quote opened here"
-                (.> tok :range)  "attempting to close here")]
+                (.> tok :source) nil
+                (.> head :source) "quote opened here"
+                (.> tok :source)  "attempting to close here")]
              [(/= (.> head :close) (.> tok :contents))
               ;; Mismatched brackets
               (error/do-node-error! logger
                 (string/format "Expected '%s', got '%s'" (.> head :close) (.> tok :contents))
-                tok nil
-                (.> head :range) (string/format "block opened with '%s'" (.> head :open))
-                (.> tok :range) (string/format "'%s' used here" (.> tok :contents)))]
+                (.> tok :source) nil
+                (.> head :source) (string/format "block opened with '%s'" (.> head :open))
+                (.> tok :source) (string/format "'%s' used here" (.> tok :contents)))]
              [true
                ;; All OK!
-               (.<! head :range (range-of-span (.> head :range) (.> tok :range)))
+               (.<! head :source (range-of-span (.> head :source) (.> tok :source)))
                (pop!)])]
           [(or (= tag "quote") (= tag "unquote") (= tag "syntax-quote") (= tag "unquote-splice") (= tag "quasiquote"))
            (push!)
-           (.<! head :range (.> tok :range))
+           (.<! head :source (.> tok :source))
            (append! { :tag      "symbol"
                       :contents tag
-                      :range    (.> tok :range) })
+                      :source    (.> tok :source) })
 
            (set! auto-close true)
            (.<! head :auto-close true)]
@@ -590,18 +590,18 @@
            (when (/= 0 (n stack))
              (eof-error! (and cont "list") toks logger
                (string/format "Expected '%s', got 'eof'" (.> head :close))
-               tok nil
-               (.> head :range) "block opened here"
-               (.> tok :range)  "end of file here"))]
+               (.> tok :source) nil
+               (.> head :source) "block opened here"
+               (.> tok :source)  "end of file here"))]
           [else (error! (.. "Unsupported type " tag))])
         (unless auto-close
           (while (.> head :auto-close)
             (when (empty? stack)
               (error/do-node-error! logger
                 (string/format "'%s' without matching '%s'" (.> tok :contents) (.> tok :open))
-                tok nil
+                (.> tok :source) nil
                 (get-source tok) ""))
-            (.<! head :range (range-of-span (.> head :range) (.> tok :range)))
+            (.<! head :source (range-of-span (.> head :source) (.> tok :source)))
             (pop!)))))
     head))
 

@@ -1,6 +1,5 @@
-(import urn/analysis/nodes (builtins builtin-vars))
-(import urn/logger/helpers (format-node))
-(import urn/range range)
+(import urn/logger/format format)
+(import urn/resolve/builtins (builtin builtin-var?))
 (import urn/resolve/scope scope)
 
 (define keywords
@@ -94,10 +93,10 @@
 
 (defun escape-var (var state)
   "Escape a variable VAR, which has already been escaped."
-  (if (.> builtin-vars var)
+  (if (builtin-var? var)
     (scope/var-name var)
     (with (esc (.> state :var-lookup var))
       (unless esc (format 1 "{:id} hs not been escaped (at {:id})"
                             (scope/var-name var)
-                            (if (scope/var-node var) (format-node (scope/var-node var)) "?")))
+                            (if (scope/var-node var) (format/format-node (scope/var-node var)) "?")))
       esc)))

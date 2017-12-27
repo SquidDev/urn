@@ -1,7 +1,7 @@
 "Defines various methods for gathering and tracking definitions and
  usages of all variables in the program."
 
-(import urn/analysis/nodes (side-effect? builtins builtin? make-nil zip-args))
+(import urn/analysis/nodes (side-effect? builtin builtin? make-nil zip-args))
 (import urn/analysis/pass (defpass))
 (import urn/resolve/scope scope)
 
@@ -128,23 +128,23 @@
                             (for i 1 (n node) 1 (visit-node (nth node i)))]
 
                            ;; First the simple structures, where there is no default definition.
-                           [(= func (.> builtins :lambda))
+                           [(= func (builtin :lambda))
                             (for-each arg (nth node 2)
                               (add-definition! state (.> arg :var) arg "var" (.> arg :var)))
                             (for i 3 (n node) 1 (visit-node (nth node i)))]
 
-                           [(= func (.> builtins :define-native))
+                           [(= func (builtin :define-native))
                             (add-definition! state (.> node :def-var) node "var" (.> node :def-var))]
 
                            ;; Now consider definitions which are "lazy"
-                           [(= func (.> builtins :set!))
+                           [(= func (builtin :set!))
                             (let [(var (.> (nth node 2) :var))
                                   (val (nth node 3))]
                               (add-definition! state var node "val" val)
                               (when (or (visit? val var node) (add-lazy-def! var val))
                                 (visit-node val)))]
 
-                           [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
+                           [(or (= func (builtin :define)) (= func (builtin :define-macro)))
                             (let [(var (.> node :def-var))
                                   (val (last node))]
                               (add-definition! state var node "val" val)
@@ -152,13 +152,13 @@
                                 (visit-node val)))]
 
                            ;; Normal traversal functions where we don't do usage-specific things
-                           [(= func (.> builtins :cond))
+                           [(= func (builtin :cond))
                             (for i 2 (n node) 1
                               (for-each child (nth node i) (visit-node child)))]
-                           [(= func (.> builtins :quote))]
-                           [(= func (.> builtins :syntax-quote)) (visit-quote (nth node 2) 1)]
-                           [(= func (.> builtins :import))]
-                           [(= func (.> builtins :struct-literal))
+                           [(= func (builtin :quote))]
+                           [(= func (builtin :syntax-quote)) (visit-quote (nth node 2) 1)]
+                           [(= func (builtin :import))]
+                           [(= func (builtin :struct-literal))
                             (for i 2 (n node) 1 (visit-node (nth node i)))]
 
                            [else (fail! (.. "Unhandled variable " (scope/var-name func)))]))]

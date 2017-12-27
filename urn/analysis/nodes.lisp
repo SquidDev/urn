@@ -1,11 +1,11 @@
-(import urn/resolve/builtins (builtins builtin-vars) :export)
+(import urn/resolve/builtins (builtin) :export)
 (import urn/resolve/scope scope)
 
 (import lua/basic (type#))
 
 (defun builtin? (node name)
   "Determine whether NODE is builtin NAME."
-  (and (symbol? node) (= (.> node :var) (.> builtins name))))
+  (and (symbol? node) (= (.> node :var) (builtin name))))
 
 (defun side-effect? (node)
   "Checks if NODE has a side effect"
@@ -22,10 +22,10 @@
                ;; If we're calling a non-builtin symbol, then assume it has a side effect.
                [(/= (scope/var-kind var) "builtin") true]
                ;; Lambdas and quotes obviously have no side-effect.
-               [(= var (.> builtins :lambda)) false]
-               [(= var (.> builtins :quote)) false]
+               [(= var (builtin :lambda)) false]
+               [(= var (builtin :quote)) false]
                ;; struct-literal has no side effect if empty.
-               [(= var (.> builtins :struct-literal)) (/= (n node) 1)]
+               [(= var (builtin :struct-literal)) (/= (n node) 1)]
                ;; Otherwise, assume it'll do something
                [else true]))))])))
 
@@ -46,8 +46,8 @@
     (case ty
       ["string"  {:tag "string" :value val}]
       ["number"  {:tag "number" :value val}]
-      ["nil"     {:tag "symbol" :contents "nil" :var (.> builtins :nil)}]
-      ["boolean" {:tag "symbol" :contents (bool->string val) :var (.> builtins (bool->string val))}])))
+      ["nil"     {:tag "symbol" :contents "nil" :var (builtin :nil)}]
+      ["boolean" {:tag "symbol" :contents (bool->string val) :var (builtin (bool->string val))}])))
 
 (defun urn->bool (node)
   "Attempt to get the boolean value of NODE.
@@ -57,15 +57,15 @@
     [(or (string? node) (key? node) (number? node)) true]
     [(symbol? node)
      (cond
-       [(= (.> builtins :true)  (.> node :var)) true]
-       [(= (.> builtins :false) (.> node :var)) false]
-       [(= (.> builtins :nil)   (.> node :var)) false]
+       [(= (builtin :true)  (.> node :var)) true]
+       [(= (builtin :false) (.> node :var)) false]
+       [(= (builtin :nil)   (.> node :var)) false]
        [else nil])]
     [else nil]))
 
 (defun make-progn (body)
   "Allow using BODY as an expression."
-  `((,(make-symbol (.> builtins :lambda)) () ,@body)))
+  `((,(make-symbol (builtin :lambda)) () ,@body)))
 
 (defun make-symbol (var)
   "Make a symbol referencing VAR."
@@ -80,7 +80,7 @@
 
 (define make-nil
   "Make a NIL constant."
-  (cute make-symbol (.> builtins :nil)))
+  (cute make-symbol (builtin :nil)))
 
 (defun simple-binding? (node)
   "Determine whether NODE is a simple binding. Namely, it is a directly
@@ -102,10 +102,10 @@
             ;; Non-builtin functions will "always" return multiple values.
             [(/= (scope/var-kind func) "builtin") false]
             ;; Various literals will just return a single value
-            [(= func (.> builtins :lambda)) true]
-            [(= func (.> builtins :struct-literal)) true]
-            [(= func (.> builtins :quote)) true]
-            [(= func (.> builtins :syntax-quote)) true]
+            [(= func (builtin :lambda)) true]
+            [(= func (builtin :struct-literal)) true]
+            [(= func (builtin :quote)) true]
+            [(= func (builtin :syntax-quote)) true]
             ;; Otherwise just assume it returns multiple values
             [else false]))
         false))))

@@ -2,7 +2,7 @@
 (import lua/package package)
 
 (defun coloured-ansi (col msg)
-  "Color a string MSG coloured with COL, using ANSI escape codes"
+  "Colour a string MSG coloured with COL, using ANSI escape codes"
   :hidden
   (.. "\27[" col "m" msg "\27[0m"))
 
@@ -22,5 +22,5 @@
       [else false])))
 
 (define coloured
-  "Color a string MSG using COL if supported under the current terminal"
+  "Colour a string MSG using COL if supported under the current terminal"
   (if coloured? coloured-ansi (lambda (_ msg) msg)))

@@ -20,10 +20,8 @@
 
   (let* [(prefix (.> args :gen-native))
          (lib (.> compiler :lib-cache (last (.> args :input))))
-         (escaped (if (string? prefix) (escape (last (string/split (library-name lib) "/"))) nil))
          (max-name 0)
          (max-quot 0)
-         (max-pref 0)
          (natives '())]
     (for-each node (library-nodes lib)
       (when (and (list? node) (symbol? (car node)) (= (.> (car node) :contents) "define-native"))
@@ -31,8 +29,7 @@
           (push-cdr! natives name)
 
           (set! max-name (math/max max-name (n (string/quoted name))))
-          (set! max-quot (math/max max-quot (n (string/quoted (dot-quote prefix name)))))
-          (set! max-pref (math/max max-pref (n (dot-quote escaped name)))))))
+          (set! max-quot (math/max max-quot (n (string/quoted (dot-quote prefix name))))))))
 
     (sort! natives)
 
@@ -42,22 +39,16 @@
                      (number->string (+ max-name 3))
                      "s { tag = \"var\", contents = %-"
                      (number->string (succ max-quot))
-                     "s value = %-"
-                     (number->string (succ max-pref))
                      "s },\n"))]
       (unless handle
         (logger/put-error! (.> compiler :log) (.. "Cannot write to " (library-path lib) ".meta.lua"))
         (exit! 1))
 
-      (when (string? prefix)
-        (self handle :write (string/format "local %s = %s or {}\n" escaped prefix)))
-
       (self handle :write "return {\n")
       (for-each native natives
         (self handle :write (string/format format
                               (.. (string/quoted native) "] =")
-                              (.. (string/quoted (dot-quote prefix native)) ",")
-                              (.. (dot-quote escaped native) ","))))
+                              (.. (string/quoted (dot-quote prefix native)) ","))))
       (self handle :write "}\n")
       (self handle :close))))
 

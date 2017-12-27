@@ -4,7 +4,7 @@
 (import urn/analysis/visitor visitor)
 (import urn/documentation doc)
 (import urn/logger logger)
-(import urn/range (get-source range<))
+(import urn/range (get-source get-top-source range<))
 (import urn/resolve/scope scope)
 
 (import urn/analysis/warning/order warning)
@@ -33,7 +33,7 @@
                                     false
                                     (cond
                                       [(symbol? def) (get-arity def)]
-                                      [(and (list? def) (symbol? (car def)) (= (.> (car def) :var) (.> builtins :lambda)))
+                                      [(and (list? def) (symbol? (car def)) (= (.> (car def) :var) (builtin :lambda)))
                                        (with (args (nth def 2))
                                              (if (any (lambda (x) (scope/var-variadic? (.> x :var))) args)
                                                false
@@ -49,7 +49,7 @@
             (when (and arity (< arity (pred (n node))))
               (logger/put-node-warning! (.> state :logger)
                 (.. "Calling " (symbol->string (car node)) " with " (string->number (pred (n node))) " arguments, expected " (string->number arity))
-                node nil
+                (get-top-source node) nil
                 (get-source node) "Called here"))))))))
 
 (defpass deprecated (state nodes)
@@ -68,7 +68,7 @@
                                          (if (string? (scope/var-deprecated var))
                                            (string/format "%s is deprecated: %s" (.> node :contents) (scope/var-deprecated var))
                                            (string/format "%s is deprecated." (.> node :contents)))
-                                         node nil
+                                         (get-top-source node) nil
                                          (get-source node) "")))))))))
 
 (defpass documentation (state nodes)
@@ -82,7 +82,7 @@
                   (unless var
                     (logger/put-node-warning! (.> state :logger)
                       (string/format "%s is not defined." (string/quoted (.> tok :contents)))
-                      node nil
+                      (get-top-source node) nil
                       (get-source node) (string/format "Referenced in %s." kind))))))))
     (for-each node nodes
       (when-with (var (.> node :def-var))
@@ -114,7 +114,7 @@
     (for-each pair unused
       (logger/put-node-warning! (.> state :logger)
         (string/format "%s is not used." (string/quoted (scope/var-name (car pair))))
-        (cadr pair) nil
+        (get-top-source (cadr pair)) nil
         (get-source (cadr pair)) "Defined here"))))
 
 (defpass macro-usage (state nodes)
@@ -126,7 +126,7 @@
         (when (= (scope/var-kind (.> node :var)) "macro")
           (logger/put-node-warning! (.> state :logger)
             (string/format "The macro %s is not expanded" (string/quoted (.> node :contents)))
-            node
+            (get-top-source node)
             "This macro is used in such a way that it'll be called as a normal function
              instead of expanding into executable code. Sometimes this may be intentional,
              but more often than not it is the result of a misspelled variable name."
@@ -146,7 +146,7 @@
                 (/= (scope/get-exported (scope/var-scope var) (scope/var-name var)) var))
           (logger/put-node-warning! (.> state :logger)
             (string/format "%s is never mutated" (string/quoted (scope/var-name var)))
-            node
+            (get-top-source node)
             "This definition is explicitly marked as :mutable, but is
              never mutated. Consider removing the annotation."
             (get-source node) "variable defined here"))))))

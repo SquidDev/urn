@@ -51,7 +51,7 @@
       (symbol? last)
       (or
         (and (symbol? branch) (= (.> branch :var) (.> last :var)))
-        (and test (not (.> lookup branch :stmt)) (= (.> last :var) (.> builtins :false)))))))
+        (and test (not (.> lookup branch :stmt)) (= (.> last :var) (builtin :false)))))))
 
 (defun or-cond? (lookup branch test)
   "Determine whether this BRANCH forms part of an `or` expression.
@@ -64,7 +64,7 @@
     (and (= (n branch) 2) (symbol? tail)
       (or
         (and (symbol? head) (= (.> head :var) (.> tail :var)))
-        (and test (not (.> lookup head :stmt)) (= (.> tail :var) (.> builtins :true)))))))
+        (and test (not (.> lookup head :stmt)) (= (.> tail :var) (builtin :true)))))))
 
 (defun visit-node (lookup state node stmt test recur)
   "Marks a specific NODE with a category.
@@ -87,10 +87,10 @@
                 (with (func (.> head :var))
                   (cond
                     ;; Handle all special forms
-                    [(= func (.> builtins :lambda))
+                    [(= func (builtin :lambda))
                      (visit-nodes lookup state node 3 true)
                      (cat "lambda" :prec 100)]
-                    [(= func (.> builtins :cond))
+                    [(= func (builtin :cond))
                      ;; Visit all conditions inside the node. It maybe seem
                      ;; weird that we consider the condition as a statement, but
                      ;; we have enough flexibility at codegen time to allow it to
@@ -176,7 +176,7 @@
                         (cat "unless" :stmt true)]
 
                        [true (cat "cond" :stmt true)])]
-                    [(= func (.> builtins :set!))
+                    [(= func (builtin :set!))
                      (let [(def (nth node 3))
                            (var (.> (nth node 2) :var))]
                        (if (and
@@ -188,15 +188,15 @@
                            (.<! lookup def (cat "lambda" :prec 100 :recur (visit-recur lookup recur))))
                          (visit-node lookup state def true)))
                      (cat "set!" :stmt true)]
-                    [(= func (.> builtins :quote))
+                    [(= func (builtin :quote))
                      (visit-quote lookup node)
                      (cat "quote" :prec 100)]
-                    [(= func (.> builtins :syntax-quote))
+                    [(= func (builtin :syntax-quote))
                      (visit-syntax-quote lookup state (nth node 2) 1)
                      (cat "syntax-quote" :prec 100)]
-                    [(= func (.> builtins :unquote)) (fail! "unquote should never appear")]
-                    [(= func (.> builtins :unquote-splice)) (fail! "unquote should never appear")]
-                    [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
+                    [(= func (builtin :unquote)) (fail! "unquote should never appear")]
+                    [(= func (builtin :unquote-splice)) (fail! "unquote should never appear")]
+                    [(or (= func (builtin :define)) (= func (builtin :define-macro)))
                      (with (def (nth node (n node)))
                        (if (and (list? def) (builtin? (car def) :lambda))
                          (with (recur { :var (.> node :def-var) :def def})
@@ -206,22 +206,22 @@
                                              (cat "lambda" :prec 100))))
                          (visit-node lookup state def true)))
                      (cat "define")]
-                    [(= func (.> builtins :define-native)) (cat "define-native")]
-                    [(= func (.> builtins :import)) (cat "import")]
-                    [(= func (.> builtins :struct-literal))
+                    [(= func (builtin :define-native)) (cat "define-native")]
+                    [(= func (builtin :import)) (cat "import")]
+                    [(= func (builtin :struct-literal))
                      (visit-nodes lookup state node 2 false)
                      (cat "struct-literal" :prec 100)]
 
                     ;; Handle things like `(true)`
-                    [(= func (.> builtins :true))
+                    [(= func (builtin :true))
                      (visit-nodes lookup state node 1 false)
                      (.<! lookup head :parens true)
                      (cat "call")]
-                    [(= func (.> builtins :false))
+                    [(= func (builtin :false))
                      (visit-nodes lookup state node 1 false)
                      (.<! lookup head :parens true)
                      (cat "call")]
-                    [(= func (.> builtins :nil))
+                    [(= func (builtin :nil))
                      (visit-nodes lookup state node 1 false)
                      (.<! lookup head :parens true)
                      (cat "call")]

@@ -109,9 +109,9 @@
 
               ;; While we're technically visiting a block, we don't want to preserve the
               ;; recursive function.
-              [(= func (.> builtins :lambda)) (visit-block node 3 nil nil lookup)]
+              [(= func (builtin :lambda)) (visit-block node 3 nil nil lookup)]
 
-              [(= func (.> builtins :set!))
+              [(= func (builtin :set!))
                (let* [(var (.> (nth node 2) :var))
                       (func (.> lookup var))
                       (val (nth node 3))]
@@ -135,20 +135,20 @@
                      (visit-node val nil nil lookup))))]
 
               ;; Now it's just all the standard visitor methods
-              [(= func (.> builtins :cond))
+              [(= func (builtin :cond))
                (for i 2 (n node) 1
                  (with (case (nth node i))
                    (visit-node (car case) nil nil lookup)
                    (visit-block case 2 nil active lookup)))]
-              [(= func (.> builtins :quote))]
-              [(= func (.> builtins :syntax-quote)) (visit-quote (nth node 2) 1 lookup)]
-              [(or (= func (.> builtins :unquote)) (= func (.> builtins :unquote-splice)))
+              [(= func (builtin :quote))]
+              [(= func (builtin :syntax-quote)) (visit-quote (nth node 2) 1 lookup)]
+              [(or (= func (builtin :unquote)) (= func (builtin :unquote-splice)))
                (fail! "unquote/unquote-splice should never appear here")]
-              [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
+              [(or (= func (builtin :define)) (= func (builtin :define-macro)))
                (visit-node (nth node (n node)) nil nil lookup)]
-              [(= func (.> builtins :define-native))] ;; Nothing needs doing here
-              [(= func (.> builtins :import))] ;; Nothing needs doing here
-              [(= func (.> builtins :struct-literal)) (visit-nodes node 2 nil lookup)]
+              [(= func (builtin :define-native))] ;; Nothing needs doing here
+              [(= func (builtin :import))] ;; Nothing needs doing here
+              [(= func (builtin :struct-literal)) (visit-nodes node 2 nil lookup)]
               [true (fail! (.. "Unknown builtin for variable " (.> func :name)))]))]
          ["list"
           (with (first (car node))

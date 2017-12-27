@@ -1,10 +1,10 @@
-(import urn/analysis/nodes (builtins builtin? fast-any zip-args single-return?))
+(import urn/analysis/nodes (builtin builtin? fast-any zip-args single-return?))
 (import urn/analysis/pass (run-pass))
 (import urn/analysis/tag/categories cat)
 (import urn/analysis/tag/find-letrec find-letrec)
 (import urn/backend/lua/escape ())
 (import urn/backend/writer w)
-(import urn/logger/helpers logger)
+(import urn/logger/format format)
 (import urn/range range)
 (import urn/resolve/scope scope)
 
@@ -101,7 +101,7 @@
   (let* [(cat-lookup (.> state :cat-lookup))
          (cat (.> cat-lookup node))
          (_ (unless cat
-              (print! "Cannot find" (pretty node) (logger/format-node node))))
+              (print! "Cannot find" (pretty node) (format/format-node node))))
          (cat-tag (.> cat :category))]
     (w/push-node! out node)
     (case cat-tag
@@ -498,7 +498,7 @@
            (let* [(sub (nth node i))
                   (cat (.> state :cat-lookup sub))]
              (unless cat
-               (print! "Cannot find" (pretty sub) (logger/format-node sub)))
+               (print! "Cannot find" (pretty sub) (format/format-node sub)))
 
              (if (= (.> cat :category) "unquote-splice")
                (progn

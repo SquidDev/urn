@@ -1,6 +1,6 @@
-(import urn/range ())
-(import urn/logger/helpers ())
+(import urn/logger/format (format-source))
 (import urn/logger/printer ())
+(import urn/range ())
 
 (import io/term (coloured))
 
@@ -27,15 +27,15 @@
 
 (defun put-time! (logger name time level) :hidden (print-time! (.> logger :time) name time level))
 
-(defun put-node-error! (logger msg node explain lines)
+(defun put-node-error! (logger msg source explain lines)
   (print-error! msg)
-  (put-trace! node)
+  (put-trace! source)
   (when explain (print-explain! (.> logger :explain) explain))
   (put-lines! true lines))
 
-(defun put-node-warning! (logger msg node explain lines)
+(defun put-node-warning! (logger msg source explain lines)
   (print-warning! msg)
-  (put-trace! node)
+  (put-trace! source)
   (when explain (print-explain! (.> logger :explain) explain))
   (put-lines! true lines))
 
@@ -98,16 +98,17 @@
             " "
             message))))))))
 
-(defun put-trace! (node)
-  "Put a trace of the positions of NODE and all its parents, using the output of [[format-node]]"
+(defun put-trace! (source)
+  "Put a trace of the positions of this SOURCE and all its parents."
   :hidden
-  (with (previous nil)
-    (while node
-      (with (formatted (format-node node))
-        (cond
-          [(= previous nil) (print! (coloured "36;1" (.. "  => " formatted)))]
-          [(/= previous formatted) (print! (.. "  in " formatted))]
-          [true nil])
+  (loop [(source source)
+         (previous nil)]
+    []
+    (with (formatted (format-source source))
+      (cond
+        [(= previous nil) (print! (coloured "36;1" (.. "  => " formatted)))]
+        [(/= previous formatted) (print! (.. "  in " formatted))]
+        [true nil])
 
-        (set! previous formatted)
-        (set! node (.> node :parent))))))
+      (when (node-source? source)
+        (recur (node-source-parent source) formatted)))))

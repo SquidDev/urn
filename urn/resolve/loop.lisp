@@ -6,7 +6,7 @@
 (import urn/error error)
 (import urn/library library)
 (import urn/logger logger)
-(import urn/logger/helpers logger)
+(import urn/logger/format format)
 (import urn/range range)
 (import urn/resolve/scope scope)
 (import urn/resolve/state state)
@@ -201,9 +201,11 @@
         (while (and (> (n queue) 0) (<= skipped (n queue)))
           (with (head (remove-nth! queue 1))
             (logger/put-debug! logger
-              (..
-                (type head) " for " (.> head :_state :stage) " at " (logger/format-node (.> head :_node))
-                " (" (if (.> head :_state :var) (scope/var-name (.> head :_state :var)) "?") ")"))
+              (format nil "{} for {} at {} ({})"
+                (type head)
+                (state/rs-stage (.> head :_state))
+                (format/format-node (.> head :_node))
+                (if (state/rs-var (.> head :_state)) (scope/var-name (state/rs-var (.> head :_state))) "?")))
 
             (case (type head)
               ["init"
@@ -223,11 +225,11 @@
               ["build"
                ;; We're waiting another node to finish being resolved.
                ;; If it has then we resume, otherwise we requeue.
-               (if (/= (.> head :state :stage) "parsed")
+               (if (/= (state/rs-stage (.> head :state)) "parsed")
                  (resume head)
                  (progn
                    (logger/put-debug! logger (.. "  Awaiting building of node "
-                                               (if (.> head :state :var) (scope/var-name (.> head :state :var)) "?")))
+                                               (if (state/rs-var (.> head :state)) (scope/var-name (state/rs-var (.> head :state))) "?")))
 
                    (inc! skipped)
                    (push-cdr! queue head)))]
@@ -245,7 +247,7 @@
                  (unless module
                    (error/do-node-error! logger
                      (nth result 2)
-                     (.> head :_node) nil
+                     (range/get-top-source (.> head :_node)) nil
                      (range/get-source (.> head :_node)) ""))
 
                  (let* [(export (.> head :export))
@@ -269,7 +271,7 @@
                          (set! failed true)
                          (logger/put-node-error! logger
                            (.. "Cannot find " name)
-                           name-node nil
+                           (range/get-top-source name-node) nil
                            (range/get-source (.> head :_node)) "Importing here"
                            (range/get-source (.> name-node)) "Required here")))
 
@@ -328,15 +330,15 @@
 
              (logger/put-node-error! logger
                (.. "Cannot find variable '" (.> entry :name) "'" suggestions)
-               (or (.> entry :node) (.> entry :_node)) info
+               (range/get-top-source (or (.> entry :node) (.> entry :_node))) info
                (range/get-source (or (.> entry :node) (.> entry :_node))) ""))]
           ["build"
-           (let [(var (.> entry :state :var))
-                 (node (.> entry :state :node))]
+           (let [(var (state/rs-var (.> entry :state)))
+                 (node (state/rs-node (.> entry :state)))]
              (logger/put-error! logger (.. "Could not build "
                                          (cond
                                            [var (scope/var-name var)]
-                                           [node (logger/format-node node)]
+                                           [node (format/format-node node)]
                                            [true "unknown node"]))))]))
 
       (error/resolver-error!))
@@ -344,4 +346,4 @@
 
     (when name (timer/stop-timer! timer name))
 
-    (values-list (map (cut .> <> :node) states) states)))
+    (values-list (map state/rs-node states) states)))

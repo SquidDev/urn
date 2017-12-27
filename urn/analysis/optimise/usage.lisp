@@ -51,9 +51,9 @@
   (let* [(var (.> sym :var))
          (def (usage/get-var lookup (.> sym :var)))]
     (cond
-      [(= var (.> builtins :true)) sym]
-      [(= var (.> builtins :false)) sym]
-      [(= var (.> builtins :nil)) sym]
+      [(= var (builtin :true)) sym]
+      [(= var (builtin :false)) sym]
+      [(= var (builtin :nil)) sym]
       [(= (n (.> def :defs)) 1)
        (let* [(ent (car (.> def :defs)))
               (val (.> ent :value))
@@ -282,35 +282,35 @@
                                    (with (val (.> root (+ idx 1)))
                                      (when (list? val) (.<! wrap-map idx true)))))))]
                           ;; Only visit the actual variable to be defined
-                          [(= var (.> builtins :set!)) (visitor/visit-node (nth node 3) visitor)]
-                          [(= var (.> builtins :define)) (visitor/visit-node (last node) visitor)]
-                          [(= var (.> builtins :define-macro)) (visitor/visit-node (last node) visitor)]
+                          [(= var (builtin :set!)) (visitor/visit-node (nth node 3) visitor)]
+                          [(= var (builtin :define)) (visitor/visit-node (last node) visitor)]
+                          [(= var (builtin :define-macro)) (visitor/visit-node (last node) visitor)]
                           ;; Nothing doing here
-                          [(= var (.> builtins :define-native))]
+                          [(= var (builtin :define-native))]
                           ;; The first expression is the only one we can guarantee executing. If we've
                           ;; not finished by then, then we should abort.
-                          [(= var (.> builtins :cond))
+                          [(= var (builtin :cond))
                            (visitor/visit-node (car (nth node 2)) visitor)]
-                          [(= var (.> builtins :lambda))]
-                          [(= var (.> builtins :quote))]
-                          [(= var (.> builtins :import))]
+                          [(= var (builtin :lambda))]
+                          [(= var (builtin :quote))]
+                          [(= var (builtin :import))]
                           ;; Visit basic builtins normally
-                          [(= var (.> builtins :syntax-quote)) (visitor/visit-quote (nth node 2) visitor 1)]
-                          [(= var (.> builtins :struct-literal)) (visitor/visit-list node 2 visitor)])
+                          [(= var (builtin :syntax-quote)) (visitor/visit-quote (nth node 2) visitor 1)]
+                          [(= var (builtin :struct-literal)) (visitor/visit-list node 2 visitor)])
 
                         (cond
                           ;; We've got all the arguments so everything should be OK.
                           [finished]
                           ;; If we hit a set! then this just makes everything complicated,
                           ;; let's abort
-                          [(= var (.> builtins :set!))
+                          [(= var (builtin :set!))
                            (set! ok false)]
                           ;; cond's mean the order of execution isn't guarenteed to this
                           ;; analysis goes out the window.
-                          [(= var (.> builtins :cond))
+                          [(= var (builtin :cond))
                            (set! ok false)]
                           ;; Similarly with lambda.
-                          [(= var (.> builtins :lambda))
+                          [(= var (builtin :lambda))
                            (set! ok false)]
                           [true
                            ;; Right. So *technically*, we could check if this function is pure or not.
@@ -348,7 +348,7 @@
                     (if (.> wrap-map i)
                       ;; If this value is used in a context where it could return multiple values,
                       ;; then we wrap it in a lambda.
-                      `((,(make-symbol (.> builtins :lambda)) (,(make-symbol var)) ,(make-symbol var)) ,(nth root (+ i 1)))
+                      `((,(make-symbol (builtin :lambda)) (,(make-symbol var)) ,(make-symbol var)) ,(nth root (+ i 1)))
                       ;; Otherwise, just use the normal value!
                       (or (nth root (+ i 1)) (make-nil)))
                     child))
@@ -367,8 +367,8 @@
           ["symbol"
            (when is-cond
              (case (.> lookup (.> node :var))
-               [false (when (/= (.> node :var) (.> builtins :false)) (make-symbol (.> builtins :false)))]
-               [true  (when (/= (.> node :var) (.> builtins :true))  (make-symbol (.> builtins :true)))]
+               [false (when (/= (.> node :var) (builtin :false)) (make-symbol (builtin :false)))]
+               [true  (when (/= (.> node :var) (builtin :true))  (make-symbol (builtin :true)))]
                [_ nil]))]
 
           ["list"
@@ -473,12 +473,12 @@
                 (cond
                   ;; Lambdas are obviously deferrable, but we shouldn't
                   ;; visit the body
-                  [(= var (.> builtins :lambda)) false]
+                  [(= var (builtin :lambda)) false]
                   ;; Visit these as normal
-                  [(= var (.> builtins :quote)) deferrable]
-                  [(= var (.> builtins :quasi-quote)) deferrable]
-                  [(= var (.> builtins :struct-literal)) deferrable]
-                  [(= var (.> builtins :cond))]
+                  [(= var (builtin :quote)) deferrable]
+                  [(= var (builtin :quasi-quote)) deferrable]
+                  [(= var (builtin :struct-literal)) deferrable]
+                  [(= var (builtin :cond))]
                   ;; Everything else cannot be deferred
                   [else
                    (set! deferrable false)
@@ -615,7 +615,7 @@
                      (changed!)
                      (set! handled true)
 
-                     (with (new-body `(,(make-symbol (.> builtins :lambda)) (,(car args))))
+                     (with (new-body `(,(make-symbol (builtin :lambda)) (,(car args))))
                        (for i 2 (n best) 1
                          (push-cdr! new-body (remove-nth! best 2)))
 

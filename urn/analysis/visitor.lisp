@@ -1,4 +1,4 @@
-(import urn/resolve/builtins (builtins))
+(import urn/resolve/builtins (builtin))
 (import urn/resolve/scope scope)
 
 (defun visit-quote (node visitor level)
@@ -35,25 +35,25 @@
                (cond
                  [(or (= funct "defined") (= funct "arg") (= funct "native") (= funct "macro"))
                   (visit-block node 1 visitor)]
-                 [(= func (.> builtins :lambda))
+                 [(= func (builtin :lambda))
                   (visit-block node 3 visitor)]
-                 [(= func (.> builtins :cond))
+                 [(= func (builtin :cond))
                   (for i 2 (n node) 1
                        (with (case (nth node i))
                          (visit-node (nth case 1) visitor)
                          (visit-block case 2 visitor)))]
-                 [(= func (.> builtins :set!))
+                 [(= func (builtin :set!))
                   (visit-node (nth node 3) visitor)]
-                 [(= func (.> builtins :quote))] ;; Nothing needs doing here
-                 [(= func (.> builtins :syntax-quote))
+                 [(= func (builtin :quote))] ;; Nothing needs doing here
+                 [(= func (builtin :syntax-quote))
                   (visit-quote (nth node 2) visitor 1)]
-                 [(or (= func (.> builtins :unquote)) (= func (.> builtins :unquote-splice)))
+                 [(or (= func (builtin :unquote)) (= func (builtin :unquote-splice)))
                   (fail! "unquote/unquote-splice should never appear here")]
-                 [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
+                 [(or (= func (builtin :define)) (= func (builtin :define-macro)))
                   (visit-node (nth node (n node)) visitor)]
-                 [(= func (.> builtins :define-native))] ;; Nothing needs doing here
-                 [(= func (.> builtins :import))] ;; Nothing needs doing here
-                 [(= func (.> builtins :struct-literal)) (visit-list node 2 visitor)]
+                 [(= func (builtin :define-native))] ;; Nothing needs doing here
+                 [(= func (builtin :import))] ;; Nothing needs doing here
+                 [(= func (builtin :struct-literal)) (visit-list node 2 visitor)]
                  [true
                    (fail! (.. "Unknown kind " funct " for variable " (scope/var-name func)))]))
              (visit-block node 1 visitor)))]
@@ -77,8 +77,8 @@
           (when (symbol? head)
             (with (var (.> head :var))
               (cond
-                [(= var (.> builtins :lambda)) (func node 3)]
-                [(= var (.> builtins :cond))
+                [(= var (builtin :lambda)) (func node 3)]
+                [(= var (builtin :cond))
                  (for i 2 (n node) 1
                    (func (nth node i) 2))]
                 [true])))))

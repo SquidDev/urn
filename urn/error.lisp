@@ -23,13 +23,10 @@
   "Throw a resolution error."
   (compiler-error! "Resolution failed"))
 
-(defun do-node-error! (logger msg node explain &lines)
+(defun do-node-error! (logger msg source explain &lines)
   "Push an error message to the LOGGER, then throw a new resolution
-   error.
-
-   This is equivalent to [[logger/do-node-error!]], but using
-   [[resolver-error!]] instead."
-  (apply logger/put-node-error! logger msg node explain lines)
+   error."
+  (apply logger/put-node-error! logger msg source explain lines)
   (compiler-error! (or (string/match msg "^([^\n]+)\n") msg)))
 
 (defun traceback (err)

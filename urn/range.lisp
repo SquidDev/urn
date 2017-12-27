@@ -10,13 +10,6 @@
     (immutable column pos-column
       "The column of this position.")))
 
-(defun format-position (pos)
-  "Format position POS to be user-readable"
-  (.. (pos-line pos) ":" (pos-column pos)))
-
-(defmethod (pretty position) (pos)
-  (format-position pos))
-
 (defstruct (range mk-range range?)
   "Represents a range within a piece of source code."
   (fields
@@ -38,18 +31,6 @@
     (< (pos-offset (range-start a)) (pos-offset (range-start b)))
     (< (range-name a) (range-name b))))
 
-(defun format-range (range)
-  "Format RANGE to be user-readable"
-  (if (range-finish range)
-    (string/format "%s:[%s .. %s]" (range-name range)
-                                   (format-position (range-start range))
-                                   (format-position (range-finish range)))
-    (string/format "%s:[%s]" (range-name range)
-                             (format-position (range-start range)))))
-
-(defmethod (pretty range) (range)
-  (format-range range))
-
 (defun range-of-start (range)
   "Create a new range which points to RANGE's start position."
   (assert-type! range range)
@@ -68,12 +49,40 @@
             (range-finish to)
             (range-lines  from)))
 
-(defun get-source (node)
-  "Get the nearest source position of NODE
+(defstruct (node-source mk-node-source node-source?)
+  "The origin of a given node."
+  (fields
+    (immutable owner
+      "The object which owns this. This will be a variable pointing to a macro or `nil`.")
 
-   This will walk up NODE's tree until a non-macro node is found"
-  (with (result nil)
-    (while (and node (not result))
-      (set! result (.> node :range))
-      (set! node (.> node :parent)))
-    result))
+    (immutable parent
+      "The parent object, either a [[range?]] or [[node-source?]]")
+
+    (immutable range
+      "The full range of this node.")))
+
+(defun source-full-range (source)
+  "Get the full range of this SOURCE."
+  (case (type source)
+    ["node-source" (node-source-range source)]
+    ["range" source]
+    ["nil" nil]))
+
+(defun source-range (source)
+  "Get the range of this SOURCE."
+  (case (type source)
+    ["node-source" (source-range (node-source-parent source))]
+    ["range" source]
+    ["nil" nil]))
+
+(defun get-top-source (node)
+  "Get the top source for the given NODE."
+  (.> node :source))
+
+(defun get-source (node)
+  "Get the nearest source position of NODE"
+  (source-range (.> node :source)))
+
+(defun get-full-source (node)
+  "Get the full range of this NODE."
+  (source-full-range (.> node :source)))

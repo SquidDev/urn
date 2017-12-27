@@ -34,7 +34,14 @@
           (not (foo foo foo (lambda()) (bar))))
         '((define not (lambda (x) (cond [x false] [true true])))
           ((lambda (x) (cond [x false] [true true])) (foo foo foo (lambda()) (bar))))
-        1)))
+        1))
+
+    (it "which will not inline recursive definitions"
+      (affirm-usage-optimise inline
+        '((define loop (lambda (x) (loop 1))))
+        '((define loop (lambda (x) (loop 1))))
+        0)))
+
 
   (section "which can score"
     (it "simple expressions"

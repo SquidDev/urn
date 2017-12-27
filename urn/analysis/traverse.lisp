@@ -1,4 +1,4 @@
-(import urn/resolve/builtins (builtins))
+(import urn/resolve/builtins (builtin))
 (import urn/resolve/scope scope)
 
 (defun traverse-quote (node visitor level)
@@ -46,33 +46,33 @@
                [(or (= funct "defined") (= funct "arg") (= funct "native") (= funct "macro"))
                 (traverse-list node 1 visitor)
                 (visitor node visitor)]
-               [(= func (.> builtins :lambda))
+               [(= func (builtin :lambda))
                 (traverse-block node 3 visitor)
                 (visitor node visitor)]
-               [(= func (.> builtins :cond))
+               [(= func (builtin :cond))
                 (for i 2 (n node) 1
                      (with (case (nth node i))
                            (.<! case 1 (traverse-node (nth case 1) visitor))
                            (traverse-block case 2 visitor)))
                 (visitor node visitor)]
-               [(= func (.> builtins :set!))
+               [(= func (builtin :set!))
                 (.<! node 3 (traverse-node (nth node 3) visitor))
                 (visitor node visitor)]
-               [(= func (.> builtins :quote))
+               [(= func (builtin :quote))
                 (visitor node visitor)]
-               [(= func (.> builtins :syntax-quote))
+               [(= func (builtin :syntax-quote))
                 (.<! node 2 (traverse-quote (nth node 2) visitor 1))
                 (visitor node visitor)]
-               [(or (= func (.> builtins :unquote)) (= func (.> builtins :unquote-splice)))
+               [(or (= func (builtin :unquote)) (= func (builtin :unquote-splice)))
                 (fail! "unquote/unquote-splice should never appear head")]
-               [(or (= func (.> builtins :define)) (= func (.> builtins :define-macro)))
+               [(or (= func (builtin :define)) (= func (builtin :define-macro)))
                 (.<! node (n node) (traverse-node (nth node (n node)) visitor))
                 (visitor node visitor)]
-               [(= func (.> builtins :define-native))
+               [(= func (builtin :define-native))
                 (visitor node visitor)]
-               [(= func (.> builtins :import))
+               [(= func (builtin :import))
                 (visitor node visitor)]
-               [(= func (.> builtins :struct-literal))
+               [(= func (builtin :struct-literal))
                 (traverse-list node 2 visitor)
                 (visitor node visitor)]
                [true

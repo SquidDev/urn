@@ -85,10 +85,10 @@
 
             ;; Now visit the core builtins. This isn't exactly an advanced herustic.
 
-            [(= func (.> builtins :lambda))
+            [(= func (builtin :lambda))
              (score-nodes node 3 (+ cumulative 10) threshold)]
 
-            [(= func (.> builtins :cond))
+            [(= func (builtin :cond))
              (set! cumulative (+ cumulative 3)) ;; Base cost of 3
              (with (len (n node))
                (loop [(i 2)] [(> i len)]
@@ -98,24 +98,24 @@
                    (recur (succ i)))))
              cumulative]
 
-            [(= func (.> builtins :set!))
+            [(= func (builtin :set!))
              (score-node (nth node 3) (+ cumulative 5) threshold)]
 
             ;; As constants are free, "technically" this is all going to be free
             ;; too.
-            [(= func (.> builtins :quote))
+            [(= func (builtin :quote))
              (if (list? (nth node 2)) (+ cumulative (n node)) cumulative)]
-            [(= func (.> builtins :import)) cumulative]
+            [(= func (builtin :import)) cumulative]
 
             ;; TODO: Actually walk this and remove the below handlers
-            [(= func (.> builtins :syntax-quote))
+            [(= func (builtin :syntax-quote))
              (score-node (nth node 2) (+ cumulative 3) threshold)]
-            [(= func (.> builtins :unquote))
+            [(= func (builtin :unquote))
              (score-node (nth node 2) cumulative threshold)]
-            [(= func (.> builtins :unquote-splice))
+            [(= func (builtin :unquote-splice))
              (score-node (nth node 2) (+ cumulative 10) threshold)]
 
-            [(= func (.> builtins :struct-literal))
+            [(= func (builtin :struct-literal))
              (score-nodes node 2 (+ cumulative (/ (pred (n node)) 2) 3) threshold)]))]
 
        ["list"
@@ -167,23 +167,30 @@
   :cat '("opt" "usage")
   :level 2
   (with (score-lookup {})
-    (visitor/visit-block nodes 1
-      (lambda (node)
-        ;; Only work on function calls on symbols
-        (when (and (list? node) (symbol? (car node)))
-          (let* [(func (.> (car node) :var))
-                 (def (usage/get-var usage func))]
-            ;; If we've only got one definition then we'll look at that
-            (when (= (n (.> def :defs)) 1)
-              (let* [(ent (car (.> def :defs)))
-                     (val (.> ent :value))]
-                ;; For all lambda definitions, determine whether we can actually inline it.
-                (when (and
-                      (list? val) (builtin? (car val) :lambda)
-                      (<= (get-score score-lookup val) threshold))
-                  ;; We can! Inline the node, and updat the function call with the new node.
-                  (with (copy (copy-node val { :scopes {}
-                                               :vars   {}
-                                               :root   (scope/var-scope func) }))
-                    (.<! node 1 copy)
-                    (changed!)))))))))))
+    (for-each root nodes
+      (visitor/visit-node root
+        (lambda (node)
+          ;; Only work on function calls on symbols
+          (when (and (list? node) (symbol? (car node)))
+            (let* [(func (.> (car node) :var))
+                   (def (usage/get-var usage func))]
+              ;; If we're not in the current function and we've only got one
+              ;; definition then we'll look at that.
+              (when (and (/= func (.> root :def-var))
+                         (= (n (.> def :defs)) 1))
+                (let* [(ent (car (.> def :defs)))
+                       (val (.> ent :value))]
+                  ;; For all lambda definitions, determine whether we can actually inline it.
+                  (when (and
+                        (list? val) (builtin? (car val) :lambda)
+                        (<= (get-score score-lookup val) threshold))
+                    ;; We can! Inline the node, and updat the function call with the new node.
+                    (with (copy (copy-node val { :scopes {}
+                                                 :vars   {}
+                                                 :root   (scope/var-scope func) }))
+                      (.<! node 1 copy)
+                      (changed!)))))))))
+
+      ;; Clear the score of the node we've just left
+      (when-with (var (.> root :def-var))
+        (.<! score-lookup var nil)))))

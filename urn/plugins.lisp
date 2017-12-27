@@ -32,11 +32,11 @@
       :logger/put-verbose! (cut logger/put-verbose! logger <>)
       :logger/put-debug!   (cut logger/put-debug!   logger <>)
       :logger/put-node-error!   (lambda (msg node explain &lines)
-                                  (logger/put-node-error!   logger msg node explain (splice lines)))
+                                  (logger/put-node-error!   logger msg (range/get-top-source node) explain (splice lines)))
       :logger/put-node-warning! (lambda (msg node explain &lines)
-                                  (logger/put-node-warning! logger msg node explain (splice lines)))
+                                  (logger/put-node-warning! logger msg (range/get-top-source node) explain (splice lines)))
       :logger/do-node-error!    (lambda (msg node explain &lines)
-                                  (error/do-node-error!    logger msg node explain (splice lines)))
+                                  (error/do-node-error!     logger msg (range/get-top-source node) explain (splice lines)))
       :range/get-source    range/get-source
       :flags               (lambda () (map id (.> compiler :flags)))
       :flag?               (cut elem? <> (.> compiler :flags))
@@ -50,7 +50,7 @@
                         (with (var (.> x :var))
                               (if (string? var) (.> variables var) var)))
       :var->symbol    nodes/make-symbol
-      :builtin        (cut .> nodes/builtins <>)
+      :builtin        nodes/builtin
       :builtin?       nodes/builtin?
       :constant?      nodes/constant?
       :node->val      nodes/urn->val
@@ -104,10 +104,14 @@
                             [(not scp) nil]
                             [(scope/scope-top-level? scp) scp]
                             [else (recur (scope/scope-parent scp))])))
-      :scope-vars     (lambda (scp)
-                        (if (not scp)
-                          (.> (active-scope) :variables)
-                          (.> scp :variables)))
+      :scope-vars     (lambda (scope)
+                        (unless scope (set! scope (active-scope)))
+                        (assert-type! scope scope)
+                        (scope/scope-variables scope))
+      :scope-exported (lambda (scope)
+                        (unless scope (set! scope (active-scope)))
+                        (assert-type! scope scope)
+                        (scope/scope-exported scope))
       :var-lookup     (lambda (symb scope)
                         (assert-type! symb symbol)
                         (when (= (active-node) nil) (error! "Not currently resolving"))

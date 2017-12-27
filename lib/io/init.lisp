@@ -38,23 +38,29 @@
    > (read-bytes! \"tests/data/abc.txt\")
    out = (97 98 99)
    ```"
-  (when-with (data (read-all-mode! path true))
-    (letrec [(string->bytes (str idx)
-               (if (> idx (n str))
-                 `()
-                 (cons (string/byte str idx)
-                       (string->bytes str (+ idx 1)))))]
-      (string->bytes data 1 `()))))
-
+  (string/string->bytes (read-all-mode! path true)))
 
 (defun write-all-mode! (path append binary data) :hidden
   (with (handle (open path (.. (if append "a" "w") (if binary "b" ""))))
-    (if handle
-      (progn
-        (self handle :write data)
-        (self handle :close)
-        true)
-      false)))
+    (cond
+      [handle
+       (self handle :write data)
+       (self handle :close)
+       true]
+      [else false])))
+
+(defun write-all-bytes-mode! (path append data) :hidden
+  (with (handle (open path (if append "ab" "wb")))
+    (cond
+      [handle
+       ;; Appending each byte at a time ends up being faster than generating
+       ;; a string and appending it.
+       (with (write (.> handle :write))
+         (for-each byte data
+           (write handle (string/char byte))))
+       (self handle :close)
+       true]
+      [else false])))
 
 (defun write-all! (path data)
   "Writes the string DATA to the file at PATH.
@@ -93,12 +99,7 @@
    > (write-bytes! \"tests/data/abc_.txt\" `(97 98 99))
    out = true
    ```"
-  (letrec [(bytes->string (bytes idx)
-             (if (> idx (n bytes))
-               `()
-               (cons (string/char (nth bytes idx))
-                     (bytes->string bytes (+ idx 1)))))]
-    (write-all-mode! path false true (concat (bytes->string data 1)))))
+  (write-all-bytes-mode! path false data))
 
 (defun append-all! (path data)
   "Appends the string DATA to the file at PATH.
@@ -128,7 +129,7 @@
 (defun append-bytes! (path data)
   "Appends the bytes (list of numbers) DATA to the file at PATH.
 
-   Rreates a new file if it doesn't exist. Returns true if it succeeded
+   Creates a new file if it doesn't exist. Returns true if it succeeded
    or false if it failed.
 
    ### Example
@@ -136,9 +137,4 @@
    > (append-bytes! \"tests/data/abc_.txt\" `(100 101 102))
    out = true
    ```"
-  (letrec [(bytes->string (bytes idx)
-             (if (> idx (n bytes))
-               `()
-               (cons (string/char (nth bytes idx))
-                     (bytes->string bytes (+ idx 1)))))]
-    (write-all-mode! path true true (concat (bytes->string data 1)))))
+  (write-all-bytes-mode! path true data))

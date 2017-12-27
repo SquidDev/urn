@@ -2,8 +2,8 @@
 (import urn/documentation doc)
 (import urn/library ())
 (import urn/loader (strip-extension))
-(import urn/range (get-source format-position range-name range-start))
-(import urn/resolve/builtins (builtins))
+(import urn/range (get-source range-name range-start))
+(import urn/logger/format (format-position))
 (import urn/resolve/scope scope)
 
 (import data/alist ())

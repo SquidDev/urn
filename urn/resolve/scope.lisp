@@ -180,13 +180,13 @@
   (unless (.> kinds kind) (format 1 "Unknown kind {#kind}"))
   (when-with (previous (get scope name))
     (error/do-node-error! logger (.. "Previous declaration of " (string/quoted name))
-      node nil
+      (range/get-top-source node) nil
       (range/get-source node) "new definition here"
       (range/get-source (var-node previous)) "old definition here"))
 
   (when (and (= name "_") (scope-top-level? scope))
     (error/do-node-error! logger "Cannot declare \"_\" as a top level definition"
-      node nil
+      (range/get-top-source node) nil
       (range/get-source node) "declared here"))
 
   (add! scope name kind node))
@@ -219,7 +219,7 @@
   (when (and (get scope name) (/= (get scope name) var))
     (error/do-node-error! logger
       (.. "Previous declaration of " name)
-      node nil
+      (range/get-top-source node) nil
       (range/get-source node) "imported here"
       (range/get-source (var-node var)) "new definition here"
       (range/get-source (var-node (get scope name))) "old definition here"))

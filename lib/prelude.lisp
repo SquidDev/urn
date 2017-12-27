@@ -12,3 +12,5 @@
 (import math/numerics () :export)
 
 (import test/assert (affirm) :export)
+
+(import compiler/helpers (exported-vars) :export)
