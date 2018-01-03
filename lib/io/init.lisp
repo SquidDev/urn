@@ -1,10 +1,12 @@
 (import lua/io (open))
 
 (defun read-all-mode! (path binary) :hidden
-  (when-let* [(handle (open path (.. "r" (if binary "b" ""))))
-              (data (self handle :read "*all"))]
-    (self handle :close)
-    data))
+  (with ((handle err) (open path (.. "r" (if binary "b" ""))))
+    (if handle
+      (with (data (self handle :read "*all"))
+        (self handle :close)
+        data)
+      (values-list handle err))))
 
 (defun read-all! (path)
   "Reads the data from the file at PATH and returns it as a string.
@@ -14,6 +16,8 @@
    ```cl
    > (read-all! \"tests/data/hello.txt\")
    out = \"Hello, world!\"
+   > (read-all! \"tests/data/non-existent.txt\")
+   out = nil
    ```"
   (read-all-mode! path false))
 
@@ -25,9 +29,13 @@
    ```cl
    > (read-lines! \"tests/data/lines.txt\")
    out = (\"This is the first line.\" \"This is the second.\")
+   > (read-lines! \"tests/data/non-existent.txt\")
+   out = nil
    ```"
-  (when-with (data (read-all! path))
-    (string/split data "\n")))
+  (with ((data err) (read-all-mode! path true))
+    (if data
+      (string/split data "\n")
+      (values-list nil err))))
 
 (defun read-bytes! (path)
   "Reads the data from the file at PATH and returns it as a list of bytes
@@ -37,8 +45,13 @@
    ```cl
    > (read-bytes! \"tests/data/abc.txt\")
    out = (97 98 99)
+   > (read-bytes! \"tests/data/non-existent.txt\")
+   out = nil
    ```"
-  (string/string->bytes (read-all-mode! path true)))
+  (with ((data err) (read-all-mode! path true))
+    (if data
+      (string/string->bytes data)
+      (values-list data err))))
 
 (defun write-all-mode! (path append binary data) :hidden
   (with (handle (open path (.. (if append "a" "w") (if binary "b" ""))))
