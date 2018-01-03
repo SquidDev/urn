@@ -1,5 +1,6 @@
 (import data/struct ())
 (import lua/basic (load))
+(import lua/debug debug)
 (import lua/io io)
 
 (import urn/library ())
@@ -116,25 +117,36 @@
         (self handle :close)
         (set-library-lua-contents! lib contents)
 
-        (case (list (load contents (.. "@" name)))
-          [(nil ?msg) (fail! msg)]
-          [(?fun)
-           (with (res (fun))
-             (if (table? res)
-               (for-pairs (k v) res (.<! state :lib-env (.. unique-name "/" k) v))
-               (fail! (.. path ".lib.lua returned a non-table value"))))])))
+        (if-with ((fun err) (load contents (.. "@" name)))
+          (case (list (xpcall fun debug/traceback))
+            [(false ?msg)
+             (logger/put-error! (.> state :log) (format nil "Cannot load {}.lib.lua ({:tostring})" path msg))]
+            [(true (table? @ ?res) . _)
+             (for-pairs (k v) res
+               (if (string? k)
+                 (.<! state :lib-env (.. unique-name "/" k) v)
+                 (logger/put-warning! (.> state :log) (format nil "Non-string key '{:tostring}' when loading {}.lib.lua" k path))))]
+            [_
+             (logger/put-error! (.> state :log) (format nil "Received a non-table value from {}.lib.lua" path))])
+          (logger/put-error! (.> state :log) (format nil "Cannot load {}.lib.lua ({})" path err)))))
 
     ;; Attempt to load the meta info
     (when-with (handle (io/open (.. path ".meta.lua") "r"))
       (with (contents (self handle :read "*a"))
         (self handle :close)
-        (case (list (load contents (.. "@" name)))
-          [(nil ?msg) (fail! msg)]
-          [(?fun)
-           (with (res (fun))
-             (if (table? res)
-               (for-pairs (k v) res (read-meta state (.. unique-name "/" k) v))
-               (fail! (.. path ".meta.lua returned a non-table value"))))])))
+
+        (if-with ((fun err) (load contents (.. "@" name)))
+          (case (list (xpcall fun debug/traceback))
+            [(false ?msg)
+             (logger/put-error! (.> state :log) (format nil "Cannot load {}.meta.lua ({:tostring})" path msg))]
+            [(true (table? @ ?res) . _)
+             (for-pairs (k v) res
+               (if (string? k)
+                 (read-meta state (.. unique-name "/" k) v)
+                 (logger/put-warning! (.> state :log) (format nil "Non-string key '{:tostring}' when loading {}.meta.lua" k path))))]
+            [_
+             (logger/put-error! (.> state :log) (format nil "Received a non-table value from {}.meta.lua" path))])
+          (logger/put-error! (.> state :log) (format nil "Cannot load {}.meta.lua ({})" path err)))))
 
     (timer/start-timer! (.> state :timer) (.. "[parse] " path) 2)
 
