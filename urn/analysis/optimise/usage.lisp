@@ -24,7 +24,7 @@
                                 (def (.> defs var))]
                            (when (and def (not (.> visited var)))
                              (.<! visited var true)
-                             (push-cdr! queue def)))]
+                             (push! queue def)))]
                         ["list"
                          ;; Consider set! as also visiting the node
                          (when (builtin? (car node) :set!)
@@ -401,7 +401,7 @@
 
                         ;; Set the variable to true and visit all child nodes.
                         (when var
-                          (push-cdr! vars var)
+                          (push! vars var)
                           (.<! lookup var true))
                         (for i 2 (pred len) 1 (visitor/visit-node (nth entry i) visitor))
 
@@ -617,9 +617,9 @@
 
                      (with (new-body `(,(make-symbol (builtin :lambda)) (,(car args))))
                        (for i 2 (n best) 1
-                         (push-cdr! new-body (remove-nth! best 2)))
+                         (push! new-body (remove-nth! best 2)))
 
-                       (push-cdr! best (list new-body val)))
+                       (push! best (list new-body val)))
 
                      (remove-nth! lam-args arg-offset)
                      (remove-nth! node val-offset)]

@@ -179,7 +179,7 @@
   (assert-type! set set)
   (let* [(out '())]
     (for-pairs (_ v) (hashset-data set)
-      (push-cdr! out v))
+      (push! out v))
     out))
 
 (defmethod (pretty set) (x)

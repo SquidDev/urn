@@ -91,7 +91,7 @@
            (for-each node (.> compiler :out)
              (when-with (var (.> node :def-var))
                (.<! counts var 0)
-               (push-cdr! vars var)))
+               (push! vars var)))
            (visitor/visit-block (.> compiler :out) 1
              (lambda (x)
                (when (symbol? x)
@@ -128,10 +128,10 @@
           (let* [(var (or (state/rs-var state) (scope/temp-var "temp" (state/rs-node state))))
                  (escaped (push-escape-var! var back-state true))
                  (name (scope/var-name var))]
-            (push-cdr! state-list state)
-            (push-cdr! export-list (.. escaped " = " escaped))
-            (push-cdr! name-list name)
-            (push-cdr! escape-list escaped)))))
+            (push! state-list state)
+            (push! export-list (.. escaped " = " escaped))
+            (push! name-list name)
+            (push! escape-list escaped)))))
 
     (unless (empty? state-list)
       (let* [(out (w/create))
@@ -173,7 +173,7 @@
                     (lines (string/split str "\n"))
                     (fmt (.. "%" (n (number->string (n lines))) "d | %s"))]
                (for i 1 (n lines) 1
-                 (push-cdr! buffer (sprintf fmt i (nth lines i))))
+                 (push! buffer (sprintf fmt i (nth lines i))))
                (fail! (.. msg ":\n" (concat buffer "\n"))))]
             [(?fun)
              (case (list (xpcall fun traceback/traceback))

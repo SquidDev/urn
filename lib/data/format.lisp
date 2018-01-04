@@ -88,11 +88,11 @@
     (loop [(i 1)]
       [(> i (n str))
        (when (/= buf "") ; it isn't empty, so we flush it again
-         (push-cdr! frags (list 'literal buf)))]
+         (push! frags (list 'literal buf)))]
       (set! cur (string/char-at str i))
       (case cur
         ["{" ; a formatting fragment (splice)
-         (push-cdr! frags (list 'literal buf)) ; flush the buffer
+         (push! frags (list 'literal buf)) ; flush the buffer
          (set! buf "")
          (loop [(parsed "")
                 (j (+ 1 i))]
@@ -100,7 +100,7 @@
                 (= (string/char-at str j) "}"))
             (set! i j)
             (let* [(frag (handle-formatting-specifier parsed last-positional))]
-              (push-cdr! frags frag))]
+              (push! frags frag))]
            (recur (.. parsed (string/char-at str j)) (+ 1 j)))]
         [else => (set! buf (.. buf it))])
       (recur (+ 1 i)))
@@ -167,12 +167,12 @@
                   [else
                     (if expecting-nam
                       (.<! nam expecting-nam (car togo))
-                      (push-cdr! pos (car togo)))
+                      (push! pos (car togo)))
                     (recur pos nam nil (cdr togo))])))
          (named-alist (let* [(arg '())]
                         (for-pairs (k v) nameds
-                          (push-cdr! arg k)
-                          (push-cdr! arg v))
+                          (push! arg k)
+                          (push! arg v))
                         arg))
          (interpret-spec
            (function

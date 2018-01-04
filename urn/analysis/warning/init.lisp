@@ -106,7 +106,7 @@
                     (= (.> def :def-var) nil)
                     ;; or non-macro, exported symbols
                     (and (/= (scope/var-kind var) "macro") (not (scope/get-exported (scope/var-scope var) (scope/var-name var)))))
-            (push-cdr! unused (list var def))))))
+            (push! unused (list var def))))))
 
     (sort! unused (lambda (node1 node2)
                     (range< (get-source (cadr node1)) (get-source (cadr node2)))))

@@ -229,7 +229,7 @@
    ### Example:
    ```cl
    > (with (x '())
-   .   (for i 1 3 1 (push-cdr! x i))
+   .   (for i 1 3 1 (push! x i))
    .   x)
    out = (1 2 3)
    ```"
@@ -357,7 +357,7 @@
    > (let [(res '())
    .       (struct { :foo 123 })]
    .   (for-pairs (k v) struct
-   .     (push-cdr! res (list k v)))
+   .     (push! res (list k v)))
    .     res)
    out = ((\"foo\" 123))
    ```"

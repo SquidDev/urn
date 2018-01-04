@@ -309,11 +309,11 @@
                              (cond
                                [(= i (n node))
                                 (for-each child replacement
-                                  (push-cdr! result child)
-                                  (push-cdr! states child-state))]
+                                  (push! result child)
+                                  (push! states child-state))]
                                [(= (n replacement) 1)
-                                (push-cdr! result (car replacement))
-                                (push-cdr! states child-state)]
+                                (push! result (car replacement))
+                                (push! states child-state)]
                                [true (error-positions! (state/rs-logger state) (nth node i) (.. "Expected one value, got " (n replacement)))])]))))
 
                     (when (or (= (n result) 0) (and (= (n result) 1) (= (car result) nil)))

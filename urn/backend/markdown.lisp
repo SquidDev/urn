@@ -87,7 +87,7 @@
   (let* [(documented '())
          (undocumented '())]
     (iter-pairs vars (lambda (name var)
-                       (push-cdr!
+                       (push!
                          (if (scope/var-doc var) documented undocumented)
                          (list name var))))
 
@@ -156,12 +156,12 @@
                   (set! lookup '())
                   (.<! letters letter lookup))
 
-                (push-cdr! lookup info))))
+                (push! lookup info))))
 
           ;; Determine whether this scope defines it or exports it
           (if (= (scope/var-scope var) (library-scope lib))
             (.<! info :defined lib)
-            (push-cdr! (.> info :exported) (list name lib))))))
+            (push! (.> info :exported) (list name lib))))))
 
     (with (letter-list (struct->assoc letters))
       (sort! letter-list (lambda (a b) (< (car a) (car b))))

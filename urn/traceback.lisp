@@ -53,14 +53,14 @@
                    [(?start ?end)
                    (inc! pos)
                    (while (< pos end)
-                     (push-cdr! buffer (string/char (string->number (string/sub esc pos (succ pos)) 16)))
+                     (push! buffer (string/char (string->number (string/sub esc pos (succ pos)) 16)))
                      (set! pos (+ pos 2)))]
                    [_
-                   (push-cdr! buffer "_")]))
+                   (push! buffer "_")]))
                ((between? char "A" "Z")
-                 (push-cdr! buffer "-")
-                 (push-cdr! buffer (string/lower char)))
-               (true (push-cdr! buffer char))))
+                 (push! buffer "-")
+                 (push! buffer (string/lower char)))
+               (true (push! buffer char))))
            (inc! pos))
          (concat buffer))])))
 

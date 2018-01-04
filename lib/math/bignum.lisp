@@ -17,7 +17,7 @@
   (with (val (new))
     (.<! val :sign (.> a :sign))
     (for-each part (.> a :parts)
-      (push-cdr! (.> val :parts) part))
+      (push! (.> val :parts) part))
     val))
 
 (defun negate (a)
@@ -46,7 +46,7 @@
                  (val-parts (.> val :parts))
                  (max-parts (max (n (.> a :parts)) (n (.> b :parts))))]
             (for i 1 (+ max-parts 1) 1
-              (push-cdr! val-parts 0))
+              (push! val-parts 0))
             (for i 1 max-parts 1
               (with (new-part (+ (or (nth a-parts i) 0) (or (nth b-parts i) 0) (nth val-parts i)))
                 (.<! val-parts i (mod new-part part-max))
@@ -70,7 +70,7 @@
                  (val-parts (.> val :parts))
                  (max-parts (max (n (.> a :parts)) (n (.> b :parts))))]
             (for i 1 max-parts 1
-              (push-cdr! val-parts 0))
+              (push! val-parts 0))
             (for i 1 max-parts 1
               (with (new-part (- (or (nth a-parts i) 0) (or (nth b-parts i) 0) (nth val-parts i)))
                 (.<! val-parts i (mod new-part part-max))
@@ -158,7 +158,7 @@
           (.<! a-parts j (mod new-val part-max))
           (when (>= new-val part-max) ; carry
             (if (= j (n a-parts))
-              (push-cdr! a-parts 1)
+              (push! a-parts 1)
               (.<! a-parts (+ j 1) (+ (nth a-parts (+ j 1)) 1)))))))))
 
 (defun shl (a b)
@@ -233,7 +233,7 @@
                             (step-format (.. "%" (string/format "%02u" step-digits) "u"))
                             (step (new (expt 10 step-digits)))]
                        (for i 1 (+ (ceil (/ (log (expt 2 (* (n (.> a :parts)) part-bits))) (log step-exp))) 1) 1
-                         (push-cdr! parts (string/format step-format (or (car (.> (mod vald step) :parts)) 0)))
+                         (push! parts (string/format step-format (or (car (.> (mod vald step) :parts)) 0)))
                          (set! vald (/ vald step)))
                        (string/concat (reverse parts)))]))]
     (while (= (string/char-at str 1) "0")
@@ -315,7 +315,7 @@
                                   (p (tonumber (string/sub a start-pos end-pos) base))]
                              (if (= p nil)
                                (error! "unexpected symbol in string.")
-                               (push-cdr! parts p)))))))]
+                               (push! parts p)))))))]
     (cond
       [(= a nil) nil]
       [(= (type a) "string")
@@ -336,7 +336,7 @@
                 (num-parts (+ (floor (/ (log n) (log 2) part-bits)) 1))]
            (.<! val :sign (< a 0))
            (for i 0 (- num-parts 1) 1
-             (push-cdr! parts (floor (mod (/ n (expt part-max i)) part-max))))))]
+             (push! parts (floor (mod (/ n (expt part-max i)) part-max))))))]
       [else (error! (.. "string, number or nothing expected, got " (type a) "."))])
     (trim! val)
     val))

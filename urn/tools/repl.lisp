@@ -229,7 +229,7 @@
         (stack '(1))]
     (for-each tok toks
       (case (type tok)
-        ["open" (push-cdr! stack (+ (pos-column (range-start (.> tok :source))) 2))]
+        ["open" (push! stack (+ (pos-column (range-start (.> tok :source))) 2))]
         ["close" (pop-last! stack)]
         [_]))
     (string/rep " " (pred (last stack)))))
@@ -266,7 +266,7 @@
              (for-pairs (name _) (scope/scope-variables scope)
                (when (and (string/starts-with? name contents) (not (.> visited name)))
                  (.<! visited name true)
-                 (push-cdr! vars (string/sub name (succ (n contents))))))
+                 (push! vars (string/sub name (succ (n contents))))))
              (recur (scope/scope-parent scope)))
            (sort! vars)
            vars)
@@ -392,7 +392,7 @@
 
                 (print! (coloured "32;1" "Exported symbols"))
                 (with (vars '())
-                  (for-pairs (name) (scope/scope-exported (library/library-scope mod)) (push-cdr! vars name))
+                  (for-pairs (name) (scope/scope-exported (library/library-scope mod)) (push! vars name))
                   (sort! vars)
                   (print! (concat vars "  ")))]))
            (logger/put-error! logger ":module <variable>")))]
@@ -408,7 +408,7 @@
            (while current
              (for-pairs (name var) (scope/scope-variables current)
                (unless (.> vars-set name)
-                 (push-cdr! vars name)
+                 (push! vars name)
                  (.<! vars-set name true)))
              (set! current (scope/scope-parent current)))
 
@@ -416,7 +416,7 @@
              ;; search by function name
              (for-each keyword keywords
                (when (string/find var keyword)
-                 (push-cdr! name-results var)))
+                 (push! name-results var)))
              ;; search by function docs
              (when-let* [(doc-var (scope/lookup scope var))
                          (temp-docs (scope/var-doc doc-var))
@@ -426,7 +426,7 @@
                  (when (string/find docs keyword)
                    (inc! keywords-found)))
                (when (eq? keywords-found (n keywords))
-                 (push-cdr! docs-results var))))
+                 (push! docs-results var))))
            (if (and (empty? name-results) (empty? docs-results))
              (logger/put-error! logger "No results")
              (progn
@@ -449,7 +449,7 @@
          (while current
            (for-pairs (name var) (scope/scope-variables current)
              (unless (.> vars-set name)
-               (push-cdr! vars name)
+               (push! vars name)
                (.<! vars-set name true)))
            (set! current (scope/scope-parent current)))
 
@@ -471,7 +471,7 @@
                           (buffer '())]
 
                      (for i (pos-line start) (pos-line finish) 1
-                       (push-cdr! buffer (string/sub (.> lines i)
+                       (push! buffer (string/sub (.> lines i)
                                                      (if (= i (pos-line start))  (pos-column start)   1)
                                                      (if (= i (pos-line finish)) (pos-column finish) -1))))
 

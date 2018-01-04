@@ -161,9 +161,9 @@
          (fields (assoc-cdr clauses 'fields '()))
          (constructor (assoc-cdr clauses 'constructor '(new new)))]
     (let* [(work '())]
-      (push-cdr! work (make-constructor docs name fields
+      (push! work (make-constructor docs name fields
                                         constr constructor))
-      (push-cdr! work (let* [(self (gensym name))]
+      (push! work (let* [(self (gensym name))]
                         (gen-def pred (list self)
                                `((and (table? ,self)
                                       (= (.> ,self :tag) ,(symbol->string name))
@@ -172,9 +172,9 @@
                                                  `(/= (.> ,self ,(symbol->string x)) nil)))
                                              fields))))))
       (map (lambda (x)
-             (map (cut push-cdr! work <>) (field->def name x)))
+             (map (cut push! work <>) (field->def name x)))
            fields)
-      (push-cdr! work (make-meta-decl name (symb-name constr) (symb-name pred) ; names
+      (push! work (make-meta-decl name (symb-name constr) (symb-name pred) ; names
                                       clauses ; clauses
                                       meta fields)) ; clauses we use
       (splice work))))

@@ -16,7 +16,7 @@
         (unless list
           (set! list '())
           (.<! old-map (nth old i) list))
-        (push-cdr! list (pred i))))
+        (push! list (pred i))))
 
     (let [(overlap '())
           (sub-start-old 0)
@@ -39,8 +39,8 @@
 
       (if (= sub-length 0)
         (progn
-          (for-each elem old (push-cdr! out (coloured 31 (.. "- " elem))))
-          (for-each elem new (push-cdr! out (coloured 32 (.. "+ " elem)))))
+          (for-each elem old (push! out (coloured 31 (.. "- " elem))))
+          (for-each elem new (push! out (coloured 32 (.. "+ " elem)))))
         (progn
           (diff-lines
             (slice old 1 sub-start-old)
@@ -48,7 +48,7 @@
             out)
 
           (for i (succ sub-start-new ) (+ sub-start-new sub-length) 1
-            (push-cdr! out (.. "  " (nth new i))))
+            (push! out (.. "  " (nth new i))))
 
           (diff-lines
             (slice old (+ sub-start-old sub-length 1))
@@ -76,7 +76,7 @@
       (with (res (string/trim (string/gsub (writer/->string writer) "\t" "  ")))
         (when (/= res expected-src)
           (with (out '())
-            (push-cdr! out (.. "Unexpected result compiling " (pretty input-nodes)))
+            (push! out (.. "Unexpected result compiling " (pretty input-nodes)))
             (diff-lines (string/split expected-src "\n") (string/split res "\n") out)
             (fail! (concat out "\n"))))))))
 
@@ -90,6 +90,6 @@
     (with (res (string/trim (string/gsub (writer/->string writer) "\t" "  ")))
       (when (/= res expected-src)
         (with (out '())
-          (push-cdr! out (.. "Unexpected result compiling " (pretty input-nodes)))
+          (push! out (.. "Unexpected result compiling " (pretty input-nodes)))
           (diff-lines (string/split expected-src "\n") (string/split res "\n") out)
           (fail! (concat out "\n")))))))

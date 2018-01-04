@@ -20,6 +20,6 @@
    ```"
   (with (out '{})
     (for-pairs (name var) (compiler/scope-exported)
-      (push-cdr! out name)
-      (push-cdr! out (compiler/var->symbol var)))
+      (push! out name)
+      (push! out (compiler/var->symbol var)))
     out))

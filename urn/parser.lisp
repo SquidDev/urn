@@ -87,7 +87,7 @@
                                (finish (or finish (position)))]
                            (.<! data :source (range start finish))
                            (.<! data :contents (string/sub str (pos-offset start) (pos-offset finish)))
-                           (push-cdr! out data))))
+                           (push! out data))))
          ;; Appends a token to the list
          (append! (lambda (tag start finish)
                     (append-with! {:tag tag} start finish)))
@@ -314,7 +314,7 @@
                         [(= char "\n")
                          ;; Got a new line, we'll append it to the buffer and reset the start position.
                          (consume!)
-                         (push-cdr! buffer "\n")
+                         (push! buffer "\n")
                          (set! line-off offset)]
                         [(= char "")
                          ;; Got an EOF, we'll handle this in the next block so just exit.
@@ -328,7 +328,7 @@
                             (range (position)) "Mis-aligned character here")
 
                           ;; Append all the spaces.
-                          (push-cdr! buffer (string/sub str line-off (pred offset)))
+                          (push! buffer (string/sub str line-off (pred offset)))
                           (set! running false)])
                       (set! char (string/char-at str offset)))))
                 (cond
@@ -347,16 +347,16 @@
                      ;; Skip new lines
                      [(= char "\n")]
                      ;; Various escape codes
-                     [(= char "a") (push-cdr! buffer "\a")]
-                     [(= char "b") (push-cdr! buffer "\b")]
-                     [(= char "f") (push-cdr! buffer "\f")]
-                     [(= char "n") (push-cdr! buffer "\n")]
-                     [(= char "r") (push-cdr! buffer "\r")]
-                     [(= char "t") (push-cdr! buffer "\t")]
-                     [(= char "v") (push-cdr! buffer "\v")]
+                     [(= char "a") (push! buffer "\a")]
+                     [(= char "b") (push! buffer "\b")]
+                     [(= char "f") (push! buffer "\f")]
+                     [(= char "n") (push! buffer "\n")]
+                     [(= char "r") (push! buffer "\r")]
+                     [(= char "t") (push! buffer "\t")]
+                     [(= char "v") (push! buffer "\v")]
                      ;; Escaped characters
-                     [(= char "\"") (push-cdr! buffer "\"")]
-                     [(= char "\\") (push-cdr! buffer "\\")]
+                     [(= char "\"") (push! buffer "\"")]
+                     [(= char "\\") (push! buffer "\\")]
                      ;; And character codes
                      [(or (= char "x") (= char "X") (between? char "0" "9"))
                       (let [(start (position))
@@ -392,7 +392,7 @@
                             (range start) nil
                             (range start (position)) (.. "Must be between 0 and 255, is " val)))
 
-                        (push-cdr! buffer (string/char val)))]
+                        (push! buffer (string/char val)))]
                      [(= char "")
                       (eof-error! (and cont "string") out logger
                         "Expected escape code, got eof"
@@ -405,7 +405,7 @@
                          (range (position)) "Unknown escape character")])]
                   ;; Boring normal characters
                   [true
-                   (push-cdr! buffer char)])
+                   (push! buffer char)])
                 (consume!)
                 (set! char (string/char-at str offset)))
               (if interpolate
@@ -417,15 +417,15 @@
                            ((is ie im) (string/find value "%$%{([^%} ]+)%}" i))]
                       (cond
                         [(and rs (=> is (< rs is)))
-                         (push-cdr! sections (string/sub value i (pred rs)))
-                         (push-cdr! sections (.. "{#" rm "}"))
+                         (push! sections (string/sub value i (pred rs)))
+                         (push! sections (.. "{#" rm "}"))
                          (recur (succ re))]
                         [is
-                         (push-cdr! sections (string/sub value i (pred is)))
-                         (push-cdr! sections (.. "{#" im ":id}"))
+                         (push! sections (string/sub value i (pred is)))
+                         (push! sections (.. "{#" im ":id}"))
                          (recur (succ ie))]
                         [else
-                         (push-cdr! sections (string/sub value i len))])))
+                         (push! sections (string/sub value i len))])))
 
                   (logger/put-node-warning! logger
                     "The $ syntax is deprecated and should be replaced with format."
@@ -461,12 +461,12 @@
 
          ;; Append a node onto the current head
          (append! (lambda (node)
-                    (push-cdr! head node)))
+                    (push! head node)))
 
          ;; Push a node onto the stack, appending it to the previous head
          (push! (lambda ()
                   (with (next '())
-                    (push-cdr! stack head)
+                    (push! stack head)
                     (append! next)
                     (set! head next))))
 

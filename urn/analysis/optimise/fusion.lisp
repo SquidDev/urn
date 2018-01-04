@@ -106,5 +106,5 @@
 (defun add-rule! (rule)
   "Add a new fusion rule RULE."
   (assert-type! rule table)
-  (push-cdr! fusion-patterns rule)
+  (push! fusion-patterns rule)
   nil)

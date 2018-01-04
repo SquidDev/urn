@@ -9,7 +9,7 @@
   :hidden '())
 
 (defun add-setq-generator! (generator) :hidden
-  (push-cdr! *setq-generators* generator)
+  (push! *setq-generators* generator)
   `nil)
 
 (defun match-setq-pattern (val) :hidden

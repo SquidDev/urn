@@ -151,12 +151,12 @@
         (cond
           ;; If we have no corresponding argument, then push a single value
           [(not arg)
-           (push-cdr! res (list '() (list (nth vals vi))))
+           (push! res (list '() (list (nth vals vi))))
            (recur ai (succ vi))]
 
           ;; If we've no more values, then just push an empty list
           [(> vi vn)
-           (push-cdr! res (list (list arg) '()))
+           (push! res (list (list arg) '()))
            (recur (succ ai) vi)]
 
           [(scope/var-variadic? (.> arg :var))
@@ -165,18 +165,18 @@
              ;; all in and continue.
              (with (v-end (- vn (- an ai)))
                (when (< v-end vi) (set! v-end (pred vi)))
-               (push-cdr! res (list (list arg) (slice vals vi v-end)))
+               (push! res (list (list arg) (slice vals vi v-end)))
                (recur (succ ai) (succ v-end)))
              ;; We've no clue how many arguments are here, so zip em all
              ;; up and exit.
-             (push-cdr! res (list (slice args ai) (slice vals vi))))]
+             (push! res (list (slice args ai) (slice vals vi))))]
 
           ;; Just your bog standard argument -> value mapping
           [(or (< vi vn) (single-return? (nth vals vi)))
-           (push-cdr! res (list (list arg) (list (nth vals vi))))
+           (push! res (list (list arg) (list (nth vals vi))))
            (recur (succ ai) (succ vi))]
 
           ;; Last value and we don't know how many there are. Let's
           ;; store all arguments to this one value
           [true
-           (push-cdr! res (list (slice args ai) (list (nth vals vi))))])))))
+           (push! res (list (slice args ai) (list (nth vals vi))))])))))

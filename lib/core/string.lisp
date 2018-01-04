@@ -43,21 +43,21 @@
           ;; and exit.
           [(or (= nstart nil) (and limit (>= (n out) limit)))
            (set! loop false)
-           (list/push-cdr! out (sub text start (n text)))
+           (list/push! out (sub text start (n text)))
            (set! start (+ (n text) 1))]
           ;; If the start is beyond the string length (somehow) then maybe append the remaining text
           ;; and exit.
           [(> nstart (len# text))
            (when (<= start (len# text))
-             (list/push-cdr! out (sub text start (len# text))))
+             (list/push! out (sub text start (len# text))))
            (set! loop false)]
           ;; If the end point is before the start point (0 width match) then we'll gobble just one character
           [(< nend nstart)
-           (list/push-cdr! out (sub text start nstart))
+           (list/push! out (sub text start nstart))
            (set! start (+ nstart 1))]
           ;; Otherwise gobble everything between matches
           [else
-            (list/push-cdr! out (sub text start (- nstart 1)))
+            (list/push! out (sub text start (- nstart 1)))
             (set! start (+ nend 1))])))
     out))
 
@@ -189,15 +189,15 @@
            (chr (char-at str 1))
            (buf "")]
       [(> i (n str))
-       (when (/= buf "") (list/push-cdr! sections buf))]
+       (when (/= buf "") (list/push! sections buf))]
       (let* [((rs re rm) (find (sub str i)
                                "~%{([^%} ]+)%}"))
              ((is ie im) (find (sub str i)
                                "%$%{([^%} ]+)%}"))]
         (cond
           [(= rs 1) ; regular ~{foo}
-           (when (/= buf "") (list/push-cdr! sections buf))
-           (list/push-cdr! sections
+           (when (/= buf "") (list/push! sections buf))
+           (list/push! sections
                            `(display
                               ,{ :tag "symbol"
                                  :contents rm }))
@@ -205,8 +205,8 @@
                   (char-at str (+ i re))
                   "")]
           [(= is 1) ; plain ${foo}
-           (when (/= buf "") (list/push-cdr! sections buf))
-           (list/push-cdr! sections
+           (when (/= buf "") (list/push! sections buf))
+           (list/push! sections
                            { :tag "symbol"
                              :contents im })
            (recur (+ i ie)

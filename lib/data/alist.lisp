@@ -67,7 +67,7 @@
    > x
    out = ((\"foo\" 1) (\"bar\" 2))
    ```"
-  (push-cdr! alist (list key val)))
+  (push! alist (list key val)))
 
 (defun assoc->struct (list)
   "Convert the association list LIST into a structure. Much like
@@ -101,5 +101,5 @@
    ```"
   (with (out '())
     (for-pairs (k v) tbl
-      (push-cdr! out (list k v)))
+      (push! out (list k v)))
     out))

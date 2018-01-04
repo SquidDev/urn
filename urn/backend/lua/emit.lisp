@@ -867,7 +867,7 @@
                             (push-escape-var! (.> (car args) :var) state)
                             (with (escs '())
                               (for-each arg args
-                                (push-cdr! escs (push-escape-var! (.> arg :var) state)))
+                                (push! escs (push-escape-var! (.> arg :var) state)))
                               (concat escs ", "))))
                  (unless (and (= (n vals) 1) (.> cat-lookup (car vals) :stmt))
                    (error! (.. "Expected statement, got something " (pretty zip))))

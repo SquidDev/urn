@@ -27,7 +27,7 @@
 (defun add-usage! (state var node)
   "Mark a NODE as using a specific VAR."
   (with (var-meta (get-var state var))
-    (push-cdr! (.> var-meta :usages) node)
+    (push! (.> var-meta :usages) node)
     (.<! var-meta :active true)))
 
 (defun remove-usage! (state var node)
@@ -43,12 +43,12 @@
   "Mark a NODE as referencing a specific VAR using a syntax quote."
   :hidden
   (with (var-meta (get-var state var))
-    (push-cdr! (.> var-meta :soft) node)))
+    (push! (.> var-meta :soft) node)))
 
 (defun add-definition! (state var node kind value)
   "Add a definition for a specific VAR."
   (with (var-meta (get-var state var))
-    (push-cdr! (.> var-meta :defs) { :tag   kind
+    (push! (.> var-meta :defs) { :tag   kind
                                      :node  node
                                      :value value })))
 
@@ -76,7 +76,7 @@
                                  (unless (.> (get-var state var) :active)
                                    (when-with (defs (.> lazy-defs var))
                                      (for-each def defs
-                                       (push-cdr! queue def))))
+                                       (push! queue def))))
                                  (add-usage! state var user)))
            ;; Enqueue a lazy definition if required, returning whether it
            ;; should be visited or not.
@@ -87,7 +87,7 @@
                                 (unless defs
                                   (set! defs '())
                                   (.<! lazy-defs var defs))
-                                (push-cdr! defs node)
+                                (push! defs node)
                                 false))))
            ;; Quote visitor function
            (visit-quote
@@ -190,7 +190,7 @@
                       [_ (for i 1 (n node) 1 (visit-node (nth node i)))]))])))]
 
     (for-each node nodes
-      (push-cdr! queue node))
+      (push! queue node))
     (while (> (n queue) 0)
       (visit-node (pop-last! queue)))))
 

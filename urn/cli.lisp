@@ -166,8 +166,8 @@
                        [true])))
 
                  (with (command (list value))
-                   (when-with (interp (.> arg -1)) (push-cdr! command interp))
-                   (push-cdr! command (.> arg 0))
+                   (when-with (interp (.> arg -1)) (push! command interp))
+                   (push! command (.> arg 0))
 
                    (case (list (os/execute (concat (append command args) " ")))
                      [((number? @ ?code) . _) (os/exit code)] ; luajit.
@@ -205,11 +205,11 @@
     ;; Process include paths
     (for-each path (.> args :include)
       (cond
-        [(string/find path "%?") (push-cdr! paths (normalise-path path false))]
+        [(string/find path "%?") (push! paths (normalise-path path false))]
         [else
          (set! path (normalise-path path true))
-         (push-cdr! paths (.. path "?"))
-         (push-cdr! paths (.. path "?/init"))]))
+         (push! paths (.. path "?"))
+         (push! paths (.. path "?/init"))]))
 
     ;; Include LuaRocks modules
     (when (.> args :include-rocks)
@@ -218,7 +218,7 @@
     (logger/put-verbose! logger (.. "Using path: " (pretty paths)))
 
     (when (and (= (.> args :prelude) (.. directory lib-name "/prelude")) (empty? (.> args :plugin)))
-      (push-cdr! (.> args :plugin) (.. directory "plugins/fold-defgeneric.lisp")))
+      (push! (.> args :plugin) (.. directory "plugins/fold-defgeneric.lisp")))
 
     (cond
       [(empty? (.> args :input))

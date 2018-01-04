@@ -2,7 +2,7 @@
                    >= error progn gensym for list + else ..))
 (import core/base b)
 (import core/type (list? empty? pretty))
-(import core/list (cars cadrs caar cadar map cadr cdar cddr caddar snoc push-cdr!
+(import core/list (cars cadrs caar cadar map cadr cdar cddr caddar snoc push!
                    nth))
 
 (import lua/basic (getmetatable))

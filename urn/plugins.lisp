@@ -83,13 +83,13 @@
                             [(elem? "opt" cats)
                              (cond
                                [(any (cut string/starts-with? <> "transform-") cats)
-                                (push-cdr! (.> optimise :transform) pass)]
-                               [(elem? "usage" cats) (push-cdr! (.> optimise :usage) pass)]
-                               [else                 (push-cdr! (.> optimise :normal) pass)])]
+                                (push! (.> optimise :transform) pass)]
+                               [(elem? "usage" cats) (push! (.> optimise :usage) pass)]
+                               [else                 (push! (.> optimise :normal) pass)])]
                             [(elem? "warn" cats)
                              (cond
-                               [(elem? "usage" cats) (push-cdr! (.> warnings :usage) pass)]
-                               [else                 (push-cdr! (.> warnings :normal) pass)])]
+                               [(elem? "usage" cats) (push! (.> warnings :usage) pass)]
+                               [else                 (push! (.> warnings :normal) pass)])]
                             [else (error! (.. "Cannot register " (pretty (.> pass :name)) " (do not know how to process " (pretty cats) ")"))]))
                         nil)
       :var-usage      usage/get-var

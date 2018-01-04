@@ -41,7 +41,7 @@
   (when (< dim 1)
     (format 1 "(identity {#dim}): cannot create an empty matrix"))
   (with (out '())
-    (for i 1 (* dim dim) 1 (push-cdr! out 0))
+    (for i 1 (* dim dim) 1 (push! out 0))
     (for i 1 dim 1 (.<! out (+ (* dim (pred i)) i) 1))
     (make-matrix dim dim out)))
 
@@ -70,9 +70,9 @@
 (defmethod (pretty matrix) (m)
   (with (buffer '())
     (for y 1 (height m) 1
-      (when (> y 1) (push-cdr! buffer "//"))
+      (when (> y 1) (push! buffer "//"))
       (for x 1 (width m) 1
-        (push-cdr! buffer (pretty (matrix-item m y x)))))
+        (push! buffer (pretty (matrix-item m y x)))))
 
     (.. "[" (concat buffer " ") "]")))
 
@@ -121,7 +121,7 @@
           (with (accum 0)
             (for i 1 wa 1
               (set! accum (n+ accum (n* (matrix-item a y i) (matrix-item b i x)))))
-            (push-cdr! out accum))))
+            (push! out accum))))
 
       (make-matrix ha wb out))))
 
@@ -224,14 +224,14 @@
 
     (for y 1 h 1
       (for x 1 w 1
-        (push-cdr! temp (nth items (+ (* (pred y) w) x))))
+        (push! temp (nth items (+ (* (pred y) w) x))))
       (for x 1 w 1
-        (push-cdr! temp (if (= x y) 1 0))))
+        (push! temp (if (= x y) 1 0))))
 
     (let [(reduced (matrix-items (reduced-echelon (make-matrix (* w 2) h temp))))
           (out '())]
 
       (for y 1 h 1
         (for x 1 w 1
-          (push-cdr! out (nth reduced (+ (* (pred y) (* w 2)) w x)))))
+          (push! out (nth reduced (+ (* (pred y) (* w 2)) w x)))))
       (make-matrix w h out))))

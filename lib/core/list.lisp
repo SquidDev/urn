@@ -71,7 +71,7 @@
    ```
 
    Also **note** that functions that modify a list in-place, like
-   `insert-nth!', `remove-nth!`, `pop-last!` and `push-cdr!` will not
+   `insert-nth!', `remove-nth!`, `pop-last!` and `push!` will not
    modify the view *or* the original list.
 
    ```cl :no-test
@@ -218,11 +218,11 @@
                         (error (.. "that's no list! " (pretty (nth xss i))
                                    " (it's a " (type (nth xss i)) "!)"))
                         true)
-                      (push-cdr! out (n (nth xss i))))
+                      (push! out (n (nth xss i))))
                     out))
          (out '())]
     (for i 1 (apply min ns) 1
-      (push-cdr! out (apply fn (nths xss i))))
+      (push! out (apply fn (nths xss i))))
     out))
 
 (defun maybe-map (fn &xss)
@@ -244,13 +244,13 @@
                         (error (.. "that's no list! " (pretty (nth xss i))
                                    " (it's a " (type (nth xss i)) "!)"))
                         true)
-                      (push-cdr! out (n (nth xss i))))
+                      (push! out (n (nth xss i))))
                     out))
          (out '())]
     (for i 1 (apply min lengths) 1
       (let* [(vl (apply fn (nths xss i)))]
         (if (/= vl nil)
-          (push-cdr! out vl)
+          (push! out vl)
           nil)))
     out))
 
@@ -281,7 +281,7 @@
          (failed '())]
     (for i 1 (n xs) 1
       (with (x (nth xs i))
-        (push-cdr! (if (p x) passed failed) x)))
+        (push! (if (p x) passed failed) x)))
     (values-list passed failed)))
 
 (defun filter (p xs)
@@ -362,7 +362,7 @@
       (with (szd (pretty elm))
         (cond
           [(nil? (get-idx hm szd))
-            (push-cdr! out elm)
+            (push! out elm)
             (set-idx! hm szd elm)]
           [else])))
     out))
@@ -384,7 +384,7 @@
           (set-idx! set x x))
         (set-idx! set xs xs)))
     (for-pairs (k v) set
-      (push-cdr! out v))
+      (push! out v))
     out))
 
 (defun all (p xs)
@@ -528,16 +528,16 @@
    ```"
   (let* [(out '())]
     (for i 1 (n xss) 1
-      (push-cdr! out (nth (nth xss i) idx)))
+      (push! out (nth (nth xss i) idx)))
     out))
 
-(defun push-cdr! (xs &vals)
+(defun push! (xs &vals)
   "Mutate the list XS, adding VALS to its end.
 
    ### Example:
    ```cl
    > (define list '(1 2 3))
-   > (push-cdr! list 4)
+   > (push! list 4)
    out = (1 2 3 4)
    > list
    out = (1 2 3 4)
@@ -638,7 +638,7 @@
     `(let* [(,collect '())
             (,yield (lambda (,arg)
                       (when (/= ,arg nil)
-                        (push-cdr! ,collect ,arg))))]
+                        (push! ,collect ,arg))))]
        ,out
        ,collect)))
 
@@ -715,7 +715,7 @@
     (let* [(c st)
            (out '())]
       (while (tst c ed)
-        (push-cdr! out c)
+        (push! out c)
         (set! c (+ c inc)))
       out)))
 
@@ -729,7 +729,7 @@
    ```"
   (let* [(out '())]
     (for i (n xs) 1 -1
-      (push-cdr! out (nth xs i)))
+      (push! out (nth xs i)))
     out))
 
 (defun accumulate-with (f ac z xs)
@@ -794,7 +794,7 @@
          (x (nth xs idx))]
     (unless (nil? x)
       (while (and (<= idx ln) (p x))
-        (push-cdr! l x)
+        (push! l x)
         (set! idx (+ idx 1))
         (set! x (nth xs idx))))
     l))
@@ -813,7 +813,7 @@
          (idx 1)
          (b (take-while p xs idx))]
     (while (not (empty? b))
-      (push-cdr! l b)
+      (push! l b)
       (set! idx (+ idx (n b) 1))
       (set! b (take-while p xs idx)))
     l))
@@ -832,8 +832,8 @@
     (for idx 1 (n xs) 1
       (when (= (mod idx num) 1)
         (set! group '())
-        (push-cdr! result group))
-      (push-cdr! group (nth xs idx)))
+        (push! result group))
+      (push! group (nth xs idx)))
     result))
 
 (defun sort (xs f)
@@ -877,13 +877,13 @@
     (set! generate (lambda (name stack do-idx idx depth)
                      (when (> (n name) 1)
                        (with (head (if do-idx `(get-idx ,'xs ,idx) `(slicing-view ,'xs ,idx)))
-                         (push-cdr! out `(define ,(symb (.. "c" name "r"))
+                         (push! out `(define ,(symb (.. "c" name "r"))
                                            (lambda (,'xs)
                                              (assert-type! ,'xs ,'list)
                                              ,(reduce pair head stack))))))
 
                      (when (> (n name) 0)
-                       (push-cdr! out `(define ,(symb (.. "c" name "rs")) (lambda (,'xs) (map ,(symb (.. "c" name "r")) ,'xs)))))
+                       (push! out `(define ,(symb (.. "c" name "rs")) (lambda (,'xs) (map ,(symb (.. "c" name "r")) ,'xs)))))
 
                      (cond
                        [(<= depth 0)]

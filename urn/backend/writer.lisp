@@ -28,9 +28,9 @@
   ;; Write the indent when required
   (when (.> writer :tabs-pending)
     (.<! writer :tabs-pending false)
-    (push-cdr! (.> writer :out) (string/rep "\t" (.> writer :indent))))
+    (push! (.> writer :out) (string/rep "\t" (.> writer :indent))))
 
-  (push-cdr! (.> writer :out) text))
+  (push! (.> writer :out) text))
 
 (defun append-with! (writer text)
   "Append a piece of TEXT to the writer with the current POSITION"
@@ -44,7 +44,7 @@
   (when (or force (not (.> writer :tabs-pending)))
     (.<! writer :tabs-pending true)
     (over! (.> writer :line) succ)
-    (push-cdr! (.> writer :out) "\n")))
+    (push! (.> writer :out) "\n")))
 
 (defun indent! (writer)
   "Indent the writer"
@@ -79,7 +79,7 @@
 (defun push-node! (writer node)
   "Push NODE onto the position stack."
   (when-with (range (get-source node))
-    (push-cdr! (.> writer :node-stack) range)
+    (push! (.> writer :node-stack) range)
     (.<! writer :active-pos range)))
 
 (defun pop-node! (writer node)

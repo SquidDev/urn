@@ -74,7 +74,7 @@
     (with (other (.> (rs-compiler state) :states var))
       (when (and other (not (.> (rs-required-set state) other)))
         (.<! (rs-required-set state) other user)
-        (push-cdr! (rs-required state) other))
+        (push! (rs-required state) other))
       other)
     nil))
 
@@ -127,7 +127,7 @@
                             [idx
                              ;; We've already visited this node, on this current iteration.
                              (when (= (scope/var-kind (rs-var state)) "macro")
-                               (push-cdr! stack state)
+                               (push! stack state)
 
                                (let [(states '())
                                      (nodes '())
@@ -135,13 +135,13 @@
                                  (for i idx (n stack) 1
                                    (let [(current (nth stack i))
                                          (previous (nth stack (pred i)))]
-                                     (push-cdr! states (scope/var-name (rs-var current)))
+                                     (push! states (scope/var-name (rs-var current)))
                                      (when previous
                                        (with (user (.> (rs-required-set previous) current))
                                          (unless first-node (set! first-node user))
 
-                                         (push-cdr! nodes (range/get-source user))
-                                         (push-cdr! nodes (.. (scope/var-name (rs-var current)) " used in " (scope/var-name (rs-var previous))))))))
+                                         (push! nodes (range/get-source user))
+                                         (push! nodes (.. (scope/var-name (rs-var current)) " used in " (scope/var-name (rs-var previous))))))))
 
                                  (error/do-node-error! (rs-logger state)
                                    (.. "Loop in macros " (concat states " -> "))
@@ -151,12 +151,12 @@
                             ;; This node has already been executed so we don't need to worry about it.
                             [(= (rs-stage state) "executed")]
                             [true
-                             (push-cdr! stack state)
+                             (push! stack state)
                              (.<! stack-hash state (n stack))
 
                              (unless (.> required-set state)
                                (.<! required-set state true)
-                               (push-cdr! required state))
+                               (push! required state))
 
                              (with (visited {})
                                (for-each inner (rs-required state)

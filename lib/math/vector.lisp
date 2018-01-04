@@ -200,5 +200,5 @@
   (when (< size 1)
     (format 1 "(zero {#size}): vector must have a positive dimension"))
   (with (out '())
-    (for i 1 size 1 (push-cdr! out 0))
+    (for i 1 size 1 (push! out 0))
     (list->vector out)))

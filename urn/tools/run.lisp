@@ -57,7 +57,7 @@
              (.<! info :total-start start)
              (.<! info :inner-start start)
              (.<! info :sum         0)
-             (push-cdr! call-stack  info))
+             (push! call-stack  info))
 
           ;; If we're returning, resume the parent function
           (when (= action "return")
@@ -175,7 +175,7 @@
   (with (children '())
     (for-pairs (_ child) element
       (when (table? child)
-        (push-cdr! children child)))
+        (push! children child)))
 
     (sort! children (lambda (a b) (> (.> a :n) (.> b :n))))
 
@@ -225,10 +225,10 @@
             (if (and (= (.> info :source) (.> top :source)) (= (.> info :linedefined) (.> top :linedefined)))
               (set! info nil)
               (progn
-                (push-cdr! stack info)
+                (push! stack info)
                 (inc! pos)
                 (set! info (debug/getinfo pos "Sn")))))
-          (push-cdr! stacks stack)))
+          (push! stacks stack)))
 
       "" 1e5)
 
@@ -453,7 +453,7 @@
                  (inc! misses)
                  (self handle :write fmt-zero " " line "\n")])))
 
-          (push-cdr! summary (list path
+          (push! summary (list path
                                (string/format "%d" hits)
                                (string/format "%d" misses)
                                (format-coverage hits misses)))

@@ -29,9 +29,9 @@
     (for-each item func
       (if (slot? item)
         (with (symb (gensym))
-          (push-cdr! args symb)
-          (push-cdr! call symb))
-        (push-cdr! call item)))
+          (push! args symb)
+          (push! call symb))
+        (push! call item)))
     `(lambda ,args ,call)))
 
 (defmacro cute (&func)
@@ -50,10 +50,10 @@
         (call '()))
     (for-each item func
       (with (symb (gensym))
-        (push-cdr! call symb)
+        (push! call symb)
         (if (slot? item)
-          (push-cdr! args symb)
-          (push-cdr! vals `(,symb ,item)))))
+          (push! args symb)
+          (push! vals `(,symb ,item)))))
     `(let ,vals (lambda ,args ,call))))
 
 (defmacro -> (x &funcs)

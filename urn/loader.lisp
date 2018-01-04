@@ -67,13 +67,13 @@
         (case (list (string/find str "%${(%d+)}" idx))
           [(?start ?finish . _)
            (when (> start idx)
-             (push-cdr! buffer (string/sub str idx (pred start))))
+             (push! buffer (string/sub str idx (pred start))))
            (with (val (string->number (string/sub str (+ start 2) (- finish 1))))
-             (push-cdr! buffer val)
+             (push! buffer val)
              (when (> val max) (set! max val)))
            (set! idx (succ finish))]
           [?x
-           (push-cdr! buffer (string/sub str idx len))
+           (push! buffer (string/sub str idx len))
            (set! idx  (succ len))]))
 
       (unless (.> entry :count) (.<! entry :count max))
@@ -162,7 +162,7 @@
                         (library-scope lib)
                         path))
 
-        (push-cdr! (.> state :libs) lib)
+        (push! (.> state :libs) lib)
 
         ;; Extract documentation from the root node
         (when (string? (car compiled))
@@ -172,7 +172,7 @@
         ;; Append on to the complete output
         (set-library-lisp-lines! lib (range/range-lines range))
         (set-library-nodes! lib compiled)
-        (for-each node compiled (push-cdr! (.> state :out) node))))
+        (for-each node compiled (push! (.> state :out) node))))
 
     (logger/put-verbose! (.> state :log) (.. "Loaded " path " into " name))
     lib))
@@ -207,7 +207,7 @@
                 (list false msg)]
                ;; Otherwise look at the next path
                [(nil _)
-                (push-cdr! searched path)
+                (push! searched path)
                 (recur (succ i))]))))]
       [(= cached true)
        (list false (.. "Already loading " (string/quoted name)))]

@@ -31,15 +31,15 @@
   (assert-type! graph graph)
 
   (with (buffer '())
-    (push-cdr! buffer (.. "digraph " name " {\n"))
+    (push! buffer (.. "digraph " name " {\n"))
 
     (for-each node (graph-vertices graph)
       (for-pairs (next _) (vertex-out-edges node)
-        (push-cdr! buffer (string/format "  %s -> %s\n"
+        (push! buffer (string/format "  %s -> %s\n"
                             (string/quoted (pretty (vertex-value node)))
                             (string/quoted (pretty (vertex-value next)))))))
 
-    (push-cdr! buffer "}\n")
+    (push! buffer "}\n")
     (concat buffer)))
 
 (defun add-vertex! (graph value)
@@ -51,7 +51,7 @@
     (format 1 "(add-vertex! {#graph} {#value}): value already has a corresponding vertex"))
 
   (with (vertex (make-vertex value graph {} {}))
-    (push-cdr! (graph-vertices graph) vertex)
+    (push! (graph-vertices graph) vertex)
     (.<! (graph-vertex-lookup graph) value vertex)
     vertex))
 
@@ -113,7 +113,7 @@
                                (.<! v :low-link index)
                                (.<! v :on-stack true)
                                (inc! index)
-                               (push-cdr! stack v)
+                               (push! stack v)
 
                                ;; Look at all successors of v
                                (for-pairs (w _) (vertex-out-edges v)
@@ -133,9 +133,9 @@
                                    (loop [] []
                                      (with (w (pop-last! stack))
                                        (.<! w :on-stack false)
-                                       (push-cdr! scc w)
+                                       (push! scc w)
                                        (when (/= v w) (recur))))
-                                   (push-cdr! result scc)))))]
+                                   (push! result scc)))))]
 
       (for-each node (graph-vertices graph)
         (when (= (.> node :index) nil) (strong-connect node)))
@@ -291,7 +291,7 @@
     ;; Setup the initial dominator state
     (traverse-preorder root
       (lambda (vertex)
-        (push-cdr! vertices vertex)
+        (push! vertices vertex)
         (add-vertex! dom-graph (vertex-value vertex))))
 
     (.<! dominators root root)

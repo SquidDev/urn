@@ -172,7 +172,7 @@
                   else splice))
 (import core/type ())
 (import core/list (car caddr cadr cdr cddr append for-each map filter
-                   push-cdr! range snoc nth last elem? flat-map cons))
+                   push! range snoc nth last elem? flat-map cons))
 (import core/string (char-at sub))
 (import core/binders (let*))
 
@@ -289,10 +289,10 @@
         `(and (table? ,symb)
               ,@(let* [(out '(true))]
                   (for i 2 (n pattern) 2
-                    (push-cdr! out (compile-pattern-test
+                    (push! out (compile-pattern-test
                                      (nth pattern (+ 1 i))
                                      `(get-idx ,symb ,(nth pattern i))))
-                    (push-cdr! out `(get-idx ,symb ,(nth pattern i))))
+                    (push! out `(get-idx ,symb ,(nth pattern i))))
                   out))]
        [(cons-pattern? pattern)
         (let* [(pattern-sym (gensym))
@@ -300,7 +300,7 @@
                (rhs (cons-pat-right-side pattern))
                (lhs-test '())]
           (for i 1 (n lhs) 1
-            (push-cdr! lhs-test
+            (push! lhs-test
                        (compile-pattern-test (nth lhs i)
                                              `(nth ,pattern-sym ,i))))
           `(let* [(,pattern-sym ,symb)]
@@ -313,7 +313,7 @@
         (let* [(out '())
                (sym (gensym))]
           (for i 1 (n pattern) 1
-            (push-cdr! out (compile-pattern-test (nth pattern i)
+            (push! out (compile-pattern-test (nth pattern i)
                                                 `(nth ,sym ,i))))
           `(let* [(,sym ,symb)]
              (and (list? ,sym)
@@ -357,7 +357,7 @@
             (for i 2 (n pattern) 2
               (for-each elem (compile-pattern-bindings (nth pattern (+ i 1))
                                                        `(get-idx ,symb ,(nth pattern i)))
-                (push-cdr! out elem)))
+                (push! out elem)))
             out)]
          [(cons-pattern? pattern)
           (let* [(lhs (cons-pat-left-side pattern))
@@ -365,13 +365,13 @@
                  (lhs-bindings '())]
             (for i 1 (n lhs) 1
               (for-each elem (compile-pattern-bindings (nth lhs i) `(nth ,symb ,i))
-                (push-cdr! lhs-bindings elem)))
+                (push! lhs-bindings elem)))
             (append lhs-bindings (compile-pattern-bindings rhs `(slice ,symb ,(+ 1 (n lhs))))))]
          [else
           (let* [(out '())]
             (for i 1 (n pattern) 1
               (for-each elem (compile-pattern-bindings (nth pattern i) `(nth ,symb ,i))
-                (push-cdr! out elem)))
+                (push! out elem)))
             out)])]
       [(meta? pattern)
        `((,{ :tag "symbol" :contents (sub (get-idx pattern "contents") 2) } ,symb))]

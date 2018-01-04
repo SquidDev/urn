@@ -10,7 +10,7 @@
     (with (res (string/trim (string/gsub (writer/->string out) "\t" "  ")))
       (when (/= res expected-src)
         (with (out '())
-          (push-cdr! out (.. "Unexpected result compiling " (pretty meta)))
+          (push! out (.. "Unexpected result compiling " (pretty meta)))
           (diff-lines (string/split expected-src "\n") (string/split res "\n") out)
           (fail! (concat out "\n")))))))
 

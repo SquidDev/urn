@@ -137,13 +137,13 @@
 (defun keys (st)
   "Return the keys in the structure ST."
   (with (out '())
-    (for-pairs (k _) st (push-cdr! out k))
+    (for-pairs (k _) st (push! out k))
     out))
 
 (defun values (st)
   "Return the values in the structure ST."
   (with (out '())
-    (for-pairs (_ v) st (push-cdr! out v))
+    (for-pairs (_ v) st (push! out v))
     out))
 
 (defun update-struct (st &keys)

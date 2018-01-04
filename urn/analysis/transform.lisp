@@ -188,16 +188,16 @@
     (for-each trans transformers
       (let* [(tracker (create-tracker))
              (run (.> trans :run))]
-        (push-cdr! trackers tracker)
+        (push! trackers tracker)
 
         (for-each cat (.> trans :cat)
           (when-with (group (string/match cat "^transform%-(.*)"))
             (unless (.> trans-lookup group)
               (error! (.. "Unknown category " cat " for " (.> trans :name))))
             (if (string/ends-with? group "-block")
-              (push-cdr! (.> trans-lookup group)
+              (push! (.> trans-lookup group)
                 (lambda (node start) (run tracker state node start lookup)))
-              (push-cdr! (.> trans-lookup group)
+              (push! (.> trans-lookup group)
                 (lambda (node) (run tracker state node lookup))))))))
 
     (transform nodes trans-lookup lookup)

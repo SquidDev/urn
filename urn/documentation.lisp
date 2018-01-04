@@ -79,18 +79,18 @@
           (progn
             ;; Find any text between tokens
             (when (< pos spos)
-              (push-cdr! out { :kind     "text"
+              (push! out { :kind     "text"
                                :contents (string/sub str pos (pred spos)) }))
 
             ;; And push this token
-            (push-cdr! out { :kind     name
+            (push! out { :kind     name
                              :whole    (string/sub str spos epos)
                              :contents (string/match (string/sub str spos epos) ptrn) })
             (set! pos (succ epos)))
 
           (progn
             ;; Nothing matched to push the remaining text and exit
-            (push-cdr! out { :kind     "text"
+            (push! out { :kind     "text"
                              :contents (string/sub str pos len) })
             (set! pos (succ len))))))
     out))
@@ -109,15 +109,15 @@
            (cond
              ;; If we have a code block then terminate immediately.
              [(= (string/sub (.> tok :whole) 1 3) "```")
-              (push-cdr! result { :kind "text" :contents "..." })]
+              (push! result { :kind "text" :contents "..." })]
              ;; Otherwise continue as normal
              [else
-              (push-cdr! result tok)
+              (push! result tok)
               (recur (succ i))])]
 
           ;; Arguments and links can be appended as normal
           [(or (= kind "arg") (= kind "link"))
-           (push-cdr! result tok)
+           (push! result tok)
            (recur (succ i))]
 
           [else
@@ -130,14 +130,14 @@
 
              (cond
                [end
-                (push-cdr! result { :kind     kind
+                (push! result { :kind     kind
                                     :contents (-> (.> tok :contents)
                                                   (string/sub <> 1 end)
                                                   (string/gsub <> "\n", " ")
                                                   (.. <> (string/rep "*" (.> stars kind)))) })]
 
                [else
-                (push-cdr! result { :kind     kind
+                (push! result { :kind     kind
                                     :contents (.> (string/gsub (.> tok :contents) "\n" " "))
                                     :whole    (and (.> tok :whole) (.> (string/gsub (.> tok :whole) "\n" " "))) })
                 (recur (succ i))]))])))

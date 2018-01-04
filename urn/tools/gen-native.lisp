@@ -26,7 +26,7 @@
     (for-each node (library-nodes lib)
       (when (and (list? node) (symbol? (car node)) (= (.> (car node) :contents) "define-native"))
         (with (name (.> (nth node 2) :contents))
-          (push-cdr! natives name)
+          (push! natives name)
 
           (set! max-name (math/max max-name (n (string/quoted name))))
           (set! max-quot (math/max max-quot (n (string/quoted (dot-quote prefix name))))))))

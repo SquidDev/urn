@@ -118,7 +118,7 @@
          (let* [(branch (pop-last! node))
                 (child-cond (nth branch 2))]
            (for i 2 (n child-cond) 1
-             (push-cdr! node (nth child-cond i))))
+             (push! node (nth child-cond i))))
          (changed!)
          node]
         [else node]))
@@ -164,7 +164,7 @@
 
                 ;; Push all the `nil`s we need
                 (while (< val-n i)
-                  (push-cdr! node (make-nil))
+                  (push! node (make-nil))
                   (inc! val-n))
 
                 ;; Remove the setter and shift it to the function call
@@ -201,7 +201,7 @@
                  (for i 1 (n args) 1
                    (changed!)
                    (with (arg (remove-nth! args 1))
-                     (push-cdr! node-args arg)
+                     (push! node-args arg)
                      (.<! vars (.> arg :var) true)))]
 
                 ;; If the value contains any of the variables then we'll exit the loop
@@ -209,9 +209,9 @@
 
                 [true
                  (changed!)
-                 (push-cdr! node (remove-nth! child 2))
+                 (push! node (remove-nth! child 2))
                  (with (arg (remove-nth! args 1))
-                   (push-cdr! node-args arg)
+                   (push! node-args arg)
                    (.<! vars (.> arg :var) true))
 
                  (recur)])))

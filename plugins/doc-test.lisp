@@ -81,7 +81,7 @@
           (for-each entry docs
             (let [(lines (string/split entry "\n"))
                   (asserts `(_/test/it ,(.. "has tests for " (.> var :full-name))))]
-              (push-cdr! tests asserts)
+              (push! tests asserts)
               (cond
                 ;; Just do a couple of sanity checks on the code
                 [(empty? lines)
@@ -104,7 +104,7 @@
                          (loop [] [(> i (n lines))]
                            (with (line (nth lines i))
                              (when (= (string/char-at line 1) ".")
-                               (push-cdr! buffer (string/sub line 2))
+                               (push! buffer (string/sub line 2))
                                (inc! i)
                                (recur))))
 
@@ -124,7 +124,7 @@
                              [(and (list? (car res)) (elem? (caar res) '(define define-macro defun defmacro defgeneric)))
                               (with (renamed (string->symbol (.. name "/" (symbol->string (cadar res)))))
                                 (.<! subst (symbol->string (cadar res)) renamed)
-                                (push-cdr! top-level (_/subst (car res) subst))
+                                (push! top-level (_/subst (car res) subst))
                                 (set! res renamed))]
                              [true (set! res (_/subst (car res) subst))])
 
@@ -134,7 +134,7 @@
                                (loop [] [(> i (n lines))]
                                  (with (line (nth lines i))
                                    (unless (or (string/starts-with? line "out = ") (string/starts-with? line ">"))
-                                     (push-cdr! stdout line)
+                                     (push! stdout line)
                                      (inc! i)
                                      (recur))))
 
@@ -150,7 +150,7 @@
                                    [(not (string/starts-with? line "out ="))
                                     (if (empty? stdout)
                                       (progn
-                                        (push-cdr! asserts res)
+                                        (push! asserts res)
                                         (recur))
                                       (progn
                                         (_/var-warning! var (.. "Expected result to start with \"out = \", got " (pretty line)))
@@ -163,15 +163,15 @@
                                       (loop [] [(> i (n lines))]
                                         (with (line (nth lines i))
                                           (when (string/starts-with? line " ")
-                                            (push-cdr! res-lines (string/trim line))
+                                            (push! res-lines (string/trim line))
                                             (inc! i)
                                             (recur))))
 
                                       (if (empty? stdout)
-                                        (push-cdr! asserts `(_/test/affirm (= (pretty ,res) ,(concat res-lines " "))))
+                                        (push! asserts `(_/test/affirm (= (pretty ,res) ,(concat res-lines " "))))
                                         (with (stdout-sym (gensym 'stdout))
-                                          (push-cdr! asserts `(let* [(,stdout-sym '())
-                                                                     (print! (lambda (,'&args) (push-cdr! ,stdout-sym (concat (map tostring ,'args) "   ")) nil))]
+                                          (push! asserts `(let* [(,stdout-sym '())
+                                                                     (print! (lambda (,'&args) (push! ,stdout-sym (concat (map tostring ,'args) "   ")) nil))]
                                                                 (_/test/affirm
                                                                   (= (pretty ,res) ,(concat res-lines " "))
                                                                   (eq? ',stdout ,stdout-sym)))))))
@@ -184,7 +184,7 @@
 
                                     (recur)])))))))))]))))))
 
-    (push-cdr! top-level tests)
+    (push! top-level tests)
     top-level))
 
 ,@(with (args
@@ -198,7 +198,7 @@
     (when (empty? args) (fail! "No arguments given to doc-test"))
     (with (libs (filter (lambda (x) (/= (string/char-at x 1) "-")) args))
       (with (gen (map (lambda (x) `(import ,(string->symbol x) ())) libs))
-        (push-cdr! gen (list `unquote-splice
+        (push! gen (list `unquote-splice
                              `(_/build-vars ',(if (or (elem? "--all" args) (elem? "-a" args))
                                                 '()
                                                 libs))))

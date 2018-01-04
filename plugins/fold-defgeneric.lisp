@@ -10,8 +10,8 @@
     (loop [(i 2)]
       [(> i len)
        (with (sub (list (fix-symbol `struct-literal)))
-         (push-cdr! lookup key)
-         (push-cdr! lookup sub)
+         (push! lookup key)
+         (push! lookup sub)
          sub)]
       (if (eq? (nth lookup i) key)
         (nth lookup (succ i))
@@ -40,7 +40,7 @@
               -> { :name ?name :entries ?entries :value ?value })
              :when (.> methods (symbol->var name)))
 
-           (push-cdr! (.> methods (symbol->var name) :impl) { :entries entries :value value :node node })
+           (push! (.> methods (symbol->var name) :impl) { :entries entries :value value :node node })
            (changed!)
            (remove-nth! nodes i)]
 
@@ -48,7 +48,7 @@
           [(((matcher (set-idx! ?name :default ?value))
               -> { :name ?name :value ?value })
              :when (.> methods (symbol->var name)))
-           (push-cdr! (.> methods (symbol->var name) :impl) { :entries "default" :value value :node node })
+           (push! (.> methods (symbol->var name) :impl) { :entries "default" :value value :node node })
            (changed!)
            (remove-nth! nodes i)]
 
@@ -69,16 +69,16 @@
                    (matches? (pattern ((builtin/lambda (,'myself) (set! ,'myself (builtin/lambda ?&_)) ,'myself) nil)) value))
                (case entries
                  ["default"
-                  (push-cdr! (.> method :table) (nth node 3))
-                  (push-cdr! (.> method :table) value)]
+                  (push! (.> method :table) (nth node 3))
+                  (push! (.> method :table) value)]
 
                  [?entries
                   (with (sub-lookup lookup)
                     (for i 1 (pred (n entries)) 1
                       (set! sub-lookup (get-lookup sub-lookup (nth entries i))))
 
-                    (push-cdr! sub-lookup (last entries))
-                    (push-cdr! sub-lookup value))])]
+                    (push! sub-lookup (last entries))
+                    (push! sub-lookup value))])]
 
               [else
                ;; We've got some complex expression, so we transform it to

@@ -48,5 +48,5 @@
 
             ;; Push X/urn-lib/? and X/urn-lib/?/init onto the path
             (logger/put-verbose! logger (string/format "Including %s %s (located at %s)" module main-version root-path))
-            (push-cdr! paths (call dir :path root-path "urn-lib" "?"))
-            (push-cdr! paths (call dir :path root-path "urn-lib" "?" "init"))))))))
+            (push! paths (call dir :path root-path "urn-lib" "?"))
+            (push! paths (call dir :path root-path "urn-lib" "?" "init"))))))))

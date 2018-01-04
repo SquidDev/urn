@@ -42,8 +42,8 @@
 
         (when (/= (concat res "\n") expected-src)
           (with (out '())
-            (push-cdr! out "Unexpected result compiling")
-            (push-cdr! out input-src)
+            (push! out "Unexpected result compiling")
+            (push! out input-src)
             (diff-lines (string/split expected-src "\n") res out)
             (fail! (concat out "\n"))))))))
 
