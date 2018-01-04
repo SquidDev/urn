@@ -7,6 +7,30 @@
   (unless (string? msg) (set! msg (pretty msg)))
   (debug/traceback msg 2))
 
+(defun truncate-traceback (trace)
+  "Remove trailing lines from the provided TRACE."
+  (let* [(there (string/split trace "\n"))
+         (here (string/split (debug/traceback) "\n"))]
+
+    ;; First strip the common suffix
+    (loop [(i (math/min (n here) (n there)))]
+      [(<= i 1)]
+      (when (= (nth here i) (nth there i))
+        (remove-nth! here i)
+        (recur (pred i))))
+
+    ;; If we contain an xpcall then strip up to and including that.
+    ;; Note we use xpcall1 instead, as we're executing in Urn and so
+    ;; it'll be mangled.
+    (loop [(i (n there))]
+      [(<= i 1)]
+      (if (or (= (nth there i) "\t[C]: in function 'xpcall1'")
+              (= (nth there i) "\t[C]: in function 'xpcall'"))
+        (for j (n there) i -1 (remove-nth! there j))
+        (recur (pred i))))
+
+    (concat there "\n")))
+
 (defun unmangle-ident (ident)
   "Attempt to unmangle IDENT, converting it from the escaped form to the unescaped form."
   (with (esc (string/match ident "^(.-)%d+$"))
@@ -65,6 +89,7 @@
 (defun remap-traceback (mappings msg)
   "Remap the traceback MSG using the line MAPPINGS. Also attempt to unmangle variable names."
   (-> msg
+    truncate-traceback
     (string/gsub <> "^([^\n:]-:%d+:[^\n]*)" (cut remap-message mappings <>))
     (string/gsub <> "\t([^\n:]-:%d+:)" (lambda (msg) (.. "\t" (remap-message mappings msg))))
     (string/gsub <> "<([^\n:]-:%d+)>\n" (lambda (msg) (.. "<" (remap-message mappings msg) ">\n")))
