@@ -550,6 +550,20 @@
       (set-idx! xs (+ nxs i) (get-idx vals i)))
     xs))
 
+(define push-cdr!
+  "Mutate the list XS, adding VALS to its end.
+
+   ### Example:
+   ```cl
+   > (define list '(1 2 3))
+   > (push-cdr! list 4)
+   out = (1 2 3 4)
+   > list
+   out = (1 2 3 4)
+   ```"
+  :deprecated "Use [[push!]] instead."
+  push!)
+
 (defun pop-last! (xs)
   "Mutate the list XS, removing and returning its last element.
 
