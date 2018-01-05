@@ -844,7 +844,7 @@
   (let* [(result '())
          (group nil)]
     (for idx 1 (n xs) 1
-      (when (= (mod idx num) 1)
+      (when (= (mod (- idx 1) num) 0)
         (set! group '())
         (push! result group))
       (push! group (nth xs idx)))
