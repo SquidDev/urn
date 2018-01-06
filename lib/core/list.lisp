@@ -26,11 +26,13 @@
                    second for-pairs))
 
 (import core/base b)
-(import lua/table)
-(import lua/string)
-(import core/type (nil? list? empty? exists? falsey? eq? neq? type pretty debug))
 (import core/demand (assert-type!))
+(import core/method (pretty eq? neq?))
+(import core/type (nil? list? empty? exists? falsey? type))
+
 (import lua/math (min max huge))
+(import lua/string)
+(import lua/table)
 
 (defun car (x)
   "Return the first element present in the list X. This function operates

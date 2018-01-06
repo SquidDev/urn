@@ -1,7 +1,7 @@
 (import core/base (defmacro if not when car and or cdr and print /= get-idx defun = n
                    >= error progn gensym for list + else ..))
 (import core/base b)
-(import core/type (list? empty? pretty))
+(import core/type (list? empty?))
 (import core/list (cars cadrs caar cadar map cadr cdar cddr caddar snoc push!
                    nth))
 

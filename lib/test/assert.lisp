@@ -1,13 +1,9 @@
-(import core/base (defmacro not with gensym and progn error lambda let*
-                   unless for if = list or > n when - ..))
-(import core/list (map push! nth))
-(import core/type (list? symbol? pretty))
-(import lua/string string)
-(import lua/table (concat))
+(import core/prelude ())
 
 (defmacro assert! (cnd msg)
   "Assert CND is true, otherwise failing with MSG"
-  `(unless ,cnd (error ,msg 0)))
+  :deprecated "Use [[demand]] instead"
+  `(demand ,cnd ,msg))
 
 (defmacro affirm (&asserts)
   "Assert each expression in ASSERTS evaluates to true
@@ -67,5 +63,5 @@
                     (push! out `(pretty ,(nth nodes i))))))
              `(let* (,@bindings)
                 (unless ,nodes
-                  (error (.. ,@out))))))
+                  (error! (.. ,@out))))))
          asserts )))

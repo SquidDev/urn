@@ -1,5 +1,6 @@
 (import core/base (defun defmacro error get-idx if unless setmetatable =))
-(import core/type (type list? symbol? pretty defmethod))
+(import core/method (pretty defmethod))
+(import core/type (type list? symbol?))
 
 (import compiler (flag?))
 (import lua/debug debug)

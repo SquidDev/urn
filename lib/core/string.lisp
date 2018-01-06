@@ -1,10 +1,11 @@
 (import core/base (defun getmetatable if n progn with for tostring len#
               type# >= > < <= = /= + - car or and list when set-idx!
               get-idx getmetatable while .. defmacro else))
-(import core/type (pretty))
 (import core/base (concat) :export)
-(import core/list list)
 (import core/binders (loop let*))
+(import core/list list)
+(import core/method (pretty))
+
 (import lua/string () :export)
 
 (defun char-at (xs x)

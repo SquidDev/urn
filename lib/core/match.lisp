@@ -165,16 +165,19 @@
  `[pattern => exps]`. In the latter case, the form matched against is
  bound, in its entirety, to the variable `it`."
 
-(import lua/basic (pcall))
-(import lua/math (max))
+
 (import core/base (defun defmacro if get-idx and gensym error for set-idx!
                   quasiquote list or slice concat apply /= n = not - + / * >= <= mod ..
                   else splice))
-(import core/type ())
+(import core/binders (let*))
 (import core/list (car caddr cadr cdr cddr append for-each map filter
                    push! range snoc nth last elem? flat-map cons))
+(import core/method (eq? eql? pretty))
 (import core/string (char-at sub))
-(import core/binders (let*))
+(import core/type (list? symbol? key? string? boolean? number? table?))
+
+(import lua/basic (pcall))
+(import lua/math (max))
 
 (defun cons-pattern? (pattern) :hidden
   (and (list? pattern)
