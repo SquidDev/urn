@@ -39,7 +39,8 @@
                                   (error/do-node-error!     logger msg (range/get-top-source node) explain (splice lines)))
       :range/get-source    range/get-source
       :flags               (lambda () (map id (.> compiler :flags)))
-      :flag?               (cut elem? <> (.> compiler :flags))
+      :flag?               (lambda (&flags)
+                             (any (cut elem? <> (.> compiler :flags)) flags))
 
       ;; nodes.lisp
       :visit-node     visitor/visit-node

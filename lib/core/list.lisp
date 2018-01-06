@@ -28,7 +28,8 @@
 (import core/base b)
 (import lua/table)
 (import lua/string)
-(import core/type (nil? list? empty? assert-type! exists? falsey? eq? neq? type pretty debug))
+(import core/type (nil? list? empty? exists? falsey? eq? neq? type pretty debug))
+(import core/demand (assert-type!))
 (import lua/math (min max huge))
 
 (defun car (x)

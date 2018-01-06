@@ -1,8 +1,9 @@
 (import core/base (defmacro defun let* when if list unless gensym slice progn get-idx
               set-idx! error = /= mod - + n or for for-pairs with not apply else))
 (import lua/basic (next len#) :export)
-(import core/type (key? assert-type!))
+(import core/demand (assert-type!))
 (import core/list ())
+(import core/type (key?))
 
 (defun struct->list (tbl)
   "Converts a structure TBL that is a list by having its keys be indices

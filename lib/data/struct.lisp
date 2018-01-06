@@ -25,7 +25,7 @@
     [?x x]))
 
 (defun maybe-check (field tp value)
-  (if (flag? "strict-structs")
+  (if (flag? :strict :strict-structs)
     `(when (/= (type ,value) ,(symbol->string tp))
        (format 1 "{}: value '{}' is not of type {}"
                ',(symb-name field) ,value ',tp))
