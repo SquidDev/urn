@@ -1,6 +1,6 @@
 LUA        ?= lua
 LUA_FLAGS  ?=-O2
-TEST_FLAGS ?=-fstrict-structs
+TEST_FLAGS ?=-fstrict
 TEST_ARGS  ?=
 OUT_DIR    ?= bin
 DOCS_DIR   ?= docs_tmp

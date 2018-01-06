@@ -5,14 +5,15 @@
                    slice not = /= < <= >= > ..) :export)
 
 (import core/base b)
-(import core/string (concat $) :export)
 (import core/binders () :export)
+(import core/demand () :export)
 (import core/list () :export)
-(import core/string string :export)
 (import core/match (destructuring-bind case handler-case matches? function if-match) :export)
+(import core/string (concat $) :export)
+(import core/string string :export)
+(import core/symbol () :export)
 (import core/table () :export)
 (import core/type () :export)
-(import core/symbol () :export)
 
 (import lua/os)
 (import lua/io (write) :export)

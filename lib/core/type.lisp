@@ -115,15 +115,6 @@
   (and (eq? (type x) (type y))
        (eq? x y)))
 
-(defmacro assert-type! (arg ty)
-  "Assert that the argument ARG has type TY, as reported by the function
-   [[type]]."
-  (let* [(sym (gensym))
-         (ty (get-idx ty "contents"))]
-    `(let* [(,sym (type ,arg))]
-      (when (/= ,sym ,ty)
-        (error (format "bad argument %s (expected %s, got %s)" ,(pretty arg) ,ty ,sym) 2)))))
-
 ; === method system ===
 
 ; this is a not-invented-here version of .> from table

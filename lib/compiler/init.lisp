@@ -49,4 +49,4 @@
   "Get a list of all compiler flags.")
 
 (define-native flag?
-  "Determine whether the given compiler FLAG is set.")
+  "Determine whether one of the given compiler FLAGS are set.")
