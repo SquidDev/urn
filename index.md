@@ -1,7 +1,7 @@
 # Urn: A Lisp implementation for Lua
 
-Urn is a new language developed by SquidDev, and demhydraz. Urn is a Lisp dialect with a focus on minimalism which
-compiles to Lua.
+Urn is a new language developed by SquidDev, and demhydraz. Urn is a Lisp dialect with a focus on minimalism which compiles
+to Lua.
 
 ## What?
  - A minimal¹ Lisp implementation, with full support for compile time code execution and macros.
@@ -63,8 +63,10 @@ out = <span style="color:#ff9d3a;">{&quot;bar&quot; 2 &quot;foo&quot; 1}</span>
 </pre>
 
 ## Getting started
-We have a [getting started guide](tutorial/01-introduction.md) to help you get set up. Or you
-can [clone the repo](https://gitlab.com/urn/urn) and jump right in!
+We have a [getting started guide](tutorial/01-introduction.md) to help you get set up. Or you can [clone the
+repo](https://gitlab.com/urn/urn) and jump right in!
 
-The website also contains [documentation for all functions and macros](docs/lib.prelude.md), should you need to check
-how something works.
+The website also contains [documentation for all functions and macros](docs/lib.prelude.md), should you need to check how
+something works.
+
+If you have any questions, would like to contribute or just feel like chatting, do join us in the `#urn` channel on FreeNode.
