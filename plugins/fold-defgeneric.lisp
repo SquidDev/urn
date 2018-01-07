@@ -36,7 +36,7 @@
 
         (case node
           ;; Find defmethod and defalias instances
-          [(((matcher ($core/type/put! ?name (list :lookup ?&entries) ?value))
+          [(((matcher ($core/method/put! ?name (list :lookup ?&entries) ?value))
               -> { :name ?name :entries ?entries :value ?value })
              :when (.> methods (symbol->var name)))
 

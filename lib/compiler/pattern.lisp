@@ -13,7 +13,7 @@
     (and (= (.> x :var) nil) (> (n str) 1) (= (string/char-at str 1) "%"))))
 
 (defun fullvar? (x)
-  "Determine whether X is a gensym var."
+  "Determine whether X is a fully qualified variable."
   :hidden
   (with (str (symbol->string x))
     (and (= (.> x :var) nil) (> (n str) 1) (= (string/char-at str 1) "$"))))
