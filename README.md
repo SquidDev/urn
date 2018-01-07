@@ -1,7 +1,7 @@
 # ![](https://i.imgur.com/XqKyCMC.png) Urn [![Travis Build Status](https://travis-ci.org/SquidDev/urn.svg?branch=master)](https://travis-ci.org/SquidDev/urn) [![Build status](https://gitlab.com/urn/urn/badges/master/build.svg)](https://gitlab.com/urn/urn/commits/master)
 
-Urn is a new language developed by SquidDev, and demhydraz. Urn is a Lisp dialect with a focus on minimalism which
-compiles to Lua.
+Urn is a new language developed by SquidDev, and demhydraz. Urn is a Lisp dialect with a focus on minimalism which compiles
+to Lua.
 
 ## What?
  - A minimal¹ Lisp implementation, with full support for compile time code execution and macros.
@@ -66,6 +66,7 @@ out = <span style="color:#ff9d3a;">{&quot;bar&quot; 2 &quot;foo&quot; 1}</span>
 We have a [getting started guide](https://squiddev.github.io/urn/tutorial/01-introduction.html) to help you get set up. Or
 you can [clone the repo](https://gitlab.com/urn/urn) and jump right in!
 
-The website also
-contains [documentation for all functions and macros](https://squiddev.github.io/urn/docs/lib.prelude.html), should you
-need to check how something works.
+The website also contains [documentation for all functions and macros](https://squiddev.github.io/urn/docs/lib.prelude.html),
+should you need to check how something works.
+
+If you have any questions, would like to contribute or just feel like chatting, do join us in the `#urn` channel on FreeNode.
