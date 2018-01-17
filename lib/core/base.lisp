@@ -47,7 +47,7 @@
 ; @SquidDev is a lazy bum.
 ; @hydraz is a cheating bastard.
 ; The following is a macro-expanded and a bit polished version of
-; https://hydraz.club/txt/optional-arguments.lisp.html, which brings
+; https://hydraz.semi.works/txt/optional-arguments.lisp.html, which brings
 ; optional argument support to Urn as a macro. If it breaks, don't try
 ; to fix it; You're better off recompiling optional-arguments.lisp and
 ; polishing the code up again.
