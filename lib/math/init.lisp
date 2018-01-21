@@ -111,3 +111,5 @@
           (>= f 0.5))
       (math/ceil x)
       (math/floor x))))
+
+(define tiny "Negative infinity" (* -1 math/huge))
