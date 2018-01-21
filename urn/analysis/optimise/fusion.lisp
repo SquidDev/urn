@@ -2,11 +2,6 @@
 (import urn/analysis/pass ())
 (import urn/analysis/traverse traverse)
 
-(define fusion-patterns
-  "Defines a series of patterns of searches to replacements for patterns."
-  :hidden
-  '())
-
 (defun metavar? (x)
   "Determine whether X is a metavar."
   :hidden
@@ -16,6 +11,39 @@
   "Determine whether X is a gensym var."
   :hidden
   (and (= (.> x :var) nil) (= (string/char-at (symbol->string x) 1) "%")))
+
+(defun builtin-ptrn! (ptrn)
+  "Create a pattern from PTRN, binding builtin symbols.
+
+   Note this will mutate the input argument as well as returning it."
+  (case (type ptrn)
+    ["string" ptrn]
+    ["number" ptrn]
+    ["key" ptrn]
+    ["symbol"
+     (.<! ptrn :var (builtin (.> ptrn :contents)))
+     ptrn]
+    ["list"
+     (for i 1 (n ptrn) 1
+       (.<! ptrn i (builtin-ptrn! (nth ptrn i))))
+     ptrn]))
+
+(defmacro builtin-rule! (from to)
+  "Create a rule which maps FROM one pattern TO another using only
+   builtin variables."
+  `{ :from (builtin-ptrn! ',from)
+     :to   (builtin-ptrn! ',to) })
+
+(define fusion-patterns
+  "Defines a series of patterns of searches to replacements for patterns."
+  (list
+    ;; (not (not x)) => (if x true false)
+    (builtin-rule!
+      (cond
+        [(cond [?x false] [true true]) false]
+        [true true])
+      (cond
+        [?x true] [true false]))))
 
 (defun peq? (x y out)
   "Determines whether Y matches the pattern given in X, writing the
@@ -64,44 +92,25 @@
                (sym (.> syms name))]
           ;; TODO: Fix this up so we have actual scopes and everything.
           (unless sym
-            (set! sym { :tag "symbol"
-                        :name name
-                        :var { :tag "var" :kind "arg" :name name } })
+            (set! sym { :tag      "symbol"
+                        :contents name
+                        :var      { :tag "var" :kind "arg" :name name } })
             (.<! syms name sym))
           sym)]
        [_ (make-symbol (.> x :var))])]
     ["list" (map (cut substitute <> subs syms) x)]))
 
-(defun fix-pattern! (state ptrn)
-  "Resolve pattern variables relative to the current state."
-  (case (type ptrn)
-    ["string" ptrn]
-    ["number" ptrn]
-    ["symbol"
-     (if (.> ptrn :var)
-       (make-symbol (symbol->var state ptrn))
-       ptrn)]
-    ["list" (map (cut fix-pattern! state <>) ptrn)]))
-
-(defun fix-rule! (state rule)
-  "Resolve pattern variables relative to the current state."
-  { :from (fix-pattern! state (.> rule :from))
-    :to   (fix-pattern! state (.> rule :to)) })
-
-(defpass fusion (state nodes)
+(defpass fusion (state node)
   "Merges various loops together as specified by a pattern."
-  :cat '("opt")
-  :on false
-  (with (patterns (map (cut fix-rule! (.> state :compiler) <>) fusion-patterns))
-    (traverse/traverse-block nodes 1
-      (lambda (node)
-        (when (list? node)
-          (for-each ptrn patterns
-            (with (subs {})
-              (when (peq? (.> ptrn :from) node subs)
-                (changed!)
-                (set! node (substitute (.> ptrn :to) subs {}))))))
-        node))))
+  :cat '("opt" "transform" "transform-pre" "transform-post")
+  :level 2
+  (when (list? node)
+    (for-each ptrn fusion-patterns
+      (with (subs {})
+        (when (peq? (.> ptrn :from) node subs)
+          (changed!)
+          (set! node (substitute (.> ptrn :to) subs {}))))))
+  node)
 
 (defun add-rule! (rule)
   "Add a new fusion rule RULE."

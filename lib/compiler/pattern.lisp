@@ -1,3 +1,9 @@
+(import core/prelude (defun defmacro with case and or if let loop for
+                      symbol->string n nth list? list symbol? type gensym eq? else const-val slice
+                      = /= > <= .> .<! + -))
+(import core/string string)
+
+
 (import compiler/nodes ())
 
 (defun metavar? (x)
@@ -94,9 +100,9 @@
                    (if (and (symbol? ptrn) (metavar? ptrn) (string/starts-with? (symbol->string ptrn) "?&"))
                      (with (end (+ ie (- ne np)))
                        (.<! out (string/sub (symbol->string ptrn) 3) (slice e ie end))
-                       (recur (succ ip) (succ end)))
+                       (recur (+ ip 1) (+ end 1)))
 
-                     (and (match-impl ptrn (nth e ie) out) (recur (succ ip) (succ ie))))))))]))))
+                     (and (match-impl ptrn (nth e ie) out) (recur (+ ip 1) (+ ie 1))))))))]))))
 
 (defun match (ptrn expr)
   "Determine whether EXPR matches the provided pattern PTRN, returning
