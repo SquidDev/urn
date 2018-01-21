@@ -73,4 +73,15 @@
            x = 1
            x = nil
            return nil
-         end"))))
+         end")))
+
+  (section "tables"
+    (it "with identifier keys"
+      (affirm-codegen
+        '({ :key 123 :! 567})
+        "return {key=123, [\"!\"]=567}"))
+
+    (it "with identifier strings"
+      (affirm-codegen
+        '({ "key" 123 "!" 567})
+        "return {key=123, [\"!\"]=567}"))))

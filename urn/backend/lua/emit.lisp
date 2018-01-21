@@ -429,9 +429,19 @@
           (w/append! out "{")
           (for i 2 len 2
             (when (> i 2) (w/append! out ", "))
-            (w/append! out "[")
-            (compile-expression (nth node i) out state)
-            (w/append! out "]=")
+            (let* [(key (nth node i))
+                   (tkey (type key))]
+              (cond
+                ;; If we're a key/string and are a valid identifier then
+                ;; just emit it directly.
+                [(and (or (= tkey "string") (= tkey "key"))
+                      (string/match (.> key :value) "^[%a_][%w_]*$"))
+                 (w/append! out (.> key :value))
+                 (w/append! out "=")]
+                [else
+                 (w/append! out "[")
+                 (compile-expression key out state)
+                 (w/append! out "]=")]))
             (compile-expression (nth node (succ i)) out state))
           (w/append! out "}")])
        (when (.> cat :parens) (w/append! out ")"))]

@@ -96,7 +96,7 @@
   (if (builtin-var? var)
     (scope/var-name var)
     (with (esc (.> state :var-lookup var))
-      (unless esc (format 1 "{:id} hs not been escaped (at {:id})"
+      (unless esc (format 1 "{:id} has not been escaped (at {:id})"
                             (scope/var-name var)
                             (if (scope/var-node var) (format/format-node (scope/var-node var)) "?")))
       esc)))

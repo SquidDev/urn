@@ -89,7 +89,7 @@
       (affirm-mappings
         "{ :foo 1
            :bar 2 }"
-        "  init.lisp:1-2 | return {[\"foo\"]=1, [\"bar\"]=2}")))
+        "  init.lisp:1-2 | return {foo=1, bar=2}")))
 
   (section "for and expressions"
     (it "which span multiple lines"

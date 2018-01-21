@@ -74,7 +74,7 @@
     (it "of struct-literal"
       (affirm-codegen
         '(({ :a 1 } 1 2))
-        "return ({[\"a\"]=1})(1, 2)"))
+        "return ({a=1})(1, 2)"))
 
     (it "of constants"
       (affirm-codegen*
