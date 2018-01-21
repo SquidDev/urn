@@ -1,5 +1,5 @@
 LUA        ?= lua
-LUA_FLAGS  ?=-O2
+LUA_FLAGS  ?=-O2 --plugin plugins/fold-defgeneric.lisp --plugin plugins/fold-bool.lisp
 TEST_FLAGS ?=-fstrict
 TEST_ARGS  ?=
 OUT_DIR    ?= bin
