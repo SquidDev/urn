@@ -66,7 +66,7 @@ publish_docs: docs
 	git checkout master
 
 # Miscellaneous
-rock: # docs
+rock: all docs
 	rm -rf ${ROCKS_DIR}
 	@mkdir ${ROCKS_DIR}
 
