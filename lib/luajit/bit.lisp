@@ -1,0 +1,13 @@
+(define-native tobit)
+(define-native tohex)
+(define-native bnot)
+(define-native band)
+(define-native bor)
+(define-native bxor)
+(define-native lshift)
+(define-native rshift)
+(define-native arshift)
+(define-native rol)
+(define-native ror)
+(define-native bswap)
+
