@@ -1,10 +1,11 @@
 (import core/base (defun getmetatable if n progn with for tostring len#
               type# >= > < <= = /= + - car or and list when set-idx!
               get-idx getmetatable while .. defmacro else))
-(import core/base (concat) :export)
+(import core/base b)
 (import core/binders (loop let*))
 (import core/list list)
 (import core/method (pretty))
+(import core/demand (assert-type!))
 
 (import lua/string () :export)
 
@@ -17,6 +18,22 @@
    out = \"f\"
    ```"
   (sub xs x x))
+
+(defun concat (xs separator)
+  "Concatenate a list of strings, using an optional separator.
+
+   ### Example
+   ```cl
+   > (concat '(\"H\" \"i\" \"!\"))
+   out = \"Hi!\"
+   > (concat '(\"5\" \"+\" \"1\") \" \")
+   out = \"5 + 1\"
+   ```"
+  (assert-type! xs list)
+  (with (parent (get-idx xs :parent))
+    (if parent
+      (b/concat (get-idx xs :parent) separator (+ (get-idx xs :offset) 1) (+ (get-idx xs :n) (get-idx xs :offset)))
+      (b/concat xs separator 1 (get-idx xs :n)))))
 
 (defun split (text pattern limit)
   "Split the string given by TEXT in at most LIMIT components, which are
@@ -148,7 +165,7 @@
    > (bytes->string '(72 101 108 108 111))
    out = \"Hello\"
    ```"
-  (concat (list/map char bytes)))
+  (b/concat (list/map char bytes)))
 
 (defun chars->string (chars)
   "Convert a list of CHARS to a string.
@@ -158,7 +175,7 @@
    > (chars->string '(\"H\" \"e\" \"l\" \"l\" \"o\"))
    out = \"Hello\"
    ```"
-  (concat chars "" 1 (n chars)))
+  (b/concat chars "" 1 (n chars)))
 
 (defun display (x) :hidden
   (cond

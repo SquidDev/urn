@@ -20,6 +20,10 @@
   (it "can be concatenated"
     (affirm (eq? "abc" (.. "a" "b" "c"))
             (eq? "foo-bar-baz" (.. "foo" "-" "bar" "-" "baz"))))
+  (it "can be concatenated from a list"
+    (affirm (eq? "abc" (concat '("a" "b" "c")))
+            (eq? "a b c" (concat '("a" "b" "c") " "))
+            (eq? "bc" (concat (cdr '("a" "b" "c"))))))
   (it "can be split"
     (affirm (eq? '("foo" "bar" "baz") (split "foo-bar-baz" "-"))
             (eq? '("foo" "bar-baz") (split "foo-bar-baz" "-" 1))
