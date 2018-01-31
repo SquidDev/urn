@@ -20,6 +20,7 @@
 (define-native offsetof)
 
 (defmacro defun-ffi (name typedecl)
+  :deprecated "Use cdef and index the C table directly"
   "Define the external symbol NAME with the C type signature
    given by TYPEDECL."
   (cdef (.> typedecl :value))
