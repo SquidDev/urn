@@ -1,0 +1,8 @@
+(define-native on)
+(define-native off)
+(define-native flush)
+(define-native status)
+(define-native version)
+(define-native version-num)
+(define-native os)
+(define-native arch)
