@@ -35,7 +35,7 @@
 
     (let* [(handle (io/open (.. (library-path lib) ".meta.lua") "w"))
            (format (..
-                     "\t[%-"
+                     "  [%-"
                      (number->string (+ max-name 3))
                      "s { tag = \"var\", contents = %-"
                      (number->string (succ max-quot))

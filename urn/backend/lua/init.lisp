@@ -47,12 +47,11 @@
       (let* [(prefix (string/quoted (.. (library-unique-name lib) "/")))
              (native (library-lua-contents lib))]
         (when native
-          (w/line! out "local _temp = (function()")
+          (w/begin-block! out "local _temp = (function()")
           (for-each line (string/split native "\n")
             (when (/= line "")
-              (w/append! out "\t")
               (w/line! out line)))
-          (w/line! out "end)()")
+          (w/end-block! out "end)()")
           (w/line! out (.. "for k, v in pairs(_temp) do _libs[" prefix ".. k] = v end")))))
 
     ;; Count the number of active variables

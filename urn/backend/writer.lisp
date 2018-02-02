@@ -28,7 +28,7 @@
   ;; Write the indent when required
   (when (.> writer :tabs-pending)
     (.<! writer :tabs-pending false)
-    (push! (.> writer :out) (string/rep "\t" (.> writer :indent))))
+    (push! (.> writer :out) (string/rep "  " (.> writer :indent))))
 
   (push! (.> writer :out) text))
 
