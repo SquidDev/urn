@@ -36,6 +36,13 @@
       (= char "(") (= char ")") (= char "[") (= char "]") (= char "{") (= char "}")
       (= char "\v") (= char "\f") (= char "")))
 
+(defun closing-terminator? (char)
+  "Determines whether CHAR is a terminator of a block"
+  :hidden
+  (or (= char "\n") (= char " ") (= char "\t") (= char ";")
+      (= char ")") (= char "]") (= char "}")
+      (= char "\v") (= char "\f") (= char "")))
+
 (defun digit-error! (logger pos name char)
   "Generate an error at POS where a NAME digit was expected and CHAR received instead"
   :hidden
@@ -148,6 +155,9 @@
           [(= char "'") (append! "quote")]
           [(= char "`") (append! "syntax-quote")]
           [(= char "~") (append! "quasiquote")]
+          [(and (= char "@") (not (closing-terminator? (string/char-at str (succ offset)))))
+           ;; For backwards compatibility reasons we should ensure we've got some symbols after this.
+           (append! "splice")]
           [(= char ",")
            (if (= (string/char-at str (succ offset)) "@")
              (with (start (position))
@@ -577,7 +587,8 @@
                ;; All OK!
                (.<! head :source (range-of-span (.> head :source) (.> tok :source)))
                (pop!)])]
-          [(or (= tag "quote") (= tag "unquote") (= tag "syntax-quote") (= tag "unquote-splice") (= tag "quasiquote"))
+          [(or (= tag "quote") (= tag "unquote") (= tag "syntax-quote") (= tag "unquote-splice")
+               (= tag "quasiquote") (= tag "splice"))
            (push!)
            (.<! head :source (.> tok :source))
            (append! { :tag      "symbol"

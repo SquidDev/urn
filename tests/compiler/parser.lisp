@@ -83,7 +83,10 @@
             (eq? '("unquote-splice") (map type (lex ",@")))
             (eq? '("quote") (map type (lex "'")))
             (eq? '("syntax-quote") (map type (lex "`")))
-            (eq? '("quasiquote") (map type (lex "~")))))
+            (eq? '("quasiquote") (map type (lex "~")))
+            (eq? '("quote" "symbol") (map type (lex "'@")))
+            (eq? '("splice" "open") (map type (lex "@(")))
+            (eq? '("symbol" "close") (map type (lex "@)")))))
 
   (it "lexes lists"
     (affirm (eq? '("open" "open" "open-struct") (map type (lex "( [ {")))
@@ -132,8 +135,10 @@
             (teq? '((quote (foo))) (parse "'(foo)"))
             (teq? '((syntax-quote foo)) (parse "`foo"))
             (teq? '((syntax-quote (foo))) (parse "`(foo)"))
+            (teq? '((quasiquote foo)) (parse "~foo"))
             (teq? '((quasiquote (foo))) (parse "~(foo)"))
-            (teq? '((quasiquote (foo))) (parse "~(foo)"))))
+            (teq? '((splice foo)) (parse "@foo"))
+            (teq? '((splice (foo))) (parse "@(foo)"))))
 
   (it "parses unquotes"
     (affirm (teq? '((unquote foo)) (parse ",foo"))
