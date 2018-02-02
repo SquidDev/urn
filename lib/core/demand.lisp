@@ -29,7 +29,7 @@
   (setmetatable
     { :tag       "demand-failure"
       :message   message
-      :traceback (debug/traceback nil 2)
+      :traceback (if debug/traceback (debug/traceback nil 2) "")
       :condition condition }
     *demand-failure-mt*))
 

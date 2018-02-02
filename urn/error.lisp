@@ -1,6 +1,5 @@
 (import urn/logger logger)
-
-(import lua/debug debug)
+(import urn/traceback (traceback-plain))
 
 (define metatable
   "The metatable for compiler errors. Also doubles as a sentinel value to
@@ -33,5 +32,5 @@
   "Show a traceback for the given ERR object."
   (cond
     [(compiler-error? err) err]
-    [(string? err)        (debug/traceback err 2)]
-    [else                 (debug/traceback (pretty err) 2)]))
+    [(string? err)        (traceback-plain err 2)]
+    [else                 (traceback-plain (pretty err) 2)]))

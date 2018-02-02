@@ -1,6 +1,5 @@
 (import data/struct ())
 (import lua/basic (load))
-(import lua/debug debug)
 (import lua/io io)
 
 (import urn/library ())
@@ -10,6 +9,7 @@
 (import urn/resolve/loop (compile))
 (import urn/resolve/scope scope)
 (import urn/timer timer)
+(import urn/traceback (traceback-plain))
 
 (define path-escape
   "Lookup of characters to their escaped pattern variants."
@@ -118,7 +118,7 @@
         (set-library-lua-contents! lib contents)
 
         (if-with ((fun err) (load contents (.. "@" name)))
-          (case (list (xpcall fun debug/traceback))
+          (case (list (xpcall fun traceback-plain))
             [(false ?msg)
              (logger/put-error! (.> state :log) (format nil "Cannot load {}.lib.lua ({:tostring})" path msg))]
             [(true (table? @ ?res) . _)
@@ -136,7 +136,7 @@
         (self handle :close)
 
         (if-with ((fun err) (load contents (.. "@" name)))
-          (case (list (xpcall fun debug/traceback))
+          (case (list (xpcall fun traceback-plain))
             [(false ?msg)
              (logger/put-error! (.> state :log) (format nil "Cannot load {}.meta.lua ({:tostring})" path msg))]
             [(true (table? @ ?res) . _)

@@ -2,16 +2,22 @@
 
 (import urn/range ())
 
+(defun traceback-plain (msg level)
+  "A wrapper for [[debug/traceback]] which only calls it if it exists."
+  (cond
+    [debug/traceback (debug/traceback msg level)]
+    [(/= msg nil) msg]
+    [else ""]))
+
 (defun traceback (msg)
   "An alternative for [[debug/traceback]] which correctly remaps the error."
   (unless (string? msg) (set! msg (pretty msg)))
-  (debug/traceback msg 2))
+  (traceback-plain msg 2))
 
 (defun truncate-traceback (trace)
   "Remove trailing lines from the provided TRACE."
   (let* [(there (string/split trace "\n"))
-         (here (string/split (debug/traceback) "\n"))]
-
+         (here (string/split (traceback-plain) "\n"))]
     ;; First strip the common suffix
     (loop [(i (math/min (n here) (n there)))]
       [(<= i 1)]
