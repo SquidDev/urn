@@ -1,6 +1,6 @@
 (define-native ashr
-  "Returns the arithmetic right shift of X shifted right by DISP.  
-   If DISP is greater than 0 and the leftmost bit is 1, the void gets  
+  "Returns the arithmetic right shift of X shifted right by DISP.
+   If DISP is greater than 0 and the leftmost bit is 1, the void gets
    filled by 1, otherwise 0.")
 (define-native bit-and
   "Returns the bitwise AND of its arguments.")
@@ -13,14 +13,14 @@
 (define-native bit-xor
   "Returns the bitwise XOR of its arguments.")
 (define-native bit-extract
-  "Returns the unsigned number formed by splicing the bits FIELD to  
-   FIELD + WIDTH - 1 from X.  
-   Bit 0 is the least significant bit, bit 31 the most.  
+  "Returns the unsigned number formed by splicing the bits FIELD to
+   FIELD + WIDTH - 1 from X.
+   Bit 0 is the least significant bit, bit 31 the most.
    The default for WIDTH is 1.")
 (define-native bit-replace
-  "Returns X with the bits FIELD to FIELD + WIDTH - 1 replaced with  
-   the unsigned number value of V.  
-   Bit 0 is the least significant bit, bit 31 the most.  
+  "Returns X with the bits FIELD to FIELD + WIDTH - 1 replaced with
+   the unsigned number value of V.
+   Bit 0 is the least significant bit, bit 31 the most.
    The default for WIDTH is 1.")
 (define-native bit-rotl
   "Returns X rotated left by DISP.")
