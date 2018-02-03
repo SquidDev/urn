@@ -732,6 +732,19 @@
        (compile-expression (nth node 2) out state)
        (w/append! out ")")]
 
+      ["wrap-list"
+       (when ret (w/append! out ret))
+       (when (.> cat :parens) (w/append! out "("))
+
+       (w/append! out "{tag=\"list\", n=")
+       (w/append! out (number->string (pred (n node))))
+       (for i 2 (n node) 1
+         (w/append! out ", ")
+         (compile-expression (nth node i) out state))
+       (w/append! out "}")
+
+       (when (.> cat :parens) (w/append! out ")"))]
+
       ["call-lambda"
        ;; If we have a direction invokation of a function then inline it
        (with (empty (= ret nil))

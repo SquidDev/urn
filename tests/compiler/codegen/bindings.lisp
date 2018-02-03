@@ -3,11 +3,15 @@
 
 (describe "The codegen"
   (section "will generate value wrappers"
-    (it "for single variables"
+    (it "for normal arguments"
       (affirm-codegen
         '(((lambda (x) x) (foo)))
         "return (foo())"))
-    (it "unless they are variadic single variables"
+    (it "for variadic arguments with a known value set"
+      (affirm-codegen
+        '(((lambda (&x) x) (foo) 2))
+        "return {tag=\"list\", n=2, foo(), 2}"))
+    (it "unless there are an unknown number of values"
       (affirm-codegen
         '(((lambda (&x) x) (foo)))
         "local x = _pack(foo()) x.tag = \"list\"

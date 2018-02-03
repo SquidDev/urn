@@ -296,7 +296,7 @@
                      ;; Attempt to determine expressions of the form ((lambda (x) x) Y)
                      ;; where Y is an expression.
                      (= (n node) 2) (builtin? (car head) :lambda)
-                     ;; One non-variadic variable
+                     ;; One non-variadic argument
                      (= (n head) 3) (= (n (nth head 2)) 1)
                      (not (scope/var-variadic? (.> (car (nth head 2)) :var)))
                      ;; Whose body is just that variable.
@@ -313,6 +313,33 @@
                          ;; our fancy let bindings or just a normal call.
                          (cat "call-lambda" :stmt stmt))
                        (cat "wrap-value")))]
+
+                  [(and
+                     ;; Attempt to determine expressions of the form ((lambda (&x) x) Y...)
+                     ;; where Y are all expressions
+                     (builtin? (car head) :lambda)
+                     ;; One variadic argument
+                     (= (n head) 3) (= (n (nth head 2)) 1)
+                     (scope/var-variadic? (.> (car (nth head 2)) :var))
+                     ;; Whose body is just that variable.
+                     (symbol? (nth head 3)) (= (.> (nth head 3) :var) (.> (car (nth head 2)) :var))
+                     ;; The last Y is a single return (or we have no values)
+                     (or (= (n node) 1) (single-return? (last node))))
+
+                   ;; We now need to visit the child node.
+                   (with (node-stmt false)
+                     (for i 2 (n node) 1
+                       (with (child-cat (visit-node lookup state (nth node i) stmt test))
+                         (when (and (.> child-cat :stmt) (not node-stmt))
+                           (set! node-stmt true)
+                           (.<! lookup head (cat "lambda" :prec 100 :parens true))
+                           (visit-node lookup state (nth head 3) true false))))
+
+                     ;; If we got a statement out of it, then we either need to emit
+                     ;; our fancy let bindings or just a normal call.
+                     (if node-stmt
+                       (cat "call-lambda" :stmt stmt)
+                       (cat "wrap-list" :prec 100)))]
 
                   [(and
                      ;; Attempt to determine expressions of the form ((lambda (x) (cond [x ...] ...)) Y)

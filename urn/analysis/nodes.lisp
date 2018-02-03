@@ -96,19 +96,24 @@
   (or
     (not (list? node))
     (with (head (car node))
-      (if (symbol? head)
-        (with (func (.> head :var))
-          (cond
-            ;; Non-builtin functions will "always" return multiple values.
-            [(/= (scope/var-kind func) "builtin") false]
-            ;; Various literals will just return a single value
-            [(= func (builtin :lambda)) true]
-            [(= func (builtin :struct-literal)) true]
-            [(= func (builtin :quote)) true]
-            [(= func (builtin :syntax-quote)) true]
-            ;; Otherwise just assume it returns multiple values
-            [else false]))
-        false))))
+      (case (type head)
+        ["symbol"
+         (with (func (.> head :var))
+           (cond
+             ;; Non-builtin functions will "always" return multiple values.
+             [(/= (scope/var-kind func) "builtin") false]
+             ;; Various literals will just return a single value
+             [(= func (builtin :lambda)) true]
+             [(= func (builtin :struct-literal)) true]
+             [(= func (builtin :quote)) true]
+             [(= func (builtin :syntax-quote)) true]
+             ;; Otherwise just assume it returns multiple values
+             [else false]))]
+        ["list"
+         (and
+           (builtin? (car head) :lambda)
+           (and (>= (n head) 3) (single-return? (last head))))]
+        [_ false]))))
 
 (defun fast-all (fn li i)
   "A fast implementation of all which starts from an offset.
