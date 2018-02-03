@@ -2,12 +2,12 @@
 
 (import urn/range ())
 
-(defun traceback-plain (msg level)
+(defun traceback-plain (&args)
   "A wrapper for [[debug/traceback]] which only calls it if it exists."
   (cond
-    [debug/traceback (debug/traceback msg level)]
-    [(/= msg nil) msg]
-    [else ""]))
+    [debug/traceback (apply debug/traceback args)]
+    [(empty? args) ""]
+    [else (car args)]))
 
 (defun traceback (msg)
   "An alternative for [[debug/traceback]] which correctly remaps the error."
