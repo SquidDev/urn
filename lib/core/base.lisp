@@ -376,7 +376,7 @@
        ,tbl nil)))
 
 
-(define arg
+(define *arguments*
   "The arguments passed to the currently executing program"
   (cond
     [(= nil arg#) '()]
@@ -387,6 +387,11 @@
         [(get-idx arg# :n)]
         [true (set-idx! arg# :n (len# arg#))])
       arg#]))
+
+(define arg
+  "The arguments passed to the currently executing program"
+  :deprecated "Use [[*arguments*]] instead."
+  *arguments*)
 
 (defun const-val (val)
   "Get the actual value of VAL, an argument to a macro.

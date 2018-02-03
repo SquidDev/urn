@@ -22,7 +22,7 @@
              (arg/add-argument! spec '("--shebang")
                :help    "Set the executable to use for the shebang."
                :cat     "out"
-               :value   (or (.> arg -1) (.> arg 0) "lua")
+               :value   (or (.> *arguments* -1) (.> *arguments* 0) "lua")
                :narg    "?")
              (arg/add-argument! spec '("--chmod")
                :help    "Run chmod +x on the resulting file"

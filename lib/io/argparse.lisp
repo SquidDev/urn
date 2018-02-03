@@ -52,7 +52,7 @@
   (with (val (string->number value))
     (if val
       (.<! data (.> aspec :name) val)
-      (usage! (.. "Expected number for " (car (.> arg :names)) ", got " value)))))
+      (usage! (.. "Expected number for " (car (.> *arguments* :names)) ", got " value)))))
 
 (defun add-argument! (spec names &options)
   "Add a new argument to SPEC, using the specified NAMES.
@@ -166,7 +166,7 @@
 
 (defun usage! (spec name)
   "Display a short usage for the argument parser as defined in SPEC."
-  (unless name (set! name (or (nth arg 0) (.> arg -1) "?")))
+  (unless name (set! name (or (nth *arguments* 0) (.> *arguments* -1) "?")))
 
   (with (usage (list "usage: " name))
     (for-each arg (.> spec :opt)
@@ -197,7 +197,7 @@
 
 (defun help! (spec name)
   "Display the help for the argument parser as defined in SPEC."
-  (unless name (set! name (or (nth arg 0) (.> arg -1) "?")))
+  (unless name (set! name (or (nth *arguments* 0) (.> *arguments* -1) "?")))
   (usage! spec name)
 
   (when (.> spec :desc)
@@ -238,7 +238,7 @@
 (defun parse! (spec args)
   "Parse ARGS using the argument parser defined in SPEC. Returns a
    lookup with each argument given its value."
-  (unless args (set! args arg))
+  (unless args (set! args *arguments*))
 
   (let* [(result {})
          (pos (.> spec :pos))

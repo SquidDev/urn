@@ -48,7 +48,7 @@
                       (normalise-path dir true)
                       ;; If we haven't got an URN_ROOT variable then try to work it out from the current file
                       (with (path (or
-                                    (.> arg 0) ;; Use the file given on the command line
+                                    (.> *arguments* 0) ;; Use the file given on the command line
                                     (and debug/getinfo (string/gsub (.> (debug/getinfo 1 "S") :short_src) "^@", ""))
                                     "urn"))
                         ;; Strip the possible file names
@@ -146,7 +146,7 @@
     :help    "A wrapper script to launch Urn with"
     :narg    1
     :action  (lambda (a b value)
-               (let* [(args (map id arg))
+               (let* [(args (map id *arguments*))
                       (i 1)
                       (len (n args))]
                  (while (<= i len)
@@ -166,8 +166,8 @@
                        [true])))
 
                  (with (command (list value))
-                   (when-with (interp (.> arg -1)) (push! command interp))
-                   (push! command (.> arg 0))
+                   (when-with (interp (.> *arguments* -1)) (push! command interp))
+                   (push! command (.> *arguments* 0))
 
                    (case (list (os/execute (concat (append command args) " ")))
                      [((number? @ ?code) . _) (os/exit code)] ; luajit.

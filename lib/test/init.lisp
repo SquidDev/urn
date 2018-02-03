@@ -89,8 +89,8 @@
          (,tests-pending '())
          (,tests-total 0)
          (,prefix ,name)
-         (,quiet (any (lambda (,'x) (or (= ,'x "--quiet") (= ,'x "-q"))) arg))
-         (,time  (any (lambda (,'x) (or (= ,'x "--time") (= ,'x "-t"))) arg))]
+         (,quiet (any (lambda (,'x) (or (= ,'x "--quiet") (= ,'x "-q"))) *arguments*))
+         (,time  (any (lambda (,'x) (or (= ,'x "--time") (= ,'x "-t"))) *arguments*))]
      ,@body
 
      (when (and ,quiet (or (> ,tests-total 0) (> (n ,tests-pending) 0)))

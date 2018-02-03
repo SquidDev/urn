@@ -189,7 +189,7 @@
 
 ,@(with (args
          (loop
-           [(args arg)]
+           [(args *arguments*)]
            [(empty? args) '()]
            (if (= (car args) "--")
              (cdr args)
