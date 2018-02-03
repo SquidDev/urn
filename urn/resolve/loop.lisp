@@ -67,7 +67,7 @@
 
        (nth v1 (succ (n b))))]))
 
-(defun compile (compiler nodes scope name)
+(defun compile (compiler nodes scope name loader)
   "Attempt to resolve all variables in a list of expressions, expanding
    all macros and what not.
 
@@ -108,7 +108,7 @@
    requirement on definition order."
   (let [(queue '())
         (states '())
-        (loader (.> compiler :loader))
+        (loader (or loader (.> compiler :loader)))
         (logger (.> compiler :log))
         (timer (.> compiler :timer))]
 

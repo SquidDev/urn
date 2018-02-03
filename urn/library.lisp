@@ -29,7 +29,11 @@
       "The list of lines in the Lisp file.")
 
     (mutable lua-contents
-      "The contents of the associated Lua bindings file."))
+      "The contents of the associated Lua bindings file.")
+
+    (immutable depends
+      "Set of libraries this one directly depends on, does not include
+       transitive dependencies."))
 
   (constructor new
     (lambda (name unique-name path parent-scope)
@@ -37,4 +41,4 @@
         (scope/set-scope-prefix! scope (.. name "/"))
         (scope/set-scope-unique-prefix! scope (.. unique-name "/"))
 
-        (new name unique-name path scope nil nil nil)))))
+        (new name unique-name path scope nil nil nil nil {})))))

@@ -160,7 +160,14 @@
                         state
                         parsed
                         (library-scope lib)
-                        path))
+                        path
+                        (lambda (name)
+                          (let* [(res ((.> state :loader) name))
+                                 (module (car res))]
+                            (when module
+                              (.<! (library-depends lib) module true))
+                            res))))
+
 
         (push! (.> state :libs) lib)
 

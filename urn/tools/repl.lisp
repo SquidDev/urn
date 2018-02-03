@@ -387,14 +387,28 @@
                 (print! (.. "Located at " (library/library-path mod)))
 
                 (when-with (docs (library/library-docs mod))
-                  (print-docs! docs)
-                  (print!))
+                  (print!)
+                  (print-docs! docs))
 
-                (print! (coloured "32;1" "Exported symbols"))
-                (with (vars '())
-                  (for-pairs (name) (scope/scope-exported (library/library-scope mod)) (push! vars name))
-                  (sort! vars)
-                  (print! (concat vars "  ")))]))
+                (with (vars (-> mod
+                                library/library-scope
+                                scope/scope-exported
+                                keys
+                                sort!))
+                  (unless (empty? vars)
+                    (print!)
+                    (print! (coloured "32;1" "Exported symbols"))
+                    (print! (concat vars "  "))))
+
+                (with (imports (-> mod
+                                   library/library-depends
+                                   keys
+                                   (map library/library-name <>)
+                                   sort!))
+                  (unless (empty? imports)
+                    (print!)
+                    (print! (coloured "32;1" "Imports"))
+                    (print! (concat imports " "))))]))
            (logger/put-error! logger ":module <variable>")))]
 
       [(or (= command "search") (= command "s"))
