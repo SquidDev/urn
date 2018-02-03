@@ -52,6 +52,7 @@
                      opt/strip-pure
                      opt/constant-fold
                      opt/cond-fold
+                     opt/wrap-value-flatten
                      opt/progn-fold-expr
                      opt/progn-fold-block
                      opt/variable-fold

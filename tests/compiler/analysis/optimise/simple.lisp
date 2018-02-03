@@ -85,6 +85,16 @@
           ((lambda () 2 3) 4)) ;; TODO: Could inline this to be 4 2 3
         3))
 
+    (it "removing pointless value wrappers"
+      (affirm-transform-optimise (list optimise/wrap-value-flatten)
+        '((foo ((lambda (x) x) (bar)))
+          (foo ((lambda (x) x) (bar)) 1)
+          (((lambda (x) x) (bar))))
+        '((foo ((lambda (x) x) (bar)))
+          (foo (bar) 1)
+          ((bar)))
+        2))
+
     (it "folding let* bindings into lets"
       (affirm-transform-optimise (list optimise/lambda-fold)
         '(((lambda (x)

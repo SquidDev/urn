@@ -128,7 +128,8 @@
   "Simplify all directly called lambdas without arguments, inlining them
    were appropriate."
   :cat '("opt" "deforest" "transform-post-bind")
-  ;; Look for directly called lambdas
+  ;; Look for directly called lambdas and attempt to move direct set!s into
+  ;; a binding. This effectively reduces letrec into let.
   (when (simple-binding? node)
     (let* [(vars {})
            (node-lam (car node))
@@ -175,8 +176,8 @@
             (inc! i)
             (recur))))))
 
-
-  ;; Look for directly called lambdas
+  ;; Look for directly called lambdas and attempt to merge them together.
+  ;; Namely reducing let* into let
   (when (simple-binding? node)
     (let* [(vars {})
            (node-lam (car node))
@@ -228,6 +229,32 @@
 
             ;; And continue the loop. Otherwise there was something that couldn't be merged.
             (recur (nth node-lam 3))))))))
+
+(defpass wrap-value-flatten (state node)
+  "Flatten \"value wrappers\": lambdas with a single argument which
+   prevent returning multiple values."
+  :cat '("opt" "transform-post")
+  (when (and (list? node)
+             (with (head (car node))
+               (or (not (symbol? head)) (/= (scope/var-kind (.> head :var)) "builtin"))))
+
+    ;; We can always handle the first argument as it's either a symbol (and so a nop)
+    ;; or some directly called lambda (which we may be able to work with).
+    (for i 1 (math/max 1 (pred (n node))) 1
+      (with (arg (nth node i))
+        ;; If this argument is some sort of call
+        (when (and (list? arg) (= (n arg) 2)
+                   (with (head (car arg))
+                     (and
+                       ;; And we're calling a lambda with one argument
+                       (list? head) (= (n head) 3)
+                       (builtin? (car head) :lambda) (= (n (nth head 2)) 1)
+                       ;; And that argument is just directly returned
+                       (symbol? (nth head 3)) (= (.> (nth head 3) :var) (.> (car (nth head 2)) :var)))))
+          (changed!)
+          (.<! node i (cadr arg))))))
+
+  node)
 
 (defpass progn-fold-expr (state node)
   "Reduce [[progn]]-like nodes with a single body element into a single
