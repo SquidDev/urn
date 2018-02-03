@@ -296,7 +296,10 @@
                      ;; Attempt to determine expressions of the form ((lambda (x) x) Y)
                      ;; where Y is an expression.
                      (= (n node) 2) (builtin? (car head) :lambda)
+                     ;; One non-variadic variable
                      (= (n head) 3) (= (n (nth head 2)) 1)
+                     (not (scope/var-variadic? (.> (car (nth head 2)) :var)))
+                     ;; Whose body is just that variable.
                      (symbol? (nth head 3)) (= (.> (nth head 3) :var) (.> (car (nth head 2)) :var)))
 
                    ;; We now need to visit the child node.

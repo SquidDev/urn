@@ -89,9 +89,11 @@
       (affirm-transform-optimise (list optimise/wrap-value-flatten)
         '((foo ((lambda (x) x) (bar)))
           (foo ((lambda (x) x) (bar)) 1)
+          (foo ((lambda (&x) x) (bar)) 1)
           (((lambda (x) x) (bar))))
         '((foo ((lambda (x) x) (bar)))
           (foo (bar) 1)
+          (foo ((lambda (&x) x) (bar)) 1)
           ((bar)))
         2))
 

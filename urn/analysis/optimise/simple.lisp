@@ -246,9 +246,11 @@
         (when (and (list? arg) (= (n arg) 2)
                    (with (head (car arg))
                      (and
-                       ;; And we're calling a lambda with one argument
+                       ;; And we're calling a lambda
                        (list? head) (= (n head) 3)
+                       ;; Which has one non-variadic argument
                        (builtin? (car head) :lambda) (= (n (nth head 2)) 1)
+                       (not (scope/var-variadic? (.> (car (nth head 2)) :var)))
                        ;; And that argument is just directly returned
                        (symbol? (nth head 3)) (= (.> (nth head 3) :var) (.> (car (nth head 2)) :var)))))
           (changed!)

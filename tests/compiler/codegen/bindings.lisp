@@ -2,6 +2,17 @@
 (import tests/compiler/codegen/codegen-helpers ())
 
 (describe "The codegen"
+  (section "will generate value wrappers"
+    (it "for single variables"
+      (affirm-codegen
+        '(((lambda (x) x) (foo)))
+        "return (foo())"))
+    (it "unless they are variadic single variables"
+      (affirm-codegen
+        '(((lambda (&x) x) (foo)))
+        "local x = _pack(foo()) x.tag = \"list\"
+         return x")))
+
   (section "will which handle lambdas with variadic arguments"
     (it "on their own"
       (with (fn (lambda (&fst) fst))
