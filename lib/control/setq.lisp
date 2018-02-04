@@ -1,5 +1,6 @@
 (import core/prelude ())
 (import data/format ())
+(import math (succ pred))
 
 (defun const (x) :hidden
   (lambda (y)
@@ -136,3 +137,33 @@
                   (with (,idx-s (+ (.> ,val :n) 1 ,idx-s))
                     (.<! ,val ,idx-s (,fun (.> ,val ,idx-s)))))
                 ,val))))
+
+(defmacro inc! (address)
+  "Increments the value described by ADDRESS by 1.
+
+   ### Example
+   ```cl
+   > (with (x 1)
+   .   (inc! x)
+   .   x)
+   out = 2
+   ```"
+  `(over! ,address succ))
+
+(defmacro dec! (address)
+  "Decrements the value described by ADDRESS by 1.
+
+   ### Example
+   ```cl
+   > (with (x 1)
+   .   (dec! x)
+   .   x)
+   out = 0
+   ```"
+  `(over! ,address pred))
+
+,(add-setq-generator!
+   (lambda (x)
+     (when (symbol? x)
+       (lambda (fun)
+         `(set! ,x (,fun ,x))))))

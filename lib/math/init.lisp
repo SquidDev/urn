@@ -68,29 +68,6 @@
   "Return the predecessor of the number X."
   (- x 1))
 
-(defmacro inc! (x)
-  "Increments the symbol X by 1.
-
-   ### Example
-   ```cl
-   > (with (x 1)
-   .   (inc! x)
-   .   x)
-   out = 2
-   ```"
-  `(set! ,x (succ ,x)))
-
-(defmacro dec! (x)
-  "Decrements the symbol X by 1.
-
-   ### Example
-   ```cl
-   > (with (x 1)
-   .   (dec! x)
-   .   x)
-   out = 0
-   ```"
-  `(set! ,x (pred ,x)))
 
 
 (defun round (x)
