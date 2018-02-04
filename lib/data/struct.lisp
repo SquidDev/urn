@@ -2,6 +2,7 @@
 (import data/function (cut))
 (import compiler (flag?))
 (import data/format (format))
+(import control/setq (defsetq))
 
 (defun gen-def (name ll body &extra) :hidden
   (case name
@@ -24,12 +25,32 @@
     [(hide ?x) x]
     [?x x]))
 
-(defun maybe-check (field tp value)
+(defun maybe-check (field tp value) :hidden
   (if (flag? :strict :strict-structs)
     `(when (/= (type ,value) ,(symbol->string tp))
        (format 1 "{}: value '{}' is not of type {}"
                ',(symb-name field) ,value ',tp))
     `nil))
+
+(defun gen-setq-definiton (name type check) :hidden
+  (let* [(struct (gensym 'struct))
+         (value (gensym 'val))
+         (fun (gensym 'fun))
+         (val (gensym 'val))
+         (use (lambda (x)
+                `(,'unquote (,'quote ,x))))
+         (embed (lambda (x)
+                 `(,'unquote ,x)))
+         (inner ``(let [(,,(use val) ,,(embed struct))]
+                    (.<! ,,(use val) ,,(symbol->string name)
+                        (,,(embed fun) (.> ,,(use val) ,,(symbol->string name))))
+                    ,,(use val)))]
+    (case name
+      [(hide ?x) 'nil]
+      [?name
+        `(defsetq (,(sym.. type '- name) ,(sym.. '? struct))
+                  (lambda (,fun)
+                    ,inner))])))
 
 (defun field->def (nm field) :hidden
   (let* [(self (gensym nm))
@@ -59,7 +80,10 @@
                   `(,(maybe-check (map-name (cut sym.. 'set- nm '- <> '!) name)
                                   nm self)
                     (.<! ,self ,(symbol->string (symb-name name)) ,val))
-                  (or docs `nil)))]
+                  ':deprecated (format nil "Use the generated (setq ({} ...)) instead" (symb-name name))
+                  (or docs `nil))
+         (gen-setq-definiton name nm
+                             (maybe-check (map-name (cut sym.. 'set- nm '- <> '!) name) nm self)))]
       [(mutable ?name ?getter ?setter (optional (string? @ ?docs)))
        (snoc
          (field->def nm (list 'immutable name getter))
@@ -67,7 +91,10 @@
                   (list self val)
                   `(,(maybe-check setter nm self)
                     (.<! ,self ,(symbol->string (symb-name name)) ,val))
-                  (or docs `nil)))])))
+                  ':deprecated (format nil "Use the generated (setq ({} ...)) instead" (symb-name setter)) 
+                  (or docs `nil))
+         (gen-setq-definiton setter nm
+                             (maybe-check (map-name (cut sym.. 'set- nm '- <> '!) name) nm self)))])))
 
 (defun make-constructor (docs type-name fields symbol spec) :hidden
   (let* [(lambda-list (map (lambda (x) (symb-name (field-name x))) fields))
