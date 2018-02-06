@@ -80,7 +80,6 @@
                   `(,(maybe-check (map-name (cut sym.. 'set- nm '- <> '!) name)
                                   nm self)
                     (.<! ,self ,(symbol->string (symb-name name)) ,val))
-                  ':deprecated (format nil "Use the generated (setq ({} ...)) instead" (symb-name name))
                   (or docs `nil))
          (gen-setq-definiton name nm
                              (maybe-check (map-name (cut sym.. 'set- nm '- <> '!) name) nm self)))]
@@ -91,7 +90,6 @@
                   (list self val)
                   `(,(maybe-check setter nm self)
                     (.<! ,self ,(symbol->string (symb-name name)) ,val))
-                  ':deprecated (format nil "Use the generated (setq ({} ...)) instead" (symb-name setter)) 
                   (or docs `nil))
          (gen-setq-definiton setter nm
                              (maybe-check (map-name (cut sym.. 'set- nm '- <> '!) name) nm self)))])))
