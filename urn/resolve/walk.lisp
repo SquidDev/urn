@@ -302,7 +302,7 @@
                           (.<! (state/rs-compiler state) :active-scope scope)
                           (.<! (state/rs-compiler state) :active-node  built)
 
-                          (case (list (xpcall func traceback/traceback))
+                          (case (state/rs-exec state func)
                             [(false ?msg)
                              (error-positions! (state/rs-logger state) node (traceback/remap-traceback (state/rs-mappings state) msg))]
                             [(true . ?replacement)
@@ -352,7 +352,7 @@
                       (.<! (state/rs-compiler state) :active-scope scope)
                       (.<! (state/rs-compiler state) :active-node  built)
 
-                      (case (list (xpcall func traceback/traceback))
+                      (case (state/rs-exec state func)
                         [(false ?msg)
                          (error-positions! (state/rs-logger state) node (traceback/remap-traceback (state/rs-mappings state) msg))]
                         [(true . ?replacement)
@@ -496,7 +496,7 @@
                  (.<! (state/rs-compiler state) :active-node  node)
 
                  ;; Execute the macro
-                 (case (list (xpcall (lambda () (apply builder (cdr node))) traceback/traceback))
+                 (case (state/rs-exec state (lambda () (apply builder (cdr node))))
                    ;; The macro failed so remap the traceback and error
                    [(false ?msg)
                     (error-positions! (state/rs-logger state) first (traceback/remap-traceback (state/rs-mappings state) msg))]

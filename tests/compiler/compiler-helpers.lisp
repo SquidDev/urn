@@ -1,8 +1,9 @@
 (import urn/logger/void logger)
-(import urn/timer timer)
+(import urn/range ())
 (import urn/resolve/builtins builtins)
 (import urn/resolve/scope scope)
-(import urn/range ())
+(import urn/timer timer)
+(import urn/traceback traceback)
 
 (import lua/basic (type#))
 (import lua/basic b)
@@ -42,6 +43,7 @@
                                       :print   { :tag "var"  :contents "print" } }
 
                      :root-scope    scope
+                     :exec          (lambda (func) (list (xpcall func traceback/traceback)))
                      :variables     {}
                      :states        {}
                      :global        (b/setmetatable {} { :__index b/_G })

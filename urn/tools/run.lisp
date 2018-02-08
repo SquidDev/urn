@@ -322,25 +322,27 @@
 
     (self handle :close)))
 
+(defun profile-coverage-hook (visited)
+  "Create a coverage hook using the given VISITED map."
+  :hidden
+  (lambda (action line)
+    (with (source (.> (debug/getinfo 2 "S") :short_src))
+      (with (visited-lines (.> visited source))
+        (unless visited-lines
+          (set! visited-lines {})
+          (.<! visited source visited-lines))
+
+        (with (current (succ (or (.> visited-lines line) 0)))
+          (.<! visited-lines line current))))))
+
 (defun profile-coverage (fn mappings compiler)
   "Run FN tracking coverage and mapping it back to the original files."
   :hidden
-  (with (visited {})
-    (debug/sethook
-      (lambda (action line)
-        (with (source (.> (debug/getinfo 2 "S") :short_src))
-          (with (visited-lines (.> visited source))
-            (unless visited-lines
-              (set! visited-lines {})
-              (.<! visited source visited-lines))
-
-            (with (current (succ (or (.> visited-lines line) 0)))
-              (.<! visited-lines line current)))))
-      "l")
-
+  (with (visited (or (.> compiler :coverage-visited) {}))
+    (debug/sethook (profile-coverage-hook visited) "l")
     (fn)
-
     (debug/sethook)
+
     (.<! visited (.> (debug/getinfo 1 "S") :short_src) nil)
 
     (with (result (read-stats! "luacov.stats.out"))
@@ -490,6 +492,23 @@
 
       (self handle :close))))
 
+(defun init-lua (compiler args)
+  :hidden
+  (when (.> args :profile-compile)
+    (case (.> args :profile)
+      ["coverage"
+      ;; Setup the executor wrapper
+      (let* [(visited {})
+             (hook (profile-coverage-hook visited))
+             (exec (.> compiler :exec))]
+        (.<! compiler :coverage-visited visited)
+        (.<! compiler :exec (lambda (func)
+                              (debug/sethook hook "l")
+                              (with (result (exec func))
+                                (debug/sethook)
+                                result))))]
+      [_])))
+
 (defun run-lua (compiler args)
   :hidden
   (when (empty? (.> args :input))
@@ -523,7 +542,8 @@
            [nil     (exec)]
            ["call"  (profile-calls exec { name lines })]
            ["stack" (profile-stack exec { name lines } args)]
-           ["coverage" (profile-coverage exec { name lines } compiler)]
+           ["coverage" (profile-coverage exec (merge (.> compiler :compile-state :mappings)
+                                                     { name lines }) compiler)]
            [?x
             (logger/put-error! logger (.. "Unknown profiler '" x "'"))
             (exit! 1)]))])))
@@ -552,6 +572,9 @@
                :default nil
                :value   "stack"
                :narg    "?")
+             (arg/add-argument! spec '("--profile-compile")
+               :help    "Run the profiler when evaluating code at compile time. Not all profilers support this."
+               :cat     "run")
              (arg/add-argument! spec '("--stack-kind")
                :help    "The kind of stack to emit when using the stack profiler. A reverse stack shows callers of that method instead."
                :cat     "run"
@@ -578,6 +601,7 @@
                :default false))
 
     :pred  (lambda (args) (or (.> args :run) (.> args :profile)))
+    :init  init-lua
     :run   run-lua })
 
 (define coverage-report

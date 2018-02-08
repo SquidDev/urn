@@ -21,7 +21,7 @@ script:
   - make LUA=lua OUT_DIR="$TEMP_DIR" TIME=1 all
   - "! (diff -rq \"$TEMP_DIR\" bin | grep \"$TEMP_DIR\")"
   - echo -e "\033[36mRunning tests\033[0m"
-  - if [ -n "$URN_COVERAGE" ]; then make LUA=lua TEST_FLAGS=--profile=coverage -k test; else make LUA=lua -k test; fi
+  - if [ -n "$URN_COVERAGE" ]; then make LUA=lua TEST_FLAGS="--profile=coverage --profile-compile" -k test; else make LUA=lua -k test; fi
   - echo -e "\033[36mBuilding docs\033[0m"
   - make LUA=lua docs
 

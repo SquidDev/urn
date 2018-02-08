@@ -61,6 +61,10 @@
   "Line mapping lookup for the STATE's compiler."
   (.> (rs-compiler state) :compile-state :mappings))
 
+(defun rs-exec (state function)
+  "Wrap a FUNCTION with STATE's executor wrapper."
+  ((.> (rs-compiler state) :exec) function))
+
 (defun require! (state var user)
   "Mark STATE as requiring the given VAR. USER is the node which
    triggered this requirement."

@@ -18,6 +18,7 @@
 (import urn/resolve/scope scope)
 (import urn/resolve/state state)
 (import urn/timer timer)
+(import urn/traceback traceback)
 
 (import io/argparse arg)
 (import lua/basic (_G))
@@ -241,6 +242,8 @@
                       :warning   (warning/default)
                       :optimise  (optimise/default)
 
+                      :exec      (lambda (func) (list (xpcall func traceback/traceback)))
+
                       :root-scope builtins/root-scope
 
                       :variables {}
@@ -262,6 +265,11 @@
       ;; Store all builtin vars in the lookup
       (for-pairs (_ var) (.> compiler :root-scope :variables)
         (.<! compiler :variables (tostring var) var))
+
+      ;; Run the various setup functions
+      (for-each task tasks
+        (when ((.> task :pred) args)
+          (when-with (setup (.> task :init)) (setup compiler args))))
 
       (timer/start-timer! (.> compiler :timer) "loading")
       (with (do-load! (lambda (name)
