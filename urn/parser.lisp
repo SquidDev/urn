@@ -291,6 +291,13 @@
                        (consume!)))
 
                    (with (res (string->number (id (string/gsub (string/sub str (pos-offset start) offset) "'" ""))))
+                     (unless res
+                       (error/do-node-error! logger
+                         (string/format "Expected digit, got %s" (if (= char "")
+                                                                   "eof"
+                                                                   (string/quoted char)))
+                         (range (position)) nil
+                         (range (position)) "Illegal character here. Are you missing whitespace?"))
                      (append-with! { :tag "number" :value res } start))])])
 
              ;; Ensure the next character is a terminator of some sort, otherwise we'd allow things like 0x2-2
@@ -301,7 +308,7 @@
                (error/do-node-error! logger
                  (string/format "Expected digit, got %s" (if (= char "")
                                                            "eof"
-                                                           char))
+                                                           (string/quoted char)))
                  (range (position)) nil
                  (range (position)) "Illegal character here. Are you missing whitespace?")))]
           [(or (= char "\"") (and (= char "$") (= (string/char-at str (succ offset)) "\"")))
