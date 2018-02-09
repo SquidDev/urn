@@ -607,7 +607,9 @@
           [(= tag "eof")
            (when (/= 0 (n stack))
              (eof-error! (and cont "list") toks logger
-               (string/format "Expected '%s', got 'eof'" (.> head :close))
+               (if (.> head :auto-close)
+                 (string/format "Expected expression quote, got eof" (.> head :close))
+                 (string/format "Expected '%s', got eof" (.> head :close)))
                (.> tok :source) nil
                (.> head :source) "block opened here"
                (.> tok :source)  "end of file here"))]

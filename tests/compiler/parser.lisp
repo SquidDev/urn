@@ -11,7 +11,9 @@
 
 (defun parse (str)
   "Lex and parse STR"
-  (parser/parse void (parser/lex void str "<stdin>")))
+  (let* [(lexed (parser/lex void str "<stdin>"))
+         (parsed (parser/parse void lexed))]
+    parsed))
 
 (defun teq? (x y)
   "Check the two values X and Y are equal, unwrapping them using [[const-val]]."
@@ -61,7 +63,7 @@
             (teq? (list { :tag "rational" :num 1 :dom 2 }) (lex "1'/'2'"))
 
             (failed? "Expected hexadecimal (#x), binary (#b), or Roman (#r) digit specifier." (try (lex "#)")))
-            (failed? "Expected hexadecimal (#x), binary (#b), or Roman (#r) digit specifier." (try (lex "# ")))
+            (failed? "Expected hexadecimal (#x), binary (#b), or Roman (#r) digit specifier." (try (lex "#a")))
             (failed? "Expected binary digit, got \"2\"" (try (lex "#b2")))
             (failed? "Expected hexadecimal digit, got \"h\"" (try (lex "#xh")))
             (failed? "Expected digit, got \"a\"" (try (lex "2a")))
@@ -161,11 +163,19 @@
             (teq? '((quasiquote foo)) (parse "~foo"))
             (teq? '((quasiquote (foo))) (parse "~(foo)"))
             (teq? '((splice foo)) (parse "@foo"))
-            (teq? '((splice (foo))) (parse "@(foo)"))))
+            (teq? '((splice (foo))) (parse "@(foo)"))
+
+            (failed? "Expected expression quote, got eof" (try (parse "'")))
+            (failed? "')' without matching '(' inside quote" (try (parse "')")))))
 
   (it "parses unquotes"
     (affirm (teq? '((unquote foo)) (parse ",foo"))
             (teq? '((unquote (foo))) (parse ",(foo)"))
             (teq? '((unquote-splice foo)) (parse ",@foo"))
             (teq? '((unquote-splice (foo))) (parse ",@(foo)"))))
+
+  (it "fails on mismatched parens"
+    (affirm (failed? "')' without matching '('" (try (parse ")")))
+            (failed? "Expected ')', got ']'" (try (parse "(]")))
+            (failed? "Expected ')', got eof" (try (parse "(")))))
 )

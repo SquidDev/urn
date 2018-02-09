@@ -218,12 +218,13 @@
                             [(= (n name) 1)
                              ;; We've just got a "&". This doesn't make sense so we'll error.
                              (error-positions! (state/rs-logger state) arg
-                               (if (< i (n args))
-                                 (with (next-arg (nth args (succ i)))
-                                   (if (and (symbol? args) (/= (string/char-at (.> next-arg :contents) 1) "&"))
-                                     (.. "\nDid you mean '&" (.> next-arg :contents) "'?")
-                                     ""))
-                                 ""))]
+                               (string/format "Expected a symbol for variadic argument.%s"
+                                 (if (< i (n args))
+                                   (with (next-arg (nth args (succ i)))
+                                     (if (and (symbol? next-arg) (/= (string/char-at (.> next-arg :contents) 1) "&"))
+                                       (string/format "\nDid you mean '&%s'?" (.> next-arg :contents))
+                                       ""))
+                                   "")))]
                             [true
                              (set! name (string/sub name 2))
                              (set! has-variadic true)]))
