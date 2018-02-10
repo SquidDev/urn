@@ -61,3 +61,28 @@
     (for-pairs (_ var) (scope/scope-variables scope) (.<! compiler :variables (tostring var) var))
 
     compiler))
+
+(defun tracking-logger ()
+  "A logger which tracks error messages."
+  (let* [(errors '())
+         (warnings '())
+         (discard (lambda ()))
+         (pusher  (lambda (out)
+                    (lambda (logger msg source explain lines)
+                      (with (buffer (list msg))
+                        (for i 2 (n lines) 2
+                          (with (line (nth lines i))
+                            (when (/= line "") (push! buffer line))))
+                        (push! out (concat buffer "\n"))))))]
+
+    { :put-error!   (lambda (self msg) (push! errors msg))
+      :put-warning! (lambda (self msg) (push! warnings msg))
+      :put-verbose! discard
+      :put-debug!   discard
+      :put-time!    discard
+
+      :put-node-error!   (pusher errors)
+      :put-node-warning! (pusher warnings)
+
+      :errors            errors
+      :warnings          warnings }))

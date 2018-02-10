@@ -91,7 +91,7 @@
 
 (defpass unused-vars (state _ lookup)
   "Ensure all non-exported NODES are used."
-  :cat '("warn")
+  :cat '("warn" "usage")
   :level 2
   (with (unused '())
     (for-pairs (var entry) (.> lookup :usage-vars)

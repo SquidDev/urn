@@ -64,9 +64,10 @@
           ((lambda (x) 2) (lambda ()))
           ((lambda (x) 2) '())
           ((lambda (x) 2) { :a (foo) }) ;; Non empty const-struct
-          ((lambda (x) 2) (foo)) ;; Side effect in definition
-          ((lambda (x) x) 3)     ;; x is used
-          ((lambda (x y z) x z) 3 4 5)) ;; Multiple arguments with some used
+          ((lambda (x) 2) (foo))     ;; Side effect in definition
+          ((lambda (x) x) 3)         ;; x is used
+          ((lambda (x y z) x z) 3 4 5) ;; Multiple arguments with some used
+          ((lambda (x) `,x) 3))      ;; Used indirectly through syntax-quote
         '(((lambda () 2))
           ((lambda () 2))
           ((lambda () 2))
@@ -75,7 +76,8 @@
           ((lambda (x) 2) { :a (foo) })
           ((lambda (x) 2) (foo))
           ((lambda (x) x) 3)
-          ((lambda (x z) x z) 3 5))
+          ((lambda (x z) x z) 3 5)
+          ((lambda (x) `,x) 3))
         8))
     (it "that are mutable"
       (affirm-transform-optimise (list optimise/strip-args)

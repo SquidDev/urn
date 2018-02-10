@@ -7,26 +7,6 @@
 
 (import tests/compiler/compiler-helpers ())
 
-(defun tracking-logger ()
-  "A logger which tracks error messages."
-  (let* [(errors '())
-         (discard (lambda ()))]
-    { :put-error!   discard
-      :put-warning! discard
-      :put-verbose! discard
-      :put-debug!   discard
-      :put-time!    discard
-
-      :put-node-error! (lambda (logger msg source explain lines)
-                         (with (buffer (list msg))
-                           (for i 2 (n lines) 2
-                             (with (line (nth lines i))
-                               (when (/= line "") (push! buffer line))))
-                           (push! errors (concat buffer "\n"))))
-      :put-node-warning! discard
-
-      :errors            errors }))
-
 (defun resolve (nodes)
   (let* [(compiler (create-compiler))
          (logger (tracking-logger))
