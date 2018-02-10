@@ -21,7 +21,6 @@
                        (.> compiler :root-scope)
                        "init.lisp"))
            (options { :compiler compiler
-                      :meta     (.> compiler :lib-meta)
                       :logger   (.> compiler :log)
                       :timer    (.> compiler :timer) })]
 

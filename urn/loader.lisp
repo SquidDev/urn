@@ -7,6 +7,7 @@
 (import urn/parser parser)
 (import urn/range range)
 (import urn/resolve/loop (compile))
+(import urn/resolve/native ())
 (import urn/resolve/scope scope)
 (import urn/timer timer)
 (import urn/traceback (traceback-plain))
@@ -56,50 +57,66 @@
 (defun read-meta (state name entry)
   "Parse a single ENTRY in the library metadata, loading the appropriate data into STATE."
   :hidden
-  (when (and (or (= (type entry) "expr") (= (type entry) "stmt")) (string? (.> entry :contents)))
-    (let* [(buffer '())
-           (str     (.> entry :contents))
-           (idx     0)
-           (max     0)
-           (len     (n str))]
+  (with (native (native))
+    (case (type (.> entry :count))
+      ["nil"]
+      ["number" (set-native-arity! native (.> entry :count))]
+      [?ty
+       (logger/put-error! (.> state :log) (format nil "Expected number for {#name}'s count, got {#ty}"))])
 
-      (while (<= idx len)
-        (case (list (string/find str "%${(%d+)}" idx))
-          [(?start ?finish . _)
-           (when (> start idx)
-             (push! buffer (string/sub str idx (pred start))))
-           (with (val (string->number (string/sub str (+ start 2) (- finish 1))))
-             (push! buffer val)
-             (when (> val max) (set! max val)))
-           (set! idx (succ finish))]
-          [?x
-           (push! buffer (string/sub str idx len))
-           (set! idx  (succ len))]))
+    (case (type (.> entry :prec))
+      ["nil"]
+      ["number" (set-native-syntax-precedence! native (.> entry :prec))]
+      [?ty
+       (logger/put-error! (.> state :log) (format nil "Expected number for {#name}'s prec, got {#ty}"))])
 
-      (unless (.> entry :count) (.<! entry :count max))
-      (.<! entry :contents buffer)))
+    (case (type (.> entry :precs))
+      ["nil"]
+      ["list" (set-native-syntax-precedence! native (.> entry :precs))]
+      [?ty
+       (logger/put-error! (.> state :log) (format nil "Expected number for {#name}'s precs, got {#ty}"))])
 
-  (when-with (fold (.> entry :fold))
-    (when (/= (type entry) "expr") (fail! (.. "Cannot have fold for non-expression " name)))
-    (when (and (/= fold "l") (/= fold "r")) (fail! (.. "Unknown fold " fold " for " name)))
-    (when (/= (.> entry :count) 2) (fail! (.. "Cannot have fold for length " (.> entry :count) " for " name))))
+    (when (.> entry :pure) (set-native-pure! native true))
 
-  (.<! entry :name name)
-  (let [(lib-value (.> state :lib-env name))
-        (met-value (.> entry :value))]
-    (cond
-      [(and (/= lib-value nil) (/= met-value nil))
-       (fail! (.. "Duplicate value for " name ": in native and meta file"))]
-      [(/= lib-value nil)
-       (.<! entry :has-value true)
-       (.<! entry :value lib-value)]
-      [(/= met-value nil)
-       (.<! entry :has-value true)
-       (.<! state :lib-env name met-value)]
-      [else]))
+    (case (type entry)
+      ["expr"
+       (with ((buffer max) (parse-template (.> entry :contents)))
+         (set-native-syntax! native buffer)
+         (unless (.> entry :count) (set-native-arity! native max)))]
+      ["stmt"
+       (with ((buffer max) (parse-template (.> entry :contents)))
+         (set-native-syntax! native buffer)
+         (unless (.> entry :count) (set-native-arity! native max)))
+       (set-native-syntax-stmt! native true)]
+      ["var"
+       (set-native-bind-to! native (.> entry :contents))]
+      [?ty
+       (logger/put-error! (.> state :log) (format nil "Unknown meta type {#ty} for {#name}"))])
 
-  (.<! state :lib-meta name entry)
-  entry)
+    (when-with (fold (.> entry :fold))
+      (when (/= (type entry) "expr") (fail! (.. "Cannot have fold for non-expression " name)))
+      (when (/= (.> entry :count) 2) (fail! (.. "Cannot have fold for length " (.> entry :count) " for " name)))
+      (case fold
+        ["l" (set-native-syntax-fold! native "left")]
+        ["r" (set-native-syntax-fold! native "right")]
+        [else (fail! (.. "Unknown fold " fold " for " name))]))
+
+    (.<! entry :name name)
+
+    (let [(lib-value (.> state :lib-env name))
+          (meta-value (.> entry :value))]
+      (cond
+        [(and (/= lib-value nil) (/= meta-value nil))
+         (fail! (.. "Duplicate value for " name ": in native and meta file"))]
+        [(/= lib-value nil)
+         (.<! entry :has-value true)
+         (.<! entry :value lib-value)]
+        [(/= meta-value nil)
+         (.<! entry :has-value true)
+         (.<! state :lib-env name meta-value)]
+        [else]))
+
+    (.<! state :lib-meta name native)))
 
 (defun read-library (state name path lisp-handle)
   "Read a library from PATH, using an already existing LISP-HANDLE."

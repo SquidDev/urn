@@ -7,11 +7,11 @@
 (import urn/logger/format format)
 (import urn/range range)
 (import urn/resolve/scope scope)
+(import urn/resolve/native native)
 
 (defun create-pass-state (state)
   "Create a state for using in analysis passes and emitting."
   { ;; General information copied from the parent state.
-    :meta       (.> state :meta)
     :var-cache  (.> state :var-cache)
     :var-lookup (.> state :var-lookup)
 
@@ -51,47 +51,46 @@
 (defun compile-native (out meta)
   (with (ty (type meta))
     (cond
-      [(= ty "var")
-       ;; Create an alias to a variable
-       (w/append-with! out (.> meta :contents))]
+      [(native/native-bind-to meta)
+       (w/append-with! out (native/native-bind-to meta))]
 
-      [(or (= ty "expr") (= ty "stmt"))
+      [(native/native-syntax meta)
        ;; Generate a custom function wrapper
        (w/append! out "function(")
-       (if (.> meta :fold)
+       (if (native/native-syntax-fold meta)
          (w/append! out "...")
-         (for i 1 (.> meta :count) 1
+         (for i 1 (native/native-arity meta) 1
            (unless (= i 1) (w/append! out ", "))
            (w/append! out (.. "v" (string->number i)))))
        (w/append! out ") ")
 
-       (case (.> meta :fold)
+       (case (native/native-syntax-fold meta)
          [nil
           ;; Return the value if required.
-          (when (/= (type meta) "stmt")
+          (unless (native/native-syntax-stmt? meta)
             (w/append! out "return "))
           ;; And create the template
-          (for-each entry (.> meta :contents)
+          (for-each entry (native/native-syntax meta)
             (if (number? entry)
               (w/append! out (.. "v" (string->number entry)))
               (w/append! out entry)))]
-         ["l"
+         ["left"
           ;; Fold values from the left.
           (w/append! out "local t = ... for i = 2, _select('#', ...) do t = ")
-          (for-each node (.> meta :contents)
-            (case node
+          (for-each entry (native/native-syntax meta)
+            (case entry
               [1 (w/append! out "t")]
               [2 (w/append! out "_select(i, ...)")]
-              [string? (w/append! out node)]))
+              [string? (w/append! out entry)]))
           (w/append! out " end return t")]
-         ["r"
+         ["right"
           ;; Fold values from the right.
           (w/append! out "local n = _select('#', ...) local t = _select(n, ...) for i = n - 1, 1, -1 do t = ")
-          (for-each node (.> meta :contents)
-            (case node
+          (for-each entry (native/native-syntax meta)
+            (case entry
               [1 (w/append! out "_select(i, ...)")]
               [2 (w/append! out "t")]
-              [string? (w/append! out node)]))
+              [string? (w/append! out entry)]))
           (w/append! out " end return t")])
 
        (w/append! out " end")])))
@@ -450,7 +449,7 @@
        (compile-expression (nth node (n node)) out state (.. (push-escape-var! (.> node :def-var) state) " = "))]
 
       ["define-native"
-       (with (meta (.> state :meta (scope/var-unique-name (.> node :def-var))))
+       (with (meta (scope/var-native (.> node :def-var)))
          (if (= meta nil)
            ;; Just copy it from the library table value
            (w/append-with! out (string/format "%s = _libs[%q]"
@@ -564,7 +563,7 @@
        (with (meta (.> cat :meta))
          ;; If we're dealing with an expression then we emit the returner first. Statements just
          ;; return nil.
-         (when (= (.> meta :tag) "expr")
+         (unless (native/native-syntax-stmt? meta)
            (cond
              [(= ret "") (w/append! out "local _ = ")]
              [ret (w/append! out ret)]
@@ -575,15 +574,15 @@
 
          ;; Emit all entries. Numbers represent an argument, everything else is just
          ;; appended directly.
-         (let* [(contents (.> meta :contents))
-                (fold (.> meta :fold))
-                (count (.> meta :count))]
+         (let* [(contents (native/native-syntax meta))
+                (fold (native/native-syntax-fold meta))
+                (count (native/native-arity meta))]
            (letrec [(build (lambda (start end)
                              (for-each entry contents
                                (cond
                                  [(string? entry) (w/append! out entry)]
-                                 [(and (= fold "l") (= entry 1) (< start end)) (build start (pred end)) (set! start end)]
-                                 [(and (= fold "r") (= entry 2) (< start end)) (build (succ start) end)]
+                                 [(and (= fold "left") (= entry 1) (< start end)) (build start (pred end)) (set! start end)]
+                                 [(and (= fold "right") (= entry 2) (< start end)) (build (succ start) end)]
                                  [true (compile-expression (nth node (+ entry start)) out state)]))))]
              (build 1 (- (n node) count))))
 
@@ -591,7 +590,7 @@
          (when (.> cat :parens) (w/append! out ")"))
 
          ;; If we're dealing with a statement then return nil.
-         (when (and (/= (.> meta :tag) "expr") (/= ret ""))
+         (when (and (native/native-syntax-stmt? meta) (/= ret ""))
            (w/line! out)
            (w/append! out ret)
            (w/append! out "nil")

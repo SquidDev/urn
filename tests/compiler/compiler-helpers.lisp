@@ -2,6 +2,7 @@
 (import urn/range ())
 (import urn/resolve/builtins builtins)
 (import urn/resolve/scope scope)
+(import urn/resolve/native native)
 (import urn/timer timer)
 (import urn/traceback traceback)
 
@@ -28,19 +29,35 @@
          (.<! node i (wrap-node (nth node i)))))
      node]))
 
+(defun native-expr (data)
+  (with (native (native/native))
+    (native/set-native-pure! native (.> data :pure))
+    (native/set-native-arity! native (.> data :count))
+
+    (native/set-native-syntax! native (.> data :contents))
+    (native/set-native-syntax-precedence! native (.> data :prec))
+    (native/set-native-syntax-fold! native (.> data :fold))
+
+    native))
+
+(defun native-var (name)
+  (with (native (native/native))
+    (native/set-native-bind-to! native name)
+    native))
+
 (defun create-compiler ()
   "Create a new compilation state, with some basic variables already defined."
   (let* [(scope (builtins/create-scope "top-level"))
          (compiler { :log           logger/void
                      :timer         (timer/void)
 
-                     :lib-meta      { :+       { :tag "expr" :contents '(1 " + " 2)   :count 2 :fold "l" :prec 9 :pure true }
-                                      :-       { :tag "expr" :contents '(1 " - " 2)   :count 2 :fold "l" :prec 9 :pure true }
-                                      :..      { :tag "expr" :contents '(1 " .. " 2)  :count 2 :fold "r" :prec 8 :pure true }
-                                      :=       { :tag "expr" :contents '(1 " == " 2)  :count 2           :prec 3 :pure true }
-                                      :>=      { :tag "expr" :contents '(1 " >= " 2)  :count 2           :prec 3 :pure true }
-                                      :get-idx { :tag "expr" :contents '(1 "[" 2 "]") :count 2 :precs '(100 0) }
-                                      :print   { :tag "var"  :contents "print" } }
+                     :lib-meta      { :+       (native-expr { :contents '(1 " + " 2)   :count 2 :fold "left"  :prec 9 :pure true })
+                                      :-       (native-expr { :contents '(1 " - " 2)   :count 2 :fold "left"  :prec 9 :pure true })
+                                      :..      (native-expr { :contents '(1 " .. " 2)  :count 2 :fold "right" :prec 8 :pure true })
+                                      :=       (native-expr { :contents '(1 " == " 2)  :count 2               :prec 3 :pure true })
+                                      :>=      (native-expr { :contents '(1 " >= " 2)  :count 2               :prec 3 :pure true })
+                                      :get-idx (native-expr { :contents '(1 "[" 2 "]") :count 2               :prec '(100 0) })
+                                      :print   (native-var "print") }
 
                      :root-scope    scope
                      :exec          (lambda (func) (list (xpcall func traceback/traceback)))
@@ -51,11 +68,10 @@
 
                      :loader        (lambda (name) (format 0 "Cannot load external module {#name:string/quoted}")) })]
 
-    (for-each var '("foo" "bar" "baz" "qux" "+" "-" ".." "=" ">=" "get-idx" "print")
-      (scope/add! scope var "native"))
-
-    (for-pairs (name meta) (.> compiler :lib-meta)
-      (.<! meta :name name))
+    (for-each name '("foo" "bar" "baz" "qux" "+" "-" ".." "=" ">=" "get-idx" "print")
+      (with (var (scope/add! scope name "native"))
+        (when-with (native (.> compiler :lib-meta name))
+          (scope/set-var-native! var native))))
 
     (for-pairs (_ var) (scope/scope-variables (scope/scope-parent scope)) (.<! compiler :variables (tostring var) var))
     (for-pairs (_ var) (scope/scope-variables scope) (.<! compiler :variables (tostring var) var))

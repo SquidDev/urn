@@ -58,7 +58,7 @@
 (defun affirm-codegen (input-nodes expected-src)
   "Affirm compiling INPUT-NODES generates EXPECTED-SRC."
   (let* [(compiler (create-compiler))
-         (compile-state (lua/create-state (.> compiler :lib-meta)))
+         (compile-state (lua/create-state))
          (writer (writer/create))]
     (.<! compiler :compile-state compile-state)
 
@@ -85,7 +85,7 @@
 
    Unlike [[affirm-codegen]], this will not resolve the nodes."
   (with (writer (writer/create))
-    (lua/block (wrap-node input-nodes) writer (lua/create-state {}) 1 "return ")
+    (lua/block (wrap-node input-nodes) writer (lua/create-state) 1 "return ")
 
     (with (res (string/trim (string/gsub (writer/->string writer) "\t" "  ")))
       (when (/= res expected-src)

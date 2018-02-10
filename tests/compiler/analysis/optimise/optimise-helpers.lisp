@@ -18,7 +18,6 @@
                      "init.lisp"))
          (tracker (pass/create-tracker))
          (options { :compiler  compiler
-                    :meta      (.> compiler :lib-meta)
                     :logger    (.> compiler :log)
                     :timer     (.> compiler :timer) })]
 

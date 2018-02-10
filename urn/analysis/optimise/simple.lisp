@@ -7,6 +7,7 @@
 (import urn/logger logger)
 (import urn/range (get-source get-top-source))
 (import urn/resolve/scope scope)
+(import urn/resolve/native native)
 
 (defpass strip-import (state nodes start)
   "Strip all import expressions in NODES"
@@ -47,9 +48,9 @@
     (let* [(head (car node))
            (meta (and (symbol? head)
                       (not (.> head :folded))
-                      (= (scope/var-kind (.> head :var)) "native") (.> state :meta (scope/var-unique-name (.> head :var)))))]
+                      (= (scope/var-kind (.> head :var)) "native") (scope/var-native (.> head :var))))]
       ;; Determine whether we have a native (and pure) function. If so, we'll invoke it.
-      (if (and meta (.> meta :pure) (function? (lua/get-native meta)))
+      (if (and meta (native/native-pure? meta) (function? (lua/get-native (.> head :var) meta)))
         (with (res (list (pcall (.> meta :value) (splice (map urn->val (cdr node))))))
           (if (car res)
             (with (val (nth res 2))

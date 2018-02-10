@@ -11,18 +11,18 @@
 (import test/assert (assert!))
 (import lua/basic (load))
 
-(defun create-state (meta) {
-                             ;; [[run-pass]] options
-                             :timer      (timer/void)
+(defun create-state ()
+  {
+  ;; [[run-pass]] options
+  :timer      (timer/void)
 
-                             ;; execute-states options
-                             :count      0
-                             :mappings   {}
+  ;; execute-states options
+  :count      0
+  :mappings   {}
 
-                             ;; Various lookup tables
-                             :var-cache  {}
-                             :var-lookup {}
-                             :meta       (or meta {}) })
+  ;; Various lookup tables
+  :var-cache  {}
+  :var-lookup {} })
 
 (defun file (compiler shebang)
   "Generate a complete file using the current COMPILER state.
@@ -31,7 +31,7 @@
    and the resulting contents.
 
    If SHEBANG is specified then it will be prepended."
-  (let* [(state (create-state (.> compiler :lib-meta)))
+  (let* [(state (create-state))
          (out (w/create))]
     (when shebang
       (w/line! out (.. "#!/usr/bin/env " shebang)))
@@ -187,7 +187,7 @@
                     (when (.> state :var)
                       (.<! global escaped res))))])]))))))
 
-(defun get-native (meta)
+(defun get-native (var meta)
   "Convert a native META definition into a function."
   (unless (.> meta :has-value)
     (with (out (w/create))
@@ -196,8 +196,9 @@
       (compile-native out meta)
 
       (.<! meta :has-value true)
-      (when-let* [(fun (load (w/->string out) (.. "=" (.> meta :name))))
+      (when-let* [(fun (load (w/->string out) (.. "=" (scope/var-name var))))
                   ((ok res) (pcall fun))]
         (.<! meta :value res))))
 
+  ;; TODO: Add setter to native or do something else
   (.> meta :value))

@@ -1,5 +1,6 @@
 (import test ())
 (import tests/compiler/codegen/codegen-helpers ())
+(import tests/compiler/compiler-helpers ())
 
 (import urn/backend/lua/emit lua)
 (import urn/backend/writer writer)
@@ -61,20 +62,20 @@
   (section "will compile operator functions"
     (it "which are left associative"
       (affirm-native
-        { :tag "expr" :contents '(1 " + " 2) :count 2 :fold "l" }
+        (native-expr { :contents '(1 " + " 2) :count 2 :fold "left" })
         "function(...) local t = ... for i = 2, _select('#', ...) do t = t + _select(i, ...) end return t end"))
 
     (it "which are right associative"
       (affirm-native
-        { :tag "expr" :contents '(1 " .. " 2) :count 2 :fold "r" }
+        (native-expr { :contents '(1 " .. " 2) :count 2 :fold "right" })
         "function(...) local n = _select('#', ...) local t = _select(n, ...) for i = n - 1, 1, -1 do t = _select(i, ...) .. t end return t end"))
 
     (it "which are not associative"
       (affirm-native
-        { :tag "expr" :contents '(1 "[" 2 "]") :count 2 }
+        (native-expr { :contents '(1 "[" 2 "]") :count 2 })
         "function(v1, v2) return v1[v2] end")))
 
   (it "will compile native variables"
     (affirm-native
-      { :tag "var" :contents "foo" }
+      (native-var "foo")
       "foo")))

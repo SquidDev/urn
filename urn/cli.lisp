@@ -251,7 +251,7 @@
                       :out       '() })
 
       ;; Add compileState
-      (.<! compiler :compile-state (lua/create-state (.> compiler :lib-meta)))
+      (.<! compiler :compile-state (lua/create-state))
 
       ;; Set the loader
       (.<! compiler :loader (cut loader/named-loader compiler <>))

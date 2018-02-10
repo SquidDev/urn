@@ -10,7 +10,7 @@
 (defun resolve (nodes)
   (let* [(compiler (create-compiler))
          (logger (tracking-logger))
-         (compile-state (lua/create-state (.> compiler :lib-meta)))]
+         (compile-state (lua/create-state))]
     (.<! compiler :log logger)
     (.<! compiler :compile-state compile-state)
 

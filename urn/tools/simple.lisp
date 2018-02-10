@@ -111,7 +111,6 @@
 
                     ;; General shared options
                     :compiler  compiler
-                    :meta      (.> compiler :lib-meta)
                     :libs      (.> compiler :libs)
                     :logger    (.> compiler :log)
                     :timer     (.> compiler :timer) })

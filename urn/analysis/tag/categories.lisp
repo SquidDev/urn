@@ -5,6 +5,7 @@
 (import urn/analysis/visitor visitor)
 (import urn/range range)
 (import urn/resolve/scope scope)
+(import urn/resolve/native native)
 
 (defmacro cat (category &args)
   "Create a CATEGORY data set, using ARGS as additional parameters to [[struct]]."
@@ -230,34 +231,35 @@
                     [true
                      ;; As we're invoking a known symbol here, we can do some fancy stuff. In this case, we just
                      ;; "inline" anything defined in library meta data (such as arithmetic operators).
-                     (let* [(meta (and (= (scope/var-kind func) "native") (.> state :meta (scope/var-unique-name func))))
-                            (meta-ty (type meta))]
+                     (with (meta (and (= (scope/var-kind func) "native") (scope/var-native func)))
                        ;; Obviously metadata only exists for native expressions. We can only emit it if
                        ;; we're in the right context (statements cannot be emitted when we require an expression) and
                        ;; we've passed in the correct number of arguments.
-                       (case meta-ty
-                         ["nil"]
-                         ["boolean"]
-                         ["expr"]
-                         ["stmt"
-                          ;; Cannot use statements if we're in an expression
-                          (unless stmt (set! meta nil))]
-                         ["var"
-                          ;; We'll have cached the global lookup above
-                          (set! meta nil)])
+                       (when (and meta
+                                  (or
+                                    ;; If we're binding to a variable then no need to emit fancy calls
+                                    (native/native-bind-to meta)
+                                    ;; If we're a statement in a non-statement context then emit a raw call.
+                                    (and (not stmt) (native/native-syntax-stmt? meta))))
+                         (set! meta nil))
 
                        (cond
-                         [(and meta (if (.> meta :fold)
-                                      (>= (pred (n node)) (.> meta :count))
-                                      (= (pred (n node)) (.> meta :count))))
+                         [(and meta (if (native/native-syntax-fold meta)
+                                      (>= (pred (n node)) (native/native-arity meta))
+                                      (= (pred (n node)) (native/native-arity meta))))
                           (visit-nodes lookup state node 1 false)
 
                           ;; Mark child nodes as requiring parenthesis.
-                          (let* [(prec (.> meta :prec))
-                                 (precs (.> meta :precs))]
-                            (when (or prec precs) (add-parens lookup node 2 prec precs))
+                          (with (prec (native/native-syntax-precedence meta))
+                            (cond
+                              [(list? prec) (add-parens lookup node 2 nil prec)]
+                              [(number? prec) (add-parens lookup node 2 prec nil)]
+                              [else])
 
-                            (cat "call-meta" :meta meta :stmt (= meta-ty "stmt") :prec prec))]
+                            (cat "call-meta"
+                              :meta meta
+                              :stmt (native/native-syntax-stmt? meta)
+                              :prec (and (number? prec) prec)))]
                          [(and recur (= func (.> recur :var)))
                           (.<! recur :tail true)
                           (visit-nodes lookup state node 1 false)

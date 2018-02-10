@@ -16,7 +16,7 @@
 (defun affirm-mappings (input-src expected-src)
   "Affirm compiling INPUT-NODES generates EXPECTED-SRC."
   (let* [(compiler (create-compiler))
-         (compile-state (lua/create-state (.> compiler :lib-meta)))
+         (compile-state (lua/create-state))
          (writer (writer/create))]
     (.<! compiler :compile-state compile-state)
 
