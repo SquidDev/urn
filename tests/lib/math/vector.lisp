@@ -1,5 +1,6 @@
 (import test ())
 (import math/vector ())
+(import math/numerics ())
 
 (defmacro ok? (&exprs)
   "Returns whether the list of EXPRS evaluated without erroring."

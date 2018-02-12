@@ -1,5 +1,6 @@
 (import test ())
 (import math/rational r)
+(import math/numerics ())
 
 (describe "The math library has rationals which"
   (can "be written as literals"
