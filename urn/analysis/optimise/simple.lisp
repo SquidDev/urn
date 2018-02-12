@@ -6,8 +6,8 @@
 (import urn/backend/lua lua)
 (import urn/logger logger)
 (import urn/range (get-source get-top-source))
-(import urn/resolve/scope scope)
 (import urn/resolve/native native)
+(import urn/resolve/scope scope)
 
 (defpass strip-import (state nodes start)
   "Strip all import expressions in NODES"
@@ -50,7 +50,7 @@
                       (not (.> head :folded))
                       (= (scope/var-kind (.> head :var)) "native") (scope/var-native (.> head :var))))]
       ;; Determine whether we have a native (and pure) function. If so, we'll invoke it.
-      (if (and meta (native/native-pure? meta) (function? (lua/get-native (.> head :var) meta)))
+      (if (and meta (native/native-pure? meta) (function? (lua/get-native (.> head :var))))
         (with (res (list (pcall (.> meta :value) (splice (map urn->val (cdr node))))))
           (if (car res)
             (with (val (nth res 2))

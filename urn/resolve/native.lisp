@@ -43,7 +43,7 @@
 
   (constructor new
     (lambda ()
-      (new false nil nil nil nil false 100))))
+      (new false nil nil nil nil false nil))))
 
 (defun parse-template (template)
   "Parse the template string TEMPLATE, converting it into a list of

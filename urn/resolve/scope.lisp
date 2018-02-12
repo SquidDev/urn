@@ -115,7 +115,11 @@
   "The [[native]] for this VAR. This can only be called for native
    definitions."
   (demand (= (var-kind var) "native") "VAR must be a native definition.")
-  (var-native# var))
+  (with (v-native (var-native# var))
+    (unless v-native
+      (set! v-native (native))
+      (set-var-native! var v-native))
+    v-native))
 
 (defun set-var-native! (var native)
   "Set the NATIVE metadata for this VAR."

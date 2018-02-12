@@ -7,7 +7,7 @@
 
 (defun affirm-native (meta expected-src)
   (with (out (writer/create))
-    (lua/compile-native out meta)
+    (lua/compile-native out nil meta)
     (with (res (string/trim (string/gsub (writer/->string out) "\t" "  ")))
       (when (/= res expected-src)
         (with (out '())

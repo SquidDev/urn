@@ -6,8 +6,8 @@
 (import urn/backend/writer w)
 (import urn/logger/format format)
 (import urn/range range)
-(import urn/resolve/scope scope)
 (import urn/resolve/native native)
+(import urn/resolve/scope scope)
 
 (defun create-pass-state (state)
   "Create a state for using in analysis passes and emitting."
@@ -48,52 +48,58 @@
   { :const true
     :quote true :quote-const true })
 
-(defun compile-native (out meta)
-  (with (ty (type meta))
-    (cond
-      [(native/native-bind-to meta)
-       (w/append-with! out (native/native-bind-to meta))]
+(defun compile-native (out var meta)
+  (cond
+    [(native/native-bind-to meta)
+     ;; Bind to a constant variable
+     (w/append-with! out (native/native-bind-to meta))]
 
-      [(native/native-syntax meta)
-       ;; Generate a custom function wrapper
-       (w/append! out "function(")
-       (if (native/native-syntax-fold meta)
-         (w/append! out "...")
-         (for i 1 (native/native-arity meta) 1
-           (unless (= i 1) (w/append! out ", "))
-           (w/append! out (.. "v" (string->number i)))))
-       (w/append! out ") ")
+    [(native/native-syntax meta)
+     ;; Generate a custom function wrapper
+     (w/append! out "function(")
+     (if (native/native-syntax-fold meta)
+       (w/append! out "...")
+       (for i 1 (native/native-arity meta) 1
+         (unless (= i 1) (w/append! out ", "))
+         (w/append! out (.. "v" (string->number i)))))
+     (w/append! out ") ")
 
-       (case (native/native-syntax-fold meta)
-         [nil
-          ;; Return the value if required.
-          (unless (native/native-syntax-stmt? meta)
-            (w/append! out "return "))
-          ;; And create the template
-          (for-each entry (native/native-syntax meta)
-            (if (number? entry)
-              (w/append! out (.. "v" (string->number entry)))
-              (w/append! out entry)))]
-         ["left"
-          ;; Fold values from the left.
-          (w/append! out "local t = ... for i = 2, _select('#', ...) do t = ")
-          (for-each entry (native/native-syntax meta)
-            (case entry
-              [1 (w/append! out "t")]
-              [2 (w/append! out "_select(i, ...)")]
-              [string? (w/append! out entry)]))
-          (w/append! out " end return t")]
-         ["right"
-          ;; Fold values from the right.
-          (w/append! out "local n = _select('#', ...) local t = _select(n, ...) for i = n - 1, 1, -1 do t = ")
-          (for-each entry (native/native-syntax meta)
-            (case entry
-              [1 (w/append! out "_select(i, ...)")]
-              [2 (w/append! out "t")]
-              [string? (w/append! out entry)]))
-          (w/append! out " end return t")])
+     (case (native/native-syntax-fold meta)
+       [nil
+        ;; Return the value if required.
+        (unless (native/native-syntax-stmt? meta)
+          (w/append! out "return "))
+        ;; And create the template
+        (for-each entry (native/native-syntax meta)
+          (if (number? entry)
+            (w/append! out (.. "v" (string->number entry)))
+            (w/append! out entry)))]
+       ["left"
+        ;; Fold values from the left.
+        (w/append! out "local t = ... for i = 2, _select('#', ...) do t = ")
+        (for-each entry (native/native-syntax meta)
+          (case entry
+            [1 (w/append! out "t")]
+            [2 (w/append! out "_select(i, ...)")]
+            [string? (w/append! out entry)]))
+        (w/append! out " end return t")]
+       ["right"
+        ;; Fold values from the right.
+        (w/append! out "local n = _select('#', ...) local t = _select(n, ...) for i = n - 1, 1, -1 do t = ")
+        (for-each entry (native/native-syntax meta)
+          (case entry
+            [1 (w/append! out "_select(i, ...)")]
+            [2 (w/append! out "t")]
+            [string? (w/append! out entry)]))
+        (w/append! out " end return t")])
 
-       (w/append! out " end")])))
+     (w/append! out " end")]
+
+    [else
+     ;; Just copy it from the _libs table
+     (w/append! out "_libs[")
+     (w/append! out (string/quoted (scope/var-unique-name var)))
+     (w/append! out "]")]))
 
 (defun compile-expression (node out state ret break)
   :hidden
@@ -449,16 +455,9 @@
        (compile-expression (nth node (n node)) out state (.. (push-escape-var! (.> node :def-var) state) " = "))]
 
       ["define-native"
-       (with (meta (scope/var-native (.> node :def-var)))
-         (if (= meta nil)
-           ;; Just copy it from the library table value
-           (w/append-with! out (string/format "%s = _libs[%q]"
-                                              (escape-var (.> node :def-var) state)
-                                              (scope/var-unique-name (.> node :def-var))))
-           (progn
-             ;; Generate an accessor for it.
-             (w/append-with! out (string/format "%s = " (escape-var (.> node :def-var) state)))
-             (compile-native out meta))))]
+       (with (var (.> node :def-var))
+         (w/append-with! out (string/format "%s = " (escape-var var state)))
+         (compile-native out var (scope/var-native var)))]
 
       ["quote"
        ;; Quotations are "pure" so we don't have to emit anything

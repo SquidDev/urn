@@ -12,6 +12,7 @@
 (import urn/logger/format format)
 (import urn/range range)
 (import urn/resolve/builtins (builtin))
+(import urn/resolve/native native)
 (import urn/resolve/scope scope)
 (import urn/resolve/state state)
 (import urn/traceback traceback)
@@ -61,16 +62,110 @@
           ["key"
            (case (.> child :value)
              ["hidden" (.<! (scope/scope-exported (scope/var-scope var)) (scope/var-name var) nil)]
+
              ["deprecated"
+              (when (scope/var-deprecated var)
+                (error-positions! log child "This definition is already deprecated"))
+
               (with (message true)
                 (when (and (< i finish) (string? (nth node (succ i))))
                   (set! message (.> (nth node (succ i)) :value))
                   (inc! i))
                 (scope/set-var-deprecated! var message))]
+
              ["mutable"
+              (when (/= (scope/var-kind var) "defined")
+                (error-positions! log child "Can only set conventional definitions as mutable"))
               (unless (scope/var-const? var)
-                (error-positions! log child (.. "This definition has is already mutable")))
+                (error-positions! log child "This definition is already mutable"))
+
               (scope/set-var-const! var false)]
+
+             ["pure"
+              (when (/= (scope/var-kind var) "native")
+                (error-positions! log child "Can only set native definitions as pure"))
+
+              (with (native (scope/var-native var))
+                (when (native/native-pure? native)
+                  (error-positions! log child "This definition is already pure"))
+
+                (native/set-native-pure! native true))]
+
+             ["bind-to"
+              (when (/= (scope/var-kind var) "native")
+                (error-positions! log child "Can only bind native definitions"))
+
+              (with (native (scope/var-native var))
+                (expect-type! log (nth node (succ i)) node "string" "bind expression")
+                (when (native/native-bind-to native)
+                  (error-positions! log child "Multiple bind expressions set"))
+
+                (native/set-native-bind-to! native (.> (nth node (succ i)) :value))
+                (inc! i))]
+
+             ["syntax"
+              (when (/= (scope/var-kind var) "native")
+                (error-positions! log child "Can only set syntax for native definitions"))
+
+              (let* [(native (scope/var-native var))
+                     (syntax (nth node (succ i)))]
+                (expect! log syntax node "syntax")
+                (when (native/native-syntax native)
+                  (error-positions! log child "Multiple syntaxes set"))
+
+                (case (type syntax)
+                  ["string"
+                   (with ((syn arity) (native/parse-template (.> syntax :value)))
+                     ;; First verify our arity is consistent
+                     (with (current-arity (native/native-arity native))
+                       (when (and current-arity (/= arity current-arity))
+                         (error-positions! log child (format nil "Specified arity as {#current-arity} but template takes {#arity} values"))))
+
+                     (native/set-native-syntax! native syn)
+                     (native/set-native-arity! native arity))]
+
+                  ;; TODO: Support raw lists in the future
+                  [?ty
+                   (error-positions! log child (format nil "Expected syntax, for {}" (if (= ty "nil") "nothing" ty)))])
+                (inc! i))]
+
+             ["stmt"
+              (when (/= (scope/var-kind var) "native")
+                (error-positions! log child "Can only set native definitions as statements"))
+
+              (with (native (scope/var-native var))
+                (when (native/native-syntax-stmt? native)
+                  (error-positions! log child "This definition is already a statement"))
+
+                (native/set-native-syntax-stmt! native true))]
+
+             ["syntax-precedence"
+              (when (/= (scope/var-kind var) "native")
+                (error-positions! log child "Can only set syntax of native definitions"))
+
+              (with (native (scope/var-native var))
+                (expect-type! log (nth node (succ i)) node "number" "precedence")
+                (when (native/native-syntax-precedence native)
+                  (error-positions! log child "Multiple precedences set"))
+
+                (native/set-native-syntax-precedence! native (.> (nth node (succ i)) :value))
+                (inc! i))]
+
+             ["syntax-fold"
+              (when (/= (scope/var-kind var) "native")
+                (error-positions! log child "Can only set syntax of native definitions"))
+
+              (with (native (scope/var-native var))
+                (expect-type! log (nth node (succ i)) node "string" "fold")
+                (when (native/native-syntax-fold native)
+                  (error-positions! log child "Multiple fold directions set"))
+
+                (case (.> (nth node (succ i)) :value)
+                  ["left"  (native/set-native-syntax-fold! native "left")]
+                  ["right" (native/set-native-syntax-fold! native "right")]
+                  [?str    (error-positions! log (nth node (succ i)) (format nil "Unknown fold direction {#str:string/quoted}"))])
+                (inc! i))]
+
              [_ (error-positions! log child (.. "Unexpected modifier '" (pretty child) "'"))])]
           [?ty (error-positions! log child (.. "Unexpected node of type " ty ", have you got too many values"))]))
 

@@ -187,18 +187,19 @@
                     (when (.> state :var)
                       (.<! global escaped res))))])]))))))
 
-(defun get-native (var meta)
-  "Convert a native META definition into a function."
-  (unless (.> meta :has-value)
-    (with (out (w/create))
-      (prelude out)
-      (w/append! out "return ")
-      (compile-native out meta)
+(defun get-native (var)
+  "Convert a native VAR into a function."
+  (with (native (scope/var-native var))
+    (unless (.> native :has-value)
+      (with (out (w/create))
+        (prelude out)
+        (w/append! out "return ")
+        (compile-native out var native)
 
-      (.<! meta :has-value true)
-      (when-let* [(fun (load (w/->string out) (.. "=" (scope/var-name var))))
-                  ((ok res) (pcall fun))]
-        (.<! meta :value res))))
+        (.<! native :has-value true)
+        (when-let* [(fun (load (w/->string out) (.. "=" (scope/var-name var))))
+                    ((ok res) (pcall fun))]
+          (.<! native :value res))))
 
-  ;; TODO: Add setter to native or do something else
-  (.> meta :value))
+    ;; TODO: Add setter to native or do something else
+    (.> native :value)))
