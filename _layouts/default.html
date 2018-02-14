@@ -7,6 +7,7 @@
 		<title>{% if page.title %}{{ page.title | escape }} | {{ site.title | escape }}{% else %}{{ site.title | escape }}{% endif %}</title>
 		<link rel="stylesheet" href="{{ "/assets/main.css" | relative_url }}" />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+		{% for style in page.styles %}<link rel="stylesheet" href="{{ style | relative_url }}" />{% endfor %}
 
 		<link rel="apple-touch-icon-precomposed" sizes="57x57" href="{{ "images/apple-touch-icon-57x57.png" | relative_url }}" />
 		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="{{ "images/apple-touch-icon-114x114.png" | relative_url }}" />
@@ -88,5 +89,7 @@
 				</ul>
 			</div>
 		</div>
+
+		{% for style in page.scripts %}<script type="text/javascript" src="{{ style | relative_url }}"></script>{% endfor %}
 	</body>
 </html>
