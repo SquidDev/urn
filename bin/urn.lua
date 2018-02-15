@@ -5648,7 +5648,9 @@ executeStates1 = function(backState, states, global)
     end
     name = "compile#" .. id .. "{" .. name .. "}"
     prelude1(out)
-    line_21_1(out, "local " .. concat2(localList, ", "))
+    if not empty_3f_1(localList) then
+      line_21_1(out, "local " .. concat2(localList, ", "))
+    end
     local temp = n1(stateList)
     local temp1 = 1
     while temp1 <= temp do

@@ -151,7 +151,7 @@
         (set! name (.. "compile#" id "{" name "}"))
 
         (prelude out)
-        (w/line! out (.. "local " (concat local-list ", ")))
+        (unless (empty? local-list) (w/line! out (.. "local " (concat local-list ", "))))
 
         ;; Emit all expressions
         (for i 1 (n state-list) 1
