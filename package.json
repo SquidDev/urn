@@ -1,0 +1,31 @@
+{
+  "name": "urn-docs",
+  "version": "1.0.0",
+  "description": "Documentation site for Urn",
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/urn/urn.git"
+  },
+  "scripts": {
+    "cp-lua": "uglifyjs node_modules/lua.vm.js/dist/lua.vm.js -o assets/lib/lua.js",
+    "cp": "npm run cp-lua"
+  },
+  "keywords": [
+    "urn",
+    "lua",
+    "language"
+  ],
+  "author": "SquidDev",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://gitlab.com/urn/urn/issues"
+  },
+  "homepage": "http://urn-lang.com/",
+  "dependencies": {
+    "lua.vm.js": "0.0.1"
+  },
+  "devDependencies": {
+    "clean-css-cli": "^4.1.10",
+    "uglify-js": "^3.3.4"
+  }
+}

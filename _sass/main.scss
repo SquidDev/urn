@@ -244,3 +244,52 @@ table.sym-table {
 		font-weight: normal
 	}
 }
+
+#terminal {
+	width: 100%;
+	height: 400px;
+	position: relative;
+
+	background-color: #2e3436; // Taken from repl/wrapper.lua
+	border: solid 1px $grey05;
+
+	#terminal-container {
+		width: 100%;
+		height: 100%;
+		padding: 5px;
+		box-sizing: border-box;
+
+		overflow-y: scroll;
+		font-size: 0.8em;
+	}
+
+	#terminal-input, #terminal-output {
+		font-family: "Consolas", "Courier New", monospace;
+		font-size: 1em;
+
+		background: none;
+		border: none;
+		padding: 0px;
+		color: #d3d7cf; // Taken from repl/wrapper.lua
+	}
+
+	#terminal-output {
+		margin: 0px 0px 1em 0px;
+	}
+
+	#terminal-input, #terminal-input:focus {
+		min-width: 100px;
+		display: inline-block;
+
+		outline: none;
+	}
+
+	#terminal-status {
+		position: absolute;
+		bottom: 0;
+		padding: 5px;
+
+		font-size: 0.8em;
+		color: #eee;
+	}
+}
