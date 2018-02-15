@@ -5618,7 +5618,7 @@ file1 = function(compiler, shebang)
   return out
 end
 executeStates1 = function(backState, states, global)
-  local stateList, nameList, exportList, escapeList = {tag="list", n=0}, {tag="list", n=0}, {tag="list", n=0}, {tag="list", n=0}
+  local stateList, nameList, exportList, escapeList, localList = {tag="list", n=0}, {tag="list", n=0}, {tag="list", n=0}, {tag="list", n=0}, {tag="list", n=0}
   local temp = n1(states)
   while temp >= 1 do
     local state = nth1(states, temp)
@@ -5632,6 +5632,9 @@ executeStates1 = function(backState, states, global)
       push_21_1(exportList, escaped .. " = " .. escaped)
       push_21_1(nameList, name)
       push_21_1(escapeList, escaped)
+      if not var or var["const"] then
+        push_21_1(localList, escaped)
+      end
     end
     temp = temp + -1
   end
@@ -5645,7 +5648,7 @@ executeStates1 = function(backState, states, global)
     end
     name = "compile#" .. id .. "{" .. name .. "}"
     prelude1(out)
-    line_21_1(out, "local " .. concat2(escapeList, ", "))
+    line_21_1(out, "local " .. concat2(localList, ", "))
     local temp = n1(stateList)
     local temp1 = 1
     while temp1 <= temp do
@@ -5654,7 +5657,7 @@ executeStates1 = function(backState, states, global)
         if state["var"] then
           return ""
         else
-          return nth1(escapeList, temp1) .. "= "
+          return nth1(escapeList, temp1) .. " = "
         end
       end)())
       line_21_1(out)

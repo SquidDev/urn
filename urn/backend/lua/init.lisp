@@ -118,7 +118,8 @@
   (let* [(state-list '())
          (name-list '())
          (export-list '())
-         (escape-list '())]
+         (escape-list '())
+         (local-list '())]
 
     (for i (n states) 1 -1
       (with (state (nth states i))
@@ -130,7 +131,12 @@
             (push! state-list state)
             (push! export-list (.. escaped " = " escaped))
             (push! name-list name)
-            (push! escape-list escaped)))))
+            (push! escape-list escaped)
+
+            ;; Only emit locals for variables which will not change. Otherwise
+            ;; we'll end up ignoring later changes to the variable
+            (when (or (not var) (scope/var-const? var))
+              (push! local-list escaped))))))
 
     (unless (empty? state-list)
       (let* [(out (w/create))
@@ -145,7 +151,7 @@
         (set! name (.. "compile#" id "{" name "}"))
 
         (prelude out)
-        (w/line! out (.. "local " (concat escape-list ", ")))
+        (w/line! out (.. "local " (concat local-list ", ")))
 
         ;; Emit all expressions
         (for i 1 (n state-list) 1
@@ -157,7 +163,7 @@
               ;; temp variable. Otherwise it will be emitted in the main backend
               (if (state/rs-var state)
                 ""
-                (..(nth escape-list i) "= ")))
+                (..(nth escape-list i) " = ")))
             (w/line! out)))
 
         (w/line! out (.. "return { " (concat export-list ", ") "}"))
