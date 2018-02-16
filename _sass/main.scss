@@ -274,11 +274,12 @@ table.sym-table {
 	}
 
 	#terminal-output {
-		margin: 0px 0px 1em 0px;
+		margin: 0px 0px 1.5em 0px;
 	}
 
 	#terminal-input, #terminal-input:focus {
 		min-width: 100px;
+		min-height: 1em;
 		display: inline-block;
 
 		outline: none;

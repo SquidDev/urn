@@ -40,7 +40,7 @@ end
 
 --- Scroll to the bottom position
 local function scroll()
-  container:scrollTo(0, container.scrollHeight)
+  container.scrollTop = container.scrollHeight
 end
 
 local function append_plain(str)
