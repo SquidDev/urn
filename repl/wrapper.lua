@@ -167,6 +167,8 @@ print = function(...)
   scroll()
 end
 
+local extra_lines = {}
+
 io.read = function(...)
   if coroutine.running() ~= main_thread then
     error("Cannot open file off main coroutine", 2)
@@ -175,9 +177,31 @@ io.read = function(...)
   input:focus()
   while true do
     local kind, res = coroutine.yield()
-    if kind == "input" then
-      return res
-    end
+    if kind == "input" then return res end
+  end
+end
+
+package.loaded["urn.readline"] = function(prompt, initial, complete)
+  if coroutine.running() ~= main_thread then
+    error("Cannot read text off main coroutine", 2)
+  end
+
+  append_ansi(prompt)
+
+  input.innerText = initial
+  input:focus()
+
+  local range = document:createRange()
+  range:selectNodeContents(input)
+  range:collapse(false)
+
+  local selection = window:getSelection()
+  selection:removeAllRanges()
+  selection:addRange(range)
+
+  while true do
+    local kind, res = coroutine.yield()
+    if kind == "input" then return res end
   end
 end
 
@@ -187,7 +211,6 @@ input.onkeydown = function(self, e)
   local key = e.key or e.which
   if key == "Enter" and not e.shiftKey then
     local value = self.innerText
-    window.console:log(value)
 
     -- Clear & blur input
     e:preventDefault()
@@ -201,6 +224,13 @@ input.onkeydown = function(self, e)
   end
 end
 
+input.onpaste = function(self, e)
+  if not e then e = window.event end
+  e:preventDefault()
+
+  local text = e.clipboardData:getData("text/plain")
+  document:execCommand("insertHTML", false, text)
+end
 
 main_thread = coroutine.create(function()
     xpcall(
