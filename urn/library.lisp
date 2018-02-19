@@ -62,7 +62,7 @@
       "The path this library was loaded from, not including the file
        extension.")
 
-    (immutable scope
+    (mutable scope
       "The scope for this library.")
 
     (mutable nodes
@@ -77,14 +77,23 @@
     (mutable lua-contents
       "The contents of the associated Lua bindings file.")
 
-    (immutable depends
+    (mutable depends
       "Set of libraries this one directly depends on, does not include
        transitive dependencies."))
 
   (constructor new
     (lambda (name unique-name path parent-scope)
-      (with (scope (scope/child parent-scope "top-level"))
-        (scope/set-scope-prefix! scope (.. name "/"))
-        (scope/set-scope-unique-prefix! scope (.. unique-name "/"))
+      (new name unique-name path
+           (scope-for-library parent-scope name unique-name)
+           nil nil nil nil {}))))
 
-        (new name unique-name path scope nil nil nil nil {})))))
+(defun scope-for-library (parent name unique-name)
+  "Construct a scope for a library using a PARENT scope, NAME and
+   UNIQUE-NAME."
+  (assert-type! name string)
+  (assert-type! unique-name string)
+
+  (with (scope (scope/child parent "top-level"))
+    (scope/set-scope-prefix! scope (.. name "/"))
+    (scope/set-scope-unique-prefix! scope (.. unique-name "/"))
+    scope))

@@ -300,3 +300,98 @@
 
     (for-pairs (name var) (scope/scope-exported (library-scope prelude))
       (scope/import! scope name var))))
+
+(defun reload (compiler)
+  "Attempt to establish a list of modules which require reloading in the given
+   COMPILER and then do so."
+  (let* [(cache (.> compiler :libs))
+         (dirty {})
+         (updated-lisp {})]
+
+    (for-each lib (library-cache-loaded cache)
+      (with ((handle path') (try-handle (library-path lib)))
+        (if handle
+          (with (new-lines (string/gsub (self handle :read "*a") "\r\n?" "\n"))
+            (self handle :close)
+
+            (when (neq? new-lines (concat (library-lisp-lines lib) "\n"))
+              (.<! updated-lisp lib new-lines)
+              (.<! dirty lib 1)))
+          (error! (format nil "Cannot find {} (for module {})" (library-path lib) (library-name lib))))))
+
+    ;; Now flesh-out the dirty set to ensure all dependants are also
+    ;; included. We track the "depth" of the current search tree to
+    ;; allow us to order the dependency modules.
+    (loop [] []
+      (with (changed false)
+        (for-each lib (library-cache-loaded cache)
+          (with (max-depth (or (.> dirty lib) 0))
+            (for-pairs (dep) (library-depends lib)
+              (with (depth (.> dirty dep))
+                (when (and depth (>= depth max-depth))
+                  (set! max-depth (succ depth))
+                  (.<! dirty lib max-depth)
+                  (set! changed true))))))
+
+        (when changed (recur))))
+
+    (with (reload (sort! (keys dirty) (lambda (x y) (< (.> dirty x) (.> dirty y)))))
+      (for-each lib reload
+        (let* [(contents (or (.> updated-lisp lib) (concat (library-lisp-lines lib) "\n")))
+               ((lexed range) (parser/lex (.> compiler :log) contents (.. (library-path lib) ".lisp")))
+               (parsed (parser/parse (.> compiler :log) lexed))
+               (old-scope (library-scope lib))
+               (new-scope (scope-for-library (scope/scope-parent old-scope)
+                                             (library-name lib) (library-unique-name lib)))
+               (deps {})]
+
+          (logger/put-warning! (.> compiler :log) (format nil "{} or dependency has changed" (library-path lib)))
+
+          ;; If we already depend on the prelude, then add it to the new dependency set
+          (when (.> (library-depends lib) (.> compiler :prelude)) (.<! deps (.> compiler :prelude) true))
+
+          ;; Resolve this file
+          (with (compiled (compile
+                            compiler parsed new-scope (library-path lib)
+                            (lambda (name)
+                              (let* [(res ((.> compiler :loader) name))
+                                (module (car res))]
+                                (when module (.<! deps module true))
+                                res))))
+
+            ;; Extract documentation from the root node
+            (if (string? (car compiled))
+              (progn
+                (set-library-docs! lib (const-val (car compiled)))
+                (remove-nth! compiled 1))
+              (set-library-docs! lib nil))
+
+            ;; Set the resulting nodes
+            (set-library-lisp-lines! lib (range/range-lines range))
+            (set-library-nodes! lib compiled))
+
+          ;; Copy across the new scope and dependency sets
+          (set-library-scope! lib new-scope)
+          (set-library-depends! lib deps)
+
+          ;; Overwrite the prelude scope if needed
+          (when (= lib (.> compiler :prelude))
+            (let* [(root-scope (.> compiler :root-scope))
+              (root-vars (scope/scope-variables root-scope))]
+              ;; Clear current exported set
+              (for-pairs (name) root-vars (.<! root-vars name nil))
+              ;; Override with new prelude variables
+              (for-pairs (name var) (scope/scope-exported new-scope)
+                (scope/import! root-scope name var))))
+
+          ;; Map escaped variables
+          (with (escaped (.> compiler :compile-state :var-lookup))
+            (for-pairs (name old-var) (scope/scope-variables old-scope)
+              (when-let* [(esc (.> escaped old-var))
+                          (new-var (scope/get new-scope name))]
+                (.<! escaped new-var esc))))
+
+          ;; Map variable tostrings
+          (for-pairs (name old-var) (scope/scope-variables old-scope)
+            (when-with (new-var (scope/get new-scope name))
+              (.<! compiler (tostring old-var) new-var))))))))

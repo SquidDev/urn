@@ -353,6 +353,7 @@
        (print! "REPL commands:
                 [:d]oc NAME        Get documentation about a symbol
                 :module NAME       Display a loaded module's docs and definitions.
+                [:r]eload          Reload all modules which have changed.
                 :scope             Print out all variables in the scope
                 [:s]earch QUERY    Search the current scope for symbols and documentation containing a string.
                 [:v]iew NAME       Display the definition of a symbol.
@@ -508,6 +509,9 @@
                    (logger/put-error! logger (.. "Cannot extract source code for " (string/quoted name)))))
                (logger/put-error! logger (.. "Cannot find " (string/quoted name)))))
            (logger/put-error! logger ":view <variable>")))]
+
+      [(or (= command "reload") (= command "r"))
+       (loader/reload compiler)]
 
       [(or (= command "quit") (= command "q"))
        (print! "Goodbye.")
