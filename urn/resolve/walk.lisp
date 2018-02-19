@@ -91,6 +91,17 @@
 
                 (native/set-native-pure! native true))]
 
+             ["signature"
+              (when (/= (scope/var-kind var) "native")
+                (error-positions! log child "Can only set signature for native definitions"))
+
+              (let [(native (scope/var-native var))
+                    (signature (nth node (succ i)))]
+                (expect-type! log signature node "list" "signature")
+                (for-each child signature (expect-type! log child signature "symbol" "argument"))
+
+                (inc! i))]
+
              ["bind-to"
               (when (/= (scope/var-kind var) "native")
                 (error-positions! log child "Can only bind native definitions"))
@@ -116,17 +127,32 @@
                 (case (type syntax)
                   ["string"
                    (with ((syn arity) (native/parse-template (.> syntax :value)))
-                     ;; First verify our arity is consistent
-                     (with (current-arity (native/native-arity native))
-                       (when (and current-arity (/= arity current-arity))
-                         (error-positions! log child (format nil "Specified arity as {#current-arity} but template takes {#arity} values"))))
+                     (native/set-native-syntax! native syn)
+                     (unless (native/native-arity native) (native/set-native-arity! native arity)))]
+
+                  ["list"
+                   ;; Ensure the syntax isn't empty
+                   (expect! log (car syntax) syntax "syntax element")
+
+                   (let [(syn '())
+                         (arity 0)]
+                     ;; Gobble list elements, verifying they are valid
+                     (for-each child syntax
+                       (case (type child)
+                         ["string" (push! syn (.> child :value))]
+                         ["number"
+                          (with (val (.> child :value))
+                            (when (> val arity) (set! arity val))
+                            (push! syn val))]
+                         [?ty
+                          (error-positions! log child (format nil "Expected syntax element, got {}" (if (= ty "nil") "nothing" ty)))]))
 
                      (native/set-native-syntax! native syn)
-                     (native/set-native-arity! native arity))]
+                     (unless (native/native-arity native) (native/set-native-arity! native arity)))]
 
-                  ;; TODO: Support raw lists in the future
                   [?ty
-                   (error-positions! log child (format nil "Expected syntax, for {}" (if (= ty "nil") "nothing" ty)))])
+                   (error-positions! log child (format nil "Expected syntax, got {}" (if (= ty "nil") "nothing" ty)))])
+
                 (inc! i))]
 
              ["stmt"
@@ -143,12 +169,25 @@
               (when (/= (scope/var-kind var) "native")
                 (error-positions! log child "Can only set syntax of native definitions"))
 
-              (with (native (scope/var-native var))
-                (expect-type! log (nth node (succ i)) node "number" "precedence")
+              (let [(native (scope/var-native var))
+                    (precedence (nth node (succ i)))]
                 (when (native/native-syntax-precedence native)
                   (error-positions! log child "Multiple precedences set"))
 
-                (native/set-native-syntax-precedence! native (.> (nth node (succ i)) :value))
+                (case (type precedence)
+                  ["number" (native/set-native-syntax-precedence! native (.> precedence :value))]
+
+                  ["list"
+                   (with (res '())
+                     (for-each prec precedence
+                       (expect-type! log prec precedence "number" "precedence")
+                       (push! res (.> prec :value)))
+
+                     (native/set-native-syntax-precedence! native res))]
+
+                  [?ty
+                   (error-positions! log child (format nil "Expected precedence, got {}" (if (= ty "nil") "nothing" ty)))])
+
                 (inc! i))]
 
              ["syntax-fold"
@@ -156,7 +195,7 @@
                 (error-positions! log child "Can only set syntax of native definitions"))
 
               (with (native (scope/var-native var))
-                (expect-type! log (nth node (succ i)) node "string" "fold")
+                (expect-type! log (nth node (succ i)) node "string" "fold direction")
                 (when (native/native-syntax-fold native)
                   (error-positions! log child "Multiple fold directions set"))
 
@@ -169,7 +208,40 @@
              [_ (error-positions! log child (.. "Unexpected modifier '" (pretty child) "'"))])]
           [?ty (error-positions! log child (.. "Unexpected node of type " ty ", have you got too many values"))]))
 
-      (inc! i))))
+      (inc! i)))
+
+  (when (= (scope/var-kind var) "native")
+    (with (native (scope/var-native var))
+      (when (and (native/native-syntax native) (native/native-bind-to native))
+        (error-positions! log node "Cannot specify :syntax and :bind-to in native definition"))
+
+      ;; Verify syntax specific fields are not set
+      (when (and (native/native-syntax-fold native) (not (native/native-syntax native)))
+        (error-positions! log node "Cannot specify a fold direction when no syntax given"))
+      (when (and (native/native-syntax-stmt? native) (not (native/native-syntax native)))
+        (error-positions! log node "Cannot have a statement when no syntax given"))
+      (when (and (native/native-syntax-precedence native) (not (native/native-syntax native)))
+        (error-positions! log node "Cannot specify a precedence when no syntax given"))
+
+      (when-with (syntax (native/native-syntax native))
+        (let* [(syntax-arity (reduce (lambda (max val) (if (and (number? val) (> val max)) val max)) 0 syntax))
+               (given-arity (native/native-arity native))
+
+               (precedence (native/native-syntax-precedence native))
+               (prec-arity (and (list? precedence) (n precedence)))]
+          ;; Verify arity is consistent
+          (when (/= syntax-arity given-arity)
+            (error-positions! log node (format nil "Specified arity as {#given-arity} but template takes {#syntax-arity} values")))
+
+          ;; Verify precedence is consistent
+          (when (and prec-arity (/= prec-arity given-arity))
+            (error-positions! log node (format nil "Definition has arity {#given-arity}, but precedence has {#prec-arity} values")))
+
+          ;; Verify folds take 2 arguments
+          (when (and (native/native-syntax-fold native) (/= given-arity 2))
+            (error-positions! log node (format nil "Cannot specify a fold direction with arity {#given-arity} (must be 2)")))))))
+
+  nil)
 
 (defun resolve-execute-result (source node scope state)
   "Resolve the result of a macro or unquote, binding the range and

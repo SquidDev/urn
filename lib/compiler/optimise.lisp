@@ -3,7 +3,8 @@
 (import compiler/pattern (pattern))
 (import compiler/nodes (symbol->var var->symbol))
 
-(define-native fusion/add-rule! "Register a new fusion rule.")
+(define-native fusion/add-rule! "Register a new fusion rule."
+  :bind-to "_compiler['fusion/add-rule!']")
 
 (defun fix-pattern! (ptrn)
   "Resolve pattern variables relative to the current state."
