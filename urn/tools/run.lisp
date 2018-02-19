@@ -406,7 +406,7 @@
         (self handle :write path "\n")
         (self handle :write (string/rep "=" 78) "\n")
 
-        (let* [(lib (.> compiler :lib-cache path))
+        (let* [(lib (library/library-cache-at-path (.> compiler :libs) path))
                (lines (library/library-lisp-lines lib))
                (n-lines (n lines))
                (counts (.> stats path))

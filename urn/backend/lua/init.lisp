@@ -8,7 +8,6 @@
 (import urn/timer timer)
 (import urn/traceback traceback)
 
-(import test/assert (assert!))
 (import lua/basic (load))
 
 (defun create-state ()
@@ -43,7 +42,7 @@
     (w/line! out "local _libs = {}")
 
     ;; Emit all native libraries
-    (for-each lib (.> compiler :libs)
+    (for-each lib (library-cache-loaded (.> compiler :libs))
       (let* [(prefix (string/quoted (.. (library-unique-name lib) "/")))
              (native (library-lua-contents lib))]
         (when native
@@ -124,7 +123,7 @@
     (for i (n states) 1 -1
       (with (state (nth states i))
         (unless (= (state/rs-stage state) "executed")
-          (assert! (state/rs-node state) (.. "State is in " (state/rs-stage state) " instead"))
+          (demand (state/rs-node state) (.. "State is in " (state/rs-stage state) " instead"))
           (let* [(var (or (state/rs-var state) (scope/temp-var "temp" (state/rs-node state))))
                  (escaped (push-escape-var! var back-state true))
                  (name (scope/var-name var))]

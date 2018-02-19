@@ -378,7 +378,7 @@
       [(= command "module")
        (with (name (nth args 2))
          (if name
-           (with (mod (.> compiler :lib-names name))
+           (with (mod (.> (library/library-cache-names (.> compiler :libs)) name))
              (cond
                [(= mod nil)
                 (logger/put-error! logger (.. "Cannot find '" name "'"))]

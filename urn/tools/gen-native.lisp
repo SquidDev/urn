@@ -19,7 +19,7 @@
     (exit! 1))
 
   (let* [(prefix (.> args :gen-native))
-         (lib (.> compiler :lib-cache (last (.> args :input))))
+         (lib (library-cache-at-path (.> compiler :libs) (last (.> args :input))))
          (max-name 0)
          (max-quot 0)
          (natives '())]

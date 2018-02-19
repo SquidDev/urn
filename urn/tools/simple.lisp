@@ -111,7 +111,6 @@
 
                     ;; General shared options
                     :compiler  compiler
-                    :libs      (.> compiler :libs)
                     :logger    (.> compiler :log)
                     :timer     (.> compiler :timer) })
       (fun (.> compiler :out) options (pass/filter-passes (.> compiler name) options)))))

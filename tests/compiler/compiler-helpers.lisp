@@ -1,4 +1,5 @@
 (import urn/logger/void logger)
+(import urn/library ())
 (import urn/range ())
 (import urn/resolve/builtins builtins)
 (import urn/resolve/scope scope)
@@ -48,16 +49,10 @@
 (defun create-compiler ()
   "Create a new compilation state, with some basic variables already defined."
   (let* [(scope (builtins/create-scope "top-level"))
+         (libs (library-cache))
          (compiler { :log           logger/void
                      :timer         (timer/void)
-
-                     :lib-meta      { :+       (native-expr { :contents '(1 " + " 2)   :count 2 :fold "left"  :prec 9 :pure true })
-                                      :-       (native-expr { :contents '(1 " - " 2)   :count 2 :fold "left"  :prec 9 :pure true })
-                                      :..      (native-expr { :contents '(1 " .. " 2)  :count 2 :fold "right" :prec 8 :pure true })
-                                      :=       (native-expr { :contents '(1 " == " 2)  :count 2               :prec 3 :pure true })
-                                      :>=      (native-expr { :contents '(1 " >= " 2)  :count 2               :prec 3 :pure true })
-                                      :get-idx (native-expr { :contents '(1 "[" 2 "]") :count 2               :prec '(100 0) })
-                                      :print   (native-var "print") }
+                     :libs          libs
 
                      :root-scope    scope
                      :exec          (lambda (func) (list (xpcall func traceback/traceback)))
@@ -68,9 +63,19 @@
 
                      :loader        (lambda (name) (format 0 "Cannot load external module {#name:string/quoted}")) })]
 
+    ;; Setup meta definitions
+    (set-library-cache-meta! libs :+       (native-expr { :contents '(1 " + " 2)   :count 2 :fold "left"  :prec 9 :pure true }))
+    (set-library-cache-meta! libs :-       (native-expr { :contents '(1 " - " 2)   :count 2 :fold "left"  :prec 9 :pure true }))
+    (set-library-cache-meta! libs :..      (native-expr { :contents '(1 " .. " 2)  :count 2 :fold "right" :prec 8 :pure true }))
+    (set-library-cache-meta! libs :=       (native-expr { :contents '(1 " == " 2)  :count 2               :prec 3 :pure true }))
+    (set-library-cache-meta! libs :>=      (native-expr { :contents '(1 " >= " 2)  :count 2               :prec 3 :pure true }))
+    (set-library-cache-meta! libs :get-idx (native-expr { :contents '(1 "[" 2 "]") :count 2               :prec '(100 0) }))
+    (set-library-cache-meta! libs :print   (native-var "print"))
+
+    ;; Setup main definitions
     (for-each name '("foo" "bar" "baz" "qux" "+" "-" ".." "=" ">=" "get-idx" "print")
       (with (var (scope/add! scope name "native"))
-        (when-with (native (.> compiler :lib-meta name))
+        (when-with (native (library-cache-meta libs name))
           (scope/set-var-native! var native))))
 
     (for-pairs (_ var) (scope/scope-variables (scope/scope-parent scope)) (.<! compiler :variables (tostring var) var))

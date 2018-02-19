@@ -14,7 +14,7 @@
     (exit! 1))
 
   (for-each path (.> args :input)
-    (let* [(lib (.> compiler :lib-cache path))
+    (let* [(lib (library-cache-at-path (.> compiler :libs) path))
            (writer (writer/create))]
       (markdown/exported writer (library-name lib) (library-docs lib)
                                 (scope/scope-exported (library-scope lib)) (library-scope lib))
@@ -24,7 +24,7 @@
         (self handle :close))))
 
   (with (writer (writer/create))
-    (markdown/index writer (map (cut .> compiler :lib-cache <>) (.> args :input)))
+    (markdown/index writer (map (cut library-cache-at-path (.> compiler :libs) <>) (.> args :input)))
 
     (with (handle (io/open (.. (.> args :docs) "/index.md") "w"))
       (self handle :write (writer/->string writer))

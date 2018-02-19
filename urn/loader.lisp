@@ -103,7 +103,7 @@
 
     (.<! entry :name name)
 
-    (let [(lib-value (.> state :lib-env name))
+    (let [(lib-value (library-cache-value (.> state :libs) name))
           (meta-value (.> entry :value))]
       (cond
         [(and (/= lib-value nil) (/= meta-value nil))
@@ -113,17 +113,17 @@
          (.<! entry :value lib-value)]
         [(/= meta-value nil)
          (.<! entry :has-value true)
-         (.<! state :lib-env name meta-value)]
+         (set-library-cache-value! (.> state :libs) name meta-value)]
         [else]))
 
-    (.<! state :lib-meta name native)))
+    (set-library-cache-meta! (.> state :libs) name native)))
 
 (defun read-library (state name path lisp-handle)
   "Read a library from PATH, using an already existing LISP-HANDLE."
   :hidden
   (logger/put-verbose! (.> state :log) (.. "Loading " path " into " name))
 
-  (let* [(unique-name (.. name "-" (n (.> state :libs))))
+  (let* [(unique-name (.. name "-" (n (library-cache-loaded (.> state :libs)))))
          (lib (library-of name unique-name path (.> state :root-scope)))
          (contents (self lisp-handle :read "*a"))]
     (self lisp-handle :close)
@@ -141,7 +141,7 @@
             [(true (table? @ ?res) . _)
              (for-pairs (k v) res
                (if (string? k)
-                 (.<! state :lib-env (.. unique-name "/" k) v)
+                 (set-library-cache-value! (.> state :libs) (.. unique-name "/" k) v)
                  (logger/put-warning! (.> state :log) (format nil "Non-string key '{:tostring}' when loading {}.lib.lua" k path))))]
             [_
              (logger/put-error! (.> state :log) (format nil "Received a non-table value from {}.lib.lua" path))])
@@ -186,7 +186,7 @@
                             res))))
 
 
-        (push! (.> state :libs) lib)
+        (push! (library-cache-loaded (.> state :libs)) lib)
 
         ;; Extract documentation from the root node
         (when (string? (car compiled))
@@ -206,10 +206,10 @@
 
    This will search the compiler's load path for a module with the
    appropriate name."
-  (with (cached (.> state :lib-names name))
+  (with (cached (.> (library-cache-names (.> state :libs)) name))
     (cond
       [(= cached nil)
-       (.<! state :lib-names name true)
+       (.<! (library-cache-names (.> state :libs)) name true)
 
        (let [(searched '())
              (paths (.> state :paths))]
@@ -224,7 +224,7 @@
              (case (path-loader state path)
                ;; If we've found the library then return
                [(?lib)
-                (.<! state :lib-names name lib)
+                (.<! (library-cache-names (.> state :libs)) name lib)
                 (list lib)]
                ;; If we've got an error then propagate it
                [(false ?msg)
@@ -244,7 +244,7 @@
    extension if needed."
 
   ;; First attempt to load from the main cache.
-  (case (.> state :lib-cache path)
+  (case (library-cache-at-path (.> state :libs) path)
     [nil
      ;; The library doesn't exist, let's try to find it.
      (let* [(name (strip-extension path))
@@ -258,16 +258,16 @@
            (set! full-path path'))
          (set! handle (io/open path "r")))
 
-       (case (.> state :lib-cache full-path)
+       (case (library-cache-at-path (.> state :libs) full-path)
          [nil
           (if handle
             (progn
               ;; Ensure we don't get loops
-              (.<! state :lib-cache path true)
-              (.<! state :lib-cache full-path true)
+              (set-library-cache-at-path! (.> state :libs) path true)
+              (set-library-cache-at-path! (.> state :libs) full-path true)
               (with (lib (read-library state (simplify-path name (.> state :paths)) name handle))
-                (.<! state :lib-cache path lib)
-                (.<! state :lib-cache full-path lib)
+                (set-library-cache-at-path! (.> state :libs) path lib)
+                (set-library-cache-at-path! (.> state :libs) full-path lib)
                 (list lib)))
             (list nil (.. "Cannot find " (string/quoted path))))]
          [true
@@ -275,6 +275,7 @@
           (list false (.. "Already loading " (string/quoted full-path)))]
          [?cached
           (when handle (self handle :close))
+          (format true "Loading " {} full-path)
           (list cached)]))]
 
     [true

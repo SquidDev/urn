@@ -1,6 +1,6 @@
 (import urn/tools/docs       docs)
-(import urn/tools/gen-native gen-native)
 (import urn/tools/repl       repl)
+(import urn/tools/gen-native gen-native)
 (import urn/tools/run        run)
 (import urn/tools/simple     simple)
 
@@ -233,11 +233,7 @@
                       :paths     paths
                       :flags     (.> args :flag)
 
-                      :lib-env   {}
-                      :lib-meta  {}
-                      :libs      '()
-                      :lib-cache {}
-                      :lib-names {}
+                      :libs      (library/library-cache)
 
                       :warning   (warning/default)
                       :optimise  (optimise/default)
@@ -258,7 +254,7 @@
 
       ;; Add globals
       (.<! compiler :global (setmetatable
-                              {  :_libs (.> compiler :lib-env)
+                              {  :_libs (library/library-cache-values (.> compiler :libs))
                                 :_compiler (plugins/create-plugin-state compiler)}
                               { :__index _G }))
 

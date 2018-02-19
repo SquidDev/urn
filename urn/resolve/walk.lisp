@@ -9,6 +9,7 @@
 (import lua/coroutine co)
 
 (import urn/error error)
+(import urn/library ())
 (import urn/logger/format format)
 (import urn/range range)
 (import urn/resolve/builtins (builtin))
@@ -583,7 +584,7 @@
                   (expect-type! (state/rs-logger state) (nth node 2) node "symbol" "name")
                   (with (var (scope/add-verbose! scope (.> (nth node 2) :contents) "native" node (state/rs-logger state)))
                     ;; Copy metadata across
-                    (when-with (native (.> (state/rs-compiler state) :lib-meta (scope/var-unique-name var)))
+                    (when-with (native (library-cache-meta (.> (state/rs-compiler state) :libs) (scope/var-unique-name var)))
                       (scope/set-var-native! var native))
 
                     (scope/set-var-display-name! var (.> (nth node 2) :display-name))
