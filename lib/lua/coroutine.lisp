@@ -1,7 +1,14 @@
-(define-native create)
-(define-native isyieldable)
-(define-native resume)
-(define-native running)
-(define-native status)
-(define-native wrap)
-(define-native yield)
+(define-native create
+  :bind-to "coroutine.create")
+(define-native isyieldable
+  :bind-to "coroutine.isyieldable")
+(define-native resume
+  :bind-to "coroutine.resume")
+(define-native running
+  :bind-to "coroutine.running")
+(define-native status
+  :bind-to "coroutine.status")
+(define-native wrap
+  :bind-to "coroutine.wrap")
+(define-native yield
+  :bind-to "coroutine.yield")

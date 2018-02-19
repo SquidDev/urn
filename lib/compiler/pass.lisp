@@ -67,7 +67,8 @@
     main))
 
 (define-native add-pass!
-  "Register a PASS created with [[defpass]].")
+  "Register a PASS created with [[defpass]]."
+  :bind-to "_compiler['add-pass!']")
 
 (defmacro changed! ()
   "Mark this pass as having a side effect."
@@ -83,4 +84,5 @@
       a value.
 
     - `:usages`: A list of most usages. This does not include usages
-      from nodes which are considered \"dead\".")
+      from nodes which are considered \"dead\"."
+  :bind-to "_compiler['var-usage']")

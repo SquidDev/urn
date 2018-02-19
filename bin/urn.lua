@@ -4,7 +4,7 @@ if not table.unpack then table.unpack = unpack end
 local load = load if _VERSION:find("5.1") then load = function(x, n, _, env) local f, e = loadstring(x, n) if not f then return f, e end if env then setfenv(f, env) end return f end end
 local _select, _unpack, _pack, _error = select, table.unpack, table.pack, error
 local _libs = {}
-local _2a_arguments_2a_1, _2b_1, _2d_1, _2e2e_1, _2f3d_1, _3c3d_1, _3c_1, _3d_1, _3e3d_1, _3e_1, addArgument_21_1, addParen1, any1, append_21_1, apply1, beginBlock_21_1, between_3f_1, builtin_3f_1, builtins1, caar1, cadr1, car1, child1, coloured1, compileBlock1, compileExpression1, concat2, constVal1, demandFailure1, display1, doNodeError_21_1, empty_3f_1, endBlock_21_1, eq_3f_1, error1, errorPositions_21_1, escapeVar1, exit_21_1, expectType_21_1, expect_21_1, find1, format1, formatOutput_21_1, getIdx1, getVar1, getenv1, getinfo1, gsub1, last1, len_23_1, line_21_1, list1, lookup1, lower1, makeNil1, map2, match1, min1, n1, next1, nth1, number_3f_1, open1, pcall1, pretty1, print1, pushEscapeVar_21_1, push_21_1, putNodeWarning_21_1, quoted1, removeNth_21_1, rep1, require1, resolveNode1, runPass1, scoreNodes1, self1, setIdx_21_1, sethook1, slice1, sort1, sourceRange1, splice1, split1, string_3f_1, sub1, symbol_2d3e_string1, tonumber1, tostring1, type1, type_23_1, unmangleIdent1, usage_21_1, varNative1, visitBlock1, visitNode1, visitNode2, visitNode3, visitNodes2, zipArgs1
+local _2a_arguments_2a_1, _2b_1, _2d_1, _2e2e_1, _2f3d_1, _3c3d_1, _3c_1, _3d_1, _3e3d_1, _3e_1, addArgument_21_1, addParen1, any1, append_21_1, apply1, beginBlock_21_1, between_3f_1, builtin_3f_1, builtins1, caar1, cadr1, car1, child1, coloured1, compileBlock1, compileExpression1, concat2, constVal1, demandFailure1, display1, doNodeError_21_1, empty_3f_1, eq_3f_1, error1, errorPositions_21_1, escapeVar1, exit_21_1, expectType_21_1, expect_21_1, find1, format1, formatOutput_21_1, getIdx1, getVar1, getenv1, getinfo1, gsub1, last1, len_23_1, line_21_1, list1, lookup1, lower1, makeNil1, map2, match1, min1, n1, next1, nth1, number_3f_1, open1, pcall1, popLast_21_1, pretty1, print1, pushEscapeVar_21_1, push_21_1, putNodeWarning_21_1, quoted1, removeNth_21_1, rep1, require1, resolveNode1, runPass1, scoreNodes1, self1, setIdx_21_1, sethook1, slice1, sort1, sourceRange1, splice1, split1, string_3f_1, sub1, symbol_2d3e_string1, tonumber1, tostring1, type1, type_23_1, unmangleIdent1, usage_21_1, varNative1, visitBlock1, visitNode1, visitNode2, visitNode3, visitNodes2, zipArgs1
 local _ENV = setmetatable({}, {__index=_ENV or (getfenv and getfenv()) or _G}) if setfenv then setfenv(0, _ENV) end
 _3d_1 = function(v1, v2) return v1 == v2 end
 _2f3d_1 = function(v1, v2) return v1 ~= v2 end
@@ -17,19 +17,19 @@ _2d_1 = function(...) local t = ... for i = 2, _select('#', ...) do t = t - _sel
 _2a_1 = function(...) local t = ... for i = 2, _select('#', ...) do t = t * _select(i, ...) end return t end
 _2f_1 = function(...) local t = ... for i = 2, _select('#', ...) do t = t / _select(i, ...) end return t end
 mod1 = function(...) local t = ... for i = 2, _select('#', ...) do t = t % _select(i, ...) end return t end
-expt1 = function(...) local t = ... for i = 2, _select('#', ...) do t = t ^ _select(i, ...) end return t end
+expt1 = function(...) local n = _select('#', ...) local t = _select(n, ...) for i = n - 1, 1, -1 do t = _select(i, ...) ^ t end return t end
 _2e2e_1 = function(...) local n = _select('#', ...) local t = _select(n, ...) for i = n - 1, 1, -1 do t = _select(i, ...) .. t end return t end
+len_23_1 = function(v1) return #v1 end
+getIdx1 = function(v1, v2) return v1[v2] end
+setIdx_21_1 = function(v1, v2, v3) v1[v2] = v3 end
 _5f_G1 = _G
 arg_23_1 = arg or {...}
-len_23_1 = function(v1) return #v1 end
 error1 = error
 getmetatable1 = getmetatable
 load1 = load
 next1 = next
 pcall1 = pcall
 print1 = print
-getIdx1 = function(v1, v2) return v1[v2] end
-setIdx_21_1 = function(v1, v2, v3) v1[v2] = v3 end
 require1 = require
 setmetatable1 = setmetatable
 tonumber1 = tonumber
@@ -5796,6 +5796,19 @@ handleMetadata1 = function(log, node, var, start, finish)
           errorPositions_21_1(log, child, "This definition is already pure")
         end
         native["pure"] = true
+      elseif temp1 == "signature" then
+        if var["kind"] ~= "native" then
+          errorPositions_21_1(log, child, "Can only set signature for native definitions")
+        end
+        local native, signature = varNative1(var), nth1(node, i + 1)
+        expectType_21_1(log, signature, node, "list", "signature")
+        local temp2 = n1(signature)
+        local temp3 = 1
+        while temp3 <= temp2 do
+          expectType_21_1(log, signature[temp3], signature, "symbol", "argument")
+          temp3 = temp3 + 1
+        end
+        i = i + 1
       elseif temp1 == "bind-to" then
         if var["kind"] ~= "native" then
           errorPositions_21_1(log, child, "Can only bind native definitions")
@@ -5819,14 +5832,43 @@ handleMetadata1 = function(log, node, var, start, finish)
         local temp2 = type1(syntax)
         if temp2 == "string" then
           local syn, arity = parseTemplate1(syntax["value"])
-          local currentArity = native["arity"]
-          if currentArity and arity ~= currentArity then
-            errorPositions_21_1(log, child, formatOutput_21_1(nil, "Specified arity as " .. display1(currentArity) .. " but template takes " .. display1(arity) .. " values"))
+          native["syntax"] = syn
+          if not native["arity"] then
+            native["arity"] = arity
+          end
+        elseif temp2 == "list" then
+          expect_21_1(log, car1(syntax), syntax, "syntax element")
+          local syn, arity = {tag="list", n=0}, 0
+          local temp3 = n1(syntax)
+          local temp4 = 1
+          while temp4 <= temp3 do
+            local child2 = syntax[temp4]
+            local temp5 = type1(child2)
+            if temp5 == "string" then
+              push_21_1(syn, child2["value"])
+            elseif temp5 == "number" then
+              local val = child2["value"]
+              if val > arity then
+                arity = val
+              end
+              push_21_1(syn, val)
+            else
+              errorPositions_21_1(log, child2, formatOutput_21_1(nil, "Expected syntax element, got " .. display1((function()
+                if temp5 == "nil" then
+                  return "nothing"
+                else
+                  return temp5
+                end
+              end)())))
+            end
+            temp4 = temp4 + 1
           end
           native["syntax"] = syn
-          native["arity"] = arity
+          if not native["arity"] then
+            native["arity"] = arity
+          end
         else
-          errorPositions_21_1(log, child, formatOutput_21_1(nil, "Expected syntax, for " .. display1((function()
+          errorPositions_21_1(log, child, formatOutput_21_1(nil, "Expected syntax, got " .. display1((function()
             if temp2 == "nil" then
               return "nothing"
             else
@@ -5848,19 +5890,40 @@ handleMetadata1 = function(log, node, var, start, finish)
         if var["kind"] ~= "native" then
           errorPositions_21_1(log, child, "Can only set syntax of native definitions")
         end
-        local native = varNative1(var)
-        expectType_21_1(log, nth1(node, i + 1), node, "number", "precedence")
+        local native, precedence = varNative1(var), nth1(node, i + 1)
         if native["syntax-precedence"] then
           errorPositions_21_1(log, child, "Multiple precedences set")
         end
-        native["syntax-precedence"] = (nth1(node, i + 1)["value"])
+        local temp2 = type1(precedence)
+        if temp2 == "number" then
+          native["syntax-precedence"] = (precedence["value"])
+        elseif temp2 == "list" then
+          local res = {tag="list", n=0}
+          local temp3 = n1(precedence)
+          local temp4 = 1
+          while temp4 <= temp3 do
+            local prec = precedence[temp4]
+            expectType_21_1(log, prec, precedence, "number", "precedence")
+            push_21_1(res, prec["value"])
+            temp4 = temp4 + 1
+          end
+          native["syntax-precedence"] = res
+        else
+          errorPositions_21_1(log, child, formatOutput_21_1(nil, "Expected precedence, got " .. display1((function()
+            if temp2 == "nil" then
+              return "nothing"
+            else
+              return temp2
+            end
+          end)())))
+        end
         i = i + 1
       elseif temp1 == "syntax-fold" then
         if var["kind"] ~= "native" then
           errorPositions_21_1(log, child, "Can only set syntax of native definitions")
         end
         local native = varNative1(var)
-        expectType_21_1(log, nth1(node, i + 1), node, "string", "fold")
+        expectType_21_1(log, nth1(node, i + 1), node, "string", "fold direction")
         if native["syntax-fold"] then
           errorPositions_21_1(log, child, "Multiple fold directions set")
         end
@@ -5880,6 +5943,41 @@ handleMetadata1 = function(log, node, var, start, finish)
       errorPositions_21_1(log, child, "Unexpected node of type " .. temp .. ", have you got too many values")
     end
     i = i + 1
+  end
+  if var["kind"] == "native" then
+    local native = varNative1(var)
+    if native["syntax"] and native["bind-to"] then
+      errorPositions_21_1(log, node, "Cannot specify :syntax and :bind-to in native definition")
+    end
+    if native["syntax-fold"] and not native["syntax"] then
+      errorPositions_21_1(log, node, "Cannot specify a fold direction when no syntax given")
+    end
+    if native["syntax-stmt"] and not native["syntax"] then
+      errorPositions_21_1(log, node, "Cannot have a statement when no syntax given")
+    end
+    if native["syntax-precedence"] and not native["syntax"] then
+      errorPositions_21_1(log, node, "Cannot specify a precedence when no syntax given")
+    end
+    local syntax = native["syntax"]
+    if syntax then
+      local syntaxArity, givenArity, precedence = reduce1(function(max, val)
+        if number_3f_1(val) and val > max then
+          return val
+        else
+          return max
+        end
+      end, 0, syntax), native["arity"], native["syntax-precedence"]
+      local precArity = type1(precedence) == "list" and n1(precedence)
+      if syntaxArity ~= givenArity then
+        errorPositions_21_1(log, node, formatOutput_21_1(nil, "Specified arity as " .. display1(givenArity) .. " but template takes " .. display1(syntaxArity) .. " values"))
+      end
+      if precArity and precArity ~= givenArity then
+        errorPositions_21_1(log, node, formatOutput_21_1(nil, "Definition has arity " .. display1(givenArity) .. ", but precedence has " .. display1(precArity) .. " values"))
+      end
+      if native["syntax-fold"] and givenArity ~= 2 then
+        errorPositions_21_1(log, node, formatOutput_21_1(nil, "Cannot specify a fold direction with arity " .. display1(givenArity) .. " (must be 2)"))
+      end
+    end
   end
   return nil
 end
