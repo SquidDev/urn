@@ -233,14 +233,14 @@
                       :paths     paths
                       :flags     (.> args :flag)
 
-                      :libs      (library/library-cache)
+                      :libs       (library/library-cache)
+                      :prelude    nil
+                      :root-scope builtins/root-scope
 
                       :warning   (warning/default)
                       :optimise  (optimise/default)
 
                       :exec      (lambda (func) (list (xpcall func traceback/traceback)))
-
-                      :root-scope builtins/root-scope
 
                       :variables {}
                       :states    {}
@@ -259,7 +259,7 @@
                               { :__index _G }))
 
       ;; Store all builtin vars in the lookup
-      (for-pairs (_ var) (.> compiler :root-scope :variables)
+      (for-pairs (_ var) (scope/scope-variables builtins/root-scope)
         (.<! compiler :variables (tostring var) var))
 
       ;; Run the various setup functions
@@ -282,9 +282,7 @@
 
         ;; Load the prelude and setup the environment
         (with (lib (do-load! (.> args :prelude)))
-          (.<! compiler :root-scope (scope/child (.> compiler :root-scope)))
-          (for-pairs (name var) (scope/scope-exported (library/library-scope lib))
-            (scope/import! (.> compiler :root-scope) name var)))
+          (loader/setup-prelude! compiler lib))
 
         ;; And load remaining files
         (for-each input (append (.> args :plugin) (.> args :input))

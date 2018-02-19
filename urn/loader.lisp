@@ -6,6 +6,7 @@
 (import urn/logger logger)
 (import urn/parser parser)
 (import urn/range range)
+(import urn/resolve/builtins builtins)
 (import urn/resolve/loop (compile))
 (import urn/resolve/native ())
 (import urn/resolve/scope scope)
@@ -173,6 +174,10 @@
 
       (timer/stop-timer! (.> state :timer) (.. "[parse] " path))
 
+      ;; Mark a library as importing the prelude if possible
+      (when-with (prelude (.> state :prelude))
+        (.<! (library-depends lib) prelude true))
+
       (with (compiled (compile
                         state
                         parsed
@@ -275,9 +280,23 @@
           (list false (.. "Already loading " (string/quoted full-path)))]
          [?cached
           (when handle (self handle :close))
-          (format true "Loading " {} full-path)
+          (set-library-cache-at-path! (.> state :libs) path cached)
           (list cached)]))]
 
     [true
      (list false (.. "Already loading " (string/quoted path)))]
     [?cached (list cached)]))
+
+(defun setup-prelude! (state prelude)
+  "Setup the PRELUDE for the current compiler STATE."
+  (assert-type! prelude library)
+
+  ;; Set the prelude
+  (.<! state :prelude prelude)
+
+  ;; Set the root scope, copying across all exported variables
+  (with (scope (scope/child builtins/root-scope))
+    (.<! state :root-scope scope)
+
+    (for-pairs (name var) (scope/scope-exported (library-scope prelude))
+      (scope/import! scope name var))))

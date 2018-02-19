@@ -215,8 +215,8 @@
               ["define"
                ;; We're waiting for a variable to be defined.
                ;; If it exists, then resume the resolver. Otherwise we'll requeue.
-               (if (.> scope :variables (.> head :name))
-                 (resume head (.> scope :variables (.> head :name)))
+               (if-with (var (scope/get scope (.> head :name)))
+                 (resume head var)
                  (progn
                    (logger/put-debug! logger (.. "  Awaiting definiion of " (.> head :name)))
 
@@ -293,7 +293,7 @@
                      (distances {})]
 
                  (while scope
-                   (for-pairs (name _) (.> scope :variables)
+                   (for-pairs (name _) (scope/scope-variables scope)
                      (unless (.> var-set name)
                        (.<! var-set name :true)
                        (push! vars name)
