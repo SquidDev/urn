@@ -4,7 +4,7 @@ if not table.unpack then table.unpack = unpack end
 local load = load if _VERSION:find("5.1") then load = function(x, n, _, env) local f, e = loadstring(x, n) if not f then return f, e end if env then setfenv(f, env) end return f end end
 local _select, _unpack, _pack, _error = select, table.unpack, table.pack, error
 local _libs = {}
-local _2a_arguments_2a_1, _2b_1, _2d_1, _2e2e_1, _2f3d_1, _3c3d_1, _3c_1, _3d_1, _3e3d_1, _3e_1, addArgument_21_1, addParen1, any1, append_21_1, apply1, beginBlock_21_1, between_3f_1, builtin_3f_1, builtins1, caar1, cadr1, car1, child1, coloured1, compileBlock1, compileExpression1, concat2, constVal1, demandFailure1, display1, doNodeError_21_1, empty_3f_1, eq_3f_1, error1, errorPositions_21_1, escapeVar1, exit_21_1, expectType_21_1, expect_21_1, find1, format1, formatOutput_21_1, getIdx1, getVar1, getenv1, getinfo1, gsub1, last1, len_23_1, line_21_1, list1, lookup1, lower1, makeNil1, map2, match1, min1, n1, next1, nth1, number_3f_1, open1, pcall1, popLast_21_1, pretty1, print1, pushEscapeVar_21_1, push_21_1, putNodeWarning_21_1, quoted1, removeNth_21_1, rep1, require1, resolveNode1, runPass1, scoreNodes1, self1, setIdx_21_1, sethook1, slice1, sort1, sourceRange1, splice1, split1, string_3f_1, sub1, symbol_2d3e_string1, tonumber1, tostring1, type1, type_23_1, unmangleIdent1, usage_21_1, varNative1, visitBlock1, visitNode1, visitNode2, visitNode3, visitNodes2, zipArgs1
+local _2a_arguments_2a_1, _2b_1, _2d_1, _2e2e_1, _2f3d_1, _3c3d_1, _3c_1, _3d_1, _3e3d_1, _3e_1, addArgument_21_1, addParen1, any1, append_21_1, apply1, beginBlock_21_1, between_3f_1, builtin_3f_1, builtins1, caar1, cadr1, car1, child1, coloured1, compileBlock1, compileExpression1, concat2, constVal1, demandFailure1, display1, doNodeError_21_1, empty_3f_1, eq_3f_1, error1, errorPositions_21_1, escapeVar1, exit_21_1, expectType_21_1, expect_21_1, find1, format1, formatOutput_21_1, getIdx1, getVar1, getenv1, getinfo1, gsub1, last1, len_23_1, lex1, line_21_1, list1, lookup1, lower1, makeNil1, map2, match1, min1, n1, next1, nth1, number_3f_1, open1, pcall1, popLast_21_1, pretty1, print1, pushEscapeVar_21_1, push_21_1, putNodeWarning_21_1, quoted1, removeNth_21_1, rep1, require1, resolveNode1, runPass1, scoreNodes1, self1, setIdx_21_1, sethook1, slice1, sort1, sourceRange1, splice1, split1, string_3f_1, sub1, symbol_2d3e_string1, tonumber1, tostring1, type1, type_23_1, unmangleIdent1, usage_21_1, varNative1, visitBlock1, visitNode1, visitNode2, visitNode3, visitNodes2
 local _ENV = setmetatable({}, {__index=_ENV or (getfenv and getfenv()) or _G}) if setfenv then setfenv(0, _ENV) end
 _3d_1 = function(v1, v2) return v1 == v2 end
 _2f3d_1 = function(v1, v2) return v1 ~= v2 end
@@ -2320,14 +2320,26 @@ extractSummary1 = function(toks)
   end
   return result
 end
+libraryCache1 = function()
+  return {tag="library-cache", values={}, metas={}, paths={}, names={}, loaded={tag="list", n=0}}
+end
 libraryOf1 = function(name, uniqueName, path, parentScope)
-  local scope = child1(parentScope, "top-level")
-  scope["prefix"] = (name .. "/")
-  scope["unique-prefix"] = (uniqueName .. "/")
-  return {tag="library", name=name, ["unique-name"]=uniqueName, path=path, scope=scope, nodes=nil, docs=nil, ["lisp-lines"]=nil, ["lua-contents"]=nil, depends={}}
+  return {tag="library", name=name, ["unique-name"]=uniqueName, path=path, scope=scopeForLibrary1(parentScope, name, uniqueName), nodes=nil, docs=nil, ["lisp-lines"]=nil, ["lua-contents"]=nil, depends={}}
 end
 libraryName1 = function(library)
   return library["name"]
+end
+scopeForLibrary1 = function(parent, name, uniqueName)
+  if type1(name) ~= "string" then
+    error1(demandFailure1(nil, "(= (type name) \"string\")"))
+  end
+  if type1(uniqueName) ~= "string" then
+    error1(demandFailure1(nil, "(= (type unique-name) \"string\")"))
+  end
+  local scope = child1(parent, "top-level")
+  scope["prefix"] = (name .. "/")
+  scope["unique-prefix"] = (uniqueName .. "/")
+  return scope
 end
 local discard = function()
   return nil
@@ -5513,7 +5525,7 @@ file1 = function(compiler, shebang)
   state["trace"] = true
   prelude1(out)
   line_21_1(out, "local _libs = {}")
-  local temp = compiler["libs"]
+  local temp = compiler["libs"]["loaded"]
   local temp1 = n1(temp)
   local temp2 = 1
   while temp2 <= temp1 do
@@ -6297,7 +6309,9 @@ resolveNode1 = function(node, scope, state, root, many)
             end
             expectType_21_1(state["compiler"]["log"], nth1(node1, 2), node1, "symbol", "name")
             local var = addVerbose_21_1(scope, nth1(node1, 2)["contents"], "native", node1, state["compiler"]["log"])
-            local native = state["compiler"]["lib-meta"][var["unique-name"]]
+            local native
+            local cache, name = state["compiler"]["libs"], var["unique-name"]
+            native = cache["metas"][name]
             if native then
               setVarNative_21_1(var, native)
             end
@@ -6606,8 +6620,11 @@ compile1 = function(compiler, nodes, scope, name, loader)
     if temp == "init" then
       resume(head, head["node"], scope, head["_state"])
     elseif temp == "define" then
-      if scope["variables"][head["name"]] then
-        resume(head, scope["variables"][head["name"]])
+      local var
+      local name2 = head["name"]
+      var = scope["variables"][name2]
+      if var then
+        resume(head, var)
       else
         self1(logger, "put-debug!", ("  Awaiting definiion of " .. head["name"]))
         skipped = skipped + 1
@@ -6862,7 +6879,7 @@ readMeta1 = function(state, name, entry)
     end
   end
   entry["name"] = name
-  local libValue, metaValue = state["lib-env"][name], entry["value"]
+  local libValue, metaValue = state["libs"]["values"][name], entry["value"]
   if libValue ~= nil and metaValue ~= nil then
     error1("Duplicate value for " .. name .. ": in native and meta file", 0)
   elseif libValue ~= nil then
@@ -6870,14 +6887,14 @@ readMeta1 = function(state, name, entry)
     entry["value"] = libValue
   elseif metaValue ~= nil then
     entry["has-value"] = true
-    state["lib-env"][name] = metaValue
+    state["libs"]["values"][name] = metaValue
   end
-  state["lib-meta"][name] = native
+  state["libs"]["metas"][name] = native
   return nil
 end
 readLibrary1 = function(state, name, path, lispHandle)
   self1(state["log"], "put-verbose!", ("Loading " .. path .. " into " .. name))
-  local uniqueName = name .. "-" .. n1(state["libs"])
+  local uniqueName = name .. "-" .. n1(state["libs"]["loaded"])
   local lib, contents = libraryOf1(name, uniqueName, path, state["root-scope"]), self1(lispHandle, "read", "*a")
   self1(lispHandle, "close")
   local handle = open1(path .. ".lib.lua", "r")
@@ -6896,7 +6913,8 @@ readLibrary1 = function(state, name, path, lispHandle)
         local temp1, v = next1(res)
         while temp1 ~= nil do
           if string_3f_1(temp1) then
-            state["lib-env"][uniqueName .. "/" .. temp1] = v
+            local cache, name2 = state["libs"], uniqueName .. "/" .. temp1
+            cache["values"][name2] = v
           else
             self1(state["log"], "put-warning!", (formatOutput_21_1(nil, "Non-string key '" .. tostring1(temp1) .. "' when loading " .. display1(path) .. ".lib.lua")))
           end
@@ -6941,6 +6959,10 @@ readLibrary1 = function(state, name, path, lispHandle)
   local lexed, range = lex1(state["log"], contents, path .. ".lisp")
   local parsed = parse1(state["log"], lexed)
   stopTimer_21_1(state["timer"], "[parse] " .. path)
+  local prelude = state["prelude"]
+  if prelude then
+    lib["depends"][prelude] = true
+  end
   local compiled = compile1(state, parsed, lib["scope"], path, function(name2)
     local res = state["loader"](name2)
     local module = car1(res)
@@ -6949,7 +6971,7 @@ readLibrary1 = function(state, name, path, lispHandle)
     end
     return res
   end)
-  push_21_1(state["libs"], lib)
+  push_21_1(state["libs"]["loaded"], lib)
   if string_3f_1(car1(compiled)) then
     lib["docs"] = (constVal1(car1(compiled)))
     removeNth_21_1(compiled, 1)
@@ -6967,9 +6989,9 @@ readLibrary1 = function(state, name, path, lispHandle)
   return lib
 end
 namedLoader1 = function(state, name)
-  local cached = state["lib-names"][name]
+  local cached = state["libs"]["names"][name]
   if cached == nil then
-    state["lib-names"][name] = true
+    state["libs"]["names"][name] = true
     local searched, paths, _ = {tag="list", n=0}, state["paths"]
     local i = 1
     while true do
@@ -6980,7 +7002,7 @@ namedLoader1 = function(state, name)
         local temp = pathLoader1(state, path)
         if type1(temp) == "list" and (n1(temp) >= 1 and (n1(temp) <= 1 and true)) then
           local lib = nth1(temp, 1)
-          state["lib-names"][name] = lib
+          state["libs"]["names"][name] = lib
           return list1(lib)
         elseif type1(temp) == "list" and (n1(temp) >= 2 and (n1(temp) <= 2 and (nth1(temp, 1) == false and true))) then
           return list1(false, (nth1(temp, 2)))
@@ -6999,7 +7021,7 @@ namedLoader1 = function(state, name)
   end
 end
 pathLoader1 = function(state, path)
-  local temp = state["lib-cache"][path]
+  local temp = state["libs"]["paths"][path]
   if temp == nil then
     local name, fullPath, handle = stripExtension1(path), path, nil
     if name == path then
@@ -7011,14 +7033,18 @@ pathLoader1 = function(state, path)
     else
       handle = open1(path, "r")
     end
-    local temp1 = state["lib-cache"][fullPath]
+    local temp1
+    local cache, path1 = state["libs"], fullPath
+    temp1 = cache["paths"][path1]
     if temp1 == nil then
       if handle then
-        state["lib-cache"][path] = true
-        state["lib-cache"][fullPath] = true
+        state["libs"]["paths"][path] = true
+        local cache, path1 = state["libs"], fullPath
+        cache["paths"][path1] = true
         local lib = readLibrary1(state, simplifyPath1(name, state["paths"]), name, handle)
-        state["lib-cache"][path] = lib
-        state["lib-cache"][fullPath] = lib
+        state["libs"]["paths"][path] = lib
+        local cache, path1 = state["libs"], fullPath
+        cache["paths"][path1] = lib
         return list1(lib)
       else
         return list1(nil, "Cannot find " .. quoted1(path))
@@ -7032,6 +7058,7 @@ pathLoader1 = function(state, path)
       if handle then
         self1(handle, "close")
       end
+      state["libs"]["paths"][path] = temp1
       return list1(temp1)
     end
   elseif temp == true then
@@ -7039,6 +7066,142 @@ pathLoader1 = function(state, path)
   else
     return list1(temp)
   end
+end
+setupPrelude_21_1 = function(state, prelude)
+  if type1(prelude) ~= "library" then
+    error1(demandFailure1(nil, "(= (type prelude) \"library\")"))
+  end
+  state["prelude"] = prelude
+  local scope = child1(rootScope1)
+  state["root-scope"] = scope
+  local temp = prelude["scope"]["exported"]
+  local temp1, var = next1(temp)
+  while temp1 ~= nil do
+    import_21_1(scope, temp1, var)
+    temp1, var = next1(temp, temp1)
+  end
+  return nil
+end
+reload1 = function(compiler)
+  local cache, dirty, updatedLisp = compiler["libs"], {}, {}
+  local temp = cache["loaded"]
+  local temp1 = n1(temp)
+  local temp2 = 1
+  while temp2 <= temp1 do
+    local lib = temp[temp2]
+    local handle, path_27_ = tryHandle1(lib["path"])
+    if handle then
+      local newLines = gsub1(self1(handle, "read", "*a"), "\13\n?", "\n")
+      self1(handle, "close")
+      if neq_3f_1(newLines, concat2(lib["lisp-lines"], "\n")) then
+        updatedLisp[lib] = newLines
+        dirty[lib] = 1
+      end
+    else
+      error1(formatOutput_21_1(nil, "Cannot find " .. display1(lib["path"]) .. " (for module " .. display1(lib["name"]) .. ")"))
+    end
+    temp2 = temp2 + 1
+  end
+  while true do
+    local changed = false
+    local temp = cache["loaded"]
+    local temp1 = n1(temp)
+    local temp2 = 1
+    while temp2 <= temp1 do
+      local lib = temp[temp2]
+      local maxDepth, temp3 = dirty[lib] or 0, lib["depends"]
+      local temp4 = next1(temp3)
+      while temp4 ~= nil do
+        local depth = dirty[temp4]
+        if depth and depth >= maxDepth then
+          maxDepth = depth + 1
+          dirty[lib] = maxDepth
+          changed = true
+        end
+        temp4 = next1(temp3, temp4)
+      end
+      temp2 = temp2 + 1
+    end
+    if changed then
+    else
+      break
+    end
+  end
+  local reload
+  local xs, f = keys1(dirty), function(x, y)
+    return dirty[x] < dirty[y]
+  end
+  sort1(xs, f)
+  reload = xs
+  local temp = n1(reload)
+  local temp1 = 1
+  while temp1 <= temp do
+    local lib = reload[temp1]
+    local contents = updatedLisp[lib] or concat2(lib["lisp-lines"], "\n")
+    local lexed, range = lex1(compiler["log"], contents, lib["path"] .. ".lisp")
+    local parsed, oldScope = parse1(compiler["log"], lexed), lib["scope"]
+    local newScope, deps = scopeForLibrary1(oldScope["parent"], lib["name"], lib["unique-name"]), {}
+    self1(compiler["log"], "put-warning!", (formatOutput_21_1(nil, "" .. display1(lib["path"]) .. " or dependency has changed")))
+    if lib["depends"][compiler["prelude"]] then
+      deps[compiler["prelude"]] = true
+    end
+    local compiled = compile1(compiler, parsed, newScope, lib["path"], function(name)
+      local res = compiler["loader"](name)
+      local module = car1(res)
+      if module then
+        deps[module] = true
+      end
+      return res
+    end)
+    if string_3f_1(car1(compiled)) then
+      lib["docs"] = (constVal1(car1(compiled)))
+      removeNth_21_1(compiled, 1)
+    else
+      lib["docs"] = nil
+    end
+    lib["lisp-lines"] = (range["lines"])
+    lib["nodes"] = compiled
+    lib["scope"] = newScope
+    lib["depends"] = deps
+    if lib == compiler["prelude"] then
+      local rootScope = compiler["root-scope"]
+      local rootVars = rootScope["variables"]
+      local temp2 = next1(rootVars)
+      while temp2 ~= nil do
+        rootVars[temp2] = nil
+        temp2 = next1(rootVars, temp2)
+      end
+      local temp2 = newScope["exported"]
+      local temp3, var = next1(temp2)
+      while temp3 ~= nil do
+        import_21_1(rootScope, temp3, var)
+        temp3, var = next1(temp2, temp3)
+      end
+    end
+    local escaped, temp2 = compiler["compile-state"]["var-lookup"], oldScope["variables"]
+    local temp3, oldVar = next1(temp2)
+    while temp3 ~= nil do
+      local esc = escaped[oldVar]
+      if esc then
+        local newVar = newScope["variables"][temp3]
+        if newVar then
+          escaped[newVar] = esc
+        end
+      end
+      temp3, oldVar = next1(temp2, temp3)
+    end
+    local temp2 = oldScope["variables"]
+    local temp3, oldVar = next1(temp2)
+    while temp3 ~= nil do
+      local newVar = newScope["variables"][temp3]
+      if newVar then
+        compiler[tostring1(oldVar)] = newVar
+      end
+      temp3, oldVar = next1(temp2, temp3)
+    end
+    temp1 = temp1 + 1
+  end
+  return nil
 end
 formatRange2 = function(range)
   return format1("%s:%s", range["name"], (function()
@@ -7316,7 +7479,7 @@ docs1 = function(compiler, args)
   local temp2 = 1
   while temp2 <= temp1 do
     local path = temp[temp2]
-    local lib, writer = compiler["lib-cache"][path], {out={tag="list", n=0}, indent=0, ["tabs-pending"]=false, line=1, lines={}, ["node-stack"]={tag="list", n=0}, ["active-pos"]=nil}
+    local lib, writer = compiler["libs"]["paths"][path], {out={tag="list", n=0}, indent=0, ["tabs-pending"]=false, line=1, lines={}, ["node-stack"]={tag="list", n=0}, ["active-pos"]=nil}
     exported1(writer, lib["name"], lib["docs"], lib["scope"]["exported"], lib["scope"])
     local handle = open1(args["docs"] .. "/" .. gsub1(stripExtension1(path), "/", ".") .. ".md", "w")
     self1(handle, "write", concat2(writer["out"]))
@@ -7325,7 +7488,7 @@ docs1 = function(compiler, args)
   end
   local writer = {out={tag="list", n=0}, indent=0, ["tabs-pending"]=false, line=1, lines={}, ["node-stack"]={tag="list", n=0}, ["active-pos"]=nil}
   index1(writer, map2(function(temp)
-    return compiler["lib-cache"][temp]
+    return compiler["libs"]["paths"][temp]
   end, args["input"]))
   local handle = open1(args["docs"] .. "/index.md", "w")
   self1(handle, "write", concat2(writer["out"]))
@@ -7336,60 +7499,6 @@ task1 = {name="docs", setup=function(spec)
 end, pred=function(args)
   return nil ~= args["docs"]
 end, run=docs1}
-dotQuote1 = function(prefix, name)
-  if find1(name, "^[%w_][%d%w_]*$") then
-    if string_3f_1(prefix) then
-      return prefix .. "." .. name
-    else
-      return name
-    end
-  elseif string_3f_1(prefix) then
-    return prefix .. "[" .. quoted1(name) .. "]"
-  else
-    return "_ENV[" .. quoted1(name) .. "]"
-  end
-end
-genNative1 = function(compiler, args)
-  if n1(args["input"]) ~= 1 then
-    self1(compiler["log"], "put-error!", "Expected just one input")
-    exit_21_1(1)
-  end
-  local prefix, lib, maxName, maxQuot, natives = args["gen-native"], compiler["lib-cache"][last1(args["input"])], 0, 0, {tag="list", n=0}
-  local temp = lib["nodes"]
-  local temp1 = n1(temp)
-  local temp2 = 1
-  while temp2 <= temp1 do
-    local node = temp[temp2]
-    if type1(node) == "list" and (type1((car1(node))) == "symbol" and car1(node)["contents"] == "define-native") then
-      local name = nth1(node, 2)["contents"]
-      push_21_1(natives, name)
-      maxName = max1(maxName, n1(quoted1(name)))
-      maxQuot = max1(maxQuot, n1(quoted1(dotQuote1(prefix, name))))
-    end
-    temp2 = temp2 + 1
-  end
-  sort1(natives, nil)
-  local handle, format = open1(lib["path"] .. ".meta.lua", "w"), "  [%-" .. tostring1(maxName + 3) .. "s { tag = \"var\", contents = %-" .. tostring1(maxQuot + 1) .. "s },\n"
-  if not handle then
-    self1(compiler["log"], "put-error!", ("Cannot write to " .. lib["path"] .. ".meta.lua"))
-    exit_21_1(1)
-  end
-  self1(handle, "write", "return {\n")
-  local temp = n1(natives)
-  local temp1 = 1
-  while temp1 <= temp do
-    local native = natives[temp1]
-    self1(handle, "write", format1(format, quoted1(native) .. "] =", quoted1(dotQuote1(prefix, native)) .. ","))
-    temp1 = temp1 + 1
-  end
-  self1(handle, "write", "}\n")
-  return self1(handle, "close")
-end
-task2 = {name="gen-native", setup=function(spec)
-  return addArgument_21_1(spec, {tag="list", n=1, "--gen-native"}, "help", "Generate native bindings for a file", "var", "PREFIX", "narg", "?")
-end, pred=function(args)
-  return args["gen-native"]
-end, run=genNative1}
 local home = getenv1 and (getenv1("HOME") or (getenv1("USERPROFILE") or (getenv1("HOMEDRIVE") or getenv1("HOMEPATH"))))
 if home then
   historyPath1 = home .. "/.urn_history"
@@ -7700,7 +7809,7 @@ end
 execCommand1 = function(compiler, scope, args)
   local logger, command = compiler["log"], car1(args)
   if command == "help" or command == "h" then
-    return print1("REPL commands:\n[:d]oc NAME        Get documentation about a symbol\n:module NAME       Display a loaded module's docs and definitions.\n:scope             Print out all variables in the scope\n[:s]earch QUERY    Search the current scope for symbols and documentation containing a string.\n[:v]iew NAME       Display the definition of a symbol.\n[:q]uit            Exit the REPL cleanly.")
+    return print1("REPL commands:\n[:d]oc NAME        Get documentation about a symbol\n:module NAME       Display a loaded module's docs and definitions.\n[:r]eload          Reload all modules which have changed.\n:scope             Print out all variables in the scope\n[:s]earch QUERY    Search the current scope for symbols and documentation containing a string.\n[:v]iew NAME       Display the definition of a symbol.\n[:q]uit            Exit the REPL cleanly.")
   elseif command == "doc" or command == "d" then
     local name = nth1(args, 2)
     if name then
@@ -7726,7 +7835,7 @@ execCommand1 = function(compiler, scope, args)
   elseif command == "module" then
     local name = nth1(args, 2)
     if name then
-      local mod = compiler["lib-names"][name]
+      local mod = compiler["libs"]["names"][name]
       if mod == nil then
         return self1(logger, "put-error!", ("Cannot find '" .. name .. "'"))
       else
@@ -7912,6 +8021,8 @@ execCommand1 = function(compiler, scope, args)
     else
       return self1(logger, "put-error!", ":view <variable>")
     end
+  elseif command == "reload" or command == "r" then
+    return reload1(compiler)
   elseif command == "quit" or command == "q" then
     print1("Goodbye.")
     return exit1(0)
@@ -8070,6 +8181,64 @@ execTask1 = {name="exec", setup=function(spec)
 end, pred=function(args)
   return args["exec"]
 end, run=exec1}
+dotQuote1 = function(prefix, name)
+  if find1(name, "^[%w_][%d%w_]*$") then
+    if string_3f_1(prefix) then
+      return prefix .. "." .. name
+    else
+      return name
+    end
+  elseif string_3f_1(prefix) then
+    return prefix .. "[" .. quoted1(name) .. "]"
+  else
+    return "_ENV[" .. quoted1(name) .. "]"
+  end
+end
+genNative1 = function(compiler, args)
+  if n1(args["input"]) ~= 1 then
+    self1(compiler["log"], "put-error!", "Expected just one input")
+    exit_21_1(1)
+  end
+  local prefix = args["gen-native"]
+  local lib
+  local cache, path = compiler["libs"], last1(args["input"])
+  lib = cache["paths"][path]
+  local maxName, maxQuot, natives = 0, 0, {tag="list", n=0}
+  local temp = lib["nodes"]
+  local temp1 = n1(temp)
+  local temp2 = 1
+  while temp2 <= temp1 do
+    local node = temp[temp2]
+    if type1(node) == "list" and (type1((car1(node))) == "symbol" and car1(node)["contents"] == "define-native") then
+      local name = nth1(node, 2)["contents"]
+      push_21_1(natives, name)
+      maxName = max1(maxName, n1(quoted1(name)))
+      maxQuot = max1(maxQuot, n1(quoted1(dotQuote1(prefix, name))))
+    end
+    temp2 = temp2 + 1
+  end
+  sort1(natives, nil)
+  local handle, format = open1(lib["path"] .. ".meta.lua", "w"), "  [%-" .. tostring1(maxName + 3) .. "s { tag = \"var\", contents = %-" .. tostring1(maxQuot + 1) .. "s },\n"
+  if not handle then
+    self1(compiler["log"], "put-error!", ("Cannot write to " .. lib["path"] .. ".meta.lua"))
+    exit_21_1(1)
+  end
+  self1(handle, "write", "return {\n")
+  local temp = n1(natives)
+  local temp1 = 1
+  while temp1 <= temp do
+    local native = natives[temp1]
+    self1(handle, "write", format1(format, quoted1(native) .. "] =", quoted1(dotQuote1(prefix, native)) .. ","))
+    temp1 = temp1 + 1
+  end
+  self1(handle, "write", "}\n")
+  return self1(handle, "close")
+end
+task2 = {name="gen-native", setup=function(spec)
+  return addArgument_21_1(spec, {tag="list", n=1, "--gen-native"}, "help", "Generate native bindings for a file", "var", "PREFIX", "narg", "?")
+end, pred=function(args)
+  return args["gen-native"]
+end, run=genNative1}
 profileCalls1 = function(fn, mappings)
   local stats, callStack = {}, {tag="list", n=0}
   sethook1(function(action)
@@ -8525,7 +8694,7 @@ genCoverageReport1 = function(compiler, args)
     self1(handle, "write", "==============================================================================", "\n")
     self1(handle, "write", path, "\n")
     self1(handle, "write", "==============================================================================", "\n")
-    local lib = compiler["lib-cache"][path]
+    local lib = compiler["libs"]["paths"][path]
     local lines = lib["lisp-lines"]
     local nLines, counts, active, hits, misses = n1(lines), stats[path], {}, 0, 0
     visitBlock1(lib["nodes"], 1, function(node)
@@ -11217,7 +11386,7 @@ passArg1 = function(arg, data, value, usage_21_)
 end
 passRun1 = function(fun, name)
   return function(compiler, args)
-    local options = {track=true, level=args[name], override=args[name .. "-override"] or {}, ["max-n"]=args[name .. "-n"], ["max-time"]=args[name .. "-time"], compiler=compiler, libs=compiler["libs"], logger=compiler["log"], timer=compiler["timer"]}
+    local options = {track=true, level=args[name], override=args[name .. "-override"] or {}, ["max-n"]=args[name .. "-n"], ["max-time"]=args[name .. "-time"], compiler=compiler, logger=compiler["log"], timer=compiler["timer"]}
     return fun(compiler["out"], options, filterPasses1(compiler[name], options))
   end
 end
@@ -11709,15 +11878,15 @@ elseif not args["emit-lua"] then
 end
 local compiler = {log=logger, timer={callback=function(temp, temp1, temp2)
   return self1(logger, "put-time!", temp, temp1, temp2)
-end, timers={}}, paths=paths, flags=args["flag"], ["lib-env"]={}, ["lib-meta"]={}, libs={tag="list", n=0}, ["lib-cache"]={}, ["lib-names"]={}, warning=default2(), optimise=default1(), exec=function(func)
+end, timers={}}, paths=paths, flags=args["flag"], libs=libraryCache1(), prelude=nil, ["root-scope"]=rootScope1, warning=default2(), optimise=default1(), exec=function(func)
   return list1(xpcall1(func, traceback2))
-end, ["root-scope"]=rootScope1, variables={}, states={}, out={tag="list", n=0}}
+end, variables={}, states={}, out={tag="list", n=0}}
 compiler["compile-state"] = createState1()
 compiler["loader"] = function(temp)
   return namedLoader1(compiler, temp)
 end
-compiler["global"] = setmetatable1({_libs=compiler["lib-env"], _compiler=createPluginState1(compiler)}, {__index=_5f_G1})
-local temp = compiler["root-scope"]["variables"]
+compiler["global"] = setmetatable1({_libs=compiler["libs"]["values"], _compiler=createPluginState1(compiler)}, {__index=_5f_G1})
+local temp = rootScope1["variables"]
 local temp1, var = next1(temp)
 while temp1 ~= nil do
   compiler["variables"][tostring1(var)] = var
@@ -11795,14 +11964,7 @@ local doLoad_21_ = function(name)
     end
   end
 end
-local lib = doLoad_21_(args["prelude"])
-compiler["root-scope"] = child1(compiler["root-scope"])
-local temp = lib["scope"]["exported"]
-local temp1, var = next1(temp)
-while temp1 ~= nil do
-  import_21_1(compiler["root-scope"], temp1, var)
-  temp1, var = next1(temp, temp1)
-end
+setupPrelude_21_1(compiler, (doLoad_21_(args["prelude"])))
 local temp = append1(args["plugin"], args["input"])
 local temp1 = n1(temp)
 local temp2 = 1
