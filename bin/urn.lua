@@ -11799,7 +11799,7 @@ addArgument_21_1(spec, {tag="list", n=2, "--verbose", "-v"}, "help", "Make the o
   return nil
 end)
 addArgument_21_1(spec, {tag="list", n=2, "--include", "-i"}, "help", "Add an additional argument to the include path.", "cat", "path", "many", true, "narg", 1, "default", {tag="list", n=0}, "action", addAction1)
-addArgument_21_1(spec, {tag="list", n=2, "--prelude", "-p"}, "help", "A custom prelude path to use.", "cat", "path", "narg", 1, "default", directory .. libName .. "/prelude")
+addArgument_21_1(spec, {tag="list", n=2, "--prelude", "-P"}, "help", "A custom prelude path to use.", "cat", "path", "narg", 1, "default", directory .. libName .. "/prelude")
 addArgument_21_1(spec, {tag="list", n=2, "--include-rocks", "-R"}, "help", "Include all installed LuaRocks on the search path.", "cat", "path")
 addArgument_21_1(spec, {tag="list", n=3, "--output", "--out", "-o"}, "help", "The destination to output to.", "cat", "Output", "narg", 1, "default", "out", "action", function(arg, data, value)
   data[arg["name"]] = gsub1(value, "%.lua$", "")

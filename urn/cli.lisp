@@ -125,7 +125,7 @@
     :default '()
     :action  arg/add-action)
 
-  (arg/add-argument! spec '("--prelude" "-p")
+  (arg/add-argument! spec '("--prelude" "-P")
     :help    "A custom prelude path to use."
     :cat     "path"
     :narg    1
