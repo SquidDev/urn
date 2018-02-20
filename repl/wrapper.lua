@@ -22,6 +22,8 @@ local container = document:getElementById("terminal-container")
 -- We provide a small status bar to make it easier to see what's going on
 local function set_status(str) status.innerText = str end
 
+local history, history_index = {}, nil
+
 -- Terminal writing + ANSI support
 local bold, fg = false, nil
 local colours = {
@@ -167,14 +169,25 @@ print = function(...)
   scroll()
 end
 
-local extra_lines = {}
+local function set_input(text)
+  input.innerText = text
+  input:focus()
+
+  local range = document:createRange()
+  range:selectNodeContents(input)
+  range:collapse(false)
+
+  local selection = window:getSelection()
+  selection:removeAllRanges()
+  selection:addRange(range)
+end
 
 io.read = function(...)
   if coroutine.running() ~= main_thread then
     error("Cannot open file off main coroutine", 2)
   end
 
-  input:focus()
+  set_input("")
   while true do
     local kind, res = coroutine.yield()
     if kind == "input" then return res end
@@ -187,18 +200,7 @@ package.loaded["urn.readline"] = function(prompt, initial, complete)
   end
 
   append_ansi(prompt)
-
-  input.innerText = initial
-  input:focus()
-
-  local range = document:createRange()
-  range:selectNodeContents(input)
-  range:collapse(false)
-
-  local selection = window:getSelection()
-  selection:removeAllRanges()
-  selection:addRange(range)
-
+  set_input(initial)
   while true do
     local kind, res = coroutine.yield()
     if kind == "input" then return res end
@@ -218,9 +220,38 @@ input.onkeydown = function(self, e)
     self:blur()
 
     -- Display input and resume
+    history_index = nil
+    if value:find("%S") and value ~= history[#history] then
+      history[#history + 1] = value
+    end
+
     append_plain(value .. "\n")
     scroll()
     coroutine.resume(main_thread, "input", value)
+  elseif key == "ArrowUp" or key == "Up" then
+    e:preventDefault()
+
+    if history_index and history_index > 1 then
+      history_index = history_index - 1
+    elseif not history_index and #history > 0 then
+      history_index = #history
+    else
+      return
+    end
+
+    set_input(history[history_index])
+  elseif key == "ArrowDown" or key == "Down" then
+    e:preventDefault()
+
+    if history_index and history_index < #history then
+      history_index = history_index + 1
+    elseif history_index then
+      history_index = nil
+    else
+      return
+    end
+
+    set_input(history[history_index] or "")
   end
 end
 

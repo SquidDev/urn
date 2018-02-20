@@ -37,10 +37,11 @@ this, just specify the files on the command line. However, you may also want to 
 
  - `--include`, `-i`: Provide additional locations to search for. This can either be a directory or a string, where "?"
    will be replaced with the module to load. By default, the path is `("?" "?/init" "<compiler_dir>/?" "<compiler_dir>/?/init")`.
- - `--prelude`, `-p`: Provide a path to the custom prelude to use. Note that this must be relative to the current
+ - `--prelude`, `-P`: Provide a path to the custom prelude to use. Note that this must be relative to the current
    directory: it does not look it up on the library path.
  - `--plugin`: Specify a custom compiler plugin to load. This is loaded as a normal file, but it expected to inject
    additional data in a top level unquote.
+ - `--include-rocks`, `-R`: Search installed LuaRocks packages for Urn modules.
 
 ## Processing files
 Urn will run several processing steps on your files before running/compiling them. Firstly the compiler runs "warning
@@ -80,8 +81,9 @@ flexibility in the output.
 
 Urn also allows emitting files in other formats, such as a fully expanded Lisp, and generating documentation.
 
- - `--emit-lisp`: Produce a lisp file, using the name given by the `--output` argument (so `--output=foo` will produce
-   `foo.lisp`).
+ - `--emit-lisp`: Produce a `.lisp` file including the optimised and expanded Urn code. This accepts a file name to emit
+   to, using `--output` if none is given. (so `--output=foo` will produce `foo.lisp`).
+ - `--emit-lua`: Specifies the path to write the `.lua` file to. By default this uses the path given by `--output`.
  - `--docs`: Specify a folder in which to place the generated documentation. Each file provided to `bin/urn.lua` will
    produce one markdown file in the specified directory. Note that this will not create the directory: you have to do
    that yourself.
@@ -93,7 +95,7 @@ line-mapping.
 
  - `--run`, `-r`: Run the compiled source.
  - `--profile`, `-p`: Run the compiled source with the specified profiler, defaulting to the stack profiler if none is
-   given.
+   given. One can additionally specify `--profile-compile` to run the profiler during the macro expansion phrase.
  - You can also use `--` to provide arguments for compiled program: anything after this will be passed to the compiled
    program. For instance, `bin/urn.lua foo.lisp --run -- 2 3` will run `foo.lisp` with `2` and `3` as arguments.
 
@@ -122,7 +124,7 @@ Whilst the call profiler is very simple to use, the stack profiler provides seve
  - `--stack-fold`: When working with tree traversal (or other recursive functions), your call stack gets increasingly
    hard to understand. This flag will fold recursive function "loops" into themselves. For instance, `foo -> bar -> foo
    -> baz` will get folded into: `foo -> bar` and `foo -> baz`.
-   
+
 ### The coverage profiler
 The coverage profiler does not profile how long your code takes to execute, but instead determines how much of your code
 is executed. It is designed to be run for multiple files and then merged together to generate a report, hence requiring

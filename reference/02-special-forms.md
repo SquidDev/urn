@@ -23,15 +23,21 @@ Any unused definition will be discarded, even if it has a side effect. Therefore
 on definitions ever being executed.
 
 ### Metadata
-Every definition special form accepts various "metadata" arguments. Each argument is processed as follows:
+Every definition special form accepts various "metadata" arguments.
 
  - If the argument is a string, then it is used as the documentation string of this definition. If there is already a
    documentation string, then an error is thrown.
- - If the argument is equal to `:hidden`, then the variable will be removed from the export list, making it inaccessible
-   from other modules. It will also not show up on generated documentation.
- - If the argument is equal to `:deprecated` then the variable will be marked as deprecated. If the next argument is a
-   string, then that will be used as the deprecation message.
- - Otherwise, an compiler error is thrown.
+
+ - If the argument is a key, then it'll be processed as a variable attribute. Some attributes are specific to a certain
+   kind of definition (such as macros), but some are more general:
+
+   - `:hidden` will remove a variable from the export list. This makes it inaccessible to other modules. It will also
+      not show up on generated documentation.
+
+   - Definitions marked as`:deprecated` will produce a warning when used. This key may optionally be followed by a
+     string, which will be used as a deprecation message.
+
+ - If a metadata argument cannot be processed, then an error is thrown.
 
 ### `(define name &meta val)`
 `define` defines a normal variable with the given name, value and metadata. At compile-time `VAL` will only be executed
@@ -48,6 +54,15 @@ if this definition is required by a macro.
   (lambda (r) (* pi (^ r 2))))
 ```
 
+The `:mutable` annotation can be used inside `define` definitions in order to allow rebinding it at runtime:
+
+```cl
+(define x :mutable 1)
+(debug x) ;; x = 1
+(set! x 2)
+(debug x) ;; x = 2
+```
+
 ### `(define-macro name &meta val)`
 `define-macro` defines a macro with the given name, value and metadata.
 
@@ -56,8 +71,46 @@ its arguments. As this process occurs at compile time, invoking macros indirectl
 as normal functions.
 
 ### `(define-native name &meta)`
-Every Urn file can be accompanied by a `.meta.lua` or `.lua` file. These define a series of "native" variables which can
-be consumed in Urn using `define-native`. For more information, see [the native documentation](../tutorial/06-lua-interop.md).
+Define a binding to an external variable. As well as normal metadata annotations, native defitions accept some more
+complex annotations:
+
+ - `:pure`: If a definition is marked as pure, it can be evaluated at compile time (when its arguments are constant).
+
+ - `:signature`: Specifies the native definition's signature. For conventional definitions, this can be inferred from
+   the value. Obviously this is not the case for natives.
+
+Native definitions can be specified in three different ways:
+
+#### Library variable
+When loading a module, Urn will look for a `.lib.lua` file with the same name. This file is embedded in the compiled
+output, and native variables are bound to the values returned from this file.
+
+#### Binding to an expression
+Sometimes including a `.lib.lua` file is a little overkill. In this case, you can instruct bind the native definition to
+an arbitrary Lua expression. This is done using the `:bind-to` annotation:
+
+```cl
+(define-native random :bind-to "math.random")
+(debug (random))
+```
+
+Note that these definitions are stripped if they are not used, so you should try to avoid side effects within your code.
+
+#### Template strings
+Whilst `:bind-to` serves most forms, sometimes it is useful to allow arbitrary template substitutions. For instance, you
+may wish to add support for Lua 5.3 bitop operators. In this case, you should use the `:syntax` annotation. This takes a
+template string, where `${1}` is substituted for the 1st argument.
+
+Definitions using `:syntax` also allow several other modifiers:
+
+ - `:stmt`: Specifies that this syntax template is a statement instead of an expression.
+ - `:syntax-precedence`: Specifies the precedence this template takes. Child expressions will be wrapped in parenthesis
+   if they have a lower precedence. This can either be a number (for a uniform precedence) or a list or numbers, equal
+   in length to the number of arguments in the template.
+ - `:syntax-fold`: Marks this syntax form as accepting multiple arguments and, if so, the direction such arguments
+   should be "folded" in. This should be followed by the string `"left"` or `"right"`.
+
+For more information, see [the native documentation](../tutorial/06-lua-interop.md).
 
 ## `(lambda args &body)`
 `lambda` defines a function with a given set of arguments and a body to execute.

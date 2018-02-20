@@ -60,20 +60,10 @@ Should you wish to split a string over multiple lines, but not insert a new line
          World!")
 ```
 
-### Interpolation
-Following the `$` character with a string, will result in a string interpolation form. One can embed symbols inside a
-string and they will be expanded
-automatically. See [the `$` macro](https://squiddev.github.io/urn/docs/lib.string.html#-str) for more information.
-
-```cl
-(with (x "World")
-  (print! $"Hello, ${x}!"))
-```
-
 ## Symbols
 Symbols represent a reference to a specific variable. Symbols can be composed of almost any character:
 
- - The first character of a symbol must be any letter or one of ``!#$%&*+-./<=>?@\^_`|``.
+ - The first character of a symbol must be any letter or one of ``!#$%&*+-./<=>?\^_`|``.
  - The remaining characters can be any letter, number or one of ``!"#$%&'*+,-./:<=>?@\^_`|>``.
 
 It is worth noting that symbols are case sensitive: `foo` is not the same as `Foo`. You should try to keep variable
@@ -127,6 +117,7 @@ are as follows:
  - `~`: Expands to `quasiquote`.
  - `,`: Expands to `unquote`.
  - `,@`: Expands to `unquote-splice`.
+ - `@`: Expands to `splice`.
 
 ```cl
 'foo ;; A quoted symbol, which expands to (quote foo)

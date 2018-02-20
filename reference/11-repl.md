@@ -3,6 +3,8 @@ title: The REPL
 ---
 
 # The REPL
+{:.no_toc}
+
 The REPL allows you to input Urn code and execute it immediately. This is immensely useful, as it allows you to quickly
 test something, be it a built-in function or a new idea you had. You can launch the REPL by running Urn with no
 arguments, or using the `--repl` flag.
@@ -15,6 +17,9 @@ For ease-of-use and efficiency, the REPL differs slightly from normal compilatio
 
 The REPL also comes with several "commands", which can be used to query various aspects of the running state. These can
 be seen using the `:help` (or `:h`) command:
+
+* TOC
+{:toc}
 
 ## `:[d]oc NAME`
 This command allows you to fetch the doc-string of a symbol in the current scope.
@@ -43,6 +48,10 @@ Located at lib/table
 Exported symbols
 .<!  .>  assoc  assoc->struct  assoc?  copy-of  create-lookup  empty-struct?  extend  fast-struct  ...
 ```
+
+## `:[r]eload`
+This finds modules which have changed on disk, and reloads them along with any files which depend on them. This allows
+you to quickly edit + refresh code without having to continuously restart the REPL.
 
 ## `:[s]earch QUERY`
 The search command will look for symbols and doc-strings matching the given pattern. You can use `:doc` to get further
