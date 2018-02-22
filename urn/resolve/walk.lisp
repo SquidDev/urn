@@ -106,6 +106,19 @@
 
                 (inc! i))]
 
+             ["intrinsic"
+              (when (/= (scope/var-kind var) "native")
+                (error-positions! log child "Can only set intrinsic for native definitions"))
+
+              (let [(native (scope/var-native var))
+                    (intrinsic (nth node (succ i)))]
+                (expect-type! log intrinsic node "symbol" "intrinsic symbol")
+                (when (native/native-intrinsic native)
+                  (error-positions! log child "multiple intrinsic symbols set"))
+                (native/set-native-intrinsic! native (.> intrinsic :contents))
+
+                (inc! i))]
+
              ["bind-to"
               (when (/= (scope/var-kind var) "native")
                 (error-positions! log child "Can only bind native definitions"))

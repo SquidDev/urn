@@ -1,39 +1,55 @@
 (define-native =
   "Determine if two variables are equal."
-  :syntax "${1} == ${2}" :syntax-precedence 3 :pure)
+  :syntax "${1} == ${2}" :syntax-precedence 3 :pure
+  :intrinsic ==)
 (define-native /=
-  :syntax "${1} ~= ${2}" :syntax-precedence 3 :pure)
+  :syntax "${1} ~= ${2}" :syntax-precedence 3 :pure
+  :intrinsic /=)
 (define-native <
-  :syntax "${1} < ${2}"  :syntax-precedence 3 :pure)
+  :syntax "${1} < ${2}"  :syntax-precedence 3 :pure
+  :intrinsic <)
 (define-native <=
-  :syntax "${1} <= ${2}" :syntax-precedence 3 :pure)
+  :syntax "${1} <= ${2}" :syntax-precedence 3 :pure
+  :intrinsic <=)
 (define-native >
-  :syntax "${1} > ${2}"  :syntax-precedence 3 :pure)
+  :syntax "${1} > ${2}"  :syntax-precedence 3 :pure
+  :intrinsic >)
 (define-native >=
-  :syntax "${1} >= ${2}" :syntax-precedence 3 :pure)
+  :syntax "${1} >= ${2}" :syntax-precedence 3 :pure
+  :intrinsic >=)
 
 (define-native +
-  :syntax "${1} + ${2}"  :syntax-precedence  9 :pure :syntax-fold "left")
+  :syntax "${1} + ${2}"  :syntax-precedence  9 :pure :syntax-fold "left"
+  :intrinsic +)
 (define-native -
-  :syntax "${1} - ${2}"  :syntax-precedence  9 :pure :syntax-fold "left")
+  :syntax "${1} - ${2}"  :syntax-precedence  9 :pure :syntax-fold "left"
+  :intrinsic -)
 (define-native *
-  :syntax "${1} * ${2}"  :syntax-precedence 10 :pure :syntax-fold "left")
+  :syntax "${1} * ${2}"  :syntax-precedence 10 :pure :syntax-fold "left"
+  :intrinsic *)
 (define-native /
-  :syntax "${1} / ${2}"  :syntax-precedence 10 :pure :syntax-fold "left")
+  :syntax "${1} / ${2}"  :syntax-precedence 10 :pure :syntax-fold "left"
+  :intrinsic /)
 (define-native mod
-  :syntax "${1} % ${2}"  :syntax-precedence 10 :pure :syntax-fold "left")
+  :syntax "${1} % ${2}"  :syntax-precedence 10 :pure :syntax-fold "left"
+  :intrinsic %)
 (define-native expt
-  :syntax "${1} ^ ${2}"  :syntax-precedence 12 :pure :syntax-fold "right")
+  :syntax "${1} ^ ${2}"  :syntax-precedence 12 :pure :syntax-fold "right"
+  :intrinsic ^)
 (define-native ..
-  :syntax "${1} .. ${2}" :syntax-precedence  8 :pure :syntax-fold "right")
+  :syntax "${1} .. ${2}" :syntax-precedence  8 :pure :syntax-fold "right"
+  :intrinsic ..)
 
 (define-native len#
-  :syntax "#${1}"        :syntax-precedence 11 :pure)
+  :syntax "#${1}"        :syntax-precedence 11 :pure
+  :intrinsic len)
 
 (define-native get-idx
-  :syntax "${1}[${2}]"       :syntax-precedence (100 0))
+  :syntax "${1}[${2}]"   :syntax-precedence (100 0)
+  :signature (tbl key))
 (define-native set-idx!
-  :syntax "${1}[${2}] = ${3}"  :syntax-precedence (100 0 0) :stmt)
+  :syntax "${1}[${2}] = ${3}"  :syntax-precedence (100 0 0) :stmt
+  :signature (tbl key value))
 
 (define-native _ENV            :bind-to "_ENV")
 (define-native _G              :bind-to "_G")

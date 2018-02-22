@@ -11,6 +11,13 @@
     (mutable signature
      "The hypothetical signature for this native definition.")
 
+    (mutable intrinsic
+      "An 'intrinsic' that this native may be optimised to. This allows
+       the compiler to understand specific behaviour about the
+       definition. The compiler is not required to do any specific
+       handling of intrinsics: programs should function perfectly fine
+       with or without them.")
+
     (mutable bind-to
       "The expression which will be used when emitting this native's
        definition.")
@@ -47,7 +54,7 @@
 
   (constructor new
     (lambda ()
-      (new false nil nil nil nil nil false nil))))
+      (new false nil nil nil nil nil nil false nil))))
 
 (defun parse-template (template)
   "Parse the template string TEMPLATE, converting it into a list of
