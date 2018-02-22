@@ -207,8 +207,13 @@
           [(if (= (type# name) "table")
              (= (get-idx name :tag) "symbol")
              false)
-           (set! display (get-idx name :contents))
-           (set! name (.. "-" (get-idx name :contents)))]
+           (cond
+             [(get-idx name :display-name)
+              (set! display (get-idx name :display-name))
+              (set! name (.. "-" (get-idx name :display-name)))]
+             [true
+              (set! display (get-idx name :contents))
+              (set! name (.. "-" (get-idx name :contents)))])]
           ;; Otherwise assume we're a string
           [name
            (set! display (.. "" name))
@@ -234,19 +239,21 @@
    out = (1 2 3)
    ```"
   (let* [(impl (gensym))
-         (ctr' (gensym))
-         (end' (gensym))
-         (step' (gensym))]
-    `(let* [(,end' ,end)
+         (ctr' (gensym ctr))
+         (start' (gensym "for-start"))
+         (end' (gensym "for-limit"))
+         (step' (gensym "for-step"))]
+    `(let* [(,start' ,start)
+            (,end' ,end)
             (,step' ,step)
             (,impl nil)]
        (set! ,impl (lambda (,ctr')
                      (cond
-                       [(if (< 0 ,step) (<= ,ctr' ,end') (>= ,ctr' ,end'))
+                       [(if (< 0 ,step') (<= ,ctr' ,end') (>= ,ctr' ,end'))
                         (let* ((,ctr ,ctr')) ,@body)
                         (,impl (+ ,ctr' ,step'))]
                        [else])))
-       (,impl ,start))))
+       (,impl ,start'))))
 
 (defmacro while (check &body)
   "Iterate BODY while the expression CHECK evaluates to `true`.
