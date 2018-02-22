@@ -8,9 +8,8 @@
        have no side effects and will always evaluate to the same
        expression.")
 
-    (mutable arity
-      "The arity for this definition. Namely the maximum number of
-       arguments that it takes.")
+    (mutable signature
+     "The hypothetical signature for this native definition.")
 
     (mutable bind-to
       "The expression which will be used when emitting this native's
@@ -26,8 +25,13 @@
        arguments should appear in numerical order.
 
        If the native is called with the correct number of arguments (as
-       given by [[native-arity]]) then the template will be emitted
-       inline, otherwise it'll delegate to the generated variable.")
+       given by [[native-syntax-arity]]) then the template will be
+       emitted inline, otherwise it'll delegate to the generated
+       variable.")
+
+    (mutable syntax-arity
+      "The arity for this definition. Namely the maximum number of
+       arguments that it takes.")
 
     (mutable syntax-fold
       "If specified, the called function will allow variadic arguments -
@@ -43,7 +47,7 @@
 
   (constructor new
     (lambda ()
-      (new false nil nil nil nil false nil))))
+      (new false nil nil nil nil nil false nil))))
 
 (defun parse-template (template)
   "Parse the template string TEMPLATE, converting it into a list of

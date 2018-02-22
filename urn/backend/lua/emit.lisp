@@ -59,7 +59,7 @@
      (w/append! out "function(")
      (if (native/native-syntax-fold meta)
        (w/append! out "...")
-       (for i 1 (native/native-arity meta) 1
+       (for i 1 (native/native-syntax-arity meta) 1
          (unless (= i 1) (w/append! out ", "))
          (w/append! out (.. "v" (string->number i)))))
      (w/append! out ") ")
@@ -575,7 +575,7 @@
          ;; appended directly.
          (let* [(contents (native/native-syntax meta))
                 (fold (native/native-syntax-fold meta))
-                (count (native/native-arity meta))]
+                (count (native/native-syntax-arity meta))]
            (letrec [(build (lambda (start end)
                              (for-each entry contents
                                (cond

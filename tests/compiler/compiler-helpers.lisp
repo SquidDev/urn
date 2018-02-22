@@ -33,9 +33,9 @@
 (defun native-expr (data)
   (with (native (native/native))
     (native/set-native-pure! native (.> data :pure))
-    (native/set-native-arity! native (.> data :count))
 
     (native/set-native-syntax! native (.> data :contents))
+    (native/set-native-syntax-arity! native (.> data :count))
     (native/set-native-syntax-precedence! native (.> data :prec))
     (native/set-native-syntax-fold! native (.> data :fold))
 

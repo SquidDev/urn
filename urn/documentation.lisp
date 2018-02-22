@@ -1,5 +1,6 @@
 (import urn/analysis/nodes (builtin?))
 (import urn/resolve/scope scope)
+(import urn/resolve/native native)
 
 (define tokens
   "The primary tokens for the documentation string"
@@ -49,6 +50,11 @@
               (recur (last (car node)))]
 
              [else nil]))
+         nil)]
+
+      [(= ty "native")
+       (if-with (sig (native/native-signature (scope/var-native var)))
+         (map (lambda (sym) (or (.> sym :display-name) (.> sym :contents))) sig)
          nil)]
 
       [else nil])))

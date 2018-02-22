@@ -61,7 +61,7 @@
   (with (native (native))
     (case (type (.> entry :count))
       ["nil"]
-      ["number" (set-native-arity! native (.> entry :count))]
+      ["number" (set-native-syntax-arity! native (.> entry :count))]
       [?ty
        (logger/put-error! (.> state :log) (format nil "Expected number for {#name}'s count, got {#ty}"))])
 
@@ -83,11 +83,11 @@
       ["expr"
        (with ((buffer max) (parse-template (.> entry :contents)))
          (set-native-syntax! native buffer)
-         (unless (.> entry :count) (set-native-arity! native max)))]
+         (unless (.> entry :count) (set-native-syntax-arity! native max)))]
       ["stmt"
        (with ((buffer max) (parse-template (.> entry :contents)))
          (set-native-syntax! native buffer)
-         (unless (.> entry :count) (set-native-arity! native max)))
+         (unless (.> entry :count) (set-native-syntax-arity! native max)))
        (set-native-syntax-stmt! native true)]
       ["var"
        (set-native-bind-to! native (.> entry :contents))]

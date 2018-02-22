@@ -245,8 +245,8 @@
 
                        (cond
                          [(and meta (if (native/native-syntax-fold meta)
-                                      (>= (pred (n node)) (native/native-arity meta))
-                                      (= (pred (n node)) (native/native-arity meta))))
+                                      (>= (pred (n node)) (native/native-syntax-arity meta))
+                                      (= (pred (n node)) (native/native-syntax-arity meta))))
                           (visit-nodes lookup state node 1 false)
 
                           ;; Mark child nodes as requiring parenthesis.

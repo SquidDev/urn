@@ -100,6 +100,9 @@
                     (signature (nth node (succ i)))]
                 (expect-type! log signature node "list" "signature")
                 (for-each child signature (expect-type! log child signature "symbol" "argument"))
+                (when (native/native-signature native)
+                  (error-positions! log child "multiple signatures set"))
+                (native/set-native-signature! native signature)
 
                 (inc! i))]
 
@@ -129,7 +132,7 @@
                   ["string"
                    (with ((syn arity) (native/parse-template (.> syntax :value)))
                      (native/set-native-syntax! native syn)
-                     (unless (native/native-arity native) (native/set-native-arity! native arity)))]
+                     (native/set-native-syntax-arity! native arity))]
 
                   ["list"
                    ;; Ensure the syntax isn't empty
@@ -149,7 +152,7 @@
                           (error-positions! log child (format nil "Expected syntax element, got {}" (if (= ty "nil") "nothing" ty)))]))
 
                      (native/set-native-syntax! native syn)
-                     (unless (native/native-arity native) (native/set-native-arity! native arity)))]
+                     (native/set-native-syntax-arity! native arity))]
 
                   [?ty
                    (error-positions! log child (format nil "Expected syntax, got {}" (if (= ty "nil") "nothing" ty)))])
@@ -225,22 +228,25 @@
         (error-positions! log node "Cannot specify a precedence when no syntax given"))
 
       (when-with (syntax (native/native-syntax native))
-        (let* [(syntax-arity (reduce (lambda (max val) (if (and (number? val) (> val max)) val max)) 0 syntax))
-               (given-arity (native/native-arity native))
+        (let* [(syntax-arity (native/native-syntax-arity native))
+
+               (signature (native/native-signature native))
+               (signature-arity (if (list? signature) (n signature) nil))
 
                (precedence (native/native-syntax-precedence native))
-               (prec-arity (and (list? precedence) (n precedence)))]
-          ;; Verify arity is consistent
-          (when (/= syntax-arity given-arity)
-            (error-positions! log node (format nil "Specified arity as {#given-arity} but template takes {#syntax-arity} values")))
+               (prec-arity (if (list? precedence) (n precedence) nil))]
 
-          ;; Verify precedence is consistent
-          (when (and prec-arity (/= prec-arity given-arity))
-            (error-positions! log node (format nil "Definition has arity {#given-arity}, but precedence has {#prec-arity} values")))
+          ;; Verify signature arity is consistent
+          (when (and signature-arity (/= signature-arity syntax-arity))
+            (error-positions! log node (format nil "Definition has arity {#syntax-arity}, but signature has {#signature-arity} arguments")))
+
+          ;; Verify precedence arity is consistent
+          (when (and prec-arity (/= prec-arity syntax-arity))
+            (error-positions! log node (format nil "Definition has arity {#syntax-arity}, but precedence has {#prec-arity} values")))
 
           ;; Verify folds take 2 arguments
-          (when (and (native/native-syntax-fold native) (/= given-arity 2))
-            (error-positions! log node (format nil "Cannot specify a fold direction with arity {#given-arity} (must be 2)")))))))
+          (when (and (native/native-syntax-fold native) (/= syntax-arity 2))
+            (error-positions! log node (format nil "Cannot specify a fold direction with arity {#syntax-arity} (must be 2)")))))))
 
   nil)
 

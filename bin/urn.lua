@@ -1857,7 +1857,7 @@ varNative1 = function(var)
   end
   local vNative = var["native"]
   if not vNative then
-    vNative = {tag="native", pure=false, arity=nil, ["bind-to"]=nil, syntax=nil, ["syntax-fold"]=nil, ["syntax-stmt"]=false, ["syntax-precedence"]=nil}
+    vNative = {tag="native", pure=false, signature=nil, ["bind-to"]=nil, syntax=nil, ["syntax-arity"]=nil, ["syntax-fold"]=nil, ["syntax-stmt"]=false, ["syntax-precedence"]=nil}
     setVarNative_21_1(var, vNative)
   end
   return vNative
@@ -2241,6 +2241,15 @@ extractSignature1 = function(var, history)
           return nil
         end
       end
+    else
+      return nil
+    end
+  elseif ty == "native" then
+    local sig = varNative1(var)["signature"]
+    if sig then
+      return map2(function(sym)
+        return sym["display-name"] or sym["contents"]
+      end, sig)
     else
       return nil
     end
@@ -3540,9 +3549,9 @@ visitNode3 = function(lookup, state, node, stmt, test, recur)
         local temp2
         if meta then
           if meta["syntax-fold"] then
-            temp2 = n1(node) - 1 >= meta["arity"]
+            temp2 = n1(node) - 1 >= meta["syntax-arity"]
           else
-            temp2 = n1(node) - 1 == meta["arity"]
+            temp2 = n1(node) - 1 == meta["syntax-arity"]
           end
         else
           temp2 = false
@@ -4112,7 +4121,7 @@ compileNative1 = function(out, var, meta)
     if meta["syntax-fold"] then
       append_21_1(out, "...")
     else
-      local temp = meta["arity"]
+      local temp = meta["syntax-arity"]
       local temp1 = 1
       while temp1 <= temp do
         if temp1 ~= 1 then
@@ -4738,7 +4747,7 @@ compileExpression1 = function(node, out, state, ret, _ebreak)
     if cat["parens"] then
       append_21_1(out, "(")
     end
-    local contents, fold, count, build = meta["syntax"], meta["syntax-fold"], meta["arity"]
+    local contents, fold, count, build = meta["syntax"], meta["syntax-fold"], meta["syntax-arity"]
     build = function(start, _eend)
       local temp = n1(contents)
       local temp1 = 1
@@ -5820,6 +5829,10 @@ handleMetadata1 = function(log, node, var, start, finish)
           expectType_21_1(log, signature[temp3], signature, "symbol", "argument")
           temp3 = temp3 + 1
         end
+        if native["signature"] then
+          errorPositions_21_1(log, child, "multiple signatures set")
+        end
+        native["signature"] = signature
         i = i + 1
       elseif temp1 == "bind-to" then
         if var["kind"] ~= "native" then
@@ -5839,15 +5852,13 @@ handleMetadata1 = function(log, node, var, start, finish)
         local native, syntax = varNative1(var), nth1(node, i + 1)
         expect_21_1(log, syntax, node, "syntax")
         if native["syntax"] then
-          errorPositions_21_1(log, child, "Multiple syntaxes set")
+          errorPositions_21_1(log, child, "multiple syntaxes set")
         end
         local temp2 = type1(syntax)
         if temp2 == "string" then
           local syn, arity = parseTemplate1(syntax["value"])
           native["syntax"] = syn
-          if not native["arity"] then
-            native["arity"] = arity
-          end
+          native["syntax-arity"] = arity
         elseif temp2 == "list" then
           expect_21_1(log, car1(syntax), syntax, "syntax element")
           local syn, arity = {tag="list", n=0}, 0
@@ -5876,9 +5887,7 @@ handleMetadata1 = function(log, node, var, start, finish)
             temp4 = temp4 + 1
           end
           native["syntax"] = syn
-          if not native["arity"] then
-            native["arity"] = arity
-          end
+          native["syntax-arity"] = arity
         else
           errorPositions_21_1(log, child, formatOutput_21_1(nil, "Expected syntax, got " .. display1((function()
             if temp2 == "nil" then
@@ -5970,24 +5979,29 @@ handleMetadata1 = function(log, node, var, start, finish)
     if native["syntax-precedence"] and not native["syntax"] then
       errorPositions_21_1(log, node, "Cannot specify a precedence when no syntax given")
     end
-    local syntax = native["syntax"]
-    if syntax then
-      local syntaxArity, givenArity, precedence = reduce1(function(max, val)
-        if number_3f_1(val) and val > max then
-          return val
-        else
-          return max
-        end
-      end, 0, syntax), native["arity"], native["syntax-precedence"]
-      local precArity = type1(precedence) == "list" and n1(precedence)
-      if syntaxArity ~= givenArity then
-        errorPositions_21_1(log, node, formatOutput_21_1(nil, "Specified arity as " .. display1(givenArity) .. " but template takes " .. display1(syntaxArity) .. " values"))
+    if native["syntax"] then
+      local syntaxArity, signature = native["syntax-arity"], native["signature"]
+      local signatureArity
+      if type1(signature) == "list" then
+        signatureArity = n1(signature)
+      else
+        signatureArity = nil
       end
-      if precArity and precArity ~= givenArity then
-        errorPositions_21_1(log, node, formatOutput_21_1(nil, "Definition has arity " .. display1(givenArity) .. ", but precedence has " .. display1(precArity) .. " values"))
+      local precedence = native["syntax-precedence"]
+      local precArity
+      if type1(precedence) == "list" then
+        precArity = n1(precedence)
+      else
+        precArity = nil
       end
-      if native["syntax-fold"] and givenArity ~= 2 then
-        errorPositions_21_1(log, node, formatOutput_21_1(nil, "Cannot specify a fold direction with arity " .. display1(givenArity) .. " (must be 2)"))
+      if signatureArity and signatureArity ~= syntaxArity then
+        errorPositions_21_1(log, node, formatOutput_21_1(nil, "Definition has arity " .. display1(syntaxArity) .. ", but signature has " .. display1(signatureArity) .. " arguments"))
+      end
+      if precArity and precArity ~= syntaxArity then
+        errorPositions_21_1(log, node, formatOutput_21_1(nil, "Definition has arity " .. display1(syntaxArity) .. ", but precedence has " .. display1(precArity) .. " values"))
+      end
+      if native["syntax-fold"] and syntaxArity ~= 2 then
+        errorPositions_21_1(log, node, formatOutput_21_1(nil, "Cannot specify a fold direction with arity " .. display1(syntaxArity) .. " (must be 2)"))
       end
     end
   end
@@ -6818,11 +6832,11 @@ stripExtension1 = function(path)
   end
 end
 readMeta1 = function(state, name, entry)
-  local native = {tag="native", pure=false, arity=nil, ["bind-to"]=nil, syntax=nil, ["syntax-fold"]=nil, ["syntax-stmt"]=false, ["syntax-precedence"]=nil}
+  local native = {tag="native", pure=false, signature=nil, ["bind-to"]=nil, syntax=nil, ["syntax-arity"]=nil, ["syntax-fold"]=nil, ["syntax-stmt"]=false, ["syntax-precedence"]=nil}
   local temp = type1(entry["count"])
   if temp == "nil" then
   elseif temp == "number" then
-    native["arity"] = (entry["count"])
+    native["syntax-arity"] = (entry["count"])
   else
     self1(state["log"], "put-error!", (formatOutput_21_1(nil, "Expected number for " .. display1(name) .. "'s count, got " .. display1(temp))))
   end
@@ -6848,13 +6862,13 @@ readMeta1 = function(state, name, entry)
     local buffer, max = parseTemplate1(entry["contents"])
     native["syntax"] = buffer
     if not entry["count"] then
-      native["arity"] = max
+      native["syntax-arity"] = max
     end
   elseif temp == "stmt" then
     local buffer, max = parseTemplate1(entry["contents"])
     native["syntax"] = buffer
     if not entry["count"] then
-      native["arity"] = max
+      native["syntax-arity"] = max
     end
     native["syntax-stmt"] = true
   elseif temp == "var" then
