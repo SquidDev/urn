@@ -1,11 +1,24 @@
 (import urn/resolve/builtins (builtin) :export)
+(import urn/resolve/native native)
 (import urn/resolve/scope scope)
 
 (import lua/basic (type#))
 
+(defun variable? (node var)
+  "Determine if NODE is a symbol referencing a given VAR."
+  (and (symbol? node) (= (.> node :var) var)))
+
 (defun builtin? (node name)
   "Determine whether NODE is builtin NAME."
   (and (symbol? node) (= (.> node :var) (builtin name))))
+
+(defun intrinsic? (node intrinsic)
+  "Determine whether NODE is the given INTRINSIC."
+  (if (symbol? node)
+    (with (var (.> node :var))
+      (and (= (scope/var-kind var) "native")
+           (= (native/native-intrinsic (scope/var-native var)) intrinsic)))
+    false))
 
 (defun side-effect? (node)
   "Checks if NODE has a side effect"

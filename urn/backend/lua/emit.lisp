@@ -1004,6 +1004,28 @@
 
        (w/end-block! out "end")
        (compile-block (nth node 2) out state 2 ret))]
+
+    ["for-num"
+     (let* [(lam (.> recur :def))
+            (node (nth lam 3))
+            (body (nth node 2))]
+       (w/append! out "for ")
+       (w/append! out (escape-var (.> (caadr lam) :var) state))
+       (w/append! out " = ")
+       (w/append! out (escape-var (.> (caadr lam) :var) state))
+       (w/append! out ", ")
+       (compile-expression (nth (car body) 3) out state)
+       (w/append! out ", ")
+       (compile-expression (nth (nth (last body) 2) 3) out state)
+       (w/begin-block! out " do")
+
+       (for i 2 (pred (n body)) 1
+         (compile-expression (nth body i) out state "")
+         (w/line! out))
+
+       (w/end-block! out "end")
+       (compile-block (nth node 3) out state 2 ret))]
+
     ["forever"
      (w/begin-block! out "while true do")
 

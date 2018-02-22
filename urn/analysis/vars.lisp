@@ -27,6 +27,28 @@
           [true])))
     found))
 
+(defun node-mutates-var? (node var)
+  "Determine whether NODE contains a mutator of the given VAR."
+  (with (found false)
+    (visitor/visit-node node
+      (lambda (node)
+        (cond
+          [found false]
+          [(and (list? node) (builtin? (car node) :set!)) (set! found (= var (.> (nth node 2) :var)))]
+          [true])))
+    found))
+
+(defun node-mutates-vars? (node vars)
+  "Determine whether NODE contains a mutator of one of the given VARS."
+  (with (found false)
+    (visitor/visit-node node
+      (lambda (node)
+        (cond
+          [found false]
+          [(and (list? node) (builtin? (car node) :set!)) (set! found (.> vars (.> (nth node 2) :var)))]
+          [true])))
+    found))
+
 (defun captured-boundary? (node)
   "The default boundary determiner for [[node-captured]]"
   (and (list? node) (builtin? (car node) :lambda)))

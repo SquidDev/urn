@@ -476,6 +476,16 @@
       (.<! lookup node (cat "quote-list")))
     (.<! lookup node (cat "quote-const"))))
 
+(defmacro and-trace (a &rest)
+  (with (symb (gensym))
+    `(with (,symb ,a)
+       (print! (.. ,(.. (pretty a) " = ") (pretty ,symb)))
+       (if ,symb
+         ,(if (= (n rest) 0)
+            symb
+            `(and-trace ,@rest))
+         ,symb))))
+
 (defun visit-recur (lookup recur)
   "Attempts to categorise a recursive context."
   (let* [(lam (.> recur :def))
@@ -484,9 +494,7 @@
          (rec-boundary (lambda (node)
                          (if (and (list? node) (builtin? (car node) :lambda))
                            (with (cat (.> lookup node))
-                             (if (and cat (.> cat :recur))
-                               false
-                               true))
+                             (not (and cat (.> cat :recur))))
                            false)))]
 
     ;; First attempt to determine which loop variables are captured
@@ -516,6 +524,24 @@
               (snd (and (>= (n snd-case) 2) (just-recur? lookup (last snd-case) recur)))]
          (cond
            [(and fst snd) (.<! recur :category "forever")]
+           ;; If we're a while look with one argument
+           [(and fst (= (n (cadr lam)) 1)
+                 (let* [(body (nth (nth lam 3) 2))
+                        (test (car body))
+                        (incr (last body))
+                        (ctor (.> (caadr lam) :var))]
+                   (and ;; The "loop counter" is non-variadic and immutable
+                        (not (scope/var-variadic? ctor)) (not (node-mutates-var? body ctor))
+                        ;; And the test is of the form `(<= ctor CONSTANT)`
+                        (list? test) (= (n test) 3) (intrinsic? (car test) :<=)
+                        (variable? (cadr test) ctor) ;; (number? (caddr test))
+                        ;; And the last is of the form `(recur (+ ctor CONSTANT))` where CONSTANT >= 0
+                        (list? incr) (= (n incr) 2) (variable? (car incr) (.> recur :var))
+                        (with (sum (cadr incr))
+                          (and (list? sum) (= (n sum) 3) (intrinsic? (car sum) :+)
+                               (variable? (cadr sum) ctor) (number? (caddr sum)) (> (.> (caddr sum) :value) 0))))))
+
+            (.<! recur :category "for-num")]
            [fst (.<! recur :category "while")]
            [snd (.<! recur :category "while-not")]
            [true (.<! recur :category "forever")]))]
