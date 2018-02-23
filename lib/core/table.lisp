@@ -58,7 +58,7 @@
     (for i 1 (- (n keys) 1) 1
       (with (key (get-idx keys i))
         (set! res `(get-idx ,res ,key))))
-    `(set-idx! ,res ,(get-idx keys (n keys) 1) ,value)))
+    `(set-idx! ,res ,(get-idx keys (n keys)) ,value)))
 
 (defun struct (&entries)
   "Return the structure given by the list of pairs ENTRIES. Note that, in

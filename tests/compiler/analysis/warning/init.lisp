@@ -18,9 +18,9 @@
         '((define x (lambda (a b)))
           (x 1 2 3)
           (x 1 2 (x 1 2)))
-        '("Calling x with 3 arguments, expected 2
+        '("Calling x with 3 arguments, expected at most 2
            Called here"
-          "Calling x with 3 arguments, expected 2
+          "Calling x with 3 arguments, expected at most 2
            Called here")))
 
     (it "indirectly"
@@ -28,7 +28,16 @@
         '((define x (lambda (a b)))
           (define y x)
           (y 1 2 3))
-        '("Calling y with 3 arguments, expected 2
+        '("Calling y with 3 arguments, expected at most 2
+           Called here")))
+
+    (it "on native definitions"
+      (affirm-usage-warn warn/check-arity
+        '((get-idx 1)
+          (get-idx 1 2 3))
+        '("Calling get-idx with 1 arguments, expected at least 2
+           Called here"
+          "Calling get-idx with 3 arguments, expected at most 2
            Called here")))
 
     (it "unless the function is variadic"

@@ -5,6 +5,7 @@
 (import urn/documentation doc)
 (import urn/logger logger)
 (import urn/range (get-source get-top-source range<))
+(import urn/resolve/native native)
 (import urn/resolve/scope scope)
 
 (import urn/analysis/warning/order warning)
@@ -15,42 +16,112 @@
    LOOKUP is the variable usage lookup table."
   :cat '("warn" "usage")
   (letrec [(arity {})
-           (get-arity (lambda (symbol)
-                        (let* [(var (usage/get-var lookup (.> symbol :var)))
-                          (ari (.> arity var))]
-                          (cond
-                            [(/= ari nil) ari]
-                            [(/= (n (.> var :defs)) 1) false]
-                            [true
-                              ;; We should never hit recursive definitions but you never know
-                              (.<! arity var false)
+           (update-arity! (lambda (var min max)
+                            (with (ari (list min max))
+                              (.<! arity var ari)
+                              ari)))
+           (get-arity
+             (lambda (var)
+               (with (ari (.> arity var))
+                 (cond
+                   [(/= ari nil) ari]
 
-                              ;; Look up the definition, detecting lambdas and reassignments of other functions.
-                              (let* [(def-data (car (.> var :defs)))
-                                     (def (.> def-data :value))]
-                                (set! ari
-                                  (if (= (type def-data) "var")
-                                    false
-                                    (cond
-                                      [(symbol? def) (get-arity def)]
-                                      [(and (list? def) (symbol? (car def)) (= (.> (car def) :var) (builtin :lambda)))
-                                       (with (args (nth def 2))
-                                             (if (any (lambda (x) (scope/var-variadic? (.> x :var))) args)
-                                               false
-                                               (n args)))]
-                                      (true false))))
-                                (.<! arity var ari)
-                                ari)]))))]
+                   ;; If we're a native definition, attempt to use various native metadata
+                   [(= (scope/var-kind var) "native")
+                    (let* [(native (scope/var-native var))
+                           (ari (native/native-syntax-arity native))
+                           (signature (native/native-signature native))]
+                      (cond
+                        [signature
+                         (let [(min (n signature))
+                               (max (n signature))]
+                           (for-each arg signature
+                             (case (string/char-at (symbol->string arg) 1)
+                               ["&" (set! max math/huge)]
+                               ["?" (dec! min)]
+                               [_]))
+                           (update-arity! var min max))]
+
+                        [ari
+                         (if (native/native-syntax-fold native)
+                           (update-arity! var ari math/huge)
+                           (update-arity! var ari ari))]
+
+                        [else (update-arity! var 0 math/huge)]))]
+
+                   [else
+                    (with (defs (.> (usage/get-var lookup var) :defs))
+                      (cond
+                        ;; If we've not got exactly one definition, attempt to extract the arity A
+                        ;; potential improvement would be to unify the arity across all definitions.
+                        [(/= (n defs) 1) (update-arity! var 0 math/huge)]
+
+                        [else
+                         (with (def-data (car defs))
+                           (case (type def-data)
+                             ["var" (update-arity! var 0 math/huge)]
+                             ["val"
+                              ;; Look through this definition, attempting to find some sort of signature.
+                              (loop [(node (.> def-data :value))] []
+                                (cond
+                                  ;; If we're a symbol, look up that node's arity instead. We mark this one as
+                                  ;; false to prevent loops.
+                                  [(symbol? node)
+                                   (.<! arity var false)
+                                   (with (ari (get-arity (.> node :var)))
+                                     (.<! arity var ari)
+                                     ari)]
+
+                                  ;; If we're a lambda, then extract from the signature
+                                  [(and (list? node) (builtin? (car node) :lambda))
+                                   (let* [(signature (cadr node))
+                                          (max (n signature))]
+                                     (for-each arg signature
+                                       (when (scope/var-variadic? (.> arg :var)) (set! max math/huge)))
+                                     (update-arity! var 0 max))]
+
+                                  ;; If we're a binding then return the last node
+                                  [(and (list? node) (list? (car node)) (builtin? (caar node) :lambda) (>= (n (car node)) 3))
+                                   (recur (last (car node)))]
+
+                                  ;; If we're some function call, then return an arbitrary arity
+                                  [(list? node) (update-arity! var 0 math/huge)]
+
+                                  [else
+                                   (.<! arity var false)
+                                   false]))]))]))]))))]
 
     (visitor/visit-block nodes 1
       (lambda (node)
-        (when (and (list? node) (symbol? (car node)))
-          (with (arity (get-arity (car node)))
-            (when (and arity (< arity (pred (n node))))
-              (logger/put-node-warning! (.> state :logger)
-                (.. "Calling " (symbol->string (car node)) " with " (string->number (pred (n node))) " arguments, expected " (string->number arity))
-                (get-top-source node) nil
-                (get-source node) "Called here"))))))))
+        (when (and (list? node) (symbol? (car node))
+                   (/= (scope/var-kind (.> (car node) :var)) "builtin"))
+          (let* [(arity (get-arity (.> (car node) :var)))
+                 (single (single-return? (last node)))
+                 (min-args (if single
+                             (- (n node) 1)
+                             math/huge))
+                 (max-args (- (n node) 1))]
+
+            (cond
+              [(= arity false)
+               (logger/put-node-warning! (.> state :logger)
+                 (format nil "Calling non-function value {}" (car node))
+                 (get-top-source node) nil
+                 (get-source node) "Called here")]
+
+              [(< min-args (car arity))
+               (logger/put-node-warning! (.> state :logger)
+                 (format nil "Calling {} with {} arguments, expected at least {}" (car node) min-args (car arity))
+                 (get-top-source node) nil
+                 (get-source node) "Called here")]
+
+              [(> max-args (cadr arity))
+               (logger/put-node-warning! (.> state :logger)
+                 (format nil "Calling {} with {} arguments, expected at most {}" (car node) max-args (cadr arity))
+                 (get-top-source node) nil
+                 (get-source node) "Called here")]
+
+              [else])))))))
 
 (defpass deprecated (state nodes)
   "Produce a warning whenever a deprecated variable is used."
