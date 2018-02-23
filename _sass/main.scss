@@ -278,11 +278,13 @@ table.sym-table {
 	}
 
 	#terminal-input, #terminal-input:focus {
+		outline: none;
+	}
+
+	#terminal-input:empty {
 		min-width: 100px;
 		min-height: 1em;
 		display: inline-block;
-
-		outline: none;
 	}
 
 	#terminal-status {

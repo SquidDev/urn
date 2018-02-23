@@ -159,4 +159,11 @@ window.onload = function() {
       write_input(history[history_index] || "");
     }
   };
+
+  input.onpaste = function(e) {
+    e.preventDefault();
+    // Strip formatting and normalise new lines
+    var text = e.clipboardData.getData("text/plain").replace(/\r\n?/g, "\n");
+    document.execCommand("insertText", false, text);
+  };
 };
