@@ -169,7 +169,7 @@
         (sort! (cadr letter) (lambda (a b) (< (scope/var-name (.> a :var)) (scope/var-name (.> b :var))))))
 
       (writer/line! out "---")
-      (writer/line! out (.. "title: Symbol index"))
+      (writer/line! out "title: Symbol index")
       (writer/line! out "---")
       (writer/line! out "# Symbol index")
       (writer/line! out "" true)

@@ -63,12 +63,12 @@
     (it "which are left associative"
       (affirm-native
         (native-expr { :contents '(1 " + " 2) :count 2 :fold "left" })
-        "function(...) local t = ... for i = 2, _select('#', ...) do t = t + _select(i, ...) end return t end"))
+        "function(x, ...) local t = x + ... for i = 2, _select('#', ...) do t = t + _select(i, ...) end return t end"))
 
     (it "which are right associative"
       (affirm-native
         (native-expr { :contents '(1 " .. " 2) :count 2 :fold "right" })
-        "function(...) local n = _select('#', ...) local t = _select(n, ...) for i = n - 1, 1, -1 do t = _select(i, ...) .. t end return t end"))
+        "function(x, ...) local n = _select('#', ...) local t = _select(n, ...) for i = n - 1, 1, -1 do t = _select(i, ...) .. t end return x .. t end"))
 
     (it "which are not associative"
       (affirm-native

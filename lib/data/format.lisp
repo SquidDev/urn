@@ -187,7 +187,10 @@
     (when (> last-positional (n args))
       (error! (string/format "(format %q): not given enough positional arguments (expected %d, got %d)"
                              str last-positional (n args))))
+    (with (parts (dolist [(frag fragments)]
+                   (compile-format-fragment frag interpret-spec)))
     `(let* [(,named-map { ,@named-alist })]
        (format-output! ,out
-                       ,(cons `.. (dolist [(frag fragments)]
-                                    (compile-format-fragment frag interpret-spec)))))))
+                       ,(if (= (n parts) 1)
+                          (car parts)
+                          (cons `.. parts)))))))

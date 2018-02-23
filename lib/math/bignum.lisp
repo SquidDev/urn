@@ -139,7 +139,7 @@
     [(and (/= (type a) num-tag) (= (type b) num-tag)) (power (new a) b)]
     [(< b (new 0)) (new 0)]
     [(= b (new 0)) (new 1)]
-    [(= b (new 1) a)]
+    [(= b (new 1)) a]
     [else
       (let* [(val a)
              (r b)]

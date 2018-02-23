@@ -111,9 +111,7 @@
                                      (= char "'")) ; thousands separator
                             (consume!)
                             (set! char (string/char-at str (succ offset))))
-                          ; now this is a hack
-                          (let* [(str (apply .. (string/split (string/reverse (string/sub str start offset))
-                                                              "'")))]
+                          (with (str (string/gsub (string/reverse (string/sub str start offset)) "'" ""))
                             ; This implementation was stolen and adapted from
                             ; the Rosetta code entry for decoding Roman numerals
                             ; in Scheme.
@@ -137,8 +135,7 @@
                            (consume!)
                            (set! char (string/char-at str (succ offset))))
 
-                         (let* [(thousands-separated (apply .. (string/split (string/sub str start offset)
-                                                                             "'")))]
+                         (with (thousands-separated (string/gsub (string/sub str start offset) "'" ""))
                            ;; And convert the digit to a string
                            (string->number thousands-separated base)))))]
     ;; Scan the input stream, consume one character, then read til the end of that token.
