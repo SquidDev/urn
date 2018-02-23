@@ -130,8 +130,8 @@ out = 12
 
 ## Undocumented symbols
  - `$continuation` *Defined at lib/control/prompt.lisp:13:2*
- - `call/ec` *Defined at lib/control/prompt.lisp:108:1*
- - `call/p` *Defined at lib/control/prompt.lisp:66:1*
+ - `(call/ec body)` *Defined at lib/control/prompt.lisp:108:1*
+ - `(call/p prompt-tag body handler)` *Defined at lib/control/prompt.lisp:66:1*
  - `(continuation? continuation)` *Defined at lib/control/prompt.lisp:13:2*
- - `let/ec` *Macro defined at lib/control/prompt.lisp:109:1*
- - `let/p` *Macro defined at lib/control/prompt.lisp:71:1*
+ - `(let/ec k &body)` *Macro defined at lib/control/prompt.lisp:109:1*
+ - `(let/p tg e h)` *Macro defined at lib/control/prompt.lisp:71:1*

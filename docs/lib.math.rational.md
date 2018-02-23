@@ -29,14 +29,14 @@ out = 3.14
 ## `(denominator rational)`
 *Defined at lib/math/rational.lisp:7:2*
 
-The rational's denumerator
+The rational's denominator
 
 ## `(numerator rational)`
 *Defined at lib/math/rational.lisp:7:2*
 
 The rational's numerator
 
-## `rational`
+## `(rational n d)`
 *Defined at lib/math/rational.lisp:7:2*
 
 `A` rational number, represented as a tuple of numerator and denominator.

@@ -5,8 +5,8 @@ title: lua/bit32
 ## `ashr`
 *Native defined at lib/lua/bit32.lisp:1:1*
 
-Returns the arithmetic right shift of `X` shifted right by `DISP`.  
-If `DISP` is greater than 0 and the leftmost bit is 1, the void gets  
+Returns the arithmetic right shift of `X` shifted right by `DISP`.
+If `DISP` is greater than 0 and the leftmost bit is 1, the void gets
 filled by 1, otherwise 0.
 
 ## `bit-and`
@@ -17,9 +17,9 @@ Returns the bitwise `AND` of its arguments.
 ## `bit-extract`
 *Native defined at lib/lua/bit32.lisp:15:1*
 
-Returns the unsigned number formed by splicing the bits `FIELD` to  
-`FIELD` + `WIDTH` - 1 from `X`.  
-Bit 0 is the least significant bit, bit 31 the most.  
+Returns the unsigned number formed by splicing the bits `FIELD` to
+`FIELD` + `WIDTH` - 1 from `X`.
+Bit 0 is the least significant bit, bit 31 the most.
 The default for `WIDTH` is 1.
 
 ## `bit-not`
@@ -35,9 +35,9 @@ Returns the bitwise `OR` of its arguments.
 ## `bit-replace`
 *Native defined at lib/lua/bit32.lisp:20:1*
 
-Returns `X` with the bits `FIELD` to `FIELD` + `WIDTH` - 1 replaced with  
-the unsigned number value of `V`.  
-Bit 0 is the least significant bit, bit 31 the most.  
+Returns `X` with the bits `FIELD` to `FIELD` + `WIDTH` - 1 replaced with
+the unsigned number value of `V`.
+Bit 0 is the least significant bit, bit 31 the most.
 The default for `WIDTH` is 1.
 
 ## `bit-rotl`

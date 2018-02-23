@@ -5,6 +5,8 @@ title: luajit/ffi
 ## `(defun-ffi name typedecl)`
 *Macro defined at lib/luajit/ffi.lisp:22:2*
 
+>**Warning:** defun-ffi is deprecated: Use cdef and index the `C` table directly
+
 Define the external symbol `NAME` with the `C` type signature
 given by `TYPEDECL`.
 

@@ -2,8 +2,13 @@
 title: core/base
 ---
 # core/base
+## `*arguments*`
+*Defined at lib/core/base.lisp:386:1*
+
+The arguments passed to the currently executing program
+
 ## `(-and a b)`
-*Defined at lib/core/base.lisp:344:2*
+*Defined at lib/core/base.lisp:351:2*
 
 Return the logical conjunction of values `A` and `B`.
 
@@ -12,7 +17,7 @@ variable. However, each argument is evaluated eagerly. See [`and`](lib.core.base
 a lazy version.
 
 ## `(-or a b)`
-*Defined at lib/core/base.lisp:336:2*
+*Defined at lib/core/base.lisp:343:2*
 
 Return the logical disjunction of values `A` and `B`.
 
@@ -21,7 +26,7 @@ variable. However, each argument is evaluated eagerly. See [`or`](lib.core.base.
 a lazy version.
 
 ## `(<=> p q)`
-*Macro defined at lib/core/base.lisp:320:2*
+*Macro defined at lib/core/base.lisp:327:2*
 
 Bidirectional implication. `(<=> a b)` means that `(=> a b)` and
 `(=> b a)` both hold.
@@ -36,8 +41,13 @@ out = true
 out = false
 ```
 
+## `=`
+*Native defined at lib/lua/basic.lisp:1:1*
+
+Determine if two variables are equal.
+
 ## `(=> p q)`
-*Macro defined at lib/core/base.lisp:310:2*
+*Macro defined at lib/core/base.lisp:317:2*
 
 Logical implication. `(=> a b)` is equivalent to `(or (not a) b)`.
 
@@ -48,7 +58,7 @@ out = true
 ```
 
 ## `(and a b &rest)`
-*Macro defined at lib/core/base.lisp:274:2*
+*Macro defined at lib/core/base.lisp:281:2*
 
 Return the logical and of values `A` and `B`, and, if present, the
 logical and of all the values in `REST`.
@@ -66,7 +76,7 @@ out = false
 ```
 
 ## `(apply f &xss xs)`
-*Defined at lib/core/base.lisp:438:2*
+*Defined at lib/core/base.lisp:457:2*
 
 Apply the function `F` using `XS` as the argument list, with `XSS` as
 arguments before `XS` is spliced.
@@ -80,7 +90,9 @@ out = 3
 ```
 
 ## `arg`
-*Defined at lib/core/base.lisp:379:1*
+*Defined at lib/core/base.lisp:398:1*
+
+>**Warning:** arg is deprecated: Use [`*arguments*`](lib.core.base.md#-arguments-) instead.
 
 The arguments passed to the currently executing program
 
@@ -90,7 +102,7 @@ The arguments passed to the currently executing program
 Add `X` to the start of the list `XS`. Note: this is linear in time.
 
 ## `(const-val val)`
-*Defined at lib/core/base.lisp:391:2*
+*Defined at lib/core/base.lisp:403:2*
 
 Get the actual value of `VAL`, an argument to a macro.
 
@@ -117,7 +129,7 @@ optional metadata at the start of `BODY`.
 last case in a `cond` expression to increase readability.
 
 ## `(for ctr start end step &body)`
-*Macro defined at lib/core/base.lisp:224:2*
+*Macro defined at lib/core/base.lisp:229:2*
 
 Iterate `BODY`, with the counter `CTR` bound to `START`, being incremented
 by `STEP` every iteration until `CTR` is outside of the range given by
@@ -126,13 +138,13 @@ by `STEP` every iteration until `CTR` is outside of the range given by
 ### Example:
 ```cl
 > (with (x '())
-.   (for i 1 3 1 (push-cdr! x i))
+.   (for i 1 3 1 (push! x i))
 .   x)
 out = (1 2 3)
 ```
 
 ## `(for-pairs vars tbl &body)`
-*Macro defined at lib/core/base.lisp:352:2*
+*Macro defined at lib/core/base.lisp:359:2*
 
 Iterate over `TBL`, binding `VARS` for each key value pair in `BODY`.
 
@@ -141,12 +153,12 @@ Iterate over `TBL`, binding `VARS` for each key value pair in `BODY`.
 > (let [(res '())
 .       (struct { :foo 123 })]
 .   (for-pairs (k v) struct
-.     (push-cdr! res (list k v)))
+.     (push! res (list k v)))
 .     res)
 out = (("foo" 123))
 ```
 
-## `gensym`
+## `(gensym name)`
 *Defined at lib/core/base.lisp:200:1*
 
 Create a unique symbol, suitable for using in macros
@@ -191,7 +203,7 @@ out = false
 ```
 
 ## `(or a b &rest)`
-*Macro defined at lib/core/base.lisp:292:2*
+*Macro defined at lib/core/base.lisp:299:2*
 
 Return the logical or of values `A` and `B`, and, if present, the
 logical or of all the values in `REST`.
@@ -223,7 +235,7 @@ out = 456
 ```
 
 ## `(quasiquote val)`
-*Macro defined at lib/core/base.lisp:424:2*
+*Macro defined at lib/core/base.lisp:436:2*
 
 Quote `VAL`, but replacing all `unquote` and `unquote-splice` with their actual value.
 
@@ -243,13 +255,18 @@ out = (+ 1 2)
 Take a slice of `XS`, with all values at indexes between `START` and `FINISH` (or the last
 entry of `XS` if not specified).
 
+## `(splice xs)`
+*Defined at lib/core/base.lisp:450:2*
+
+Unpack a list of arguments, returning all elements in `XS`.
+
 ## `(unless c &body)`
 *Macro defined at lib/core/base.lisp:176:2*
 
 Evaluate `BODY` if `C` is false, otherwise, evaluate `nil`.
 
 ## `(values-list &xs)`
-*Macro defined at lib/core/base.lisp:452:2*
+*Macro defined at lib/core/base.lisp:470:2*
 
 Return multiple values, one per element in `XS`.
 
@@ -266,7 +283,7 @@ out = nil
 Evaluate `BODY` when `C` is true, otherwise, evaluate `nil`.
 
 ## `(while check &body)`
-*Macro defined at lib/core/base.lisp:251:2*
+*Macro defined at lib/core/base.lisp:258:2*
 
 Iterate `BODY` while the expression `CHECK` evaluates to `true`.
 
@@ -279,50 +296,48 @@ out = 0
 ```
 
 ## `(with var &body)`
-*Macro defined at lib/core/base.lisp:270:2*
+*Macro defined at lib/core/base.lisp:277:2*
 
 Bind the single variable `VAR`, then evaluate `BODY`.
 
 ## Undocumented symbols
- - `*` *Native defined at lib/lua/basic.lisp:10:1*
- - `+` *Native defined at lib/lua/basic.lisp:8:1*
- - `-` *Native defined at lib/lua/basic.lisp:9:1*
- - `..` *Native defined at lib/lua/basic.lisp:14:1*
- - `/` *Native defined at lib/lua/basic.lisp:11:1*
- - `/=` *Native defined at lib/lua/basic.lisp:2:1*
- - `<` *Native defined at lib/lua/basic.lisp:3:1*
- - `<=` *Native defined at lib/lua/basic.lisp:4:1*
- - `=` *Native defined at lib/lua/basic.lisp:1:1*
- - `>` *Native defined at lib/lua/basic.lisp:5:1*
- - `>=` *Native defined at lib/lua/basic.lisp:6:1*
+ - `*` *Native defined at lib/lua/basic.lisp:19:1*
+ - `+` *Native defined at lib/lua/basic.lisp:15:1*
+ - `-` *Native defined at lib/lua/basic.lisp:17:1*
+ - `..` *Native defined at lib/lua/basic.lisp:27:1*
+ - `/` *Native defined at lib/lua/basic.lisp:21:1*
+ - `/=` *Native defined at lib/lua/basic.lisp:4:1*
+ - `<` *Native defined at lib/lua/basic.lisp:6:1*
+ - `<=` *Native defined at lib/lua/basic.lisp:8:1*
+ - `>` *Native defined at lib/lua/basic.lisp:10:1*
+ - `>=` *Native defined at lib/lua/basic.lisp:12:1*
  - `(car xs)` *Defined at lib/core/base.lisp:131:1*
  - `(cdr xs)` *Defined at lib/core/base.lisp:132:1*
  - `concat` *Native defined at lib/lua/table.lisp:1:1*
- - `(eighth &rest)` *Defined at lib/core/base.lisp:470:1*
- - `error` *Native defined at lib/lua/basic.lisp:24:1*
- - `expt` *Native defined at lib/lua/basic.lisp:13:1*
- - `(fifth &rest)` *Defined at lib/core/base.lisp:470:1*
- - `(first &rest)` *Defined at lib/core/base.lisp:470:1*
- - `(fourth &rest)` *Defined at lib/core/base.lisp:470:1*
- - `get-idx` *Native defined at lib/lua/basic.lisp:34:1*
- - `getmetatable` *Native defined at lib/lua/basic.lisp:25:1*
+ - `(eighth &rest)` *Defined at lib/core/base.lisp:486:1*
+ - `error` *Native defined at lib/lua/basic.lisp:44:1*
+ - `expt` *Native defined at lib/lua/basic.lisp:25:1*
+ - `(fifth &rest)` *Defined at lib/core/base.lisp:486:1*
+ - `(first &rest)` *Defined at lib/core/base.lisp:486:1*
+ - `(fourth &rest)` *Defined at lib/core/base.lisp:486:1*
+ - `get-idx` *Native defined at lib/lua/basic.lisp:33:1*
+ - `getmetatable` *Native defined at lib/lua/basic.lisp:45:1*
  - `(lambda ll &body)` *Macro defined at lib/core/base.lisp:54:1*
- - `len#` *Native defined at lib/lua/basic.lisp:19:1*
+ - `len#` *Native defined at lib/lua/basic.lisp:30:1*
  - `(let* vars &body)` *Macro defined at lib/core/base.lisp:180:2*
- - `mod` *Native defined at lib/lua/basic.lisp:12:1*
- - `(ninth &rest)` *Defined at lib/core/base.lisp:470:1*
- - `pcall` *Native defined at lib/lua/basic.lisp:31:1*
- - `print` *Native defined at lib/lua/basic.lisp:32:1*
- - `require` *Native defined at lib/lua/basic.lisp:39:1*
- - `(second &rest)` *Defined at lib/core/base.lisp:470:1*
- - `set-idx!` *Native defined at lib/lua/basic.lisp:36:1*
- - `setmetatable` *Native defined at lib/lua/basic.lisp:41:1*
- - `(seventh &rest)` *Defined at lib/core/base.lisp:470:1*
- - `(sixth &rest)` *Defined at lib/core/base.lisp:470:1*
- - `(tenth &rest)` *Defined at lib/core/base.lisp:470:1*
- - `(third &rest)` *Defined at lib/core/base.lisp:470:1*
- - `tonumber` *Native defined at lib/lua/basic.lisp:42:1*
- - `tostring` *Native defined at lib/lua/basic.lisp:43:1*
- - `type#` *Native defined at lib/lua/basic.lisp:44:1*
- - `unpack` *Native defined at lib/lua/table.lisp:7:1*
- - `xpcall` *Native defined at lib/lua/basic.lisp:45:1*
+ - `mod` *Native defined at lib/lua/basic.lisp:23:1*
+ - `(ninth &rest)` *Defined at lib/core/base.lisp:486:1*
+ - `pcall` *Native defined at lib/lua/basic.lisp:51:1*
+ - `print` *Native defined at lib/lua/basic.lisp:52:1*
+ - `require` *Native defined at lib/lua/basic.lisp:57:1*
+ - `(second &rest)` *Defined at lib/core/base.lisp:486:1*
+ - `set-idx!` *Native defined at lib/lua/basic.lisp:35:1*
+ - `setmetatable` *Native defined at lib/lua/basic.lisp:59:1*
+ - `(seventh &rest)` *Defined at lib/core/base.lisp:486:1*
+ - `(sixth &rest)` *Defined at lib/core/base.lisp:486:1*
+ - `(tenth &rest)` *Defined at lib/core/base.lisp:486:1*
+ - `(third &rest)` *Defined at lib/core/base.lisp:486:1*
+ - `tonumber` *Native defined at lib/lua/basic.lisp:60:1*
+ - `tostring` *Native defined at lib/lua/basic.lisp:61:1*
+ - `type#` *Native defined at lib/lua/basic.lisp:62:1*
+ - `xpcall` *Native defined at lib/lua/basic.lisp:63:1*

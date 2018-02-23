@@ -104,9 +104,9 @@ Returns `A` minus `B`.
 *Defined at lib/math/bignum.lisp:202:2*
 
 Converts the bignum `A` to a string. `FORMAT` is optional and can be either
-'d' (decimal, default),
-'x' (lowercase hex),
-'`X`' (uppercase hex),
-'o' (octal), or
-'b' (binary).
+ - 'd' (decimal, default),
+ - 'x' (lowercase hex),
+ - '`X`' (uppercase hex),
+ - 'o' (octal), or
+ - 'b' (binary).
 

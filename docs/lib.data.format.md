@@ -3,7 +3,7 @@ title: data/format
 ---
 # data/format
 ## `(format out str &args)`
-*Macro defined at lib/data/format.lisp:120:2*
+*Macro defined at lib/data/format.lisp:117:2*
 
 Output the string `STR` formatted against `ARGS` to the stream `OUT`. In
 the case `OUT` is nil, a string in returned; If `OUT` is true, the result

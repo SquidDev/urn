@@ -3,7 +3,7 @@ title: data/struct
 ---
 # data/struct
 ## `(defstruct name &clauses)`
-*Macro defined at lib/data/struct.lisp:103:2*
+*Macro defined at lib/data/struct.lisp:142:2*
 
 Define a struct called `NAME`.
 

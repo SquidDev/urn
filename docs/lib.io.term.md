@@ -5,7 +5,7 @@ title: io/term
 ## `coloured`
 *Defined at lib/io/term.lisp:24:1*
 
-Color a string `MSG` using `COL` if supported under the current terminal
+Colour a string `MSG` using `COL` if supported under the current terminal
 
 ## `coloured?`
 *Defined at lib/io/term.lisp:9:1*

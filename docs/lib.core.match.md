@@ -9,7 +9,7 @@ well as binding multiple values.
 
 ## Literal patterns
 `A` literal pattern matches only if the scrutinee (what's being matched)
-compares [`eql?`](lib.core.type.md#eql-x-y) to the literal. One can use any Urn atom here:
+compares [`eql?`](lib.core.method.md#eql-x-y) to the literal. One can use any Urn atom here:
 strings, numbers, keys and symbols.
 
 Note that the `true`, `false` and `nil` symbols will match against their
@@ -170,13 +170,13 @@ Bodies in case may be either of the form `[pattern exps]` or
 bound, in its entirety, to the variable `it`.
 
 ## `(case val &pts)`
-*Macro defined at lib/core/match.lisp:406:2*
+*Macro defined at lib/core/match.lisp:409:2*
 
 Match a single value against a series of patterns, evaluating the
 first body that matches, much like `cond`.
 
 ## `(destructuring-bind pt &body)`
-*Macro defined at lib/core/match.lisp:389:2*
+*Macro defined at lib/core/match.lisp:392:2*
 
 Match a single pattern against a single value, then evaluate the `BODY`.
 
@@ -184,13 +184,13 @@ The pattern is given as `(car PT)` and the value as `(cadr PT)`.  If
 the pattern does not match, an error is thrown.
 
 ## `(function &arms)`
-*Macro defined at lib/core/match.lisp:468:2*
+*Macro defined at lib/core/match.lisp:471:2*
 
 Create a lambda which matches its arguments against the patterns
 defined in `ARMS`.
 
 ## `(handler-case x &body)`
-*Macro defined at lib/core/match.lisp:437:2*
+*Macro defined at lib/core/match.lisp:440:2*
 
 Evaluate the form `X`, and if an error happened, match the series
 of `(?pattern . ?body)` arms given in `BODY` against the value of
@@ -211,7 +211,7 @@ out = nil
 ```
 
 ## `(if-match cs t e)`
-*Macro defined at lib/core/match.lisp:483:2*
+*Macro defined at lib/core/match.lisp:486:2*
 
 Matches a pattern against a value defined in `CS`, evaluating `T` with the
 captured variables in scope if the pattern succeeded, otherwise
@@ -220,7 +220,7 @@ evaluating `E`.
 [`if-match`](lib.core.match.md#if-match-cs-t-e) is to [`case`](lib.core.match.md#case-val-pts) what [`if`](lib.core.base.md#if-c-t-b) is to `cond`.
 
 ## `(matches? pt x)`
-*Macro defined at lib/core/match.lisp:427:2*
+*Macro defined at lib/core/match.lisp:430:2*
 
 Test if the value `X` matches the pattern `PT`.
 

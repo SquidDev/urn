@@ -3,7 +3,7 @@ title: io
 ---
 # io
 ## `(append-all! path data)`
-*Defined at lib/io/init.lisp:103:2*
+*Defined at lib/io/init.lisp:117:2*
 
 Appends the string `DATA` to the file at `PATH`.
 Creates a new file if it doesn't exist.
@@ -16,11 +16,11 @@ out = true
 ```
 
 ## `(append-bytes! path data)`
-*Defined at lib/io/init.lisp:128:2*
+*Defined at lib/io/init.lisp:142:2*
 
 Appends the bytes (list of numbers) `DATA` to the file at `PATH`.
 
-Rreates a new file if it doesn't exist. Returns true if it succeeded
+Creates a new file if it doesn't exist. Returns true if it succeeded
 or false if it failed.
 
 ### Example
@@ -30,7 +30,7 @@ out = true
 ```
 
 ## `(append-lines! path data)`
-*Defined at lib/io/init.lisp:115:2*
+*Defined at lib/io/init.lisp:129:2*
 
 Appends the lines (list of strings) `DATA` to the file at `PATH`.
 
@@ -44,7 +44,7 @@ out = true
 ```
 
 ## `(read-all! path)`
-*Defined at lib/io/init.lisp:9:2*
+*Defined at lib/io/init.lisp:11:2*
 
 Reads the data from the file at `PATH` and returns it as a string.
 Returns nil if it failed.
@@ -53,10 +53,12 @@ Returns nil if it failed.
 ```cl
 > (read-all! "tests/data/hello.txt")
 out = "Hello, world!"
+> (read-all! "tests/data/non-existent.txt")
+out = nil
 ```
 
 ## `(read-bytes! path)`
-*Defined at lib/io/init.lisp:32:2*
+*Defined at lib/io/init.lisp:40:2*
 
 Reads the data from the file at `PATH` and returns it as a list of bytes
 (numbers). Returns nil if it failed.
@@ -65,10 +67,12 @@ Reads the data from the file at `PATH` and returns it as a list of bytes
 ```cl
 > (read-bytes! "tests/data/abc.txt")
 out = (97 98 99)
+> (read-bytes! "tests/data/non-existent.txt")
+out = nil
 ```
 
 ## `(read-lines! path)`
-*Defined at lib/io/init.lisp:20:2*
+*Defined at lib/io/init.lisp:24:2*
 
 Reads the lines from the file at `PATH` and returns it as a list of strings.
 Returns nil if it failed.
@@ -77,10 +81,12 @@ Returns nil if it failed.
 ```cl
 > (read-lines! "tests/data/lines.txt")
 out = ("This is the first line." "This is the second.")
+> (read-lines! "tests/data/non-existent.txt")
+out = nil
 ```
 
 ## `(write-all! path data)`
-*Defined at lib/io/init.lisp:59:2*
+*Defined at lib/io/init.lisp:78:2*
 
 Writes the string `DATA` to the file at `PATH`.
 
@@ -94,7 +100,7 @@ out = true
 ```
 
 ## `(write-bytes! path data)`
-*Defined at lib/io/init.lisp:85:2*
+*Defined at lib/io/init.lisp:104:2*
 
 Writes the bytes (list of numbers) `DATA` to the file at `PATH`.
 
@@ -108,7 +114,7 @@ out = true
 ```
 
 ## `(write-lines! path data)`
-*Defined at lib/io/init.lisp:72:2*
+*Defined at lib/io/init.lisp:91:2*
 
 Writes the lines (list of strings) `DATA` to the file at `PATH`.
 

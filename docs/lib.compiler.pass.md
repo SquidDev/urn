@@ -35,7 +35,7 @@ by using [`var-usage`](lib.compiler.pass.md#var-usage).
 Register a `PASS` created with [`defpass`](lib.compiler.pass.md#defpass-name-args-body).
 
 ## `(changed!)`
-*Macro defined at lib/compiler/pass.lisp:72:2*
+*Macro defined at lib/compiler/pass.lisp:73:2*
 
 Mark this pass as having a side effect.
 
@@ -51,7 +51,7 @@ Inside the `BODY` you can call [`changed!`](lib.compiler.pass.md#changed-) to ma
 modifying something.
 
 ## `var-usage`
-*Native defined at lib/compiler/pass.lisp:76:1*
+*Native defined at lib/compiler/pass.lisp:77:1*
 
 Get usage information about the specified `VAR`. This returns a struct
 containing:

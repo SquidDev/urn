@@ -2,19 +2,6 @@
 title: math
 ---
 # math
-## `(dec! x)`
-*Macro defined at lib/math/init.lisp:83:2*
-
-Decrements the symbol `X` by 1.
-
-### Example
-```cl
-> (with (x 1)
-.   (dec! x)
-.   x)
-out = 0
-```
-
 ## `(even? x)`
 *Defined at lib/math/init.lisp:27:2*
 
@@ -37,19 +24,6 @@ Compute the greatest common divisor of `X` and `Y`.
 ```cl
 > (gcd 52 32)
 out = 4
-```
-
-## `(inc! x)`
-*Macro defined at lib/math/init.lisp:71:2*
-
-Increments the symbol `X` by 1.
-
-### Example
-```cl
-> (with (x 1)
-.   (inc! x)
-.   x)
-out = 2
 ```
 
 ## `(lcm x y)`
@@ -95,7 +69,7 @@ out = false
 Return the predecessor of the number `X`.
 
 ## `(round x)`
-*Defined at lib/math/init.lisp:96:2*
+*Defined at lib/math/init.lisp:73:2*
 
 Round `X`, to the nearest integer.
 
@@ -113,4 +87,9 @@ out = -1
 *Defined at lib/math/init.lisp:63:2*
 
 Return the successor of the number `X`.
+
+## `tiny`
+*Defined at lib/math/init.lisp:92:1*
+
+Negative infinity
 

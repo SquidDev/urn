@@ -29,7 +29,7 @@ If you need the [`magnitude`](lib.math.complex.md#magnitude-z) as well, one shou
 out = 45
 ```
 
-## `complex`
+## `(complex r i)`
 *Defined at lib/math/complex.lisp:16:2*
 
 Represents a complex number, formed of a [`real`](lib.math.complex.md#real-complex) and [`imaginary`](lib.math.complex.md#imaginary-complex)
@@ -49,7 +49,7 @@ out = 1-2i
 ## `(imaginary complex)`
 *Defined at lib/math/complex.lisp:16:2*
 
-The imaginary part of this [`complex`](lib.math.complex.md#complex) number.
+The imaginary part of this [`complex`](lib.math.complex.md#complex-r-i) number.
 
 ## `(magnitude z)`
 *Defined at lib/math/complex.lisp:135:2*
@@ -79,7 +79,7 @@ out = 1+1i
 ## `(real complex)`
 *Defined at lib/math/complex.lisp:16:2*
 
-The real part of this [`complex`](lib.math.complex.md#complex) number.
+The real part of this [`complex`](lib.math.complex.md#complex-r-i) number.
 
 ## Undocumented symbols
  - `$complex` *Defined at lib/math/complex.lisp:16:2*

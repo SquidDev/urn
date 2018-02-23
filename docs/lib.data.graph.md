@@ -83,7 +83,7 @@ Get the corresponding vertex for this `VALUE` from the given `GRAPH`.
 Convert `GRAPH` to a string in the `DOT` format, suitable for consumption
 with GraphViz.
 
-## `make-graph`
+## `(make-graph)`
 *Defined at lib/data/graph.lisp:9:2*
 
 Create a new, empty graph.
