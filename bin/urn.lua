@@ -7400,7 +7400,7 @@ index1 = function(out, libraries)
   local i = 1
   while i <= forLimit do
     local xs, f = cadr1((letterList[i])), function(a, b)
-      return a["var"]["name"] < b["var"]["name"]
+      return a["var"]["full-name"] < b["var"]["full-name"]
     end
     sort1(xs, f)
     i = i + 1

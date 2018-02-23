@@ -166,7 +166,7 @@
     (with (letter-list (struct->assoc letters))
       (sort! letter-list (lambda (a b) (< (car a) (car b))))
       (for-each letter letter-list
-        (sort! (cadr letter) (lambda (a b) (< (scope/var-name (.> a :var)) (scope/var-name (.> b :var))))))
+        (sort! (cadr letter) (lambda (a b) (< (scope/var-full-name (.> a :var)) (scope/var-full-name (.> b :var))))))
 
       (writer/line! out "---")
       (writer/line! out "title: Symbol index")
