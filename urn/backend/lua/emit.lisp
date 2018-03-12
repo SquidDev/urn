@@ -520,7 +520,10 @@
                  (compile-expression (nth sub 2) out state)
                  (w/line! out)
 
-                 (w/line! out (.. "for _c = 1, _temp.n do _result[" (number->string (- i offset)) " + _c + _offset] = _temp[_c] end"))
+                 (with (pos (range/get-source sub))
+                   (w/append! out (.. "for _c = 1, _temp.n do _result[" (number->string (- i offset)) " + _c + _offset] = _temp[_c] end")
+                                  (and pos (range/range-of-start pos))))
+                 (w/line! out)
                  (w/line! out "_offset = _offset + _temp.n"))
                (progn
                  (w/append! out (.. "_result[" (number->string (- i offset)) " + _offset] = "))
