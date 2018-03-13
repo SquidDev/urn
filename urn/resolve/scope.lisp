@@ -92,6 +92,12 @@
       "Determines if this variable is deprecated. Will either be a string
        storing a warning message, or `true` if no message was provided.")
 
+    (mutable intrinsic
+      "Determines if this variable can be optimised to some intrinsic
+       operation. Whilst this should generally be done on natives, there
+       may be some special cases that normal variables can make use of
+       it.")
+
     (mutable native (hide var-native#) (hide set-var-native#!)
       "[[native]] for this variable."))
 
@@ -106,7 +112,7 @@
            (.. (scope-unique-prefix scope) name)
            node
            (/= kind "arg")
-           false nil nil false))))
+           false nil nil false nil nil))))
 
 (defmethod (pretty var) (var)
   (.. "«var : " (var-name var) "»"))

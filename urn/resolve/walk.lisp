@@ -82,6 +82,14 @@
 
               (scope/set-var-const! var false)]
 
+             ["intrinsic"
+              (expect-type! log (nth node (succ i)) node "symbol" "intrinsic")
+              (when (scope/var-intrinsic var)
+                (error-positions! log child "Multiple intrinsics set"))
+
+              (scope/set-var-intrinsic! var (.> (nth node (succ i)) :contents))
+              (inc! i)]
+
              ["pure"
               (when (/= (scope/var-kind var) "native")
                 (error-positions! log child "Can only set native definitions as pure"))
@@ -210,7 +218,7 @@
                 (inc! i))]
 
              [_ (error-positions! log child (.. "Unexpected modifier '" (pretty child) "'"))])]
-          [?ty (error-positions! log child (.. "Unexpected node of type " ty ", have you got too many values"))]))
+          [?ty (error-positions! log child (.. "Unexpected modifier of type " ty ", have you got too many values?"))]))
 
       (inc! i)))
 
