@@ -1,7 +1,7 @@
 local bit32 = bit32
+local U32 = 2 ^ 32
 
 if not bit32 then
-	local U32 = 2 ^ 32
 	bit32 = { }
 	function bit32.arshift(x, disp)
 		local result = bit32.rshift(x, disp)
@@ -38,7 +38,7 @@ if not bit32 then
 		return result % U32
 	end
 	function bit32.bnot(x)
-		return U32 - (x % U32) - 1 
+		return U32 - (x % U32) - 1
 	end
 	function bit32.bor(...)
 		local args, result, newresult, abit, bbit, rbit = {...}, ...
@@ -83,17 +83,6 @@ if not bit32 then
 
 		return result % U32
 	end
-	function bit32.extract(n, field, width)
-		width = width or 1
-		return math.floor((n / (2 ^ field)) % (2 ^ width))
-	end
-	function bit32.replace(n, v, field, width)
-		width = width or 1
-		local pre = bit32.rshift(bit32.lshift(n, 32 - field), 32 - field)
-		local val = bit32.lshift(v % (2 ^ width), field)
-		local post = bit32.lshift(bit32.rshift(n, field + width), field + width)
-		return (pre + val + post) % U32
-	end
 	function bit32.lrotate(x, disp)
 		disp = disp % 32
 		return bit32.lshift(x, disp) + bit32.rshift(x, 32 - disp)
@@ -110,6 +99,20 @@ if not bit32 then
 	end
 	function bit32.rshift(x, disp)
 		return bit32.lshift(x, 0 - disp)
+	end
+end
+
+if not bit32.extract or not bit32.replace then
+	function bit32.extract(n, field, width)
+		width = width or 1
+		return math.floor((n / (2 ^ field)) % (2 ^ width))
+	end
+	function bit32.replace(n, v, field, width)
+		width = width or 1
+		local pre = bit32.rshift(bit32.lshift(n, 32 - field), 32 - field)
+		local val = bit32.lshift(v % (2 ^ width), field)
+		local post = bit32.lshift(bit32.rshift(n, field + width), field + width)
+		return (pre + val + post) % U32
 	end
 end
 
