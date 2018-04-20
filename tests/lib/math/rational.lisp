@@ -57,10 +57,32 @@
       (n<= (/ (pred x) y)        (rational x y))
       (n>  (/ (succ x) y)        (rational x y))
       (n>= (/ (succ x) y)        (rational x y))
+
       (n<  (rational (pred x) y) (rational x y))
       (n<= (rational (pred x) y) (rational x y))
       (n>  (rational (succ x) y) (rational x y))
       (n>= (rational (succ x) y) (rational x y))
 
+      (n=  (rational x y)        (rational x y))
       (n>= (rational x y) (rational x y))
-      (n<= (rational x y) (rational x y)))))
+      (n<= (rational x y) (rational x y))))
+
+  (can "be negated"
+    (check [(natural x) (natural y)]
+      (eq? (rational (nnegate x) y) (nnegate (rational x y)))))
+
+  (can "have the absolute value taken"
+    (check [(natural x) (natural y)]
+      (eq? (rational x y) (nabs (rational x y)))
+      (eq? (rational x y) (nabs (rational (nnegate x) y)))
+      (eq? (rational x y) (nabs (rational x (nnegate y))))))
+
+  (can "compute the sign"
+    (affirm (eq?  1 (rational 1 1))
+            (eq? -1 (rational -1 1))
+            (eq? -1 (rational 1 -1))
+            (eq?  1 (rational -1 -1))))
+
+  (can "be exponented"
+    (affirm (eq? (rational 1 9) (nexpt (rational 1 3) 2))
+            (eq? (rational 8 27) (nexpt (rational 2 3) 3)))))

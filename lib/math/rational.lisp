@@ -135,10 +135,10 @@
   (* x -1))
 
 (defmethod (nabs rational) (x)
-  (rational (nabs (denominator x)) (nabs (numerator x))))
+  (rational (nabs (numerator x)) (nabs (denominator x))))
 
 (defmethod (nsign rational) (x)
-  (* (nsign (denominator x)) (nsign (numerator x))))
+  (* (nsign (numerator x)) (nsign (denominator x))))
 
 (defmethod (n/ rational rational) (x y) (n* x (nrecip y)))
 

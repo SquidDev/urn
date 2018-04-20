@@ -51,7 +51,16 @@
     :__mod nmod })
 
 (defun vector-item (x i)
-  "Get the I th element in vector X."
+  "Get the I th element in vector X.
+
+   ### Example
+   ```cl
+   > (define a (vector 5 4 3 2 1))
+   > (vector-item a 2)
+   out = 4
+   > (vector-item a 5)
+   out = 1
+   ```"
   (assert-type! x vector)
   (assert-type! i number)
   (unless (between? i 1 (vector-dim x))
