@@ -50,13 +50,13 @@
     :__div n/
     :__mod nmod })
 
-(defun vector-item (vector i)
-  "Get the I th element in the VECTOR."
-  (assert-type! vector vector)
-  (assert-type! vector number)
-  (unless (between? 1 (vector-dim vector))
-    (format 1 "(vector-item {#vector} {#i}): i is out of bounds"))
-  (.> (vector-items) i))
+(defun vector-item (x i)
+  "Get the I th element in vector X."
+  (assert-type! x vector)
+  (assert-type! i number)
+  (unless (between? i 1 (vector-dim x))
+    (format 1 "(vector-item {#x} {#i}): i is out of bounds"))
+  (.> (vector-items x) i))
 
 (defmethod (pretty vector) (x)
   (.. "[" (concat (map pretty (vector-items x)) " ") "]"))
