@@ -1,8 +1,8 @@
 (import core/base (lambda defun defmacro progn for while if quasiquote const-val and or xpcall pcall
                    values-list gensym tostring tonumber getmetatable require => <=> splice list when
                    unless arg *arguments* apply for-pairs first second third setmetatable n else
-                   fourth fifth sixth seventh ninth tenth + - * / mod expt slice not = /= < <= >= >
-                   ..) :export)
+                   fourth fifth sixth seventh ninth tenth -and -or + - * / mod expt slice not = /=
+                   < <= >= > ..) :export)
 
 (import core/base b)
 (import core/binders () :export)
