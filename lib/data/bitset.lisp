@@ -3,7 +3,7 @@
 (import core/base (set-idx!))
 (import data/struct ())
 (import lua/math (ceil floor min max))
-(import lua/bit32 ())
+(import math/bit32 ())
 (import lua/string (format))
 
 ;; This is questionable but 32 bits seems like a safe assumption
