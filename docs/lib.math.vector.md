@@ -3,7 +3,7 @@ title: math/vector
 ---
 # math/vector
 ## `(angle x y)`
-*Defined at lib/math/vector.lisp:166:2*
+*Defined at lib/math/vector.lisp:175:2*
 
 Compute the angle between vectors `X` and `Y`.
 
@@ -14,7 +14,7 @@ out = 45
 ```
 
 ## `(cross x y)`
-*Defined at lib/math/vector.lisp:131:2*
+*Defined at lib/math/vector.lisp:140:2*
 
 Compute the vector cross product of `X` and `Y`.
 
@@ -25,7 +25,7 @@ out = [0 0 1]
 ```
 
 ## `(dot x y)`
-*Defined at lib/math/vector.lisp:110:2*
+*Defined at lib/math/vector.lisp:119:2*
 
 Compute the dot product of vectors `X` and `Y`.
 
@@ -47,7 +47,7 @@ out = [1 2 3]
 ```
 
 ## `(norm x)`
-*Defined at lib/math/vector.lisp:155:2*
+*Defined at lib/math/vector.lisp:164:2*
 
 Compute the norm of vector `X` (i.e. it's length).
 
@@ -58,7 +58,7 @@ out = 5/2
 ```
 
 ## `(null size)`
-*Defined at lib/math/vector.lisp:191:2*
+*Defined at lib/math/vector.lisp:200:2*
 
 Create a vector with a magnitude of 0.
 
@@ -69,7 +69,7 @@ out = [0 0 0]
 ```
 
 ## `(unit x)`
-*Defined at lib/math/vector.lisp:176:2*
+*Defined at lib/math/vector.lisp:185:2*
 
 Convert the vector `X` into the unit vector. Namely, its direction is
 the same but the magnitude is 1.
@@ -96,10 +96,19 @@ out = [1 2 3]
 
 The dimension of this vector.
 
-## `(vector-item vector i)`
+## `(vector-item x i)`
 *Defined at lib/math/vector.lisp:53:2*
 
-Get the `I` th element in the `VECTOR`.
+Get the `I` th element in vector `X`.
+
+### Example
+```cl
+> (define a (vector 5 4 3 2 1))
+> (vector-item a 2)
+out = 4
+> (vector-item a 5)
+out = 1
+```
 
 ## Undocumented symbols
  - `$vector` *Defined at lib/math/vector.lisp:7:2*

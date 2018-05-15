@@ -41,6 +41,24 @@ The standard input stream.
 
 The standard output stream.
 
+## `(-and a b)`
+*Defined at lib/core/base.lisp:351:2*
+
+Return the logical conjunction of values `A` and `B`.
+
+As this is a function rather than a macro, it can be used as a
+variable. However, each argument is evaluated eagerly. See [`and`](lib.core.base.md#and-a-b-rest) for
+a lazy version.
+
+## `(-or a b)`
+*Defined at lib/core/base.lisp:343:2*
+
+Return the logical disjunction of values `A` and `B`.
+
+As this is a function rather than a macro, it can be used as a
+variable. However, each argument is evaluated eagerly. See [`or`](lib.core.base.md#or-a-b-rest) for
+a lazy version.
+
 ## `(.<! x &keys value)`
 *Macro defined at lib/core/table.lisp:55:2*
 
