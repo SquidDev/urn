@@ -1847,7 +1847,7 @@ var1 = function(name, kind, scope, node)
   if type1(scope) ~= "scope" then
     error1(demandFailure1(nil, "(= (type scope) \"scope\")"))
   end
-  return {tag="var", name=name, kind=kind, scope=scope, ["full-name"]=scope["prefix"] .. name, ["unique-name"]=scope["unique-prefix"] .. name, node=node, const=kind ~= "arg", ["is-variadic"]=false, doc=nil, ["display-name"]=nil, deprecated=false, native=nil}
+  return {tag="var", name=name, kind=kind, scope=scope, ["full-name"]=scope["prefix"] .. name, ["unique-name"]=scope["unique-prefix"] .. name, node=node, const=kind ~= "arg", ["is-variadic"]=false, doc=nil, ["display-name"]=nil, deprecated=false, intrinsic=nil, native=nil}
 end
 varDoc1 = function(var)
   return var["doc"]
@@ -4676,7 +4676,9 @@ compileExpression1 = function(node, out, state, ret, _ebreak)
         append_21_1(out, "_temp = ")
         compileExpression1(nth1(sub, 2), out, state)
         line_21_1(out)
-        line_21_1(out, "for _c = 1, _temp.n do _result[" .. tostring1(i - offset) .. " + _c + _offset] = _temp[_c] end")
+        local pos = sourceRange1(sub["source"])
+        append_21_1(out, "for _c = 1, _temp.n do _result[" .. tostring1(i - offset) .. " + _c + _offset] = _temp[_c] end", pos and rangeOfStart1(pos))
+        line_21_1(out)
         line_21_1(out, "_offset = _offset + _temp.n")
       else
         append_21_1(out, "_result[" .. tostring1(i - offset) .. " + _offset] = ")
@@ -5807,6 +5809,13 @@ handleMetadata1 = function(log, node, var, start, finish)
           errorPositions_21_1(log, child, "This definition is already mutable")
         end
         var["const"] = false
+      elseif temp1 == "intrinsic" then
+        expectType_21_1(log, nth1(node, i + 1), node, "symbol", "intrinsic")
+        if var["intrinsic"] then
+          errorPositions_21_1(log, child, "Multiple intrinsics set")
+        end
+        var["intrinsic"] = (nth1(node, i + 1)["contents"])
+        i = i + 1
       elseif temp1 == "pure" then
         if var["kind"] ~= "native" then
           errorPositions_21_1(log, child, "Can only set native definitions as pure")
@@ -5960,7 +5969,7 @@ handleMetadata1 = function(log, node, var, start, finish)
         errorPositions_21_1(log, child, "Unexpected modifier '" .. pretty1(child) .. "'")
       end
     else
-      errorPositions_21_1(log, child, "Unexpected node of type " .. temp .. ", have you got too many values")
+      errorPositions_21_1(log, child, "Unexpected modifier of type " .. temp .. ", have you got too many values?")
     end
     i = i + 1
   end
