@@ -17,7 +17,7 @@ the [prelude](../docs/lib.prelude.md), as well as any other hopeful looking libr
 In Urn, there are two types of tables: lists (a sequential list of values) and structs (a key to value mapping). Urn
 provides functions to interact with both. In this section, we'll deal with structs.
 
-Firstly, you might want to peruse the [table library](../docs/lib.table.md). We'll pick out a couple of useful
+Firstly, you might want to peruse the [table library](../docs/lib.core.table.md). We'll pick out a couple of useful
 definitions from there.
 
 If you've got a table, you probably want to get some values out of it. In order to do this you can use the `.>`
@@ -80,7 +80,7 @@ function. This takes the object, the index to get, and the argument with which t
 
 ## List manipulation
 Lists are a key part of any Lisp, and Urn is no exception. There are a couple of key functions in
-the [list library](../docs/lib.list.md), as well as some tidy short-cuts.
+the [list library](../docs/lib.core.list.md), as well as some tidy short-cuts.
 
 First off is `car`. This gets the very first element in the list. For instance:
 
