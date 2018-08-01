@@ -1472,7 +1472,7 @@ rangeOfSpan1 = function(from, to)
   return {tag="range", name=from["name"], start=from["start"], finish=to["finish"], lines=from["lines"]}
 end
 nodeSource_3f_1 = function(nodeSource)
-  return type_23_1(nodeSource) == "table" and (nodeSource["tag"] == "node-source" and (nodeSource["owner"] ~= nil and (nodeSource["parent"] ~= nil and nodeSource["range"] ~= nil)))
+  return type_23_1(nodeSource) == "table" and nodeSource["tag"] == "node-source"
 end
 sourceFullRange1 = function(source)
   local temp = type1(source)

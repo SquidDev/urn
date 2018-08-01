@@ -9,7 +9,6 @@
   (it "has a function which checks if something is a set"
     (affirm
       (= (set? (make-set)) true)
-      (= (set? { :tag :set }) false)
       (= (set? 23) false)))
 
   (it "can be pretty printed"

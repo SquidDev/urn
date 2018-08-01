@@ -191,11 +191,7 @@
       (push! work (let* [(self (gensym name))]
                         (gen-def pred (list self)
                                `((and (table? ,self)
-                                      (= (.> ,self :tag) ,(symbol->string name))
-                                      ,@(map (lambda (x)
-                                               (let* [(x (symb-name (field-name x)))]
-                                                 `(/= (.> ,self ,(symbol->string x)) nil)))
-                                             fields))))))
+                                      (= (.> ,self :tag) ,(symbol->string name)))))))
       (map (lambda (x)
              (map (cut push! work <>) (field->def name x)))
            fields)
