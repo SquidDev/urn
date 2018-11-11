@@ -443,7 +443,7 @@
                 ;; If we're a key/string and are a valid identifier then
                 ;; just emit it directly.
                 [(and (or (= tkey "string") (= tkey "key"))
-                      (string/match (.> key :value) "^[%a_][%w_]*$"))
+                      (lua-ident? (.> key :value)))
                  (w/append! out (.> key :value))
                  (w/append! out "=")]
                 [else

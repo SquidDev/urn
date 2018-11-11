@@ -3990,6 +3990,9 @@ formatNode1 = function(node)
   end
 end
 keywords1 = createLookup1({tag="list", n=21, "and", "break", "do", "else", "elseif", "end", "false", "for", "function", "if", "in", "local", "nil", "not", "or", "repeat", "return", "then", "true", "until", "while"})
+luaIdent_3f_1 = function(ident)
+  return match1(ident, "^[%a_][%w_]*$") and keywords1[ident] == nil
+end
 escape1 = function(name)
   if name == "" then
     return "_e"
@@ -4573,7 +4576,7 @@ compileExpression1 = function(node, out, state, ret, _ebreak)
         end
         local key = nth1(node, i)
         local tkey = type1(key)
-        if (tkey == "string" or tkey == "key") and match1(key["value"], "^[%a_][%w_]*$") then
+        if (tkey == "string" or tkey == "key") and luaIdent_3f_1(key["value"]) then
           append_21_1(out, key["value"])
           append_21_1(out, "=")
         else

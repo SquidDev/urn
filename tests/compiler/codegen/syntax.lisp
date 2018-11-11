@@ -81,6 +81,11 @@
         '({ :key 123 :! 567})
         "return {key=123, [\"!\"]=567}"))
 
+    (it "with keyword keys"
+      (affirm-codegen
+        '({ :end 123 })
+        "return {[\"end\"]=123}"))
+
     (it "with identifier strings"
       (affirm-codegen
         '({ "key" 123 "!" 567})
