@@ -3,7 +3,7 @@
 (defun read-all-mode! (path binary) :hidden
   (with ((handle err) (open path (.. "r" (if binary "b" ""))))
     (if handle
-      (with (data (self handle :read "*all"))
+      (with (data (self handle :read "*a"))
         (self handle :close)
         data)
       (values-list handle err))))
