@@ -1,5 +1,5 @@
 pkgname='urn-lang-git'
-pkgver=0.6.1.r57.g64ad9f8
+pkgver=0.7.2.r57.g64ad9f8
 pkgrel=1
 pkgdesc='Yet another Lisp dialect which compiles to Lua'
 source=('urn::git+https://gitlab.com/urn/urn.git#branch=master')
