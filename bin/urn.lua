@@ -11269,12 +11269,10 @@ unusedVars1 = {name="unused-vars", help="Ensure all non-exported NODES are used.
 end}
 macroUsage1 = {name="macro-usage", help="Determines whether any macro is used.", cat={tag="list", n=1, "warn"}, run=function(temp, state, nodes)
   return visitBlock1(nodes, 1, function(node)
-    if type1(node) == "symbol" then
-      if node["var"]["kind"] == "macro" then
-        return putNodeWarning_21_1(state["logger"], format1("The macro %s is not expanded", quoted1(node["contents"])), node["source"], "This macro is used in such a way that it'll be called as a normal function\ninstead of expanding into executable code. Sometimes this may be intentional,\nbut more often than not it is the result of a misspelled variable name.", sourceRange1(node["source"]), "macro used here")
-      else
-        return nil
-      end
+    if type1(node) == "list" and (builtin_3f_1(car1(node), "define-macro") and type1((nth1(node, 3))) == "symbol") then
+      return false
+    elseif type1(node) == "symbol" and node["var"]["kind"] == "macro" then
+      return putNodeWarning_21_1(state["logger"], format1("The macro %s is not expanded", quoted1(node["contents"])), node["source"], "This macro is used in such a way that it'll be called as a normal function\ninstead of expanding into executable code. Sometimes this may be intentional,\nbut more often than not it is the result of a misspelled variable name.", sourceRange1(node["source"]), "macro used here")
     else
       return nil
     end

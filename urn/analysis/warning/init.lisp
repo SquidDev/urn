@@ -193,15 +193,23 @@
   :cat '("warn")
   (visitor/visit-block nodes 1
     (lambda (node)
-      (when (symbol? node)
-        (when (= (scope/var-kind (.> node :var)) "macro")
-          (logger/put-node-warning! (.> state :logger)
-            (string/format "The macro %s is not expanded" (string/quoted (.> node :contents)))
-            (get-top-source node)
-            "This macro is used in such a way that it'll be called as a normal function
-             instead of expanding into executable code. Sometimes this may be intentional,
-             but more often than not it is the result of a misspelled variable name."
-            (get-source node) "macro used here"))))))
+      (cond
+        [(and (list? node) (builtin? (car node) :define-macro) (symbol? (nth node 3)))
+         ;; Skip define-macro definitions with a primitive RHS. These are just aliasing a macro,
+         ;; so it won't be expanded.
+         false]
+
+        [(and (symbol? node) (= (scope/var-kind (.> node :var)) "macro"))
+         ;; If we're still using a macro after expansion, produce a warning.
+         (logger/put-node-warning! (.> state :logger)
+           (string/format "The macro %s is not expanded" (string/quoted (.> node :contents)))
+           (get-top-source node)
+           "This macro is used in such a way that it'll be called as a normal function
+            instead of expanding into executable code. Sometimes this may be intentional,
+            but more often than not it is the result of a misspelled variable name."
+           (get-source node) "macro used here")]
+
+        [else]))))
 
 (defpass mutable-definitions (state nodes lookup)
   "Determines whether any macro is used."
