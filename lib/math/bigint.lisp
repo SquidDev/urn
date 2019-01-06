@@ -1,6 +1,6 @@
 (import lua/math (abs max floor ceil log))
 
-(define num-tag   :hidden "bignum")
+(define num-tag   :hidden "bigint")
 (define part-bits :hidden 24)
 (define part-max  :hidden (expt 2 part-bits))
 
@@ -150,7 +150,7 @@
 
 
 (defun shl! (a b)
-  "Shifts (modifies) A to the left by B. B should be a normal integer, not of type bignum."
+  "Shifts (modifies) A to the left by B. B should be a normal integer, not of type bigint."
   (with (a-parts (.> a :parts))
     (for i 1 b 1
       (for j (n a-parts) 1 -1
@@ -162,13 +162,13 @@
               (.<! a-parts (+ j 1) (+ (nth a-parts (+ j 1)) 1)))))))))
 
 (defun shl (a b)
-  "Returns A shifted left by B. B should be a normal integer, not of type bignum."
+  "Returns A shifted left by B. B should be a normal integer, not of type bigint."
   (with (val (copy a))
     (shl! val b)
     val))
 
 (defun shr! (a b)
-  "Shifts (modifies) A to the right by B. B should be a normal integer, not of type bignum."
+  "Shifts (modifies) A to the right by B. B should be a normal integer, not of type bigint."
   (with (a-parts (.> a :parts))
     (for i 1 b 1
       (for j 1 (n a-parts) 1
@@ -179,7 +179,7 @@
   (trim! a))
 
 (defun shr (a b)
-  "Returns A shifted right by B. B should be a normal integer, not of type bignum."
+  "Returns A shifted right by B. B should be a normal integer, not of type bigint."
   (with (val (copy a))
     (shr! val b)
     val))
@@ -200,7 +200,7 @@
       (+ (* (- a-len 1) part-bits) (floor (/ (log (nth a-parts a-len)) (log 2))) 1))))
 
 (defun tostring (a format)
-  "Converts the bignum A to a string. FORMAT is optional and can be either
+  "Converts the bigint A to a string. FORMAT is optional and can be either
     - 'd' (decimal, default),
     - 'x' (lowercase hex),
     - 'X' (uppercase hex),
@@ -298,7 +298,7 @@
     :__le less-or-equal? })
 
 (defun new (a)
-  "Creates a new bignum from A.
+  "Creates a new bigint from A.
    A is optional and can be either a normal integer, or a string.
    A string can begin with '0x' (hex), '0o' (octal), '0b' (binary),
    otherwise it's parsed as a decimal value."
