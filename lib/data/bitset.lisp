@@ -105,6 +105,7 @@
    out = «bitset: 00000000»
    ```"
   (assert-type! bs bitset)
+  (ensure-bit-exists! bs bit)
   (let* [(data (bitset-data bs))
          (eindex (+ (bit->element bit) 1))]
     (when (<= eindex (n data))
@@ -152,7 +153,7 @@
     (set-idx! data eindex (bit-xor orig (shl 1 (bit->element-index bit))))))
 
 (defun next-set-bit (bs start)
-  "Finds the next set bit in the bitset BS after the index START. If no set bit is found, -1 is returned
+  "Finds the next set bit in the bitset BS at or after the index START. If no set bit is found, -1 is returned
 
    ### Example:
    ```cl
@@ -162,24 +163,27 @@
    out = nil
    > (next-set-bit bs 2)
    out = 5
+   > (set-bit! bs 0)
+   out = nil
+   > (next-set-bit bs 0)
+   out = 0
    ```"
   (assert-type! bs bitset)
   (let* [(data (bitset-data bs))
          (len (n data))
-         (sindex (bit->element start))
-         (eindex sindex)
+         (eindex (bit->element start))
          (result -1)]
-    (demand (<= sindex len))
+    (demand (< eindex len))
     (while (and (= result -1) (< eindex len))
       (for i 0 (- bits-per-int 1) 1
         (with (j (+ (* eindex bits-per-int) i))
-          (when (and (= result -1) (get-bit bs j) (> j start))
+          (when (and (= result -1) (get-bit bs j) (>= j start))
             (set! result j))))
       (inc! eindex))
     result))
 
 (defun next-clear-bit (bs start)
-  "Finds the next clear bit in the bitset BS after the index START. If no clear bit is found, -1 is returned
+  "Finds the next clear bit in the bitset BS at or after the index START. If no clear bit is found, -1 is returned
 
    ### Example:
    ```cl
@@ -191,18 +195,21 @@
    out = nil
    > (next-clear-bit bs 0)
    out = 2
+   > (clear-bit! bs 0)
+   out = nil
+   > (next-clear-bit bs 0)
+   out = 0
    ```"
   (assert-type! bs bitset)
   (let* [(data (bitset-data bs))
          (len (n data))
-         (sindex (bit->element start))
-         (eindex sindex)
+         (eindex (bit->element start))
          (result -1)]
-    (demand (<= sindex len))
+    (demand (< eindex len))
     (while (and (= result -1) (< eindex len))
       (for i 0 (- bits-per-int 1) 1
         (with (j (+ (* eindex bits-per-int) i))
-          (when (and (= result -1) (not (get-bit bs j)) (> j start))
+          (when (and (= result -1) (not (get-bit bs j)) (>= j start))
             (set! result j))))
       (inc! eindex))
     result))

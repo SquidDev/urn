@@ -77,7 +77,7 @@
       (affirm (= (next-set-bit bs 2) 5))
       (affirm (= (next-set-bit bs 6) 15))
       (affirm (= (next-set-bit bs 30) 33))
-      (affirm (= (next-set-bit bs 33) -1))))
+      (affirm (= (next-set-bit bs 33) 33))))
 
   (it "can find the next clear bit"
     (with (bs (make-bitset))
